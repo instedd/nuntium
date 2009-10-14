@@ -1,0 +1,28 @@
+<p>
+  <b>Id:</b>
+  <%=h @out_message.id %>
+</p>
+
+<p>
+  <b>From:</b>
+  <%=h @out_message.from %>
+</p>
+
+<p>
+  <b>To:</b>
+  <%=h @out_message.to %>
+</p>
+
+<p>
+  <b>Body:</b>
+  <%=h @out_message.body %>
+</p>
+
+<p>
+  <b>Timestamp:</b>
+  <%=h @out_message.timestamp %>
+</p>
+
+
+<%= link_to 'Edit', edit_out_message_path(@out_message) %> |
+<%= link_to 'Back', out_messages_path %>

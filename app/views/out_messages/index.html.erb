@@ -1,0 +1,28 @@
+<h1>Listing out_messages</h1>
+
+<table>
+  <tr>
+    <th>Id</th>
+    <th>From</th>
+    <th>To</th>
+    <th>Body</th>
+    <th>Timestamp</th>
+  </tr>
+
+<% @out_messages.each do |out_message| %>
+  <tr>
+    <td><%=h out_message.id %></td>
+    <td><%=h out_message.from %></td>
+    <td><%=h out_message.to %></td>
+    <td><%=h out_message.body %></td>
+    <td><%=h out_message.timestamp %></td>
+    <td><%= link_to 'Show', out_message %></td>
+    <td><%= link_to 'Edit', edit_out_message_path(out_message) %></td>
+    <td><%= link_to 'Destroy', out_message, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New out_message', new_out_message_path %>
