@@ -1,28 +1,19 @@
-<h1>Listing out_messages</h1>
+<%
+require 'builder'
+response.headers["Content-Type"] = "application/xml; charset=utf-8"
 
-<table>
-  <tr>
-    <th>Id</th>
-    <th>From</th>
-    <th>To</th>
-    <th>Body</th>
-    <th>Timestamp</th>
-  </tr>
-
-<% @out_messages.each do |out_message| %>
-  <tr>
-    <td><%=h out_message.id %></td>
-    <td><%=h out_message.from %></td>
-    <td><%=h out_message.to %></td>
-    <td><%=h out_message.body %></td>
-    <td><%=h out_message.timestamp %></td>
-    <td><%= link_to 'Show', out_message %></td>
-    <td><%= link_to 'Edit', edit_out_message_path(out_message) %></td>
-    <td><%= link_to 'Destroy', out_message, :confirm => 'Are you sure?', :method => :delete %></td>
-  </tr>
-<% end %>
-</table>
-
-<br />
-
-<%= link_to 'New out_message', new_out_message_path %>
+xml = Builder::XmlMarkup.new(:indent => 1)
+xml.instruct!
+xml.rss "version" => "2.0" do
+    xml.channel do
+    
+        xml.title "Outbox"
+        
+        @out_messages.each do |msg|
+            xml.item do
+                xml.title msg.from
+            end
+        end
+    end
+end
+%><%= xml.target! %>

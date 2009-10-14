@@ -1,45 +1,29 @@
 require 'test_helper'
 
 class OutMessagesControllerTest < ActionController::TestCase
-  test "should get index" do
-    get :index
-    assert_response :success
-    assert_not_nil assigns(:out_messages)
-  end
-
-  test "should get new" do
-    get :new
-    assert_response :success
-  end
-
-  test "should create out_message" do
-    assert_difference('OutMessage.count') do
-      post :create, :out_message => { }
-    end
-
-    assert_redirected_to out_message_path(assigns(:out_message))
-  end
-
-  test "should show out_message" do
-    get :show, :id => out_messages(:one).to_param
-    assert_response :success
-  end
-
-  test "should get edit" do
-    get :edit, :id => out_messages(:one).to_param
-    assert_response :success
-  end
-
-  test "should update out_message" do
-    put :update, :id => out_messages(:one).to_param, :out_message => { }
-    assert_redirected_to out_message_path(assigns(:out_message))
-  end
-
-  test "should destroy out_message" do
-    assert_difference('OutMessage.count', -1) do
-      delete :destroy, :id => out_messages(:one).to_param
-    end
-
-    assert_redirected_to out_messages_path
+  test "should convert one rss item to out message" do
+    @request.env['RAW_POST_DATA'] = <<-eos
+      <?xml version="1.0" encoding="UTF-8"?>
+        <rss version="2.0">
+          <channel>
+            <item>
+              <title>First message</title>
+              <description>Body of the message</description>
+              <author>Someone</author>
+              <pubDate>Tue, 03 Jun 2003 09:39:21 GMT</pubDate>
+              <guid>someguid</guid>
+            </item>
+          </channel>
+        </rss>
+    eos
+    post :create
+    
+    messages = OutMessage.all
+    assert_equal(1, messages.length)
+    
+    msg = messages[0]
+    assert_equal("Body of the message", msg.body)
+    assert_equal("Someone", msg.from)
+    assert_equal("someguid", msg.guid)
   end
 end

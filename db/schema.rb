@@ -9,15 +9,15 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091014082033) do
+ActiveRecord::Schema.define(:version => 20091014144716) do
 
   create_table "out_messages", :force => true do |t|
     t.string   "from"
     t.string   "to"
     t.text     "body"
-    t.datetime "timestamp"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "guid"
   end
 
 end

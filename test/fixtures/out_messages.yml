@@ -1,15 +1,15 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-
-one:
-  id: 
-  from: MyString
-  to: MyString
-  body: MyText
-  timestamp: 2009-10-14 10:20:33
-
-two:
-  id: 
-  from: MyString
-  to: MyString
-  body: MyText
-  timestamp: 2009-10-14 10:20:33
+# 
+# one:
+#   id: 
+#   from: From1
+#   to: To1
+#   body: Body1
+#   timestamp: 2009-10-14 10:20:33
+# 
+# two:
+#   id: 
+#   from: From2
+#   to: To2
+#   body: Body2
+#   timestamp: 2009-10-14 10:20:33
