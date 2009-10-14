@@ -3,17 +3,18 @@ require 'builder'
 response.headers["Content-Type"] = "application/xml; charset=utf-8"
 
 xml = Builder::XmlMarkup.new(:indent => 1)
+
 xml.instruct!
 xml.rss "version" => "2.0" do
-    xml.channel do
-    
-        xml.title "Outbox"
-        
-        @out_messages.each do |msg|
-            xml.item do
-                xml.title msg.from
-            end
+  xml.channel do
+    xml.title "Inbox"
+      @in_messages.each do |msg|
+        xml.item do
+          xml.description msg.body
+          xml.author msg.from
+          xml.guid msg.guid
         end
-    end
+      end
+   end
 end
 %><%= xml.target! %>

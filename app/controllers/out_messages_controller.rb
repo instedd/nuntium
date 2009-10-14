@@ -2,11 +2,6 @@ require 'rss/1.0'
 require 'rss/2.0'
 
 class OutMessagesController < ApplicationController
-  # GET /out_messages
-  def index
-    @out_messages = OutMessage.all
-  end
-
   # POST /out_messages
   def create
     body = request.env['RAW_POST_DATA']
