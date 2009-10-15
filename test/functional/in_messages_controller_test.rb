@@ -22,24 +22,6 @@ class InMessagesControllerTest < ActionController::TestCase
     
     assert_select "title", "Inbox"
     
-    assert_select "description" do |es|
-      assert_equal 2, es.length
-      assert_select es[0], "description", "Body of the message 2"
-      assert_select es[1], "description", "Body of the message"
-    end
-    
-    assert_select "author" do |es|
-      assert_equal 2, es.length
-      assert_select es[0], "author", "Someone 2"
-      assert_select es[1], "author", "Someone"
-    end
-    
-    assert_select "guid" do |es|
-      assert_equal 2, es.length
-      assert_select es[0], "guid", "someguid 2"
-      assert_select es[1], "guid", "someguid"
-    end
-    
     assert_select "pubDate" do |es|
       assert_equal 2, es.length
       assert_select es[0], "pubDate", "Thu, 03 Jun 2004 09:39:21 +0000"
