@@ -25,5 +25,6 @@ class OutMessagesControllerTest < ActionController::TestCase
     assert_equal("Body of the message", msg.body)
     assert_equal("Someone", msg.from)
     assert_equal("someguid", msg.guid)
+    assert_equal(Time.parse("Tue, 03 Jun 2003 09:39:21 GMT"), msg.timestamp)
   end
 end

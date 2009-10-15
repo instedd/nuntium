@@ -12,6 +12,7 @@ class OutMessagesController < ApplicationController
       msg.from = item.author
       msg.body = item.description
       msg.guid = item.guid.content
+      msg.timestamp = item.pubDate.to_datetime
       msg.save
     end
      
