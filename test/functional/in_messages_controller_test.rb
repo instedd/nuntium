@@ -48,30 +48,38 @@ class InMessagesControllerTest < ActionController::TestCase
     
     assert_select "title", "Inbox"
     
+    assert_select "guid" do |es|
+      assert_equal 1, es.length
+    end
+    
     assert_select "description", "Body of the message 2"
     assert_select "author", "Someone 2"
     assert_select "guid", "someguid 2"
     assert_select "pubDate", "Thu, 03 Jun 2004 09:39:21 +0000"
   end
   
-  test "should return not modified for ETag" do
+  test "should return not modified for If-None-Match" do
     create_first_message
     create_second_message
   
-    @request.env["ETag"] = "someguid 2"
+    @request.env["If-None-Match"] = "someguid 2"
     get :index
     
     assert_response :not_modified
   end
   
-  test "should apply ETag" do
+  test "should apply If-None-Match" do
     create_first_message
     create_second_message
   
-    @request.env["ETag"] = "someguid"
+    @request.env["If-None-Match"] = "someguid"
     get :index
     
     assert_select "title", "Inbox"
+    
+    assert_select "guid" do |es|
+      assert_equal 1, es.length
+    end
     
     assert_select "description", "Body of the message 2"
     assert_select "author", "Someone 2"

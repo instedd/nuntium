@@ -5,7 +5,7 @@ class InMessagesController < ApplicationController
   # GET /in_messages
   def index
     last_modified = request.env['If-Modified-Since']
-    etag = request.env['ETag']
+    etag = request.env['If-None-Match']
     
     if last_modified.nil?
       @in_messages = InMessage.all(:order => 'timestamp DESC')
