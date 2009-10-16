@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class RssControllerTest < ActionController::TestCase
-  test "should convert one rss item to in message" do
+  test "should convert one rss item to out message" do
     @request.env['RAW_POST_DATA'] = <<-eos
       <?xml version="1.0" encoding="UTF-8"?>
         <rss version="2.0">
@@ -18,7 +18,7 @@ class RssControllerTest < ActionController::TestCase
     eos
     post :create
     
-    messages = InMessage.all
+    messages = OutMessage.all
     assert_equal 1, messages.length
     
     msg = messages[0]
@@ -51,8 +51,8 @@ class RssControllerTest < ActionController::TestCase
     
     assert_select "pubDate" do |es|
       assert_equal 2, es.length
-      assert_select es[0], "pubDate", "Thu, 03 Jun 2004 09:39:21 +0000"
-      assert_select es[1], "pubDate", "Tue, 03 Jun 2003 09:39:21 +0000"
+      assert_select es[0], "pubDate", "Tue, 03 Jun 2003 09:39:21 +0000"
+      assert_select es[1], "pubDate", "Thu, 03 Jun 2004 09:39:21 +0000"
     end
   end
   
@@ -117,7 +117,7 @@ class RssControllerTest < ActionController::TestCase
   # Utility methods follow
   
   def create_first_message
-    msg = OutMessage.new
+    msg = InMessage.new
     msg.body = "Body of the message"
     msg.from = "Someone"
     msg.guid = "someguid"
@@ -126,7 +126,7 @@ class RssControllerTest < ActionController::TestCase
   end
   
   def create_second_message
-    msg = OutMessage.new
+    msg = InMessage.new
     msg.body = "Body of the message 2"
     msg.from = "Someone 2"
     msg.guid = "someguid 2"

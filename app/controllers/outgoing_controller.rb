@@ -3,6 +3,7 @@ class OutgoingController < ApplicationController
   def index
     last_modified = request.env['If-Modified-Since']
     etag = request.env['If-None-Match']
+    max = params[:max]
     
     if last_modified.nil?
       @out_messages = OutMessage.all(:order => 'timestamp DESC')
@@ -10,6 +11,7 @@ class OutgoingController < ApplicationController
       @out_messages = OutMessage.all(:order => 'timestamp DESC', :conditions => ['timestamp > ?', DateTime.parse(last_modified)])
       if @out_messages.length == 0
         head :not_modified
+        return
       end
     end
     
@@ -24,9 +26,16 @@ class OutgoingController < ApplicationController
       
       if temp_messages.length == 0
         head :not_modified
+        return
       else
-        @out_messages = temp_messages
+        @out_messages = temp_messages.reverse
       end
+    else
+      @out_messages.reverse!
+    end
+    
+    if !max.nil?
+      @out_messages = @out_messages[0...max.to_i]
     end
   end
 end
