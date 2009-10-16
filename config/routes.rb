@@ -1,6 +1,7 @@
 ActionController::Routing::Routes.draw do |map|
-  map.resources :out_messages, :only => [:create]
-  map.resources :in_messages, :only => [:index]
+  map.resources :rss, :only => [:index, :create]
+  map.resources :incoming, :path_prefix => :qst, :only => [:index, :create]
+  map.resources :outgoing, :path_prefix => :qst, :only => [:index]
 
   # The priority is based upon order of creation: first created -> highest priority.
 

@@ -7,8 +7,8 @@ xml = Builder::XmlMarkup.new(:indent => 1)
 xml.instruct!
 xml.rss "version" => "2.0" do
   xml.channel do
-    xml.title "Inbox"
-      @in_messages.each do |msg|
+    xml.title "Outbox"
+      @out_messages.each do |msg|
         xml.item do
           xml.description msg.body
           xml.author msg.from

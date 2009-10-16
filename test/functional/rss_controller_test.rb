@@ -1,12 +1,39 @@
 require 'test_helper'
 
-class InMessagesControllerTest < ActionController::TestCase
+class RssControllerTest < ActionController::TestCase
+  test "should convert one rss item to in message" do
+    @request.env['RAW_POST_DATA'] = <<-eos
+      <?xml version="1.0" encoding="UTF-8"?>
+        <rss version="2.0">
+          <channel>
+            <item>
+              <title>First message</title>
+              <description>Body of the message</description>
+              <author>Someone</author>
+              <pubDate>Tue, 03 Jun 2003 09:39:21 GMT</pubDate>
+              <guid>someguid</guid>
+            </item>
+          </channel>
+        </rss>
+    eos
+    post :create
+    
+    messages = InMessage.all
+    assert_equal 1, messages.length
+    
+    msg = messages[0]
+    assert_equal "Body of the message", msg.body
+    assert_equal "Someone", msg.from
+    assert_equal "someguid", msg.guid
+    assert_equal Time.parse("Tue, 03 Jun 2003 09:39:21 GMT"), msg.timestamp
+  end
+
   test "should convert one message to rss item" do
     create_first_message
   
     get :index
     
-    assert_select "title", "Inbox"
+    assert_select "title", "Outbox"
     
     assert_select "description", "Body of the message"
     assert_select "author", "Someone"
@@ -20,7 +47,7 @@ class InMessagesControllerTest < ActionController::TestCase
   
     get :index
     
-    assert_select "title", "Inbox"
+    assert_select "title", "Outbox"
     
     assert_select "pubDate" do |es|
       assert_equal 2, es.length
@@ -46,7 +73,7 @@ class InMessagesControllerTest < ActionController::TestCase
     @request.env["If-Modified-Since"] = "Tue, 03 Jun 2003 09:39:21 GMT"
     get :index
     
-    assert_select "title", "Inbox"
+    assert_select "title", "Outbox"
     
     assert_select "guid" do |es|
       assert_equal 1, es.length
@@ -75,7 +102,7 @@ class InMessagesControllerTest < ActionController::TestCase
     @request.env["If-None-Match"] = "someguid"
     get :index
     
-    assert_select "title", "Inbox"
+    assert_select "title", "Outbox"
     
     assert_select "guid" do |es|
       assert_equal 1, es.length
@@ -90,7 +117,7 @@ class InMessagesControllerTest < ActionController::TestCase
   # Utility methods follow
   
   def create_first_message
-    msg = InMessage.new
+    msg = OutMessage.new
     msg.body = "Body of the message"
     msg.from = "Someone"
     msg.guid = "someguid"
@@ -99,7 +126,7 @@ class InMessagesControllerTest < ActionController::TestCase
   end
   
   def create_second_message
-    msg = InMessage.new
+    msg = OutMessage.new
     msg.body = "Body of the message 2"
     msg.from = "Someone 2"
     msg.guid = "someguid 2"
