@@ -7,7 +7,7 @@ xml = Builder::XmlMarkup.new(:indent => 1)
 xml.instruct!
 xml.messages do
   @out_messages.each do |msg|
-    xml.message(:id => msg.guid, :from => msg.from, :to => msg.to, :when => msg.timestamp.rfc822) do
+    xml.message(:id => msg.guid, :from => msg.from, :to => msg.to, :when => msg.timestamp.xmlschema) do
       xml.text msg.body
     end
   end

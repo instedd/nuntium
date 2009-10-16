@@ -42,5 +42,7 @@ class OutgoingController < ApplicationController
       head :not_modified
       return
     end
+    
+    response.headers['ETag'] = @out_messages.last.guid
   end
 end
