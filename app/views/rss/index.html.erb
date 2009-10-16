@@ -12,6 +12,7 @@ xml.rss "version" => "2.0" do
         xml.item do
           xml.description msg.body
           xml.author msg.from
+          xml.to msg.to
           xml.guid msg.guid
           xml.pubDate msg.timestamp.rfc822
         end

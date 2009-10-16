@@ -10,6 +10,7 @@ class RssControllerTest < ActionController::TestCase
             <title>First message</title>
             <description>Body of the message</description>
             <author>Someone</author>
+            <to>Someone else</to>
             <pubDate>Tue, 03 Jun 2003 09:39:21 GMT</pubDate>
             <guid>someguid</guid>
           </item>
@@ -24,6 +25,7 @@ class RssControllerTest < ActionController::TestCase
     msg = messages[0]
     assert_equal "Body of the message", msg.body
     assert_equal "Someone", msg.from
+    assert_equal "Someone else", msg.to
     assert_equal "someguid", msg.guid
     assert_equal Time.parse("Tue, 03 Jun 2003 09:39:21 GMT"), msg.timestamp
     
@@ -41,6 +43,7 @@ class RssControllerTest < ActionController::TestCase
     
     assert_select "description", "Body of the message"
     assert_select "author", "Someone"
+    assert_select "to", "Someone else"
     assert_select "guid", "someguid"
     assert_select "pubDate", "Tue, 03 Jun 2003 09:39:21 +0000"
   end
@@ -85,6 +88,7 @@ class RssControllerTest < ActionController::TestCase
     
     assert_select "description", "Body of the message 2"
     assert_select "author", "Someone 2"
+    assert_select "to", "Someone else 2"
     assert_select "guid", "someguid 2"
     assert_select "pubDate", "Thu, 03 Jun 2004 09:39:21 +0000"
   end
@@ -114,6 +118,7 @@ class RssControllerTest < ActionController::TestCase
     
     assert_select "description", "Body of the message 2"
     assert_select "author", "Someone 2"
+    assert_select "to", "Someone else 2"
     assert_select "guid", "someguid 2"
     assert_select "pubDate", "Thu, 03 Jun 2004 09:39:21 +0000"
   end
@@ -124,6 +129,7 @@ class RssControllerTest < ActionController::TestCase
     msg = InMessage.new
     msg.body = "Body of the message"
     msg.from = "Someone"
+    msg.to = "Someone else"
     msg.guid = "someguid"
     msg.timestamp = Time.parse("Tue, 03 Jun 2003 09:39:21 GMT")
     msg.save
@@ -133,6 +139,7 @@ class RssControllerTest < ActionController::TestCase
     msg = InMessage.new
     msg.body = "Body of the message 2"
     msg.from = "Someone 2"
+    msg.to = "Someone else 2"
     msg.guid = "someguid 2"
     msg.timestamp = Time.parse("Thu, 03 Jun 2004 09:39:21 GMT")
     msg.save

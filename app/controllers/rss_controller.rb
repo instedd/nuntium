@@ -45,6 +45,7 @@ class RssController < ApplicationController
     tree.channel.items.each do |item|
       msg = OutMessage.new
       msg.from = item.author
+      msg.to = item.to
       msg.body = item.description
       msg.guid = item.guid.content
       msg.timestamp = item.pubDate.to_datetime
@@ -58,3 +59,10 @@ class RssController < ApplicationController
     head :ok
   end  
 end
+
+# Define 'to' tag inside 'item'
+module RSS; class Rss; class Channel; class Item
+  install_text_element "to", "", '?', "to", :string, "to"
+end; end; end; end
+
+RSS::BaseListener.install_get_text_element "", "to", "to="
