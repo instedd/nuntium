@@ -27,22 +27,13 @@ class OutgoingController < ApplicationController
       unread_messages = unread_messages[0 ... max.to_i]
     end
     
-    # No unread messages? => Not modified
-    if unread_messages.empty?
-      head :not_modified
-      return
-    end
-    
     # Keep only ids of messages
     unread_messages.collect! {|x| x.guid }
     
     @out_messages = OutMessage.all(:order => 'timestamp', :conditions => ['guid IN (?)', unread_messages])
     
-    if @out_messages.empty?
-      head :not_modified
-      return
+    if !@out_messages.empty?
+      response.headers['ETag'] = @out_messages.last.guid
     end
-    
-    response.headers['ETag'] = @out_messages.last.guid
   end
 end

@@ -22,14 +22,14 @@ class OutgoingControllerTest < ActionController::TestCase
     @request.env["If-None-Match"] = "someguid 0"
     get :index
     
-    assert_response :not_modified
+    assert_select "message", {:count => 0}
   end
   
   test "get one not unread" do
     create_message(0)
   
     get :index
-    assert_response :not_modified
+    assert_select "message", {:count => 0}
   end
   
   test "should return not modified for If-None-Match" do
@@ -42,7 +42,7 @@ class OutgoingControllerTest < ActionController::TestCase
     @request.env["If-None-Match"] = "someguid 1"
     get :index
     
-    assert_response :not_modified
+    assert_select "message", {:count => 0}
     
     assert_equal 0, UnreadOutMessage.all.length
   end
@@ -59,9 +59,7 @@ class OutgoingControllerTest < ActionController::TestCase
     
     assert_equal "someguid 1", @response.headers['ETag']
     
-    assert_select "message" do |es|
-      assert_equal 1, es.length
-    end
+    assert_select "message", {:count => 1}
     
     assert_select "message[id=?]", "someguid 1"
     assert_select "message[from=?]", "Someone 1"
@@ -85,9 +83,7 @@ class OutgoingControllerTest < ActionController::TestCase
     
     assert_equal "someguid 3", @response.headers['ETag']
     
-    assert_select "message" do |es|
-      assert_equal 1, es.length
-    end
+    assert_select "message", {:count => 1}
     
     assert_select "message[id=?]", "someguid 3"
     assert_select "message[from=?]", "Someone 3"
