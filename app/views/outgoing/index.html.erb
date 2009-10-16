@@ -1,0 +1,15 @@
+<%
+require 'builder'
+response.headers["Content-Type"] = "application/xml; charset=utf-8"
+
+xml = Builder::XmlMarkup.new(:indent => 1)
+
+xml.instruct!
+xml.messages do
+  @out_messages.each do |msg|
+    xml.message(:id => msg.guid, :from => msg.from, :to => msg.to, :when => msg.timestamp.rfc822) do
+      xml.text msg.body
+    end
+  end
+end
+%><%= xml.target! %>
