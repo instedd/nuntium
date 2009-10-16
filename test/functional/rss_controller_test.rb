@@ -4,17 +4,17 @@ class RssControllerTest < ActionController::TestCase
   test "should convert one rss item to out message" do
     @request.env['RAW_POST_DATA'] = <<-eos
       <?xml version="1.0" encoding="UTF-8"?>
-        <rss version="2.0">
-          <channel>
-            <item>
-              <title>First message</title>
-              <description>Body of the message</description>
-              <author>Someone</author>
-              <pubDate>Tue, 03 Jun 2003 09:39:21 GMT</pubDate>
-              <guid>someguid</guid>
-            </item>
-          </channel>
-        </rss>
+      <rss version="2.0">
+        <channel>
+          <item>
+            <title>First message</title>
+            <description>Body of the message</description>
+            <author>Someone</author>
+            <pubDate>Tue, 03 Jun 2003 09:39:21 GMT</pubDate>
+            <guid>someguid</guid>
+          </item>
+        </channel>
+      </rss>
     eos
     post :create
     
@@ -26,6 +26,10 @@ class RssControllerTest < ActionController::TestCase
     assert_equal "Someone", msg.from
     assert_equal "someguid", msg.guid
     assert_equal Time.parse("Tue, 03 Jun 2003 09:39:21 GMT"), msg.timestamp
+    
+    unread = UnreadOutMessage.all
+    assert_equal 1, unread.length
+    assert_equal "someguid", unread[0].guid
   end
 
   test "should convert one message to rss item" do

@@ -1,41 +1,46 @@
 class OutgoingController < ApplicationController
   # GET /qst/outgoing
   def index
-    last_modified = request.env['If-Modified-Since']
     etag = request.env['If-None-Match']
     max = params[:max]
     
-    if last_modified.nil?
-      @out_messages = OutMessage.all(:order => 'timestamp DESC')
-    else
-      @out_messages = OutMessage.all(:order => 'timestamp DESC', :conditions => ['timestamp > ?', DateTime.parse(last_modified)])
-      if @out_messages.length == 0
-        head :not_modified
-        return
-      end
-    end
-    
+    # Read unread messages
+    unread_messages = UnreadOutMessage.all(:order => :id)
+
+    # Remove entries previous to etag    
     if !etag.nil?
-      temp_messages = []
-      @out_messages.each do |msg|
+      count = 0
+      unread_messages.each do |msg|
+        count += 1
         if msg.guid == etag
+          UnreadOutMessage.delete_all("id <= #{msg.id}")
           break
         end
-        temp_messages.push msg
       end
       
-      if temp_messages.length == 0
-        head :not_modified
-        return
-      else
-        @out_messages = temp_messages.reverse
-      end
-    else
-      @out_messages.reverse!
+      # Keep the ones after the etag
+      unread_messages = unread_messages[count ... unread_messages.length]
     end
     
+    # Keep only max of them
     if !max.nil?
-      @out_messages = @out_messages[0...max.to_i]
+      unread_messages = unread_messages[0 ... max.to_i]
+    end
+    
+    # No unread messages? => Not modified
+    if unread_messages.empty?
+      head :not_modified
+      return
+    end
+    
+    # Keep only ids of messages
+    unread_messages.collect! {|x| x.guid }
+    
+    @out_messages = OutMessage.all(:order => 'timestamp', :conditions => ['guid IN (?)', unread_messages])
+    
+    if @out_messages.empty?
+      head :not_modified
+      return
     end
   end
 end

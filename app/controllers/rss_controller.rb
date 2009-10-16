@@ -49,6 +49,10 @@ class RssController < ApplicationController
       msg.guid = item.guid.content
       msg.timestamp = item.pubDate.to_datetime
       msg.save
+      
+      unread = UnreadOutMessage.new
+      unread.guid = msg.guid
+      unread.save
     end
      
     head :ok
