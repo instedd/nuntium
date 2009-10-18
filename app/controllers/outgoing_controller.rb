@@ -1,7 +1,7 @@
 class OutgoingController < ApplicationController
   # GET /qst/outgoing
   def index
-    etag = request.env['If-None-Match']
+    etag = request.env['HTTP_IF_NONE_MATCH']
     max = params[:max]
     
     # Read unread messages

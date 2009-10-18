@@ -4,8 +4,8 @@ require 'rss/2.0'
 class RssController < ApplicationController
   # GET /rss
   def index
-    last_modified = request.env['If-Modified-Since']
-    etag = request.env['If-None-Match']
+    last_modified = request.env['HTTP_IF_MODIFIED_SINCE']
+    etag = request.env['HTTP_IF_NONE_MATCH']
     
     if last_modified.nil?
       @out_messages = InMessage.all(:order => 'timestamp DESC')

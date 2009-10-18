@@ -63,21 +63,21 @@ class RssControllerTest < ActionController::TestCase
     end
   end
   
-  test "should return not modified for If-Modified-Since" do
+  test "should return not modified for HTTP_IF_MODIFIED_SINCE" do
     create_first_message
     create_second_message
   
-    @request.env["If-Modified-Since"] = "Thu, 03 Jun 2004 09:39:21 GMT"
+    @request.env["HTTP_IF_MODIFIED_SINCE"] = "Thu, 03 Jun 2004 09:39:21 GMT"
     get :index
     
     assert_response :not_modified
   end
   
-  test "should apply If-Modified-Since" do
+  test "should apply HTTP_IF_MODIFIED_SINCE" do
     create_first_message
     create_second_message
   
-    @request.env["If-Modified-Since"] = "Tue, 03 Jun 2003 09:39:21 GMT"
+    @request.env["HTTP_IF_MODIFIED_SINCE"] = "Tue, 03 Jun 2003 09:39:21 GMT"
     get :index
     
     assert_select "title", "Outbox"
@@ -93,21 +93,21 @@ class RssControllerTest < ActionController::TestCase
     assert_select "pubDate", "Thu, 03 Jun 2004 09:39:21 +0000"
   end
   
-  test "should return not modified for If-None-Match" do
+  test "should return not modified for HTTP_IF_NONE_MATCH" do
     create_first_message
     create_second_message
   
-    @request.env["If-None-Match"] = "someguid 2"
+    @request.env["HTTP_IF_NONE_MATCH"] = "someguid 2"
     get :index
     
     assert_response :not_modified
   end
   
-  test "should apply If-None-Match" do
+  test "should apply HTTP_IF_NONE_MATCH" do
     create_first_message
     create_second_message
   
-    @request.env["If-None-Match"] = "someguid"
+    @request.env["HTTP_IF_NONE_MATCH"] = "someguid"
     get :index
     
     assert_select "title", "Outbox"

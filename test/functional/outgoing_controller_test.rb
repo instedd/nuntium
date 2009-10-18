@@ -19,7 +19,7 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_equal 1, unread.length
     assert_equal "someguid 0", unread[0].guid
     
-    @request.env["If-None-Match"] = "someguid 0"
+    @request.env["HTTP_IF_NONE_MATCH"] = "someguid 0"
     get :index
     
     assert_select "message", {:count => 0}
@@ -32,14 +32,14 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_select "message", {:count => 0}
   end
   
-  test "should return not modified for If-None-Match" do
+  test "should return not modified for HTTP_IF_NONE_MATCH" do
     create_message(0)
     create_unread_message(0)
     
     create_message(1)
     create_unread_message(1)
   
-    @request.env["If-None-Match"] = "someguid 1"
+    @request.env["HTTP_IF_NONE_MATCH"] = "someguid 1"
     get :index
     
     assert_select "message", {:count => 0}
@@ -47,14 +47,14 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_equal 0, UnreadOutMessage.all.length
   end
   
-  test "should apply If-None-Match" do
+  test "should apply HTTP_IF_NONE_MATCH" do
     create_message(0)
     create_unread_message(0)
     
     create_message(1)
     create_unread_message(1)
   
-    @request.env["If-None-Match"] = "someguid 0"
+    @request.env["HTTP_IF_NONE_MATCH"] = "someguid 0"
     get :index
     
     assert_equal "someguid 1", @response.headers['ETag']
@@ -72,13 +72,13 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_equal "someguid 1", unread[0].guid
   end
   
-  test "should apply If-None-Match with max" do
+  test "should apply HTTP_IF_NONE_MATCH with max" do
     (1..4).each do |i| 
       create_message(i)
       create_unread_message(i)
     end
   
-    @request.env["If-None-Match"] = "someguid 2"
+    @request.env["HTTP_IF_NONE_MATCH"] = "someguid 2"
     get :index, :max => 1
     
     assert_equal "someguid 3", @response.headers['ETag']
