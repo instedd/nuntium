@@ -9,14 +9,14 @@ class RssController < ApplicationController
     last_modified = request.env['HTTP_IF_MODIFIED_SINCE']
     etag = request.env['HTTP_IF_NONE_MATCH']
     
-    conditions = 'application_id = ?'
-    if last_modified.nil?
-      conditions = [conditions, @application.id]
-    else
-      conditions = [conditions + ' AND timestamp > ?', @application.id, DateTime.parse(last_modified)]
+    query = 'application_id = ?'
+    params = [@application.id]
+    if !last_modified.nil?
+      query += ' AND timestamp > ?'
+      params += [DateTime.parse(last_modified)]
     end
     
-    @ao_messages = ATMessage.all(:order => 'timestamp DESC', :conditions => conditions)
+    @ao_messages = ATMessage.all(:order => 'timestamp DESC', :conditions => [query] + params)
     
     if @ao_messages.length == 0
       head :not_modified
