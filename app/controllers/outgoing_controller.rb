@@ -30,10 +30,10 @@ class OutgoingController < ApplicationController
     # Keep only ids of messages
     unread_messages.collect! {|x| x.guid }
     
-    @out_messages = AOMessage.all(:order => 'timestamp', :conditions => ['guid IN (?)', unread_messages])
+    @ao_messages = AOMessage.all(:order => 'timestamp', :conditions => ['guid IN (?)', unread_messages])
     
-    if !@out_messages.empty?
-      response.headers['ETag'] = @out_messages.last.guid
+    if !@ao_messages.empty?
+      response.headers['ETag'] = @ao_messages.last.guid
     end
   end
 end
