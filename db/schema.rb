@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091019150621) do
+ActiveRecord::Schema.define(:version => 20091019173406) do
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -48,6 +48,7 @@ ActiveRecord::Schema.define(:version => 20091019150621) do
     t.integer  "application_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "configuration"
   end
 
   create_table "qst_outgoing_messages", :force => true do |t|
