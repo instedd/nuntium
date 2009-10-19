@@ -1,11 +1,12 @@
 require 'rexml/document'
 
 class IncomingController < ApplicationController
-  # GET /qst/incoming
+  before_filter :authenticate
+
   # HEAD /qst/incoming
   def index
     if request.head?
-      msg = ATMessage.last(:order => :timestamp)
+      msg = ATMessage.last(:order => :timestamp, :conditions => ['application_id = ?', @application.id])
       etag = msg.nil? ? '' : msg.guid
       head :ok, 'ETag' => etag
     else
@@ -22,6 +23,7 @@ class IncomingController < ApplicationController
     
     doc.elements.each 'messages/message' do |elem|
       msg = ATMessage.new
+      msg.application_id = @application.id
       msg.from = elem.attributes['from']
       msg.to = elem.attributes['to']
       msg.body = elem.elements['text'].text
@@ -33,5 +35,17 @@ class IncomingController < ApplicationController
     end
     
     head :ok, 'ETag' => last_id
+  end
+  
+  def authenticate
+    authenticate_or_request_with_http_basic do |username, password|
+      @application = Application.first(:conditions => ['name = ?', username]) 
+      if !@application.nil?
+        @channel = @application.channels.first(:conditions => ['kind = ?', :qst])
+        !@channel.nil? and @channel.configuration[:password] == password
+      else
+        false
+      end
+    end
   end
 end

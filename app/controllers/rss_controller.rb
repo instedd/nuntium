@@ -72,8 +72,10 @@ class RssController < ApplicationController
       @application = Application.first(:conditions => ['name = ? AND password = ?', username, password]) 
       if !@application.nil?
         @channel = @application.channels.first(:conditions => ['kind = ?', :qst])
+        !@channel.nil?
+      else
+        false
       end
-      !@application.nil?
     end
   end
 end
