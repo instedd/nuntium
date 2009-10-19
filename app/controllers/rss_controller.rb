@@ -2,19 +2,25 @@ require 'rss/1.0'
 require 'rss/2.0'
 
 class RssController < ApplicationController
+  before_filter :authenticate
+
   # GET /rss
   def index
     last_modified = request.env['HTTP_IF_MODIFIED_SINCE']
     etag = request.env['HTTP_IF_NONE_MATCH']
     
+    conditions = 'application_id = ?'
     if last_modified.nil?
-      @ao_messages = ATMessage.all(:order => 'timestamp DESC')
+      conditions = [conditions, @application.id]
     else
-      @ao_messages = ATMessage.all(:order => 'timestamp DESC', :conditions => ['timestamp > ?', DateTime.parse(last_modified)])
-      if @ao_messages.length == 0
-        head :not_modified
-        return
-      end
+      conditions = [conditions + ' AND timestamp > ?', @application.id, DateTime.parse(last_modified)]
+    end
+    
+    @ao_messages = ATMessage.all(:order => 'timestamp DESC', :conditions => conditions)
+    
+    if @ao_messages.length == 0
+      head :not_modified
+      return
     end
     
     if !etag.nil?
@@ -44,6 +50,7 @@ class RssController < ApplicationController
     
     tree.channel.items.each do |item|
       msg = AOMessage.new
+      msg.application_id = @application.id
       msg.from = item.author
       msg.to = item.to
       msg.body = item.description
@@ -52,12 +59,23 @@ class RssController < ApplicationController
       msg.save
       
       outgoing = QSTOutgoingMessage.new
+      outgoing.channel_id = @channel.id
       outgoing.guid = msg.guid
       outgoing.save
     end
      
     head :ok
-  end  
+  end
+  
+  def authenticate
+    authenticate_or_request_with_http_basic do |username, password|
+      @application = Application.first(:conditions => ['name = ? AND password = ?', username, password]) 
+      if !@application.nil?
+        @channel = @application.channels.first(:conditions => ['kind = ?', :qst])
+      end
+      !@application.nil?
+    end
+  end
 end
 
 # Define 'to' tag inside 'item'
