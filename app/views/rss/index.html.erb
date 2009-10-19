@@ -8,7 +8,7 @@ xml.instruct!
 xml.rss "version" => "2.0" do
   xml.channel do
     xml.title "Outbox"
-      @out_messages.each do |msg|
+      @ao_messages.each do |msg|
         xml.item do
           xml.description msg.body
           xml.author msg.from

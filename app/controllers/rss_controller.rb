@@ -8,10 +8,10 @@ class RssController < ApplicationController
     etag = request.env['HTTP_IF_NONE_MATCH']
     
     if last_modified.nil?
-      @out_messages = ATMessage.all(:order => 'timestamp DESC')
+      @ao_messages = ATMessage.all(:order => 'timestamp DESC')
     else
-      @out_messages = ATMessage.all(:order => 'timestamp DESC', :conditions => ['timestamp > ?', DateTime.parse(last_modified)])
-      if @out_messages.length == 0
+      @ao_messages = ATMessage.all(:order => 'timestamp DESC', :conditions => ['timestamp > ?', DateTime.parse(last_modified)])
+      if @ao_messages.length == 0
         head :not_modified
         return
       end
@@ -19,7 +19,7 @@ class RssController < ApplicationController
     
     if !etag.nil?
       temp_messages = []
-      @out_messages.each do |msg|
+      @ao_messages.each do |msg|
         if msg.guid == etag
           break
         end
@@ -30,10 +30,10 @@ class RssController < ApplicationController
         head :not_modified
         return
       else
-        @out_messages = temp_messages.reverse
+        @ao_messages = temp_messages.reverse
       end
     else
-      @out_messages.reverse!
+      @ao_messages.reverse!
     end
   end
   
