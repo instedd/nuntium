@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091019140911) do
+ActiveRecord::Schema.define(:version => 20091019143742) do
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -23,6 +23,13 @@ ActiveRecord::Schema.define(:version => 20091019140911) do
 
   add_index "ao_messages", ["guid"], :name => "index_ao_messages_on_guid"
 
+  create_table "applications", :force => true do |t|
+    t.string   "name"
+    t.string   "password"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "at_messages", :force => true do |t|
     t.string   "from"
     t.string   "to"
@@ -31,6 +38,14 @@ ActiveRecord::Schema.define(:version => 20091019140911) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.datetime "timestamp"
+  end
+
+  create_table "channels", :force => true do |t|
+    t.string   "name"
+    t.string   "kind"
+    t.integer  "application_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "unread_ao_messages", :force => true do |t|
