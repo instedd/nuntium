@@ -51,9 +51,9 @@ class RssController < ApplicationController
       msg.timestamp = item.pubDate.to_datetime
       msg.save
       
-      unread = UnreadAOMessage.new
-      unread.guid = msg.guid
-      unread.save
+      outgoing = QSTOutgoingMessage.new
+      outgoing.guid = msg.guid
+      outgoing.save
     end
      
     head :ok

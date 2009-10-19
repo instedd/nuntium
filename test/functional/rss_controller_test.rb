@@ -29,7 +29,7 @@ class RssControllerTest < ActionController::TestCase
     assert_equal "someguid", msg.guid
     assert_equal Time.parse("Tue, 03 Jun 2003 09:39:21 GMT"), msg.timestamp
     
-    unread = UnreadAOMessage.all
+    unread = QSTOutgoingMessage.all
     assert_equal 1, unread.length
     assert_equal "someguid", unread[0].guid
   end

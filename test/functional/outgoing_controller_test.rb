@@ -2,8 +2,8 @@ require 'test_helper'
 
 class OutgoingControllerTest < ActionController::TestCase
   test "get one" do
-    create_message(0)
-    create_unread_message(0)
+    create_ao_message(0)
+    create_qst_outgoing_message(0)
   
     get :index
     
@@ -15,7 +15,7 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_select "message[when=?]", "2003-06-03T09:39:21Z"
     assert_select "message text", "Body of the message 0"
     
-    unread = UnreadAOMessage.all    
+    unread = QSTOutgoingMessage.all    
     assert_equal 1, unread.length
     assert_equal "someguid 0", unread[0].guid
     
@@ -26,33 +26,33 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "get one not unread" do
-    create_message(0)
+    create_ao_message(0)
   
     get :index
     assert_select "message", {:count => 0}
   end
   
   test "should return not modified for HTTP_IF_NONE_MATCH" do
-    create_message(0)
-    create_unread_message(0)
+    create_ao_message(0)
+    create_qst_outgoing_message(0)
     
-    create_message(1)
-    create_unread_message(1)
+    create_ao_message(1)
+    create_qst_outgoing_message(1)
   
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 1"
     get :index
     
     assert_select "message", {:count => 0}
     
-    assert_equal 0, UnreadAOMessage.all.length
+    assert_equal 0, QSTOutgoingMessage.all.length
   end
   
   test "should apply HTTP_IF_NONE_MATCH" do
-    create_message(0)
-    create_unread_message(0)
+    create_ao_message(0)
+    create_qst_outgoing_message(0)
     
-    create_message(1)
-    create_unread_message(1)
+    create_ao_message(1)
+    create_qst_outgoing_message(1)
   
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 0"
     get :index
@@ -67,15 +67,15 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_select "message[when=?]", "2004-06-03T09:39:21Z"
     assert_select "message text", "Body of the message 1"
     
-    unread = UnreadAOMessage.all
+    unread = QSTOutgoingMessage.all
     assert_equal 1, unread.length
     assert_equal "someguid 1", unread[0].guid
   end
   
   test "should apply HTTP_IF_NONE_MATCH with max" do
     (1..4).each do |i| 
-      create_message(i)
-      create_unread_message(i)
+      create_ao_message(i)
+      create_qst_outgoing_message(i)
     end
   
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 2"
@@ -91,7 +91,7 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_select "message[when=?]", "2006-06-03T09:39:21Z"
     assert_select "message text", "Body of the message 3"
     
-    unread = UnreadAOMessage.all
+    unread = QSTOutgoingMessage.all
     assert_equal 2, unread.length
     assert_equal "someguid 3", unread[0].guid
     assert_equal "someguid 4", unread[1].guid
@@ -99,7 +99,7 @@ class OutgoingControllerTest < ActionController::TestCase
 
   # Utility methods follow
   
-  def create_message(i)
+  def create_ao_message(i)
     msg = AOMessage.new
     msg.body = "Body of the message #{i}"
     msg.from = "Someone #{i}"
@@ -109,8 +109,8 @@ class OutgoingControllerTest < ActionController::TestCase
     msg.save
   end
   
-  def create_unread_message(i)
-    msg = UnreadAOMessage.new
+  def create_qst_outgoing_message(i)
+    msg = QSTOutgoingMessage.new
     msg.guid = "someguid #{i}"
     msg.save
   end
