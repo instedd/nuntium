@@ -9,19 +9,9 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091016134751) do
+ActiveRecord::Schema.define(:version => 20091019135206) do
 
-  create_table "in_messages", :force => true do |t|
-    t.string   "from"
-    t.string   "to"
-    t.text     "body"
-    t.string   "guid"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.datetime "timestamp"
-  end
-
-  create_table "out_messages", :force => true do |t|
+  create_table "ao_messages", :force => true do |t|
     t.string   "from"
     t.string   "to"
     t.text     "body"
@@ -31,7 +21,17 @@ ActiveRecord::Schema.define(:version => 20091016134751) do
     t.datetime "timestamp"
   end
 
-  create_table "unread_out_messages", :force => true do |t|
+  create_table "at_messages", :force => true do |t|
+    t.string   "from"
+    t.string   "to"
+    t.text     "body"
+    t.string   "guid"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.datetime "timestamp"
+  end
+
+  create_table "unread_ao_messages", :force => true do |t|
     t.string   "guid"
     t.datetime "created_at"
     t.datetime "updated_at"

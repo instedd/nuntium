@@ -5,7 +5,7 @@ class OutgoingController < ApplicationController
     max = params[:max]
     
     # Read unread messages
-    unread_messages = UnreadOutMessage.all(:order => :id)
+    unread_messages = UnreadAOMessage.all(:order => :id)
 
     # Remove entries previous to etag    
     if !etag.nil?
@@ -13,7 +13,7 @@ class OutgoingController < ApplicationController
       unread_messages.each do |msg|
         count += 1
         if msg.guid == etag
-          UnreadOutMessage.delete_all("id <= #{msg.id}")
+          UnreadAOMessage.delete_all("id <= #{msg.id}")
           break
         end
       end
@@ -30,7 +30,7 @@ class OutgoingController < ApplicationController
     # Keep only ids of messages
     unread_messages.collect! {|x| x.guid }
     
-    @out_messages = OutMessage.all(:order => 'timestamp', :conditions => ['guid IN (?)', unread_messages])
+    @out_messages = AOMessage.all(:order => 'timestamp', :conditions => ['guid IN (?)', unread_messages])
     
     if !@out_messages.empty?
       response.headers['ETag'] = @out_messages.last.guid

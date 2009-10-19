@@ -19,7 +19,7 @@ class RssControllerTest < ActionController::TestCase
     eos
     post :create
     
-    messages = OutMessage.all
+    messages = AOMessage.all
     assert_equal 1, messages.length
     
     msg = messages[0]
@@ -29,7 +29,7 @@ class RssControllerTest < ActionController::TestCase
     assert_equal "someguid", msg.guid
     assert_equal Time.parse("Tue, 03 Jun 2003 09:39:21 GMT"), msg.timestamp
     
-    unread = UnreadOutMessage.all
+    unread = UnreadAOMessage.all
     assert_equal 1, unread.length
     assert_equal "someguid", unread[0].guid
   end
@@ -126,7 +126,7 @@ class RssControllerTest < ActionController::TestCase
   # Utility methods follow
   
   def create_first_message
-    msg = InMessage.new
+    msg = ATMessage.new
     msg.body = "Body of the message"
     msg.from = "Someone"
     msg.to = "Someone else"
@@ -136,7 +136,7 @@ class RssControllerTest < ActionController::TestCase
   end
   
   def create_second_message
-    msg = InMessage.new
+    msg = ATMessage.new
     msg.body = "Body of the message 2"
     msg.from = "Someone 2"
     msg.to = "Someone else 2"

@@ -8,9 +8,9 @@ class RssController < ApplicationController
     etag = request.env['HTTP_IF_NONE_MATCH']
     
     if last_modified.nil?
-      @out_messages = InMessage.all(:order => 'timestamp DESC')
+      @out_messages = ATMessage.all(:order => 'timestamp DESC')
     else
-      @out_messages = InMessage.all(:order => 'timestamp DESC', :conditions => ['timestamp > ?', DateTime.parse(last_modified)])
+      @out_messages = ATMessage.all(:order => 'timestamp DESC', :conditions => ['timestamp > ?', DateTime.parse(last_modified)])
       if @out_messages.length == 0
         head :not_modified
         return
@@ -43,7 +43,7 @@ class RssController < ApplicationController
     tree = RSS::Parser.parse(body, false)
     
     tree.channel.items.each do |item|
-      msg = OutMessage.new
+      msg = AOMessage.new
       msg.from = item.author
       msg.to = item.to
       msg.body = item.description
@@ -51,7 +51,7 @@ class RssController < ApplicationController
       msg.timestamp = item.pubDate.to_datetime
       msg.save
       
-      unread = UnreadOutMessage.new
+      unread = UnreadAOMessage.new
       unread.guid = msg.guid
       unread.save
     end

@@ -15,7 +15,7 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_select "message[when=?]", "2003-06-03T09:39:21Z"
     assert_select "message text", "Body of the message 0"
     
-    unread = UnreadOutMessage.all    
+    unread = UnreadAOMessage.all    
     assert_equal 1, unread.length
     assert_equal "someguid 0", unread[0].guid
     
@@ -44,7 +44,7 @@ class OutgoingControllerTest < ActionController::TestCase
     
     assert_select "message", {:count => 0}
     
-    assert_equal 0, UnreadOutMessage.all.length
+    assert_equal 0, UnreadAOMessage.all.length
   end
   
   test "should apply HTTP_IF_NONE_MATCH" do
@@ -67,7 +67,7 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_select "message[when=?]", "2004-06-03T09:39:21Z"
     assert_select "message text", "Body of the message 1"
     
-    unread = UnreadOutMessage.all
+    unread = UnreadAOMessage.all
     assert_equal 1, unread.length
     assert_equal "someguid 1", unread[0].guid
   end
@@ -91,7 +91,7 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_select "message[when=?]", "2006-06-03T09:39:21Z"
     assert_select "message text", "Body of the message 3"
     
-    unread = UnreadOutMessage.all
+    unread = UnreadAOMessage.all
     assert_equal 2, unread.length
     assert_equal "someguid 3", unread[0].guid
     assert_equal "someguid 4", unread[1].guid
@@ -100,7 +100,7 @@ class OutgoingControllerTest < ActionController::TestCase
   # Utility methods follow
   
   def create_message(i)
-    msg = OutMessage.new
+    msg = AOMessage.new
     msg.body = "Body of the message #{i}"
     msg.from = "Someone #{i}"
     msg.to = "Someone else #{i}"
@@ -110,7 +110,7 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   def create_unread_message(i)
-    msg = UnreadOutMessage.new
+    msg = UnreadAOMessage.new
     msg.guid = "someguid #{i}"
     msg.save
   end

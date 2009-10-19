@@ -5,7 +5,7 @@ class IncomingController < ApplicationController
   # HEAD /qst/incoming
   def index
     if request.head?
-      msg = InMessage.last(:order => :timestamp)
+      msg = ATMessage.last(:order => :timestamp)
       etag = msg.nil? ? '' : msg.guid
       head :ok, 'ETag' => etag
     else
@@ -21,7 +21,7 @@ class IncomingController < ApplicationController
     last_id = nil
     
     doc.elements.each 'messages/message' do |elem|
-      msg = InMessage.new
+      msg = ATMessage.new
       msg.from = elem.attributes['from']
       msg.to = elem.attributes['to']
       msg.body = elem.elements['text'].text

@@ -38,7 +38,7 @@ class IncomingControllerTest < ActionController::TestCase
     assert_response :ok
     assert_equal "someguid", @response.headers['ETag']
     
-    messages = InMessage.all
+    messages = ATMessage.all
     assert_equal 1, messages.length
     
     msg = messages[0]
@@ -52,7 +52,7 @@ class IncomingControllerTest < ActionController::TestCase
   # Utility methods follow
   
   def create_first_message
-    msg = InMessage.new
+    msg = ATMessage.new
     msg.body = "Body of the message"
     msg.from = "Someone"
     msg.to = "Someone else"
@@ -62,7 +62,7 @@ class IncomingControllerTest < ActionController::TestCase
   end
   
   def create_second_message
-    msg = InMessage.new
+    msg = ATMessage.new
     msg.body = "Body of the message 2"
     msg.from = "Someone 2"
     msg.to = "Someone else 2"
