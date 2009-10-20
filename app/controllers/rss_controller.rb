@@ -1,5 +1,6 @@
 require 'rss/1.0'
 require 'rss/2.0'
+require 'digest/sha2'
 
 class RssController < ApplicationController
   before_filter :authenticate
@@ -69,10 +70,16 @@ class RssController < ApplicationController
   
   def authenticate
     authenticate_or_request_with_http_basic do |username, password|
-      @application = Application.first(:conditions => ['name = ? AND password = ?', username, password]) 
+      @application = Application.first(:conditions => ['name = ?', username]) 
       if !@application.nil?
-        @channel = @application.channels.first(:conditions => ['kind = ?', :qst])
-        !@channel.nil?
+        real_salt = @application.salt
+        real_pass = @application.password
+        if real_pass == Digest::SHA2.hexdigest(real_salt + password)
+          @channel = @application.channels.first(:conditions => ['kind = ?', :qst])
+          !@channel.nil?
+        else
+          false
+        end
       else
         false
       end

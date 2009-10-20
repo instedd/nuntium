@@ -3,6 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'test_help'
 require 'base64'
 require 'digest/md5'
+require 'digest/sha2'
 
 class ActiveSupport::TestCase
   # Transactional fixtures accelerate your tests by wrapping each test method
@@ -45,22 +46,23 @@ class ActiveSupport::TestCase
   
   # Creates an app and a qst channel with the given values.
   # Returns the tupple [application, channel]
-  def create_app_and_channel(app_name, app_pass, chan_name, chan_pass)
+  def create_app_and_channel(app_name, app_salt, app_pass, chan_name, chan_salt, chan_pass)
     app = Application.new
     app.name = app_name
-    app.password = Digest::MD5.hexdigest(app_pass)
+    app.salt = app_salt
+    app.password = Digest::SHA2.hexdigest(app_salt + Digest::MD5.hexdigest(app_pass))
     app.save!
     
-    channel = create_channel app, chan_name, chan_pass
+    channel = create_channel app, chan_name, chan_salt, chan_pass
     
     [app, channel]
   end
   
-  def create_channel(app, chan_name, chan_pass)
+  def create_channel(app, name, salt, pass)
     channel = Channel.new
     channel.application_id = app.id
-    channel.name = chan_name
-    channel.configuration = { :password => Digest::MD5.hexdigest(chan_pass) }
+    channel.name = name
+    channel.configuration = { :salt => salt, :password => Digest::SHA2.hexdigest(salt + Digest::MD5.hexdigest(pass)) }
     channel.kind = :qst
     channel.save!
     
