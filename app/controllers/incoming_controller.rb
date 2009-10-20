@@ -4,7 +4,9 @@ class IncomingController < QSTController
   # HEAD /qst/:application_id/incoming
   def index
     if request.head?
-      msg = ATMessage.last(:order => :timestamp, :conditions => ['application_id = ?', @application.id])
+      msg = ATMessage.last(
+        :order => :timestamp, 
+        :conditions => ['application_id = ?', @application.id])
       etag = msg.nil? ? '' : msg.guid
       head :ok, 'ETag' => etag
     else
