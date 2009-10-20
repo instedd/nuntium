@@ -1,6 +1,8 @@
 ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'test_help'
+require 'base64'
+require 'digest/md5'
 
 class ActiveSupport::TestCase
   # Transactional fixtures accelerate your tests by wrapping each test method
@@ -32,7 +34,63 @@ class ActiveSupport::TestCase
   #
   # Note: You'll currently still have to declare fixtures explicitly in integration tests
   # -- they do not yet inherit this setting
-  fixtures :all
+  # fixtures :all
 
   # Add more helper methods to be used by all tests here...
+  
+  # Returns the string to be used for HTTP_AUTHENTICATION header
+  def http_auth(user, pass)
+    'Basic ' + Base64.encode64(user + ':' + Digest::MD5.hexdigest(pass))
+  end
+  
+  # Creates an app and a qst channel with the given values.
+  # Returns the tupple [application, channel]
+  def create_app_and_channel(app_name, app_pass, chan_name, chan_pass)
+    app = Application.new
+    app.name = app_name
+    app.password = Digest::MD5.hexdigest(app_pass)
+    app.save!
+    
+    channel = Channel.new
+    channel.application_id = app.id
+    channel.name = chan_name
+    channel.configuration = { :password => Digest::MD5.hexdigest(chan_pass) }
+    channel.kind = :qst
+    channel.save!
+    
+    [app, channel]
+  end
+  
+  # Creates an ATMessage that belongs to app and has values according to i
+  def new_at_message(app, i)
+    msg = ATMessage.new
+    msg.application_id = app.id
+    msg.body = "Body of the message #{i}"
+    msg.from = "Someone #{i}"
+    msg.to = "Someone else #{i}"
+    msg.guid = "someguid #{i}"
+    msg.timestamp = Time.parse("03 Jun #{2003 + i} 09:39:21 GMT")
+    msg.save
+  end
+  
+  # Creates an AOMessage that belongs to app and has values according to i
+  def new_ao_message(app, i)
+    msg = AOMessage.new
+    msg.application_id = app.id
+    msg.body = "Body of the message #{i}"
+    msg.from = "Someone #{i}"
+    msg.to = "Someone else #{i}"
+    msg.guid = "someguid #{i}"
+    msg.timestamp = Time.parse("03 Jun #{2003 + i} 09:39:21 GMT")
+    msg.save
+  end
+  
+  # Creates a new QSTOutgoingMessage with guid "someguid #{i}"
+  def new_qst_outgoing_message(chan, i)
+    msg = QSTOutgoingMessage.new
+    msg.channel_id = chan.id
+    msg.guid = "someguid #{i}"
+    msg.save
+  end
+  
 end

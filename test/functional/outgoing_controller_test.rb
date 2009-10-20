@@ -2,8 +2,9 @@ require 'test_helper'
 
 class OutgoingControllerTest < ActionController::TestCase
   test "get one" do
-    create_ao_message(0)
-    create_qst_outgoing_message(0)
+    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
+    new_ao_message(app, 0)
+    new_qst_outgoing_message(chan, 0)
   
     get :index
     
@@ -17,6 +18,7 @@ class OutgoingControllerTest < ActionController::TestCase
     
     unread = QSTOutgoingMessage.all    
     assert_equal 1, unread.length
+    assert_equal chan.id, unread[0].channel_id
     assert_equal "someguid 0", unread[0].guid
     
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 0"
@@ -26,18 +28,20 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "get one not unread" do
-    create_ao_message(0)
+    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
+    new_ao_message(app, 0)
   
     get :index
     assert_select "message", {:count => 0}
   end
   
   test "should return not modified for HTTP_IF_NONE_MATCH" do
-    create_ao_message(0)
-    create_qst_outgoing_message(0)
+    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
+    new_ao_message(app, 0)
+    new_qst_outgoing_message(chan, 0)
     
-    create_ao_message(1)
-    create_qst_outgoing_message(1)
+    new_ao_message(app, 1)
+    new_qst_outgoing_message(chan, 1)
   
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 1"
     get :index
@@ -48,11 +52,13 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "should apply HTTP_IF_NONE_MATCH" do
-    create_ao_message(0)
-    create_qst_outgoing_message(0)
+    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
+  
+    new_ao_message(app, 0)
+    new_qst_outgoing_message(chan, 0)
     
-    create_ao_message(1)
-    create_qst_outgoing_message(1)
+    new_ao_message(app, 1)
+    new_qst_outgoing_message(chan, 1)
   
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 0"
     get :index
@@ -73,9 +79,11 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "should apply HTTP_IF_NONE_MATCH with max" do
+    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
+    
     (1..4).each do |i| 
-      create_ao_message(i)
-      create_qst_outgoing_message(i)
+      new_ao_message(app, i)
+      new_qst_outgoing_message(chan, i)
     end
   
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 2"
@@ -95,24 +103,6 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_equal 2, unread.length
     assert_equal "someguid 3", unread[0].guid
     assert_equal "someguid 4", unread[1].guid
-  end
-
-  # Utility methods follow
-  
-  def create_ao_message(i)
-    msg = AOMessage.new
-    msg.body = "Body of the message #{i}"
-    msg.from = "Someone #{i}"
-    msg.to = "Someone else #{i}"
-    msg.guid = "someguid #{i}"
-    msg.timestamp = Time.parse("03 Jun #{2003+i} 09:39:21 GMT")
-    msg.save
-  end
-  
-  def create_qst_outgoing_message(i)
-    msg = QSTOutgoingMessage.new
-    msg.guid = "someguid #{i}"
-    msg.save
   end
   
 end

@@ -4,9 +4,9 @@ require 'digest/md5'
 
 class RssControllerTest < ActionController::TestCase
   test "should convert one rss item to out message" do
-    app, chan = create_app_and_channel('user', 'pass', 'chan')
+    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
   
-    @request.env['HTTP_AUTHORIZATION'] = auth('user', 'pass')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('user', 'pass')
     @request.env['RAW_POST_DATA'] = <<-eos
       <?xml version="1.0" encoding="UTF-8"?>
       <rss version="2.0">
@@ -42,13 +42,13 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should convert one message to rss item" do
-    app2, chan2 = create_app_and_channel('user2', 'pass2', 'chan2')
-    create_first_message(app2)
+    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
+    new_at_message(app, 0)
+    
+    app2, chan2 = create_app_and_channel('user2', 'pass2', 'chan2', 'chan_pass2')
+    new_at_message(app2, 0)
   
-    app, chan = create_app_and_channel('user', 'pass', 'chan')
-    create_first_message(app)
-  
-    @request.env['HTTP_AUTHORIZATION'] = auth('user', 'pass')  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('user', 'pass')  
     get :index
     
     assert_select "title", "Outbox"
@@ -57,19 +57,19 @@ class RssControllerTest < ActionController::TestCase
       assert_equal 1, es.length
     end
     
-    assert_select "description", "Body of the message"
-    assert_select "author", "Someone"
-    assert_select "to", "Someone else"
-    assert_select "guid", "someguid"
+    assert_select "description", "Body of the message 0"
+    assert_select "author", "Someone 0"
+    assert_select "to", "Someone else 0"
+    assert_select "guid", "someguid 0"
     assert_select "pubDate", "Tue, 03 Jun 2003 09:39:21 +0000"
   end
   
   test "should convert two messages to rss items ordered by timestamp" do
-    app, chan = create_app_and_channel('user', 'pass', 'chan')
-    create_first_message(app)
-    create_second_message(app)
+    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
+    new_at_message(app, 0)
+    new_at_message(app, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = auth('user', 'pass')  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('user', 'pass')  
     get :index
     
     assert_select "title", "Outbox"
@@ -82,11 +82,11 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should return not modified for HTTP_IF_MODIFIED_SINCE" do
-    app, chan = create_app_and_channel('user', 'pass', 'chan')
-    create_first_message(app)
-    create_second_message(app)
+    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
+    new_at_message(app, 0)
+    new_at_message(app, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = auth('user', 'pass')  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('user', 'pass')  
     @request.env["HTTP_IF_MODIFIED_SINCE"] = "Thu, 03 Jun 2004 09:39:21 GMT"
     get :index
     
@@ -94,11 +94,11 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should apply HTTP_IF_MODIFIED_SINCE" do
-    app, chan = create_app_and_channel('user', 'pass', 'chan')
-    create_first_message(app)
-    create_second_message(app)
+    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
+    new_at_message(app, 0)
+    new_at_message(app, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = auth('user', 'pass')  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('user', 'pass')  
     @request.env["HTTP_IF_MODIFIED_SINCE"] = "Tue, 03 Jun 2003 09:39:21 GMT"
     get :index
     
@@ -108,32 +108,32 @@ class RssControllerTest < ActionController::TestCase
       assert_equal 1, es.length
     end
     
-    assert_select "description", "Body of the message 2"
-    assert_select "author", "Someone 2"
-    assert_select "to", "Someone else 2"
-    assert_select "guid", "someguid 2"
+    assert_select "description", "Body of the message 1"
+    assert_select "author", "Someone 1"
+    assert_select "to", "Someone else 1"
+    assert_select "guid", "someguid 1"
     assert_select "pubDate", "Thu, 03 Jun 2004 09:39:21 +0000"
   end
   
   test "should return not modified for HTTP_IF_NONE_MATCH" do
-    app, chan = create_app_and_channel('user', 'pass', 'chan')
-    create_first_message(app)
-    create_second_message(app)
+    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
+    new_at_message(app, 0)
+    new_at_message(app, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = auth('user', 'pass')  
-    @request.env["HTTP_IF_NONE_MATCH"] = "someguid 2"
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('user', 'pass')  
+    @request.env["HTTP_IF_NONE_MATCH"] = "someguid 1"
     get :index
     
     assert_response :not_modified
   end
   
   test "should apply HTTP_IF_NONE_MATCH" do
-    app, chan = create_app_and_channel('user', 'pass', 'chan')
-    create_first_message(app)
-    create_second_message(app)
+    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
+    new_at_message(app, 0)
+    new_at_message(app, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = auth('user', 'pass')  
-    @request.env["HTTP_IF_NONE_MATCH"] = "someguid"
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('user', 'pass')  
+    @request.env["HTTP_IF_NONE_MATCH"] = "someguid 0"
     get :index
     
     assert_select "title", "Outbox"
@@ -142,72 +142,29 @@ class RssControllerTest < ActionController::TestCase
       assert_equal 1, es.length
     end
     
-    assert_select "description", "Body of the message 2"
-    assert_select "author", "Someone 2"
-    assert_select "to", "Someone else 2"
-    assert_select "guid", "someguid 2"
+    assert_select "description", "Body of the message 1"
+    assert_select "author", "Someone 1"
+    assert_select "to", "Someone else 1"
+    assert_select "guid", "someguid 1"
     assert_select "pubDate", "Thu, 03 Jun 2004 09:39:21 +0000"
   end
   
   test "create not authorized" do
-    app, chan = create_app_and_channel('user', 'pass', 'chan')
+    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
   
-    @request.env['HTTP_AUTHORIZATION'] = auth('user', 'wrong_pass')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('user', 'wrong_pass')
     post :create
     
     assert_response 401
   end
   
   test "index not authorized" do
-    app, chan = create_app_and_channel('user', 'pass', 'chan')
+    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
   
-    @request.env['HTTP_AUTHORIZATION'] = auth('user', 'wrong_pass')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('user', 'wrong_pass')
     get :index
     
     assert_response 401
-  end
-  
-  # Utility methods follow
-  
-  def create_app_and_channel(user, pass, chan)
-    app = Application.new
-    app.name = user
-    app.password = Digest::MD5.hexdigest(pass)
-    app.save!
-    
-    channel = Channel.new
-    channel.application_id = app.id
-    channel.name = chan
-    channel.kind = :qst
-    channel.save!
-    
-    [app, channel]
-  end
-  
-  def create_first_message(app)
-    msg = ATMessage.new
-    msg.application_id = app.id
-    msg.body = "Body of the message"
-    msg.from = "Someone"
-    msg.to = "Someone else"
-    msg.guid = "someguid"
-    msg.timestamp = Time.parse("Tue, 03 Jun 2003 09:39:21 GMT")
-    msg.save
-  end
-  
-  def create_second_message(app)
-    msg = ATMessage.new
-    msg.application_id = app.id
-    msg.body = "Body of the message 2"
-    msg.from = "Someone 2"
-    msg.to = "Someone else 2"
-    msg.guid = "someguid 2"
-    msg.timestamp = Time.parse("Thu, 03 Jun 2004 09:39:21 GMT")
-    msg.save
-  end
-  
-  def auth(user, pass)
-    'Basic ' + Base64.encode64(user + ':' + Digest::MD5.hexdigest(pass))
   end
   
 end
