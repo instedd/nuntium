@@ -1,9 +1,7 @@
 require 'rexml/document'
 
-class IncomingController < ApplicationController
-  before_filter :authenticate
-
-  # HEAD /qst/incoming
+class IncomingController < QSTController
+  # HEAD /qst/:application_id/incoming
   def index
     if request.head?
       msg = ATMessage.last(:order => :timestamp, :conditions => ['application_id = ?', @application.id])
@@ -14,7 +12,7 @@ class IncomingController < ApplicationController
     end
   end
   
-  # POST /qst/incoming
+  # POST /qst/:application_id/incoming
   def create
     xml_data = request.env['RAW_POST_DATA']
     doc = REXML::Document.new(xml_data)
@@ -35,17 +33,5 @@ class IncomingController < ApplicationController
     end
     
     head :ok, 'ETag' => last_id
-  end
-  
-  def authenticate
-    authenticate_or_request_with_http_basic do |username, password|
-      @application = Application.first(:conditions => ['name = ?', username]) 
-      if !@application.nil?
-        @channel = @application.channels.first(:conditions => ['kind = ?', :qst])
-        !@channel.nil? and @channel.configuration[:password] == password
-      else
-        false
-      end
-    end
   end
 end

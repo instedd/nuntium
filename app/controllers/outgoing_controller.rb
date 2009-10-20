@@ -1,7 +1,5 @@
-class OutgoingController < ApplicationController
-  before_filter :authenticate
-
-  # GET /qst/outgoing
+class OutgoingController < QSTController
+  # GET /qst/:application_id/outgoing
   def index
     etag = request.env['HTTP_IF_NONE_MATCH']
     max = params[:max]
@@ -36,18 +34,6 @@ class OutgoingController < ApplicationController
     
     if !@ao_messages.empty?
       response.headers['ETag'] = @ao_messages.last.guid
-    end
-  end
-  
-  def authenticate
-    authenticate_or_request_with_http_basic do |username, password|
-      @application = Application.first(:conditions => ['name = ?', username]) 
-      if !@application.nil?
-        @channel = @application.channels.first(:conditions => ['kind = ?', :qst])
-        !@channel.nil? and @channel.configuration[:password] == password
-      else
-        false
-      end
     end
   end
 end

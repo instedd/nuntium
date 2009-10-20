@@ -51,6 +51,12 @@ class ActiveSupport::TestCase
     app.password = Digest::MD5.hexdigest(app_pass)
     app.save!
     
+    channel = create_channel app, chan_name, chan_pass
+    
+    [app, channel]
+  end
+  
+  def create_channel(app, chan_name, chan_pass)
     channel = Channel.new
     channel.application_id = app.id
     channel.name = chan_name
@@ -58,7 +64,7 @@ class ActiveSupport::TestCase
     channel.kind = :qst
     channel.save!
     
-    [app, channel]
+    channel
   end
   
   # Creates an ATMessage that belongs to app and has values according to i

@@ -9,15 +9,15 @@ class RoutesTest < ActionController::TestCase
     assert_routing({ :path => "/rss", :method => :post }, { :controller => "rss", :action => "create" })
   end
   
-  test "head /qst/incoming" do
-    assert_routing({ :path => "/qst/incoming", :method => :head }, { :controller => "incoming", :action => "index" })
+  test "head /qst/application_id/incoming" do
+    assert_routing({ :path => "/qst/some_app/incoming", :method => :head }, { :controller => "incoming", :action => "index", :application_id => "some_app" })
   end
   
-  test "post /qst/incoming" do
-    assert_routing({ :path => "/qst/incoming", :method => :post }, { :controller => "incoming", :action => "create" })
+  test "post /qst/application_id/incoming" do
+    assert_routing({ :path => "/qst/some_app/incoming", :method => :post }, { :controller => "incoming", :action => "create", :application_id => "some_app" })
   end
   
-  test "get /qst/outgoing" do
-    assert_routing({ :path => "/qst/outgoing", :method => :get }, { :controller => "outgoing", :action => "index" })
+  test "get /qst/application_id/outgoing" do
+    assert_routing({ :path => "/qst/some_app/outgoing", :method => :get }, { :controller => "outgoing", :action => "index", :application_id => "some_app" })
   end
 end

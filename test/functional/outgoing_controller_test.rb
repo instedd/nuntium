@@ -2,8 +2,13 @@ require 'test_helper'
 
 class OutgoingControllerTest < ActionController::TestCase
   test "get one" do
-    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
-    app2, chan2 = create_app_and_channel('user2', 'pass2', 'chan2', 'chan_pass2')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    
+    # This is to see that this doesn't interfere with the test
+    app2, chan2 = create_app_and_channel('app2', 'app_pass2', 'chan2', 'chan_pass2')
+    
+    # This is so that we have another channel but the one we are looking for is used
+    create_channel(app, 'chan3', 'chan_pass3')
     
     new_ao_message(app2, 1)
     new_qst_outgoing_message(chan2, 1)
@@ -11,8 +16,8 @@ class OutgoingControllerTest < ActionController::TestCase
     new_ao_message(app, 0)
     new_qst_outgoing_message(chan, 0)
     
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('user', 'chan_pass')    
-    get :index
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
+    get 'index', :application_id => 'app'
     
     assert_equal "someguid 0", @response.headers['ETag']
     
@@ -34,23 +39,23 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_equal "someguid 0", unread[1].guid
     
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 0"
-    get :index
+    get 'index', :application_id => 'app'
     
     assert_select "message", {:count => 0}
   end
   
   test "get one not unread" do
-    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
     new_ao_message(app, 0)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('user', 'chan_pass')    
-    get :index
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
+    get 'index', :application_id => 'app'
     assert_select "message", {:count => 0}
   end
   
   test "should return not modified for HTTP_IF_NONE_MATCH" do
-    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
-    app2, chan2 = create_app_and_channel('user2', 'pass2', 'chan2', 'chan_pass2')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    app2, chan2 = create_app_and_channel('app2', 'app_pass2', 'chan2', 'chan_pass2')
     
     new_ao_message(app2, 2)
     new_qst_outgoing_message(chan2, 2)
@@ -61,9 +66,9 @@ class OutgoingControllerTest < ActionController::TestCase
     new_ao_message(app, 1)
     new_qst_outgoing_message(chan, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('user', 'chan_pass')    
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 1"
-    get :index
+    get 'index', :application_id => 'app'
     
     assert_select "message", {:count => 0}
     
@@ -74,7 +79,7 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "should apply HTTP_IF_NONE_MATCH" do
-    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
   
     new_ao_message(app, 0)
     new_qst_outgoing_message(chan, 0)
@@ -82,9 +87,9 @@ class OutgoingControllerTest < ActionController::TestCase
     new_ao_message(app, 1)
     new_qst_outgoing_message(chan, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('user', 'chan_pass')    
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 0"
-    get :index
+    get 'index', :application_id => 'app'
     
     assert_equal "someguid 1", @response.headers['ETag']
     
@@ -102,16 +107,16 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "should apply HTTP_IF_NONE_MATCH with max" do
-    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
     
     (1..4).each do |i| 
       new_ao_message(app, i)
       new_qst_outgoing_message(chan, i)
     end
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('user', 'chan_pass')    
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 2"
-    get :index, :max => 1
+    get 'index', :application_id => 'app', :max => 1
     
     assert_equal "someguid 3", @response.headers['ETag']
     
@@ -130,10 +135,10 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "get not authorized" do
-    app, chan = create_app_and_channel('user', 'pass', 'chan', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
     
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('user', 'wrong_pass')  
-    get :index
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'wrong_pass')  
+    get 'index', :application_id => 'app'
     
     assert_response 401
   end
