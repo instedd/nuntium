@@ -11,9 +11,7 @@ class QSTController < ApplicationController
         @channel = @application.channels.first(
           :conditions => ['name = ? AND kind = ?', username, :qst])
         if !@channel.nil?
-          real_salt = @channel.configuration[:salt]
-          real_pass = @channel.configuration[:password]
-          real_pass == Digest::SHA2.hexdigest(real_salt + password)
+          @channel.authenticate password
         else
           false
         end

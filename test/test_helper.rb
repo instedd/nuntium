@@ -41,28 +41,27 @@ class ActiveSupport::TestCase
   
   # Returns the string to be used for HTTP_AUTHENTICATION header
   def http_auth(user, pass)
-    'Basic ' + Base64.encode64(user + ':' + Digest::MD5.hexdigest(pass))
+    'Basic ' + Base64.encode64(user + ':' + pass)
   end
   
   # Creates an app and a qst channel with the given values.
   # Returns the tupple [application, channel]
-  def create_app_and_channel(app_name, app_salt, app_pass, chan_name, chan_salt, chan_pass)
+  def create_app_and_channel(app_name, app_pass, chan_name, chan_pass)
     app = Application.new
     app.name = app_name
-    app.salt = app_salt
-    app.password = Digest::SHA2.hexdigest(app_salt + Digest::MD5.hexdigest(app_pass))
+    app.password = app_pass
     app.save!
     
-    channel = create_channel app, chan_name, chan_salt, chan_pass
+    channel = create_channel app, chan_name, chan_pass
     
     [app, channel]
   end
   
-  def create_channel(app, name, salt, pass)
+  def create_channel(app, name, pass)
     channel = Channel.new
     channel.application_id = app.id
     channel.name = name
-    channel.configuration = { :salt => salt, :password => Digest::SHA2.hexdigest(salt + Digest::MD5.hexdigest(pass)) }
+    channel.configuration = { :password => pass }
     channel.kind = :qst
     channel.save!
     

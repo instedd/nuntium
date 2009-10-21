@@ -2,13 +2,13 @@ require 'test_helper'
 
 class OutgoingControllerTest < ActionController::TestCase
   test "get one" do
-    app, chan = create_app_and_channel('app', 'appsaltx', 'app_pass', 'chan', 'chansalt', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
     
     # This is to see that this doesn't interfere with the test
-    app2, chan2 = create_app_and_channel('app2', 'appsaltx', 'app_pass2', 'chan2', 'chansalt', 'chan_pass2')
+    app2, chan2 = create_app_and_channel('app2', 'app_pass2', 'chan2', 'chan_pass2')
     
     # This is so that we have another channel but the one we are looking for is used
-    create_channel(app, 'chan3', 'chansalt', 'chan_pass3')
+    create_channel(app, 'chan3', 'chan_pass3')
     
     new_ao_message(app2, 1)
     new_qst_outgoing_message(chan2, 1)
@@ -45,7 +45,7 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "get one not unread" do
-    app, chan = create_app_and_channel('app', 'appsaltx', 'app_pass', 'chan', 'chansalt', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
     new_ao_message(app, 0)
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
@@ -54,8 +54,8 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "should return not modified for HTTP_IF_NONE_MATCH" do
-    app, chan = create_app_and_channel('app', 'appsaltx', 'app_pass', 'chan', 'chansalt', 'chan_pass')
-    app2, chan2 = create_app_and_channel('app2', 'appsaltx', 'app_pass2', 'chan2', 'chansalt', 'chan_pass2')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    app2, chan2 = create_app_and_channel('app2', 'app_pass2', 'chan2', 'chan_pass2')
     
     new_ao_message(app2, 2)
     new_qst_outgoing_message(chan2, 2)
@@ -79,7 +79,7 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "should apply HTTP_IF_NONE_MATCH" do
-    app, chan = create_app_and_channel('app', 'appsaltx', 'app_pass', 'chan', 'chansalt', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
   
     new_ao_message(app, 0)
     new_qst_outgoing_message(chan, 0)
@@ -107,7 +107,7 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "should apply HTTP_IF_NONE_MATCH with max" do
-    app, chan = create_app_and_channel('app', 'appsaltx', 'app_pass', 'chan', 'chansalt', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
     
     (1..4).each do |i| 
       new_ao_message(app, i)
@@ -135,7 +135,7 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "get not authorized" do
-    app, chan = create_app_and_channel('app', 'appsaltx', 'app_pass', 'chan', 'chansalt', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
     
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'wrong_pass')  
     get 'index', :application_id => 'app'

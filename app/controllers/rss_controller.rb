@@ -72,9 +72,7 @@ class RssController < ApplicationController
     authenticate_or_request_with_http_basic do |username, password|
       @application = Application.first(:conditions => ['name = ?', username]) 
       if !@application.nil?
-        real_salt = @application.salt
-        real_pass = @application.password
-        if real_pass == Digest::SHA2.hexdigest(real_salt + password)
+        if @application.authenticate password
           @channel = @application.channels.first(:conditions => ['kind = ?', :qst])
           !@channel.nil?
         else
