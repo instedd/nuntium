@@ -1,6 +1,5 @@
 require 'rss/1.0'
 require 'rss/2.0'
-require 'digest/sha2'
 
 class RssController < ApplicationController
   before_filter :authenticate

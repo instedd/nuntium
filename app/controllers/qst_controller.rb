@@ -1,5 +1,3 @@
-require 'digest/sha2'
-
 class QSTController < ApplicationController
   before_filter :authenticate
 
