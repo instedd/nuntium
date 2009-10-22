@@ -15,8 +15,15 @@ class OutgoingController < QSTController
       outgoing_messages.each do |msg|
         count += 1
         if msg.guid == etag
+        
+          # Delete from qst queue
           QSTOutgoingMessage.delete_all(
             ["channel_id =? AND id <= ?", @channel.id, msg.id])
+
+          # And also mark messages as delivered
+          delivered_messages = outgoing_messages[0 ... count]
+          delivered_messages.collect! {|x| x.guid}
+          AOMessage.update_all(['state = ?', 'delivered'], ['guid in (?)', delivered_messages])
           break
         end
       end

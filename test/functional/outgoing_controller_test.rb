@@ -130,9 +130,18 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_select "message[when=?]", "2004-06-03T09:39:21Z"
     assert_select "message text", "Subject of the message 1 - Body of the message 1"
     
+    # One unread message was deleted
     unread = QSTOutgoingMessage.all
     assert_equal 1, unread.length
     assert_equal "someguid 1", unread[0].guid
+    
+    # The first message is marked as delivered,
+    # the second stays as pending
+    msgs = AOMessage.all
+    
+    assert_equal 'delivered', msgs[0].state
+    assert_equal 'pending', msgs[1].state
+    
   end
   
   test "should apply HTTP_IF_NONE_MATCH with max" do
