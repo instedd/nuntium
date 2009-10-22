@@ -7,4 +7,23 @@ class ApplicationController < ActionController::Base
 
   # Scrub sensitive parameters from your log
   # filter_parameter_logging :password
+
+  # Given an array of AOMessage or ATMessage, this methods
+  # returns two arrays:
+  #  - The first one has the messages which have tries < app.max_tries
+  #  - The second one has the *ids* of those who have tries >= app.max_tries
+  def filter_tries_exceeded_and_not_exceeded(msgs, app)
+    valid_messages = []
+    invalid_message_ids = []
+    
+    msgs.each do |msg|
+      if msg.tries >= app.max_tries
+        invalid_message_ids += [msg.id]
+      else
+        valid_messages += [msg]
+      end
+    end
+    
+    [valid_messages, invalid_message_ids]
+  end
 end
