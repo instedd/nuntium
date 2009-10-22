@@ -27,7 +27,7 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_select "message[from=?]", "Someone 0"
     assert_select "message[to=?]", "Someone else 0"
     assert_select "message[when=?]", "2003-06-03T09:39:21Z"
-    assert_select "message text", "Body of the message 0"
+    assert_select "message text", "Subject of the message 0 - Body of the message 0"
     
     unread = QSTOutgoingMessage.all
     assert_equal 2, unread.length
@@ -128,7 +128,7 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_select "message[from=?]", "Someone 1"
     assert_select "message[to=?]", "Someone else 1"
     assert_select "message[when=?]", "2004-06-03T09:39:21Z"
-    assert_select "message text", "Body of the message 1"
+    assert_select "message text", "Subject of the message 1 - Body of the message 1"
     
     unread = QSTOutgoingMessage.all
     assert_equal 1, unread.length
@@ -155,7 +155,7 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_select "message[from=?]", "Someone 3"
     assert_select "message[to=?]", "Someone else 3"
     assert_select "message[when=?]", "2006-06-03T09:39:21Z"
-    assert_select "message text", "Body of the message 3"
+    assert_select "message text", "Subject of the message 3 - Body of the message 3"
     
     unread = QSTOutgoingMessage.all
     assert_equal 2, unread.length

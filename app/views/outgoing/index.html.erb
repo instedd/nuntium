@@ -8,7 +8,7 @@ xml.instruct!
 xml.messages do
   @ao_messages.each do |msg|
     xml.message(:id => msg.guid, :from => msg.from, :to => msg.to, :when => msg.timestamp.xmlschema) do
-      xml.text msg.body
+      xml.text msg.subject.nil? ? msg.body : msg.subject + ' - ' + msg.body
     end
   end
 end

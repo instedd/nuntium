@@ -29,6 +29,7 @@ class RssControllerTest < ActionController::TestCase
     
     msg = messages[0]
     assert_equal app.id, msg.application_id
+    assert_equal "First message", msg.subject
     assert_equal "Body of the message", msg.body
     assert_equal "Someone", msg.from
     assert_equal "Someone else", msg.to
@@ -57,6 +58,7 @@ class RssControllerTest < ActionController::TestCase
       assert_equal 1, es.length
     end
     
+    assert_select "title", "Subject of the message 0"
     assert_select "description", "Body of the message 0"
     assert_select "author", "Someone 0"
     assert_select "to", "Someone else 0"
@@ -108,6 +110,7 @@ class RssControllerTest < ActionController::TestCase
       assert_equal 1, es.length
     end
     
+    assert_select "title", "Subject of the message 1"
     assert_select "description", "Body of the message 1"
     assert_select "author", "Someone 1"
     assert_select "to", "Someone else 1"
@@ -142,6 +145,7 @@ class RssControllerTest < ActionController::TestCase
       assert_equal 1, es.length
     end
     
+    assert_select "title", "Subject of the message 1"
     assert_select "description", "Body of the message 1"
     assert_select "author", "Someone 1"
     assert_select "to", "Someone else 1"

@@ -71,12 +71,7 @@ class ActiveSupport::TestCase
   # Creates an ATMessage that belongs to app and has values according to i
   def new_at_message(app, i)
     msg = ATMessage.new
-    msg.application_id = app.id
-    msg.body = "Body of the message #{i}"
-    msg.from = "Someone #{i}"
-    msg.to = "Someone else #{i}"
-    msg.guid = "someguid #{i}"
-    msg.timestamp = Time.parse("03 Jun #{2003 + i} 09:39:21 GMT")
+    fill_msg msg, app, i
     msg.save!
     
     msg
@@ -85,15 +80,20 @@ class ActiveSupport::TestCase
   # Creates an AOMessage that belongs to app and has values according to i
   def new_ao_message(app, i)
     msg = AOMessage.new
+    fill_msg msg, app, i
+    msg.save!
+    
+    msg
+  end
+  
+  def fill_msg(msg, app, i)
     msg.application_id = app.id
+    msg.subject = "Subject of the message #{i}"
     msg.body = "Body of the message #{i}"
     msg.from = "Someone #{i}"
     msg.to = "Someone else #{i}"
     msg.guid = "someguid #{i}"
     msg.timestamp = Time.parse("03 Jun #{2003 + i} 09:39:21 GMT")
-    msg.save!
-    
-    msg
   end
   
   # Creates a new QSTOutgoingMessage with guid "someguid #{i}"

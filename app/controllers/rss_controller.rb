@@ -53,6 +53,7 @@ class RssController < ApplicationController
       msg.application_id = @application.id
       msg.from = item.author
       msg.to = item.to
+      msg.subject = item.title
       msg.body = item.description
       msg.guid = item.guid.content
       msg.timestamp = item.pubDate.to_datetime
