@@ -13,7 +13,7 @@ class OutgoingControllerTest < ActionController::TestCase
     new_ao_message(app2, 1)
     new_qst_outgoing_message(chan2, 1)
     
-    new_ao_message(app, 0)
+    msg = new_ao_message(app, 0)
     new_qst_outgoing_message(chan, 0)
     
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
@@ -22,12 +22,7 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_equal "someguid 0", @response.headers['ETag']
     
     assert_select "message", {:count => 1}
-    
-    assert_select "message[id=?]", "someguid 0"
-    assert_select "message[from=?]", "Someone 0"
-    assert_select "message[to=?]", "Someone else 0"
-    assert_select "message[when=?]", "2003-06-03T09:39:21Z"
-    assert_select "message text", "Subject of the message 0 - Body of the message 0"
+    assert_shows_message msg
     
     unread = QSTOutgoingMessage.all
     assert_equal 2, unread.length
@@ -113,7 +108,7 @@ class OutgoingControllerTest < ActionController::TestCase
     new_ao_message(app, 0)
     new_qst_outgoing_message(chan, 0)
     
-    new_ao_message(app, 1)
+    msg = new_ao_message(app, 1)
     new_qst_outgoing_message(chan, 1)
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
@@ -123,12 +118,7 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_equal "someguid 1", @response.headers['ETag']
     
     assert_select "message", {:count => 1}
-    
-    assert_select "message[id=?]", "someguid 1"
-    assert_select "message[from=?]", "Someone 1"
-    assert_select "message[to=?]", "Someone else 1"
-    assert_select "message[when=?]", "2004-06-03T09:39:21Z"
-    assert_select "message text", "Subject of the message 1 - Body of the message 1"
+    assert_shows_message msg
     
     # One unread message was deleted
     unread = QSTOutgoingMessage.all
@@ -147,8 +137,10 @@ class OutgoingControllerTest < ActionController::TestCase
   test "should apply HTTP_IF_NONE_MATCH with max" do
     app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
     
+    msgs = []
+    
     (1..4).each do |i| 
-      new_ao_message(app, i)
+      msgs += [new_ao_message(app, i)]
       new_qst_outgoing_message(chan, i)
     end
   
@@ -159,12 +151,7 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_equal "someguid 3", @response.headers['ETag']
     
     assert_select "message", {:count => 1}
-    
-    assert_select "message[id=?]", "someguid 3"
-    assert_select "message[from=?]", "Someone 3"
-    assert_select "message[to=?]", "Someone else 3"
-    assert_select "message[when=?]", "2006-06-03T09:39:21Z"
-    assert_select "message text", "Subject of the message 3 - Body of the message 3"
+    assert_shows_message msgs[2]
     
     unread = QSTOutgoingMessage.all
     assert_equal 2, unread.length

@@ -104,4 +104,21 @@ class ActiveSupport::TestCase
     msg.save
   end
   
+  def assert_shows_message(msg)
+    assert_select "message[id=?]", msg.guid
+    assert_select "message[from=?]", msg.from
+    assert_select "message[to=?]", msg.to
+    assert_select "message[when=?]", msg.timestamp.iso8601
+    assert_select "message text", msg.subject.nil? ? msg.body : msg.subject + " - " + msg.body
+  end
+  
+  def assert_shows_message_as_rss_item(msg)
+    assert_select "title", msg.subject
+    assert_select "description", msg.body
+    assert_select "author", msg.from
+    assert_select "to", msg.to
+    assert_select "guid", msg.guid
+    assert_select "pubDate", msg.timestamp.rfc822
+  end
+  
 end

@@ -45,10 +45,10 @@ class RssControllerTest < ActionController::TestCase
   
   test "should convert one message to rss item" do
     app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
-    new_at_message(app, 0)
+    msg = new_at_message(app, 0)
     
     app2, chan2 = create_app_and_channel('app2', 'app_pass2', 'chan2', 'chan_pass2')
-    new_at_message(app2, 0)
+    new_at_message(app2, 1)
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
     get :index
@@ -58,13 +58,8 @@ class RssControllerTest < ActionController::TestCase
     assert_select "guid" do |es|
       assert_equal 1, es.length
     end
-    
-    assert_select "title", "Subject of the message 0"
-    assert_select "description", "Body of the message 0"
-    assert_select "author", "Someone 0"
-    assert_select "to", "Someone else 0"
-    assert_select "guid", "someguid 0"
-    assert_select "pubDate", "Tue, 03 Jun 2003 09:39:21 +0000"
+
+    assert_shows_message_as_rss_item msg
   end
   
   test "should convert two messages to rss items ordered by timestamp" do
@@ -99,7 +94,7 @@ class RssControllerTest < ActionController::TestCase
   test "should apply HTTP_IF_MODIFIED_SINCE" do
     app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
     new_at_message(app, 0)
-    new_at_message(app, 1)
+    msg = new_at_message(app, 1)
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
     @request.env["HTTP_IF_MODIFIED_SINCE"] = "Tue, 03 Jun 2003 09:39:21 GMT"
@@ -111,12 +106,7 @@ class RssControllerTest < ActionController::TestCase
       assert_equal 1, es.length
     end
     
-    assert_select "title", "Subject of the message 1"
-    assert_select "description", "Body of the message 1"
-    assert_select "author", "Someone 1"
-    assert_select "to", "Someone else 1"
-    assert_select "guid", "someguid 1"
-    assert_select "pubDate", "Thu, 03 Jun 2004 09:39:21 +0000"
+    assert_shows_message_as_rss_item msg
   end
   
   test "should return not modified for HTTP_IF_NONE_MATCH" do
@@ -134,7 +124,7 @@ class RssControllerTest < ActionController::TestCase
   test "should apply HTTP_IF_NONE_MATCH" do
     app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
     new_at_message(app, 0)
-    new_at_message(app, 1)
+    msg = new_at_message(app, 1)
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 0"
@@ -146,12 +136,7 @@ class RssControllerTest < ActionController::TestCase
       assert_equal 1, es.length
     end
     
-    assert_select "title", "Subject of the message 1"
-    assert_select "description", "Body of the message 1"
-    assert_select "author", "Someone 1"
-    assert_select "to", "Someone else 1"
-    assert_select "guid", "someguid 1"
-    assert_select "pubDate", "Thu, 03 Jun 2004 09:39:21 +0000"
+    assert_shows_message_as_rss_item msg
   end
   
   test "create not authorized" do
