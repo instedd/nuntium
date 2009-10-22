@@ -77,7 +77,9 @@ class ActiveSupport::TestCase
     msg.to = "Someone else #{i}"
     msg.guid = "someguid #{i}"
     msg.timestamp = Time.parse("03 Jun #{2003 + i} 09:39:21 GMT")
-    msg.save
+    msg.save!
+    
+    msg
   end
   
   # Creates an AOMessage that belongs to app and has values according to i
@@ -89,7 +91,9 @@ class ActiveSupport::TestCase
     msg.to = "Someone else #{i}"
     msg.guid = "someguid #{i}"
     msg.timestamp = Time.parse("03 Jun #{2003 + i} 09:39:21 GMT")
-    msg.save
+    msg.save!
+    
+    msg
   end
   
   # Creates a new QSTOutgoingMessage with guid "someguid #{i}"

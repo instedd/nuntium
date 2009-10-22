@@ -53,6 +53,35 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_select "message", {:count => 0}
   end
   
+  test "get one increments retires" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    
+    new_ao_message(app, 0)
+    new_qst_outgoing_message(chan, 0)
+    
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
+    
+    # Try number 1
+    get 'index', :application_id => 'app'
+    assert_select "message", {:count => 1}
+    assert_equal 1, AOMessage.first.tries
+    
+    # Try number 2
+    get 'index', :application_id => 'app'
+    assert_select "message", {:count => 1}
+    assert_equal 2, AOMessage.first.tries
+    
+    # Try number 3
+    get 'index', :application_id => 'app'
+    assert_select "message", {:count => 1}
+    assert_equal 3, AOMessage.first.tries
+    
+    # Try number 4 -> should be gone
+    get 'index', :application_id => 'app'
+    assert_select "message", {:count => 0}
+    assert_equal 0, AOMessage.all.length
+  end
+  
   test "should return not modified for HTTP_IF_NONE_MATCH" do
     app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
     app2, chan2 = create_app_and_channel('app2', 'app_pass2', 'chan2', 'chan_pass2')

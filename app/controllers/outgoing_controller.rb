@@ -33,9 +33,35 @@ class OutgoingController < QSTController
     # Keep only ids of messages
     outgoing_messages.collect! {|x| x.guid }
     
+    conditions = ['guid IN (?)', outgoing_messages]
+    
+    # Retrieve the messages using those ids
     @ao_messages = AOMessage.all(
       :order => 'timestamp', 
-      :conditions => ['guid IN (?)', outgoing_messages])
+      :conditions => conditions)
+      
+    # Update their number of retries
+    AOMessage.update_all('tries = tries + 1', conditions)
+    
+    # Separate messages into ones that have their tries
+    # over max_tries and those still valid.
+    valid_messages = []
+    invalid_message_guids = []
+    
+    @ao_messages.each do |msg|
+      if msg.tries >= @application.max_tries
+        invalid_message_guids += [msg.guid]
+      else
+        valid_messages += [msg]
+      end
+    end
+    
+    # Delete messages that have their tries over max_tries
+    if !invalid_message_guids.empty?
+      AOMessage.delete_all(["guid IN (?)", invalid_message_guids])
+    end
+    
+    @ao_messages = valid_messages
     
     if !@ao_messages.empty?
       response.headers['ETag'] = @ao_messages.last.guid
