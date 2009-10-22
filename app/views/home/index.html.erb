@@ -1,0 +1,9 @@
+<h3>Login to your application</h3>
+<% form_for :application, :url => { :controller => 'home', :action => :login } do |f| %>
+  <div>Name:</div>
+  <div><%= f.text_field :name %></div>
+  <div>Password:</div>
+  <div><%= f.password_field :password %></div>
+  <div style="color:red"><%= flash[:notice] %></div>
+  <div><%= submit_tag 'Login' %></div>
+<% end %>

@@ -2,6 +2,10 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :rss, :only => [:index, :create]
   map.resources :incoming, :path_prefix => '/qst/:application_id', :only => [:index, :create]
   map.resources :outgoing, :path_prefix => '/qst/:application_id', :only => [:index]
+  
+  map.root :controller => 'home'
+  map.login '/login', :controller => 'home', :action => :login
+  map.home  '/home',  :controller => 'home', :action => :home
 
   # The priority is based upon order of creation: first created -> highest priority.
 

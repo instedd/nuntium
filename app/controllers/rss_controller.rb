@@ -70,7 +70,7 @@ class RssController < ApplicationController
   
   def authenticate
     authenticate_or_request_with_http_basic do |username, password|
-      @application = Application.first(:conditions => ['name = ?', username]) 
+      @application = Application.find_by_name username
       if !@application.nil?
         if @application.authenticate password
           @channel = @application.channels.first(:conditions => ['kind = ?', :qst])
