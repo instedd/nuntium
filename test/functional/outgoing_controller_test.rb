@@ -140,7 +140,7 @@ class OutgoingControllerTest < ActionController::TestCase
     msgs = []
     
     (1..4).each do |i| 
-      msgs += [new_ao_message(app, i)]
+      msgs.push new_ao_message(app, i)
       new_qst_outgoing_message(chan, i)
     end
   

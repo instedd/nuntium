@@ -18,9 +18,9 @@ class ApplicationController < ActionController::Base
     
     msgs.each do |msg|
       if msg.tries >= app.max_tries
-        invalid_message_ids += [msg.id]
+        invalid_message_ids.push msg.id
       else
-        valid_messages += [msg]
+        valid_messages.push msg
       end
     end
     

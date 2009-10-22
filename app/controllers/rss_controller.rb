@@ -16,7 +16,7 @@ class RssController < ApplicationController
     # Filter by date if requested
     if !last_modified.nil?
       query += ' AND timestamp > ?'
-      params += [DateTime.parse(last_modified)]
+      params.push DateTime.parse(last_modified)
     end
     
     # Order by time, last arrived message will be first
