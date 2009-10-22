@@ -12,10 +12,6 @@ class Application < ActiveRecord::Base
   end
   
   def authenticate(password)
-    puts self.salt
-    puts self.password
-    puts Digest::SHA2.hexdigest(self.salt + password)
-  
     self.password == Digest::SHA2.hexdigest(self.salt + password)
   end
   

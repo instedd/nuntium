@@ -14,7 +14,7 @@ class Channel < ActiveRecord::Base
   private
   
   def hash_password
-    if kind == :qst
+    if kind == 'qst'
       self.configuration[:salt] = ActiveSupport::SecureRandom.base64(8)
       self.configuration[:password] = Digest::SHA2.hexdigest(self.configuration[:salt] + self.configuration[:password])
     end

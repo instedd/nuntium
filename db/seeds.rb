@@ -14,4 +14,4 @@ app = Application.create({ :name => 'riff', :salt => app_salt, :password => app_
 
 chan_salt = ActiveSupport::SecureRandom.base64(8)
 chan_pass = 'smspass'
-Channel.create(:name => 'sms', :kind => :qst, :configuration => { :salt => chan_salt, :password => chan_pass }, :application_id => app.id)
+Channel.create(:name => 'sms', :kind => 'qst', :configuration => { :salt => chan_salt, :password => chan_pass }, :application_id => app.id)

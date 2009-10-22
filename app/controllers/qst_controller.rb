@@ -7,7 +7,7 @@ class QSTController < ApplicationController
         :conditions => ['name = ?', params[:application_id]])
       if !@application.nil?
         @channel = @application.channels.first(
-          :conditions => ['name = ? AND kind = ?', username, :qst])
+          :conditions => ['name = ? AND kind = ?', username, 'qst'])
         if !@channel.nil?
           @channel.authenticate password
         else

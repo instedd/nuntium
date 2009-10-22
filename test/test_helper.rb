@@ -62,7 +62,7 @@ class ActiveSupport::TestCase
     channel.application_id = app.id
     channel.name = name
     channel.configuration = { :password => pass }
-    channel.kind = :qst
+    channel.kind = 'qst'
     channel.save!
     
     channel

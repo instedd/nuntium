@@ -57,6 +57,7 @@ class RssController < ApplicationController
       msg.body = item.description
       msg.guid = item.guid.content
       msg.timestamp = item.pubDate.to_datetime
+      msg.state = 'queued'
       msg.save
       
       outgoing = QSTOutgoingMessage.new
@@ -73,7 +74,7 @@ class RssController < ApplicationController
       @application = Application.find_by_name username
       if !@application.nil?
         if @application.authenticate password
-          @channel = @application.channels.first(:conditions => ['kind = ?', :qst])
+          @channel = @application.channels.first(:conditions => ['kind = ?', 'qst'])
           !@channel.nil?
         else
           false
