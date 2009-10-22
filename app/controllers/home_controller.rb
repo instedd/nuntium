@@ -3,12 +3,14 @@ class HomeController < ApplicationController
   before_filter :check_login, :except => [:index, :login]
 
   def index
+    @application = flash[:application]
   end
   
   def login
     app = params[:application]
     @application = Application.find_by_name app[:name]
     if @application.nil? || !@application.authenticate(app[:password])
+      flash[:application] = Application.new(:name => app[:name])
       flash[:notice] = 'Invalid name/password'
       redirect_to :action => :index
       return
