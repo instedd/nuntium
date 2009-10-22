@@ -79,7 +79,7 @@ class OutgoingControllerTest < ActionController::TestCase
     # Try number 4 -> should be gone
     get 'index', :application_id => 'app'
     assert_select "message", {:count => 0}
-    assert_equal 0, AOMessage.all.length
+    assert_equal 'failed', AOMessage.first.state
   end
   
   test "should return not modified for HTTP_IF_NONE_MATCH" do

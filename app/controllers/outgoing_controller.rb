@@ -40,7 +40,7 @@ class OutgoingController < QSTController
     # Keep only ids of messages
     outgoing_messages.collect! {|x| x.guid }
     
-    conditions = ['guid IN (?)', outgoing_messages]
+    conditions = ['guid IN (?) and state != ?', outgoing_messages, 'failed']
     
     # Retrieve the messages using those ids
     @ao_messages = AOMessage.all(
@@ -63,9 +63,9 @@ class OutgoingController < QSTController
       end
     end
     
-    # Delete messages that have their tries over max_tries
+    # Mark as failed messages that have their tries over max_tries
     if !invalid_message_guids.empty?
-      AOMessage.delete_all(["guid IN (?)", invalid_message_guids])
+      AOMessage.update_all(['state = ?', 'failed'], ['guid IN (?)', invalid_message_guids])
     end
     
     @ao_messages = valid_messages
