@@ -75,6 +75,8 @@ class RssController < ApplicationController
     tree = RSS::Parser.parse(body, false)
     
     tree.channel.items.each do |item|
+      # Create AO message (but don't save it yet)
+      # This allows us to put messages in logging   
       msg = AOMessage.new
       msg.application_id = @application.id
       msg.from = item.author
@@ -84,14 +86,32 @@ class RssController < ApplicationController
       msg.guid = item.guid.content
       msg.timestamp = item.pubDate.to_datetime
       msg.state = 'queued'
+    
+      # Find protocol of message (based on "to" field)
+      protocol = get_protocol item.to
+      if protocol.nil?
+        logger.warn 'Protocol not found for ' + msg.inspect
+        next
+      end
+      
+      # Find channel that handles that protocol
+      channels = @channels.select {|x| x.protocol == protocol}
+      
+      if channels.empty?
+        logger.warn 'No channel found for protocol "' + protocol + '" in application "' + @application.name + '" for message ' + msg.inspect
+        next
+      end
+      
+      if channels.length > 1
+        logger.warn 'More than one channel found for protocol "' + protocol + '" in application "' + @application.name + '" for message ' + msg.inspect
+      end
+
+      # Now save the message
       msg.save
       
-      # Find channel with protocol
-      protocol = get_protocol msg.to
-      channel = @channels.select {|x| x.protocol == protocol}[0]
-      
+      # Create QST message in that channel
       outgoing = QSTOutgoingMessage.new
-      outgoing.channel_id = channel.id
+      outgoing.channel_id = channels[0].id
       outgoing.guid = msg.guid
       outgoing.save
     end

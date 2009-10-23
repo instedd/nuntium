@@ -27,6 +27,10 @@ class ApplicationController < ActionController::Base
     [valid_messages, invalid_message_ids]
   end
   
+  # Returns protocol of string, nil if none found.
+  # Examples:
+  # 1. 'sms://foobar' -> 'sms'
+  # 2. 'foobar' -> nil
   def get_protocol(address)
     index = address.index '://'
     if index.nil?

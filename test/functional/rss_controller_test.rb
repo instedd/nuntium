@@ -7,21 +7,7 @@ class RssControllerTest < ActionController::TestCase
     app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'sms')
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
-    @request.env['RAW_POST_DATA'] = <<-eos
-      <?xml version="1.0" encoding="UTF-8"?>
-      <rss version="2.0">
-        <channel>
-          <item>
-            <title>First message</title>
-            <description>Body of the message</description>
-            <author>Someone</author>
-            <to>sms://Someone else</to>
-            <pubDate>Tue, 03 Jun 2003 09:39:21 GMT</pubDate>
-            <guid>someguid</guid>
-          </item>
-        </channel>
-      </rss>
-    eos
+    @request.env['RAW_POST_DATA'] = new_rss_feed('sms://Someone else')
     post :create
     
     messages = AOMessage.all
@@ -48,27 +34,44 @@ class RssControllerTest < ActionController::TestCase
     chan2 = create_channel(app, 'chan2', 'chan_pass2', 'mail');
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
-    @request.env['RAW_POST_DATA'] = <<-eos
-      <?xml version="1.0" encoding="UTF-8"?>
-      <rss version="2.0">
-        <channel>
-          <item>
-            <title>First message</title>
-            <description>Body of the message</description>
-            <author>Someone</author>
-            <to>mail://Someone else</to>
-            <pubDate>Tue, 03 Jun 2003 09:39:21 GMT</pubDate>
-            <guid>someguid</guid>
-          </item>
-        </channel>
-      </rss>
-    eos
+    @request.env['RAW_POST_DATA'] = new_rss_feed('mail://Someone else')
     post :create
+    
+    messages = AOMessage.all
+    assert_equal 1, messages.length
     
     unread = QSTOutgoingMessage.all
     assert_equal 1, unread.length
     assert_equal "someguid", unread[0].guid
     assert_equal chan2.id, unread[0].channel_id
+  end
+  
+  test "should do nothing if message doesn't have a protocol" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'sms')
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
+    @request.env['RAW_POST_DATA'] = new_rss_feed('Someone else')
+    post :create
+    
+    messages = AOMessage.all
+    assert_equal 0, messages.length
+    
+    unread = QSTOutgoingMessage.all
+    assert_equal 0, unread.length
+  end
+  
+  test "should do nothing if channel not found for protocol" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'sms')
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
+    @request.env['RAW_POST_DATA'] = new_rss_feed('mail://Someone else')
+    post :create
+    
+    messages = AOMessage.all
+    assert_equal 0, messages.length
+    
+    unread = QSTOutgoingMessage.all
+    assert_equal 0, unread.length
   end
   
   test "should convert one message to rss item" do
@@ -239,6 +242,25 @@ class RssControllerTest < ActionController::TestCase
     get :index
     
     assert_response 401
+  end
+  
+  # Utility methods follow
+  def new_rss_feed(to)
+    str = <<-eos
+      <?xml version="1.0" encoding="UTF-8"?>
+      <rss version="2.0">
+        <channel>
+          <item>
+            <title>First message</title>
+            <description>Body of the message</description>
+            <author>Someone</author>
+            <to>#{to}</to>
+            <pubDate>Tue, 03 Jun 2003 09:39:21 GMT</pubDate>
+            <guid>someguid</guid>
+          </item>
+        </channel>
+      </rss>
+    eos
   end
   
 end
