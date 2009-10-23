@@ -4,7 +4,7 @@ require 'digest/md5'
 
 class RssControllerTest < ActionController::TestCase
   test "should convert one rss item to out message" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'sms')
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
     @request.env['RAW_POST_DATA'] = <<-eos
@@ -15,7 +15,7 @@ class RssControllerTest < ActionController::TestCase
             <title>First message</title>
             <description>Body of the message</description>
             <author>Someone</author>
-            <to>Someone else</to>
+            <to>sms://Someone else</to>
             <pubDate>Tue, 03 Jun 2003 09:39:21 GMT</pubDate>
             <guid>someguid</guid>
           </item>
@@ -32,7 +32,7 @@ class RssControllerTest < ActionController::TestCase
     assert_equal "First message", msg.subject
     assert_equal "Body of the message", msg.body
     assert_equal "Someone", msg.from
-    assert_equal "Someone else", msg.to
+    assert_equal "sms://Someone else", msg.to
     assert_equal "someguid", msg.guid
     assert_equal Time.parse("Tue, 03 Jun 2003 09:39:21 GMT"), msg.timestamp
     assert_equal 'queued', msg.state
@@ -41,6 +41,34 @@ class RssControllerTest < ActionController::TestCase
     assert_equal 1, unread.length
     assert_equal "someguid", unread[0].guid
     assert_equal chan.id, unread[0].channel_id
+  end
+  
+  test "should select channel based on protocol" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'sms')
+    chan2 = create_channel(app, 'chan2', 'chan_pass2', 'mail');
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
+    @request.env['RAW_POST_DATA'] = <<-eos
+      <?xml version="1.0" encoding="UTF-8"?>
+      <rss version="2.0">
+        <channel>
+          <item>
+            <title>First message</title>
+            <description>Body of the message</description>
+            <author>Someone</author>
+            <to>mail://Someone else</to>
+            <pubDate>Tue, 03 Jun 2003 09:39:21 GMT</pubDate>
+            <guid>someguid</guid>
+          </item>
+        </channel>
+      </rss>
+    eos
+    post :create
+    
+    unread = QSTOutgoingMessage.all
+    assert_equal 1, unread.length
+    assert_equal "someguid", unread[0].guid
+    assert_equal chan2.id, unread[0].channel_id
   end
   
   test "should convert one message to rss item" do

@@ -46,21 +46,22 @@ class ActiveSupport::TestCase
   
   # Creates an app and a qst channel with the given values.
   # Returns the tupple [application, channel]
-  def create_app_and_channel(app_name, app_pass, chan_name, chan_pass)
+  def create_app_and_channel(app_name, app_pass, chan_name, chan_pass, protocol = 'sms')
     app = Application.new
     app.name = app_name
     app.password = app_pass
     app.save!
     
-    channel = create_channel app, chan_name, chan_pass
+    channel = create_channel app, chan_name, chan_pass, protocol
     
     [app, channel]
   end
   
-  def create_channel(app, name, pass)
+  def create_channel(app, name, pass, protocol = 'sms')
     channel = Channel.new
     channel.application_id = app.id
     channel.name = name
+    channel.protocol = protocol
     channel.configuration = { :password => pass }
     channel.kind = 'qst'
     channel.save!
@@ -69,29 +70,29 @@ class ActiveSupport::TestCase
   end
   
   # Creates an ATMessage that belongs to app and has values according to i
-  def new_at_message(app, i)
+  def new_at_message(app, i, protocol = 'sms')
     msg = ATMessage.new
-    fill_msg msg, app, i
+    fill_msg msg, app, i, protocol
     msg.save!
     
     msg
   end
   
   # Creates an AOMessage that belongs to app and has values according to i
-  def new_ao_message(app, i)
+  def new_ao_message(app, i, protocol = 'sms')
     msg = AOMessage.new
-    fill_msg msg, app, i
+    fill_msg msg, app, i, protocol
     msg.save!
     
     msg
   end
   
-  def fill_msg(msg, app, i)
+  def fill_msg(msg, app, i, protocol)
     msg.application_id = app.id
     msg.subject = "Subject of the message #{i}"
     msg.body = "Body of the message #{i}"
     msg.from = "Someone #{i}"
-    msg.to = "Someone else #{i}"
+    msg.to = protocol + "://Someone else #{i}"
     msg.guid = "someguid #{i}"
     msg.timestamp = Time.parse("03 Jun #{2003 + i} 09:39:21 GMT")
   end

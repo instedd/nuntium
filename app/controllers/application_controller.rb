@@ -26,4 +26,13 @@ class ApplicationController < ActionController::Base
     
     [valid_messages, invalid_message_ids]
   end
+  
+  def get_protocol(address)
+    index = address.index '://'
+    if index.nil?
+      nil
+    else
+      address[0 ... index]
+    end
+  end
 end

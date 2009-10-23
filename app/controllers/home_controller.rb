@@ -20,7 +20,6 @@ class HomeController < ApplicationController
     @application.password = nil
     
     session[:application] = @application
-    session[:application] = @application
     redirect_to :action => :home
   end
   

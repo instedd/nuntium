@@ -69,6 +69,8 @@ class RssController < ApplicationController
   
   # POST /rss
   def create
+    @channels = @application.channels.all
+  
     body = request.env['RAW_POST_DATA']
     tree = RSS::Parser.parse(body, false)
     
@@ -84,8 +86,12 @@ class RssController < ApplicationController
       msg.state = 'queued'
       msg.save
       
+      # Find channel with protocol
+      protocol = get_protocol msg.to
+      channel = @channels.select {|x| x.protocol == protocol}[0]
+      
       outgoing = QSTOutgoingMessage.new
-      outgoing.channel_id = @channel.id
+      outgoing.channel_id = channel.id
       outgoing.guid = msg.guid
       outgoing.save
     end
@@ -97,12 +103,7 @@ class RssController < ApplicationController
     authenticate_or_request_with_http_basic do |username, password|
       @application = Application.find_by_name username
       if !@application.nil?
-        if @application.authenticate password
-          @channel = @application.channels.first(:conditions => ['kind = ?', 'qst'])
-          !@channel.nil?
-        else
-          false
-        end
+        @application.authenticate password
       else
         false
       end
