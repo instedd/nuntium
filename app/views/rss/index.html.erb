@@ -10,8 +10,14 @@ xml.rss "version" => "2.0" do
     xml.title "Outbox"
       @at_messages.each do |msg|
         xml.item do
-          xml.title msg.subject
-          xml.description msg.body
+          # Show body in title if subject is empty
+          if msg.subject.nil?
+            xml.title msg.body
+          else
+            xml.title msg.subject
+            xml.description msg.body
+          end
+          
           xml.author msg.from
           xml.to msg.to
           xml.guid msg.guid

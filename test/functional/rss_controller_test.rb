@@ -93,6 +93,27 @@ class RssControllerTest < ActionController::TestCase
     assert_shows_message_as_rss_item msg
   end
   
+  test "should convert one message without subject to rss item" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    msg = new_at_message(app, 0)
+    msg.subject = nil
+    msg.save
+    
+    app2, chan2 = create_app_and_channel('app2', 'app_pass2', 'chan2', 'chan_pass2')
+    new_at_message(app2, 1)
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
+    get :index
+    
+    assert_select "title", "Outbox"
+    
+    assert_select "guid" do |es|
+      assert_equal 1, es.length
+    end
+
+    assert_shows_message_as_rss_item msg
+  end
+  
   test "should convert two messages to rss items ordered by timestamp" do
     app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
     new_at_message(app, 0)

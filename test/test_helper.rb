@@ -114,12 +114,18 @@ class ActiveSupport::TestCase
   end
   
   def assert_shows_message_as_rss_item(msg)
-    assert_select "title", msg.subject
-    assert_select "description", msg.body
-    assert_select "author", msg.from
-    assert_select "to", msg.to
-    assert_select "guid", msg.guid
-    assert_select "pubDate", msg.timestamp.rfc822
+    if msg.subject.nil?
+      assert_select "item title", msg.body
+      assert_select "item description", {:count => 0}
+    else
+      assert_select "item title", msg.subject
+      assert_select "item description", msg.body
+    end
+    
+    assert_select "item author", msg.from
+    assert_select "item to", msg.to
+    assert_select "item guid", msg.guid
+    assert_select "item pubDate", msg.timestamp.rfc822
   end
   
 end
