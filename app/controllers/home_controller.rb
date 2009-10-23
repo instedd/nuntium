@@ -16,12 +16,16 @@ class HomeController < ApplicationController
       return
     end
     
-    session[:application_id] = @application.id
-    session[:application_name] = @application.name
+    @application.salt = nil
+    @application.password = nil
+    
+    session[:application] = @application
+    session[:application] = @application
     redirect_to :action => :home
   end
   
   def home
+    @channels = Channel.all('application_id = ?', @application.id)
     @ao_messages = AOMessage.all(
       :conditions => ['application_id = ?', @application.id], 
       :order => 'timestamp DESC',
@@ -33,14 +37,12 @@ class HomeController < ApplicationController
   end
   
   def check_login
-    if session[:application_id].nil?
+    if session[:application].nil?
       redirect_to :action => :index
       return
     end
     
-    @application = Application.new
-    @application.id = session[:application_id]
-    @application.name = session[:application_name]
+    @application = session[:application]
   end
 
 end

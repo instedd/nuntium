@@ -1,5 +1,17 @@
 <h3>Current application is: <%= @application.name %></h3>
 
+<h4>Configuration</h4>
+
+Max tries: <%= @application.max_tries %>
+
+<h4>Channels</h4>
+
+<ul>
+  <% @channels.each do |chan| %>
+    <li><%= chan.name %> (<%= chan.kind %>)</li>
+  <% end %>
+</ul>
+
 <h4>Last AO Messages</h4>
 
 <table border="1">
