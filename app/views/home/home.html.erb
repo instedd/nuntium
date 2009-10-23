@@ -1,1 +1,53 @@
 <h3>Current application is: <%= @application.name %></h3>
+
+<h4>Last AO Messages</h4>
+
+<table border="1">
+  <tr>
+    <th>When</th>
+    <th>From</th>
+    <th>To</th>
+    <th>Subject</th>
+    <th>Body</th>
+    <th>Tries</th>
+    <th>State</th>
+  </tr>
+  <tr>
+  <% @ao_messages.each do |msg| %>
+    <tr>
+      <td><%= msg.timestamp %></td>
+      <td><%= short_html msg.from %></td>
+      <td><%= short_html msg.to %></td>
+      <td><%= short_html msg.subject %></td>
+      <td><%= short_html msg.body %></td>
+      <td><%= msg.tries %></td>
+      <td><%= msg.state %></td>
+    </tr>
+  <% end %>
+</table>
+
+<h4>Last AT Messages</h4>
+
+<table border="1">
+  <tr>
+    <th>When</th>
+    <th>From</th>
+    <th>To</th>
+    <th>Subject</th>
+    <th>Body</th>
+    <th>Tries</th>
+    <th>State</th>
+  </tr>
+  <tr>
+  <% @at_messages.each do |msg| %>
+    <tr>
+      <td><%= msg.timestamp %></td>
+      <td><%= short_html msg.from %></td>
+      <td><%= short_html msg.to %></td>
+      <td><%= short_html msg.subject %></td>
+      <td><%= short_html msg.body %></td>
+      <td><%= msg.tries %></td>
+      <td><%= msg.state %></td>
+    </tr>
+  <% end %>
+</table>

@@ -21,7 +21,15 @@ class HomeController < ApplicationController
     redirect_to :action => :home
   end
   
-  def home    
+  def home
+    @ao_messages = AOMessage.all(
+      :conditions => ['application_id = ?', @application.id], 
+      :order => 'timestamp DESC',
+      :limit => 10)
+    @at_messages = ATMessage.all(
+      :conditions => ['application_id = ?', @application.id], 
+      :order => 'timestamp DESC',
+      :limit => 10)
   end
   
   def check_login
