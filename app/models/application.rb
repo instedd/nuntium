@@ -10,6 +10,7 @@ class Application < ActiveRecord::Base
   validates_presence_of :name, :password
   validates_uniqueness_of :name
   validates_confirmation_of :password
+  validates_numericality_of :max_tries, :only_integer => true, :greater_than_or_equal_to => 0
   
   before_save :hash_password
   
@@ -24,6 +25,10 @@ class Application < ActiveRecord::Base
   private
   
   def hash_password
+    if !self.salt.nil?
+      return
+    end
+  
     self.salt = ActiveSupport::SecureRandom.base64(8)
     self.password = Digest::SHA2.hexdigest(self.salt + self.password)
   end

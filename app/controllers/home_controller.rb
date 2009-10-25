@@ -57,6 +57,25 @@ class HomeController < ApplicationController
   def edit_application
   end
   
+  def update_application
+    app = params[:application]
+    
+    existing_app = Application.find @application.id
+    existing_app.max_tries = app[:max_tries]
+    
+    if !existing_app.save
+      flash[:notice] = existing_app.errors.full_messages.join('<br/>')
+      redirect_to :action => :edit_application
+      return
+    end
+    
+    existing_app.salt = nil
+    existing_app.password = nil
+    
+    session[:application] = existing_app
+    redirect_to :action => :home
+  end
+  
   def new_channel
   end
   

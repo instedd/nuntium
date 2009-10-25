@@ -41,6 +41,35 @@ class HomeControllerTest < ActionController::TestCase
     assert_nil session[:application].password
   end
   
+  test "edit app succeeds" do
+    app = Application.create({:name => 'app', :password => 'app_pass'})
+    
+    get :update_application, {:application => {:max_tries => 1}}, {:application => app}
+    
+    # Go to app home page
+    assert_redirected_to(:controller => 'home', :action => 'home')
+    
+    # The app was changed
+    apps = Application.all
+    assert_equal 1, apps.length
+    
+    app = apps[0]
+    assert_equal 1, app.max_tries
+    assert(app.authenticate('app_pass'))
+    
+    # The session's app was changed
+    assert_equal 1, session[:application].max_tries
+  end
+  
+  test "edit app fails" do
+    app = Application.create({:name => 'app', :password => 'app_pass'})
+    
+    get :update_application, {:application => {:max_tries => 'foo'}}, {:application => app}
+    
+    assert_redirected_to(:controller => 'home', :action => 'edit_application')
+    assert_equal 'Max tries is not a number', flash[:notice]
+  end
+  
   test "home" do
     app = Application.create({:name => 'app', :password => 'app_pass'});
     

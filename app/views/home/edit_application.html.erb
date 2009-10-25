@@ -1,3 +1,10 @@
 <h3>Current application is: <%= @application.name %> (<%= link_to "logoff", :controller => :home, :action => :logoff %>)</h3>
 
 <h4>Edit settings</h4>
+
+<% form_for :application, :url => { :controller => 'home', :action => :update_application } do |f| %>
+  <div>Max tries:</div>
+  <div><%= f.text_field :max_tries %></div>
+  <div style="color:red"><%= flash[:notice] %></div>
+  <div><%= submit_tag 'Update' %></div>
+<% end %>

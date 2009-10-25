@@ -10,6 +10,7 @@ ActionController::Routing::Routes.draw do |map|
   map.logoff '/logoff', :controller => 'home', :action => :logoff
   map.home '/home', :controller => 'home', :action => :home
   map.edit_application '/application/edit', :controller => 'home', :action => :edit_application
+  map.update_application '/application/update', :controller => 'home', :action => :update_application
   map.edit_channel '/channel/edit/:id', :controller => 'home', :action => :edit_channel
   map.delete_channel '/channel/delete/:id', :controller => 'home', :action => :delete_channel
   map.new_channel '/channel/new', :controller => 'home', :action => :new_channel
