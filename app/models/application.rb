@@ -5,6 +5,12 @@ class Application < ActiveRecord::Base
   has_many :ao_messages
   has_many :at_messages
   
+  attr_accessor :password_confirmation
+  
+  validates_presence_of :name, :password
+  validates_uniqueness_of :name
+  validates_confirmation_of :password
+  
   before_save :hash_password
   
   def self.find_by_name(name)

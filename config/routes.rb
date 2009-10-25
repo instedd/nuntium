@@ -4,8 +4,11 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :outgoing, :path_prefix => '/qst/:application_id', :only => [:index]
   
   map.root :controller => 'home'
+  
+  map.create_application '/create_application', :controller => 'home', :action => :create_application
   map.login '/login', :controller => 'home', :action => :login
-  map.home  '/home',  :controller => 'home', :action => :home
+  map.logoff '/logoff', :controller => 'home', :action => :logoff
+  map.home '/home', :controller => 'home', :action => :home
 
   # The priority is based upon order of creation: first created -> highest priority.
 

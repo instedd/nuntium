@@ -1,6 +1,6 @@
-<h3>Current application is: <%= @application.name %></h3>
+<h3>Current application is: <%= @application.name %> (<%= link_to "logoff", :controller => :home, :action => :logoff %>)</h3>
 
-<h4>Configuration</h4>
+<h4>Settings</h4>
 
 Max tries: <%= @application.max_tries %>
 
