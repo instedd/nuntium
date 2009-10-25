@@ -54,6 +54,18 @@ class HomeController < ApplicationController
       :limit => 10)
   end
   
+  def edit_application
+  end
+  
+  def new_channel
+  end
+  
+  def create_channel
+  end
+  
+  def edit_channel
+  end
+  
   def logoff
     session[:application] = nil
     redirect_to :action => :index

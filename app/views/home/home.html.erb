@@ -2,15 +2,21 @@
 
 <h4>Settings</h4>
 
-Max tries: <%= @application.max_tries %>
+<ul>
+  <li>Max tries: <%= @application.max_tries %></li>
+</ul>
+
+<%= link_to "Edit settings", :controller => :home, :action => :edit_application %>
 
 <h4>Channels</h4>
 
 <ul>
   <% @channels.each do |chan| %>
-    <li><%= chan.name %> (<%= chan.kind %>)</li>
+    <li><b><%= chan.name %></b> => kind: <%= chan.kind %>, protocol: <%= chan.protocol %> <%= link_to "edit", :controller => :home, :action => :edit_channel, :id => chan.id %> <%= link_to "delete", :controller => :home, :action => :delete_channel, :id => chan.id %></li>
   <% end %>
 </ul>
+
+<%= link_to "Create new channel", :controller => :home, :action => :new_channel %>
 
 <h4>Last Application Oriented Messages</h4>
 

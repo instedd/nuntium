@@ -9,6 +9,11 @@ ActionController::Routing::Routes.draw do |map|
   map.login '/login', :controller => 'home', :action => :login
   map.logoff '/logoff', :controller => 'home', :action => :logoff
   map.home '/home', :controller => 'home', :action => :home
+  map.edit_application '/application/edit', :controller => 'home', :action => :edit_application
+  map.edit_channel '/channel/edit/:id', :controller => 'home', :action => :edit_channel
+  map.delete_channel '/channel/delete/:id', :controller => 'home', :action => :delete_channel
+  map.new_channel '/channel/new', :controller => 'home', :action => :new_channel
+  map.create_channel '/channel/create', :controller => 'home', :action => :create_channel
 
   # The priority is based upon order of creation: first created -> highest priority.
 
