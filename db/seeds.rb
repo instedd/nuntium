@@ -9,4 +9,4 @@
 require 'digest/sha2'
 
 app = Application.create({ :name => 'riff', :password => 'riffpass' })
-Channel.create(:name => 'sms', :kind => 'qst', :protocol => 'sms', :configuration => { :password => 'chanpass' }, :application_id => app.id)
+Channel.create(:name => 'sms', :kind => 'qst', :protocol => 'sms', :configuration => { :password => 'smspass' }, :application_id => app.id)
