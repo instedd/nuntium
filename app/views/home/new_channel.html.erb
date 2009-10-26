@@ -1,0 +1,20 @@
+<h3>Current application is: <%= @application.name %> (<%= link_to "logoff", :controller => :home, :action => :logoff %>)</h3>
+
+<h4>Create new qst channel</h4>
+
+<% form_for :channel, :url => { :controller => 'home', :action => :create_channel } do |f| %>
+  <div>Name:</div>
+  <div><%= f.text_field :name %></div>
+  <div>Protocol:</div>
+  <div><%= f.text_field :protocol %></div>
+  <% f.fields_for :configuration do |c| %>
+    <div>Password:</div>
+    <div><%= c.password_field :password %></div>
+    <div>Repeat password:</div>
+    <div><%= c.password_field :password_confirmation %></div>
+  <% end %>
+  <div style="color:red"><%= flash[:new_notice] %></div>
+  <div><%= submit_tag 'Create Channel' %></div>
+<% end %>
+
+<%= link_to 'Go back', :controller => :home, :action => :home %>

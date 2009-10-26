@@ -110,9 +110,56 @@ class HomeControllerTest < ActionController::TestCase
     assert_equal 1, chans.length
     
     chan = chans[0]
-    
     assert(chan.authenticate('new_pass'))
   end
+  
+  test "create channel succeeds" do
+    app = Application.create({:name => 'app', :password => 'app_pass'})
+    
+    get :create_channel, {:channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application => app}
+    
+    # Go to app home page
+    assert_redirected_to(:controller => 'home', :action => 'home')
+    
+    # The channel was changed
+    chans = Channel.all
+    assert_equal 1, chans.length
+    
+    chan = chans[0]
+    assert_equal app.id, chan.application_id
+    assert_equal 'chan', chan.name
+    assert_equal 'sms', chan.protocol
+    assert_equal 'qst', chan.kind
+    assert(chan.authenticate('chan_pass'))
+  end
+  
+  test "create channel succeeds if channel with same name in another app" do
+    app = Application.create({:name => 'app', :password => 'app_pass'})
+    app2 = Application.create({:name => 'app2', :password => 'app2_pass'})
+    chan = Channel.create({:application_id => app2.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
+    
+    get :create_channel, {:channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application => app}
+    
+    assert_redirected_to(:controller => 'home', :action => 'home')
+  end
+  
+  test "delete channel" do
+    app = Application.create({:name => 'app', :password => 'app_pass'})
+    chan = Channel.create({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
+    
+    get :delete_channel, {:id => chan.id}, {:application => app}
+    
+    # Go to app home page
+    assert_redirected_to(:controller => 'home', :action => 'home')
+    
+    # The channel was deleted
+    chans = Channel.all
+    assert_equal 0, chans.length
+  end
+  
+  # ------------------------ #
+  # Validations tests follow #
+  # ------------------------ #
   
   test "edit channel fails protocol empty" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
@@ -213,4 +260,15 @@ class HomeControllerTest < ActionController::TestCase
     assert_redirected_to(:controller => 'home', :action => 'index')
     assert_equal "Password doesn't match confirmation", flash[:new_notice]
   end
+  
+  test "create chan fails name already exists" do
+    app = Application.create({:name => 'app', :password => 'app_pass'})
+    chan = Channel.create({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
+    
+    get :create_channel, {:channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application => app}
+    
+    assert_redirected_to(:controller => 'home', :action => 'new_channel')
+    assert_equal 'Name has already been taken', flash[:notice]
+  end
+  
 end

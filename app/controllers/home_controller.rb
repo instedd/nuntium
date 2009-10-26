@@ -85,9 +85,25 @@ class HomeController < ApplicationController
   end
   
   def new_channel
+    @channel = flash[:channel]
   end
   
   def create_channel
+    chan = params[:channel]
+    
+    @channel = Channel.new(chan)
+    @channel.application_id = @application.id
+    @channel.kind = 'qst'
+    
+    if !@channel.save
+      @channel.clear_password
+      flash[:channel] = @channel
+      flash[:notice] = @channel.errors.full_messages.join('<br/>')
+      redirect_to :action => :new_channel
+      return
+    end
+    
+    redirect_to :action => :home
   end
   
   def edit_channel
@@ -126,6 +142,18 @@ class HomeController < ApplicationController
       redirect_to :action => :edit_channel
       return
     end
+    
+    redirect_to :action => :home
+  end
+  
+  def delete_channel
+    @channel = Channel.find params[:id]
+    if @channel.nil? || @channel.application_id != @application.id
+      redirect_to :action => :home
+      return
+    end
+    
+    @channel.delete
     
     redirect_to :action => :home
   end

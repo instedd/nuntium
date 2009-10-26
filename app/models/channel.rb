@@ -5,8 +5,8 @@ class Channel < ActiveRecord::Base
   has_many :qst_outgoing_messages
   serialize :configuration
   
-  validates_presence_of :protocol
-  validate :password_confirmation
+  validates_presence_of :name, :protocol, :kind
+  validate :password_confirmation, :name_is_unique_in_application
   
   before_save :hash_password
   
@@ -28,7 +28,7 @@ class Channel < ActiveRecord::Base
       if !self.configuration[:salt].nil?
         return
       end
-    
+      
       self.configuration[:salt] = ActiveSupport::SecureRandom.base64(8)
       self.configuration[:password] = Digest::SHA2.hexdigest(self.configuration[:salt] + self.configuration[:password])
     end
@@ -38,6 +38,14 @@ class Channel < ActiveRecord::Base
     if kind == 'qst'
       errors.add(:password, "doesn't match confirmation") if
         !self.configuration[:password_confirmation].nil? && self.configuration[:password] != self.configuration[:password_confirmation]
+    end
+  end
+  
+  def name_is_unique_in_application
+    if self.new_record?
+      other_channel = Channel.first(:conditions => ['application_id = ? AND name = ?', self.application_id, self.name])
+      errors.add(:name, "has already been taken") if
+        !other_channel.nil?
     end
   end
 end
