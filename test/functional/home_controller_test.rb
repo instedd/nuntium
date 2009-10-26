@@ -2,7 +2,7 @@ require 'test_helper'
 
 class HomeControllerTest < ActionController::TestCase
   test "login succeeds" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
+    app = Application.create({:name => 'app', :password => 'app_pass', :password_confirmation => 'app_pass'});
     
     get :login, :application => {:name => 'app', :password => 'app_pass'}
     
@@ -42,9 +42,9 @@ class HomeControllerTest < ActionController::TestCase
   end
   
   test "edit app succeeds" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
+    app = Application.create({:name => 'app', :password => 'app_pass', :password_confirmation => 'app_pass'})
     
-    get :update_application, {:application => {:max_tries => 1}}, {:application => app}
+    get :update_application, {:application => {:max_tries => 1, :password => '', :password_confirmation => ''}}, {:application => app}
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -61,17 +61,33 @@ class HomeControllerTest < ActionController::TestCase
     assert_equal 1, session[:application].max_tries
   end
   
-  test "edit app fails" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
+  test "edit app change password succeeds" do
+    app = Application.create({:name => 'app', :password => 'app_pass', :password_confirmation => 'app_pass'})
     
-    get :update_application, {:application => {:max_tries => 'foo'}}, {:application => app}
+    get :update_application, {:application => {:max_tries => 3, :password => 'new_pass', :password_confirmation => 'new_pass'}}, {:application => app}
+    
+    # Go to app home page
+    assert_redirected_to(:controller => 'home', :action => 'home')
+    
+    # The app was changed
+    apps = Application.all
+    assert_equal 1, apps.length
+    
+    app = apps[0]
+    assert(app.authenticate('new_pass'))
+  end
+  
+  test "edit app fails with max tries" do
+    app = Application.create({:name => 'app', :password => 'app_pass', :password_confirmation => 'app_pass'})
+    
+    get :update_application, {:application => {:max_tries => 'foo', :password => '', :password_confirmation => ''}}, {:application => app}
     
     assert_redirected_to(:controller => 'home', :action => 'edit_application')
     assert_equal 'Max tries is not a number', flash[:notice]
   end
   
   test "home" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
+    app = Application.create({:name => 'app', :password => 'app_pass', :password_confirmation => 'app_pass'});
     
     get :home, {}, {:application => app}
   
@@ -79,7 +95,7 @@ class HomeControllerTest < ActionController::TestCase
   end
   
   test "login fails wrong name" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
+    app = Application.create({:name => 'app', :password => 'app_pass', :password_confirmation => 'app_pass'});
     
     get :login, :application => {:name => 'wrong_app', :password => 'app_pass'}
     
@@ -88,7 +104,7 @@ class HomeControllerTest < ActionController::TestCase
   end
   
   test "login fails wrong pass" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
+    app = Application.create({:name => 'app', :password => 'app_pass', :password_confirmation => 'app_pass'});
     
     get :login, :application => {:name => 'app', :password => 'wrong_pass'}
     
@@ -97,7 +113,7 @@ class HomeControllerTest < ActionController::TestCase
   end
   
   test "create app fails name already exists" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
+    app = Application.create({:name => 'app', :password => 'app_pass', :password_confirmation => 'app_pass'});
     
     get :create_application, :new_application => {:name => 'app', :password => 'foo'}
     
@@ -106,7 +122,7 @@ class HomeControllerTest < ActionController::TestCase
   end
   
   test "create app fails name is empty" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
+    app = Application.create({:name => 'app', :password => 'app_pass', :password_confirmation => 'app_pass'});
     
     get :create_application, :new_application => {:name => '   ', :password=> 'foo'}
     
@@ -115,7 +131,7 @@ class HomeControllerTest < ActionController::TestCase
   end
   
   test "create app fails password is empty" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
+    app = Application.create({:name => 'app', :password => 'app_pass', :password_confirmation => 'app_pass'});
     
     get :create_application, :new_application => {:name => 'new_app', :password => '   '}
     
@@ -124,7 +140,7 @@ class HomeControllerTest < ActionController::TestCase
   end
   
   test "create app fails password confirmation is wrong" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
+    app = Application.create({:name => 'app', :password => 'app_pass', :password_confirmation => 'app_pass'});
     
     get :create_application, :new_application => {:name => 'new_app', :password => 'foopass', :password_confirmation => 'foopass2'}
     

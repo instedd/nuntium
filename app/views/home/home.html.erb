@@ -6,13 +6,13 @@
   <li>Max tries: <%= @application.max_tries %></li>
 </ul>
 
-<%= link_to "Edit settings", :controller => :home, :action => :edit_application %>
+<%= link_to "Edit settings / Change password", :controller => :home, :action => :edit_application %>
 
 <h4>Channels</h4>
 
 <ul>
   <% @channels.each do |chan| %>
-    <li><b><%= chan.name %></b> => kind: <%= chan.kind %>, protocol: <%= chan.protocol %> <%= link_to "edit", :controller => :home, :action => :edit_channel, :id => chan.id %> <%= link_to "delete", :controller => :home, :action => :delete_channel, :id => chan.id %></li>
+    <li><b><%= chan.name %></b> => protocol: <%= chan.protocol %>, kind: <%= chan.kind %> <%= link_to "edit", :controller => :home, :action => :edit_channel, :id => chan.id %> <%= link_to "delete", :controller => :home, :action => :delete_channel, :id => chan.id %></li>
   <% end %>
 </ul>
 

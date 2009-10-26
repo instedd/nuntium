@@ -17,8 +17,7 @@ class HomeController < ApplicationController
       return
     end
     
-    @application.salt = nil
-    @application.password = nil
+    @application.clear_password
     
     session[:application] = @application
     redirect_to :action => :home
@@ -35,8 +34,7 @@ class HomeController < ApplicationController
       return
     end
     
-    new_app.salt = nil
-    new_app.password = nil
+    new_app.clear_password
     
     session[:application] = new_app
     redirect_to :action => :home
@@ -55,6 +53,9 @@ class HomeController < ApplicationController
   end
   
   def edit_application
+    if !flash[:application].nil?
+      @application = flash[:application]
+    end
   end
   
   def update_application
@@ -63,14 +64,20 @@ class HomeController < ApplicationController
     existing_app = Application.find @application.id
     existing_app.max_tries = app[:max_tries]
     
+    if !app[:password].chomp.empty?
+      existing_app.salt = nil
+      existing_app.password = app[:password]
+      existing_app.password_confirmation = app[:password_confirmation]
+    end
+    
     if !existing_app.save
+      flash[:application] = existing_app
       flash[:notice] = existing_app.errors.full_messages.join('<br/>')
       redirect_to :action => :edit_application
       return
     end
     
-    existing_app.salt = nil
-    existing_app.password = nil
+    existing_app.clear_password
     
     session[:application] = existing_app
     redirect_to :action => :home
@@ -83,6 +90,13 @@ class HomeController < ApplicationController
   end
   
   def edit_channel
+    @channel = Channel.find params[:id]
+    if @channel.nil? || @channel.application_id != @application.id
+      redirect_to :action => :home
+    end
+  end
+  
+  def update_channel
   end
   
   def logoff

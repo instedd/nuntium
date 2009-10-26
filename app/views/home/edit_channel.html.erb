@@ -1,3 +1,12 @@
 <h3>Current application is: <%= @application.name %> (<%= link_to "logoff", :controller => :home, :action => :logoff %>)</h3>
 
-<h4>Edit channel</h4>
+<h4>Edit channel <%= @channel.name %></h4>
+
+<% form_for :channel, :url => { :controller => 'home', :action => :update_channel } do |f| %>
+  <div>Protocol:</div>
+  <div><%= f.text_field :protocol %></div>
+  <div style="color:red"><%= flash[:notice] %></div>
+  <div><%= submit_tag 'Update channel' %></div>
+<% end %>
+
+<%= link_to 'Go back', :controller => :home, :action => :home %>

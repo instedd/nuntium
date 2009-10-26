@@ -22,13 +22,19 @@ class Application < ActiveRecord::Base
     self.password == Digest::SHA2.hexdigest(self.salt + password)
   end
   
+  def clear_password
+    self.salt = nil
+    self.password = nil
+    self.password_confirmation = nil
+  end
+  
   private
   
   def hash_password
     if !self.salt.nil?
       return
     end
-  
+    
     self.salt = ActiveSupport::SecureRandom.base64(8)
     self.password = Digest::SHA2.hexdigest(self.salt + self.password)
   end
