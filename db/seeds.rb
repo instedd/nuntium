@@ -8,10 +8,5 @@
 
 require 'digest/sha2'
 
-app_salt = ActiveSupport::SecureRandom.base64(8)
-app_pass = 'riffpass'
-app = Application.create({ :name => 'riff', :salt => app_salt, :password => app_pass })
-
-chan_salt = ActiveSupport::SecureRandom.base64(8)
-chan_pass = 'smspass'
-Channel.create(:name => 'sms', :kind => 'qst', :protocol => 'sms', :configuration => { :salt => chan_salt, :password => chan_pass }, :application_id => app.id)
+app = Application.create({ :name => 'riff', :password => 'riffpass' })
+Channel.create(:name => 'sms', :kind => 'qst', :protocol => 'sms', :configuration => { :password => 'chanpass' }, :application_id => app.id)
