@@ -6,7 +6,7 @@ class Channel < ActiveRecord::Base
   serialize :configuration
   
   validates_presence_of :name, :protocol, :kind
-  validate :password_confirmation, :name_is_unique_in_application
+  validate :password_not_blank, :password_confirmation, :name_is_unique_in_application
   
   before_save :hash_password
   
@@ -31,6 +31,13 @@ class Channel < ActiveRecord::Base
       
       self.configuration[:salt] = ActiveSupport::SecureRandom.base64(8)
       self.configuration[:password] = Digest::SHA2.hexdigest(self.configuration[:salt] + self.configuration[:password])
+    end
+  end
+  
+  def password_not_blank
+    if kind == 'qst'
+      errors.add(:password, "can't be blank") if
+        self.configuration[:password].chomp.empty?
     end
   end
   

@@ -80,6 +80,7 @@ class HomeController < ApplicationController
     
     existing_app.clear_password
     
+    flash[:notice] = 'Application was changed'
     session[:application] = existing_app
     redirect_to :action => :home
   end
@@ -103,6 +104,7 @@ class HomeController < ApplicationController
       return
     end
     
+    flash[:notice] = 'Channel was created'
     redirect_to :action => :home
   end
   
@@ -143,6 +145,7 @@ class HomeController < ApplicationController
       return
     end
     
+    flash[:notice] = 'Channel was changed'
     redirect_to :action => :home
   end
   
@@ -155,6 +158,7 @@ class HomeController < ApplicationController
     
     @channel.delete
     
+    flash[:notice] = 'Channel was deleted'
     redirect_to :action => :home
   end
   

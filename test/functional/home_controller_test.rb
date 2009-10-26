@@ -48,6 +48,7 @@ class HomeControllerTest < ActionController::TestCase
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
+    assert_equal 'Application was changed', flash[:notice]
     
     # The app was changed
     apps = Application.all
@@ -68,6 +69,7 @@ class HomeControllerTest < ActionController::TestCase
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
+    assert_equal 'Application was changed', flash[:notice]
     
     # The app was changed
     apps = Application.all
@@ -85,6 +87,7 @@ class HomeControllerTest < ActionController::TestCase
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
+    assert_equal 'Channel was changed', flash[:notice]
     
     # The channel was changed
     chans = Channel.all
@@ -104,6 +107,7 @@ class HomeControllerTest < ActionController::TestCase
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
+    assert_equal 'Channel was changed', flash[:notice]
     
     # The channel was changed
     chans = Channel.all
@@ -120,6 +124,7 @@ class HomeControllerTest < ActionController::TestCase
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
+    assert_equal 'Channel was created', flash[:notice]
     
     # The channel was changed
     chans = Channel.all
@@ -151,6 +156,7 @@ class HomeControllerTest < ActionController::TestCase
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
+    assert_equal 'Channel was deleted', flash[:notice]
     
     # The channel was deleted
     chans = Channel.all

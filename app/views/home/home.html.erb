@@ -1,5 +1,9 @@
 <h3>Current application is: <%= @application.name %> (<%= link_to "logoff", :controller => :home, :action => :logoff %>)</h3>
 
+<% if !flash[:notice].nil? %>
+<div style="border:1px solid black; background:#FFF1A8; padding:4px; font-weight:bold"><%= flash[:notice] %></div>
+<% end %>
+
 <h4>Settings</h4>
 
 <ul>
