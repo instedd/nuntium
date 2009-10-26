@@ -69,6 +69,8 @@ class RssController < ApplicationController
       head :not_modified
       return
     end
+    
+    response.headers['HTTP_LAST_MODIFIED'] = @at_messages.last.timestamp.rfc822
   end
   
   # POST /rss
