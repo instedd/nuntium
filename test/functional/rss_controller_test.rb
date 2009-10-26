@@ -84,7 +84,7 @@ class RssControllerTest < ActionController::TestCase
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
     get :index
     
-    assert_equal msg.timestamp.rfc822, @response.headers['Last-Modified']
+    assert_equal msg.timestamp, @response.last_modified
     
     assert_select "title", "Outbox"
     assert_select "lastBuildDate", msg.timestamp.rfc822

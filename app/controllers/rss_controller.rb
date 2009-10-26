@@ -6,6 +6,8 @@ class RssController < ApplicationController
 
   # GET /rss
   def index
+    puts response
+    
     last_modified = request.env['HTTP_IF_MODIFIED_SINCE']
     etag = request.env['HTTP_IF_NONE_MATCH']
     
@@ -70,7 +72,7 @@ class RssController < ApplicationController
       return
     end
     
-    response.headers['Last-Modified'] = @at_messages.last.timestamp.rfc822
+    response.last_modified = @at_messages.last.timestamp
   end
   
   # POST /rss
