@@ -77,6 +77,63 @@ class HomeControllerTest < ActionController::TestCase
     assert(app.authenticate('new_pass'))
   end
   
+  test "edit channel succeeds" do
+    app = Application.create({:name => 'app', :password => 'app_pass'})
+    chan = Channel.create({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
+    
+    get :update_channel, {:id => chan.id, :channel => {:protocol => 'mail', :configuration => {:password => '', :password_confirmation => ''}}}, {:application => app}
+    
+    # Go to app home page
+    assert_redirected_to(:controller => 'home', :action => 'home')
+    
+    # The channel was changed
+    chans = Channel.all
+    assert_equal 1, chans.length
+    
+    chan = chans[0]
+    
+    assert_equal 'mail', chan.protocol
+    assert(chan.authenticate('chan_pass'))
+  end
+  
+  test "edit channel change password succeeds" do
+    app = Application.create({:name => 'app', :password => 'app_pass'})
+    chan = Channel.create({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
+    
+    get :update_channel, {:id => chan.id, :channel => {:protocol => 'sms', :configuration => {:password => 'new_pass', :password_confirmation => 'new_pass'}}}, {:application => app}
+    
+    # Go to app home page
+    assert_redirected_to(:controller => 'home', :action => 'home')
+    
+    # The channel was changed
+    chans = Channel.all
+    assert_equal 1, chans.length
+    
+    chan = chans[0]
+    
+    assert(chan.authenticate('new_pass'))
+  end
+  
+  test "edit channel fails protocol empty" do
+    app = Application.create({:name => 'app', :password => 'app_pass'})
+    chan = Channel.create({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
+    
+    get :update_channel, {:id => chan.id, :channel => {:protocol => '', :configuration => {:password => '', :password_confirmation => ''}}}, {:application => app}
+    
+    assert_redirected_to(:controller => 'home', :action => 'edit_channel')
+    assert_equal "Protocol can't be blank", flash[:notice]
+  end
+  
+  test "edit channel fails password confirmation" do
+    app = Application.create({:name => 'app', :password => 'app_pass'})
+    chan = Channel.create({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
+    
+    get :update_channel, {:id => chan.id, :channel => {:protocol => 'sms', :configuration => {:password => 'foo', :password_confirmation => 'foo2'}}}, {:application => app}
+    
+    assert_redirected_to(:controller => 'home', :action => 'edit_channel')
+    assert_equal "Password doesn't match confirmation", flash[:notice]
+  end
+  
   test "edit app fails with max tries" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
     
@@ -84,6 +141,15 @@ class HomeControllerTest < ActionController::TestCase
     
     assert_redirected_to(:controller => 'home', :action => 'edit_application')
     assert_equal 'Max tries is not a number', flash[:notice]
+  end
+  
+  test "edit app fails with password" do
+    app = Application.create({:name => 'app', :password => 'app_pass'})
+    
+    get :update_application, {:application => {:max_tries => '3', :password => 'foobar', :password_confirmation => 'foobar2'}}, {:application => app}
+    
+    assert_redirected_to(:controller => 'home', :action => 'edit_application')
+    assert_equal "Password doesn't match confirmation", flash[:notice]
   end
   
   test "home" do

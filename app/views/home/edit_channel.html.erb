@@ -5,6 +5,15 @@
 <% form_for :channel, :url => { :controller => 'home', :action => :update_channel } do |f| %>
   <div>Protocol:</div>
   <div><%= f.text_field :protocol %></div>
+  <% f.fields_for :configuration do |c| %>
+    <br/>
+    <div><b>Leave blank if you don't want to change the password</b></div>
+    <div>Password:</div>
+    <div><%= c.password_field :password %></div>
+    <div>Repeat password:</div>
+    <div><%= c.password_field :password_confirmation %></div>
+    <br/>
+  <% end %>
   <div style="color:red"><%= flash[:notice] %></div>
   <div><%= submit_tag 'Update channel' %></div>
 <% end %>

@@ -71,6 +71,7 @@ class HomeController < ApplicationController
     end
     
     if !existing_app.save
+      existing_app.clear_password
       flash[:application] = existing_app
       flash[:notice] = existing_app.errors.full_messages.join('<br/>')
       redirect_to :action => :edit_application
@@ -93,10 +94,40 @@ class HomeController < ApplicationController
     @channel = Channel.find params[:id]
     if @channel.nil? || @channel.application_id != @application.id
       redirect_to :action => :home
+      return
+    end
+    
+    if !flash[:channel].nil?
+      @channel = flash[:channel]
     end
   end
   
   def update_channel
+    chan = params[:channel]
+    
+    @channel = Channel.find params[:id]
+    if @channel.nil? || @channel.application_id != @application.id
+      redirect_to :action => :home
+      return
+    end
+    
+    @channel.protocol = chan[:protocol]
+    
+    if !chan[:configuration][:password].chomp.empty?
+      @channel.configuration[:salt] = nil
+      @channel.configuration[:password] = chan[:configuration][:password]
+      @channel.configuration[:password_confirmation] = chan[:configuration][:password_confirmation]
+    end
+    
+    if !@channel.save
+      @channel.clear_password
+      flash[:channel] = @channel
+      flash[:notice] = @channel.errors.full_messages.join('<br/>')
+      redirect_to :action => :edit_channel
+      return
+    end
+    
+    redirect_to :action => :home
   end
   
   def logoff
