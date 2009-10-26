@@ -8,6 +8,7 @@ xml.instruct!
 xml.rss "version" => "2.0" do
   xml.channel do
     xml.title "Outbox"
+    xml.lastBuildDate @at_messages.last.timestamp.rfc822
       @at_messages.each do |msg|
         xml.item do
           # Show body in title if subject is empty

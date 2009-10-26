@@ -22,7 +22,7 @@ class RssController < ApplicationController
     # Order by time, last arrived message will be first
     @at_messages = ATMessage.all(:order => 'timestamp DESC', :conditions => [query] + params)
     
-    if @at_messages.length == 0
+    if @at_messages.empty?
       head :not_modified
       return
     end
@@ -37,7 +37,7 @@ class RssController < ApplicationController
         temp_messages.push msg
       end
       
-      if temp_messages.length == 0
+      if temp_messages.empty?
         head :not_modified
         return
       else
@@ -65,6 +65,10 @@ class RssController < ApplicationController
     end
     
     @at_messages = valid_messages
+    if @at_messages.empty?
+      head :not_modified
+      return
+    end
   end
   
   # POST /rss

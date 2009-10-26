@@ -85,6 +85,7 @@ class RssControllerTest < ActionController::TestCase
     get :index
     
     assert_select "title", "Outbox"
+    assert_select "lastBuildDate", msg.timestamp.rfc822
     
     assert_select "guid" do |es|
       assert_equal 1, es.length
