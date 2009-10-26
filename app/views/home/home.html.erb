@@ -12,7 +12,7 @@
 
 <ul>
   <% @channels.each do |chan| %>
-    <li><b><%= chan.name %></b> => protocol: <%= chan.protocol %>, kind: <%= chan.kind %> <%= link_to "edit", :controller => :home, :action => :edit_channel, :id => chan.id %> <%= link_to "delete", :controller => :home, :action => :delete_channel, :id => chan.id %></li>
+    <li><b><%= chan.name %></b> => protocol: <%= chan.protocol %>, kind: <%= chan.kind %> <%= link_to "edit", :controller => :home, :action => :edit_channel, :id => chan.id %> <a href="javascript:void(0)" onclick="delete_channel(<%= chan.id %>, '<%= h chan.name %>')">delete</a></li>
   <% end %>
 </ul>
 
@@ -69,3 +69,11 @@
     </tr>
   <% end %>
 </table>
+
+<script>
+function delete_channel(id, name) {
+  if (confirm('Are you sure you want to delete the channel ' + name + '?')) {
+    window.location = '/channel/delete/' + id;
+  }
+}
+</script>
