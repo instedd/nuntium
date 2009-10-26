@@ -16,7 +16,7 @@
   
   <ul>
     <li><span style="font-family:monospace">POST <%= url_for :controller => :rss, :action => :create %></span>: 
-      create Application Oriented Messages</li>
+      create Application Originated Messages</li>
     <li><span style="font-family:monospace">GET <%= url_for :controller => :rss, :action => :index %></span>:
       read Application Terminated Messages</li>
   </ul>
@@ -27,7 +27,7 @@
   
   <ul>
     <li><span style="font-family:monospace">GET <%= url_for :controller => :outgoing, :action => :index, :application_id => @application.name %></span>:
-      read Application Oriented Messages</li>
+      read Application Originated Messages</li>
     <li><span style="font-family:monospace">HEAD <%= url_for :controller => :incoming, :action => :index, :application_id => @application.name %></span>:
       get last Application Terminated Message id</li>
     <li><span style="font-family:monospace">POST <%= url_for :controller => :incoming, :action => :create, :application_id => @application.name %></span>:
@@ -58,7 +58,7 @@
 
 <%= link_to "Create new qst channel", :controller => :home, :action => :new_channel %>
 
-<h4>Last Application Oriented Messages</h4>
+<h4>Last Application Originated Messages</h4>
 
 <% if @ao_messages.empty? %>
   No messages.
