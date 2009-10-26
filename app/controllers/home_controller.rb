@@ -9,6 +9,12 @@ class HomeController < ApplicationController
   
   def login
     app = params[:application]
+    
+    if app.nil?
+      redirect_to :action => :home
+      return
+    end
+    
     @application = Application.find_by_name app[:name]
     if @application.nil? || !@application.authenticate(app[:password])
       flash[:application] = Application.new(:name => app[:name])
@@ -25,6 +31,11 @@ class HomeController < ApplicationController
   
   def create_application
     app = params[:new_application]
+    
+    if app.nil?
+      redirect_to :action => :home
+      return
+    end
     
     new_app = Application.new(app)
     if !new_app.save
@@ -61,6 +72,11 @@ class HomeController < ApplicationController
   def update_application
     app = params[:application]
     
+    if app.nil?
+      redirect_to :action => :home
+      return
+    end
+    
     existing_app = Application.find @application.id
     existing_app.max_tries = app[:max_tries]
     
@@ -92,6 +108,11 @@ class HomeController < ApplicationController
   def create_channel
     chan = params[:channel]
     
+    if chan.nil?
+      redirect_to :action => :home
+      return
+    end
+    
     @channel = Channel.new(chan)
     @channel.application_id = @application.id
     @channel.kind = 'qst'
@@ -122,6 +143,11 @@ class HomeController < ApplicationController
   
   def update_channel
     chan = params[:channel]
+    
+    if chan.nil?
+      redirect_to :action => :home
+      return
+    end
     
     @channel = Channel.find params[:id]
     if @channel.nil? || @channel.application_id != @application.id
