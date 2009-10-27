@@ -217,6 +217,18 @@ class RssControllerTest < ActionController::TestCase
     msgs = ATMessage.all
     assert_equal 2, msgs.length
     assert_equal 0, msgs[0].tries
+    assert_equal 4, msgs[1].tries
+    assert_equal 'failed', msgs[1].state 
+    
+    # 5th try: tries was not incremented
+    get :index
+    
+    assert_select "guid", {:count => 0}
+    
+    msgs = ATMessage.all
+    assert_equal 2, msgs.length
+    assert_equal 0, msgs[0].tries
+    assert_equal 4, msgs[1].tries
     assert_equal 'failed', msgs[1].state 
   end
   
