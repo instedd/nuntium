@@ -6,7 +6,7 @@ module ApplicationHelper
     end
     
     if msg.length > length
-      msg[0 .. length] + "..."
+      msg[0 ... length] + "..."
     else
       msg
     end

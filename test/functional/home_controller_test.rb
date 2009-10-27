@@ -138,16 +138,6 @@ class HomeControllerTest < ActionController::TestCase
     assert(chan.authenticate('chan_pass'))
   end
   
-  test "create channel succeeds if channel with same name in another app" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
-    app2 = Application.create({:name => 'app2', :password => 'app2_pass'})
-    chan = Channel.create({:application_id => app2.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
-    
-    get :create_channel, {:channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application => app}
-    
-    assert_redirected_to(:controller => 'home', :action => 'home')
-  end
-  
   test "delete channel" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
     chan = Channel.create({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
@@ -163,6 +153,12 @@ class HomeControllerTest < ActionController::TestCase
     assert_equal 0, chans.length
   end
   
+  test "home" do
+    app = Application.create({:name => 'app', :password => 'app_pass'});
+    get :home, {}, {:application => app}
+    assert_template 'home/home.html.erb'
+  end
+  
   # ------------------------ #
   # Validations tests follow #
   # ------------------------ #
@@ -174,29 +170,10 @@ class HomeControllerTest < ActionController::TestCase
     assert_redirected_to(:controller => 'home', :action => 'edit_channel')
   end
   
-  test "edit channel fails password confirmation" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
-    chan = Channel.create({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
-    get :update_channel, {:id => chan.id, :channel => {:protocol => 'sms', :configuration => {:password => 'foo', :password_confirmation => 'foo2'}}}, {:application => app}
-    assert_redirected_to(:controller => 'home', :action => 'edit_channel')
-  end
-  
   test "edit app fails with max tries" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
     get :update_application, {:application => {:max_tries => 'foo', :password => '', :password_confirmation => ''}}, {:application => app}
     assert_redirected_to(:controller => 'home', :action => 'edit_application')
-  end
-  
-  test "edit app fails with password" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
-    get :update_application, {:application => {:max_tries => '3', :password => 'foobar', :password_confirmation => 'foobar2'}}, {:application => app}
-    assert_redirected_to(:controller => 'home', :action => 'edit_application')
-  end
-  
-  test "home" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
-    get :home, {}, {:application => app}
-    assert_template 'home/home.html.erb'
   end
   
   test "login fails wrong name" do
@@ -211,27 +188,9 @@ class HomeControllerTest < ActionController::TestCase
     assert_redirected_to(:controller => 'home', :action => 'index')
   end
   
-  test "create app fails name already exists" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
-    get :create_application, :new_application => {:name => 'app', :password => 'foo'}
-    assert_redirected_to(:controller => 'home', :action => 'index')
-  end
-  
   test "create app fails name is empty" do
     app = Application.create({:name => 'app', :password => 'app_pass'});
     get :create_application, :new_application => {:name => '   ', :password=> 'foo'}
-    assert_redirected_to(:controller => 'home', :action => 'index')
-  end
-  
-  test "create app fails password is empty" do
-    app = Application.create({:name => 'app', :password => 'app_pass', :password_confirmation => 'app_pass'});
-    get :create_application, :new_application => {:name => 'new_app', :password => '   '}
-    assert_redirected_to(:controller => 'home', :action => 'index')
-  end
-  
-  test "create app fails password confirmation is wrong" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
-    get :create_application, :new_application => {:name => 'new_app', :password => 'foopass', :password_confirmation => 'foopass2'}
     assert_redirected_to(:controller => 'home', :action => 'index')
   end
   

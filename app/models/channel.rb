@@ -5,7 +5,7 @@ class Channel < ActiveRecord::Base
   has_many :qst_outgoing_messages
   serialize :configuration
   
-  validates_presence_of :name, :protocol, :kind
+  validates_presence_of :name, :protocol, :kind, :application
   validate :password_not_blank, :password_confirmation, :name_is_unique_in_application
   
   before_save :hash_password
@@ -37,7 +37,7 @@ class Channel < ActiveRecord::Base
   def password_not_blank
     if kind == 'qst'
       errors.add(:password, "can't be blank") if
-        self.configuration[:password].chomp.empty?
+        self.configuration[:password].nil? || self.configuration[:password].chomp.empty?
     end
   end
   
