@@ -3,19 +3,23 @@
 <h4>Edit channel <%= @channel.name %></h4>
 
 <% form_for :channel, :url => { :controller => 'home', :action => :update_channel } do |f| %>
-  <div>Protocol:</div>
-  <div><%= f.text_field :protocol %></div>
+  <%= f.error_messages %>
+  <p>
+  <%= f.label :protocol %><br/>
+  <%= f.text_field :protocol %>
+  </p>
   <% f.fields_for :configuration do |c| %>
-    <br/>
-    <div><b>Leave blank if you don't want to change the password</b></div>
-    <div>Password:</div>
-    <div><%= c.password_field :password %></div>
-    <div>Repeat password:</div>
-    <div><%= c.password_field :password_confirmation %></div>
-    <br/>
+    <p>
+    <b>Leave blank if you don't want to change the password</b><br/>
+    <%= c.label :password %><br/>
+    <%= c.password_field :password %>
+    </p>
+    <p>
+    <%= c.label :password_confirmation %><br/>
+    <%= c.password_field :password_confirmation %>
+    </p>
   <% end %>
-  <div style="color:red"><%= flash[:notice] %></div>
-  <div><%= submit_tag 'Update channel' %></div>
+  <%= submit_tag 'Update channel' %>
 <% end %>
 
 <%= link_to 'Go back', :controller => :home, :action => :home %>

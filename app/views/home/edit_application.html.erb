@@ -3,17 +3,21 @@
 <h4>Edit settings / Change password</h4>
 
 <% form_for :application, :url => { :controller => 'home', :action => :update_application } do |f| %>
-  <div>Max tries:</div>
-  <div><%= f.text_field :max_tries %></div>
-  <br/>
-  <div><b>Leave blank if you don't want to change the password</b></div>
-  <div>Password:</div>
-  <div><%= f.password_field :password %></div>
-  <div>Repeat password:</div>
-  <div><%= f.password_field :password_confirmation %></div>
-  <br/>
-  <div style="color:red"><%= flash[:notice] %></div>
-  <div><%= submit_tag 'Update' %></div>
+  <%= f.error_messages %>
+  <p>
+  <%= f.label :max_tries %><br/>
+  <%= f.text_field :max_tries %>
+  </p>
+  <p>
+  <b>Leave blank if you don't want to change the password</b><br/>
+  <%= f.label :password %><br/>
+  <%= f.password_field :password %>
+  </p>
+  <p>
+  <%= f.label :password_confirmation %><br/>
+  <%= f.password_field :password_confirmation %>
+  </p>
+  <%= submit_tag 'Update' %>
 <% end %>
 
 <%= link_to 'Go back', :controller => :home, :action => :home %>

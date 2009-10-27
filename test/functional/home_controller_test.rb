@@ -170,111 +170,76 @@ class HomeControllerTest < ActionController::TestCase
   test "edit channel fails protocol empty" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
     chan = Channel.create({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
-    
     get :update_channel, {:id => chan.id, :channel => {:protocol => '', :configuration => {:password => '', :password_confirmation => ''}}}, {:application => app}
-    
     assert_redirected_to(:controller => 'home', :action => 'edit_channel')
-    assert_equal "Protocol can't be blank", flash[:notice]
   end
   
   test "edit channel fails password confirmation" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
     chan = Channel.create({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
-    
     get :update_channel, {:id => chan.id, :channel => {:protocol => 'sms', :configuration => {:password => 'foo', :password_confirmation => 'foo2'}}}, {:application => app}
-    
     assert_redirected_to(:controller => 'home', :action => 'edit_channel')
-    assert_equal "Password doesn't match confirmation", flash[:notice]
   end
   
   test "edit app fails with max tries" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
-    
     get :update_application, {:application => {:max_tries => 'foo', :password => '', :password_confirmation => ''}}, {:application => app}
-    
     assert_redirected_to(:controller => 'home', :action => 'edit_application')
-    assert_equal 'Max tries is not a number', flash[:notice]
   end
   
   test "edit app fails with password" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
-    
     get :update_application, {:application => {:max_tries => '3', :password => 'foobar', :password_confirmation => 'foobar2'}}, {:application => app}
-    
     assert_redirected_to(:controller => 'home', :action => 'edit_application')
-    assert_equal "Password doesn't match confirmation", flash[:notice]
   end
   
   test "home" do
-    app = Application.create({:name => 'app', :password => 'app_pass', :password_confirmation => 'app_pass'});
-    
+    app = Application.create({:name => 'app', :password => 'app_pass'});
     get :home, {}, {:application => app}
-  
     assert_template 'home/home.html.erb'
   end
   
   test "login fails wrong name" do
     app = Application.create({:name => 'app', :password => 'app_pass'});
-    
     get :login, :application => {:name => 'wrong_app', :password => 'app_pass'}
-    
     assert_redirected_to(:controller => 'home', :action => 'index')
-    assert_equal 'Invalid name/password', flash[:notice]
   end
   
   test "login fails wrong pass" do
     app = Application.create({:name => 'app', :password => 'app_pass'});
-    
     get :login, :application => {:name => 'app', :password => 'wrong_pass'}
-    
     assert_redirected_to(:controller => 'home', :action => 'index')
-    assert_equal 'Invalid name/password', flash[:notice]
   end
   
   test "create app fails name already exists" do
     app = Application.create({:name => 'app', :password => 'app_pass'});
-    
     get :create_application, :new_application => {:name => 'app', :password => 'foo'}
-    
     assert_redirected_to(:controller => 'home', :action => 'index')
-    assert_equal 'Name has already been taken', flash[:new_notice]
   end
   
   test "create app fails name is empty" do
     app = Application.create({:name => 'app', :password => 'app_pass'});
-    
     get :create_application, :new_application => {:name => '   ', :password=> 'foo'}
-    
     assert_redirected_to(:controller => 'home', :action => 'index')
-    assert_equal "Name can't be blank", flash[:new_notice]
   end
   
   test "create app fails password is empty" do
     app = Application.create({:name => 'app', :password => 'app_pass', :password_confirmation => 'app_pass'});
-    
     get :create_application, :new_application => {:name => 'new_app', :password => '   '}
-    
     assert_redirected_to(:controller => 'home', :action => 'index')
-    assert_equal "Password can't be blank", flash[:new_notice]
   end
   
   test "create app fails password confirmation is wrong" do
     app = Application.create({:name => 'app', :password => 'app_pass'});
-    
     get :create_application, :new_application => {:name => 'new_app', :password => 'foopass', :password_confirmation => 'foopass2'}
-    
     assert_redirected_to(:controller => 'home', :action => 'index')
-    assert_equal "Password doesn't match confirmation", flash[:new_notice]
   end
   
   test "create chan fails name already exists" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
     chan = Channel.create({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
-    
     get :create_channel, {:channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application => app}
-    
     assert_redirected_to(:controller => 'home', :action => 'new_channel')
-    assert_equal 'Name has already been taken', flash[:notice]
   end
   
 end

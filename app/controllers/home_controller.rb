@@ -39,8 +39,8 @@ class HomeController < ApplicationController
     
     new_app = Application.new(app)
     if !new_app.save
-      flash[:new_application] = Application.new(:name => app[:name])
-      flash[:new_notice] = new_app.errors.full_messages.join('<br/>')
+      new_app.clear_password
+      flash[:new_application] = new_app
       redirect_to :action => :index
       return
     end
@@ -89,7 +89,6 @@ class HomeController < ApplicationController
     if !existing_app.save
       existing_app.clear_password
       flash[:application] = existing_app
-      flash[:notice] = existing_app.errors.full_messages.join('<br/>')
       redirect_to :action => :edit_application
       return
     end
@@ -120,7 +119,6 @@ class HomeController < ApplicationController
     if !@channel.save
       @channel.clear_password
       flash[:channel] = @channel
-      flash[:notice] = @channel.errors.full_messages.join('<br/>')
       redirect_to :action => :new_channel
       return
     end
@@ -166,7 +164,6 @@ class HomeController < ApplicationController
     if !@channel.save
       @channel.clear_password
       flash[:channel] = @channel
-      flash[:notice] = @channel.errors.full_messages.join('<br/>')
       redirect_to :action => :edit_channel
       return
     end
