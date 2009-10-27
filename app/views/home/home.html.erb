@@ -77,8 +77,8 @@
     <% @ao_messages.each do |msg| %>
       <tr>
         <td><%= msg.timestamp %></td>
-        <td><%= short_html msg.from %></td>
-        <td><%= short_html msg.to %></td>
+        <td><%= msg.from %></td>
+        <td><%= msg.to %></td>
         <td><%= short_html msg.subject %></td>
         <td><%= short_html msg.body %></td>
         <td><%= msg.tries %></td>
@@ -107,8 +107,8 @@
     <% @at_messages.each do |msg| %>
       <tr>
         <td><%= msg.timestamp %></td>
-        <td><%= short_html msg.from %></td>
-        <td><%= short_html msg.to %></td>
+        <td><%= msg.from %></td>
+        <td><%= msg.to %></td>
         <td><%= short_html msg.subject %></td>
         <td><%= short_html msg.body %></td>
         <td><%= msg.tries %></td>
