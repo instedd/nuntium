@@ -168,4 +168,52 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_response 401
   end
   
+  test "should apply HTTP_IF_NONE_MATCH real example" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+  
+    # First
+    msg = new_ao_message(app, 0)
+    new_qst_outgoing_message(chan, 0)
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
+    get 'index', :application_id => 'app'
+    
+    assert_equal "someguid 0", @response.headers['ETag']
+    
+    assert_select "message", {:count => 1}
+    assert_shows_message msg
+    
+    # Second
+    msg = new_ao_message(app, 1)
+    new_qst_outgoing_message(chan, 1)
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
+    @request.env["HTTP_IF_NONE_MATCH"] = "someguid 0"
+    get 'index', :application_id => 'app'
+    
+    assert_equal "someguid 1", @response.headers['ETag']
+    
+    assert_select "message", {:count => 1}
+    assert_shows_message msg
+  end
+  
+  test "should work if HTTP_IF_NONE_MATCH is not found" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+  
+    msg = new_ao_message(app, 0)
+    new_qst_outgoing_message(chan, 0)
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
+    @request.env["HTTP_IF_NONE_MATCH"] = "someguid 3"
+    get 'index', :application_id => 'app'
+    
+    assert_equal "someguid 0", @response.headers['ETag']
+    
+    assert_select "message", {:count => 1}
+    assert_shows_message msg
+    
+    unread = QSTOutgoingMessage.all
+    assert_equal 1, unread.length
+  end
+  
 end

@@ -4,17 +4,27 @@ class OutgoingController < QSTController
     etag = request.env['HTTP_IF_NONE_MATCH']
     max = params[:max]
     
+    puts 'ETag'
+    puts etag
+    
     # Read outgoing messages
     outgoing_messages = QSTOutgoingMessage.all(
       :order => :id, 
       :conditions => ['channel_id = ?', @channel.id])
+
+    puts 'Outgoing'      
+    puts outgoing_messages.length
 
     # Remove entries previous to etag    
     if !etag.nil?
       count = 0
       outgoing_messages.each do |msg|
         count += 1
+        
+        puts 'Guid'
+        puts msg.guid
         if msg.guid == etag
+          puts 'Found ETag!'
         
           # Delete from qst queue
           QSTOutgoingMessage.delete_all(
@@ -24,12 +34,15 @@ class OutgoingController < QSTController
           delivered_messages = outgoing_messages[0 ... count]
           delivered_messages.collect! {|x| x.guid}
           AOMessage.update_all(['state = ?', 'delivered'], ['guid in (?)', delivered_messages])
+          
+          # Keep the ones after the etag
+          outgoing_messages = outgoing_messages[count ... outgoing_messages.length]
+          
+          puts 'Outgoing'
+          puts outgoing_messages.length
           break
         end
       end
-      
-      # Keep the ones after the etag
-      outgoing_messages = outgoing_messages[count ... outgoing_messages.length]
     end
     
     # Keep only max of them
