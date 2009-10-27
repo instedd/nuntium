@@ -6,8 +6,6 @@ class RssController < ApplicationController
 
   # GET /rss
   def index
-    puts response
-    
     last_modified = request.env['HTTP_IF_MODIFIED_SINCE']
     etag = request.env['HTTP_IF_NONE_MATCH']
     
