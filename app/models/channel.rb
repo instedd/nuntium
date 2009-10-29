@@ -21,6 +21,17 @@ class Channel < ActiveRecord::Base
     end
   end
   
+  def handle(msg)
+    self.handler.handle msg
+  end
+  
+  def handler
+    case kind
+    when 'qst'
+      QstChannelHandler.new(self)
+    end
+  end
+  
   private
   
   def hash_password

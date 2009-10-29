@@ -3,7 +3,7 @@ require 'rexml/document'
 class IncomingController < QSTController
   # HEAD /qst/:application_id/incoming
   def index
-    return head :not_found if !request.head?
+    return head(:not_found) if !request.head?
     
     msg = @application.last_at_message
     etag = msg.nil? ? nil : msg.guid

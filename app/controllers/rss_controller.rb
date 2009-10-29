@@ -115,11 +115,8 @@ class RssController < ApplicationController
       # Now save the message
       msg.save
       
-      # Create QST message in that channel
-      outgoing = QSTOutgoingMessage.new
-      outgoing.channel_id = channels[0].id
-      outgoing.guid = msg.guid
-      outgoing.save
+      # Let the channel handle the message
+      channels[0].handle msg
     end
      
     head :ok
