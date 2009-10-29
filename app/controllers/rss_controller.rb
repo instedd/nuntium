@@ -53,7 +53,7 @@ class RssController < ApplicationController
     at_messages_ids = @at_messages.collect {|x| x.id}
     
     # And increment their tries
-    ATMessage.update_all('tries = tries + 1', ['id IN (?)', at_messages_ids])
+    ATMessage.update_all("state = 'delivered', tries = tries + 1", ['id IN (?)', at_messages_ids])
     
     # Separate messages into ones that have their tries
     # over max_tries and those still valid.

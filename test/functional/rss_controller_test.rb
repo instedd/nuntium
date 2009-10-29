@@ -183,6 +183,7 @@ class RssControllerTest < ActionController::TestCase
     assert_equal 2, msgs.length
     assert_equal 0, msgs[0].tries
     assert_equal 1, msgs[1].tries
+    assert_equal 'delivered', msgs[1].state
     
     # 2st try
     get :index
@@ -195,6 +196,7 @@ class RssControllerTest < ActionController::TestCase
     assert_equal 2, msgs.length
     assert_equal 0, msgs[0].tries
     assert_equal 2, msgs[1].tries
+    assert_equal 'delivered', msgs[1].state
     
     # 3rd try
     get :index
@@ -207,7 +209,7 @@ class RssControllerTest < ActionController::TestCase
     assert_equal 2, msgs.length
     assert_equal 0, msgs[0].tries
     assert_equal 3, msgs[1].tries
-    assert_equal 'pending', msgs[1].state
+    assert_equal 'delivered', msgs[1].state
     
     # 4th try: no message return and it's status is failed
     get :index
