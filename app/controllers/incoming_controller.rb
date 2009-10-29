@@ -3,15 +3,11 @@ require 'rexml/document'
 class IncomingController < QSTController
   # HEAD /qst/:application_id/incoming
   def index
-    if request.head?
-      msg = ATMessage.last(
-        :order => :timestamp, 
-        :conditions => ['application_id = ?', @application.id])
-      etag = msg.nil? ? '' : msg.guid
-      head :ok, 'ETag' => etag
-    else
-      head :not_found
-    end
+    return head :not_found if !request.head?
+    
+    msg = @application.last_at_message
+    etag = msg.nil? ? nil : msg.guid
+    head :ok, 'ETag' => etag
   end
   
   # POST /qst/:application_id/incoming

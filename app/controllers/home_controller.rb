@@ -52,15 +52,9 @@ class HomeController < ApplicationController
   end
   
   def home
-    @channels = Channel.all(:conditions => ['application_id = ?', @application.id])
-    @ao_messages = AOMessage.all(
-      :conditions => ['application_id = ?', @application.id], 
-      :order => 'timestamp DESC',
-      :limit => 10)
-    @at_messages = ATMessage.all(
-      :conditions => ['application_id = ?', @application.id], 
-      :order => 'timestamp DESC',
-      :limit => 10)
+    @channels = @application.channels
+    @ao_messages = @application.last_ao_messages(10)
+    @at_messages = @application.last_at_messages(10)
   end
   
   def edit_application

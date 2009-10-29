@@ -22,6 +22,26 @@ class Application < ActiveRecord::Base
     self.password == Digest::SHA2.hexdigest(self.salt + password)
   end
   
+  def last_at_message
+    ATMessage.last(
+        :order => :timestamp, 
+        :conditions => ['application_id = ?', self.id])
+  end
+  
+  def last_ao_messages(count)
+    AOMessage.all(
+      :conditions => ['application_id = ?', self.id], 
+      :order => 'timestamp DESC',
+      :limit => count)
+  end
+  
+  def last_at_messages(count)
+    ATMessage.all(
+      :conditions => ['application_id = ?', self.id], 
+      :order => 'timestamp DESC',
+      :limit => count)
+  end
+  
   def clear_password
     self.salt = nil
     self.password = nil
