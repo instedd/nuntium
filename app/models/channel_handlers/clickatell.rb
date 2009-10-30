@@ -15,9 +15,13 @@ class SendClickatellMessageJob < Struct.new(:channel_id, :message_id)
     uri += '&password=' + channel.configuration[:password]
     uri += '&from=' + msg.from
     uri += '&to=' + msg.to
-    uri += '&text=' + msg.body
+    uri += '&text=' + msg.subject_and_body
     
     response = Net::HTTP.request_get(uri)
-    response.body[4 ... response.body.length]
+    result = response.body[4 ... response.body.length]
+    
+    AOMessage.update_all("state = 'delivered', tries = tries + 1", ['id = ?', msg.id])
+    
+    result
   end
 end

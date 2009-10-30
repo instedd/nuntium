@@ -25,11 +25,15 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     app = Application.create(:name => 'app', :password => 'pass')
     chan = Channel.create(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell', 
       :configuration => {:api_id => 'api1', :user => 'user1', :password => 'pass1'})
-    msg = AOMessage.create(:application_id => app.id, :from => '1234', :to => '5678', :body => 'textme')
+    msg = AOMessage.create(:application_id => app.id, :from => '1234', :to => '5678', :body => 'textme', :state => 'pending')
       
     job = SendClickatellMessageJob.new(chan.id, msg.id)
     result = job.perform
     
     assert_equal 'msgid', result
+    
+    msg = AOMessage.first
+    assert_equal 1, msg.tries
+    assert_equal 'delivered', msg.state
   end
 end
