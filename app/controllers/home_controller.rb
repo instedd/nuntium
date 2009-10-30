@@ -96,6 +96,9 @@ class HomeController < ApplicationController
   
   def new_channel
     @channel = flash[:channel]
+    
+    kind = params[:kind]
+    render "new_#{kind}_channel.html.erb"
   end
   
   def create_channel
@@ -108,7 +111,7 @@ class HomeController < ApplicationController
     
     @channel = Channel.new(chan)
     @channel.application_id = @application.id
-    @channel.kind = 'qst'
+    @channel.kind = params[:kind]
     
     if !@channel.save
       @channel.clear_password
@@ -131,6 +134,8 @@ class HomeController < ApplicationController
     if !flash[:channel].nil?
       @channel = flash[:channel]
     end
+    
+    render "edit_#{@channel.kind}_channel.html.erb"
   end
   
   def update_channel

@@ -1,0 +1,32 @@
+<h3>Current application is: <%= @application.name %> (<%= link_to "logoff", :controller => :home, :action => :logoff %>)</h3>
+
+<h4>Create new Clickatell channel</h4>
+
+<% form_for :channel, :url => { :controller => 'home', :action => :create_channel, :kind => params[:kind] } do |f| %>
+  <%= f.error_messages %>
+  <p>
+  <%= f.label :name %><br/>
+  <%= f.text_field :name %>
+  </p>
+  <p>
+  <%= f.label :protocol %><br/>
+  <%= f.text_field :protocol %>
+  </p>
+  <% f.fields_for :configuration do |c| %>
+    <p>
+    <%= c.label :user %><br/>
+    <%= c.text_field :user %>
+    </p>
+    <p>
+    <%= c.label :password %><br/>
+    <%= c.text_field :password %>
+    </p>
+    <p>
+    <%= c.label :api_ID %><br/>
+    <%= c.text_field :api_id %>
+    </p>
+  <% end %>
+  <%= submit_tag 'Create Channel' %>
+<% end %>
+
+<%= link_to 'Go back', :controller => :home, :action => :home %>

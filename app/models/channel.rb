@@ -15,7 +15,8 @@ class Channel < ActiveRecord::Base
   end
   
   def clear_password
-    if kind == 'qst'
+    case kind
+    when 'qst'
       self.configuration[:salt] = nil
       self.configuration[:password] = nil
     end

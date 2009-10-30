@@ -7,7 +7,7 @@
 <h4>Interactions</h4>
 
 <% if @channels.empty? %>
-  To interact with this application you must first <%= link_to "create a new qst channel", :controller => :home, :action => :new_channel %>.
+  To interact with this application you must first create a new channel.
 <% else %>
   <div style="padding-left:20px">
   
@@ -56,7 +56,10 @@
   </ul>
 <% end %>
 
-<%= link_to "Create new qst channel", :controller => :home, :action => :new_channel %>
+<ul>
+  <li><%= link_to "Create new QST channel", :controller => :home, :action => :new_channel, :kind => 'qst' %></li>
+  <li><%= link_to "Create new Clickatell channel", :controller => :home, :action => :new_channel, :kind => 'clickatell' %></li>
+</ul>
 
 <h4>Last Application Originated Messages</h4>
 

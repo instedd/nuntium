@@ -1,8 +1,4 @@
-class QstChannelHandler
-  
-  def initialize(channel)
-    @channel = channel
-  end
+class QstChannelHandler < ChannelHandler
   
   def handle(msg)
     outgoing = QSTOutgoingMessage.new

@@ -1,0 +1,3 @@
+class ClickatellChannelHandler < ChannelHandler
+  
+end
