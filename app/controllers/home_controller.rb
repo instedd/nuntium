@@ -52,7 +52,7 @@ class HomeController < ApplicationController
   end
   
   def home
-    @channels = @application.channels
+    @channels = @application.channels.all
     @ao_messages = @application.last_ao_messages(10)
     @at_messages = @application.last_at_messages(10)
   end

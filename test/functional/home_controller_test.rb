@@ -79,7 +79,7 @@ class HomeControllerTest < ActionController::TestCase
     assert(app.authenticate('new_pass'))
   end
   
-  test "edit channel succeeds" do
+  test "edit qst channel succeeds" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
     chan = Channel.create({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
     
@@ -117,10 +117,10 @@ class HomeControllerTest < ActionController::TestCase
     assert(chan.authenticate('new_pass'))
   end
   
-  test "create channel succeeds" do
+  test "create qst channel succeeds" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
     
-    get :create_channel, {:channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application => app}
+    get :create_channel, {:kind => 'qst', :channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application => app}
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -197,7 +197,7 @@ class HomeControllerTest < ActionController::TestCase
   test "create chan fails name already exists" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
     chan = Channel.create({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
-    get :create_channel, {:channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application => app}
+    get :create_channel, {:kind => 'qst', :channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application => app}
     assert_redirected_to(:controller => 'home', :action => 'new_channel')
   end
   

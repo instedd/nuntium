@@ -30,6 +30,8 @@ class Channel < ActiveRecord::Base
     case kind
     when 'qst'
       QstChannelHandler.new(self)
+    when 'clickatell'
+      ClickatellChannelHandler.new(self)
     end
   end
   

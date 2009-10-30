@@ -46,31 +46,31 @@ class ActiveSupport::TestCase
   
   # Creates an app and a qst channel with the given values.
   # Returns the tupple [application, channel]
-  def create_app_and_channel(app_name, app_pass, chan_name, chan_pass, protocol = 'sms')
+  def create_app_and_channel(app_name, app_pass, chan_name, chan_pass, kind, protocol = 'protocol')
     app = Application.new
     app.name = app_name
     app.password = app_pass
     app.save!
     
-    channel = create_channel app, chan_name, chan_pass, protocol
+    channel = create_channel app, chan_name, chan_pass, kind, protocol
     
     [app, channel]
   end
   
-  def create_channel(app, name, pass, protocol = 'sms')
+  def create_channel(app, name, pass, kind, protocol = 'protocol')
     channel = Channel.new
     channel.application_id = app.id
     channel.name = name
     channel.protocol = protocol
     channel.configuration = { :password => pass }
-    channel.kind = 'qst'
+    channel.kind = kind
     channel.save!
     
     channel
   end
   
   # Creates an ATMessage that belongs to app and has values according to i
-  def new_at_message(app, i, protocol = 'sms')
+  def new_at_message(app, i, protocol = 'protocol')
     msg = ATMessage.new
     fill_msg msg, app, i, protocol
     msg.save!
@@ -79,7 +79,7 @@ class ActiveSupport::TestCase
   end
   
   # Creates an AOMessage that belongs to app and has values according to i
-  def new_ao_message(app, i, protocol = 'sms')
+  def new_ao_message(app, i, protocol = 'protocol')
     msg = AOMessage.new
     fill_msg msg, app, i, protocol
     msg.save!
@@ -87,7 +87,7 @@ class ActiveSupport::TestCase
     msg
   end
   
-  def fill_msg(msg, app, i, protocol)
+  def fill_msg(msg, app, i, protocol = 'protocol')
     msg.application_id = app.id
     msg.subject = "Subject of the message #{i}"
     msg.body = "Body of the message #{i}"

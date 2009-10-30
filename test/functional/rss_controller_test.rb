@@ -1,13 +1,14 @@
 require 'test_helper'
 require 'base64'
 require 'digest/md5'
+require 'yaml'
 
 class RssControllerTest < ActionController::TestCase
   test "should convert one rss item to out message" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'sms')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
-    @request.env['RAW_POST_DATA'] = new_rss_feed('sms://Someone else')
+    @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')
     post :create
     
     messages = AOMessage.all
@@ -18,10 +19,18 @@ class RssControllerTest < ActionController::TestCase
     assert_equal "First message", msg.subject
     assert_equal "Body of the message", msg.body
     assert_equal "Someone", msg.from
-    assert_equal "sms://Someone else", msg.to
+    assert_equal "protocol://Someone else", msg.to
     assert_equal "someguid", msg.guid
     assert_equal Time.parse("Tue, 03 Jun 2003 09:39:21 GMT"), msg.timestamp
     assert_equal 'queued', msg.state
+  end
+  
+  test "should create qst outgoing message" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
+    @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')
+    post :create
     
     unread = QSTOutgoingMessage.all
     assert_equal 1, unread.length
@@ -29,12 +38,12 @@ class RssControllerTest < ActionController::TestCase
     assert_equal chan.id, unread[0].channel_id
   end
   
-  test "should select channel based on protocol" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'sms')
-    chan2 = create_channel(app, 'chan2', 'chan_pass2', 'mail');
+  test "should select channel based on protocol case qst" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst', 'protocol1')
+    chan2 = create_channel(app, 'chan2', 'chan_pass2', 'qst', 'protocol2');
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
-    @request.env['RAW_POST_DATA'] = new_rss_feed('mail://Someone else')
+    @request.env['RAW_POST_DATA'] = new_rss_feed('protocol2://Someone else')
     post :create
     
     messages = AOMessage.all
@@ -46,8 +55,8 @@ class RssControllerTest < ActionController::TestCase
     assert_equal chan2.id, unread[0].channel_id
   end
   
-  test "should do nothing if message doesn't have a protocol" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'sms')
+  test "should do nothing if message doesn't have a protocol case qst" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
     @request.env['RAW_POST_DATA'] = new_rss_feed('Someone else')
@@ -60,11 +69,30 @@ class RssControllerTest < ActionController::TestCase
     assert_equal 0, unread.length
   end
   
-  test "should do nothing if channel not found for protocol" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'sms')
+  test "should create clickatell job" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'clickatell')
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
-    @request.env['RAW_POST_DATA'] = new_rss_feed('mail://Someone else')
+    @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')
+    post :create
+    
+    msg = AOMessage.first
+    
+    jobs = Delayed::Job.all
+    assert_equal 1, jobs.length
+    
+    job = jobs[0]
+    job = YAML::load job.handler
+    assert_equal 'SendClickatellMessageJob', job.class.to_s
+    assert_equal chan.id, job.channel_id
+    assert_equal msg.id, job.message_id
+  end
+  
+  test "qst should do nothing if channel not found for protocol" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
+    @request.env['RAW_POST_DATA'] = new_rss_feed('unknown://Someone else')
     post :create
     
     messages = AOMessage.all
@@ -75,10 +103,10 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should convert one message to rss item" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
     msg = new_at_message(app, 0)
     
-    app2, chan2 = create_app_and_channel('app2', 'app_pass2', 'chan2', 'chan_pass2')
+    app2, chan2 = create_app_and_channel('app2', 'app_pass2', 'chan2', 'chan_pass2', 'qst')
     new_at_message(app2, 1)
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
@@ -97,12 +125,12 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should convert one message without subject to rss item" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
     msg = new_at_message(app, 0)
     msg.subject = nil
     msg.save
     
-    app2, chan2 = create_app_and_channel('app2', 'app_pass2', 'chan2', 'chan_pass2')
+    app2, chan2 = create_app_and_channel('app2', 'app_pass2', 'chan2', 'chan_pass2', 'qst')
     new_at_message(app2, 1)
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
@@ -118,7 +146,7 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should convert two messages to rss items ordered by timestamp" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
     new_at_message(app, 0)
     new_at_message(app, 1)
   
@@ -135,7 +163,7 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should return not modified for HTTP_IF_MODIFIED_SINCE" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
     new_at_message(app, 0)
     new_at_message(app, 1)
   
@@ -147,7 +175,7 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should apply HTTP_IF_MODIFIED_SINCE" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
     new_at_message(app, 0)
     msg = new_at_message(app, 1)
   
@@ -165,7 +193,7 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should apply HTTP_IF_MODIFIED_SINCE and increment tries" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
     msg_0 = new_at_message(app, 0)
     msg_1 = new_at_message(app, 1)
   
@@ -235,7 +263,7 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should return not modified for HTTP_IF_NONE_MATCH" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
     new_at_message(app, 0)
     new_at_message(app, 1)
   
@@ -247,7 +275,7 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should apply HTTP_IF_NONE_MATCH" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
     new_at_message(app, 0)
     msg = new_at_message(app, 1)
   
@@ -265,7 +293,7 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "create not authorized" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'wrong_pass')
     post :create
@@ -274,7 +302,7 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "index not authorized" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'wrong_pass')
     get :index

@@ -42,10 +42,6 @@ class Application < ActiveRecord::Base
       :limit => count)
   end
   
-  def channels
-    Channel.all(:conditions => ['application_id = ?', self.id])
-  end
-  
   def clear_password
     self.salt = nil
     self.password = nil
