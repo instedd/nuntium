@@ -84,6 +84,7 @@ class RssControllerTest < ActionController::TestCase
     job = jobs[0]
     job = YAML::load job.handler
     assert_equal 'SendClickatellMessageJob', job.class.to_s
+    assert_equal app.id, job.application_id
     assert_equal chan.id, job.channel_id
     assert_equal msg.id, job.message_id
   end

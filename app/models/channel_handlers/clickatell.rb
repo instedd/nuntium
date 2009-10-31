@@ -1,10 +1,10 @@
 class ClickatellChannelHandler < ChannelHandler
   def handle(msg)
-    Delayed::Job.enqueue SendClickatellMessageJob.new(@channel.id, msg.id)
+    Delayed::Job.enqueue SendClickatellMessageJob.new(@channel.application_id, @channel.id, msg.id)
   end
 end
 
-class SendClickatellMessageJob < Struct.new(:channel_id, :message_id)
+class SendClickatellMessageJob < Struct.new(:application_id, :channel_id, :message_id)
   def perform
     channel = Channel.find self.channel_id
     msg = AOMessage.find self.message_id

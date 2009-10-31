@@ -27,7 +27,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :configuration => {:api_id => 'api1', :user => 'user1', :password => 'pass1'})
     msg = AOMessage.create(:application_id => app.id, :from => '1234', :to => '5678', :body => 'textme', :state => 'pending')
       
-    job = SendClickatellMessageJob.new(chan.id, msg.id)
+    job = SendClickatellMessageJob.new(app.id, chan.id, msg.id)
     result = job.perform
     
     assert_equal 'msgid', result
