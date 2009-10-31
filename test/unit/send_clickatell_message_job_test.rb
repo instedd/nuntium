@@ -12,7 +12,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain', 
       :body => 'ID: msgid')
       
-    uri = 'http://api.clickatell.com/http/sendmsg'
+    uri = 'https://api.clickatell.com/http/sendmsg'
     uri += '?api_id=api1'
     uri += '&user=user1'
     uri += '&password=pass1'

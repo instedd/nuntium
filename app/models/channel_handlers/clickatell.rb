@@ -9,7 +9,7 @@ class SendClickatellMessageJob < Struct.new(:application_id, :channel_id, :messa
     channel = Channel.find self.channel_id
     msg = AOMessage.find self.message_id
     
-    uri = "http://api.clickatell.com/http/sendmsg"
+    uri = "https://api.clickatell.com/http/sendmsg"
     uri += "?api_id=" + channel.configuration[:api_id]
     uri += '&user=' + channel.configuration[:user]
     uri += '&password=' + channel.configuration[:password]
