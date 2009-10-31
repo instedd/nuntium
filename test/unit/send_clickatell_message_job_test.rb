@@ -16,16 +16,16 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     uri += '?api_id=api1'
     uri += '&user=user1'
     uri += '&password=pass1'
-    uri += '&from=1234'
+    # uri += '&from=1234'
     uri += '&to=5678'
-    uri += '&text=textme'
+    uri += '&text=text+me'
     
     Net::HTTP.expects(:request_get).with(uri).returns(response)
     
     app = Application.create(:name => 'app', :password => 'pass')
     chan = Channel.create(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell', 
       :configuration => {:api_id => 'api1', :user => 'user1', :password => 'pass1'})
-    msg = AOMessage.create(:application_id => app.id, :from => '1234', :to => '5678', :body => 'textme', :state => 'pending')
+    msg = AOMessage.create(:application_id => app.id, :from => '1234', :to => '5678', :body => 'text me', :state => 'pending')
       
     job = SendClickatellMessageJob.new(app.id, chan.id, msg.id)
     result = job.perform
