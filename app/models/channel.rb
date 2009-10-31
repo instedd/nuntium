@@ -1,4 +1,6 @@
 require 'digest/sha2'
+require 'channel_handlers/qst'
+require 'channel_handlers/clickatell'
 
 class Channel < ActiveRecord::Base
   belongs_to :application
