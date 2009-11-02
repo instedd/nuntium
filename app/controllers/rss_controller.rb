@@ -94,7 +94,7 @@ class RssController < ApplicationController
       msg.state = 'queued'
     
       # Find protocol of message (based on "to" field)
-      protocol = get_protocol item.to
+      protocol = msg.to_protocol
       if protocol.nil?
         logger.warn 'Protocol not found for ' + msg.inspect
         next
