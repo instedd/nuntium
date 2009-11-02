@@ -19,8 +19,9 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     # uri += '&from=1234'
     uri += '&to=5678'
     uri += '&text=text+me'
+    uri = URI::parse(uri)
     
-    Net::HTTP.expects(:request_get).with(uri).returns(response)
+    Net::HTTP.expects(:get_response).with(uri).returns(response)
     
     app = Application.create(:name => 'app', :password => 'pass')
     chan = Channel.create(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell', 
