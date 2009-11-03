@@ -1,5 +1,3 @@
-<h3>Current application is: <%= @application.name %> (<%= link_to "logoff", :controller => :home, :action => :logoff %>)</h3>
-
 <% if !flash[:notice].nil? %>
 <div style="border:1px solid black; background:#FFF1A8; padding:4px; font-weight:bold"><%= flash[:notice] %></div>
 <% end %>
@@ -57,8 +55,9 @@
 <% end %>
 
 <ul>
+  <li><%= link_to "Create new Clickatell channel", :controller => :home, :action => :new_channel, :kind => 'clickatell' %></li>  
   <li><%= link_to "Create new QST channel", :controller => :home, :action => :new_channel, :kind => 'qst' %></li>
-  <li><%= link_to "Create new Clickatell channel", :controller => :home, :action => :new_channel, :kind => 'clickatell' %></li>
+  <li><%= link_to "Create new SMTP channel", :controller => :home, :action => :new_channel, :kind => 'smtp' %></li>
 </ul>
 
 <h4>Last Application Originated Messages</h4>

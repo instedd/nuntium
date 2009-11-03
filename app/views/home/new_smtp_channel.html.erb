@@ -1,4 +1,4 @@
-<h4>Create new Clickatell channel</h4>
+<h4>Create new SMTP channel</h4>
 
 <% form_for :channel, :url => { :controller => 'home', :action => :create_channel, :kind => params[:kind] } do |f| %>
   <%= f.error_messages %>
@@ -8,9 +8,17 @@
   </p>
   <p>
   <%= f.label :protocol %><br/>
-  <%= f.text_field :protocol, :value => 'sms', :readonly => 'readonly' %>
+  <%= f.text_field :protocol, :value => 'mailto', :readonly => 'readonly' %>
   </p>
   <% f.fields_for :configuration do |c| %>
+    <p>
+    <%= c.label :host %><br/>
+    <%= c.text_field :host %>
+    </p>
+    <p>
+    <%= c.label :port %><br/>
+    <%= c.text_field :port %>
+    </p>
     <p>
     <%= c.label :user %><br/>
     <%= c.text_field :user %>
@@ -20,8 +28,7 @@
     <%= c.text_field :password %>
     </p>
     <p>
-    <%= c.label :api_ID %><br/>
-    <%= c.text_field :api_id %>
+    <%= c.label :use_ssl %> <%= c.check_box :use_ssl, {} %>
     </p>
   <% end %>
   <%= submit_tag 'Create Channel' %>

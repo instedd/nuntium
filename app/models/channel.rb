@@ -6,13 +6,10 @@ class Channel < ActiveRecord::Base
   serialize :configuration
   
   validates_presence_of :name, :protocol, :kind, :application
-  validate :password_not_blank, :password_confirmation, :name_is_unique_in_application
+  validate :handler_check_valid
+  validate :name_is_unique_in_application
   
-  before_save :hash_password
-  
-  def authenticate(password)
-    self.configuration[:password] == Digest::SHA2.hexdigest(self.configuration[:salt] + password)
-  end
+  before_save :handler_before_save
   
   def clear_password
     case kind
@@ -28,37 +25,26 @@ class Channel < ActiveRecord::Base
   
   def handler
     case kind
-    when 'qst'
-      QstChannelHandler.new(self)
     when 'clickatell'
       ClickatellChannelHandler.new(self)
+    when 'qst'
+      QstChannelHandler.new(self)    
+    when 'smtp'
+      SmtpChannelHandler.new(self)
     end
   end
   
   private
   
-  def hash_password
-    if kind == 'qst'
-      if !self.configuration[:salt].nil?
-        return
-      end
-      
-      self.configuration[:salt] = ActiveSupport::SecureRandom.base64(8)
-      self.configuration[:password] = Digest::SHA2.hexdigest(self.configuration[:salt] + self.configuration[:password])
+  def handler_check_valid
+    if self.handler.respond_to?(:check_valid)
+      self.handler.check_valid
     end
   end
   
-  def password_not_blank
-    if kind == 'qst'
-      errors.add(:password, "can't be blank") if
-        self.configuration[:password].nil? || self.configuration[:password].chomp.empty?
-    end
-  end
-  
-  def password_confirmation
-    if kind == 'qst'
-      errors.add(:password, "doesn't match confirmation") if
-        !self.configuration[:password_confirmation].nil? && self.configuration[:password] != self.configuration[:password_confirmation]
+  def handler_before_save
+    if self.handler.respond_to?(:before_save)
+      self.handler.before_save
     end
   end
   

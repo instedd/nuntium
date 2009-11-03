@@ -152,13 +152,7 @@ class HomeController < ApplicationController
       return
     end
     
-    @channel.protocol = chan[:protocol]
-    
-    if !chan[:configuration][:password].chomp.empty?
-      @channel.configuration[:salt] = nil
-      @channel.configuration[:password] = chan[:configuration][:password]
-      @channel.configuration[:password_confirmation] = chan[:configuration][:password_confirmation]
-    end
+    @channel.handler.update(chan)
     
     if !@channel.save
       @channel.clear_password

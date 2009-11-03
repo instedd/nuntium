@@ -96,7 +96,7 @@ class HomeControllerTest < ActionController::TestCase
     chan = chans[0]
     
     assert_equal 'mail', chan.protocol
-    assert(chan.authenticate('chan_pass'))
+    assert(chan.handler.authenticate('chan_pass'))
   end
   
   test "edit channel change password succeeds" do
@@ -114,7 +114,7 @@ class HomeControllerTest < ActionController::TestCase
     assert_equal 1, chans.length
     
     chan = chans[0]
-    assert(chan.authenticate('new_pass'))
+    assert(chan.handler.authenticate('new_pass'))
   end
   
   test "create qst channel succeeds" do
@@ -135,7 +135,7 @@ class HomeControllerTest < ActionController::TestCase
     assert_equal 'chan', chan.name
     assert_equal 'sms', chan.protocol
     assert_equal 'qst', chan.kind
-    assert(chan.authenticate('chan_pass'))
+    assert(chan.handler.authenticate('chan_pass'))
   end
   
   test "delete channel" do
