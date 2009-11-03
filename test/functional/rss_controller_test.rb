@@ -70,7 +70,8 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should create clickatell job" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'clickatell')
+    app = Application.create(:name => 'app', :password => 'app_pass')
+    chan = Channel.create(:application_id => app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :configuration => {:user => 'user', :password => 'password', :api_id => 'api_id' })
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
     @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')
@@ -84,6 +85,27 @@ class RssControllerTest < ActionController::TestCase
     job = jobs[0]
     job = YAML::load job.handler
     assert_equal 'SendClickatellMessageJob', job.class.to_s
+    assert_equal app.id, job.application_id
+    assert_equal chan.id, job.channel_id
+    assert_equal msg.id, job.message_id
+  end
+  
+  test "should create smtp job" do
+    app = Application.create(:name => 'app', :password => 'app_pass')
+    chan = Channel.create(:application_id => app.id, :name => 'chan', :kind => 'smtp', :protocol => 'protocol', :configuration => {:host => 'host', :port => 430, :user => 'user', :password => 'password' })
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
+    @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')
+    post :create
+    
+    msg = AOMessage.first
+    
+    jobs = Delayed::Job.all
+    assert_equal 1, jobs.length
+    
+    job = jobs[0]
+    job = YAML::load job.handler
+    assert_equal 'SendSmtpMessageJob', job.class.to_s
     assert_equal app.id, job.application_id
     assert_equal chan.id, job.channel_id
     assert_equal msg.id, job.message_id

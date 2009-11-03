@@ -2,11 +2,18 @@ require 'uri'
 require 'net/http'
 require 'net/https'
 
-class SendClickatellMessageJob < Struct.new(:application_id, :channel_id, :message_id)
+class SendClickatellMessageJob
+  attr_accessor :application_id, :channel_id, :message_id
+
+  def initialize(application_id, channel_id, message_id)
+    @application_id = application_id
+    @channel_id = channel_id
+    @message_id = message_id
+  end
 
   def perform
-    channel = Channel.find self.channel_id
-    msg = AOMessage.find self.message_id
+    channel = Channel.find @channel_id
+    msg = AOMessage.find @message_id
     config = channel.configuration
     
     uri = "/http/sendmsg"

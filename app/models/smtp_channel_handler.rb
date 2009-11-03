@@ -1,5 +1,6 @@
 class SmtpChannelHandler < ChannelHandler
   def handle(msg)
+    Delayed::Job.enqueue SendSmtpMessageJob.new(@channel.application_id, @channel.id, msg.id)
   end
   
   def check_valid
