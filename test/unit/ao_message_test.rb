@@ -35,4 +35,19 @@ class AOMessageTest < ActiveSupport::TestCase
     msg = AOMessage.new(:to => 'sms://something')
     assert_equal 'something', msg.to_without_protocol
   end
+  
+  test "from_protocol" do
+    msg = AOMessage.new(:from => 'sms://something')
+    assert_equal 'sms', msg.from_protocol
+  end
+  
+  test "from_protocol nil" do
+    msg = AOMessage.new(:from => 'something')
+    assert_nil msg.from_protocol
+  end
+  
+  test "from_without_protocol nil" do
+    msg = AOMessage.new(:from => 'sms://something')
+    assert_equal 'something', msg.from_without_protocol
+  end
 end
