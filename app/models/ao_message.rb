@@ -2,6 +2,8 @@ class AOMessage < ActiveRecord::Base
   belongs_to :application
   validates_presence_of :application
   
+  # Returns the subject and body of this message concatenated
+  # with a dash, or either of them if the other is empty.
   def subject_and_body
     if self.subject.nil? || self.subject == ''
       if self.body.nil? || self.body == ''
@@ -20,10 +22,9 @@ class AOMessage < ActiveRecord::Base
 end
 
 class String
-  # Returns the protocol of this string or nil if it doesn't have one.
-  # For example:
-  # 'sms://foobar'.protocol => 'sms'
-  # 'foobar'.protocol => nil
+  # Returns this string's protocol or nil if it doesn't have one.
+  #   'sms://foobar'.protocol => 'sms'
+  #   'foobar'.protocol => nil
   def protocol
     i = self.index '://'
     if i.nil?
@@ -34,9 +35,8 @@ class String
   end
   
   # Returns this string without the protocol part.
-  # For example:
-  # 'sms://foobar'.without_protocol => 'foobar'
-  # 'foobar'.without_protocol => 'foobar'
+  #   'sms://foobar'.without_protocol => 'foobar'
+  #   'foobar'.without_protocol => 'foobar'
   def without_protocol
     i = self.index '://'
     if i.nil?
