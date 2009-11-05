@@ -37,4 +37,9 @@ class QstChannelHandler < ChannelHandler
     @channel.configuration[:salt] = ActiveSupport::SecureRandom.base64(8)
     @channel.configuration[:password] = Digest::SHA2.hexdigest(@channel.configuration[:salt] + @channel.configuration[:password])
   end
+  
+  def clear_password
+    @channel.configuration[:salt] = nil
+    @channel.configuration[:password] = nil
+  end
 end

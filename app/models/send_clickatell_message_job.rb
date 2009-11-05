@@ -21,7 +21,7 @@ class SendClickatellMessageJob
     uri = append uri, 'user', config[:user]
     uri = append uri, 'password', config[:password]
     # uri = append uri, 'from', msg.from
-    uri = append uri, 'to', msg.to_without_protocol
+    uri = append uri, 'to', msg.to.without_protocol
     uri = append uri, 'text', msg.subject_and_body
     
     host = URI::parse('https://api.clickatell.com')

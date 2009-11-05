@@ -15,8 +15,8 @@ class SendSmtpMessageJob
     config = channel.configuration
     
 msgstr = <<-END_OF_MESSAGE
-From: #{msg.from_without_protocol}
-To: #{msg.to_without_protocol}
+From: #{msg.from.without_protocol}
+To: #{msg.to.without_protocol}
 Subject: #{msg.subject}
 Date: #{msg.timestamp}
 Message-Id: #{msg.guid}
@@ -30,7 +30,7 @@ END_OF_MESSAGE
       smtp.enable_tls
     end
     smtp.start('localhost.localdomain', config[:user], config[:password])
-    smtp.send_message msgstr, msg.from_without_protocol, msg.to_without_protocol
+    smtp.send_message msgstr, msg.from.without_protocol, msg.to.without_protocol
     smtp.finish
     
     AOMessage.update_all("state = 'delivered', tries = tries + 1", ['id = ?', msg.id])

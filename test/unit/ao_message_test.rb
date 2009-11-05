@@ -21,33 +21,33 @@ class AOMessageTest < ActiveSupport::TestCase
     assert_equal 'subject - body', msg.subject_and_body
   end
   
-  test "to_protocol" do
+  test "to.protocol" do
     msg = AOMessage.new(:to => 'sms://something')
-    assert_equal 'sms', msg.to_protocol
+    assert_equal 'sms', msg.to.protocol
   end
   
-  test "to_protocol nil" do
+  test "to.protocol nil" do
     msg = AOMessage.new(:to => 'something')
-    assert_nil msg.to_protocol
+    assert_nil msg.to.protocol
   end
   
-  test "to_without_protocol nil" do
+  test "to.without_protocol nil" do
     msg = AOMessage.new(:to => 'sms://something')
-    assert_equal 'something', msg.to_without_protocol
+    assert_equal 'something', msg.to.without_protocol
   end
   
-  test "from_protocol" do
+  test "from.protocol" do
     msg = AOMessage.new(:from => 'sms://something')
-    assert_equal 'sms', msg.from_protocol
+    assert_equal 'sms', msg.from.protocol
   end
   
-  test "from_protocol nil" do
+  test "from.protocol nil" do
     msg = AOMessage.new(:from => 'something')
-    assert_nil msg.from_protocol
+    assert_nil msg.from.protocol
   end
   
-  test "from_without_protocol nil" do
+  test "from.without_protocol nil" do
     msg = AOMessage.new(:from => 'sms://something')
-    assert_equal 'something', msg.from_without_protocol
+    assert_equal 'something', msg.from.without_protocol
   end
 end

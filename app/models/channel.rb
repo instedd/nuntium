@@ -12,10 +12,8 @@ class Channel < ActiveRecord::Base
   before_save :handler_before_save
   
   def clear_password
-    case kind
-    when 'qst'
-      self.configuration[:salt] = nil
-      self.configuration[:password] = nil
+    if self.handler.respond_to?(:clear_password)
+      self.handler.clear_password
     end
   end
   
@@ -24,13 +22,10 @@ class Channel < ActiveRecord::Base
   end
   
   def handler
-    case kind
-    when 'clickatell'
-      ClickatellChannelHandler.new(self)
-    when 'qst'
-      QstChannelHandler.new(self)    
-    when 'smtp'
-      SmtpChannelHandler.new(self)
+    if kind.nil?
+      nil
+    else
+      eval(kind.capitalize + 'ChannelHandler.new(self)')
     end
   end
   

@@ -17,48 +17,32 @@ class AOMessage < ActiveRecord::Base
       end
     end
   end
-  
-  # Returns protocol of 'to', nil if none found.
-  # Examples:
-  # 1. to = 'sms://foobar' -> 'sms'
-  # 2. to = 'foobar' -> nil
-  def to_protocol
-    self.get_protocol(self.to)
-  end
-  
-  # Returns 'to' with the protocol stripped off
-  def to_without_protocol
-    self.without_protocol(self.to)
-  end
-  
-  # Returns protocol of 'from', nil if none found.
-  # Examples:
-  # 1. from = 'sms://foobar' -> 'sms'
-  # 2. from = 'foobar' -> nil
-  def from_protocol
-    self.get_protocol(self.from)
-  end
-  
-  # Returns 'from' with the protocol stripped off
-  def from_without_protocol
-    self.without_protocol(self.from)
-  end
-  
-  def get_protocol(str)
-    index = str.index '://'
-    if index.nil?
+end
+
+class String
+  # Returns the protocol of this string or nil if it doesn't have one.
+  # For example:
+  # 'sms://foobar'.protocol => 'sms'
+  # 'foobar'.protocol => nil
+  def protocol
+    i = self.index '://'
+    if i.nil?
       nil
     else
-      str[0 ... index]
+      self[0 ... i]
     end
   end
   
-  def without_protocol(str)
-    index = str.index '://'
-    if index.nil?
-      str
+  # Returns this string without the protocol part.
+  # For example:
+  # 'sms://foobar'.without_protocol => 'foobar'
+  # 'foobar'.without_protocol => 'foobar'
+  def without_protocol
+    i = self.index '://'
+    if i.nil?
+      self
     else
-      str[index + 3 ... str.length]
+      self[i + 3 ... self.length]
     end
   end
 end
