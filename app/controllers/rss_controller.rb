@@ -40,14 +40,13 @@ class RssController < ApplicationController
       if temp_messages.empty?
         head :not_modified
         return
-      else
-        # Reverse is needed to have the messages shown in ascending timestamp
-        @at_messages = temp_messages.reverse
       end
-    else
-      # Reverse is needed to have the messages shown in ascending timestamp
-      @at_messages.reverse!
+      
+      @at_messages = temp_messages
     end
+    
+    # Reverse is needed to have the messages shown in ascending timestamp
+    @at_messages.reverse!
     
     # Get the ids of the messages to be shown
     at_messages_ids = @at_messages.collect {|x| x.id}
