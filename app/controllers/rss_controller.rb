@@ -97,7 +97,7 @@ class RssController < ApplicationController
       # Find protocol of message (based on "to" field)
       protocol = msg.to.protocol
       if protocol.nil?
-        app_logger.warn '[POST /rss] Protocol not found for ' + msg.inspect
+        app_logger.protocol_not_found_for msg
         next
       end
       
@@ -105,7 +105,7 @@ class RssController < ApplicationController
       channels = @channels.select {|x| x.protocol == protocol}
       
       if channels.empty?
-        app_logger.warn '[POST /rss] No channel found for protocol "' + protocol + '" for message ' + msg.inspect
+        app_logger.no_channel_found_for protocol, msg
         next
       end
 
@@ -113,7 +113,7 @@ class RssController < ApplicationController
       msg.save
       
       if channels.length > 1
-        app_logger.warn '{:message_id => #{msg.id}} [POST /rss] More than one channel found for protocol "' + protocol + '"'
+        app_logger.more_than_one_channel_found_for protocol, msg
       end
       
       # Let the channel handle the message
