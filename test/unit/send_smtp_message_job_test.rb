@@ -3,6 +3,8 @@ require 'net/smtp'
 require 'mocha'
 
 class SendSmtpMessageJobTest < ActiveSupport::TestCase
+  include Mocha::API
+
   should "perform no ssl" do
     time = Time.now
     

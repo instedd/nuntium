@@ -5,6 +5,8 @@ require 'net/https'
 require 'mocha'
 
 class SendClickatellMessageJobTest < ActiveSupport::TestCase
+  include Mocha::API
+
   should "perform" do
     request = mock('Net::HTTPRequest')
   
