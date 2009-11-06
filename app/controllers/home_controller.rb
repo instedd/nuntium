@@ -1,3 +1,5 @@
+require 'will_paginate'
+
 class HomeController < ApplicationController
 
   before_filter :check_login, :except => [:index, :login, :create_application]
@@ -52,9 +54,104 @@ class HomeController < ApplicationController
   end
   
   def home
+    @results_per_page = 10
+    
+    # AO filtering
+    @ao_page = params[:ao_page]
+    @ao_page = 1 if @ao_page.blank?    
+    @ao_search = params[:ao_search]
+    @ao_previous_search = params[:ao_previous_search]
+    @ao_from = params[:ao_from]
+    @ao_to = params[:ao_to]
+    @ao_state = params[:ao_state]
+    
+    @ao_conditions = ['application_id = :application_id', { :application_id => @application.id }]
+    if !@ao_search.blank?
+      @ao_conditions[0] += ' AND (guid = :search OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search)'
+      @ao_conditions[1][:search] = '%' + @ao_search + '%'
+      
+      # Reset pages if search changes (so as to not stay in a later page that doesn't exist in the new result set)
+      @ao_page = 1 if !@ao_previous_search.blank? and @ao_previous_search != @ao_search
+    end
+    if !@ao_from.blank?
+      begin
+        from = Time.parse(@ao_from)
+        @ao_conditions[0] += ' AND timestamp >= :from'
+        @ao_conditions[1][:from] = from
+      rescue
+        @ao_from = 'ERROR: ' + @ao_from
+      end
+    end
+    if !@ao_to.blank?
+      begin
+        to = Time.parse(@ao_to)
+        @ao_conditions[0] += ' AND timestamp <= :to'
+        @ao_conditions[1][:to] = to
+      rescue
+        @ao_to = 'ERROR: ' + @ao_to
+      end
+    end
+    if !@ao_state.blank?
+      @ao_conditions[0] += ' AND state LIKE :state'
+      @ao_conditions[1][:state] = '%' + @ao_state + '%'
+    end
+    
+    @ao_messages = AOMessage.paginate(
+      :conditions => @ao_conditions,
+      :order => 'timestamp DESC',
+      :page => @ao_page,
+      :per_page => @results_per_page
+      )
+      
+    # AO filtering
+    @at_page = params[:at_page]
+    @at_page = 1 if @at_page.blank?    
+    @at_search = params[:at_search]
+    @at_previous_search = params[:at_previous_search]
+    @at_from = params[:at_from]
+    @at_to = params[:at_to]
+    @at_state = params[:at_state]
+    
+    @at_conditions = ['application_id = :application_id', { :application_id => @application.id }]
+    if !@at_search.blank?
+      @at_conditions[0] += ' AND (guid = :search OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search)'
+      @at_conditions[1][:search] = '%' + @at_search + '%'
+      
+      # Reset pages if search changes (so as to not stay in a later page that doesn't exist in the new result set)
+      @at_page = 1 if !@at_previous_search.blank? and @at_previous_search != @at_search
+    end
+    if !@at_from.blank?
+      begin
+        from = Time.parse(@at_from)
+        @at_conditions[0] += ' AND timestamp >= :from'
+        @at_conditions[1][:from] = from
+      rescue
+        @at_from = 'ERROR: ' + @at_from
+      end
+    end
+    if !@at_to.blank?
+      begin
+        to = Time.parse(@at_to)
+        @at_conditions[0] += ' AND timestamp <= :to'
+        @at_conditions[1][:to] = to
+      rescue
+        @at_to = 'ERROR: ' + @at_to
+      end
+    end
+    if !@at_state.blank?
+      @at_conditions[0] += ' AND state LIKE :state'
+      @at_conditions[1][:state] = '%' + @at_state + '%'
+    end
+    
+    @at_messages = ATMessage.paginate(
+      :conditions => @at_conditions,
+      :order => 'timestamp DESC',
+      :page => @at_page,
+      :per_page => @results_per_page
+      )
+      
+    # Channels
     @channels = @application.channels.all
-    @ao_messages = @application.last_ao_messages(10)
-    @at_messages = @application.last_at_messages(10)
   end
   
   def edit_application
