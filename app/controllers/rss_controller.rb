@@ -74,6 +74,8 @@ class RssController < ApplicationController
   
   # POST /rss
   def create
+    app_logger = ApplicationLogger.new(@application)
+    
     @channels = @application.channels.all
   
     body = request.env['RAW_POST_DATA']
@@ -95,7 +97,7 @@ class RssController < ApplicationController
       # Find protocol of message (based on "to" field)
       protocol = msg.to.protocol
       if protocol.nil?
-        logger.warn 'Protocol not found for ' + msg.inspect
+        app_logger.warn '[POST /rss] Protocol not found for ' + msg.inspect
         next
       end
       
@@ -103,22 +105,24 @@ class RssController < ApplicationController
       channels = @channels.select {|x| x.protocol == protocol}
       
       if channels.empty?
-        logger.warn 'No channel found for protocol "' + protocol + '" in application "' + @application.name + '" for message ' + msg.inspect
+        app_logger.warn '[POST /rss] No channel found for protocol "' + protocol + '" for message ' + msg.inspect
         next
-      end
-      
-      if channels.length > 1
-        logger.warn 'More than one channel found for protocol "' + protocol + '" in application "' + @application.name + '" for message ' + msg.inspect
       end
 
       # Now save the message
       msg.save
+      
+      if channels.length > 1
+        app_logger.warn '{:message_id => #{msg.id}} [POST /rss] More than one channel found for protocol "' + protocol + '"'
+      end
       
       # Let the channel handle the message
       channels[0].handle msg
     end
      
     head :ok
+    
+    app_logger.close
   end
   
   def authenticate
