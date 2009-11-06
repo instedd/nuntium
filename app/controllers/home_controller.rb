@@ -60,10 +60,12 @@ class HomeController < ApplicationController
     @ao_page = params[:ao_page]
     @ao_page = 1 if @ao_page.blank?    
     @ao_search = params[:ao_search]
-    @ao_previous_search = params[:ao_previous_search]
     @ao_from = params[:ao_from]
     @ao_to = params[:ao_to]
     @ao_state = params[:ao_state]
+    @ao_previous_filter = params[:ao_previous_filter]
+    @ao_filter = @ao_search.to_s + @ao_from.to_s + @ao_to.to_s + @ao_state.to_s
+    @ao_page = 1 if @ao_previous_filter != @ao_filter
     
     @ao_conditions = ['application_id = :application_id', { :application_id => @application.id }]
     if !@ao_search.blank?
@@ -111,6 +113,9 @@ class HomeController < ApplicationController
     @at_from = params[:at_from]
     @at_to = params[:at_to]
     @at_state = params[:at_state]
+    @at_previous_filter = params[:at_previous_filter]
+    @at_filter = @at_search.to_s + @at_from.to_s + @at_to.to_s + @at_state.to_s
+    @at_page = 1 if @at_previous_filter != @at_filter
     
     @at_conditions = ['application_id = :application_id', { :application_id => @application.id }]
     if !@at_search.blank?

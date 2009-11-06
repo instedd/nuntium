@@ -65,7 +65,7 @@
 
 <form>
 <input type="hidden" name="ao_page" value="<%= @ao_page %>" />
-<input type="hidden" name="ao_previous_search" value="<%= @ao_search %>" />
+<input type="hidden" name="ao_previous_filter" value="<%= @ao_filter %>" />
 <input type="hidden" name="at_page" value="<%= @at_page %>" />
 <input type="hidden" name="at_search" value="<%= @at_search %>" />
 <input type="hidden" name="at_from" value="<%= @at_from %>" />
@@ -78,7 +78,7 @@ To: <input type="text" name="ao_to" value="<%= h @ao_to %>" />
 State: <input type="text" name="ao_state" value="<%= h @ao_state %>" />
 </form>
 
-<%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_search => @ao_search } %>
+<%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_filter => @ao_filter } %>
 
 <% if @ao_messages.empty? %>
   No messages.
@@ -110,13 +110,13 @@ State: <input type="text" name="ao_state" value="<%= h @ao_state %>" />
   </table>
 <% end %>
 
-<%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_search => @ao_search } %>
+<%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_filter => @ao_filter } %>
 
 <h4>Last Application Terminated Messages</h4>
 
 <form>
 <input type="hidden" name="at_page" value="<%= @at_page %>" />
-<input type="hidden" name="at_previous_search" value="<%= @at_search %>" />
+<input type="hidden" name="at_previous_filter" value="<%= @at_filter %>" />
 <input type="hidden" name="ao_page" value="<%= @ao_page %>" />
 <input type="hidden" name="ao_search" value="<%= @ao_search %>" />
 <input type="hidden" name="ao_from" value="<%= @ao_from %>" />
@@ -129,7 +129,7 @@ To: <input type="text" name="at_to" value="<%= h @at_to %>" />
 State: <input type="text" name="at_state" value="<%= h @at_state %>" />
 </form>
 
-<%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_search => @at_search } %>
+<%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_filter => @at_filter } %>
 
 <% if @at_messages.empty? %>
   No messages.
@@ -161,7 +161,7 @@ State: <input type="text" name="at_state" value="<%= h @at_state %>" />
   </table>
 <% end %>
 
-<%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_search => @at_search } %>
+<%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_filter => @at_filter } %>
   
 <script>
 function delete_channel(id, name) {
