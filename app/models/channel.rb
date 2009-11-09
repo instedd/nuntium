@@ -11,9 +11,10 @@ class Channel < ActiveRecord::Base
   
   before_save :handler_before_save
   
-  DirectionIncoming = 1
-  DirectionOutgoing = 2
-  DirectionBoth = DirectionIncoming + DirectionOutgoing
+  # Channel directions
+  Incoming = 1
+  Outgoing = 2
+  Both = Incoming + Outgoing
   
   def clear_password
     if self.handler.respond_to?(:clear_password)

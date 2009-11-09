@@ -65,6 +65,7 @@ class ActiveSupport::TestCase
     channel.protocol = protocol
     channel.configuration = { :password => pass }
     channel.kind = kind
+    channel.direction = Channel::Both
     channel.save!
     
     channel

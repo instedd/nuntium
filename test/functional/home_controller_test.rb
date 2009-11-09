@@ -101,7 +101,7 @@ class HomeControllerTest < ActionController::TestCase
   
   test "edit channel change password succeeds" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
-    chan = Channel.create({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst', :configuration => {:password => 'chan_pass'}})
+    chan = Channel.create({:application_id => app.id, :name => 'chan', :protocol => 'sms', :direction => Channel::Both, :kind => 'qst', :configuration => {:password => 'chan_pass'}})
     
     get :update_channel, {:id => chan.id, :channel => {:protocol => 'sms', :configuration => {:password => 'new_pass', :password_confirmation => 'new_pass'}}}, {:application => app}
     

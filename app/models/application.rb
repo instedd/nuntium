@@ -30,8 +30,8 @@ class Application < ActiveRecord::Base
   
   # Route an AOMessage
   def route(msg)
-    if @channels.nil?
-      @channels = self.channels.all
+    if @incoming_channels.nil?
+      @incoming_channels = self.channels.all(:conditions => ['direction = ? OR direction = ?', Channel::Incoming, Channel::Both])
     end
     
     app_logger = ApplicationLogger.new(self)
@@ -44,7 +44,7 @@ class Application < ActiveRecord::Base
     end
     
     # Find channel that handles that protocol
-    channels = @channels.select {|x| x.protocol == protocol}
+    channels = @incoming_channels.select {|x| x.protocol == protocol}
     
     if channels.empty?
       app_logger.no_channel_found_for protocol, msg

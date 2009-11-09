@@ -214,6 +214,7 @@ class HomeController < ApplicationController
     @channel = Channel.new(chan)
     @channel.application_id = @application.id
     @channel.kind = params[:kind]
+    @channel.direction = params[:direction]
     
     if !@channel.save
       @channel.clear_password
@@ -257,6 +258,7 @@ class HomeController < ApplicationController
     @channel.handler.update(chan)
     
     if !@channel.save
+      puts @channel.errors.full_messages
       @channel.clear_password
       flash[:channel] = @channel
       redirect_to :action => :edit_channel
