@@ -1,0 +1,3 @@
+# Logfile created on Fri Nov 06 19:22:49 +0100 2009 by /
+2009-11-06 19:22:49 WARN [POST /rss] No channel found for protocol 'unknown' for message '#<AOMessage id: nil, from: "Someone", to: "unknown://Someone else", body: "Body of the message", created_at: nil, updated_at: nil, guid: "someguid", timestamp: "2003-06-03 09:39:21", application_id: 1, tries: 0, subject: "First message", state: "queued">'
+2009-11-06 19:22:50 WARN [POST /rss] Protocol not found for #<AOMessage id: nil, from: "Someone", to: "Someone else", body: "Body of the message", created_at: nil, updated_at: nil, guid: "someguid", timestamp: "2003-06-03 09:39:21", application_id: 1, tries: 0, subject: "First message", state: "queued">
