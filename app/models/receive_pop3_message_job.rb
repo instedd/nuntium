@@ -23,9 +23,6 @@ class ReceivePop3MessageJob
       tmail = TMail::Mail.parse(mail.pop)
       tmail_body = get_body tmail
       
-      puts tmail
-      
-      
       tmail.to.each do |receiver|
         msg = ATMessage.new
         msg.application_id = @application_id

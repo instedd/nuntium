@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091030075924) do
+ActiveRecord::Schema.define(:version => 20091109152948) do
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -58,6 +58,7 @@ ActiveRecord::Schema.define(:version => 20091030075924) do
     t.datetime "updated_at"
     t.string   "configuration"
     t.string   "protocol"
+    t.integer  "direction"
   end
 
   create_table "delayed_jobs", :force => true do |t|

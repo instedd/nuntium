@@ -74,10 +74,6 @@ class RssController < ApplicationController
   
   # POST /rss
   def create
-    app_logger = ApplicationLogger.new(@application)
-    
-    @channels = @application.channels.all
-  
     body = request.env['RAW_POST_DATA']
     tree = RSS::Parser.parse(body, false)
     
@@ -92,37 +88,12 @@ class RssController < ApplicationController
       msg.body = item.description
       msg.guid = item.guid.content
       msg.timestamp = item.pubDate.to_datetime
-      msg.state = 'queued'
-    
-      # Find protocol of message (based on "to" field)
-      protocol = msg.to.protocol
-      if protocol.nil?
-        app_logger.protocol_not_found_for msg
-        next
-      end
       
-      # Find channel that handles that protocol
-      channels = @channels.select {|x| x.protocol == protocol}
-      
-      if channels.empty?
-        app_logger.no_channel_found_for protocol, msg
-        next
-      end
-
-      # Now save the message
-      msg.save
-      
-      if channels.length > 1
-        app_logger.more_than_one_channel_found_for protocol, msg
-      end
-      
-      # Let the channel handle the message
-      channels[0].handle msg
+      # And let the application handle it
+      @application.route msg
     end
      
     head :ok
-    
-    app_logger.close
   end
   
   def authenticate

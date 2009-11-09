@@ -28,6 +28,43 @@ class Application < ActiveRecord::Base
         :conditions => ['application_id = ?', self.id])
   end
   
+  # Route an AOMessage
+  def route(msg)
+    if @channels.nil?
+      @channels = self.channels.all
+    end
+    
+    app_logger = ApplicationLogger.new(self)
+    
+    # Find protocol of message (based on "to" field)
+    protocol = msg.to.protocol
+    if protocol.nil?
+      app_logger.protocol_not_found_for msg
+      return
+    end
+    
+    # Find channel that handles that protocol
+    channels = @channels.select {|x| x.protocol == protocol}
+    
+    if channels.empty?
+      app_logger.no_channel_found_for protocol, msg
+      return
+    end
+
+    # Now save the message
+    msg.state = 'queued'
+    msg.save
+    
+    if channels.length > 1
+      app_logger.more_than_one_channel_found_for protocol, msg
+    end
+    
+    # Let the channel handle the message
+    channels[0].handle msg
+    
+    app_logger.close
+  end
+  
   def clear_password
     self.salt = nil
     self.password = nil
