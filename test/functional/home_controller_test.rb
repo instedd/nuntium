@@ -153,6 +153,40 @@ class HomeControllerTest < ActionController::TestCase
     assert_equal 0, chans.length
   end
   
+  test "mark ao messages as cancelled" do
+    app = Application.create({:name => 'app', :password => 'app_pass'})
+    msg1 = AOMessage.create(:application_id => app.id, :state => 'queued')
+    msg2 = AOMessage.create(:application_id => app.id, :state => 'queued')
+    msg3 = AOMessage.create(:application_id => app.id, :state => 'queued')
+    
+    get :mark_ao_messages_as_cancelled, {:ao_messages => [msg1.id, msg2.id]}, {:application => app}
+    
+    assert_redirected_to(:controller => 'home', :action => 'home', :ao_messages => [msg1.id, msg2.id])
+    assert_equal '2 Application Oriented messages were marked as cancelled', flash[:notice]
+    
+    msgs = AOMessage.all
+    assert_equal 'cancelled', msgs[0].state
+    assert_equal 'cancelled', msgs[1].state
+    assert_equal 'queued', msgs[2].state
+  end
+  
+  test "mark at messages as cancelled" do
+    app = Application.create({:name => 'app', :password => 'app_pass'})
+    msg1 = ATMessage.create(:application_id => app.id, :state => 'queued')
+    msg2 = ATMessage.create(:application_id => app.id, :state => 'queued')
+    msg3 = ATMessage.create(:application_id => app.id, :state => 'queued')
+    
+    get :mark_at_messages_as_cancelled, {:at_messages => [msg1.id, msg2.id]}, {:application => app}
+    
+    assert_redirected_to(:controller => 'home', :action => 'home', :at_messages => [msg1.id, msg2.id])
+    assert_equal '2 Application Terminated messages were marked as cancelled', flash[:notice]
+    
+    msgs = ATMessage.all
+    assert_equal 'cancelled', msgs[0].state
+    assert_equal 'cancelled', msgs[1].state
+    assert_equal 'queued', msgs[2].state
+  end
+  
   test "home" do
     app = Application.create({:name => 'app', :password => 'app_pass'});
     get :home, {}, {:application => app}

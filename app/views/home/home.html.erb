@@ -56,7 +56,7 @@
 <% else %>
   <ul>
     <% @channels.each do |chan| %>
-      <li><b><%= chan.name %></b> => protocol: <%= chan.protocol %>, kind: <%= chan.kind %> <%= link_to "edit", :controller => :home, :action => :edit_channel, :id => chan.id %> <a href="javascript:void(0)" onclick="delete_channel(<%= chan.id %>, '<%= h chan.name %>')">delete</a></li>
+      <li><b><%= chan.name %></b> => protocol: <%= chan.protocol %>, kind: <%= chan.kind %>, direction: <%= chan.direction_text %> <%= link_to "edit", :controller => :home, :action => :edit_channel, :id => chan.id %> <a href="javascript:void(0)" onclick="delete_channel(<%= chan.id %>, '<%= h chan.name %>')">delete</a></li>
     <% end %>
   </ul>
 <% end %>
@@ -72,7 +72,7 @@
 <h4><a href="javascript:void(0)" onClick="toggle('last_ao_messages')">Last Application Originated Messages</a></h4>
 
 <div id="last_ao_messages">
-<form>
+<form id="ao_messages_form">
 <input type="hidden" name="ao_page" value="<%= @ao_page %>" />
 <input type="hidden" name="ao_previous_filter" value="<%= @ao_filter %>" />
 <input type="hidden" name="at_page" value="<%= @at_page %>" />
@@ -82,18 +82,27 @@
 <input type="hidden" name="at_state" value="<%= @at_state %>" />
 
 Search: <input type="text" name="ao_search" value="<%= h @ao_search %>" />
-From: <input type="text" name="ao_from" value="<%= h @ao_from %>" />
-To: <input type="text" name="ao_to" value="<%= h @ao_to %>" />
-State: <input type="text" name="ao_state" value="<%= h @ao_state %>" />
-</form>
+From: <input type="text" name="ao_from" value="<%= h @ao_from %>" size="13" />
+To: <input type="text" name="ao_to" value="<%= h @ao_to %>" size="13" />
+State: <input type="text" name="ao_state" value="<%= h @ao_state %>" size="6" />
+Select: <a href="javascript:void(0)" onclick="select_all('ao_messages[]')">all</a>, <a href="javascript:void(0)" onclick="select_none('ao_messages[]')">none</a>
+Actions: <a href="javascript:void(0)" onclick="mark_ao_messages_as_cancelled()">mark as cancelled</a>
 
 <%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_filter => @ao_filter } %>
 
+<input type="hidden" name="ao_page" value="<%= @ao_page %>" />
+<input type="hidden" name="ao_previous_filter" value="<%= @ao_filter %>" />
+<input type="hidden" name="at_page" value="<%= @at_page %>" />
+<input type="hidden" name="at_search" value="<%= @at_search %>" />
+<input type="hidden" name="at_from" value="<%= @at_from %>" />
+<input type="hidden" name="at_to" value="<%= @at_to %>" />
+<input type="hidden" name="at_state" value="<%= @at_state %>" />
 <% if @ao_messages.empty? %>
   No messages.
 <% else %>
   <table border="1">
     <tr>
+      <th></th>
       <th>When</th>
       <th>Guid</th>
       <th>From</th>
@@ -106,6 +115,7 @@ State: <input type="text" name="ao_state" value="<%= h @ao_state %>" />
     <tr>
     <% @ao_messages.each do |msg| %>
       <tr>
+        <td><input type="checkbox" name="ao_messages[]" value="<%= msg.id %>" <% if !params[:ao_messages].nil? && params[:ao_messages].include?(msg.id.to_s); %>checked="checked"<% end; %>/></td>
         <td><%= msg.timestamp %></td>
         <td><%= short_html msg.guid %></td>
         <td><%= msg.from %></td>
@@ -118,6 +128,7 @@ State: <input type="text" name="ao_state" value="<%= h @ao_state %>" />
     <% end %>
   </table>
 <% end %>
+</form>
 
 <%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_filter => @ao_filter } %>
 </div>
@@ -125,7 +136,7 @@ State: <input type="text" name="ao_state" value="<%= h @ao_state %>" />
 <h4><a href="javascript:void(0)" onClick="toggle('last_at_messages')">Last Application Terminated Messages</a></h4>
 
 <div id="last_at_messages">
-<form>
+<form id="at_messages_form">
 <input type="hidden" name="at_page" value="<%= @at_page %>" />
 <input type="hidden" name="at_previous_filter" value="<%= @at_filter %>" />
 <input type="hidden" name="ao_page" value="<%= @ao_page %>" />
@@ -135,10 +146,11 @@ State: <input type="text" name="ao_state" value="<%= h @ao_state %>" />
 <input type="hidden" name="ao_state" value="<%= @ao_state %>" />
 
 Search: <input type="text" name="at_search" value="<%= h @at_search %>" />
-From: <input type="text" name="at_from" value="<%= h @at_from %>" />
-To: <input type="text" name="at_to" value="<%= h @at_to %>" />
-State: <input type="text" name="at_state" value="<%= h @at_state %>" />
-</form>
+From: <input type="text" name="at_from" value="<%= h @at_from %>" size="13"/>
+To: <input type="text" name="at_to" value="<%= h @at_to %>" size="13" />
+State: <input type="text" name="at_state" value="<%= h @at_state %>" size="6" />
+Select: <a href="javascript:void(0)" onclick="select_all('at_messages[]')">all</a>, <a href="javascript:void(0)" onclick="select_none('at_messages[]')">none</a>
+Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">mark as cancelled</a>
 
 <%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_filter => @at_filter } %>
 
@@ -147,6 +159,7 @@ State: <input type="text" name="at_state" value="<%= h @at_state %>" />
 <% else %>
   <table border="1">
     <tr>
+      <th></th>
       <th>When</th>
       <th>Guid</th>
       <th>From</th>
@@ -159,6 +172,7 @@ State: <input type="text" name="at_state" value="<%= h @at_state %>" />
     <tr>
     <% @at_messages.each do |msg| %>
       <tr>
+        <td><input type="checkbox" name="at_messages[]" value="<%= msg.id %>" <% if !params[:at_messages].nil? && params[:at_messages].include?(msg.id.to_s); %>checked="checked"<% end; %>/></td>
         <td><%= msg.timestamp %></td>
         <td><%= short_html msg.guid %></td>
         <td><%= msg.from %></td>
@@ -173,4 +187,5 @@ State: <input type="text" name="at_state" value="<%= h @at_state %>" />
 <% end %>
 
 <%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_filter => @at_filter } %>
+</form>
 </div>

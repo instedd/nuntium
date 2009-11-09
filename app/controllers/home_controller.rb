@@ -281,6 +281,26 @@ class HomeController < ApplicationController
     redirect_to :action => :home
   end
   
+  def mark_ao_messages_as_cancelled
+    ids = params[:ao_messages]
+    
+    AOMessage.update_all("state = 'cancelled'", ['id IN (?)', ids])
+    
+    params[:action] = :home
+    flash[:notice] = "#{ids.length} Application Oriented messages #{ids.length == 1 ? 'was' : 'were'} marked as cancelled"
+    redirect_to params
+  end
+  
+  def mark_at_messages_as_cancelled
+    ids = params[:at_messages]
+    
+    ATMessage.update_all("state = 'cancelled'", ['id IN (?)', ids])
+    
+    params[:action] = :home
+    flash[:notice] = "#{ids.length} Application Terminated messages #{ids.length == 1 ? 'was' : 'were'} marked as cancelled"
+    redirect_to params
+  end
+  
   def logoff
     session[:application] = nil
     redirect_to :action => :index

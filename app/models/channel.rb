@@ -34,6 +34,17 @@ class Channel < ActiveRecord::Base
     end
   end
   
+  def direction_text
+    case direction
+    when Incoming
+      'incoming'
+    when Outgoing
+      'outgoing'
+    when Both
+      'both'
+    end
+  end
+  
   private
   
   def handler_check_valid

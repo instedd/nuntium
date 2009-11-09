@@ -16,6 +16,8 @@ ActionController::Routing::Routes.draw do |map|
   map.delete_channel '/channel/delete/:id', :controller => 'home', :action => :delete_channel
   map.new_channel '/channel/new/:kind', :controller => 'home', :action => :new_channel
   map.create_channel '/channel/create/:kind', :controller => 'home', :action => :create_channel
+  map.mark_ao_messages_as_cancelled '/mark_ao_messages_as_cancelled', :controller => 'home', :action => :mark_ao_messages_as_cancelled
+  map.mark_at_messages_as_cancelled '/mark_at_messages_as_cancelled', :controller => 'home', :action => :mark_at_messages_as_cancelled
 
   # The priority is based upon order of creation: first created -> highest priority.
 
