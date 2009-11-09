@@ -32,6 +32,7 @@ class ReceivePop3MessageJob
         msg.body = tmail_body
         msg.guid = tmail.message_id
         msg.timestamp = tmail.date
+        msg.state = 'queued'
         msg.save
       end
       

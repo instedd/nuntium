@@ -258,7 +258,6 @@ class HomeController < ApplicationController
     @channel.handler.update(chan)
     
     if !@channel.save
-      puts @channel.errors.full_messages
       @channel.clear_password
       flash[:channel] = @channel
       redirect_to :action => :edit_channel

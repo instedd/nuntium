@@ -25,6 +25,7 @@ class IncomingController < QSTController
       msg.body = elem.elements['text'].text
       msg.guid = elem.attributes['id']
       msg.timestamp = Time.parse(elem.attributes['when'])
+      msg.state = 'queued'
       msg.save
       
       last_id = msg.guid
