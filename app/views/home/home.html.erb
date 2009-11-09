@@ -2,8 +2,9 @@
 <div style="border:1px solid black; background:#FFF1A8; padding:4px; font-weight:bold"><%= flash[:notice] %></div>
 <% end %>
 
-<h4>Interactions</h4>
+<h4><a href="javascript:void(0)" onClick="toggle_visibility('interactions')">Interactions</a></h4>
 
+<div id="interactions" style="display:none">
 <% if @channels.empty? %>
   To interact with this application you must first create a new channel.
 <% else %>
@@ -33,17 +34,23 @@
   </ul>
   </div>
 <% end %>
+</div>
 
-<h4>Settings</h4>
+<h4><a href="javascript:void(0)" onClick="toggle_visibility('settings')">Settings</a></h4>
 
+<div id="settings" style="display:none">
 <ul>
   <li>Max tries: <%= @application.max_tries %></li>
 </ul>
 
-<%= link_to "Edit settings / Change password", :controller => :home, :action => :edit_application %>
+<ul>
+  <li><%= link_to "Edit settings / Change password", :controller => :home, :action => :edit_application %></li>
+</ul>
+</div>
 
-<h4>Channels</h4>
+<h4><a href="javascript:void(0)" onClick="toggle_visibility('channels')">Channels</a></h4>
 
+<div id="channels">
 <% if @channels.empty? %>
   No channels.
 <% else %>
@@ -60,9 +67,11 @@
   <li><%= link_to "Create new QST channel", :controller => :home, :action => :new_channel, :kind => 'qst' %></li>
   <li><%= link_to "Create new SMTP channel", :controller => :home, :action => :new_channel, :kind => 'smtp' %></li>
 </ul>
+</div>
 
-<h4>Last Application Originated Messages</h4>
+<h4><a href="javascript:void(0)" onClick="toggle_visibility('last_ao_messages')">Last Application Originated Messages</a></h4>
 
+<div id="last_ao_messages">
 <form>
 <input type="hidden" name="ao_page" value="<%= @ao_page %>" />
 <input type="hidden" name="ao_previous_filter" value="<%= @ao_filter %>" />
@@ -111,9 +120,11 @@ State: <input type="text" name="ao_state" value="<%= h @ao_state %>" />
 <% end %>
 
 <%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_filter => @ao_filter } %>
+</div>
 
-<h4>Last Application Terminated Messages</h4>
+<h4><a href="javascript:void(0)" onClick="toggle_visibility('last_at_messages')">Last Application Terminated Messages</a></h4>
 
+<div id="last_at_messages">
 <form>
 <input type="hidden" name="at_page" value="<%= @at_page %>" />
 <input type="hidden" name="at_previous_filter" value="<%= @at_filter %>" />
@@ -162,11 +173,4 @@ State: <input type="text" name="at_state" value="<%= h @at_state %>" />
 <% end %>
 
 <%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_filter => @at_filter } %>
-  
-<script>
-function delete_channel(id, name) {
-  if (confirm('Are you sure you want to delete the channel ' + name + '?')) {
-    window.location = '/channel/delete/' + id;
-  }
-}
-</script>
+</div>
