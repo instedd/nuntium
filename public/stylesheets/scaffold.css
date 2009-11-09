@@ -51,3 +51,21 @@ a:hover { color: #fff; background-color:#000; }
   font-size: 12px;
   list-style: square;
 }
+
+table {
+  padding: 0px;
+  border: 0px;
+}
+
+td {
+  border: 0px;
+  padding: 1px;
+  background-color: #EFEFEF;
+}
+
+th {
+  border: 0px;
+  padding: 1px;
+  background-color: #789DB3;
+  color: white;
+}
