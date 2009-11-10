@@ -56,6 +56,7 @@ function select_all_pages_ao_messages() {
 
 function select_none_ao_messages() {
   select_none('ao_messages[]');
+  $('ao_all').value = 0;
   $('all_ao_messages_text').style.display = 'none';
 }
 
@@ -77,6 +78,7 @@ function select_all_pages_at_messages() {
 
 function select_none_at_messages() {
   select_none('at_messages[]');
+  $('at_all').value = 0;
   $('all_at_messages_text').style.display = 'none';
 }
 
