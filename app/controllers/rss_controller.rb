@@ -10,8 +10,8 @@ class RssController < ApplicationController
     etag = request.env['HTTP_IF_NONE_MATCH']
     
     # Filter by application
-    query = 'application_id = ? AND state = ?'
-    params = [@application.id, 'queued']
+    query = 'application_id = ? AND (state = ? OR state = ?)'
+    params = [@application.id, 'queued', 'delivered']
     
     # Filter by date if requested
     if !last_modified.nil?

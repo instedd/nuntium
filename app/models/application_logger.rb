@@ -1,23 +1,22 @@
-class ApplicationLogger < Logger
+class ApplicationLogger
   def initialize(application)
-    dir = File.join(RAILS_ROOT, 'log', application.name)
-    Dir.mkdir(dir) if !File.exists?(dir)
-    super(File.join(RAILS_ROOT, 'log', application.name, 'app.log'), 'daily')
+    @application = application
   end
   
-  def protocol_not_found_for(msg)
-    self.warn "[POST /rss] Protocol not found for #{msg.inspect}"
+  def protocol_not_found_for(ao_msg)
+    create(:message => "Protocol not found for #{ao_msg.inspect}")
   end
   
-  def no_channel_found_for(protocol, msg)
-    self.warn "[POST /rss] No channel found for protocol '#{protocol}' for message #{msg.inspect}"
+  def no_channel_found_for(protocol, ao_msg)
+    create(:message => "No channel found for protocol '#{protocol}' for message #{ao_msg.inspect}")
   end
   
-  def more_than_one_channel_found_for(protocol, msg)
-    app_logger.warn "[POST /rss] More than one channel found for protocol '#{protocol}' for message #{msg.inspect}"
+  def more_than_one_channel_found_for(protocol, ao_msg)
+    create(:ao_message_id => ao_msg.id, :message => "More than one channel found for protocol '#{protocol}'")
   end
   
-  def format_message(severity, timestamp, progname, msg)
-    "#{timestamp.to_formatted_s(:db)} #{severity} #{msg}\n" 
+  def create(hash)
+    hash[:application_id] = @application.id
+    ApplicationLog.create(hash)
   end
 end

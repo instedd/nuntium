@@ -126,11 +126,11 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_equal "someguid 1", unread[0].guid
     
     # The first message is marked as delivered,
-    # the second stays as pending
+    # the second stays as queued
     msgs = AOMessage.all
     
     assert_equal 'delivered', msgs[0].state
-    assert_equal 'pending', msgs[1].state
+    assert_equal 'queued', msgs[1].state
     
   end
   

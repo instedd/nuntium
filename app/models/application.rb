@@ -61,8 +61,6 @@ class Application < ActiveRecord::Base
     
     # Let the channel handle the message
     channels[0].handle msg
-    
-    app_logger.close
   end
   
   def clear_password

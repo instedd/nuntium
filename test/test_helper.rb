@@ -97,6 +97,7 @@ class ActiveSupport::TestCase
     msg.to = protocol + "://Someone else #{i}"
     msg.guid = "someguid #{i}"
     msg.timestamp = Time.parse("03 Jun #{2003 + i} 09:39:21 GMT")
+    msg.state = 'queued'
   end
   
   # Creates a new QSTOutgoingMessage with guid "someguid #{i}"
