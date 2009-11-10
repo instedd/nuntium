@@ -80,15 +80,18 @@
 <input type="hidden" name="at_from" value="<%= @at_from %>" />
 <input type="hidden" name="at_to" value="<%= @at_to %>" />
 <input type="hidden" name="at_state" value="<%= @at_state %>" />
+<input type="hidden" id="ao_all" name="ao_all" value="0" />
 
 Search: <input type="text" name="ao_search" value="<%= h @ao_search %>" />
 From: <input type="text" name="ao_from" value="<%= h @ao_from %>" size="13" />
 To: <input type="text" name="ao_to" value="<%= h @ao_to %>" size="13" />
 State: <input type="text" name="ao_state" value="<%= h @ao_state %>" size="6" />
-Select: <a href="javascript:void(0)" onclick="select_all('ao_messages[]')">all</a>, <a href="javascript:void(0)" onclick="select_none('ao_messages[]')">none</a>
+Select: <a href="javascript:void(0)" onclick="select_all_ao_messages()">all</a>, <a href="javascript:void(0)" onclick="select_none_ao_messages()">none</a>
 Actions: <a href="javascript:void(0)" onclick="mark_ao_messages_as_cancelled()">mark as cancelled</a>
 
 <%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_filter => @ao_filter } %>
+
+<div id="all_ao_messages_text" style="display:none"></div>
 
 <input type="hidden" name="ao_page" value="<%= @ao_page %>" />
 <input type="hidden" name="ao_previous_filter" value="<%= @ao_filter %>" />
@@ -144,15 +147,18 @@ Actions: <a href="javascript:void(0)" onclick="mark_ao_messages_as_cancelled()">
 <input type="hidden" name="ao_from" value="<%= @ao_from %>" />
 <input type="hidden" name="ao_to" value="<%= @ao_to %>" />
 <input type="hidden" name="ao_state" value="<%= @ao_state %>" />
+<input type="hidden" id="at_all" name="at_all" value="0" />
 
 Search: <input type="text" name="at_search" value="<%= h @at_search %>" />
 From: <input type="text" name="at_from" value="<%= h @at_from %>" size="13"/>
 To: <input type="text" name="at_to" value="<%= h @at_to %>" size="13" />
 State: <input type="text" name="at_state" value="<%= h @at_state %>" size="6" />
-Select: <a href="javascript:void(0)" onclick="select_all('at_messages[]')">all</a>, <a href="javascript:void(0)" onclick="select_none('at_messages[]')">none</a>
+Select: <a href="javascript:void(0)" onclick="select_all_at_messages()">all</a>, <a href="javascript:void(0)" onclick="select_none_at_messages()">none</a>
 Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">mark as cancelled</a>
 
 <%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_filter => @at_filter } %>
+
+<div id="all_at_messages_text" style="display:none"></div>
 
 <% if @at_messages.empty? %>
   No messages.
@@ -189,3 +195,24 @@ Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">
 <%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_filter => @at_filter } %>
 </form>
 </div>
+
+<script>
+var total_ao_messages = <%= @ao_messages.total_entries %>;
+var current_ao_messages = <%= @ao_messages.length %>;
+var total_at_messages = <%= @at_messages.total_entries %>;
+var current_at_messages = <%= @at_messages.length %>;
+
+<%
+if !params[:ao_all].nil? && params[:ao_all] == '1'
+  %>
+  select_all_pages_ao_messages();
+  <%
+end
+
+if !params[:at_all].nil? && params[:at_all] == '1'
+  %>
+  select_all_pages_at_messages();
+  <%
+end
+%>
+</script>

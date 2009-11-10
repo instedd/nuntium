@@ -56,6 +56,29 @@ class HomeController < ApplicationController
   def home
     @results_per_page = 10
     
+    build_ao_messages_filter
+    
+    @ao_messages = AOMessage.paginate(
+      :conditions => @ao_conditions,
+      :order => 'timestamp DESC',
+      :page => @ao_page,
+      :per_page => @results_per_page
+      )
+    
+    build_at_messages_filter
+      
+    @at_messages = ATMessage.paginate(
+      :conditions => @at_conditions,
+      :order => 'timestamp DESC',
+      :page => @at_page,
+      :per_page => @results_per_page
+      )
+      
+    # Channels
+    @channels = @application.channels.all
+  end
+  
+  def build_ao_messages_filter
     # AO filtering
     @ao_page = params[:ao_page]
     @ao_page = 1 if @ao_page.blank?    
@@ -97,15 +120,10 @@ class HomeController < ApplicationController
       @ao_conditions[0] += ' AND state LIKE :state'
       @ao_conditions[1][:state] = '%' + @ao_state + '%'
     end
-    
-    @ao_messages = AOMessage.paginate(
-      :conditions => @ao_conditions,
-      :order => 'timestamp DESC',
-      :page => @ao_page,
-      :per_page => @results_per_page
-      )
-      
-    # AO filtering
+  end
+  
+  def build_at_messages_filter
+    # AT filtering
     @at_page = params[:at_page]
     @at_page = 1 if @at_page.blank?    
     @at_search = params[:at_search]
@@ -147,16 +165,6 @@ class HomeController < ApplicationController
       @at_conditions[0] += ' AND state LIKE :state'
       @at_conditions[1][:state] = '%' + @at_state + '%'
     end
-    
-    @at_messages = ATMessage.paginate(
-      :conditions => @at_conditions,
-      :order => 'timestamp DESC',
-      :page => @at_page,
-      :per_page => @results_per_page
-      )
-      
-    # Channels
-    @channels = @application.channels.all
   end
   
   def edit_application
@@ -282,22 +290,40 @@ class HomeController < ApplicationController
   end
   
   def mark_ao_messages_as_cancelled
-    ids = params[:ao_messages]
-    
-    AOMessage.update_all("state = 'cancelled'", ['id IN (?)', ids])
-    
+    if !params[:ao_all].nil? && params[:ao_all] == '1'
+      build_ao_messages_filter
+      
+      AOMessage.update_all("state = 'cancelled'", @ao_conditions)
+      affected = AOMessage.count(:conditions => @ao_conditions)
+    else
+      ids = params[:ao_messages]
+      
+      AOMessage.update_all("state = 'cancelled'", ['id IN (?)', ids])
+      
+      affected = ids.length
+    end
+
+    flash[:notice] = "#{affected} Application Oriented messages #{affected == 1 ? 'was' : 'were'} marked as cancelled"    
     params[:action] = :home
-    flash[:notice] = "#{ids.length} Application Oriented messages #{ids.length == 1 ? 'was' : 'were'} marked as cancelled"
     redirect_to params
   end
   
   def mark_at_messages_as_cancelled
-    ids = params[:at_messages]
-    
-    ATMessage.update_all("state = 'cancelled'", ['id IN (?)', ids])
-    
+    if !params[:at_all].nil? && params[:at_all] == '1'
+      build_at_messages_filter
+      
+      ATMessage.update_all("state = 'cancelled'", @at_conditions)
+      affected = ATMessage.count(:conditions => @at_conditions)
+    else
+      ids = params[:at_messages]
+      
+      ATMessage.update_all("state = 'cancelled'", ['id IN (?)', ids])
+      
+      affected = ids.length
+    end
+
+    flash[:notice] = "#{affected} Application Terminated messages #{affected == 1 ? 'was' : 'were'} marked as cancelled"    
     params[:action] = :home
-    flash[:notice] = "#{ids.length} Application Terminated messages #{ids.length == 1 ? 'was' : 'were'} marked as cancelled"
     redirect_to params
   end
   
