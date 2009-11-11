@@ -55,20 +55,6 @@ class RssControllerTest < ActionController::TestCase
     assert_equal chan2.id, unread[0].channel_id
   end
   
-  test "should do nothing if message doesn't have a protocol case qst" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
-    @request.env['RAW_POST_DATA'] = new_rss_feed('Someone else')
-    post :create
-    
-    messages = AOMessage.all
-    assert_equal 0, messages.length
-    
-    unread = QSTOutgoingMessage.all
-    assert_equal 0, unread.length
-  end
-  
   test "should create clickatell job" do
     app = Application.create(:name => 'app', :password => 'app_pass')
     chan = Channel.create(:application_id => app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Both, :configuration => {:user => 'user', :password => 'password', :api_id => 'api_id' })
@@ -111,7 +97,29 @@ class RssControllerTest < ActionController::TestCase
     assert_equal msg.id, job.message_id
   end
   
-  test "qst should do nothing if channel not found for protocol" do
+  test "qst no protocol in message" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
+    @request.env['RAW_POST_DATA'] = new_rss_feed('Someone else')
+    post :create
+    
+    messages = AOMessage.all
+    assert_equal 1, messages.length
+    assert_equal 'error', messages[0].state
+    
+    unread = QSTOutgoingMessage.all
+    assert_equal 0, unread.length
+    
+    logs = ApplicationLog.all
+    assert_equal 1, logs.length
+    log = logs[0]
+    assert_equal app.id, log.application_id
+    assert_equal messages[0].id, log.ao_message_id
+    assert_equal "Protocol not found in 'to' field", log.message
+  end
+  
+  test "qst channel not found for protocol" do
     app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
@@ -119,10 +127,43 @@ class RssControllerTest < ActionController::TestCase
     post :create
     
     messages = AOMessage.all
-    assert_equal 0, messages.length
+    assert_equal 1, messages.length
+    assert_equal 'error', messages[0].state
     
     unread = QSTOutgoingMessage.all
     assert_equal 0, unread.length
+    
+    logs = ApplicationLog.all
+    assert_equal 1, logs.length
+    log = logs[0]
+    assert_equal app.id, log.application_id
+    assert_equal messages[0].id, log.ao_message_id
+    assert_equal "No channel found for protocol 'unknown'", log.message
+  end
+  
+  test "qst more than one channel found for protocol" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
+    chan2 = create_channel(app, 'chan2', 'chan_pass', 'qst')
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
+    @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')
+    post :create
+    
+    messages = AOMessage.all
+    assert_equal 1, messages.length
+    assert_equal 'queued', messages[0].state
+    
+    unread = QSTOutgoingMessage.all
+    assert_equal 1, unread.length
+    assert_equal "someguid", unread[0].guid
+    assert_equal chan.id, unread[0].channel_id
+    
+    logs = ApplicationLog.all
+    assert_equal 1, logs.length
+    log = logs[0]
+    assert_equal app.id, log.application_id
+    assert_equal messages[0].id, log.ao_message_id
+    assert_equal "More than one channel found for protocol 'protocol'", log.message
   end
   
   test "should convert one message to rss item" do

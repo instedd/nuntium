@@ -39,6 +39,8 @@ class Application < ActiveRecord::Base
     # Find protocol of message (based on "to" field)
     protocol = msg.to.protocol
     if protocol.nil?
+      msg.state = 'error'
+      msg.save
       app_logger.protocol_not_found_for msg
       return
     end
@@ -47,6 +49,8 @@ class Application < ActiveRecord::Base
     channels = @incoming_channels.select {|x| x.protocol == protocol}
     
     if channels.empty?
+      msg.state = 'error'
+      msg.save
       app_logger.no_channel_found_for protocol, msg
       return
     end

@@ -1,5 +1,6 @@
 require 'net/pop'
 require 'tmail'
+require 'guid'
 
 class ReceivePop3MessageJob
   attr_accessor :application_id, :channel_id
@@ -22,6 +23,7 @@ class ReceivePop3MessageJob
     pop.each_mail do |mail|
       tmail = TMail::Mail.parse(mail.pop)
       tmail_body = get_body tmail
+      tmail_guid = tmail.message_id.nil? ? Guid.new : tmail.message_id
       
       tmail.to.each do |receiver|
         msg = ATMessage.new
@@ -30,7 +32,7 @@ class ReceivePop3MessageJob
         msg.to = 'mailto://' + receiver
         msg.subject = tmail.subject
         msg.body = tmail_body
-        msg.guid = tmail.message_id
+        msg.guid = tmail_guid
         msg.timestamp = tmail.date
         msg.state = 'queued'
         msg.save
