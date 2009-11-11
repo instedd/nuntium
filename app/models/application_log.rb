@@ -22,9 +22,9 @@ class ApplicationLog < ActiveRecord::Base
   def severity_html
     case severity
     when Info
-      'info'
+      '<span style="color:#0D0D68">info</span>'
     when Warning
-      '<span style="color:yellow">warning</span>'
+      '<span style="color:#FF8B17">warning</span>'
     when Error
       '<span style="color:red">error</span>'
     end

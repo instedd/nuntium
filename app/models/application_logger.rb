@@ -1,6 +1,9 @@
+require 'guid'
+
 class ApplicationLogger
   def initialize(application)
     @application = application
+    @thread = Guid.new.to_s
   end
   
   def protocol_not_found_for(ao_msg)
@@ -32,6 +35,7 @@ class ApplicationLogger
       hash_or_message = {:message => hash_or_message}
     end
     hash_or_message[:application_id] = @application.id
+    hash_or_message[:thread] = @thread
     hash_or_message[:severity] = severity
     ApplicationLog.create(hash_or_message)
   end

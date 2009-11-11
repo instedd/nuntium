@@ -204,7 +204,7 @@ Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">
 <h4><a href="javascript:void(0)" onClick="toggle('logs')">Logs</a></h4>
 
 <div id="logs">
-<%= will_paginate @logs %>
+<%= will_paginate @logs, :param_name => 'logs_page' %>
 
 <% if @logs.empty? %>
   <div>No logs.</div>
@@ -213,6 +213,7 @@ Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">
     <tr>
       <th>When</th>
       <th>Severity</th>
+      <th>Thread</th>
       <th>Channel</th>
       <th>AO Message</th>
       <th>AT Message</th>
@@ -223,6 +224,7 @@ Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">
       <tr>
         <td><%= log.created_at %></td>
         <td><%= log.severity_html %></td>
+        <td><%= short_html log.thread %></td>
         <td>
           <% if !log.channel.nil? %>
             <%= log.channel .name %>
@@ -236,7 +238,7 @@ Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">
   </table>
 <% end %>
 
-<%= will_paginate @logs %>
+<%= will_paginate @logs, :param_name => 'logs_page' %>
 </div>
 
 <script>
