@@ -34,14 +34,12 @@ class Application < ActiveRecord::Base
       @incoming_channels = self.channels.all(:conditions => ['direction = ? OR direction = ?', Channel::Incoming, Channel::Both])
     end
     
-    app_logger = ApplicationLogger.new(self)
-    
     # Find protocol of message (based on "to" field)
     protocol = msg.to.protocol
     if protocol.nil?
       msg.state = 'error'
       msg.save
-      app_logger.protocol_not_found_for msg
+      logger.protocol_not_found_for msg
       return
     end
     
@@ -51,7 +49,7 @@ class Application < ActiveRecord::Base
     if channels.empty?
       msg.state = 'error'
       msg.save
-      app_logger.no_channel_found_for protocol, msg
+      logger.no_channel_found_for protocol, msg
       return
     end
 
@@ -60,11 +58,18 @@ class Application < ActiveRecord::Base
     msg.save
     
     if channels.length > 1
-      app_logger.more_than_one_channel_found_for protocol, msg
+      logger.more_than_one_channel_found_for protocol, msg
     end
     
     # Let the channel handle the message
     channels[0].handle msg
+  end
+  
+  def logger
+    if @logger.nil?
+      @logger = ApplicationLogger.new(self)
+    end
+    @logger
   end
   
   def clear_password

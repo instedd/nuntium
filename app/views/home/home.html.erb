@@ -100,8 +100,9 @@ Actions: <a href="javascript:void(0)" onclick="mark_ao_messages_as_cancelled()">
 <input type="hidden" name="at_from" value="<%= @at_from %>" />
 <input type="hidden" name="at_to" value="<%= @at_to %>" />
 <input type="hidden" name="at_state" value="<%= @at_state %>" />
+
 <% if @ao_messages.empty? %>
-  No messages.
+  <div>No messages.</div>
 <% else %>
   <table border="1">
     <tr>
@@ -163,7 +164,7 @@ Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">
 <div id="all_at_messages_text" style="display:none"></div>
 
 <% if @at_messages.empty? %>
-  No messages.
+  <div>No messages.</div>
 <% else %>
   <table border="1">
     <tr>
@@ -206,7 +207,7 @@ Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">
 <%= will_paginate @logs %>
 
 <% if @logs.empty? %>
-  No logs.
+  <div>No logs.</div>
 <% else %>
   <table border="1">
     <tr>
