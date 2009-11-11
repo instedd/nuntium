@@ -1,0 +1,20 @@
+Instructions to set up the application for the first time
+---------------------------------------------------------
+
+1. Ensure you have Ruby and SQLite3 installed.
+
+2. Install the right version of rails:
+
+gem install -v=2.3.4 rails
+
+3. Run set up scripts:
+
+rake gems:install
+rake db:migrate
+rake db:reset
+rake db:seed
+
+4. Run the web server:
+
+ruby script/server
+
