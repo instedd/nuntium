@@ -52,6 +52,24 @@ a:hover { color: #fff; background-color:#000; }
   list-style: square;
 }
 
+h4 {
+  background-color: #6192A7;
+  border-bottom: 2px solid #3C5768;
+  font-weight: bold;
+  padding: 2px;
+}
+
+h4 a {
+  color: white;
+  text-decoration: none;
+}
+
+h4 a:hover {
+  color: yellow;
+  background-color: #6192A7;
+  text-decoration: none;
+}
+
 table {
   padding: 0px;
   border: 0px;
@@ -66,8 +84,8 @@ td {
 th {
   border: 0px;
   padding: 1px;
-  background-color: #789DB3;
-  color: white;
+  background-color: #BCD1DA;
+  font-size: 12px;
 }
 
 #all_at_messages_text, #all_ao_messages_text {
