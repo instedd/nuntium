@@ -212,6 +212,7 @@ Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">
   <table border="1">
     <tr>
       <th>When</th>
+      <th>Severity</th>
       <th>Channel</th>
       <th>AO Message</th>
       <th>AT Message</th>
@@ -221,6 +222,7 @@ Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">
     <% @logs.each do |log| %>
       <tr>
         <td><%= log.created_at %></td>
+        <td><%= log.severity_html %></td>
         <td>
           <% if !log.channel.nil? %>
             <%= log.channel .name %>
