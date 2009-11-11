@@ -107,6 +107,7 @@ Actions: <a href="javascript:void(0)" onclick="mark_ao_messages_as_cancelled()">
     <tr>
       <th></th>
       <th>When</th>
+      <th>Id</th>
       <th>Guid</th>
       <th>From</th>
       <th>To</th>
@@ -120,6 +121,7 @@ Actions: <a href="javascript:void(0)" onclick="mark_ao_messages_as_cancelled()">
       <tr>
         <td><input type="checkbox" name="ao_messages[]" value="<%= msg.id %>" <% if !params[:ao_messages].nil? && params[:ao_messages].include?(msg.id.to_s); %>checked="checked"<% end; %>/></td>
         <td><%= msg.timestamp %></td>
+        <td><%= msg.id %></td>
         <td><%= short_html msg.guid %></td>
         <td><%= msg.from %></td>
         <td><%= msg.to %></td>
@@ -167,6 +169,7 @@ Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">
     <tr>
       <th></th>
       <th>When</th>
+      <th>Id</th>
       <th>Guid</th>
       <th>From</th>
       <th>To</th>
@@ -180,6 +183,7 @@ Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">
       <tr>
         <td><input type="checkbox" name="at_messages[]" value="<%= msg.id %>" <% if !params[:at_messages].nil? && params[:at_messages].include?(msg.id.to_s); %>checked="checked"<% end; %>/></td>
         <td><%= msg.timestamp %></td>
+        <td><%= msg.id %></td>
         <td><%= short_html msg.guid %></td>
         <td><%= msg.from %></td>
         <td><%= msg.to %></td>
@@ -194,6 +198,42 @@ Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">
 
 <%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_filter => @at_filter } %>
 </form>
+</div>
+
+<h4><a href="javascript:void(0)" onClick="toggle('logs')">Logs</a></h4>
+
+<div id="logs">
+<%= will_paginate @logs %>
+
+<% if @logs.empty? %>
+  No logs.
+<% else %>
+  <table border="1">
+    <tr>
+      <th>When</th>
+      <th>Channel</th>
+      <th>AO Message</th>
+      <th>AT Message</th>
+      <th>Text</th>
+    </tr>
+    <tr>
+    <% @logs.each do |log| %>
+      <tr>
+        <td><%= log.created_at %></td>
+        <td>
+          <% if !log.channel.nil? %>
+            <%= log.channel .name %>
+          <% end %>
+        </td>
+        <td><a href="/home?ao_search=<%= log.ao_message_id %>"><%= log.ao_message_id %></a></td>
+        <td><a href="/home?at_search=<%= log.at_message_id %>"><%= log.at_message_id %></a></td>
+        <td><%= short_html log.message, 100 %></td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>
+
+<%= will_paginate @logs %>
 </div>
 
 <script>

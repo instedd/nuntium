@@ -74,12 +74,18 @@ class HomeController < ApplicationController
       :per_page => @results_per_page
       )
       
-    # Channels
+    @logs = ApplicationLog.paginate(
+      :conditions => ['application_id = ?', @application.id],
+      :include => :channel,
+      :order => 'created_at DESC',
+      :page => params[:logs_page],
+      :per_page => @results_per_page
+      )
+      
     @channels = @application.channels.all
   end
   
   def build_ao_messages_filter
-    # AO filtering
     @ao_page = params[:ao_page]
     @ao_page = 1 if @ao_page.blank?    
     @ao_search = params[:ao_search]
@@ -92,7 +98,8 @@ class HomeController < ApplicationController
     
     @ao_conditions = ['application_id = :application_id', { :application_id => @application.id }]
     if !@ao_search.blank?
-      @ao_conditions[0] += ' AND (guid = :search OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search)'
+      @ao_conditions[0] += ' AND (id = :search_exact OR guid = :search_exact OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search)'
+      @ao_conditions[1][:search_exact] = @ao_search
       @ao_conditions[1][:search] = '%' + @ao_search + '%'
       
       # Reset pages if search changes (so as to not stay in a later page that doesn't exist in the new result set)
@@ -123,7 +130,6 @@ class HomeController < ApplicationController
   end
   
   def build_at_messages_filter
-    # AT filtering
     @at_page = params[:at_page]
     @at_page = 1 if @at_page.blank?    
     @at_search = params[:at_search]
