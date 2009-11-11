@@ -77,7 +77,7 @@ class HomeController < ApplicationController
     @logs = ApplicationLog.paginate(
       :conditions => ['application_id = ?', @application.id],
       :include => :channel,
-      :order => 'created_at DESC',
+      :order => 'id DESC',
       :page => params[:logs_page],
       :per_page => @results_per_page
       )

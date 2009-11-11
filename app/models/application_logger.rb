@@ -15,21 +15,24 @@ class ApplicationLogger
     warning(:ao_message_id => ao_msg.id, :message => "More than one channel found for protocol '#{protocol}'")
   end
   
-  def info(hash)
-    create(hash, ApplicationLog::Info)
+  def info(hash_or_message)
+    create(hash_or_message, ApplicationLog::Info)
   end
   
-  def warning(hash)
-    create(hash, ApplicationLog::Warning)
+  def warning(hash_or_message)
+    create(hash_or_message, ApplicationLog::Warning)
   end
   
-  def error(hash)
-    create(hash, ApplicationLog::Error)
+  def error(hash_or_message)
+    create(hash_or_message, ApplicationLog::Error)
   end
   
-  def create(hash, severity)
-    hash[:application_id] = @application.id
-    hash[:severity] = severity
-    ApplicationLog.create(hash)
+  def create(hash_or_message, severity)
+    if hash_or_message.class.to_s == 'String'
+      hash_or_message = {:message => hash_or_message}
+    end
+    hash_or_message[:application_id] = @application.id
+    hash_or_message[:severity] = severity
+    ApplicationLog.create(hash_or_message)
   end
 end
