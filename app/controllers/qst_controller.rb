@@ -3,11 +3,9 @@ class QSTController < ApplicationController
 
   def authenticate
     authenticate_or_request_with_http_basic do |username, password|
-      @application = Application.first(
-        :conditions => ['name = ?', params[:application_id]])
+      @application = Application.find_by_name params[:application_id]
       if !@application.nil?
-        @channel = @application.channels.first(
-          :conditions => ['name = ? AND kind = ?', username, 'qst'])
+        @channel = @application.channels.find_by_name_and_kind username, 'qst'
         if !@channel.nil?
           @channel.handler.authenticate password
         else

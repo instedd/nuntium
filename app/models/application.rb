@@ -14,10 +14,6 @@ class Application < ActiveRecord::Base
   
   before_save :hash_password
   
-  def self.find_by_name(name)
-    Application.first(:conditions => ['name = ?', name]) 
-  end
-  
   def authenticate(password)
     self.password == Digest::SHA2.hexdigest(self.salt + password)
   end
