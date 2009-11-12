@@ -112,8 +112,8 @@ class RssControllerTest < ActionController::TestCase
     assert_equal 0, unread.length
     
     logs = ApplicationLog.all
-    assert_equal 3, logs.length
-    log = logs[1]
+    assert_equal 1, logs.length
+    log = logs[0]
     assert_equal app.id, log.application_id
     assert_equal messages[0].id, log.ao_message_id
     assert_equal "Protocol not found in 'to' field", log.message
@@ -134,8 +134,8 @@ class RssControllerTest < ActionController::TestCase
     assert_equal 0, unread.length
     
     logs = ApplicationLog.all
-    assert_equal 3, logs.length
-    log = logs[1]
+    assert_equal 1, logs.length
+    log = logs[0]
     assert_equal app.id, log.application_id
     assert_equal messages[0].id, log.ao_message_id
     assert_equal "No channel found for protocol 'unknown'", log.message
@@ -159,8 +159,8 @@ class RssControllerTest < ActionController::TestCase
     assert_equal chan.id, unread[0].channel_id
     
     logs = ApplicationLog.all
-    assert_equal 3, logs.length
-    log = logs[1]
+    assert_equal 1, logs.length
+    log = logs[0]
     assert_equal app.id, log.application_id
     assert_equal messages[0].id, log.ao_message_id
     assert_equal "More than one channel found for protocol 'protocol'", log.message

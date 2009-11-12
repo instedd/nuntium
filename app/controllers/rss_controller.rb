@@ -6,8 +6,6 @@ class RssController < ApplicationController
 
   # GET /rss
   def index
-    @application.logger.info('[Start] GET /rss')
-  
     last_modified = request.env['HTTP_IF_MODIFIED_SINCE']
     etag = request.env['HTTP_IF_NONE_MATCH']
     
@@ -72,14 +70,10 @@ class RssController < ApplicationController
     end
     
     response.last_modified = @at_messages.last.timestamp
-    
-    @application.logger.info('[End] GET /rss')
   end
   
   # POST /rss
   def create
-    @application.logger.info('[Start] POST /rss')
-    
     body = request.env['RAW_POST_DATA']
     tree = RSS::Parser.parse(body, false)
     
@@ -100,8 +94,6 @@ class RssController < ApplicationController
     end
      
     head :ok
-    
-    @application.logger.info('[End] POST /rss')
   end
   
   def authenticate

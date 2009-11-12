@@ -5,19 +5,13 @@ class IncomingController < QSTController
   def index
     return head(:not_found) if !request.head?
     
-    @application.logger.info(:channel_id => @channel.id, :message => '[Start] HEAD /qst/incoming')
-    
     msg = @application.last_at_message
     etag = msg.nil? ? nil : msg.guid
     head :ok, 'ETag' => etag
-    
-    @application.logger.info(:channel_id => @channel.id, :message => '[End] HEAD /qst/incoming')
   end
   
   # POST /qst/:application_id/incoming
   def create
-    @application.logger.info(:channel_id => @channel.id, :message => '[Start] POST /qst/incoming')    
-  
     xml_data = request.env['RAW_POST_DATA']
     doc = REXML::Document.new(xml_data)
     
@@ -38,7 +32,5 @@ class IncomingController < QSTController
     end
     
     head :ok, 'ETag' => last_id
-    
-    @application.logger.info(:channel_id => @channel.id, :message => '[End] POST /qst/incoming')    
   end
 end

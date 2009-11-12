@@ -1,8 +1,6 @@
 class OutgoingController < QSTController
   # GET /qst/:application_id/outgoing
   def index
-    @application.logger.info(:channel_id => @channel.id, :message => '[Start] GET /qst/outgoing')    
-  
     etag = request.env['HTTP_IF_NONE_MATCH']
     max = params[:max]
     
@@ -67,7 +65,5 @@ class OutgoingController < QSTController
     if !@ao_messages.empty?
       response.headers['ETag'] = @ao_messages.last.guid
     end
-    
-    @application.logger.info(:channel_id => @channel.id, :message => '[End] GET /qst/outgoing')    
   end
 end
