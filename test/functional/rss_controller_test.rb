@@ -57,7 +57,7 @@ class RssControllerTest < ActionController::TestCase
   
   test "should create clickatell job" do
     app = Application.create(:name => 'app', :password => 'app_pass')
-    chan = Channel.create(:application_id => app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Both, :configuration => {:user => 'user', :password => 'password', :api_id => 'api_id' })
+    chan = Channel.create(:application_id => app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Both, :configuration => {:user => 'user', :password => 'password', :api_id => 'api_id', :incoming_password => 'incoming' })
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
     @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')

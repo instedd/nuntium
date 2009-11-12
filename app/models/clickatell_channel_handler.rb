@@ -12,5 +12,8 @@ class ClickatellChannelHandler < ChannelHandler
         
     @channel.errors.add(:api_ID, "can't be blank") if
         @channel.configuration[:api_id].nil? || @channel.configuration[:api_id].chomp.empty?
+        
+    @channel.errors.add(:incoming_password, "can't be blank") if
+        @channel.configuration[:incoming_password].nil? || @channel.configuration[:incoming_password].chomp.empty?
   end
 end

@@ -19,6 +19,10 @@
     <%= c.label :api_id %><br/>
     <%= c.text_field :api_id, :value => @channel[:configuration][:api_id] %>
     </p>
+    <p>
+    <%= c.label :incoming_password %><br/>
+    <%= c.text_field :incoming_password, :value => @channel[:configuration][:incoming_password] %>
+    </p>
   <% end %>
   <%= submit_tag 'Update channel' %>
 <% end %>
