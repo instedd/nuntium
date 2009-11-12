@@ -10,6 +10,7 @@ class ClickatellController < ApplicationController
     msg.subject = params[:text]
     msg.guid = params[:moMsgId]
     msg.timestamp = Time.at(params[:timestamp].to_i)
+    msg.state = 'queued'
     msg.save!
     
     head :ok
