@@ -1,0 +1,21 @@
+<h4>Create new Twitter channel</h4>
+
+<% form_for :channel, :url => { :controller => 'home', :action => :create_twitter_channel } do |f| %>
+  <%= f.error_messages %>
+  <input type="hidden" name="direction" value="<%= Channel::Both %>" />
+  <p>
+  <%= f.label :name %><br/>
+  <%= f.text_field :name %>
+  </p>
+  <p>
+  <%= f.label :protocol %><br/>
+  <%= f.text_field :protocol, :value => 'twitter', :readonly => 'readonly' %>
+  </p>
+  <p>
+  After clicking "Create Channel" you'll be prompted to login with your Twitter account
+  to authorize access to nuntium.
+  </p>
+  <%= submit_tag 'Create Channel' %>
+<% end %>
+
+<%= link_to 'Go back', :controller => :home, :action => :home %>

@@ -4,7 +4,7 @@
   <%= f.error_messages %>
   <p>
   <%= f.label :protocol %><br/>
-  <%= f.text_field :protocol %>
+  <%= f.text_field :protocol, :value => 'mailto', :readonly => 'readonly' %>
   </p>
   <% f.fields_for :configuration do |c| %>
     <p>

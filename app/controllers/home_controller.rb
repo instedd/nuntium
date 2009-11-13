@@ -5,6 +5,11 @@ class HomeController < ApplicationController
   before_filter :check_login, :except => [:index, :login, :create_application]
 
   def index
+    if !session[:application].nil?
+      redirect_to :home
+      return
+    end
+  
     @application = flash[:application]
     @new_application = flash[:new_application]
   end
@@ -241,6 +246,95 @@ class HomeController < ApplicationController
     redirect_to :action => :home
   end
   
+  def create_twitter_channel
+    chan = params[:channel]
+    
+    if chan.nil?
+      redirect_to :action => :home
+      return
+    end
+    
+    @channel = Channel.new(chan)
+    if @channel.name.blank?
+      @channel.errors.add(:name, "can't be blank")
+      flash[:channel] = @channel
+      redirect_to :action => :new_channel
+      return
+    end
+    
+    require 'twitter'
+    
+    oauth = new_twitter_oauth
+    
+    request_token = oauth.request_token
+  
+    session['twitter_token'] = request_token.token
+    session['twitter_secret'] = request_token.secret
+    session['twitter_channel_name'] = @channel.name
+    
+    redirect_to request_token.authorize_url
+  end
+  
+  def update_twitter_channel
+    require 'twitter'
+    
+    oauth = new_twitter_oauth
+    
+    request_token = oauth.request_token
+  
+    session['twitter_token'] = request_token.token
+    session['twitter_secret'] = request_token.secret
+    session['twitter_channel_id'] = params[:id]
+    
+    redirect_to request_token.authorize_url
+  end
+  
+  def twitter_callback
+    require 'twitter'
+    
+    oauth = new_twitter_oauth
+    oauth.authorize_from_request(session['twitter_token'], session['twitter_secret'], params[:oauth_verifier])
+    profile = Twitter::Base.new(oauth).verify_credentials
+    access_token = oauth.access_token
+    
+    if session['twitter_channel_id'].nil?
+      @update = false
+      @channel = Channel.new
+      @channel.name = session['twitter_channel_name']
+      @channel.application_id = @application.id
+      @channel.kind = 'twitter'
+      @channel.protocol = 'twitter'
+      @channel.direction = Channel::Both  
+    else
+      @update = true
+      @channel = Channel.find session['twitter_channel_id']
+    end
+    
+    @channel.configuration = {
+      :screen_name => profile.screen_name,
+      :token => access_token.token,
+      :secret => access_token.secret
+      }
+    
+    session['twitter_token']  = nil
+    session['twitter_secret'] = nil
+    session['twitter_channel_name'] = nil
+    session['twitter_channel_id'] = nil
+
+    if @channel.save
+      flash[:notice] = @update ? 'Channel was updated' : 'Channel was created'
+    else
+      flash[:notice] = "Channel couldn't be saved"
+    end
+    redirect_to :action => :home
+  end
+  
+  def new_twitter_oauth
+    oauth = Twitter::OAuth.new(TwitterConsumerConfig['token'], TwitterConsumerConfig['secret'])
+    oauth.set_callback_url(TwitterConsumerConfig['callback_url'])
+    oauth
+  end
+  
   def edit_channel
     @channel = Channel.find params[:id]
     if @channel.nil? || @channel.application_id != @application.id
@@ -278,7 +372,7 @@ class HomeController < ApplicationController
       return
     end
     
-    flash[:notice] = 'Channel was changed'
+    flash[:notice] = 'Channel was updated'
     redirect_to :action => :home
   end
   

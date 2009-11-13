@@ -1,0 +1,21 @@
+<h4>Edit channel <%= @channel.name %></h4>
+
+<% form_for :channel, :url => { :controller => 'home', :action => :update_twitter_channel } do |f| %>
+  <%= f.error_messages %>
+  <p>
+  <%= f.label :protocol %><br/>
+  <%= f.text_field :protocol, :value => 'twitter', :readonly => 'readonly' %>
+  </p>
+  <% f.fields_for :configuration do |c| %>
+    <p>
+    <%= c.label :screen_name %><br/>
+    <%= c.text_field :screen_name, :value => @channel.configuration[:screen_name], :readonly => 'readonly' %>
+    </p>
+  <% end %>
+  <p>
+  Click 'Change twitter user' to select another user for this account, or click 'Go back' to leave it unmodified.
+  </p>
+  <%= submit_tag 'Change twitter user' %>
+<% end %>
+
+<%= link_to 'Go back', :controller => :home, :action => :home %>

@@ -14,11 +14,15 @@ ActionController::Routing::Routes.draw do |map|
   map.update_application '/application/update', :controller => 'home', :action => :update_application
   map.edit_channel '/channel/edit/:id', :controller => 'home', :action => :edit_channel
   map.update_channel '/channel/update/:id', :controller => 'home', :action => :update_channel
+  map.update_twitter_channel '/channel/update/twitter/:id', :controller => 'home', :action => :update_twitter_channel
   map.delete_channel '/channel/delete/:id', :controller => 'home', :action => :delete_channel
   map.new_channel '/channel/new/:kind', :controller => 'home', :action => :new_channel
+  map.create_twitter_channel '/channel/create/twitter', :controller => 'home', :action => :create_twitter_channel, :kind => 'twitter'
   map.create_channel '/channel/create/:kind', :controller => 'home', :action => :create_channel
   map.mark_ao_messages_as_cancelled '/mark_ao_messages_as_cancelled', :controller => 'home', :action => :mark_ao_messages_as_cancelled
   map.mark_at_messages_as_cancelled '/mark_at_messages_as_cancelled', :controller => 'home', :action => :mark_at_messages_as_cancelled
+  
+  map.twitter_callback '/twitter_callback', :controller => 'home', :action => :twitter_callback
 
   # The priority is based upon order of creation: first created -> highest priority.
 
