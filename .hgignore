@@ -3,3 +3,4 @@ syntax: glob
 *.sqlite3
 *.tmp
 vendor
+twitter_oauth_consumer.yml
