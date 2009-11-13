@@ -264,7 +264,7 @@ class HomeController < ApplicationController
     
     require 'twitter'
     
-    oauth = new_twitter_oauth
+    oauth = TwitterChannelHandler.new_oauth
     
     request_token = oauth.request_token
   
