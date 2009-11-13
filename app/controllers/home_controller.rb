@@ -278,7 +278,7 @@ class HomeController < ApplicationController
   def update_twitter_channel
     require 'twitter'
     
-    oauth = new_twitter_oauth
+    oauth = TwitterChannelHandler.new_oauth
     
     request_token = oauth.request_token
     
@@ -293,7 +293,7 @@ class HomeController < ApplicationController
   def twitter_callback
     require 'twitter'
     
-    oauth = new_twitter_oauth
+    oauth = TwitterChannelHandler.new_oauth
     oauth.authorize_from_request(session['twitter_token'], session['twitter_secret'], params[:oauth_verifier])
     profile = Twitter::Base.new(oauth).verify_credentials
     access_token = oauth.access_token
@@ -330,12 +330,6 @@ class HomeController < ApplicationController
       flash[:notice] = "Channel couldn't be saved"
     end
     redirect_to :action => :home
-  end
-  
-  def new_twitter_oauth
-    oauth = Twitter::OAuth.new(TwitterConsumerConfig['token'], TwitterConsumerConfig['secret'])
-    oauth.set_callback_url(TwitterConsumerConfig['callback_url'])
-    oauth
   end
   
   def edit_channel
