@@ -281,10 +281,11 @@ class HomeController < ApplicationController
     oauth = new_twitter_oauth
     
     request_token = oauth.request_token
-  
+    
     session['twitter_token'] = request_token.token
     session['twitter_secret'] = request_token.secret
     session['twitter_channel_id'] = params[:id]
+    session['twitter_channel_welcome_message'] = params[:channel][:configuration][:welcome_message]
     
     redirect_to request_token.authorize_url
   end
@@ -300,8 +301,8 @@ class HomeController < ApplicationController
     if session['twitter_channel_id'].nil?
       @update = false
       @channel = Channel.new
-      @channel.name = session['twitter_channel_name']
       @channel.application_id = @application.id
+      @channel.name = session['twitter_channel_name']      
       @channel.kind = 'twitter'
       @channel.protocol = 'twitter'
       @channel.direction = Channel::Both  
@@ -311,6 +312,7 @@ class HomeController < ApplicationController
     end
     
     @channel.configuration = {
+      :welcome_message => session['twitter_channel_welcome_message'],
       :screen_name => profile.screen_name,
       :token => access_token.token,
       :secret => access_token.secret
@@ -318,8 +320,9 @@ class HomeController < ApplicationController
     
     session['twitter_token']  = nil
     session['twitter_secret'] = nil
-    session['twitter_channel_name'] = nil
     session['twitter_channel_id'] = nil
+    session['twitter_channel_name'] = nil
+    session['twitter_channel_welcome_message'] = nil    
 
     if @channel.save
       flash[:notice] = @update ? 'Channel was updated' : 'Channel was created'

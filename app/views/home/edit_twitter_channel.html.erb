@@ -1,6 +1,6 @@
 <h4>Edit channel <%= @channel.name %></h4>
 
-<% form_for :channel, :url => { :controller => 'home', :action => :update_twitter_channel } do |f| %>
+<% form_for :channel, :html => { :id => 'edit_twitter_channel_form' } do |f| %>
   <%= f.error_messages %>
   <p>
   <%= f.label :protocol %><br/>
@@ -11,11 +11,39 @@
     <%= c.label :screen_name %><br/>
     <%= c.text_field :screen_name, :value => @channel.configuration[:screen_name], :readonly => 'readonly' %>
     </p>
+    <p>
+    Welcome message for new followers (leave blank if not desired)<br/>
+    <%= c.text_field :welcome_message, 
+      :id => 'twitter_welcome_message',
+      :value => @channel.configuration[:welcome_message]
+      %>
+    </p>
   <% end %>
-  <p>
-  Click 'Change twitter user' to select another user for this account, or click 'Go back' to leave it unmodified.
-  </p>
-  <%= submit_tag 'Change twitter user' %>
+  <button onClick="twitter_channel_update()">Update channel</button>
+  or
+  <button onClick="twitter_channel_update_user()">Update channel and also change Twitter account</button>
 <% end %>
 
 <%= link_to 'Go back', :controller => :home, :action => :home %>
+
+<script>
+function twitter_channel_update() {
+  var f = $('edit_twitter_channel_form');
+  f.action = '<%= url_for :controller => :home, :action => :update_channel %>';
+  f.submit();
+}
+
+function twitter_channel_update_user() {
+  var f = $('edit_twitter_channel_form');
+  f.action = '<%= url_for :controller => :home, :action => :update_twitter_channel %>';
+  f.submit();
+}
+
+$('twitter_welcome_message').onkeydown = function(e) {
+  if (e.keyCode == 13) {
+    twitter_channel_update();
+    return false;
+  }
+  return true;
+};
+</script>

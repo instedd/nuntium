@@ -11,8 +11,14 @@
   <%= f.label :protocol %><br/>
   <%= f.text_field :protocol, :value => 'twitter', :readonly => 'readonly' %>
   </p>
+  <% f.fields_for :configuration do |c| %>
+    <p>
+    Welcome message for new followers (leave blank if not desired)<br/>
+    <%= c.text_field :welcome_message %>
+    </p>
+  <% end %>
   <p>
-  After clicking "Create Channel" you'll be prompted to login with your Twitter account
+  After clicking "Create Channel" you'll be prompted to login with a Twitter account
   to authorize access to nuntium.
   </p>
   <%= submit_tag 'Create Channel' %>
