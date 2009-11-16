@@ -34,6 +34,13 @@ class Channel < ActiveRecord::Base
     end
   end
   
+  def info
+    if self.handler.respond_to?(:info)
+      return self.handler.info
+    end
+    return ''
+  end
+  
   def direction_text
     case direction
     when Incoming

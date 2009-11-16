@@ -22,4 +22,8 @@ class TwitterChannelHandler < ChannelHandler
     oauth.set_callback_url(TwitterConsumerConfig['callback_url'])
     oauth
   end
+  
+  def info
+    @channel.configuration[:screen_name]
+  end
 end

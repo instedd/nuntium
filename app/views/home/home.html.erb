@@ -66,20 +66,26 @@
 <% if @channels.empty? %>
   No channels.
 <% else %>
-  <ul>
+  <table>
     <% @channels.each do |chan| %>
-      <li><b><%= chan.name %></b> => protocol: <%= chan.protocol %>, kind: <%= chan.kind %>, direction: <%= chan.direction_text %> <%= link_to "edit", :controller => :home, :action => :edit_channel, :id => chan.id %> <a href="javascript:void(0)" onclick="delete_channel(<%= chan.id %>, '<%= h chan.name %>')">delete</a></li>
+      <tr>
+        <td><img src="/images/icon_<%= chan.kind %>.png" width="16" height="16" style="position:relative; top:2px" alt="<%= chan.kind %>"/></td>
+        <td><b><%= chan.name %></b></td>
+        <td><%= chan.protocol %>://...</td>
+        <td><%= chan.info.blank? ? '' : "(#{chan.info})" %></td>
+        <td><%= link_to "edit", :controller => :home, :action => :edit_channel, :id => chan.id %></td>
+        <td><a href="javascript:void(0)" onclick="delete_channel(<%= chan.id %>, '<%= h chan.name %>')">delete</a></td>
+      </tr>
     <% end %>
-  </ul>
+  </table>
 <% end %>
+<br/>
 
-<ul>
-  <li><%= link_to "Create new Clickatell channel", :controller => :home, :action => :new_channel, :kind => 'clickatell' %></li>  
-  <li><%= link_to "Create new POP3 channel", :controller => :home, :action => :new_channel, :kind => 'pop3' %></li>
-  <li><%= link_to "Create new QST channel", :controller => :home, :action => :new_channel, :kind => 'qst' %></li>
-  <li><%= link_to "Create new SMTP channel", :controller => :home, :action => :new_channel, :kind => 'smtp' %></li>
-  <li><%= link_to "Create new Twitter channel", :controller => :home, :action => :new_channel, :kind => 'twitter' %></li>
-</ul>
+<%= link_to "Create new Clickatell channel", :controller => :home, :action => :new_channel, :kind => 'clickatell' %><br/>
+<%= link_to "Create new POP3 channel", :controller => :home, :action => :new_channel, :kind => 'pop3' %><br/>
+<%= link_to "Create new QST channel", :controller => :home, :action => :new_channel, :kind => 'qst' %><br/>
+<%= link_to "Create new SMTP channel", :controller => :home, :action => :new_channel, :kind => 'smtp' %><br/>
+<%= link_to "Create new Twitter channel", :controller => :home, :action => :new_channel, :kind => 'twitter' %>
 </div>
 
 <h4><a href="javascript:void(0)" onClick="toggle('last_ao_messages')">Last Application Originated Messages</a></h4>
@@ -117,7 +123,7 @@ Actions: <a href="javascript:void(0)" onclick="mark_ao_messages_as_cancelled()">
 <% if @ao_messages.empty? %>
   <div>No messages.</div>
 <% else %>
-  <table border="1">
+  <table border="1" class="messages">
     <tr>
       <th></th>
       <th>When</th>
@@ -179,7 +185,7 @@ Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">
 <% if @at_messages.empty? %>
   <div>No messages.</div>
 <% else %>
-  <table border="1">
+  <table border="1" class="messages">
     <tr>
       <th></th>
       <th>When</th>

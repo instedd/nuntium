@@ -22,4 +22,9 @@ class Pop3ChannelHandler < ChannelHandler
     @channel.errors.add(:password, "can't be blank") if
         @channel.configuration[:password].nil? || @channel.configuration[:password].chomp.empty?
   end
+  
+  def info
+    c = @channel.configuration
+    "#{c[:user]}@#{c[:host]}:#{c[:port]}"
+  end
 end
