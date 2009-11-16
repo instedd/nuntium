@@ -98,4 +98,13 @@ class ReceiveTwitterMessageJob
     end
   end
   
+  # Enqueues jobs of this class for each channel
+  # found in the application
+  def self.enqueue_for_all_channels
+    Channel.find_each(:conditions => "kind = 'twitter'") do |chan|
+      job = ReceiveTwitterMessageJob.new(chan.application_id, chan.id)
+      Delayed::Job.enqueue job
+    end
+  end
+  
 end
