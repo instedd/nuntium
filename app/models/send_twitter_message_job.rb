@@ -11,11 +11,8 @@ class SendTwitterMessageJob
     channel = Channel.find @channel_id
     msg = AOMessage.find @message_id
     config = channel.configuration
-  
-    oauth = TwitterChannelHandler.new_oauth
-    oauth.authorize_from_access(config[:token], config[:secret])
     
-    client = Twitter::Base.new(oauth)
+    client = TwitterChannelHandler.new_client(config)
     client.direct_message_create(msg.to.without_protocol, msg.subject_and_body)
     
     AOMessage.update_all("state = 'delivered', tries = tries + 1", ['id = ?', msg.id])

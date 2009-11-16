@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091112112204) do
+ActiveRecord::Schema.define(:version => 20091116161236) do
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -93,5 +93,12 @@ ActiveRecord::Schema.define(:version => 20091112112204) do
   end
 
   add_index "qst_outgoing_messages", ["guid"], :name => "index_unread_ao_messages_on_guid"
+
+  create_table "twitter_channel_statuses", :force => true do |t|
+    t.integer  "channel_id"
+    t.integer  "last_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
 end

@@ -23,7 +23,7 @@ class ReceivePop3MessageJob
     pop.each_mail do |mail|
       tmail = TMail::Mail.parse(mail.pop)
       tmail_body = get_body tmail
-      tmail_guid = tmail.message_id.nil? ? Guid.new : tmail.message_id
+      tmail_guid = tmail.message_id.nil? ? Guid.new.to_s : tmail.message_id
       
       tmail.to.each do |receiver|
         msg = ATMessage.new

@@ -271,6 +271,7 @@ class HomeController < ApplicationController
     session['twitter_token'] = request_token.token
     session['twitter_secret'] = request_token.secret
     session['twitter_channel_name'] = @channel.name
+    session['twitter_channel_welcome_message'] = @channel.configuration[:welcome_message]
     
     redirect_to request_token.authorize_url
   end
