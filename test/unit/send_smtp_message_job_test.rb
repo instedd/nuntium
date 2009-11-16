@@ -77,4 +77,5 @@ msgstr.strip!
     assert_equal 1, msg.tries
     assert_equal 'delivered', msg.state
   end
+  
 end

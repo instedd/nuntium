@@ -1,6 +1,6 @@
 class ApplicationLogger
-  def initialize(application)
-    @application = application
+  def initialize(application_id)
+    @application_id = application_id
   end
   
   def protocol_not_found_for(ao_msg)
@@ -27,11 +27,16 @@ class ApplicationLogger
     create(hash_or_message, ApplicationLog::Error)
   end
   
+  def self.exception_in_channel_and_ao_message(channel, ao_msg, exception)
+    logger = ApplicationLogger.new(channel.application_id)
+    logger.error(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => exception.message)
+  end
+  
   def create(hash_or_message, severity)
     if hash_or_message.class.to_s == 'String'
       hash_or_message = {:message => hash_or_message}
     end
-    hash_or_message[:application_id] = @application.id
+    hash_or_message[:application_id] = @application_id
     hash_or_message[:severity] = severity
     ApplicationLog.create(hash_or_message)
   end

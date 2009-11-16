@@ -63,7 +63,7 @@ class Application < ActiveRecord::Base
   
   def logger
     if @logger.nil?
-      @logger = ApplicationLogger.new(self)
+      @logger = ApplicationLogger.new(self.id)
     end
     @logger
   end

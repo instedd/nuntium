@@ -29,10 +29,24 @@ END_OF_MESSAGE
     if (config[:use_ssl] == '1')
       smtp.enable_tls
     end
-    smtp.start('localhost.localdomain', config[:user], config[:password])
-    smtp.send_message msgstr, msg.from.without_protocol, msg.to.without_protocol
-    smtp.finish
     
-    AOMessage.update_all("state = 'delivered', tries = tries + 1", ['id = ?', msg.id])
+    begin
+      smtp.start('localhost.localdomain', config[:user], config[:password])
+    rescue => e
+      ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
+      raise
+    else
+      begin
+        smtp.send_message msgstr, msg.from.without_protocol, msg.to.without_protocol
+      rescue => e
+        ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
+        AOMessage.update_all("tries = tries + 1", ['id = ?', msg.id])  
+        raise
+      else
+        AOMessage.update_all("state = 'delivered', tries = tries + 1", ['id = ?', msg.id])  
+      end
+    
+      smtp.finish
+    end
   end
 end
