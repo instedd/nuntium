@@ -47,4 +47,9 @@ Rails::Initializer.run do |config|
   # config.i18n.default_locale = :de
 end
 
+# Twitter OAuth configuration
+if !File.exists?(Rails.root + 'config/twitter_oauth_consumer.yml')
+  $stderr.puts('ERROR: /config/twitter_oauth_consumer.yml not found, please copy it from /config/twitter_oauth_consumer.yml.sample and put some real data in it.')
+  exit 1
+end
 TwitterConsumerConfig = YAML.load(File.read(Rails.root + 'config/twitter_oauth_consumer.yml'))
