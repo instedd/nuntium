@@ -28,6 +28,6 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
   test "should save" do
     app = Application.create(:name => 'app', :password => 'foo')
     chan = Channel.new(:application_id => app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'sms', :configuration => {:user => 'user', :password => 'password', :api_id => 'api_id', :incoming_password => 'incoming_pass' })
-    assert chan.save
+    chan.save
   end
 end

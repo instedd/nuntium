@@ -9,8 +9,10 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
     time = Time.now
     
     app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.create(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'smtp', 
-      :configuration => {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '0'})
+    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'smtp')
+    chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '0'}
+    chan.save
+    
     msg = AOMessage.create(:application_id => app.id, :from => 'mailto://from@mail.com', :to => 'mailto://to@mail.com', :subject => 'some subject', :body => 'some body', :timestamp => time, :guid => 'some guid', :state => 'pending')
 
 msgstr = <<-END_OF_MESSAGE
@@ -43,8 +45,10 @@ msgstr.strip!
     time = Time.now
     
     app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.create(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'smtp', 
-      :configuration => {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'})
+    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'smtp')
+    chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'}
+    chan.save
+    
     msg = AOMessage.create(:application_id => app.id, :from => 'mailto://from@mail.com', :to => 'mailto://to@mail.com', :subject => 'some subject', :body => 'some body', :timestamp => time, :guid => 'some guid', :state => 'pending')
 
 msgstr = <<-END_OF_MESSAGE

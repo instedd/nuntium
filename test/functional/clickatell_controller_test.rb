@@ -4,7 +4,9 @@ class ClickatellControllerTest < ActionController::TestCase
 
   test "index" do
     app = Application.create(:name => 'app', :password => 'app_pass')
-    chan = Channel.create(:application_id => app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Both, :configuration => {:user => 'user', :password => 'password', :api_id => 'api_id', :incoming_password => 'incoming' })
+    chan = Channel.new(:application_id => app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Both)
+    chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :incoming_password => 'incoming' }
+    chan.save
     
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'incoming')
     get :index, :application_id => app.name, :api_id => 'api_id', :from => 'from1', :to => 'to1', :text => 'some text', :timestamp => '1218007814', :charset => 'UTF-8', :moMsgId => 'someid'
@@ -26,7 +28,9 @@ class ClickatellControllerTest < ActionController::TestCase
   
   test "fails authorization because o application" do
     app = Application.create(:name => 'app', :password => 'app_pass')
-    chan = Channel.create(:application_id => app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Both, :configuration => {:user => 'user', :password => 'password', :api_id => 'api_id', :incoming_password => 'incoming' })
+    chan = Channel.new(:application_id => app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Both)
+    chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :incoming_password => 'incoming' }
+    chan.save
     
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'incoming')
     get :index, :application_id => 'another', :api_id => 'api_id', :from => 'from1', :to => 'to1', :text => 'some text', :timestamp => '1218007814', :charset => 'UTF-8', :moMsgId => 'someid'
@@ -39,7 +43,9 @@ class ClickatellControllerTest < ActionController::TestCase
   
   test "fails authorization because of channel" do
     app = Application.create(:name => 'app', :password => 'app_pass')
-    chan = Channel.create(:application_id => app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Both, :configuration => {:user => 'user', :password => 'password', :api_id => 'api_id', :incoming_password => 'incoming' })
+    chan = Channel.new(:application_id => app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Both)
+    chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :incoming_password => 'incoming' }
+    chan.save
     
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'incoming2')
     get :index, :application_id => app.name, :api_id => 'api_id', :from => 'from1', :to => 'to1', :text => 'some text', :timestamp => '1218007814', :charset => 'UTF-8', :moMsgId => 'someid'

@@ -3,7 +3,7 @@ require 'digest/sha2'
 class Channel < ActiveRecord::Base
   belongs_to :application
   has_many :qst_outgoing_messages
-  serialize :configuration
+  serialize :configuration, Hash
   
   validates_presence_of :name, :protocol, :kind, :application
   validate :handler_check_valid

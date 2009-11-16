@@ -8,8 +8,9 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
 
   should "perform no ssl" do
     app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.create(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3', 
-      :configuration => {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '0'})
+    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
+    chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '0'}
+    chan.save
       
     mail = mock('Net::POPMail')
     mail.stubs(
@@ -50,8 +51,9 @@ END_OF_MESSAGE
   
   should "perform ssl" do
     app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.create(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3', 
-      :configuration => {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'})
+    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
+    chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'}
+    chan.save
       
     mail = mock('Net::POPMail')
     mail.stubs(
@@ -93,8 +95,9 @@ END_OF_MESSAGE
   
   should "perform no message id" do
     app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.create(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3', 
-      :configuration => {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '0'})
+    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
+    chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '0'}
+    chan.save
       
     mail = mock('Net::POPMail')
     mail.stubs(
@@ -134,12 +137,17 @@ END_OF_MESSAGE
   
   test "enqueue jobs" do
     app = Application.create(:name => 'app', :password => 'pass')
-    chan1 = Channel.create(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3', 
-      :configuration => {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'})
-    chan2 = Channel.create(:application_id => app.id, :name => 'chan2', :protocol => 'protocol', :kind => 'pop3', 
-      :configuration => {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'})
-    chan3 = Channel.create(:application_id => app.id, :name => 'chan3', :protocol => 'protocol', :kind => 'smtp', 
-      :configuration => {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'})
+    chan1 = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
+    chan1.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'}
+    chan1.save
+      
+    chan2 = Channel.new(:application_id => app.id, :name => 'chan2', :protocol => 'protocol', :kind => 'pop3')
+    chan2.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'}
+    chan2.save
+    
+    chan3 = Channel.new(:application_id => app.id, :name => 'chan3', :protocol => 'protocol', :kind => 'smtp')
+    chan3.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'}
+    chan3.save
   
     ReceivePop3MessageJob.enqueue_for_all_channels
     
