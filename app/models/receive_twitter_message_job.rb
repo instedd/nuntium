@@ -13,13 +13,19 @@ class ReceiveTwitterMessageJob
     @channel = Channel.find @channel_id
     @config = @channel.configuration
     @status = TwitterChannelStatus.first(:conditions => { :channel_id => @channel_id })
-    @client = TwitterChannelHandler.new_client(@config)
     
-    download_new_messages
-    follow_and_send_welcome_to_new_followers
-    
-    if !@status.nil?
-      @status.save
+    begin
+      @client = TwitterChannelHandler.new_client(@config)
+      
+      download_new_messages
+      follow_and_send_welcome_to_new_followers
+      
+      if !@status.nil?
+        @status.save
+      end
+    rescue => e
+      ApplicationLogger.exception_in_channel @channel, e
+      raise
     end
   end
   

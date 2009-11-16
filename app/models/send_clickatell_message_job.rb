@@ -30,10 +30,17 @@ class SendClickatellMessageJob
     request.use_ssl = true
     request.verify_mode = OpenSSL::SSL::VERIFY_NONE
     
-    response = request.get(uri)
-    result = response.body[4 ... response.body.length]
-    
-    AOMessage.update_all("state = 'delivered', tries = tries + 1", ['id = ?', msg.id])
+    result = ''
+    begin
+      response = request.get(uri)
+      result = response.body[4 ... response.body.length]
+    rescue => e
+      ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
+      AOMessage.update_all("tries = tries + 1", ['id = ?', msg.id])
+      raise
+    else    
+      AOMessage.update_all("state = 'delivered', tries = tries + 1", ['id = ?', msg.id])
+    end
     
     result
   end

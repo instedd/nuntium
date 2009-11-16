@@ -40,7 +40,7 @@ END_OF_MESSAGE
         smtp.send_message msgstr, msg.from.without_protocol, msg.to.without_protocol
       rescue => e
         ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
-        AOMessage.update_all("tries = tries + 1", ['id = ?', msg.id])  
+        AOMessage.update_all("tries = tries + 1", ['id = ?', msg.id])
         raise
       else
         AOMessage.update_all("state = 'delivered', tries = tries + 1", ['id = ?', msg.id])  
