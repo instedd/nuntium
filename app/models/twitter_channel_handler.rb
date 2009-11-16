@@ -2,15 +2,7 @@ require 'twitter'
 
 class TwitterChannelHandler < ChannelHandler
   def handle(msg)
-    config = @channel.configuration
-  
-    oauth = TwitterChannelHandler.new_oauth
-    oauth.authorize_from_access(config[:token], config[:secret])
-    
-    client = Twitter::Base.new(oauth)
-    client.direct_message_create(msg.to.without_protocol, msg.subject_and_body)
-    
-    AOMessage.update_all("state = 'delivered', tries = tries + 1", ['id = ?', msg.id])
+    Delayed::Job.enqueue SendTwitterMessageJob.new(@channel.application_id, @channel.id, msg.id)
   end
   
   def update(params)
