@@ -1,3 +1,5 @@
+require 'net/smtp'
+
 class SmtpChannelHandler < ChannelHandler
   def handle(msg)
     Delayed::Job.enqueue SendSmtpMessageJob.new(@channel.application_id, @channel.id, msg.id)
@@ -21,6 +23,22 @@ class SmtpChannelHandler < ChannelHandler
         
     @channel.errors.add(:password, "can't be blank") if
         @channel.configuration[:password].nil? || @channel.configuration[:password].chomp.empty?
+  end
+  
+  def check_valid_in_ui
+    config = @channel.configuration
+    
+    smtp = Net::SMTP.new(config[:host], config[:port].to_i)
+    if (config[:use_ssl] == '1')
+      smtp.enable_tls
+    end
+    
+    begin
+      smtp.start('localhost.localdomain', config[:user], config[:password])
+      smtp.finish
+    rescue => e
+      @channel.errors.add_to_base(e.message)
+    end
   end
   
   def info

@@ -2,6 +2,7 @@
 # Implementations must define:
 # - handle(msg): to handle a message
 # - check_valid: to perform error validations on channel's configuration (optional)
+# - check_valid_in_ui: to perform error validations when configured from the ui, otherwise tests would become slow (optional)
 # - before_save: to apply a transformation before saving it (optional)
 # - update(params): copy attributes from params hash when updating (can be overriden)
 # - clear_password: to clear any sensitive data from a channel before redirecting to the edit page when errors happened (optional)

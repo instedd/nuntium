@@ -235,6 +235,7 @@ class HomeController < ApplicationController
     @channel.kind = params[:kind]
     @channel.direction = params[:direction]
     
+    @channel.check_valid_in_ui
     if !@channel.save
       @channel.clear_password
       flash[:channel] = @channel
@@ -363,6 +364,7 @@ class HomeController < ApplicationController
     
     @channel.handler.update(chan)
     
+    @channel.check_valid_in_ui
     if !@channel.save
       @channel.clear_password
       flash[:channel] = @channel

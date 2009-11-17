@@ -52,11 +52,20 @@ class Channel < ActiveRecord::Base
     end
   end
   
+  def check_valid_in_ui
+    @check_valid_in_ui = true
+  end
+  
   private
   
   def handler_check_valid
     if self.handler.respond_to?(:check_valid)
       self.handler.check_valid
+    end
+    if !@check_valid_in_ui.nil? and @check_valid_in_ui
+      if self.handler.respond_to?(:check_valid_in_ui)
+        self.handler.check_valid_in_ui
+      end
     end
   end
   

@@ -1,3 +1,5 @@
+require 'net/pop'
+
 class Pop3ChannelHandler < ChannelHandler
   def handle(msg)
     # TODO: can't handle messages
@@ -21,6 +23,22 @@ class Pop3ChannelHandler < ChannelHandler
         
     @channel.errors.add(:password, "can't be blank") if
         @channel.configuration[:password].nil? || @channel.configuration[:password].chomp.empty?
+  end
+  
+  def check_valid_in_ui
+    config = @channel.configuration
+    
+    pop = Net::POP3.new(config[:host], config[:port].to_i)
+    if (config[:use_ssl] == '1')
+      pop.enable_ssl(OpenSSL::SSL::VERIFY_NONE)
+    end
+    
+    begin
+      pop.start(config[:user], config[:password])
+      pop.finish
+    rescue => e
+      @channel.errors.add_to_base(e.message)
+    end
   end
   
   def info
