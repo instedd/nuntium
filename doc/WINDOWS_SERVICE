@@ -1,0 +1,23 @@
+Instructions to run delayed_job as a Windows Service
+----------------------------------------------------
+
+1. Install win32-service gem (http://win32utils.rubyforge.org/):
+
+     $ gems install win32-service
+  
+2. From nuntium's root dir invoke the services manager passing
+   the appropiate option:
+
+     $ ruby lib\services\delayed_job_daemon_ctl.rb [option]
+
+   Options:
+     install    - Installs the service.  The service name is "NuntiumWorker"
+                  and the display name is "Nuntium Worker".
+     start      - Starts the service.
+     stop       - Stops the service.
+     pause      - Pauses the service.
+     resume     - Resumes the service.
+     uninstall  - Uninstalls the service.
+     delete     - Same as uninstall.
+     
+   The service logs to the normal Ruby on Rails logger.
