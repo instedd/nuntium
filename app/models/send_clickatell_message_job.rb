@@ -36,10 +36,13 @@ class SendClickatellMessageJob
       result = response.body[4 ... response.body.length]
     rescue => e
       ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
-      AOMessage.update_all("tries = tries + 1", ['id = ?', msg.id])
+      msg.tries += 1;
+      msg.save
       raise
     else    
-      AOMessage.update_all("state = 'delivered', tries = tries + 1", ['id = ?', msg.id])
+      msg.state = 'delivered'
+      msg.tries += 1
+      msg.save
     end
     
     result
