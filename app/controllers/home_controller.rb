@@ -194,6 +194,12 @@ class HomeController < ApplicationController
     
     existing_app = Application.find @application.id
     existing_app.max_tries = app[:max_tries]
+    existing_app.interface = app[:interface]
+    
+    url = app[:configuration][:url] if app[:configuration]
+    existing_app.configuration = {
+      :url => url
+    }
     
     if !app[:password].chomp.empty?
       existing_app.salt = nil

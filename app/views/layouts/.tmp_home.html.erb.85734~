@@ -1,0 +1,16 @@
+<html>
+<head>
+  <title>nuntium</title>
+  <link rel="stylesheet" href="/stylesheets/scaffold.css" type="text/css"/>
+  <script src="/javascripts/application.js" type="text/javascript" />
+</head>
+<body>
+<h2>Welcome to nuntium</h2>
+
+<% if !@application.nil? && !@application.id.nil? %>
+  <h3>Current application is: <%= @application.name %> (<%= link_to "logoff", :controller => :home, :action => :logoff %>)</h3>
+<% end %>
+
+<%= yield %>
+</body>
+</html>
