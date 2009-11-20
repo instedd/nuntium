@@ -94,44 +94,10 @@ class HomeController < ApplicationController
     @ao_page = params[:ao_page]
     @ao_page = 1 if @ao_page.blank?    
     @ao_search = params[:ao_search]
-    @ao_from = params[:ao_from]
-    @ao_to = params[:ao_to]
-    @ao_state = params[:ao_state]
-    @ao_previous_filter = params[:ao_previous_filter]
-    @ao_filter = @ao_search.to_s + @ao_from.to_s + @ao_to.to_s + @ao_state.to_s
-    @ao_page = 1 if @ao_previous_filter != @ao_filter
-    
-    @ao_conditions = ['application_id = :application_id', { :application_id => @application.id }]
-    if !@ao_search.blank?
-      @ao_conditions[0] += ' AND (id = :search_exact OR guid = :search_exact OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search)'
-      @ao_conditions[1][:search_exact] = @ao_search
-      @ao_conditions[1][:search] = '%' + @ao_search + '%'
-      
-      # Reset pages if search changes (so as to not stay in a later page that doesn't exist in the new result set)
-      @ao_page = 1 if !@ao_previous_search.blank? and @ao_previous_search != @ao_search
-    end
-    if !@ao_from.blank?
-      begin
-        from = Time.parse(@ao_from)
-        @ao_conditions[0] += ' AND timestamp >= :from'
-        @ao_conditions[1][:from] = from
-      rescue
-        @ao_from = 'ERROR: ' + @ao_from
-      end
-    end
-    if !@ao_to.blank?
-      begin
-        to = Time.parse(@ao_to)
-        @ao_conditions[0] += ' AND timestamp <= :to'
-        @ao_conditions[1][:to] = to
-      rescue
-        @ao_to = 'ERROR: ' + @ao_to
-      end
-    end
-    if !@ao_state.blank?
-      @ao_conditions[0] += ' AND state LIKE :state'
-      @ao_conditions[1][:state] = '%' + @ao_state + '%'
-    end
+    @ao_previous_search = params[:ao_previous_search]
+    # Reset pages if search changes (so as to not stay in a later page that doesn't exist in the new result set)
+    @ao_page = 1 if !@ao_previous_search.blank? and @ao_previous_search != @ao_search
+    @ao_conditions = build_message_filter(@ao_search)
   end
   
   def build_at_messages_filter
@@ -139,43 +105,48 @@ class HomeController < ApplicationController
     @at_page = 1 if @at_page.blank?    
     @at_search = params[:at_search]
     @at_previous_search = params[:at_previous_search]
-    @at_from = params[:at_from]
-    @at_to = params[:at_to]
-    @at_state = params[:at_state]
-    @at_previous_filter = params[:at_previous_filter]
-    @at_filter = @at_search.to_s + @at_from.to_s + @at_to.to_s + @at_state.to_s
-    @at_page = 1 if @at_previous_filter != @at_filter
+    # Reset pages if search changes (so as to not stay in a later page that doesn't exist in the new result set)
+    @at_page = 1 if !@at_previous_search.blank? and @at_previous_search != @at_search
+    @at_conditions = build_message_filter(@at_search)
+  end
+  
+  def build_message_filter(search)
+    search = Search.new(search)
+    conds = ['application_id = :application_id', { :application_id => @application.id }]
+    if !search.search.nil?
+      conds[0] += ' AND (guid = :search OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search)'
+      conds[1][:search] = '%' + search.search + '%'
+    end
     
-    @at_conditions = ['application_id = :application_id', { :application_id => @application.id }]
-    if !@at_search.blank?
-      @at_conditions[0] += ' AND (guid = :search OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search)'
-      @at_conditions[1][:search] = '%' + @at_search + '%'
-      
-      # Reset pages if search changes (so as to not stay in a later page that doesn't exist in the new result set)
-      @at_page = 1 if !@at_previous_search.blank? and @at_previous_search != @at_search
-    end
-    if !@at_from.blank?
-      begin
-        from = Time.parse(@at_from)
-        @at_conditions[0] += ' AND timestamp >= :from'
-        @at_conditions[1][:from] = from
-      rescue
-        @at_from = 'ERROR: ' + @at_from
+    [:id, :guid, :tries].each do |sym|
+      if !search[sym].nil?
+        conds[0] += " AND [#{sym}] = :#{sym}"
+        conds[1][sym] = search[sym]
       end
     end
-    if !@at_to.blank?
-      begin
-        to = Time.parse(@at_to)
-        @at_conditions[0] += ' AND timestamp <= :to'
-        @at_conditions[1][:to] = to
-      rescue
-        @at_to = 'ERROR: ' + @at_to
+    [:from, :to, :subject, :body, :state].each do |sym|
+      if !search[sym].nil?
+        conds[0] += " AND [#{sym}] LIKE :#{sym}"
+        conds[1][sym] = '%' + search[sym] + '%'
       end
     end
-    if !@at_state.blank?
-      @at_conditions[0] += ' AND state LIKE :state'
-      @at_conditions[1][:state] = '%' + @at_state + '%'
+    if !search[:after].nil?
+      begin
+        after = Time.parse(search[:after])
+        conds[0] += ' AND timestamp >= :after'
+        conds[1][:after] = search[:after]
+      rescue
+      end
     end
+    if !search[:before].nil?
+      begin
+        before = Time.parse(search[:before])
+        conds[0] += ' AND timestamp <= :before'
+        conds[1][:before] = search[:before]
+      rescue
+      end
+    end
+    conds
   end
   
   def edit_application
