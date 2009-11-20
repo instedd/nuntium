@@ -98,7 +98,7 @@
 <input type="hidden" name="at_search" value="<%= @at_search %>" />
 <input type="hidden" id="ao_all" name="ao_all" value="0" />
 
-Search: <input type="text" name="ao_search" value="<%= h @ao_search %>" size="50" /> &nbsp; &nbsp;
+Search: <input type="text" name="ao_search" value="<%= h @ao_search %>" size="50" /> <acronym title="You can filter by field like 'id:5', 'before:&quot;2007-06-03 09:39:21 UTC&quot;', 'state:queued', etc.">?</acronym> &nbsp; &nbsp;
 Select: <%= js 'all', 'select_all_ao_messages()' %>, <%= js 'none', 'select_none_ao_messages()' %> &nbsp; &nbsp;
 Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
 
@@ -159,7 +159,7 @@ Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
 <input type="hidden" name="ao_search" value="<%= @ao_search %>" />
 <input type="hidden" id="at_all" name="at_all" value="0" />
 
-Search: <input type="text" name="at_search" value="<%= h @at_search %>" size= "50" /> &nbsp; &nbsp;
+Search: <input type="text" name="at_search" value="<%= h @at_search %>" size= "50" /> <acronym title="You can filter by field like 'id:5', 'before:&quot;2007-06-03 09:39:21 UTC&quot;', 'state:queued', etc.">?</acronym> &nbsp; &nbsp;
 Select: <%= js 'all', 'select_all_at_messages()' %>, <%= js 'none', 'select_none_at_messages()' %> &nbsp; &nbsp;
 Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
 
