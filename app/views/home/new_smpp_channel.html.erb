@@ -1,0 +1,35 @@
+<h4>Create new SMPP channel</h4>
+
+<% form_for :channel, :url => { :controller => 'home', :action => :create_channel, :kind => params[:kind] } do |f| %>
+  <%= f.error_messages %>
+  <input type="hidden" name="direction" value="<%= Channel::Both %>" />
+  <p>
+  <%= f.label :name %><br/>
+  <%= f.text_field :name %>
+  </p>
+  <p>
+  <%= f.label :protocol %><br/>
+  <%= f.text_field :protocol, :value => 'smpp', :readonly => 'readonly' %>
+  </p>
+  <% f.fields_for :configuration do |c| %>
+  	<p>
+    <%= c.label :host %><br/>
+    <%= c.text_field :host %>
+    </p>
+  	<p>
+    <%= c.label :port %><br/>
+    <%= c.text_field :port %>
+    </p>
+	<p>
+  	<%= c.label :user %><br/>
+  	<%= c.text_field :user %>
+  	</p>
+  	<p>
+  	<%= c.label :password %><br/>
+  	<%= c.password_field :password %>
+  	</p>
+  <% end %>
+  <%= submit_tag 'Create Channel' %>
+<% end %>
+
+<%= link_to 'Go back', :controller => :home, :action => :home %>
