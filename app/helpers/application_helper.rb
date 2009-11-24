@@ -15,4 +15,5 @@ module ApplicationHelper
   def short_html(msg, length = 15)
     '<a title="' + (h msg) + '">' + short(msg, length) + '</a>'
   end
+    
 end

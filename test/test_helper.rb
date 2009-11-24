@@ -89,6 +89,7 @@ class ActiveSupport::TestCase
     msg
   end
   
+  # Fills the values of an existing message
   def fill_msg(msg, app, i, protocol = 'protocol')
     msg.application_id = app.id
     msg.subject = "Subject of the message #{i}"
@@ -98,6 +99,38 @@ class ActiveSupport::TestCase
     msg.guid = "someguid #{i}"
     msg.timestamp = Time.parse("03 Jun #{2003 + i} 09:39:21 GMT")
     msg.state = 'queued'
+  end
+  
+  def assert_msg_state(msg_id, state, tries)
+    msg = ATMessage.find_by_id(msg_id)
+    assert_not_nil msg, "message with id #{msg_id} not found"
+    assert_equal state, msg.state
+    assert_equal tries, msg.tries
+  end
+  
+  def assert_msg(msg, app, i, protocol = 'protocol')
+    assert_equal app.id, msg.application_id, 'message application id'
+    assert_equal "Subject of the message #{i}", msg.subject, 'message subject'
+    assert_equal "Body of the message #{i}", msg.body, 'message body'
+    assert_equal "Someone #{i}", msg.from, 'message from'
+    assert_equal protocol + "://Someone else #{i}", msg.to, 'message to' 
+    assert_equal "someguid #{i}", msg.guid, 'message guid' 
+    assert_equal Time.parse("03 Jun #{2003 + i} 09:39:21 GMT"), msg.timestamp, 'message timestamp' 
+    assert_equal 'queued', msg.state, 'message status'
+  end
+  
+  def assert_xml(xml_txt, rng, protocol = 'protocol')
+    rng = (0...rng) if not rng.respond_to? :each
+    msgs = ATMessage.parse_xml(xml_txt)
+    assert_equal rng.to_a.size, msgs.size, 'messages count does not match range' 
+    rng.each do |i|
+      msg = msgs[i]
+      assert_equal "Subject of the message #{i} - Body of the message #{i}", msg.subject_and_body, 'message subject and body'
+      assert_equal "Someone #{i}", msg.from, 'message from'
+      assert_equal protocol + "://Someone else #{i}", msg.to, 'message to' 
+      assert_equal "someguid #{i}", msg.guid, 'message guid' 
+      assert_equal Time.parse("03 Jun #{2003 + i} 09:39:21 GMT"), msg.timestamp, 'message timestamp' 
+    end
   end
   
   # Creates a new QSTOutgoingMessage with guid "someguid #{i}"

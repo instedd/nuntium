@@ -9,7 +9,7 @@
   <p>
   <%= f.label :interface %><br/>
   <%= f.radio_button :interface, 'rss', :onclick => "$('application_configuration_url').disabled=true;" %>Rss<br/>
-  <%= f.radio_button :interface, 'qst-push', :onclick => "$('application_configuration_url').disabled=false;" %>QST Push<br/>
+  <%= f.radio_button :interface, 'qst', :onclick => "$('application_configuration_url').disabled=false;" %>QST<br/>
   <div>
   	<% f.fields_for :configuration do |c| %>
     <p>

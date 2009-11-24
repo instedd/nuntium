@@ -44,7 +44,7 @@ class HomeControllerTest < ActionController::TestCase
   test "edit app succeeds" do
     app = Application.create({:name => 'app', :password => 'app_pass', :interface => 'rss' })
     
-    get :update_application, {:application => {:max_tries => 1, :interface => 'qst-push', :configuration => { :url => 'myurl' }, :password => '', :password_confirmation => ''}}, {:application => app}
+    get :update_application, {:application => {:max_tries => 1, :interface => 'qst', :configuration => { :url => 'myurl' }, :password => '', :password_confirmation => ''}}, {:application => app}
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -60,7 +60,7 @@ class HomeControllerTest < ActionController::TestCase
     
     # The session's app was changed
     assert_equal 1, session[:application].max_tries
-    assert_equal 'qst-push', session[:application].interface
+    assert_equal 'qst', session[:application].interface
     assert_equal 'myurl', session[:application].configuration[:url]
   end
   
