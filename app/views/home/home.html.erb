@@ -2,7 +2,7 @@
 <div style="border:1px solid black; background:#FFF1A8; padding:4px; font-weight:bold"><%= flash[:notice] %></div>
 <% end %>
 
-<h4><a href="javascript:void(0)" onClick="toggle('interactions')">Interactions</a></h4>
+<h4><%= js 'Interactions', "toggle('interactions')" %></h4>
 
 <div id="interactions" style="display:none">
 <% if @channels.empty? %>
@@ -48,7 +48,7 @@
 <% end %>
 </div>
 
-<h4><a href="javascript:void(0)" onClick="toggle('settings')">Settings</a></h4>
+<h4><%= js 'Setting', "toggle('settings')" %></h4>
 
 <div id="settings" style="display:none">
 <ul>
@@ -60,7 +60,7 @@
 </ul>
 </div>
 
-<h4><a href="javascript:void(0)" onClick="toggle('channels')">Channels</a></h4>
+<h4><%= js 'Channels', "toggle('channels')" %></h4>
 
 <div id="channels">
 <% if @channels.empty? %>
@@ -74,7 +74,7 @@
         <td><%= chan.protocol %>://...</td>
         <td><%= chan.info.blank? ? '' : "(#{chan.info})" %></td>
         <td><%= link_to "edit", :controller => :home, :action => :edit_channel, :id => chan.id %></td>
-        <td><a href="javascript:void(0)" onclick="delete_channel(<%= chan.id %>, '<%= h chan.name %>')">delete</a></td>
+        <td><%= js 'delete', "delete_channel(#{chan.id}, '#{h chan.name}')" %></td>
       </tr>
     <% end %>
   </table>
@@ -85,40 +85,32 @@
 <%= link_to "Create new POP3 channel", :controller => :home, :action => :new_channel, :kind => 'pop3' %><br/>
 <%= link_to "Create new QST channel", :controller => :home, :action => :new_channel, :kind => 'qst' %><br/>
 <%= link_to "Create new SMTP channel", :controller => :home, :action => :new_channel, :kind => 'smtp' %><br/>
-<%= link_to "Create new Twitter channel", :controller => :home, :action => :new_channel, :kind => 'twitter' %>
+<%= link_to "Create new Twitter channel", :controller => :home, :action => :new_channel, :kind => 'twitter' %><br/>
+<%= link_to "Create new SMPP channel", :controller => :home, :action => :new_channel, :kind => 'smpp' %>
 </div>
 
-<h4><a href="javascript:void(0)" onClick="toggle('last_ao_messages')">Last Application Originated Messages</a></h4>
+<h4><%= js 'Last Application Originated Messages', "toggle('last_ao_messages')" %></h4>
 
 <div id="last_ao_messages">
 <form id="ao_messages_form">
 <input type="hidden" name="ao_page" value="<%= @ao_page %>" />
-<input type="hidden" name="ao_previous_filter" value="<%= @ao_filter %>" />
+<input type="hidden" name="ao_previous_search" value="<%= @ao_search %>" />
 <input type="hidden" name="at_page" value="<%= @at_page %>" />
 <input type="hidden" name="at_search" value="<%= @at_search %>" />
-<input type="hidden" name="at_from" value="<%= @at_from %>" />
-<input type="hidden" name="at_to" value="<%= @at_to %>" />
-<input type="hidden" name="at_state" value="<%= @at_state %>" />
 <input type="hidden" id="ao_all" name="ao_all" value="0" />
 
-Search: <input type="text" name="ao_search" value="<%= h @ao_search %>" />
-From: <input type="text" name="ao_from" value="<%= h @ao_from %>" size="13" />
-To: <input type="text" name="ao_to" value="<%= h @ao_to %>" size="13" />
-State: <input type="text" name="ao_state" value="<%= h @ao_state %>" size="6" />
-Select: <a href="javascript:void(0)" onclick="select_all_ao_messages()">all</a>, <a href="javascript:void(0)" onclick="select_none_ao_messages()">none</a>
-Actions: <a href="javascript:void(0)" onclick="mark_ao_messages_as_cancelled()">mark as cancelled</a>
+Search: <input type="text" name="ao_search" value="<%= h @ao_search %>" size="50" /> <acronym title="You can filter by field like 'id:5', 'before:&quot;2007-06-03 09:39:21 UTC&quot;', 'state:queued', etc.">?</acronym> &nbsp; &nbsp;
+Select: <%= js 'all', 'select_all_ao_messages()' %>, <%= js 'none', 'select_none_ao_messages()' %> &nbsp; &nbsp;
+Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
 
-<%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_filter => @ao_filter } %>
+<%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_search => @ao_search } %>
 
 <div id="all_ao_messages_text" style="display:none"></div>
 
 <input type="hidden" name="ao_page" value="<%= @ao_page %>" />
-<input type="hidden" name="ao_previous_filter" value="<%= @ao_filter %>" />
+<input type="hidden" name="ao_previous_search" value="<%= @ao_search %>" />
 <input type="hidden" name="at_page" value="<%= @at_page %>" />
 <input type="hidden" name="at_search" value="<%= @at_search %>" />
-<input type="hidden" name="at_from" value="<%= @at_from %>" />
-<input type="hidden" name="at_to" value="<%= @at_to %>" />
-<input type="hidden" name="at_state" value="<%= @at_state %>" />
 
 <% if @ao_messages.empty? %>
   <div>No messages.</div>
@@ -155,30 +147,24 @@ Actions: <a href="javascript:void(0)" onclick="mark_ao_messages_as_cancelled()">
 <% end %>
 </form>
 
-<%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_filter => @ao_filter } %>
+<%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_search => @ao_search } %>
 </div>
 
-<h4><a href="javascript:void(0)" onClick="toggle('last_at_messages')">Last Application Terminated Messages</a></h4>
+<h4><%= js 'Last Application Terminated Messages', "toggle('last_at_messages')" %></h4>
 
 <div id="last_at_messages">
 <form id="at_messages_form">
 <input type="hidden" name="at_page" value="<%= @at_page %>" />
-<input type="hidden" name="at_previous_filter" value="<%= @at_filter %>" />
+<input type="hidden" name="at_previous_search" value="<%= @at_search %>" />
 <input type="hidden" name="ao_page" value="<%= @ao_page %>" />
 <input type="hidden" name="ao_search" value="<%= @ao_search %>" />
-<input type="hidden" name="ao_from" value="<%= @ao_from %>" />
-<input type="hidden" name="ao_to" value="<%= @ao_to %>" />
-<input type="hidden" name="ao_state" value="<%= @ao_state %>" />
 <input type="hidden" id="at_all" name="at_all" value="0" />
 
-Search: <input type="text" name="at_search" value="<%= h @at_search %>" />
-From: <input type="text" name="at_from" value="<%= h @at_from %>" size="13"/>
-To: <input type="text" name="at_to" value="<%= h @at_to %>" size="13" />
-State: <input type="text" name="at_state" value="<%= h @at_state %>" size="6" />
-Select: <a href="javascript:void(0)" onclick="select_all_at_messages()">all</a>, <a href="javascript:void(0)" onclick="select_none_at_messages()">none</a>
-Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">mark as cancelled</a>
+Search: <input type="text" name="at_search" value="<%= h @at_search %>" size= "50" /> <acronym title="You can filter by field like 'id:5', 'before:&quot;2007-06-03 09:39:21 UTC&quot;', 'state:queued', etc.">?</acronym> &nbsp; &nbsp;
+Select: <%= js 'all', 'select_all_at_messages()' %>, <%= js 'none', 'select_none_at_messages()' %> &nbsp; &nbsp;
+Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
 
-<%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_filter => @at_filter } %>
+<%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_search => @at_search } %>
 
 <div id="all_at_messages_text" style="display:none"></div>
 
@@ -216,11 +202,11 @@ Actions: <a href="javascript:void(0)" onclick="mark_at_messages_as_cancelled()">
   </table>
 <% end %>
 
-<%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_filter => @at_filter } %>
+<%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_search => @at_search } %>
 </form>
 </div>
 
-<h4><a href="javascript:void(0)" onClick="toggle('logs')">Logs</a></h4>
+<h4><%= js 'Logs', "toggle('logs')" %></h4>
 
 <div id="logs">
 <%= will_paginate @logs, :param_name => 'logs_page' %>

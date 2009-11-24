@@ -96,3 +96,7 @@ table.messages {
   border: 1px solid black;
   background-color: #FFF1A8;
 }
+
+acronym {
+  border-bottom: 1px dashed black;
+}

@@ -16,4 +16,7 @@ module ApplicationHelper
     '<a title="' + (h msg) + '">' + short(msg, length) + '</a>'
   end
     
+  def js(name, js_function)    
+    "<a href=\"javascript:void(0)\" onclick=\"#{js_function}\">#{name}</a>"  
+  end 
 end

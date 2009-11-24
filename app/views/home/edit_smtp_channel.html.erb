@@ -21,7 +21,7 @@
     </p>
     <p>
     <%= c.label :password %><br/>
-    <%= c.text_field :password, :value => @channel[:configuration][:password] %>
+    <%= c.password_field :password, :value => @channel[:configuration][:password] %>
     </p>
     <p>
     <%= c.label :use_ssl %> <%= c.check_box :use_ssl, {:checked => @channel[:configuration][:use_ssl] == '1'} %>

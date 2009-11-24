@@ -29,8 +29,8 @@ class Application < ActiveRecord::Base
   
   # Route an AOMessage
   def route(msg)
-    if @incoming_channels.nil?
-      @incoming_channels = self.channels.all(:conditions => ['direction = ? OR direction = ?', Channel::Incoming, Channel::Both])
+    if @outgoing_channels.nil?
+      @outgoing_channels = self.channels.all(:conditions => ['direction = ? OR direction = ?', Channel::Outgoing, Channel::Both])
     end
     
     # Find protocol of message (based on "to" field)
@@ -43,7 +43,7 @@ class Application < ActiveRecord::Base
     end
     
     # Find channel that handles that protocol
-    channels = @incoming_channels.select {|x| x.protocol == protocol}
+    channels = @outgoing_channels.select {|x| x.protocol == protocol}
     
     if channels.empty?
       msg.state = 'error'

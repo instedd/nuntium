@@ -2,7 +2,7 @@
 
 <% form_for :channel, :url => { :controller => 'home', :action => :create_channel, :kind => params[:kind] } do |f| %>
   <%= f.error_messages %>
-  <input type="hidden" name="direction" value="<%= Channel::Outgoing %>" />
+  <input type="hidden" name="direction" value="<%= Channel::Incoming %>" />
   <p>
   <%= f.label :name %><br/>
   <%= f.text_field :name %>
@@ -26,7 +26,7 @@
     </p>
     <p>
     <%= c.label :password %><br/>
-    <%= c.text_field :password %>
+    <%= c.password_field :password %>
     </p>
     <p>
     <%= c.label :use_ssl %> <%= c.check_box :use_ssl, {} %>
