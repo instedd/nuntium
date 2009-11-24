@@ -150,9 +150,8 @@ class HomeController < ApplicationController
   end
   
   def edit_application
-    if !flash[:application].nil?
-      @application = flash[:application]
-    end
+    @application = flash[:application] if not flash[:application].nil?
+    @application.configuration ||= {} if not @application.nil?
   end
   
   def update_application

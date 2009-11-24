@@ -19,15 +19,15 @@
   <%= f.error_messages %>
   <p>
   <%= f.label :name %><br/>
-  <%= f.text_field :name %>
+  <%= f.text_field :name, :autocomplete => :off %>
   </p>
   <p>
   <%= f.label :password %><br/>
-  <%= f.password_field :password %>
+  <%= f.password_field :password, :autocomplete => :off  %>
   </p>
   <p>
   <%= f.label :password_confirmation %><br/>
-  <%= f.password_field :password_confirmation %>
+  <%= f.password_field :password_confirmation, :autocomplete => :off  %>
   </p>
   <%= submit_tag 'Create Application' %>
 <% end %>
