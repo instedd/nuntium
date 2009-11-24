@@ -45,6 +45,36 @@ class ActiveSupport::TestCase
     'Basic ' + Base64.encode64(user + ':' + pass)
   end
   
+  # Returns a new mock for a successful http response with the specified headers
+  def mock_http_success(headers = {})
+    require 'net/http'
+    response = mock('Net::HTTPOk') do
+      stubs(:code => '200')
+      headers.each_pair do |k,v|
+        stubs(:[]).with(k).returns(v)
+      end  
+    end
+    response
+  end
+
+  # Returns a new Net:HTTP mocked object and applies all expectations to it
+  # Will be returned when the user creates a new instance
+  def mock_http(host, port='80', &block)
+    require 'net/http'
+    http = mock('http', &block) 
+    Net::HTTP.expects(:new).with(host, port).returns(http)
+    http
+  end
+
+  # Creates an app with a specific interface and configuration
+  def create_app_with_interface(app_name, app_pass, interface, cfg)
+    app = Application.create(:name => app_name, :password => app_pass, :interface => interface)
+    app.configuration = {}
+    cfg.each_pair do |k,v| app.configuration[k] = v end
+    app.save
+    app
+  end
+  
   # Creates an app and a qst channel with the given values.
   # Returns the tupple [application, channel]
   def create_app_and_channel(app_name, app_pass, chan_name, chan_pass, kind, protocol = 'protocol')
@@ -101,6 +131,7 @@ class ActiveSupport::TestCase
     msg.state = 'queued'
   end
   
+  # Given a message id, checks that message in the db has the specified state and tries
   def assert_msg_state(msg_id, state, tries)
     msg = ATMessage.find_by_id(msg_id)
     assert_not_nil msg, "message with id #{msg_id} not found"
@@ -108,6 +139,7 @@ class ActiveSupport::TestCase
     assert_equal tries, msg.tries
   end
   
+  # Asserts all values for a message constructed with new or fill
   def assert_msg(msg, app, i, protocol = 'protocol')
     assert_equal app.id, msg.application_id, 'message application id'
     assert_equal "Subject of the message #{i}", msg.subject, 'message subject'
@@ -119,7 +151,8 @@ class ActiveSupport::TestCase
     assert_equal 'queued', msg.state, 'message status'
   end
   
-  def assert_xml(xml_txt, rng, protocol = 'protocol')
+  # Given an xml document string, asserts all values for a message constructed with new or fill
+  def assert_xml_msgs(xml_txt, rng, protocol = 'protocol')
     rng = (0...rng) if not rng.respond_to? :each
     msgs = ATMessage.parse_xml(xml_txt)
     assert_equal rng.to_a.size, msgs.size, 'messages count does not match range' 
@@ -163,5 +196,4 @@ class ActiveSupport::TestCase
     assert_select "item guid", msg.guid
     assert_select "item pubDate", msg.timestamp.rfc822
   end
-  
 end

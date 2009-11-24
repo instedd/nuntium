@@ -6,36 +6,20 @@ require 'mocha'
 
 class PushQstMessageJobTest < ActiveSupport::TestCase
 include Mocha::API
+include Net
   
   should "perform first run" do
     
-    http = mock('Net::HTTP')
+    app = create_app_with_interface('app', 'pass', 'qst', :url => 'http://example.com', :cred_user => 'theuser', :cred_pass => 'thepass')
     
-    response = mock('Net::HTTPOk') do
-      stubs(:code => '200', :[] => nil)
-    end
-    
-    head_response = mock('Net::HTTPOk') do
-      stubs(:code => '200')
-      expects(:[]).with('etag').returns(nil)
-    end
-    
-    app = Application.create(:name => 'app', :password => 'pass', :interface => 'qst')
-    app.configuration = {}
-    app.configuration[:url] = 'http://example.com'
-    app.configuration[:cred_user] = 'theuser'
-    app.configuration[:cred_pass] = 'thepass'
-    app.save
-    
-    Net::HTTP.expects(:new).with('example.com', 80).returns(http)
+    http = mock_http('example.com', 80)
     http.expects(:basic_auth).with('theuser', 'thepass')
-    http.expects(:head).with('incoming').returns(head_response)
-    
-    http.expects(:post).with() { | url, data |      
+    http.expects(:head).with('incoming').returns(mock_http_success('etag' => nil))
+    http.expects(:post).with() { |url, data|      
       assert_equal 'incoming', url
-      assert_xml data, (0..2)
-    }.returns(response)
-    
+      assert_xml_msgs data, (0..2)
+    }.returns(mock_http_success)
+        
     msg0 = new_at_message app, 0
     msg1 = new_at_message app, 1
     msg2 = new_at_message app, 2
@@ -53,4 +37,9 @@ include Mocha::API
     assert_msg_state(msg2.id, 'delivered', 1)
     
   end
+  
+  should "perform run with last ok" do
+    assert_equal 1, 1  
+  end
+  
 end
