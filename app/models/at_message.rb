@@ -51,10 +51,11 @@ class ATMessage < ActiveRecord::Base
   # * returns the message corresponding to msg_or_id if exists
   def self.mark_older_as_confirmed(app_id, msg_or_id)
     msg = self.get_message(msg_or_id)
-    if msg
-      self.update_all("state = 'confirmed'", ["application_id = ? AND state IN ('delivered', 'queued') AND timestamp < ?", app_id, msg.timestamp])
+    if not msg.nil?
+      self.update_all("state = 'confirmed'", ["application_id = ? AND state IN ('delivered', 'queued') AND timestamp <= ?", app_id, msg.timestamp])
       return msg
     end
+    nil
   end
   
   # Returns all messages for an application newer than a specific message
@@ -80,28 +81,49 @@ class ATMessage < ActiveRecord::Base
   end
   
   # Given a list of messages and the maximum retries count, updates their status
-  # * if the processing was successful, messages are marked as delivered
+  # * if the processing was successful, messages are marked as confirmed up to the last ok id and delivered after
   # * if it failed, they are marked as failed if they exceeded max tries
   # * in either case, retries count is increased 
-  def self.update_msgs_status(msgs, max_tries, success=true)
-    if success
-      msgs_ids = msgs.map {|m| m.id}
-      self.update_all("state = 'delivered', tries = tries + 1", ['id IN (?)', msgs_ids])
+  # * success of the process is determined by whether last guid is nil or not
+  def self.update_msgs_status(msgs, max_tries, last_guid)
+    if not last_guid.nil?
+      delivered_msgs_ids = []
+      confirmed_msgs_ids = []
+      current = confirmed_msgs_ids
+      msgs.each do |m| 
+        current << m.id
+        current = delivered_msgs_ids if last_guid == m.guid
+      end
+      self.update_tries(confirmed_msgs_ids, 'confirmed')
+      self.update_tries(delivered_msgs_ids, 'delivered')
     else
-      valid_msgs_ids, invalid_msgs_ids = msgs.partition {|m| m.tries < max_tries}.map {|ms| ms.map {|m| m.id}}
-      self.update_all("tries = tries + 1", ['id IN (?)', valid_msgs_ids])
-      self.update_all("state = 'failed', tries = tries + 1", ['id IN (?)', invalid_msgs_ids])
+      valid_msgs, invalid_msgs= msgs.partition {|m| m.tries < max_tries}
+      self.update_tries(valid_msgs.map { |m| m.id })
+      self.update_tries(invalid_msgs.map { |m| m.id }, 'failed')
+    end
+  end
+
+  # Increases try count for all messages in ids collection, optionally also modifies state
+  def self.update_tries(ids, state=nil)
+    return if ids.empty? 
+    if state.nil?
+      self.update_all("tries = tries + 1", ['id IN (?)', ids])
+    else
+      self.update_all("state = '#{state}', tries = tries + 1", ['id IN (?)', ids])
     end
   end
   
-  # Given either a string id or a message returns the corresponding message
+  # Given either a string guid, numeric id or a message returns the corresponding message
   def self.get_message(msg_or_id)
-    if msg_or_id.class == String
-      return self.find_by_id(msg_or_id) 
+    if msg_or_id.respond_to? :guid
+      return msg_or_id
+    elsif msg_or_id.kind_of? Numeric
+      return self.find_by_id(msg_or_id)
+    elsif msg_or_id.kind_of? String
+      return self.find_by_guid(msg_or_id)
     else
       return msg_or_id
     end
   end
   
-
 end

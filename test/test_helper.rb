@@ -32,23 +32,28 @@ class ActiveSupport::TestCase
   # then set this back to true.
   self.use_instantiated_fixtures  = false
 
-  # Setup all fixtures in test/fixtures/*.(yml|csv) for all tests in alphabetical order.
-  #
-  # Note: You'll currently still have to declare fixtures explicitly in integration tests
-  # -- they do not yet inherit this setting
-  # fixtures :all
-
-  # Add more helper methods to be used by all tests here...
-  
   # Returns the string to be used for HTTP_AUTHENTICATION header
   def http_auth(user, pass)
     'Basic ' + Base64.encode64(user + ':' + pass)
   end
   
+  # Returns a new mock for a failed http response with the specified headers and code
+  def mock_http_failure(code = '400', message = 'Mocked error message', headers = {})
+    require 'net/http'
+    response = mock do
+      stubs(:code => code)
+      stubs(:message => message)
+      headers.each_pair do |k,v|
+        stubs(:[]).with(k).returns(v)
+      end  
+    end
+    response
+  end
+  
   # Returns a new mock for a successful http response with the specified headers
   def mock_http_success(headers = {})
     require 'net/http'
-    response = mock('Net::HTTPOk') do
+    response = mock do
       stubs(:code => '200')
       headers.each_pair do |k,v|
         stubs(:[]).with(k).returns(v)
@@ -59,10 +64,14 @@ class ActiveSupport::TestCase
 
   # Returns a new Net:HTTP mocked object and applies all expectations to it
   # Will be returned when the user creates a new instance
-  def mock_http(host, port='80', &block)
+  def mock_http(host, port='80', expected=true, &block)
     require 'net/http'
     http = mock('http', &block) 
-    Net::HTTP.expects(:new).with(host, port).returns(http)
+    if expected
+      Net::HTTP.expects(:new).with(host, port).returns(http)
+    else
+      Net::HTTP.stubs(:new).with(host, port).returns(http)
+    end
     http
   end
 
@@ -102,12 +111,17 @@ class ActiveSupport::TestCase
   end
   
   # Creates an ATMessage that belongs to app and has values according to i
-  def new_at_message(app, i, protocol = 'protocol')
-    msg = ATMessage.new
-    fill_msg msg, app, i, protocol
-    msg.save!
-    
-    msg
+  def new_at_message(app, i, protocol = 'protocol', state = 'queued', tries = 0)
+    if i.respond_to? :each
+      msgs = []
+      i.each { |j| msgs << new_at_message(app, j, protocol, state, tries) } 
+      return msgs
+    else
+      msg = ATMessage.new
+      fill_msg msg, app, i, protocol, state, tries
+      msg.save!
+      return msg
+    end
   end
   
   # Creates an AOMessage that belongs to app and has values according to i
@@ -115,28 +129,42 @@ class ActiveSupport::TestCase
     msg = AOMessage.new
     fill_msg msg, app, i, protocol
     msg.save!
-    
     msg
   end
   
   # Fills the values of an existing message
-  def fill_msg(msg, app, i, protocol = 'protocol')
+  def fill_msg(msg, app, i, protocol = 'protocol', state = 'queued', tries = 0)
     msg.application_id = app.id
     msg.subject = "Subject of the message #{i}"
     msg.body = "Body of the message #{i}"
     msg.from = "Someone #{i}"
     msg.to = protocol + "://Someone else #{i}"
     msg.guid = "someguid #{i}"
-    msg.timestamp = Time.parse("03 Jun #{2003 + i} 09:39:21 GMT")
-    msg.state = 'queued'
+    msg.timestamp = time_for_msg i
+    msg.state = state
+    msg.tries = tries
+  end
+  
+  # Policy for generating dates
+  @separate_msg_times_by_year = true
+  
+  # Returns a specific time for a message with index i
+  def time_for_msg(i)
+    if @separate_msg_times_by_year then Time.parse('Tue, 03 Jun #{2003 + i} 09:39:21 GMT') else Time.at(946702800 + 86400 * (i+1)).getgm end
   end
   
   # Given a message id, checks that message in the db has the specified state and tries
-  def assert_msg_state(msg_id, state, tries)
+  def assert_msg_state(msg_or_id, state, tries)
+    msg_id = msg_or_id.id unless msg_or_id.kind_of? String
     msg = ATMessage.find_by_id(msg_id)
     assert_not_nil msg, "message with id #{msg_id} not found"
-    assert_equal state, msg.state
-    assert_equal tries, msg.tries
+    assert_equal state, msg.state, "message with id #{msg_id} state does not match"
+    assert_equal tries, msg.tries, "message with id #{msg_id} tries does not match"
+  end
+  
+  # Given a list of message or ids, checks that each message in the db has the specified state and tries
+  def assert_msgs_states(msg_ids, state, tries)
+    msg_ids.each { |msg| assert_msg_state msg, state, tries }
   end
   
   # Asserts all values for a message constructed with new or fill
@@ -147,22 +175,23 @@ class ActiveSupport::TestCase
     assert_equal "Someone #{i}", msg.from, 'message from'
     assert_equal protocol + "://Someone else #{i}", msg.to, 'message to' 
     assert_equal "someguid #{i}", msg.guid, 'message guid' 
-    assert_equal Time.parse("03 Jun #{2003 + i} 09:39:21 GMT"), msg.timestamp, 'message timestamp' 
+    assert_equal time_for_msg(i), msg.timestamp, 'message timestamp' 
     assert_equal 'queued', msg.state, 'message status'
   end
   
   # Given an xml document string, asserts all values for a message constructed with new or fill
   def assert_xml_msgs(xml_txt, rng, protocol = 'protocol')
-    rng = (0...rng) if not rng.respond_to? :each
+    rng = (rng...rng) if not rng.respond_to? :each
     msgs = ATMessage.parse_xml(xml_txt)
     assert_equal rng.to_a.size, msgs.size, 'messages count does not match range' 
+    base = rng.to_a[0]
     rng.each do |i|
-      msg = msgs[i]
+      msg = msgs[i-base]
       assert_equal "Subject of the message #{i} - Body of the message #{i}", msg.subject_and_body, 'message subject and body'
       assert_equal "Someone #{i}", msg.from, 'message from'
       assert_equal protocol + "://Someone else #{i}", msg.to, 'message to' 
       assert_equal "someguid #{i}", msg.guid, 'message guid' 
-      assert_equal Time.parse("03 Jun #{2003 + i} 09:39:21 GMT"), msg.timestamp, 'message timestamp' 
+      assert_equal time_for_msg(i), msg.timestamp, 'message timestamp' 
     end
   end
   

@@ -77,12 +77,12 @@ class Application < ActiveRecord::Base
     self.password_confirmation = nil
   end
   
-  def set_last_ok(value)
+  def set_last_guid(value)
     if self.configuration.nil?
-      self.configuration = { :last_ok => value }
+      self.configuration = { :last_guid => value }
       self.save
-    elsif self.configuration[:last_ok] != value
-      self.configuration[:last_ok] = value
+    elsif self.configuration[:last_guid] != value
+      self.configuration[:last_guid] = value
       self.save
     end
   end

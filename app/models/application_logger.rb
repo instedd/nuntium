@@ -6,6 +6,10 @@ class ApplicationLogger
   def protocol_not_found_for(ao_msg)
     error(:ao_message_id => ao_msg.id, :message => "Protocol not found in 'to' field")
   end
+
+  def wrong_interface(expected, actual)
+    error(:message => 'Found interface #{actual} when expecting #{expected}')
+  end
   
   def no_channel_found_for(protocol, ao_msg)
     error(:ao_message_id => ao_msg.id, :message => "No channel found for protocol '#{protocol}'")
@@ -35,8 +39,12 @@ class ApplicationLogger
     info(:message => "Starting new QST push job to server")
   end
 
-  def pushed_n_messages(n)
-    info(:message => "Posted '#{n}' messages to server")
+  def pushed_n_messages(n, last_id = nil)
+    if last_id.nil?
+      info(:message => "Posted '#{n}' messages to server")
+    else
+      info(:message => "Posted '#{n}' messages to server up to id '#{last_id}'")
+    end
   end
 
   def no_new_messages
