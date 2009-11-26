@@ -1,8 +1,9 @@
 # Initialize Ruby on Rails
-require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
-require(File.join(RAILS_ROOT, 'config', 'environment'))
-
 begin
+  ENV["RAILS_ENV"] = "production"
+  require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
+  require(File.join(RAILS_ROOT, 'config', 'environment'))
+
   require 'win32/daemon'
   include Win32
   
@@ -40,7 +41,9 @@ begin
 
         break if !running?
       end
-
+    rescue => err
+      # File.open("C:\\temp_ruby.log", 'a'){ |fh| fh.puts 'Daemon failure: ' + err }
+      File.open(LOG_FILE, 'a'){ |fh| fh.puts 'Daemon failure: ' + err }   
     ensure
       Delayed::Job.clear_locks!
     end
@@ -55,7 +58,8 @@ begin
   end
   
   DelayedJobDaemon.mainloop
-rescue Exception => err
+rescue => err
+   # File.open("C:\\temp_ruby.log", 'a'){ |fh| fh.puts 'Daemon failure: ' + err }
    File.open(LOG_FILE, 'a'){ |fh| fh.puts 'Daemon failure: ' + err }
    raise
 end

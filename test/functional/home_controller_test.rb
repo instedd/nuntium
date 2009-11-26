@@ -42,9 +42,9 @@ class HomeControllerTest < ActionController::TestCase
   end
   
   test "edit app succeeds" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
+    app = Application.create({:name => 'app', :password => 'app_pass', :interface => 'rss' })
     
-    get :update_application, {:application => {:max_tries => 1, :password => '', :password_confirmation => ''}}, {:application => app}
+    get :update_application, {:application => {:max_tries => 1, :interface => 'qst', :configuration => { :url => 'myurl' }, :password => '', :password_confirmation => ''}}, {:application => app}
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -60,12 +60,14 @@ class HomeControllerTest < ActionController::TestCase
     
     # The session's app was changed
     assert_equal 1, session[:application].max_tries
+    assert_equal 'qst', session[:application].interface
+    assert_equal 'myurl', session[:application].configuration[:url]
   end
   
   test "edit app change password succeeds" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
+    app = Application.create({:name => 'app', :password => 'app_pass', :interface => 'rss'})
     
-    get :update_application, {:application => {:max_tries => 3, :password => 'new_pass', :password_confirmation => 'new_pass'}}, {:application => app}
+    get :update_application, {:application => {:max_tries => 3, :interface => 'rss', :password => 'new_pass', :password_confirmation => 'new_pass'}}, {:application => app}
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -250,6 +252,12 @@ class HomeControllerTest < ActionController::TestCase
   test "edit app fails with max tries" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
     get :update_application, {:application => {:max_tries => 'foo', :password => '', :password_confirmation => ''}}, {:application => app}
+    assert_redirected_to(:controller => 'home', :action => 'edit_application')
+  end
+  
+  test "edit app fails with invalid interface" do
+    app = Application.create({:name => 'app', :password => 'app_pass', :interface => 'rss'})
+    get :update_application, {:application => {:max_tries => '1', :interface => 'invalid' , :password => '', :password_confirmation => ''}}, {:application => app}
     assert_redirected_to(:controller => 'home', :action => 'edit_application')
   end
   

@@ -150,9 +150,8 @@ class HomeController < ApplicationController
   end
   
   def edit_application
-    if !flash[:application].nil?
-      @application = flash[:application]
-    end
+    @application = flash[:application] if not flash[:application].nil?
+    @application.configuration ||= {} if not @application.nil?
   end
   
   def update_application
@@ -165,7 +164,15 @@ class HomeController < ApplicationController
     
     existing_app = Application.find @application.id
     existing_app.max_tries = app[:max_tries]
+    existing_app.interface = app[:interface]
     
+    if !existing_app.configuration
+      existing_app.configuration = { }
+    end
+    
+    url = app[:configuration][:url] if app[:configuration]
+    existing_app.configuration.update({:url => url})
+      
     if !app[:password].chomp.empty?
       existing_app.salt = nil
       existing_app.password = app[:password]

@@ -5,12 +5,15 @@ class Application < ActiveRecord::Base
   has_many :ao_messages
   has_many :at_messages
   
+  serialize :configuration, Hash
+  
   attr_accessor :password_confirmation
   
-  validates_presence_of :name, :password
+  validates_presence_of :name, :password, :interface
   validates_uniqueness_of :name
   validates_confirmation_of :password
   validates_numericality_of :max_tries, :only_integer => true, :greater_than_or_equal_to => 0
+  validates_inclusion_of :interface, :in => ['rss', 'qst']
   
   before_save :hash_password
   
@@ -72,6 +75,16 @@ class Application < ActiveRecord::Base
     self.salt = nil
     self.password = nil
     self.password_confirmation = nil
+  end
+  
+  def set_last_ok(value)
+    if self.configuration.nil?
+      self.configuration = { :last_ok => value }
+      self.save
+    elsif self.configuration[:last_ok] != value
+      self.configuration[:last_ok] = value
+      self.save
+    end
   end
   
   private

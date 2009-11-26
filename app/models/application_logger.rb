@@ -11,8 +11,36 @@ class ApplicationLogger
     error(:ao_message_id => ao_msg.id, :message => "No channel found for protocol '#{protocol}'")
   end
   
+  def no_url_in_configuration()
+    error(:message => 'No url found in application configuration for pushing/pulling messages')
+  end
+
+  def error_obtaining_last_id(message)
+    error(:message => "Error obtaining last id from server: '#{message}'")
+  end
+
+  def error_initializing_http(exception)
+    error(:message => "Error initializing http connection: '#{exception.message}'")
+  end
+  
+  def error_posting_msgs(msg)
+    error(:message => "Error posting messages to server: '#{msg}'")
+  end
+
   def more_than_one_channel_found_for(protocol, ao_msg)
     warning(:ao_message_id => ao_msg.id, :message => "More than one channel found for protocol '#{protocol}'")
+  end
+
+  def starting_qst_push
+    info(:message => "Starting new QST push job to server")
+  end
+
+  def pushed_n_messages(n)
+    info(:message => "Posted '#{n}' messages to server")
+  end
+
+  def no_new_messages
+    info(:message => 'No new messages to push/pull to the server')
   end
   
   def info(hash_or_message)
@@ -43,6 +71,7 @@ class ApplicationLogger
     end
     hash_or_message[:application_id] = @application_id
     hash_or_message[:severity] = severity
+    puts hash_or_message if ENV['RAILS_ENV'] == 'test'
     ApplicationLog.create(hash_or_message)
   end
 end
