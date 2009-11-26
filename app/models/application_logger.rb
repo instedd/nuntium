@@ -15,6 +15,15 @@ class ApplicationLogger
     error(:ao_message_id => ao_msg.id, :message => "No channel found for protocol '#{protocol}'")
   end
   
+  def app_not_found(app_id=nil)
+    if app_id.nil?
+      error(:message => "Application not found")
+    else
+      error(:message => "Application with id '#{app_id}' not found")
+    end
+      
+  end
+  
   def no_url_in_configuration()
     error(:message => 'No url found in application configuration for pushing/pulling messages')
   end
@@ -30,13 +39,25 @@ class ApplicationLogger
   def error_posting_msgs(msg)
     error(:message => "Error posting messages to server: '#{msg}'")
   end
+  
+  def error_pulling_msgs(msg)
+    error(:message => "Error pulling messages from server: '#{msg}'")
+  end
+  
+  def error_processing_msgs(msg)
+    error(:message => "Error processing messages from server: '#{msg}'")
+  end
 
   def more_than_one_channel_found_for(protocol, ao_msg)
     warning(:ao_message_id => ao_msg.id, :message => "More than one channel found for protocol '#{protocol}'")
   end
 
-  def starting_qst_push
-    info(:message => "Starting new QST push job to server")
+  def starting_qst_push(uri)
+    info(:message => "Starting new QST push job to server #{uri}")
+  end
+
+  def starting_qst_pull(uri)
+    info(:message => "Starting new QST pull job from server #{uri}")
   end
 
   def pushed_n_messages(n, last_id = nil)
@@ -44,6 +65,14 @@ class ApplicationLogger
       info(:message => "Posted '#{n}' messages to server")
     else
       info(:message => "Posted '#{n}' messages to server up to id '#{last_id}'")
+    end
+  end
+
+  def pulled_n_messages(n, last_id = nil)
+    if last_id.nil?
+      info(:message => "Pulled '#{n}' messages from server")
+    else
+      info(:message => "Pulled '#{n}' messages from server up to id '#{last_id}'")
     end
   end
 

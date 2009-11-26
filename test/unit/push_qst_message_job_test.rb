@@ -30,7 +30,7 @@ include Net
     app = setup_app
     msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
     msgs += new_at_message app, (3..5), 'protocol', 'queued'
-    app.set_last_guid(msgs[2].guid)
+    app.set_last_at_guid(msgs[2].guid)
     
     setup_http app, :msgs_posted => (3..5), 
       :expects_head => false, 
@@ -47,7 +47,7 @@ include Net
     app = setup_app :url => 'http://example.com:9099/foobar/'
     msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
     msgs += new_at_message app, (3..5), 'protocol', 'queued'
-    app.set_last_guid(msgs[2].guid)
+    app.set_last_at_guid(msgs[2].guid)
     
     setup_http app, :msgs_posted => (3..5), 
       :expects_head => false, 
@@ -67,7 +67,7 @@ include Net
     app = setup_app_unauth 
     msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
     msgs += new_at_message app, (3..5), 'protocol', 'queued'
-    app.set_last_guid(msgs[2].guid)
+    app.set_last_at_guid(msgs[2].guid)
     
     setup_http app, :msgs_posted => (3..5), 
       :expects_head => false, 
@@ -86,7 +86,7 @@ include Net
     app = setup_app
     msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
     msgs += new_at_message app, (3..5), 'protocol', 'queued'
-    app.set_last_guid(msgs[2].guid)
+    app.set_last_at_guid(msgs[2].guid)
     
     setup_http app, :msgs_posted => (3..5), 
       :expects_head => false, 
@@ -105,7 +105,7 @@ include Net
     msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
     msgs += new_at_message app, (3..5), 'protocol', 'delivered', 1
     msgs += new_at_message app, (6..7), 'protocol', 'queued', 0
-    app.set_last_guid msgs[2].guid
+    app.set_last_at_guid msgs[2].guid
     
     setup_http app, :msgs_posted => (3..7), 
       :expects_head => false,
@@ -126,7 +126,7 @@ include Net
     msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
     msgs += new_at_message app, (3..5), 'protocol', 'delivered', 1
     msgs += new_at_message app, (6..7), 'protocol', 'queued', 0
-    app.set_last_guid nil
+    app.set_last_at_guid nil
     
     setup_http app, :msgs_posted => (3..7), 
       :head_etag => msgs[2].guid,
@@ -146,7 +146,7 @@ include Net
     msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
     msgs += new_at_message app, (3..5), 'protocol', 'delivered', 1
     msgs += new_at_message app, (6..7), 'protocol', 'queued', 0
-    app.set_last_guid nil
+    app.set_last_at_guid nil
     
     setup_http app, :msgs_posted => (5..7), 
       :head_etag => msgs[4].guid,
@@ -166,7 +166,7 @@ include Net
     msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
     msgs += new_at_message app, (3..5), 'protocol', 'queued', 4
     msgs += new_at_message app, (6..7), 'protocol', 'queued', 0
-    app.set_last_guid(msgs[2].guid)
+    app.set_last_at_guid(msgs[2].guid)
     
     setup_http app, :msgs_posted => (3..7), 
       :expects_head => false, 
@@ -221,7 +221,7 @@ include Net
     app = setup_app :max_tries => 5
     msgs =  new_at_message app, (0..20), 'protocol', 'confirmed', 1
     msgs += new_at_message app, (21..100), 'protocol', 'queued', 0
-    app.set_last_guid(msgs[20].guid)
+    app.set_last_at_guid(msgs[20].guid)
     
     setup_http app, :msgs_posted => (21..30), 
       :expects_head => false, 
@@ -239,7 +239,7 @@ include Net
     app = setup_app :max_tries => 5
     msgs =  new_at_message app, (0...20), 'protocol', 'confirmed', 1
     msgs += new_at_message app, (20...100), 'protocol', 'queued', 0
-    app.set_last_guid(msgs[19].guid)
+    app.set_last_at_guid(msgs[19].guid)
     
     current = 20
     result = job_with_callback(app) do
@@ -266,7 +266,7 @@ include Net
     app = setup_app :max_tries => 5
     msgs =  new_at_message app, (0...20), 'protocol', 'confirmed', 1
     msgs += new_at_message app, (20...105), 'protocol', 'queued', 0
-    app.set_last_guid(msgs[19].guid)
+    app.set_last_at_guid(msgs[19].guid)
     
     current = 20
     result = job_with_callback(app) do
@@ -287,15 +287,15 @@ include Net
   
   def assert_last_id(app, last_id)
     afterapp = Application.find_by_id app.id
-    assert_equal last_id, afterapp.configuration[:last_guid]
+    assert_equal last_id, afterapp.configuration[:last_at_guid]
   end
   
   def setup_app(cfg = {})
-    create_app_with_interface('app', 'pass', 'qst', { :last_guid => nil, :url => 'http://example.com', :cred_user => 'theuser', :cred_pass => 'thepass' }.merge(cfg))
+    create_app_with_interface('app', 'pass', 'qst', { :last_at_guid => nil, :url => 'http://example.com', :cred_user => 'theuser', :cred_pass => 'thepass' }.merge(cfg))
   end
   
   def setup_app_unauth(cfg = {})
-    create_app_with_interface('app', 'pass', 'qst', { :last_guid => nil, :url => 'http://example.com'}.merge(cfg))
+    create_app_with_interface('app', 'pass', 'qst', { :last_at_guid => nil, :url => 'http://example.com'}.merge(cfg))
   end
   
   def setup_null_http(app)

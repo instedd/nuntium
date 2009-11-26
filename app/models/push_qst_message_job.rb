@@ -14,24 +14,18 @@ class PushQstMessageJob
   end
   
   def perform_batch
-    app = Application.find_by_id(@application_id)
-    app.logger.starting_qst_push
-   
-    # Check configuration ok
-    if app.configuration.nil? or app.configuration[:url].nil?
-      app.logger.no_url_in_configuration
-      return :error_no_url_in_configuration
-    elsif not app.interface == 'qst'
-      app.logger.wrong_interface 'qst', app.interface
-      return :error_wrong_interface
-    end
-    
     require 'uri'
     require 'net/http'
     require 'builder'
+
+    app = Application.find_by_id(@application_id)
+    err = validate_app(app)
+    return err unless err.nil?
+
+    app.logger.starting_qst_push app.configuration[:url]
     
     # Create http requestor and uri
-    http, path = create_http app 
+    http, path = create_http app, 'incoming' 
     if http.nil? then return :error_initializing_http end 
     
     # If last transfer failed get last expected id from server
@@ -44,7 +38,7 @@ class PushQstMessageJob
     # If there are no newer messages, finish
     if new_msgs.length == 0
       app.logger.no_new_messages
-      app.set_last_guid(last_msg.guid) unless last_msg.nil?
+      app.set_last_at_guid(last_msg.guid) unless last_msg.nil?
       return :success
     end
 
@@ -55,7 +49,7 @@ class PushQstMessageJob
     ATMessage.update_msgs_status new_msgs, app.max_tries, last_id
     
     # Save changes to the app
-    app.set_last_guid last_id
+    app.set_last_at_guid last_id
     
     # Return value depending success and whether must continue or not
     if last_id.nil?
@@ -72,7 +66,7 @@ class PushQstMessageJob
   # * marks older messages as confirmed if obtained last id
   # * returns last message or :error symbol
   def process_last_id(app, http, path)
-    if app.configuration[:last_guid].nil?
+    if app.configuration[:last_at_guid].nil?
       begin
         response = http.head path
         if not response.code[0,1] == '2'
@@ -101,7 +95,8 @@ class PushQstMessageJob
   end
   
   # Initialize http connection
-  def create_http(app)
+  # TODO: Move to a QST helper
+  def create_http(app, target=nil)
     begin
       user = app.configuration[:cred_user]
       pass = app.configuration[:cred_pass]
@@ -110,12 +105,14 @@ class PushQstMessageJob
       if not user.nil? and not pass.nil? then http.basic_auth user, pass end
     rescue => e
       app.logger.error_initializing_http e
-      app.set_last_guid nil
+      app.set_last_at_guid nil
       return nil, nil
     else
       path = uri.path
-      path += '/' unless path.nil? or path.empty? or path[-1..-1] == '/'
-      path += 'incoming'
+      if not target.nil?
+        path += '/' unless path.nil? or path.empty? or path[-1..-1] == '/'
+        path += target
+      end
       return http, path  
     end
   end
@@ -123,15 +120,9 @@ class PushQstMessageJob
   # Post all specified messages to the server as xml
   def post_msgs(app, http, path, msgs)
     # Write the xml
-    xml = Builder::XmlMarkup.new(:indent => 1)
-    xml.instruct!
-    xml.messages do
-      msgs.each do |msg|
-        msg.write_xml xml
-      end
-    end
+    xml = ATMessage.write_xml msgs
     # Make the post and check for response code
-    response = http.post path, xml.target!, { 'Content-Type' => 'text/xml' }
+    response = http.post path, xml, { 'Content-Type' => 'text/xml' }
     if not response.code[0,1] == '2'
       app.logger.error_posting_msgs response.message
       return nil
@@ -143,6 +134,22 @@ class PushQstMessageJob
     etag = response['etag']
     app.logger.pushed_n_messages msgs.length, etag
     return etag
+  end
+  
+  # Validates application for QST
+  # TODO: Move to a QST helper
+  def validate_app(app)
+    if app.nil?
+      app.logger.app_not_found
+      return :error_no_application
+    elsif app.configuration.nil? or app.configuration[:url].nil?
+      app.logger.no_url_in_configuration
+      return :error_no_url_in_configuration
+    elsif not app.interface == 'qst'
+      app.logger.wrong_interface 'qst', app.interface
+      return :error_wrong_interface
+    end
+    nil
   end
   
   # Enqueues jobs of this class for each qst push interface

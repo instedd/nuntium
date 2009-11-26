@@ -77,12 +77,22 @@ class Application < ActiveRecord::Base
     self.password_confirmation = nil
   end
   
-  def set_last_guid(value)
+  def set_last_at_guid(value)
     if self.configuration.nil?
-      self.configuration = { :last_guid => value }
+      self.configuration = { :last_at_guid => value }
       self.save
-    elsif self.configuration[:last_guid] != value
-      self.configuration[:last_guid] = value
+    elsif self.configuration[:last_at_guid] != value
+      self.configuration[:last_at_guid] = value
+      self.save
+    end
+  end
+  
+  def set_last_ao_guid(value)
+    if self.configuration.nil?
+      self.configuration = { :last_ao_guid => value }
+      self.save
+    elsif self.configuration[:last_ao_guid] != value
+      self.configuration[:last_ao_guid] = value
       self.save
     end
   end

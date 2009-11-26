@@ -61,6 +61,14 @@ class ActiveSupport::TestCase
     end
     response
   end
+  
+  # Returns a new mock for a successful http response with a body and the specified headers
+  def mock_http_success_body(body, headers = {})
+    require 'net/http'
+    response = mock_http_success(headers)
+    response.stubs(:body => body)
+    response
+  end
 
   # Returns a new Net:HTTP mocked object and applies all expectations to it
   # Will be returned when the user creates a new instance
@@ -73,6 +81,15 @@ class ActiveSupport::TestCase
       Net::HTTP.stubs(:new).with(host, port).returns(http)
     end
     http
+  end
+
+  # Mocks an app with a specific interface and configuration
+  def mock_app_with_interface(app_id, app_name, app_pass, interface, cfg)
+    app = mock('app') do
+      stubs(:id => app_id, :name => app_name, :password => app_pass, :interface => interface, :configuration => cfg)
+    end
+    Application.expects(:find_by_id).with(app_id).returns(app)
+    app
   end
 
   # Creates an app with a specific interface and configuration
@@ -110,26 +127,28 @@ class ActiveSupport::TestCase
     channel
   end
   
-  # Creates an ATMessage that belongs to app and has values according to i
-  def new_at_message(app, i, protocol = 'protocol', state = 'queued', tries = 0)
+  # Creates a new message of the specified kind with values according to i
+  def new_message(app, i, kind, protocol = 'protocol', state = 'queued', tries = 0)
     if i.respond_to? :each
       msgs = []
-      i.each { |j| msgs << new_at_message(app, j, protocol, state, tries) } 
+      i.each { |j| msgs << new_message(app, j, kind, protocol, state, tries) } 
       return msgs
     else
-      msg = ATMessage.new
+      msg = kind.new
       fill_msg msg, app, i, protocol, state, tries
       msg.save!
       return msg
     end
   end
   
+  # Creates an ATMessage that belongs to app and has values according to i
+  def new_at_message(app, i, protocol = 'protocol', state = 'queued', tries = 0)
+    new_message app, i, ATMessage, protocol, state, tries
+  end
+  
   # Creates an AOMessage that belongs to app and has values according to i
   def new_ao_message(app, i, protocol = 'protocol')
-    msg = AOMessage.new
-    fill_msg msg, app, i, protocol
-    msg.save!
-    msg
+    new_message app, i, AOMessage, protocol, state, tries
   end
   
   # Fills the values of an existing message
@@ -154,17 +173,17 @@ class ActiveSupport::TestCase
   end
   
   # Given a message id, checks that message in the db has the specified state and tries
-  def assert_msg_state(msg_or_id, state, tries)
+  def assert_msg_state(msg_or_id, state, tries,kind=ATMessage)
     msg_id = msg_or_id.id unless msg_or_id.kind_of? String
-    msg = ATMessage.find_by_id(msg_id)
+    msg = kind.find_by_id(msg_id)
     assert_not_nil msg, "message with id #{msg_id} not found"
     assert_equal state, msg.state, "message with id #{msg_id} state does not match"
     assert_equal tries, msg.tries, "message with id #{msg_id} tries does not match"
   end
   
   # Given a list of message or ids, checks that each message in the db has the specified state and tries
-  def assert_msgs_states(msg_ids, state, tries)
-    msg_ids.each { |msg| assert_msg_state msg, state, tries }
+  def assert_msgs_states(msg_ids, state, tries, kind=ATMessage)
+    msg_ids.each { |msg| assert_msg_state msg, state, tries, kind }
   end
   
   # Asserts all values for a message constructed with new or fill
