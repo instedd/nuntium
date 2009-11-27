@@ -64,11 +64,16 @@ class PushQstMessageJob
   
   # Obtains last id from server if necessary
   # * marks older messages as confirmed if obtained last id
+  # * returns nil if last id does not belong to any known messages
   # * returns last message or :error symbol
   def process_last_id(app, http, path)
     if app.configuration[:last_at_guid].nil?
       begin
-        response = http.head path
+        user = app.configuration[:cred_user]
+        pass = app.configuration[:cred_pass]
+        request = Net::HTTP::Head.new path
+        request.basic_auth(user, pass) unless user.nil? or pass.nil?
+        response = http.request request
         if not response.code[0,1] == '2'
           app.logger.error_obtaining_last_id response.message
           return :error_obtaining_last_id
@@ -82,8 +87,8 @@ class PushQstMessageJob
         return nil if last_id.nil?
         last_msg = ATMessage.find_by_guid last_id
         if last_msg.nil?
-          app.logger.error_obtaining_last_id 'Invalid guid #{last_id}' 
-          return :error_obtaining_last_id
+          app.logger.error_obtaining_last_id "Invalid guid #{last_id}" 
+          return nil # if we don't know which message the server is talking about, send everything
         else
           ATMessage.mark_older_as_confirmed(app.id, last_msg)
           return last_msg
@@ -98,11 +103,8 @@ class PushQstMessageJob
   # TODO: Move to a QST helper
   def create_http(app, target=nil)
     begin
-      user = app.configuration[:cred_user]
-      pass = app.configuration[:cred_pass]
       uri = URI.parse(app.configuration[:url]) 
       http = Net::HTTP.new(uri.host, uri.port)
-      if not user.nil? and not pass.nil? then http.basic_auth user, pass end
     rescue => e
       app.logger.error_initializing_http e
       app.set_last_at_guid nil
@@ -119,10 +121,16 @@ class PushQstMessageJob
   
   # Post all specified messages to the server as xml
   def post_msgs(app, http, path, msgs)
-    # Write the xml
+    # Obtain data
     xml = ATMessage.write_xml msgs
-    # Make the post and check for response code
-    response = http.post path, xml, { 'Content-Type' => 'text/xml' }
+    user = app.configuration[:cred_user]
+    pass = app.configuration[:cred_pass]
+    # Make the request
+    request = Net::HTTP::Post.new path
+    request.basic_auth(user, pass) unless user.nil? or pass.nil?
+    request['Content-Type'] = 'text/xml'
+    response = http.request request, xml
+    # Handle response
     if not response.code[0,1] == '2'
       app.logger.error_posting_msgs response.message
       return nil

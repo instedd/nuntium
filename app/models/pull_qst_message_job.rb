@@ -29,12 +29,8 @@ class PullQstMessageJob
     if http.nil? then return :error_initializing_http end
     path += "?max=#{BATCH_SIZE}"  
     
-    # Get last id
-    last_id = app.configuration[:last_ao_guid]
-    
     # Get messages from server
-    headers = last_id.nil? ? {} : { 'HTTP_IF_NONE_MATCH' => last_id } 
-    response = http.get path, headers
+    response = request_messages(app, http, path) 
     
     # Handle different responses
     if response.code == "304" # not modified
@@ -70,6 +66,17 @@ class PullQstMessageJob
   
   end
   
+  # Creates a get request with proper authentication
+  def request_messages app, http, path
+    last_id = app.configuration[:last_ao_guid]
+    user = app.configuration[:cred_user]
+    pass = app.configuration[:cred_pass]
+    request = Net::HTTP::Get.new path
+    request.basic_auth(user, pass) unless user.nil? or pass.nil?
+    request['if-none-match'] = last_id unless last_id.nil?
+    http.request request
+  end
+  
   # Validates application for QST
   # TODO: Move to a QST helper
   def validate_app(app)
@@ -90,11 +97,8 @@ class PullQstMessageJob
   # TODO: Move to a QST helper
   def create_http(app, target=nil)
     begin
-      user = app.configuration[:cred_user]
-      pass = app.configuration[:cred_pass]
       uri = URI.parse(app.configuration[:url]) 
       http = Net::HTTP.new(uri.host, uri.port)
-      if not user.nil? and not pass.nil? then http.basic_auth user, pass end
     rescue => e
       app.logger.error_initializing_http e
       app.set_last_at_guid nil
