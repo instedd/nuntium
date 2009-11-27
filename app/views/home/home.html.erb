@@ -48,10 +48,11 @@
 <% end %>
 </div>
 
-<h4><%= js 'Setting', "toggle('settings')" %></h4>
+<h4><%= js 'Settings', "toggle('settings')" %></h4>
 
 <div id="settings" style="display:none">
 <ul>
+  <li>Interface: <img src="/images/icon_<%= @application.interface %>.png" width="16" height="16" style="position:relative; top:2px" alt="<%= @application.interface %>"/> <%= @application.interface_description %></li>
   <li>Max tries: <%= @application.max_tries %></li>
 </ul>
 

@@ -87,6 +87,15 @@ class Application < ActiveRecord::Base
     end
   end
   
+  def interface_description
+    case interface
+    when 'rss'
+      return 'rss'
+    when 'qst'
+      return self.configuration[:url]
+    end
+  end
+  
   private
   
   def hash_password
