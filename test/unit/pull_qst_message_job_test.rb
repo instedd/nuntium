@@ -21,12 +21,13 @@ include Net
     
     assert_equal :success, result
     assert_last_id app, msgs[-1].guid
+    assert_sample_messages app, (3..8)
   end
   
   def test_perform_with_etag
     app = setup_app 
     msgs = sample_messages app, (5..8)
-    app.stubs(:last_ao_guid => 'lastetag')
+    app.set_last_ao_guid 'lastetag'
     
     setup_http app,
       :get_msgs => msgs,
@@ -36,7 +37,126 @@ include Net
     
     assert_equal :success, result
     assert_last_id app, msgs[-1].guid
+    assert_sample_messages app, (5..8)
   end
+  
+  def test_perform_first_run_no_messages
+    app = setup_app 
+    
+    setup_http app,
+      :not_modified => true
+      
+    result = job app
+    
+    assert_equal :success, result
+    assert_last_id app, nil
+  end
+  
+  def test_perform_with_etag_not_modified
+    app = setup_app 
+    app.set_last_ao_guid 'lastetag'
+    
+    setup_http app,
+      :etag => 'lastetag',
+      :not_modified => true
+      
+    result = job app
+    
+    assert_equal :success, result
+    assert_last_id app, 'lastetag'
+  end
+
+  def test_perform_pulls_until_not_modified
+    app = setup_app 
+    msgs =  sample_messages app, (0...10)
+    msgs += sample_messages app, (10...60)
+    app.set_last_ao_guid msgs[9].guid
+    
+    current = 10
+    result = job_with_callback(app) do
+      assert current <= 60
+      data = current < 60 ? { :get_msgs => msgs[current...current+10] } : { :not_modified => true }
+      setup_http app, data.merge({:etag => msgs[current-1].guid})
+      current += 10          
+    end
+    
+    assert_equal :success, result
+    assert_last_id app, msgs[-1].guid
+    assert_sample_messages app, (10...60)
+  end
+  
+  def test_perform_pulls_until_size_less_than_max
+    app = setup_app 
+    msgs =  sample_messages app, (0...10)
+    msgs += sample_messages app, (10...65)
+    app.set_last_ao_guid msgs[9].guid
+    
+    current = 10
+    result = job_with_callback(app) do
+      assert current <= 60
+      setup_http app, :etag => msgs[current-1].guid, :get_msgs => msgs[current...current+10] 
+      current += 10          
+    end
+    
+    assert_equal :success, result
+    assert_last_id app, msgs[-1].guid
+    assert_sample_messages app, (10...65)
+  end
+  
+  def test_perform_pulls_until_failure
+    app = setup_app 
+    msgs =  sample_messages app, (0...10)
+    msgs += sample_messages app, (10...60)
+    app.set_last_ao_guid msgs[9].guid
+    
+    current = 10
+    result = job_with_callback(app) do
+      assert current <= 60
+      if current == 60
+        setup_http app, :etag => msgs[current-1].guid, :get_response => mock_http_failure
+      else
+        setup_http app, :etag => msgs[current-1].guid, :get_msgs => msgs[current...current+10]
+      end
+      current += 10          
+    end
+    
+    assert_equal :error_pulling_messages, result
+    assert_last_id app, msgs[-1].guid
+    assert_sample_messages app, (10...60)
+  end
+
+  def test_failure_response_code
+    app = setup_app 
+    app.set_last_ao_guid 'lastetag'
+    
+    setup_http app,
+      :get_response => mock_http_failure,
+      :etag => 'lastetag' 
+      
+    result = job app
+    
+    assert_equal :error_pulling_messages, result
+    assert_last_id app, 'lastetag'
+  end
+
+  def test_failure_processing_response
+    app = setup_app 
+    app.set_last_ao_guid 'lastetag'
+    
+    setup_http app,
+      :etag => 'lastetag',
+      :get_body => 
+      <<-XML
+      <?xml version="1.0" encoding="UTF-8" ?>
+      <messages><messa
+      XML
+      
+    result = job app
+    
+    assert_equal :error_processing_messages, result
+    assert_last_id app, 'lastetag'
+  end
+  
   
   private
   
@@ -46,7 +166,7 @@ include Net
   end
   
   def setup_app(cfg = {})
-    mock_app_with_interface'myid', 'app', 'pass', 'qst', 
+    create_app_with_interface 'app', 'pass', 'qst', 
       { :last_ao_guid => nil, 
         :url => 'http://example.com', 
         :cred_user => 'theuser', 
@@ -54,7 +174,7 @@ include Net
   end
   
   def setup_app_unauth(cfg = {})
-    mock_app_with_interface'myid', 'app', 'pass', 'qst', 
+    create_app_with_interface  'app', 'pass', 'qst', 
       { :last_ao_guid => nil, 
         :url => 'http://example.com' }.merge(cfg)
   end
@@ -77,15 +197,16 @@ include Net
       :get_response => nil,
       :url_host => 'example.com',
       :url_port => 80,
-      :url_path => 'outgoing',
+      :url_path => 'outgoing?max=10',
       :etag => nil,
       :headers => nil
     }.merge(opts)
     
     if cfg[:expects_get]
       cfg[:get_body] ||= AOMessage.write_xml(cfg[:get_msgs]) unless cfg[:not_modified] 
-      cfg[:get_response] ||= cfg[:not_modified] ? mock_http_failure(304, 'Not modified') : mock_http_success_body(cfg[:get_body])
-      cfg[:headers] ||= { 'http_if_none_match' => cfg[:etag] } unless cfg[:etag].nil?
+      cfg[:get_response] ||= cfg[:not_modified] ? mock_http_failure('304', 'Not modified') : mock_http_success_body(cfg[:get_body])
+      cfg[:headers] ||= { 'HTTP_IF_NONE_MATCH' => cfg[:etag] } unless cfg[:etag].nil?
+      cfg[:headers] ||= {}
     end
     
     http = mock_http(cfg[:url_host], cfg[:url_port], cfg[:expects_init])
@@ -95,21 +216,46 @@ include Net
     http
   end
   
+  def assert_sample_messages app, range
+    range.each do |i| 
+      msg = AOMessage.find_by_guid "someguid #{i}"
+      assert_not_nil msg, "message #{i} is nil"
+      assert_deserialized_msg msg, app, i
+      assert_equal app.id, msg.application_id
+    end
+  end
+  
   def sample_messages app, range 
     msgs = []
     range.each do |i| 
       msg = AOMessage.new
       fill_msg msg, app, i, "protocol"
-      app.expect(:route).with() { |m| 
-        m.guid == msg.guid and
-        m.from == msg.from and
-        m.to == msg.to and
-        m.body == msg.subject_and_body and
-        m.timestamp == msg.timestamp
-      }
+#      app.expects(:route).with() { |m| 
+#        m.guid == msg.guid and
+#        m.from == msg.from and
+#        m.to == msg.to and
+#        m.body == msg.subject_and_body and
+#        m.timestamp == msg.timestamp
+#      } if expect_route
       msgs << msg
     end
     msgs
+  end
+  
+  class CallbackJob < PullQstMessageJob
+    def initialize(app_id, block)
+      super app_id
+      @block = block
+    end
+    def perform_batch
+      @block.call
+      super
+    end
+  end
+  
+  def job_with_callback(app, &block)
+    j = CallbackJob.new app.id, block
+    j.perform
   end
   
   def job(app)

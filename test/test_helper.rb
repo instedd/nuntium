@@ -83,15 +83,6 @@ class ActiveSupport::TestCase
     http
   end
 
-  # Mocks an app with a specific interface and configuration
-  def mock_app_with_interface(app_id, app_name, app_pass, interface, cfg)
-    app = mock('app') do
-      stubs(:id => app_id, :name => app_name, :password => app_pass, :interface => interface, :configuration => cfg)
-    end
-    Application.expects(:find_by_id).with(app_id).returns(app)
-    app
-  end
-
   # Creates an app with a specific interface and configuration
   def create_app_with_interface(app_name, app_pass, interface, cfg)
     app = Application.create(:name => app_name, :password => app_pass, :interface => interface)
@@ -198,6 +189,15 @@ class ActiveSupport::TestCase
     assert_equal 'queued', msg.state, 'message status'
   end
   
+  # Asserts all values for a message constructed with new or fill that was deserialized
+  def assert_deserialized_msg(msg, app, i, protocol = 'protocol')
+    assert_equal "Subject of the message #{i} - Body of the message #{i}", msg.subject_and_body, 'message subject and body'
+    assert_equal "Someone #{i}", msg.from, 'message from'
+    assert_equal protocol + "://Someone else #{i}", msg.to, 'message to' 
+    assert_equal "someguid #{i}", msg.guid, 'message guid' 
+    assert_equal time_for_msg(i), msg.timestamp, 'message timestamp'
+  end
+  
   # Given an xml document string, asserts all values for a message constructed with new or fill
   def assert_xml_msgs(xml_txt, rng, protocol = 'protocol')
     rng = (rng...rng) if not rng.respond_to? :each
@@ -206,11 +206,7 @@ class ActiveSupport::TestCase
     base = rng.to_a[0]
     rng.each do |i|
       msg = msgs[i-base]
-      assert_equal "Subject of the message #{i} - Body of the message #{i}", msg.subject_and_body, 'message subject and body'
-      assert_equal "Someone #{i}", msg.from, 'message from'
-      assert_equal protocol + "://Someone else #{i}", msg.to, 'message to' 
-      assert_equal "someguid #{i}", msg.guid, 'message guid' 
-      assert_equal time_for_msg(i), msg.timestamp, 'message timestamp' 
+      assert_deserialized_msg(msg, app, i, protocol)
     end
   end
   

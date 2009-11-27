@@ -41,7 +41,7 @@ class PullQstMessageJob
       app.logger.no_new_messages
       return :success
     elsif response.code[0,1] != "2" # not success
-      app.logger.error_pulling_messages response.message
+      app.logger.error_pulling_msgs response.message
       return :error_pulling_messages
     end
     
@@ -58,7 +58,7 @@ class PullQstMessageJob
       end
     rescue => e
       # On error, save last processed ok and quit
-      app.logger.error_processing_messages e.to_s
+      app.logger.error_processing_msgs e.to_s
       app.set_last_ao_guid(last_new_id) unless last_new_id.nil?
       return :error_processing_messages
     else

@@ -33,11 +33,15 @@ class Application < ActiveRecord::Base
       @outgoing_channels = self.channels.all(:conditions => ['direction = ? OR direction = ?', Channel::Outgoing, Channel::Both])
     end
     
+    # Fill msg missing fields
+    msg.application_id ||= self.id
+    msg.timestamp ||= Time.now.utc
+    
     # Find protocol of message (based on "to" field)
     protocol = msg.to.protocol
     if protocol.nil?
       msg.state = 'error'
-      msg.save
+      msg.save!
       logger.protocol_not_found_for msg
       return
     end
@@ -47,14 +51,14 @@ class Application < ActiveRecord::Base
     
     if channels.empty?
       msg.state = 'error'
-      msg.save
+      msg.save!
       logger.no_channel_found_for protocol, msg
       return
     end
 
     # Now save the message
     msg.state = 'queued'
-    msg.save
+    msg.save!
     
     if channels.length > 1
       logger.more_than_one_channel_found_for protocol, msg
