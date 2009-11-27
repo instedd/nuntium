@@ -8,8 +8,6 @@ class PushQstMessageJobTest < ActiveSupport::TestCase
 include Mocha::API
 include Net
   
-  @separate_msg_times_by_year = false
-  
   def test_perform_first_run
     app = setup_app
     msgs = new_at_message app, (0..2)
@@ -325,7 +323,7 @@ include Net
     http.expects(:head).with(cfg[:url_path]).returns(cfg[:head_response]) if cfg[:expects_head]
     http.expects(:post).with() { |url, data|      
       assert_equal cfg[:url_path], url
-      assert_xml_msgs data, cfg[:msgs_posted]
+      assert_xml_msgs data, app, cfg[:msgs_posted]
     }.returns(cfg[:post_response]) if cfg[:expects_post]
     http
   end

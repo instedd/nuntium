@@ -43,7 +43,7 @@ class Application < ActiveRecord::Base
       msg.state = 'error'
       msg.save!
       logger.protocol_not_found_for msg
-      return
+      return true
     end
     
     # Find channel that handles that protocol
@@ -53,7 +53,7 @@ class Application < ActiveRecord::Base
       msg.state = 'error'
       msg.save!
       logger.no_channel_found_for protocol, msg
-      return
+      return true
     end
 
     # Now save the message
@@ -66,6 +66,12 @@ class Application < ActiveRecord::Base
     
     # Let the channel handle the message
     channels[0].handle msg
+    true
+    
+  rescue => e
+    # Log any errors and return false
+    logger.error_routing_msg msg, e
+    return false
   end
   
   def logger

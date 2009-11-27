@@ -28,6 +28,10 @@ class ApplicationLogger
     error(:message => 'No url found in application configuration for pushing/pulling messages')
   end
 
+  def error_routing_msg(ao_msg, e)
+    error(:message => "Error routing message '#{e.to_s}'", :ao_message_id => ao_msg.id)
+  end
+
   def error_obtaining_last_id(message)
     error(:message => "Error obtaining last id from server: '#{message}'")
   end

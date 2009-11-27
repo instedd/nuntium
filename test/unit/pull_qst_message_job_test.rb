@@ -8,8 +8,6 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
 include Mocha::API
 include Net
   
-  @separate_msg_times_by_year = false
-  
   def test_perform_first_run
     app = setup_app
     msgs = sample_messages app, (3..8)
@@ -157,7 +155,6 @@ include Net
     assert_last_id app, 'lastetag'
   end
   
-  
   private
   
   def assert_last_id(app, last_id)
@@ -230,13 +227,6 @@ include Net
     range.each do |i| 
       msg = AOMessage.new
       fill_msg msg, app, i, "protocol"
-#      app.expects(:route).with() { |m| 
-#        m.guid == msg.guid and
-#        m.from == msg.from and
-#        m.to == msg.to and
-#        m.body == msg.subject_and_body and
-#        m.timestamp == msg.timestamp
-#      } if expect_route
       msgs << msg
     end
     msgs

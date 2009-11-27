@@ -138,7 +138,7 @@ class ActiveSupport::TestCase
   end
   
   # Creates an AOMessage that belongs to app and has values according to i
-  def new_ao_message(app, i, protocol = 'protocol')
+  def new_ao_message(app, i, protocol = 'protocol', state = 'queued', tries = 0)
     new_message app, i, AOMessage, protocol, state, tries
   end
   
@@ -155,12 +155,9 @@ class ActiveSupport::TestCase
     msg.tries = tries
   end
   
-  # Policy for generating dates
-  @separate_msg_times_by_year = true
-  
   # Returns a specific time for a message with index i
   def time_for_msg(i)
-    if @separate_msg_times_by_year then Time.parse('Tue, 03 Jun #{2003 + i} 09:39:21 GMT') else Time.at(946702800 + 86400 * (i+1)).getgm end
+      Time.at(946702800 + 86400 * (i+1)).getgm 
   end
   
   # Given a message id, checks that message in the db has the specified state and tries
@@ -199,7 +196,7 @@ class ActiveSupport::TestCase
   end
   
   # Given an xml document string, asserts all values for a message constructed with new or fill
-  def assert_xml_msgs(xml_txt, rng, protocol = 'protocol')
+  def assert_xml_msgs(xml_txt, app, rng, protocol = 'protocol')
     rng = (rng...rng) if not rng.respond_to? :each
     msgs = ATMessage.parse_xml(xml_txt)
     assert_equal rng.to_a.size, msgs.size, 'messages count does not match range' 
