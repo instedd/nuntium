@@ -10,16 +10,21 @@
 <% else %>
   <div style="padding-left:20px">
   
-  <div><b>Via <a href="http://en.wikipedia.org/wiki/RSS" target="_blank">RSS</a></b></div>
-  Use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Http Basic Authentication</a> with application credentials.
-  
-  <ul>
-    <li><span style="font-family:monospace">POST <%= url_for :controller => :rss, :action => :create %></span>: 
-      create Application Originated Messages</li>
-    <li><span style="font-family:monospace">GET <%= url_for :controller => :rss, :action => :index %></span>:
-      read Application Terminated Messages</li>
-  </ul>
-  
+  <%
+  if @application.interface == 'rss'
+    %>
+    <div><b>Via <a href="http://en.wikipedia.org/wiki/RSS" target="_blank">RSS</a></b></div>
+    Use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Http Basic Authentication</a> with application credentials.
+    
+    <ul>
+      <li><span style="font-family:monospace">POST <%= url_for :controller => :rss, :action => :create %></span>: 
+        create Application Originated Messages</li>
+      <li><span style="font-family:monospace">GET <%= url_for :controller => :rss, :action => :index %></span>:
+        read Application Terminated Messages</li>
+    </ul>
+    <%
+  end
+  %>
   <% if !@channels.select {|c| c.kind == 'qst'}.empty? %>
     <div><b>Via <a href="http://code.google.com/p/geochat/wiki/QueueStateTransfer" target="_blank">QueueStateTransfer</a></b></div>
     Use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Http Basic Authentication</a> with channel credentials.
