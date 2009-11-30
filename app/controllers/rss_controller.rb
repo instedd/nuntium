@@ -98,7 +98,7 @@ class RssController < ApplicationController
   
   def authenticate
     authenticate_or_request_with_http_basic do |username, password|
-      @application = Application.find_by_name username
+      @application = Application.find_by_name_and_interface username, 'rss'
       if !@application.nil?
         @application.authenticate password
       else

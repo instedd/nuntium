@@ -29,7 +29,7 @@ class Search < Hash
         # Check key:"value"
         value = s.scan(/".+?"/)
         if value.nil?
-          value = s.scan(/\w+/)
+          value = s.scan(/(\S)+/)
         else
           value = value[1...-1]
         end

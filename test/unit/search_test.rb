@@ -48,6 +48,12 @@ class SearchTest < ActiveSupport::TestCase
     assert_equal 'more than : one word', s[:key]
   end
   
+  test "key value with colon" do
+    s = Search.new('key:something:else')
+    assert_nil s.search
+    assert_equal 'something:else', s[:key]
+  end
+  
   test "quotes" do
     s = Search.new('"more than one word"')
     assert_equal '"more than one word"', s.search
