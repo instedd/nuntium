@@ -85,6 +85,7 @@ class Application < ActiveRecord::Base
     self.salt = nil
     self.password = nil
     self.password_confirmation = nil
+    self.configuration[:cred_pass] = nil unless self.configuration.nil?
   end
   
   def set_last_at_guid(value)

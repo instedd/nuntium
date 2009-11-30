@@ -37,6 +37,17 @@ class ActiveSupport::TestCase
     'Basic ' + Base64.encode64(user + ':' + pass)
   end
   
+  def mock_http_request(kind, path, name='request', user=nil, pass=nil, headers={})
+    request = mock(name) do
+      expects(:basic_auth).with(user, pass) unless user.nil? or pass.nil?
+      headers.each_pair do |k,v|
+        expects(:[]=).with(k,v)
+      end  
+    end
+    kind.expects(:new).with(path).returns(request)
+    request
+  end
+  
   # Returns a new mock for a failed http response with the specified headers and code
   def mock_http_failure(code = '400', message = 'Mocked error message', headers = {})
     require 'net/http'

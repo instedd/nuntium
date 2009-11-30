@@ -308,8 +308,8 @@ include Net
       :auth => true, 
       :expects_head => true,  
       :expects_post => true,  
-      :msgs_posted => (0..0),
       :expects_init => true,
+      :msgs_posted => (0..0),
       :url_host => 'example.com',
       :url_port => 80,
       :url_path => 'incoming',
@@ -318,13 +318,25 @@ include Net
     cfg[:head_response] = mock_http_success('etag' => cfg[:head_etag]) if cfg[:head_response].nil?
     cfg[:post_response] = mock_http_success('etag' => cfg[:post_etag]) if cfg[:post_response].nil?
     
+    user = cfg[:auth] ? 'theuser' : nil
+    pass = cfg[:auth] ? 'thepass' : nil
+    
     http = mock_http(cfg[:url_host], cfg[:url_port], cfg[:expects_init])
-    http.expects(:basic_auth).with('theuser', 'thepass') if cfg[:auth]
-    http.expects(:head).with(cfg[:url_path]).returns(cfg[:head_response]) if cfg[:expects_head]
-    http.expects(:post).with() { |url, data|      
-      assert_equal cfg[:url_path], url
-      assert_xml_msgs data, app, cfg[:msgs_posted]
-    }.returns(cfg[:post_response]) if cfg[:expects_post]
+    reqs = states('reqs')
+    
+    if cfg[:expects_head] and cfg[:expects_init]
+      head = mock_http_request(Net::HTTP::Head, cfg[:url_path], 'head', user, pass) 
+      http.expects(:request).with(head).returns(cfg[:head_response]).then(reqs.is('has_last_id'))
+    else
+      reqs.become('has_last_id')
+    end
+    
+    if cfg[:expects_post] and cfg[:expects_init]
+      post = mock_http_request(Net::HTTP::Post, cfg[:url_path], 'post', user, pass, { 'Content-Type' => 'text/xml' })
+      http.expects(:request).with(post, anything).returns(cfg[:post_response]).when(reqs.is('has_last_id'))
+      # TODO: Must assert messages using custom parameter matcher (with block fails because of previous head invocation)
+    end
+
     http
   end
   

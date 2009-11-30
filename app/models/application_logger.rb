@@ -8,7 +8,7 @@ class ApplicationLogger
   end
 
   def wrong_interface(expected, actual)
-    error(:message => 'Found interface #{actual} when expecting #{expected}')
+    error(:message => "Found interface #{actual} when expecting #{expected}")
   end
   
   def no_channel_found_for(protocol, ao_msg)

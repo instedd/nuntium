@@ -202,13 +202,18 @@ include Net
     if cfg[:expects_get]
       cfg[:get_body] ||= AOMessage.write_xml(cfg[:get_msgs]) unless cfg[:not_modified] 
       cfg[:get_response] ||= cfg[:not_modified] ? mock_http_failure('304', 'Not modified') : mock_http_success_body(cfg[:get_body])
-      cfg[:headers] ||= { 'HTTP_IF_NONE_MATCH' => cfg[:etag] } unless cfg[:etag].nil?
+      cfg[:headers] ||= { 'if-none-match' => cfg[:etag] } unless cfg[:etag].nil?
       cfg[:headers] ||= {}
     end
     
     http = mock_http(cfg[:url_host], cfg[:url_port], cfg[:expects_init])
-    http.expects(:basic_auth).with('theuser', 'thepass') if cfg[:auth]
-    http.expects(:get).with(cfg[:url_path], cfg[:headers]).returns(cfg[:get_response]) if cfg[:expects_get]
+    
+    if cfg[:expects_get] and cfg[:expects_init]
+      user = cfg[:auth] ? 'theuser' : nil
+      pass = cfg[:auth] ? 'thepass' : nil
+      get = mock_http_request(Net::HTTP::Get, cfg[:url_path], user, pass, cfg[:headers])
+      http.expects(:request).with(get).returns(cfg[:get_response])
+    end
     
     http
   end
