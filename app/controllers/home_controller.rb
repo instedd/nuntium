@@ -166,12 +166,14 @@ class HomeController < ApplicationController
     existing_app.max_tries = app[:max_tries]
     existing_app.interface = app[:interface]
     
-    if !existing_app.configuration
-      existing_app.configuration = { }
-    end
+    existing_app.configuration ||= {}
     
-    url = app[:configuration][:url] if app[:configuration]
-    existing_app.configuration.update({:url => url})
+    if not app[:configuration].nil?
+      cfg = app[:configuration]
+      existing_app.configuration.update({:url => cfg[:url]}) 
+      existing_app.configuration.update({:cred_user => cfg[:cred_user]}) 
+      existing_app.configuration.update({:cred_pass => cfg[:cred_pass]}) unless (cfg[:cred_pass].nil? or cfg[:cred_pass].chomp.empty?) and not (cfg[:cred_user].nil? or cfg[:cred_user].chomp.empty?)  
+    end
       
     if !app[:password].chomp.empty?
       existing_app.salt = nil

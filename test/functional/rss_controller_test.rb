@@ -21,7 +21,7 @@ class RssControllerTest < ActionController::TestCase
     assert_equal "Someone", msg.from
     assert_equal "protocol://Someone else", msg.to
     assert_equal "someguid", msg.guid
-    assert_equal Time.parse("Tue, 03 Jun 2003 09:39:21 GMT"), msg.timestamp
+    assert_equal time_for_msg(0) , msg.timestamp
     assert_equal 'queued', msg.state
   end
   
@@ -225,8 +225,8 @@ class RssControllerTest < ActionController::TestCase
     
     assert_select "pubDate" do |es|
       assert_equal 2, es.length
-      assert_select es[0], "pubDate", "Tue, 03 Jun 2003 09:39:21 +0000"
-      assert_select es[1], "pubDate", "Thu, 03 Jun 2004 09:39:21 +0000"
+      assert_select es[0], "pubDate", 'Sun, 02 Jan 2000 05:00:00 +0000'
+      assert_select es[1], "pubDate", 'Mon, 03 Jan 2000 05:00:00 +0000'
     end
   end
   
@@ -236,7 +236,7 @@ class RssControllerTest < ActionController::TestCase
     new_at_message(app, 1)
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
-    @request.env["HTTP_IF_MODIFIED_SINCE"] = "Thu, 03 Jun 2004 09:39:21 GMT"
+    @request.env["HTTP_IF_MODIFIED_SINCE"] = time_for_msg(1).to_s
     get :index
     
     assert_response :not_modified
@@ -248,7 +248,7 @@ class RssControllerTest < ActionController::TestCase
     msg = new_at_message(app, 1)
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
-    @request.env["HTTP_IF_MODIFIED_SINCE"] = "Tue, 03 Jun 2003 09:39:21 GMT"
+    @request.env["HTTP_IF_MODIFIED_SINCE"] = time_for_msg(0).to_s
     get :index
     
     assert_select "title", "Outbox"
@@ -266,7 +266,7 @@ class RssControllerTest < ActionController::TestCase
     msg_1 = new_at_message(app, 1)
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
-    @request.env["HTTP_IF_MODIFIED_SINCE"] = "Tue, 03 Jun 2003 09:39:21 GMT"
+    @request.env["HTTP_IF_MODIFIED_SINCE"] = time_for_msg(0).to_s
     
     # 1st try
     get :index
@@ -380,7 +380,7 @@ class RssControllerTest < ActionController::TestCase
   
   # Utility methods follow
   def new_rss_feed(to)
-    str = <<-eos
+    <<-eos
       <?xml version="1.0" encoding="UTF-8"?>
       <rss version="2.0">
         <channel>
@@ -389,7 +389,7 @@ class RssControllerTest < ActionController::TestCase
             <description>Body of the message</description>
             <author>Someone</author>
             <to>#{to}</to>
-            <pubDate>Tue, 03 Jun 2003 09:39:21 GMT</pubDate>
+            <pubDate>Sun Jan 02 05:00:00 UTC 2000</pubDate>
             <guid>someguid</guid>
           </item>
         </channel>

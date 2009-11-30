@@ -33,13 +33,17 @@ class Application < ActiveRecord::Base
       @outgoing_channels = self.channels.all(:conditions => ['direction = ? OR direction = ?', Channel::Outgoing, Channel::Both])
     end
     
+    # Fill msg missing fields
+    msg.application_id ||= self.id
+    msg.timestamp ||= Time.now.utc
+    
     # Find protocol of message (based on "to" field)
     protocol = msg.to.protocol
     if protocol.nil?
       msg.state = 'error'
-      msg.save
+      msg.save!
       logger.protocol_not_found_for msg
-      return
+      return true
     end
     
     # Find channel that handles that protocol
@@ -47,14 +51,14 @@ class Application < ActiveRecord::Base
     
     if channels.empty?
       msg.state = 'error'
-      msg.save
+      msg.save!
       logger.no_channel_found_for protocol, msg
-      return
+      return true
     end
 
     # Now save the message
     msg.state = 'queued'
-    msg.save
+    msg.save!
     
     if channels.length > 1
       logger.more_than_one_channel_found_for protocol, msg
@@ -62,6 +66,12 @@ class Application < ActiveRecord::Base
     
     # Let the channel handle the message
     channels[0].handle msg
+    true
+    
+  rescue => e
+    # Log any errors and return false
+    logger.error_routing_msg msg, e
+    return false
   end
   
   def logger
@@ -75,14 +85,25 @@ class Application < ActiveRecord::Base
     self.salt = nil
     self.password = nil
     self.password_confirmation = nil
+    self.configuration[:cred_pass] = nil unless self.configuration.nil?
   end
   
-  def set_last_ok(value)
+  def set_last_at_guid(value)
     if self.configuration.nil?
-      self.configuration = { :last_ok => value }
+      self.configuration = { :last_at_guid => value }
       self.save
-    elsif self.configuration[:last_ok] != value
-      self.configuration[:last_ok] = value
+    elsif self.configuration[:last_at_guid] != value
+      self.configuration[:last_at_guid] = value
+      self.save
+    end
+  end
+  
+  def set_last_ao_guid(value)
+    if self.configuration.nil?
+      self.configuration = { :last_ao_guid => value }
+      self.save
+    elsif self.configuration[:last_ao_guid] != value
+      self.configuration[:last_ao_guid] = value
       self.save
     end
   end

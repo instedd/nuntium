@@ -12,9 +12,18 @@
   <%= f.radio_button :interface, 'qst', :onclick => "$('application_configuration_url').disabled=false;" %>QST<br/>
   <div>
   	<% f.fields_for :configuration do |c| %>
-    <p>
+    <h5>Configuration:</h5>
+	<p>
     <%= c.label :url %><br/>
-    <%= c.text_field :url, :value => @application.configuration[:url], :disabled => @application.interface == 'rss' %>
+    <%= c.text_field :url, :value => @application.configuration[:url], :disabled => @application.interface != 'qst' %>
+    </p>
+    <p>
+    <%= c.label :cred_user %><br/>
+    <%= c.text_field :cred_user, :value => @application.configuration[:cred_user], :disabled => @application.interface != 'qst' %>
+    </p>
+    <p>
+    <%= c.label :cred_pass %><br/>
+    <%= c.password_field :cred_pass, :value => @application.configuration[:cred_pass], :disabled => @application.interface != 'qst', :autocomplete => :off %>
     </p>
   <% end %>
   </div>
