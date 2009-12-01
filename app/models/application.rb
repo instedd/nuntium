@@ -4,6 +4,7 @@ class Application < ActiveRecord::Base
   has_many :channels
   has_many :ao_messages
   has_many :at_messages
+  has_many :cron_tasks, :as => :parent
   
   serialize :configuration, Hash
   

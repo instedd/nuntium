@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091118175955) do
+ActiveRecord::Schema.define(:version => 20091201150358) do
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -72,6 +72,16 @@ ActiveRecord::Schema.define(:version => 20091118175955) do
     t.string   "configuration"
     t.string   "protocol"
     t.integer  "direction"
+  end
+
+  create_table "cron_tasks", :force => true do |t|
+    t.integer  "interval"
+    t.datetime "next_run"
+    t.datetime "last_run"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "parent_id"
+    t.string   "parent_type", :limit => 60
   end
 
   create_table "delayed_jobs", :force => true do |t|
