@@ -134,7 +134,7 @@ class HomeController < ApplicationController
       begin
         after = Time.parse(search[:after])
         conds[0] += ' AND timestamp >= :after'
-        conds[1][:after] = search[:after]
+        conds[1][:after] = after
       rescue
       end
     end
@@ -142,7 +142,7 @@ class HomeController < ApplicationController
       begin
         before = Time.parse(search[:before])
         conds[0] += ' AND timestamp <= :before'
-        conds[1][:before] = search[:before]
+        conds[1][:before] = before
       rescue
       end
     end
