@@ -1,14 +1,13 @@
 require 'daemon_ctl'
 
-
 class DelayedJobDaemonController
 
   extend DaemonController
 
-  @service_name = 'NuntiumWorker'
-  @service_displayname = 'Nuntium Worker'
-  @service_file = 'delayed_job_daemon.rb'
-  @service_description = 'Runs nuntium jobs in a delayed queue'
+  @service_name = 'NuntiumCron'
+  @service_displayname = 'Nuntium Cron'
+  @service_file = 'cron_daemon.rb'
+  @service_description = 'Cron for nuntium scheduled tasks'
   @service_parameters = ARGV[1] || 'production'
   
 end

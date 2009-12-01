@@ -1,6 +1,8 @@
 # Initialize Ruby on Rails
 begin
-  ENV["RAILS_ENV"] = "production"
+  LOG_FILE = 'C:\\ruby.log'
+  ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
+  
   require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
   require(File.join(RAILS_ROOT, 'config', 'environment'))
 
@@ -59,7 +61,6 @@ begin
   
   DelayedJobDaemon.mainloop
 rescue => err
-   # File.open("C:\\temp_ruby.log", 'a'){ |fh| fh.puts 'Daemon failure: ' + err }
    File.open(LOG_FILE, 'a'){ |fh| fh.puts 'Daemon failure: ' + err }
    raise
 end
