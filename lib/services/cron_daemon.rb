@@ -13,7 +13,7 @@ begin
   # To a module so we can test it in isolation
   module CronDaemonRun
     def cron_run
-      logger.info "Running"
+      logger.info "Running" if defined?(logger)
     end
   end
   

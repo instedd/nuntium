@@ -211,7 +211,7 @@ include Net
     if cfg[:expects_get] and cfg[:expects_init]
       user = cfg[:auth] ? 'theuser' : nil
       pass = cfg[:auth] ? 'thepass' : nil
-      get = mock_http_request(Net::HTTP::Get, cfg[:url_path], user, pass, cfg[:headers])
+      get = mock_http_request(Net::HTTP::Get, cfg[:url_path], 'get', user, pass, cfg[:headers])
       http.expects(:request).with(get).returns(cfg[:get_response])
     end
     

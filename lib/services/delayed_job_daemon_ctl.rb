@@ -9,7 +9,7 @@ class DelayedJobDaemonController
   @service_displayname = 'Nuntium Worker'
   @service_file = 'delayed_job_daemon.rb'
   @service_description = 'Runs nuntium jobs in a delayed queue'
-  @service_parameters = ARGV[1] || 'production'
+  @service_parameters = ARGV[1] || ''
   
 end
 
