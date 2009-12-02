@@ -83,9 +83,13 @@ class ActiveSupport::TestCase
 
   # Returns a new Net:HTTP mocked object and applies all expectations to it
   # Will be returned when the user creates a new instance
-  def mock_http(host, port='80', expected=true, &block)
+  def mock_http(host, port='80', expected=true, ssl=false, &block)
     require 'net/http'
     http = mock('http', &block) 
+    if ssl
+      http.expects(:use_ssl=).with(true) 
+      http.expects(:verify_mode=).with(OpenSSL::SSL::VERIFY_NONE) 
+    end
     if expected
       Net::HTTP.expects(:new).with(host, port).returns(http)
     else
@@ -169,6 +173,16 @@ class ActiveSupport::TestCase
   # Returns a specific time for a message with index i
   def time_for_msg(i)
       Time.at(946702800 + 86400 * (i+1)).getgm 
+  end
+  
+  # Sets current time as a stub on Time.now
+  def set_current_time(time=Time.at(946702800).utc)
+    Time.stubs(:now).returns(time)
+  end
+  
+  # Returns base time to be used for tests in utc
+  def base_time
+    return Time.at(946702800).utc
   end
   
   # Given a message id, checks that message in the db has the specified state and tries

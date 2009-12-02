@@ -99,6 +99,10 @@ class PullQstMessageJob
     begin
       uri = URI.parse(app.configuration[:url]) 
       http = Net::HTTP.new(uri.host, uri.port)
+      if uri.scheme == 'https'
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      end
     rescue => e
       app.logger.error_initializing_http e
       app.set_last_at_guid nil
