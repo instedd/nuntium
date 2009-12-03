@@ -4,13 +4,13 @@ class Channel < ActiveRecord::Base
   belongs_to :application
   
   has_many :qst_outgoing_messages
-  has_many :cron_tasks, :as => :parent
+  has_many :cron_tasks, :as => :parent, :dependent => :delete_all
   
   serialize :configuration, Hash
   
   validates_presence_of :name, :protocol, :kind, :application
+  validates_uniqueness_of :name, :scope => :application_id, :message => 'Name has already been used by another channel in the application'
   validate :handler_check_valid
-  validate :name_is_unique_in_application
   
   before_save :handler_before_save
   
@@ -78,12 +78,4 @@ class Channel < ActiveRecord::Base
     end
   end
   
-  # TODO: Use validate uniquness toghether with scope
-  def name_is_unique_in_application
-    if self.new_record?
-      other_channel = Channel.first(:conditions => ['application_id = ? AND name = ?', self.application_id, self.name])
-      errors.add(:name, "has already been taken") if
-        !other_channel.nil?
-    end
-  end
 end
