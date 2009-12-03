@@ -45,4 +45,9 @@ class Pop3ChannelHandler < ChannelHandler
     c = @channel.configuration
     "#{c[:user]}@#{c[:host]}:#{c[:port]}"
   end
+
+  def after_create
+    @channel.create_task('pop3-receive', 30, ReceivePop3MessageJob.new(@channel.application_id, @channel.id))
+  end
+  
 end

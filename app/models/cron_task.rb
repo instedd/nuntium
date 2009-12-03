@@ -57,4 +57,24 @@ class CronTask < ActiveRecord::Base
     tasks.each { |t| t.update_attribute(:next_run, Time.now.utc + t.interval) } 
   end
   
+  # Utilities module to be included by all users of tasks
+  module CronTaskOwner
+    
+    # Creates a task with the specified name if it does not exist
+    def create_task(name, interval, handle)
+      if self.cron_tasks.find_by_name(name).nil? 
+        task = CronTask.new :parent => self, :interval => interval, :name => name
+        task.set_handler handle
+        return task.save
+      end
+      true
+    end
+  
+    # Deletes a task with the specified name if it exists
+    def drop_task(name)
+      task = self.cron_tasks.find_by_name(name)
+      task.destroy if not task.nil?
+    end  
+  end
+  
 end
