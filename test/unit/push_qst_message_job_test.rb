@@ -61,6 +61,27 @@ include Net
     assert_msgs_states(msgs, 'confirmed', 1)
   end
   
+  def test_perform_run_with_last_id_complex_ssl_uri
+    app = setup_app :url => 'https://geochat-stg.instedd.org/gateway/gateway.svc'
+    msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
+    msgs += new_at_message app, (3..5), 'protocol', 'queued'
+    app.set_last_at_guid(msgs[2].guid)
+    
+    setup_http app, :msgs_posted => (3..5), 
+      :expects_head => false, 
+      :post_etag => msgs[5].guid,
+      :url_port => 443,
+      :url_host => 'geochat-stg.instedd.org',
+      :url_path => '/gateway/gateway.svc/incoming',
+      :use_ssl => true
+
+    result = job app
+        
+    assert_equal :success, result
+    assert_last_id app, msgs[5].guid
+    assert_msgs_states(msgs, 'confirmed', 1)
+  end
+  
   def test_perform_run_with_last_id_on_ssl
     app = setup_app :url => 'https://example.com'
     msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
