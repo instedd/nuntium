@@ -13,20 +13,6 @@ begin
   # Extracted to a module so we can test it in isolation
   module CronDaemonRun
     
-    # Descriptor of a cron task to be executed by delayed job
-    class CronTaskDescriptor
-      attr_accessor :task_id
-
-      def initialize(task_id)
-        @task_id = task_id
-      end
-      
-      def perform
-        task = CronTask.find_by_id :task_id
-        task.perform unless task.nil?
-      end
-    end
-    
     # Gets tasks to run, enqueues a job for each of them and sets next run
     def cron_run
       to_run = CronTask.to_run

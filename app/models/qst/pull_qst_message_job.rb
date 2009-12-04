@@ -22,8 +22,6 @@ class PullQstMessageJob
     err = validate_app(app)
     return err unless err.nil?
 
-    app.logger.starting_qst_push app.configuration[:url]
-    
     # Create http requestor and uri
     http, path = create_http app, 'outgoing' 
     if http.nil? then return :error_initializing_http end
@@ -33,7 +31,9 @@ class PullQstMessageJob
     response = request_messages(app, http, path) 
     
     # Handle different responses
-    if response.code == "304" # not modified
+    if response.nil?
+      return :error_pulling_messages
+    elsif response.code == "304" # not modified
       app.logger.no_new_messages
       return :success
     elsif response.code[0,1] != "2" # not success
@@ -75,6 +75,9 @@ class PullQstMessageJob
     request.basic_auth(user, pass) unless user.nil? or pass.nil?
     request['if-none-match'] = last_id unless last_id.nil?
     http.request request
+  rescue => err
+    app.logger.error :message => "Error getting messages from the server: " + err.to_s
+    return nil
   end
   
   # Validates application for QST

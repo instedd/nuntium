@@ -27,7 +27,7 @@ class TwitterChannelHandler < ChannelHandler
   end
   
   def after_create
-    @channel.create_task('twitter-receive', 60, ReceiveTwitterMessageJob.new(@channel.application_id, @channel.id))
+    @channel.create_task('twitter-receive', TWITTER_RECEIVE_INTERVAL, ReceiveTwitterMessageJob.new(@channel.application_id, @channel.id))
   end
   
 end

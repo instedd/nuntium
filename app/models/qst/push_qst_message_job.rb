@@ -22,8 +22,6 @@ class PushQstMessageJob
     err = validate_app(app)
     return err unless err.nil?
 
-    app.logger.starting_qst_push app.configuration[:url]
-    
     # Create http requestor and uri
     http, path = create_http app, 'incoming' 
     if http.nil? then return :error_initializing_http end 

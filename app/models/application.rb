@@ -123,12 +123,12 @@ class Application < ActiveRecord::Base
   protected
   
   # Ensures tasks for this application are correct
-  def handle_tasks
-    if self.interface_changed?
+  def handle_tasks(force = false)
+    if self.interface_changed? || force
       case self.interface
         when 'qst'
-          create_task('qst-push', 10, PushQstMessageJob.new(self.id))
-          create_task('qst-pull', 10, PullQstMessageJob.new(self.id))
+          create_task('qst-push', QST_PUSH_INTERVAL, PushQstMessageJob.new(self.id))
+          create_task('qst-pull', QST_PULL_INTERVAL, PullQstMessageJob.new(self.id))
       else
         drop_task('qst-push')
         drop_task('qst-pull')

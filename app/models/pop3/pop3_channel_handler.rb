@@ -47,7 +47,7 @@ class Pop3ChannelHandler < ChannelHandler
   end
 
   def after_create
-    @channel.create_task('pop3-receive', 30, ReceivePop3MessageJob.new(@channel.application_id, @channel.id))
+    @channel.create_task('pop3-receive', POP3_RECEIVE_INTERVAL, ReceivePop3MessageJob.new(@channel.application_id, @channel.id))
   end
   
 end

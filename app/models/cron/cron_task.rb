@@ -8,7 +8,18 @@ class CronTask < ActiveRecord::Base
   
   # Gets the job to execute on this task
   def get_handler
-    return YAML::load(self.code)
+    handler = YAML.load(self.code)
+    # If it could not be deserialized property try registering its class
+    # Constantize supposedly only converts a string into the constant, 
+    # but somehow it is allowing YAML to create the correct instance.
+    # Black magic, clearly, but it works, as black magic usually does. 
+    # Copied from Delayed::Job.
+    if handler.instance_of? YAML::Object
+      handler.class.constantize
+      handler = YAML.load(self.code)
+    end
+    
+    handler
   end
   
   # Sets the job to execute on this task
@@ -47,7 +58,7 @@ class CronTask < ActiveRecord::Base
   # Returns all tasks with next run less than current time
   def self.to_run
     return self.all(
-      :conditions => ['next_run <= ?', Time.now.utc ],
+      :conditions => ['next_run is null or next_run <= ?', Time.now.utc ],
       :order => 'next_run ASC' 
     )
   end
