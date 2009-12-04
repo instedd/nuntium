@@ -68,6 +68,21 @@ class CronTask < ActiveRecord::Base
     tasks.each { |t| t.update_attribute(:next_run, Time.now.utc + t.interval) } 
   end
   
+  # Module that includes quota handling methods
+  module QuotedTask
+    
+    @run_until = nil
+    
+    def quota=(quota)
+      @run_until = Time.now.utc + quota 
+    end
+    
+    def has_quota?
+      if not @run_until.nil? then Time.now.utc < @run_until else true end
+    end
+    
+  end
+  
   # Utilities module to be included by all users of tasks
   module CronTaskOwner
     

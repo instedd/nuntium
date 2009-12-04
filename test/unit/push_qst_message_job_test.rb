@@ -322,6 +322,49 @@ include Net
     assert_msgs_states msgs[0...105], 'confirmed', 1 
   end
   
+  def test_perform_runs_until_quota_exceeded
+    app = setup_app :max_tries => 5
+    msgs =  new_at_message app, (0...20), 'protocol', 'confirmed', 1
+    msgs += new_at_message app, (20...100), 'protocol', 'queued', 0
+    app.set_last_at_guid(msgs[19].guid)
+    
+    set_current_time
+    
+    current = 20
+    lapse = 0
+    
+    job = create_job_with_callback(app) do
+      assert current < 101
+      if current == 50
+        setup_http app,
+          :expects_post => false, 
+          :expects_head => false
+        puts "Setup null http"
+      else
+        setup_http app, 
+          :msgs_posted => (current...current+10), 
+          :expects_head => false, 
+          :post_etag => msgs[current+9].guid
+        
+        current += 10
+        lapse += 10
+        
+        set_current_time(base_time + lapse)
+        
+        puts "Time is #{Time.now.utc}" 
+        puts "Current is #{current}"
+      end
+    end
+    
+    job.quota = 25
+    
+    assert_equal :success_pending, job.perform
+    assert_last_id app, msgs[49].guid
+    assert_msgs_states msgs[0...50], 'confirmed', 1 
+    assert_msgs_states msgs[50...100], 'queued', 0
+    
+  end
+  
   private
   
   def assert_last_id(app, last_id)
@@ -406,6 +449,10 @@ include Net
       @block.call
       super
     end
+  end
+  
+  def create_job_with_callback(app, &block)
+    CallbackJob.new app.id, block
   end
   
   def job_with_callback(app, &block)

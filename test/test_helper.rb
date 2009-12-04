@@ -179,7 +179,7 @@ class ActiveSupport::TestCase
   def set_current_time(time=Time.at(946702800).utc)
     Time.stubs(:now).returns(time)
   end
-  
+    
   # Returns base time to be used for tests in utc
   def base_time
     return Time.at(946702800).utc
