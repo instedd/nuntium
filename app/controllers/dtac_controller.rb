@@ -3,8 +3,20 @@ class DtacController < ApplicationController
 
   # GET /dtac/geochat
   def index
-    #TODO: Process incoming message, convert to AT and save
     File.open('C:\\dtac-nuntium.log', 'a'){ |fh| fh.puts "#{Time.now.utc} Invoked dtac with '#{params.to_s}'" }
+  
+	msg = ATMessage.new
+    msg.application_id = 999
+    msg.from = 'sms://' + params[:MSISDN]
+    msg.to = 'sms://' + params[:SMSCODE]
+    msg.subject = params[:CONTENT]
+    msg.guid = params[:ID]
+    msg.timestamp = Time.at(params[:timestamp].to_i)
+    msg.state = 'queued'
+    msg.save!
+    
+    head :ok
+  
   end
   
   def authenticate
