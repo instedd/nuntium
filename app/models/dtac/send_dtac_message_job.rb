@@ -13,7 +13,7 @@ class SendDtacMessageJob
     host = URI::parse('https://corpsms.dtac.co.th/servlet/com.iess.socket.SmsCorplink')
     
     request = Net::HTTP::Post.new(host.path)
-    request.use_ssl = true
+    
     request.verify_mode = OpenSSL::SSL::VERIFY_NONE
     
 	#request.basic_auth 'api1610368', 'u41jjmew'
