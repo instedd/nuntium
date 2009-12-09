@@ -14,8 +14,6 @@ class SendDtacMessageJob
     
     request = Net::HTTP::Post.new(host.path)
     
-    request.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    
 	#request.basic_auth 'api1610368', 'u41jjmew'
     request.set_form_data({
 					'RefNo'=>msg.guid, 
