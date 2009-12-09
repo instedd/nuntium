@@ -14,12 +14,12 @@ class SendDtacMessageJob
 		URI.parse('http://corpsms.dtac.co.th/servlet/com.iess.socket.SmsCorplink'), {
 			'RefNo'=>msg.guid, 
 			'Msn'=>msg.to.without_protocol,
-			'Sno'=>'1677',
+			'Sno'=>config[:user],
 			'Msg'=>msg.subject_and_body,
 			'Encoding'=>245,
 			'MsgType'=>'E',
-			'User' => 'api1610368',
-			'Password' => 'u41jjmew'})
+			'User' =>  config[:user],
+			'Password' => config[:password]})
 				
     result = ''
     begin

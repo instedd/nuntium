@@ -9,7 +9,6 @@ class DtacChannelHandler < ChannelHandler
   end
   
   def info
-    # TODO: Return valid info on the channel
-    'Info on this dtac channel'
+    @channel.configuration[:user] + " / " + @channel.configuration[:sno]
   end
 end
