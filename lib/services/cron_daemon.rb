@@ -4,10 +4,7 @@ begin
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty? 
   SLEEP = 20
   
-  require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
-  require(File.join(RAILS_ROOT, 'config', 'environment'))
   require 'win32/daemon'
-  
   include Win32
   
   # Extracted to a module so we can test it in isolation
@@ -36,9 +33,17 @@ begin
   # Daemon class that will execute the loop
   class CronDaemon < Daemon
     
-    logger = RAILS_DEFAULT_LOGGER
+    def logger
+      RAILS_DEFAULT_LOGGER
+    end
     
     include CronDaemonRun
+    
+    def service_init
+      require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
+      require(File.join(RAILS_ROOT, 'config', 'environment'))
+      true  
+    end
     
     def service_main
         while running?
