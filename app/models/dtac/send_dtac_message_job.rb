@@ -14,7 +14,7 @@ class SendDtacMessageJob
 		URI.parse('http://corpsms.dtac.co.th/servlet/com.iess.socket.SmsCorplink'), {
 			'RefNo'=>msg.guid, 
 			'Msn'=>msg.to.without_protocol,
-			'Sno'=>config[:user],
+			'Sno'=>config[:sno],
 			'Msg'=>msg.subject_and_body,
 			'Encoding'=>245,
 			'MsgType'=>'E',

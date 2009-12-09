@@ -3,6 +3,8 @@ require 'guid'
 
 class ReceiveTwitterMessageJob
   attr_accessor :application_id, :channel_id
+  
+  include CronTask::QuotedTask
 
   def initialize(application_id, channel_id)
     @application_id = application_id
@@ -20,9 +22,7 @@ class ReceiveTwitterMessageJob
       download_new_messages
       follow_and_send_welcome_to_new_followers
       
-      if !@status.nil?
-        @status.save
-      end
+      @status.save unless @status.nil?
     rescue => e
       ApplicationLogger.exception_in_channel @channel, e
       raise
@@ -33,18 +33,14 @@ class ReceiveTwitterMessageJob
     query = {:page => 1}
     
     # Use last_id if available
-    if !@status.nil?
-      query[:since_id] = @status.last_id
-    end
+    query[:since_id] = @status.last_id unless @status.nil?
     
     begin
       msgs = @client.direct_messages(query)
       
       # Remember last_id
       if query[:page] == 1 && !msgs.empty?
-        if @status.nil?
-          @status = TwitterChannelStatus.new(:channel_id => @channel_id)
-        end
+        @status ||= TwitterChannelStatus.new(:channel_id => @channel_id)
         @status[:last_id] = msgs[0].id
       end
       
@@ -61,12 +57,13 @@ class ReceiveTwitterMessageJob
       end
       
       query[:page] += 1
-    end until msgs.empty?
+    end until msgs.empty? or not has_quota?
   end
   
   def follow_and_send_welcome_to_new_followers
     all_followers = []
     all_friends = []
+    return if not has_quota?
     
     # Get followers
     query = {:page => 1}
@@ -77,7 +74,8 @@ class ReceiveTwitterMessageJob
       end
       
       query[:page] += 1
-    end until followers.empty?
+    end until followers.empty? or not has_quota?
+    return if not has_quota?
     
     # Get friends
     query[:page] = 1
@@ -88,7 +86,8 @@ class ReceiveTwitterMessageJob
       end
       
       query[:page] += 1
-    end until friends.empty?
+    end until friends.empty? or not has_quota?
+    return if not has_quota?
     
     # The new followers are:
     new_followers = all_followers - all_friends
@@ -97,10 +96,8 @@ class ReceiveTwitterMessageJob
     has_welcome_message = !@config[:welcome_message].blank?
     new_followers.each do |follower|
       @client.friendship_create(follower, true)
-      
-      if has_welcome_message
-        @client.direct_message_create(follower, @config[:welcome_message])
-      end
+      @client.direct_message_create(follower, @config[:welcome_message]) if has_welcome_message
+      return if not has_quota?
     end
   end
   

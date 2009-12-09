@@ -5,6 +5,8 @@ require 'guid'
 class ReceivePop3MessageJob
   attr_accessor :application_id, :channel_id
 
+  include CronTask::QuotedTask
+
   def initialize(application_id, channel_id)
     @application_id = application_id
     @channel_id = channel_id
@@ -24,29 +26,32 @@ class ReceivePop3MessageJob
     rescue => e
       ApplicationLogger.exception_in_channel channel, e
       raise
-    else
-      pop.each_mail do |mail|
-        tmail = TMail::Mail.parse(mail.pop)
-        tmail_body = get_body tmail
-        tmail_guid = tmail.message_id.nil? ? Guid.new.to_s : tmail.message_id
-        
-        tmail.to.each do |receiver|
-          msg = ATMessage.new
-          msg.application_id = @application_id
-          msg.from = 'mailto://' + tmail.from[0]
-          msg.to = 'mailto://' + receiver
-          msg.subject = tmail.subject
-          msg.body = tmail_body
-          msg.guid = tmail_guid
-          msg.timestamp = tmail.date
-          msg.state = 'queued'
-          msg.save
-        end
-        
-        mail.delete
-      end
-      pop.finish
     end
+    
+    pop.each_mail do |mail|
+      tmail = TMail::Mail.parse(mail.pop)
+      tmail_body = get_body tmail
+      tmail_guid = tmail.message_id.nil? ? Guid.new.to_s : tmail.message_id
+      
+      tmail.to.each do |receiver|
+        msg = ATMessage.new
+        msg.application_id = @application_id
+        msg.from = 'mailto://' + tmail.from[0]
+        msg.to = 'mailto://' + receiver
+        msg.subject = tmail.subject
+        msg.body = tmail_body
+        msg.guid = tmail_guid
+        msg.timestamp = tmail.date
+        msg.state = 'queued'
+        msg.save
+      end
+      
+      mail.delete
+      break if not has_quota?
+    end
+    
+    pop.finish
+
   end
   
   def get_body(tmail)
