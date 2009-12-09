@@ -10,24 +10,17 @@ class SendDtacMessageJob
   def perform
     msg = AOMessage.find @message_id
     
-    host = URI::parse('https://corpsms.dtac.co.th/servlet/com.iess.socket.SmsCorplink')
-    
-    request = Net::HTTP::Post.new(host.path)
-    
-	#request.basic_auth 'api1610368', 'u41jjmew'
-    request.set_form_data({
-					'RefNo'=>msg.guid, 
-					'Msn'=>msg.to.without_protocol,
-					'Sno'=>'1677',
-					'Msg'=>msg.subject_and_body,
-					'Encoding'=>245,
-					'MsgType'=>'E',
-					'User' => 'api1610368',
-					'Password' => 'u41jjmew'
-				}, ';')
-	
-    response = Net::HTTP.new(url.host, url.port).start {|http| http.request(request) }
-
+	response = Net::HTTP.post_form(
+		URI.parse('http://corpsms.dtac.co.th/servlet/com.iess.socket.SmsCorplink'), {
+			'RefNo'=>msg.guid, 
+			'Msn'=>msg.to.without_protocol,
+			'Sno'=>'1677',
+			'Msg'=>msg.subject_and_body,
+			'Encoding'=>245,
+			'MsgType'=>'E',
+			'User' => 'api1610368',
+			'Password' => 'u41jjmew'})
+				
     result = ''
     begin
       result = response.body[4 ... response.body.length]
