@@ -9,7 +9,10 @@ class SendDtacMessageJob
 
   def perform
     msg = AOMessage.find @message_id
-    
+	channel = Channel.find_by_id @channel_id
+    return if msg.nil? or channel.nil?
+	config = channel.configuration
+	
 	response = Net::HTTP.post_form(
 		URI.parse('http://corpsms.dtac.co.th/servlet/com.iess.socket.SmsCorplink'), {
 			'RefNo'=>msg.guid, 
@@ -21,21 +24,18 @@ class SendDtacMessageJob
 			'User' =>  config[:user],
 			'Password' => config[:password]})
 				
-    result = ''
-    begin
-      result = response.body[4 ... response.body.length]
-    rescue => e
-      ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
-      msg.tries += 1;
-      msg.save
-      raise
-    else    
-      msg.state = 'delivered'
+    if response.code[0,1] == "2" # success
+	  msg.state = 'delivered'
+	  msg.tries += 1
+	  msg.save
+	else
+	  ApplicationLogger.exception_in_channel_and_ao_message channel, msg, response.message
       msg.tries += 1
       msg.save
+      raise response.message
     end
     
-    result
+    :success
   end
   
 end
