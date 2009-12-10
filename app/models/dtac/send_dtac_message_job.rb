@@ -18,6 +18,7 @@ class SendDtacMessageJob
 			'RefNo'=>(0...14).map{ ('a'..'z').to_a[rand(26)] }.join, #HACK: DTAC supports only 15 chars for ID, we need to figure out what to use
 			'Msn'=>msg.to.without_protocol,
 			'Sno'=>config[:sno],
+			'Sender'=>config[:sno],
 			'Msg'=>msg.subject_and_body,
 			'Encoding'=>245,
 			'MsgType'=>'E',
