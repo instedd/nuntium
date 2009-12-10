@@ -15,7 +15,7 @@ class SendDtacMessageJob
 	
 	response = Net::HTTP.post_form(
 		URI.parse('http://corpsms.dtac.co.th/servlet/com.iess.socket.SmsCorplink'), {
-			'RefNo'=>msg.guid, 
+			'RefNo'=>(0...14).map{ ('a'..'z').to_a[rand(26)] }.join, #HACK: DTAC supports only 15 chars for ID, we need to figure out what to use
 			'Msn'=>msg.to.without_protocol,
 			'Sno'=>config[:sno],
 			'Msg'=>msg.subject_and_body,
