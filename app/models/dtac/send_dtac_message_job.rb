@@ -34,7 +34,7 @@ class SendDtacMessageJob
 			'Sno'=>config[:sno],
 			'Sender'=>config[:sno],
 			'Msg'=>encoded.to_s,
-			'Encoding'=>24,
+			'Encoding'=>25,
 			'MsgType'=>'H',
 			'User' =>  config[:user],
 			'Password' => config[:password]})
