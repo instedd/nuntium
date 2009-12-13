@@ -30,7 +30,7 @@ class PullQstMessageJob
     if response.nil?
       return :error_pulling_messages
     elsif response.code == "304" # not modified
-      app.logger.no_new_messages
+      #app.logger.no_new_messages
       return :success
     elsif response.code[0,1] != "2" # not success
       app.logger.error_pulling_msgs response.message
@@ -55,7 +55,7 @@ class PullQstMessageJob
       return :error_processing_messages
     else
       # On success, update last id and return success or pending
-      app.logger.pulled_n_messages size, last_new_id
+      #app.logger.pulled_n_messages size, last_new_id
       app.set_last_ao_guid(last_new_id) unless last_new_id.nil?
       return size < BATCH_SIZE ? :success : :success_pending 
     end
