@@ -233,10 +233,10 @@ class ActiveSupport::TestCase
   end
   
   # Creates a new QSTOutgoingMessage with guid "someguid #{i}"
-  def new_qst_outgoing_message(chan, i)
+  def new_qst_outgoing_message(chan, ao_message_id)
     msg = QSTOutgoingMessage.new
     msg.channel_id = chan.id
-    msg.guid = "someguid #{i}"
+    msg.ao_message_id = ao_message_id
     msg.save
   end
   
