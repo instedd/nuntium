@@ -3,14 +3,6 @@ class DtacController < ApplicationController
 	require 'iconv'
   
   def index  
-	File.open('c:\dtac.log', 'a'){ 
-		|fh|  
-		fh.puts 'Received new AT message'
-		params.each { |k,v| 
-			fh.puts(' ' + k.to_s + ': ' + v.to_s) 
-		} 
-	}
-	
 	converter = Iconv.new('UTF-8','TIS-620')
 	text = converter.iconv(params[:CONTENT])
 	
