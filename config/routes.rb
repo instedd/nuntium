@@ -2,8 +2,9 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :rss, :only => [:index, :create]
   map.resources :incoming, :path_prefix => '/qst/:application_id', :only => [:index, :create]
   map.resources :outgoing, :path_prefix => '/qst/:application_id', :only => [:index]
+  
   map.clickatel '/clickatell/:application_id/incoming', :controller => 'clickatell', :action => :index
-  map.dtac '/dtac/geochat/incoming', :controller => 'dtac', :action => :index
+  map.dtac '/dtac/:application_id/incoming', :controller => 'dtac', :action => :index
   
   map.root :controller => 'home'
   

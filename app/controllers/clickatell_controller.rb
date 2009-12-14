@@ -18,7 +18,7 @@ class ClickatellController < ApplicationController
   
   def authenticate
     authenticate_or_request_with_http_basic do |username, password|
-      @application = Application.find_by_name params[:application_id]
+      @application = Application.find_by_id(params[:application_id]) || Application.find_by_name(params[:application_id])
       if !@application.nil?
         channels = @application.channels.find_all_by_kind 'clickatell'
         channels = channels.select { |c| 

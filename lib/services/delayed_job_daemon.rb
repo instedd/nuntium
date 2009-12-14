@@ -3,9 +3,6 @@ begin
   LOG_FILE = 'C:\\ruby.log'
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   
-  require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
-  require(File.join(RAILS_ROOT, 'config', 'environment'))
-
   require 'win32/daemon'
   include Win32
   
@@ -14,11 +11,10 @@ begin
   class DelayedJobDaemon < Daemon
     SLEEP = 5
   
-    cattr_accessor :logger
-    self.logger = if defined?(Merb::Logger)
-      Merb.logger
-    elsif defined?(RAILS_DEFAULT_LOGGER)
-      RAILS_DEFAULT_LOGGER
+    def service_init
+      require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
+      require(File.join(RAILS_ROOT, 'config', 'environment'))
+      true
     end
   
     def service_main
@@ -56,6 +52,10 @@ begin
     
     def say(text)
       logger.info text if logger
+    end
+    
+    def logger
+      RAILS_DEFAULT_LOGGER
     end
   end
   

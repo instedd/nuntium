@@ -1,4 +1,4 @@
-<h4>Create new Clickatell channel</h4>
+<h4>Create new DTAC channel</h4>
 
 <% form_for :channel, :url => { :controller => 'home', :action => :create_channel, :kind => params[:kind] } do |f| %>
   <%= f.error_messages %>
@@ -21,20 +21,16 @@
     <%= c.password_field :password, :autocomplete => :off %>
     </p>
     <p>
-    <%= c.label :api_ID %><br/>
-    <%= c.text_field :api_id %>
+    <%= c.label :sno %><br/>
+    <%= c.text_field :sno %>
     </p>
-    <p>
-    <%= c.label :incoming_password %><br/>
-    <%= c.password_field :incoming_password %>
-    </p>
-    <p>
-    Callback url (use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Basic Http Authentication</a> with channel name and incoming password):<br/>
-    <code>/clickatell/<%= @application.name %>/incoming</code><br/>
-	<code>/clickatell/<%= @application.id %>/incoming</code>
-    </p>
+	<p>
+	Callback urls for incoming messages:<br/>
+    <code>/dtac/<%= @application.name %>/incoming</code><br/>
+	<code>/dtac/<%= @application.id %>/incoming</code>
+	</p>
   <% end %>
-  <%= submit_tag 'Create Channel' %>
+  <%= submit_tag 'Create channel' %>
 <% end %>
 
 <%= link_to 'Go back', :controller => :home, :action => :home %>

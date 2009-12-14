@@ -31,7 +31,7 @@ class PushQstMessageJob
     
     # If there are no newer messages, finish
     if new_msgs.length == 0
-      app.logger.no_new_messages
+      #app.logger.no_new_messages
       app.set_last_at_guid(last_msg.guid) unless last_msg.nil?
       return :success
     end
@@ -115,7 +115,7 @@ class PushQstMessageJob
     return nil
   else
     etag = response['etag']
-    app.logger.pushed_n_messages msgs.length, etag
+    #app.logger.pushed_n_messages msgs.length, etag
     return etag
   end
   

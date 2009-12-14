@@ -4,12 +4,18 @@ class DtacChannelHandler < ChannelHandler
   end
   
   def check_valid
-    # TODO: Validate
-    true
+    @channel.errors.add(:user, "can't be blank") if
+        @channel.configuration[:user].nil? || @channel.configuration[:user].chomp.empty?
+        
+    @channel.errors.add(:password, "can't be blank") if
+        @channel.configuration[:password].nil? || @channel.configuration[:password].chomp.empty?
+        
+    @channel.errors.add(:sno, "can't be blank") if
+        @channel.configuration[:sno].nil? || @channel.configuration[:sno].chomp.empty?
   end
   
   def info
-    # TODO: Return valid info on the channel
-    'Info on this dtac channel'
+    @channel.configuration[:user] + " / " + @channel.configuration[:sno]
   end
+  
 end

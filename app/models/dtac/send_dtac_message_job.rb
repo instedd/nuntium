@@ -1,6 +1,9 @@
 class SendDtacMessageJob
   attr_accessor :application_id, :channel_id, :message_id
 
+	require 'iconv'
+	
+  
   def initialize(application_id, channel_id, message_id)
     @application_id = application_id
     @channel_id = channel_id
@@ -9,42 +12,45 @@ class SendDtacMessageJob
 
   def perform
     msg = AOMessage.find @message_id
-    
-    host = URI::parse('https://corpsms.dtac.co.th/servlet/com.iess.socket.SmsCorplink')
-    
-    request = Net::HTTP::Post.new(host.path)
-    request.use_ssl = true
-    request.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    
-	#request.basic_auth 'api1610368', 'u41jjmew'
-    request.set_form_data({
-					'RefNo'=>msg.guid, 
-					'Msn'=>msg.to.without_protocol,
-					'Sno'=>'1677',
-					'Msg'=>msg.subject_and_body,
-					'Encoding'=>245,
-					'MsgType'=>'E',
-					'User' => 'api1610368',
-					'Password' => 'u41jjmew'
-				}, ';')
+	channel = Channel.find_by_id @channel_id
+    return if msg.nil? or channel.nil?
+	config = channel.configuration
 	
-    response = Net::HTTP.new(url.host, url.port).start {|http| http.request(request) }
-
-    result = ''
-    begin
-      result = response.body[4 ... response.body.length]
-    rescue => e
-      ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
-      msg.tries += 1;
-      msg.save
-      raise
-    else    
-      msg.state = 'delivered'
+	str = msg.subject_and_body
+	encoded = ActiveSupport::Multibyte::Chars.u_unpack(str).map { |i| i.to_s(16).rjust(4, '0') }
+	
+	File.open('c:\dtac.log', 'a'){ 
+		|fh|  
+		fh.puts 'Sending new AO message'
+		fh.puts ' ' + msg.subject_and_body
+		fh.puts ' ' + encoded.to_s
+	}
+	 
+	
+	response = Net::HTTP.post_form(
+		URI.parse('http://corpsms.dtac.co.th/servlet/com.iess.socket.SmsCorplink'), {
+			'RefNo'=>(0...14).map{ ('a'..'z').to_a[rand(26)] }.join, #HACK: DTAC supports only 15 chars for ID, we need to figure out what to use
+			'Msn'=>msg.to.without_protocol,
+			'Sno'=>config[:sno],
+			'Sender'=>config[:sno],
+			'Msg'=>encoded.to_s,
+			'Encoding'=>25,
+			'MsgType'=>'H',
+			'User' =>  config[:user],
+			'Password' => config[:password]})
+				
+    if response.code[0,1] == "2" # success
+	  msg.state = 'delivered'
+	  msg.tries += 1
+	  msg.save
+	else
+	  ApplicationLogger.exception_in_channel_and_ao_message channel, msg, response.message
       msg.tries += 1
       msg.save
+      raise response.message
     end
     
-    result
+    :success
   end
   
 end
