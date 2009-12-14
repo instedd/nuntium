@@ -1,10 +1,11 @@
 require 'digest/sha2'
 
 class Application < ActiveRecord::Base
+  
   has_many :channels
   has_many :ao_messages
   has_many :at_messages
-  has_many :cron_tasks, :as => :parent
+  has_many :cron_tasks, :as => :parent, :dependent => :destroy
   
   serialize :configuration, Hash
   
@@ -16,16 +17,17 @@ class Application < ActiveRecord::Base
   validates_numericality_of :max_tries, :only_integer => true, :greater_than_or_equal_to => 0
   validates_inclusion_of :interface, :in => ['rss', 'qst']
   
-  before_save :hash_password
+  before_save :hash_password 
+  after_save :handle_tasks
+  
+  include(CronTask::CronTaskOwner)
   
   def authenticate(password)
     self.password == Digest::SHA2.hexdigest(self.salt + password)
   end
   
   def last_at_message
-    ATMessage.last(
-        :order => :timestamp, 
-        :conditions => ['application_id = ?', self.id])
+    ATMessage.last(:order => :timestamp, :conditions => ['application_id = ?', self.id])
   end
   
   # Route an AOMessage
@@ -115,6 +117,22 @@ class Application < ActiveRecord::Base
       return 'rss'
     when 'qst'
       return self.configuration[:url]
+    end
+  end
+
+  protected
+  
+  # Ensures tasks for this application are correct
+  def handle_tasks(force = false)
+    if self.interface_changed? || force
+      case self.interface
+        when 'qst'
+          create_task('qst-push', QST_PUSH_INTERVAL, PushQstMessageJob.new(self.id))
+          create_task('qst-pull', QST_PULL_INTERVAL, PullQstMessageJob.new(self.id))
+      else
+        drop_task('qst-push')
+        drop_task('qst-pull')
+      end
     end
   end
   

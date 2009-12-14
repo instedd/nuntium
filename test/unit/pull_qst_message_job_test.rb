@@ -22,6 +22,18 @@ include Net
     assert_sample_messages app, (3..8)
   end
   
+  def test_perform_first_run_no_messages
+    app = setup_app 
+    
+    setup_http app,
+      :not_modified => true
+      
+    result = job app
+    
+    assert_equal :success, result
+    assert_last_id app, nil
+  end
+
   def test_perform_with_etag
     app = setup_app 
     msgs = sample_messages app, (5..8)
@@ -38,16 +50,22 @@ include Net
     assert_sample_messages app, (5..8)
   end
   
-  def test_perform_first_run_no_messages
-    app = setup_app 
+  def test_perform_with_etag_on_ssl
+    app = setup_app :url => 'https://example.com'
+    msgs = sample_messages app, (5..8)
+    app.set_last_ao_guid 'lastetag'
     
     setup_http app,
-      :not_modified => true
+      :get_msgs => msgs,
+      :etag => 'lastetag',
+      :use_ssl => true,
+      :url_port => 443
       
     result = job app
     
     assert_equal :success, result
-    assert_last_id app, nil
+    assert_last_id app, msgs[-1].guid
+    assert_sample_messages app, (5..8)
   end
   
   def test_perform_with_etag_not_modified
@@ -196,7 +214,8 @@ include Net
       :url_port => 80,
       :url_path => 'outgoing?max=10',
       :etag => nil,
-      :headers => nil
+      :headers => nil,
+      :use_ssl => false
     }.merge(opts)
     
     if cfg[:expects_get]
@@ -206,7 +225,7 @@ include Net
       cfg[:headers] ||= {}
     end
     
-    http = mock_http(cfg[:url_host], cfg[:url_port], cfg[:expects_init])
+    http = mock_http(cfg[:url_host], cfg[:url_port], cfg[:expects_init], cfg[:use_ssl])
     
     if cfg[:expects_get] and cfg[:expects_init]
       user = cfg[:auth] ? 'theuser' : nil

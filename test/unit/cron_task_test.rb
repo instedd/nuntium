@@ -1,12 +1,81 @@
 require 'test_helper'
+require 'mocha'
+
 
 class CronTaskTest < ActiveSupport::TestCase
+
+  include Mocha::API
   
   test "should save empty task" do
     task = CronTask.new :interval => 0
     assert task.save!
     t2 = CronTask.find_by_id task.id
     assert_equal 0, t2.interval
+  end
+  
+  test "should create task when creating qst app and drop if changed" do
+    app = Application.create :name => 'app', :password => 'foo', :interface => 'qst'
+    
+    assert_equal 2, app.cron_tasks.size
+    t1, t2 = app.cron_tasks.all
+    
+    assert_equal PushQstMessageJob, t1.get_handler.class
+    assert_equal app.id, t1.parent_id
+    
+    assert_equal PullQstMessageJob, t2.get_handler.class
+    assert_equal app.id, t2.parent_id
+    
+    app.update_attribute(:interface, 'rss')
+    assert_equal 0, app.cron_tasks.size
+    assert_equal 0, CronTask.all.size
+  end
+  
+  test "should create task when changing app to qst" do
+    app = Application.create :name => 'app', :password => 'foo', :interface => 'rss'
+    assert_equal 0, app.cron_tasks.size
+    assert_equal 0, CronTask.all.size
+    
+    app.update_attribute(:interface, 'qst')
+    app.reload
+    assert_equal 2, app.cron_tasks.size
+    
+    t1, t2 = app.cron_tasks.all
+    
+    assert_equal PushQstMessageJob, t1.get_handler.class
+    assert_equal app.id, t1.parent_id
+    
+    assert_equal PullQstMessageJob, t2.get_handler.class
+    assert_equal app.id, t2.parent_id
+  end
+  
+  test "should drop task with application" do
+    app = Application.create :name => 'app', :password => 'foo', :interface => 'qst'
+    
+    assert_equal 2, app.cron_tasks.size
+    assert_equal PushQstMessageJob, app.cron_tasks.first.get_handler.class
+    assert_equal PullQstMessageJob, app.cron_tasks.last.get_handler.class
+    
+    app.destroy
+    assert_equal 0, CronTask.all.size
+  end
+  
+  test "should create twitter task for channel" do
+    ch = create_channel('twitter')
+    assert_equal 1, CronTask.all.size
+    assert_equal ch.id, CronTask.first.get_handler.channel_id
+    assert_equal ReceiveTwitterMessageJob, CronTask.first.get_handler.class
+  end
+  
+  test "should create pop3 task for channel" do
+    ch = create_channel('pop3')
+    assert_equal 1, CronTask.all.size
+    assert_equal ch.id, CronTask.first.get_handler.channel_id
+    assert_equal ReceivePop3MessageJob, CronTask.first.get_handler.class
+  end
+  
+  test "should not create task for non task channel" do
+    create_channel 'qst'
+    assert_equal 0, CronTask.all.size
   end
   
   test "should not save with negative interval" do
@@ -25,13 +94,7 @@ class CronTaskTest < ActiveSupport::TestCase
   end
   
   test "should save channel task" do
-    app = Application.create :name => 'app', :password => 'foo'
-    ch = Channel.new :name =>'channel', :application_id => app.id, :kind => 'qst', :protocol => 'sms'
-    ch.configuration = {:password => 'foo', :password_confirmation => 'foo'}
-    ch.save!
-    
-    assert !app.nil?
-    assert !ch.nil?
+    ch = create_channel
     
     task = CronTask.new :parent => ch, :interval => 50
     assert task.save!
@@ -39,6 +102,89 @@ class CronTaskTest < ActiveSupport::TestCase
     t2 = CronTask.find_by_id task.id
     assert_equal 50, t2.interval
     assert_equal ch.name, t2.parent.name
+  end
+  
+  test "should execute task first time" do
+    set_current_time
+    expect_execution
+    task = create_task
+    
+    assert_equal :handler_success, task.perform
+    assert_equal base_time, task.last_run 
+  end
+  
+  test "should execute task after interval time" do
+    set_current_time base_time + 60
+    task = create_task base_time
+    expect_execution
+    
+    assert_equal :handler_success, task.perform
+    assert_equal base_time + 60, task.last_run 
+  end
+
+  test "should execute task after interval time minus tolerance" do
+    set_current_time base_time + 55
+    task = create_task base_time
+    expect_execution
+    
+    assert_equal :handler_success, task.perform
+    assert_equal base_time + 55, task.last_run 
+  end
+
+  test "should execute task after more than interval time" do
+    set_current_time base_time + 95
+    task = create_task base_time
+    expect_execution
+    
+    assert_equal :handler_success, task.perform
+    assert_equal base_time + 95, task.last_run 
+  end
+  
+  test "should not execute task within interval time" do
+    set_current_time base_time + 45
+    task = create_task base_time
+    expect_execution 0
+    
+    assert_equal :dropped, task.perform
+    assert_equal base_time, task.last_run 
+  end
+  
+  def create_channel(kind = 'qst')
+    app = Application.create :name => 'app', :password => 'foo'
+    ch = Channel.new :name =>'channel', :application_id => app.id, :kind => kind, :protocol => 'sms'
+    ch.configuration = {:password => 'foo', :password_confirmation => 'foo', :user => 'foobar', :port => 600, :host => 'example.com'}
+    ch.save!
+    ch
+  end
+
+  def create_task(last_run=nil, handler=create_handler)
+    task = CronTask.new :interval => 60, :last_run => last_run
+    task.set_handler(handler)
+    assert task.save!
+    task
+  end
+  
+  def create_handler(quota=nil, arg=:arg)
+    h = Handler.new arg
+    h.expects(:quota=).with(quota) unless quota.nil?
+    return h
+  end
+  
+  def expect_execution(times=1, arg=:arg)
+    Witness.expects(:execute).with(arg).times(times)
+  end
+  
+  class Handler
+    def initialize(arg)
+      @arg = arg
+    end
+    def perform
+      Witness.execute @arg
+      return :handler_success
+    end
+  end
+  
+  class Witness
   end
   
 end

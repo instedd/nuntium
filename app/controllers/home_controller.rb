@@ -185,14 +185,12 @@ class HomeController < ApplicationController
       existing_app.clear_password
       flash[:application] = existing_app
       redirect_to :action => :edit_application
-      return
+    else    
+      existing_app.clear_password
+      flash[:notice] = 'Application was changed'
+      session[:application] = existing_app
+      redirect_to :action => :home
     end
-    
-    existing_app.clear_password
-    
-    flash[:notice] = 'Application was changed'
-    session[:application] = existing_app
-    redirect_to :action => :home
   end
   
   def new_channel

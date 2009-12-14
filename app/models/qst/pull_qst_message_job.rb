@@ -2,15 +2,11 @@ class PullQstMessageJob
   
   BATCH_SIZE = 10
   
+  require 'qst_common'
+  include ClientQstJob
+  
   def initialize(app_id)
     @application_id = app_id
-  end
-  
-  def perform
-    begin
-      result = perform_batch
-    end while result == :success_pending
-    result
   end
   
   def perform_batch
@@ -22,8 +18,6 @@ class PullQstMessageJob
     err = validate_app(app)
     return err unless err.nil?
 
-    app.logger.starting_qst_push app.configuration[:url]
-    
     # Create http requestor and uri
     http, path = create_http app, 'outgoing' 
     if http.nil? then return :error_initializing_http end
@@ -33,7 +27,9 @@ class PullQstMessageJob
     response = request_messages(app, http, path) 
     
     # Handle different responses
-    if response.code == "304" # not modified
+    if response.nil?
+      return :error_pulling_messages
+    elsif response.code == "304" # not modified
       app.logger.no_new_messages
       return :success
     elsif response.code[0,1] != "2" # not success
@@ -75,48 +71,15 @@ class PullQstMessageJob
     request.basic_auth(user, pass) unless user.nil? or pass.nil?
     request['if-none-match'] = last_id unless last_id.nil?
     http.request request
-  end
-  
-  # Validates application for QST
-  # TODO: Move to a QST helper
-  def validate_app(app)
-    if app.nil?
-      app.logger.app_not_found
-      return :error_no_application
-    elsif app.configuration.nil? or app.configuration[:url].nil?
-      app.logger.no_url_in_configuration
-      return :error_no_url_in_configuration
-    elsif not app.interface == 'qst'
-      app.logger.wrong_interface 'qst', app.interface
-      return :error_wrong_interface
-    end
-    nil
-  end
-  
-  # Initialize http connection
-  # TODO: Move to a QST helper
-  def create_http(app, target=nil)
-    begin
-      uri = URI.parse(app.configuration[:url]) 
-      http = Net::HTTP.new(uri.host, uri.port)
-    rescue => e
-      app.logger.error_initializing_http e
-      app.set_last_at_guid nil
-      return nil, nil
-    else
-      path = uri.path
-      if not target.nil?
-        path += '/' unless path.nil? or path.empty? or path[-1..-1] == '/'
-        path += target
-      end
-      return http, path  
-    end
+  rescue => err
+    app.logger.error :message => "Error getting messages from the server: " + err.to_s
+    return nil
   end
   
   # Enqueues jobs of this class for each qst push interface
   def self.enqueue_for_all_interfaces
     Application.find_all_by_interface('qst').each do |app|
-      job = PullQstMessageJob.new(app_id)
+      job = PullQstMessageJob.new(app.id)
       Delayed::Job.enqueue job
     end
   end

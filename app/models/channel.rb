@@ -4,21 +4,25 @@ class Channel < ActiveRecord::Base
   belongs_to :application
   
   has_many :qst_outgoing_messages
-  has_many :cron_tasks, :as => :parent
+  has_many :cron_tasks, :as => :parent, :dependent => :destroy
   
   serialize :configuration, Hash
   
   validates_presence_of :name, :protocol, :kind, :application
-  validate :handler_check_valid
-  validate :name_is_unique_in_application
+  validates_uniqueness_of :name, :scope => :application_id, :message => 'Name has already been used by another channel in the application'
   
+  validate :handler_check_valid
   before_save :handler_before_save
+  after_save :handler_after_save
+  after_create :handler_after_create
   
   # Channel directions
   Incoming = 1
   Outgoing = 2
   Both = Incoming + Outgoing
-  
+
+  include(CronTask::CronTaskOwner)
+    
   def clear_password
     if self.handler.respond_to?(:clear_password)
       self.handler.clear_password
@@ -58,7 +62,7 @@ class Channel < ActiveRecord::Base
   def check_valid_in_ui
     @check_valid_in_ui = true
   end
-  
+    
   private
   
   def handler_check_valid
@@ -78,12 +82,16 @@ class Channel < ActiveRecord::Base
     end
   end
   
-  # TODO: Use validate uniquness toghether with scope
-  def name_is_unique_in_application
-    if self.new_record?
-      other_channel = Channel.first(:conditions => ['application_id = ? AND name = ?', self.application_id, self.name])
-      errors.add(:name, "has already been taken") if
-        !other_channel.nil?
+  def handler_after_save
+    if self.handler.respond_to?(:after_save)
+      self.handler.after_save
     end
   end
+  
+  def handler_after_create
+    if self.handler.respond_to?(:after_create)
+      self.handler.after_create
+    end
+  end
+  
 end

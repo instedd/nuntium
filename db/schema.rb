@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091201171538) do
+ActiveRecord::Schema.define(:version => 20091203201252) do
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -83,6 +83,7 @@ ActiveRecord::Schema.define(:version => 20091201171538) do
     t.integer  "parent_id"
     t.string   "parent_type", :limit => 60
     t.string   "code"
+    t.string   "name"
   end
 
   create_table "delayed_jobs", :force => true do |t|

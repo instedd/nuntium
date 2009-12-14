@@ -18,4 +18,5 @@ namespace :jobs do
   task :qst_pull => :environment do
     PullQstMessageJob.enqueue_for_all_interfaces
   end
+  
 end
