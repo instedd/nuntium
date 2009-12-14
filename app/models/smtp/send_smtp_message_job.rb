@@ -14,12 +14,14 @@ class SendSmtpMessageJob
     msg = AOMessage.find @message_id
     config = channel.configuration
     
+    channel_relative_id = "<#{msg.guid}@nuntium.instedd.org>"
+    
 msgstr = <<-END_OF_MESSAGE
 From: #{msg.from.without_protocol}
 To: #{msg.to.without_protocol}
 Subject: #{msg.subject}
 Date: #{msg.timestamp}
-Message-Id: #{msg.guid}
+Message-Id: #{channel_relative_id}
 
 #{msg.body}
 END_OF_MESSAGE
@@ -41,11 +43,13 @@ END_OF_MESSAGE
       rescue => e
         ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
         msg.tries += 1
+        msg.channel_relative_id = channel_relative_id
         msg.save
         raise
       else
         msg.state = 'delivered'
         msg.tries += 1
+        msg.channel_relative_id = channel_relative_id
         msg.save
       end
     

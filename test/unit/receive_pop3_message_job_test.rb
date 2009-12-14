@@ -45,7 +45,8 @@ END_OF_MESSAGE
     assert_equal 'mailto://to@mail.com', msg.to
     assert_equal 'some subject', msg.subject
     assert_equal "Hello!\n", msg.body
-    assert_equal "<47404c5326d9c_2ad4fbb80161@baci.local.tmail>", msg.guid
+    assert_equal "<47404c5326d9c_2ad4fbb80161@baci.local.tmail>", msg.channel_relative_id
+    assert_not_nil msg.guid
     assert_equal Time.parse('Thu, 5 Nov 2009 14:52:54 +0100'), msg.timestamp
   end
   
@@ -89,7 +90,8 @@ END_OF_MESSAGE
     assert_equal 'mailto://to@mail.com', msg.to
     assert_equal 'some subject', msg.subject
     assert_equal "Hello!\n", msg.body
-    assert_equal "<47404c5326d9c_2ad4fbb80161@baci.local.tmail>", msg.guid
+    assert_equal "<47404c5326d9c_2ad4fbb80161@baci.local.tmail>", msg.channel_relative_id
+    assert_not_nil msg.guid
     assert_equal Time.parse('Thu, 5 Nov 2009 14:52:54 +0100'), msg.timestamp
   end
   

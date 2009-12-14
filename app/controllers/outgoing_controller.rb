@@ -42,8 +42,7 @@ class OutgoingController < QSTController
       :limit => max)
       
     if !@ao_messages.empty?
-      # Using ids instead of guids to increment tries should be faster
-      # because it's a primary key against an index
+      # Using ids to increment tries
       ao_messages_ids = @ao_messages.collect {|x| x.id}
         
       # Update their number of retries

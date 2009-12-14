@@ -20,7 +20,7 @@ From: from@mail.com
 To: to@mail.com
 Subject: some subject
 Date: #{msg.timestamp}
-Message-Id: some guid
+Message-Id: <some guid@nuntium.instedd.org>
 
 some body
 END_OF_MESSAGE
@@ -56,7 +56,7 @@ From: from@mail.com
 To: to@mail.com
 Subject: some subject
 Date: #{msg.timestamp}
-Message-Id: some guid
+Message-Id: <some guid@nuntium.instedd.org>
 
 some body
 END_OF_MESSAGE

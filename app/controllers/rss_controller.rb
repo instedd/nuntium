@@ -78,8 +78,7 @@ class RssController < ApplicationController
     tree = RSS::Parser.parse(body, false)
     
     tree.channel.items.each do |item|
-      # Create AO message (but don't save it yet)
-      # This allows us to put messages in logging   
+      # Create AO message
       msg = AOMessage.new
       msg.application_id = @application.id
       msg.from = item.author

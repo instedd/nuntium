@@ -128,6 +128,7 @@ Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
       <th>When</th>
       <th>Id</th>
       <th>Guid</th>
+      <th>Channel Relative Id</th>
       <th>From</th>
       <th>To</th>
       <th>Subject</th>
@@ -142,6 +143,7 @@ Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
         <td><%= msg.timestamp %></td>
         <td><%= msg.id %></td>
         <td><%= short_html msg.guid %></td>
+        <td><%= short_html msg.channel_relative_id %></td>
         <td><%= msg.from %></td>
         <td><%= msg.to %></td>
         <td><%= short_html msg.subject %></td>
@@ -184,6 +186,7 @@ Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
       <th>When</th>
       <th>Id</th>
       <th>Guid</th>
+      <th>Channel Relative Id</th>
       <th>From</th>
       <th>To</th>
       <th>Subject</th>
@@ -198,6 +201,7 @@ Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
         <td><%= msg.timestamp %></td>
         <td><%= msg.id %></td>
         <td><%= short_html msg.guid %></td>
+        <td><%= short_html msg.channel_relative_id %></td>
         <td><%= msg.from %></td>
         <td><%= msg.to %></td>
         <td><%= short_html msg.subject %></td>

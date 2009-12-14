@@ -20,7 +20,8 @@ class ClickatellControllerTest < ActionController::TestCase
     assert_equal 'sms://to1', msg.to
     assert_equal 'some text', msg.subject
     assert_equal Time.at(1218007814), msg.timestamp
-    assert_equal 'someid', msg.guid
+    assert_equal 'someid', msg.channel_relative_id
+    assert_not_nil msg.guid
     assert_equal 'queued', msg.state
     
     assert_response :ok
