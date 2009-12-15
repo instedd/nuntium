@@ -4,6 +4,7 @@ module Message
 
   def self.included(base)
     base.extend(ClassMethods)
+    base.before_save :generate_guid
   end
   
   def generate_guid

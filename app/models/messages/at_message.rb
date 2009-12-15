@@ -4,7 +4,6 @@ class ATMessage < ActiveRecord::Base
 
   require 'message_common'
   include Message
-  before_save :generate_guid
   
   # Marks all older messages as confirmed
   # * if msg_or_id does not correspond to a valid message, no action is executed
