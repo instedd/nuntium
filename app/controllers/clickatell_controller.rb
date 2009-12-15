@@ -8,7 +8,7 @@ class ClickatellController < ApplicationController
     msg.from = 'sms://' + params[:from]
     msg.to = 'sms://' + params[:to]
     msg.subject = params[:text]
-    msg.guid = params[:moMsgId]
+    msg.channel_relative_id = params[:moMsgId]
     msg.timestamp = Time.at(params[:timestamp].to_i)
     msg.state = 'queued'
     msg.save!

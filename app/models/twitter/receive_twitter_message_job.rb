@@ -51,7 +51,7 @@ class ReceiveTwitterMessageJob
         msg.to = 'twitter://' + twit.recipient_screen_name
         msg.subject = twit.text
         msg.timestamp = Time.parse(twit.created_at)
-        msg.guid = twit.id
+        msg.channel_relative_id = twit.id
         msg.state = 'queued'
         msg.save
       end

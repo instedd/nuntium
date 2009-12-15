@@ -114,11 +114,11 @@ class HomeController < ApplicationController
     search = Search.new(search)
     conds = ['application_id = :application_id', { :application_id => @application.id }]
     if !search.search.nil?
-      conds[0] += ' AND (guid = :search OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search)'
+      conds[0] += ' AND ([guid] = :search OR [channel_relative_id] = :search OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search)'
       conds[1][:search] = '%' + search.search + '%'
     end
     
-    [:id, :guid, :tries].each do |sym|
+    [:id, :guid, :channel_relative_id, :tries].each do |sym|
       if !search[sym].nil?
         conds[0] += " AND [#{sym}] = :#{sym}"
         conds[1][sym] = search[sym]

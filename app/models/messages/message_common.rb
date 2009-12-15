@@ -1,10 +1,15 @@
+require 'guid'
+
 module Message
 
   def self.included(base)
     base.extend(ClassMethods)
   end
-
-
+  
+  def generate_guid
+    self.guid ||= Guid.new.to_s
+  end
+  
   # Returns the subject and body of this message concatenated
   # with a dash, or either of them if the other is empty.
   def subject_and_body

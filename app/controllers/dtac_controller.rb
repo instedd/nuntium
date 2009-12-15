@@ -11,7 +11,7 @@ class DtacController < ApplicationController
     msg.from = 'sms://' + params[:MSISDN]
     msg.to = 'sms://' + params[:SMSCODE]
     msg.body = text
-    msg.guid = params[:ID]
+    msg.channel_relative_id = params[:ID]
     msg.timestamp = Time.now.utc
     msg.state = 'queued'
     msg.save!

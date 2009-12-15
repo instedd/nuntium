@@ -16,7 +16,7 @@ class OutgoingController < QSTController
       # Find the message in qst for that etag
       last = QSTOutgoingMessage.first(
         :order => :id, 
-        :conditions => ['channel_id = ? AND guid = ?', @channel.id, etag])
+        :conditions => ['channel_id = ? AND ao_message_id = ?', @channel.id, etag])
         
       if !last.nil?
         # Mark messsages as delivered
@@ -24,8 +24,8 @@ class OutgoingController < QSTController
         sql.execute(
           "UPDATE ao_messages " + 
           "SET state = 'delivered' " + 
-          "WHERE guid IN " +
-          "(SELECT guid FROM qst_outgoing_messages WHERE id <= " + last.id.to_s + ")"
+          "WHERE id IN " +
+          "(SELECT ao_message_id FROM qst_outgoing_messages WHERE id <= " + last.id.to_s + ")"
           )
         
         # Delete previous messages in qst including it
@@ -37,13 +37,12 @@ class OutgoingController < QSTController
     # Read outgoing messages
     @ao_messages = AOMessage.all(
       :order => 'qst_outgoing_messages.id',
-      :joins => 'INNER JOIN qst_outgoing_messages ON ao_messages.guid = qst_outgoing_messages.guid',
+      :joins => 'INNER JOIN qst_outgoing_messages ON ao_messages.id = qst_outgoing_messages.ao_message_id',
       :conditions => 'qst_outgoing_messages.channel_id = ' + @channel.id.to_s,
       :limit => max)
       
     if !@ao_messages.empty?
-      # Using ids instead of guids to increment tries should be faster
-      # because it's a primary key against an index
+      # Using ids to increment tries
       ao_messages_ids = @ao_messages.collect {|x| x.id}
         
       # Update their number of retries
@@ -63,7 +62,7 @@ class OutgoingController < QSTController
     end
     
     if !@ao_messages.empty?
-      response.headers['ETag'] = @ao_messages.last.guid
+      response.headers['ETag'] = @ao_messages.last.id
     end
   end
 end

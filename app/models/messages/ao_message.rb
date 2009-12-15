@@ -4,6 +4,7 @@ class AOMessage < ActiveRecord::Base
   
   require 'message_common'
   include Message
+  before_save :generate_guid
 end
 
 class String

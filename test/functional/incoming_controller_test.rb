@@ -4,7 +4,7 @@ class IncomingControllerTest < ActionController::TestCase
   test "get last message id" do
     app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
     new_at_message(app, 0)
-    new_at_message(app, 1)
+    msg = new_at_message(app, 1)
     
     # This is so that we have another channel but the one we are looking for is used
     create_channel(app, 'chan3', 'chan_pass3', 'qst')
@@ -17,7 +17,7 @@ class IncomingControllerTest < ActionController::TestCase
     head 'index', :application_id => 'app'
     
     assert_response :ok
-    assert_equal "someguid 1", @response.headers['ETag']
+    assert_equal msg.id.to_s, @response.headers['ETag']
   end
   
   test "get last message id not exists" do
@@ -54,13 +54,14 @@ class IncomingControllerTest < ActionController::TestCase
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
     post 'create', :application_id => 'app'
     
-    assert_response :ok
-    assert_equal "someguid", @response.headers['ETag']
-    
     messages = ATMessage.all
     assert_equal 1, messages.length
     
     msg = messages[0]
+    
+    assert_response :ok
+    assert_equal msg.id.to_s, @response.headers['ETag']
+    
     assert_equal app.id, msg.application_id
     assert_equal "Hello!", msg.body
     assert_equal "Someone", msg.from

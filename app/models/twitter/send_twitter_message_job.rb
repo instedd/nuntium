@@ -15,6 +15,8 @@ class SendTwitterMessageJob
     begin
       client = TwitterChannelHandler.new_client(config)
       client.direct_message_create(msg.to.without_protocol, msg.subject_and_body)
+      # TODO: from the response get twitter message id and assign it
+      # to channel_relative_id before saving the message
     rescue => e
       ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
       msg.tries += 1
