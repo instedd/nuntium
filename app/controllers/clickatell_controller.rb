@@ -1,6 +1,8 @@
 class ClickatellController < ApplicationController
   before_filter :authenticate
 
+  @@clickatell_timezone = ActiveSupport::TimeZone.new 2.hours
+
   # GET /clickatell/:application_id/incoming
   def index
     msg = ATMessage.new
@@ -9,7 +11,7 @@ class ClickatellController < ApplicationController
     msg.to = 'sms://' + params[:to]
     msg.subject = params[:text]
     msg.channel_relative_id = params[:moMsgId]
-    msg.timestamp = Time.at(params[:timestamp].to_i)
+    msg.timestamp = @@clickatell_timezone.parse(params[:timestamp]).utc rescue Time.now.utc
     msg.state = 'queued'
     msg.save!
     

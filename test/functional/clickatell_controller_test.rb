@@ -8,26 +8,28 @@ class ClickatellControllerTest < ActionController::TestCase
     chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :incoming_password => 'incoming' }
     chan.save
     
+    api_id, from, to, timestamp, charset, udh, text, mo_msg_id =  '1034412',  '442345235413', '61234234231', '2009-12-16 19:34:40', 'ISO-8859-1', '', 'some text', '5223433'
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'incoming')
-    get :index, :application_id => app.name, :api_id => 'api_id', :from => 'from1', :to => 'to1', :text => 'some text', :timestamp => '1218007814', :charset => 'UTF-8', :moMsgId => 'someid'
+    
+    get :index, :application_id => app.name, :api_id => api_id, :from => from, :to => to, :text => text, :timestamp => timestamp, :charset => charset, :moMsgId => mo_msg_id
     
     msgs = ATMessage.all
     assert_equal 1, msgs.length
     
     msg = msgs[0]
     assert_equal app.id, msg.application_id
-    assert_equal 'sms://from1', msg.from
-    assert_equal 'sms://to1', msg.to
-    assert_equal 'some text', msg.subject
-    assert_equal Time.at(1218007814), msg.timestamp
-    assert_equal 'someid', msg.channel_relative_id
-    assert_not_nil msg.guid
+    assert_equal 'sms://' + from, msg.from
+    assert_equal 'sms://' + to, msg.to
+    assert_equal text, msg.subject
+    assert_equal Time.parse('2009-12-16 17:34:40'), msg.timestamp
+    assert_equal mo_msg_id, msg.channel_relative_id
     assert_equal 'queued', msg.state
+    assert_not_nil msg.guid
     
     assert_response :ok
   end
   
-  test "fails authorization because o application" do
+  test "fails authorization because of application" do
     app = Application.create(:name => 'app', :password => 'app_pass')
     chan = Channel.new(:application_id => app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Both)
     chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :incoming_password => 'incoming' }
