@@ -20,7 +20,10 @@ class SendClickatellMessageJob
     uri = append uri, 'api_id', config[:api_id], true
     uri = append uri, 'user', config[:user]
     uri = append uri, 'password', config[:password]
-    # uri = append uri, 'from', msg.from
+    if config[:from] != nil && !config[:from].empty?
+      uri = append uri, 'from', config[:from]
+      uri = append uri, 'mo', '1'
+    end
     uri = append uri, 'to', msg.to.without_protocol
     uri = append uri, 'text', msg.subject_and_body
     
