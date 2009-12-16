@@ -45,7 +45,8 @@ class Application < ActiveRecord::Base
     if protocol.nil?
       msg.state = 'error'
       msg.save!
-      logger.protocol_not_found_for msg
+      logger.ao_message_received msg, self.interface
+      logger.protocol_not_found_for_ao_message msg
       return true
     end
     
@@ -55,7 +56,8 @@ class Application < ActiveRecord::Base
     if channels.empty?
       msg.state = 'error'
       msg.save!
-      logger.no_channel_found_for protocol, msg
+      logger.ao_message_received msg, self.interface
+      logger.no_channel_found_for_ao_message protocol, msg
       return true
     end
 
@@ -63,9 +65,13 @@ class Application < ActiveRecord::Base
     msg.state = 'queued'
     msg.save!
     
+    logger.ao_message_received msg, self.interface
+    
     if channels.length > 1
       logger.more_than_one_channel_found_for protocol, msg
     end
+    
+    logger.ao_message_handled_by_channel msg, channels[0]
     
     # Let the channel handle the message
     channels[0].handle msg

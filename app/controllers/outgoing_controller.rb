@@ -57,6 +57,15 @@ class OutgoingController < QSTController
         AOMessage.update_all(['state = ?', 'failed'], ['id IN (?)', invalid_message_ids])
       end
       
+      # Logging: say that valid messages were returned and invalid no
+      @ao_messages.each do |msg|
+        if msg.tries >= @application.max_tries
+          @application.logger.ao_message_delivery_succeeded msg, 'qst'
+        else
+          @application.logger.ao_message_delivery_exceeded_tries msg, 'qst'
+        end
+      end
+      
       @ao_messages = valid_messages
       @ao_messages.sort! {|x,y| x.timestamp <=> y.timestamp}
     end

@@ -63,6 +63,9 @@ class RssController < ApplicationController
       ATMessage.update_all(['state = ?', 'failed'], ['id IN (?)', invalid_message_ids])
     end
     
+    # Logging: say that valid messages were returned and invalid no
+    ATMessage.log_delivery(@at_messages, @application, 'rss')
+    
     @at_messages = valid_messages
     if @at_messages.empty?
       head :not_modified

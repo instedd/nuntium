@@ -114,7 +114,8 @@ class HomeController < ApplicationController
     search = Search.new(search)
     conds = ['application_id = :application_id', { :application_id => @application.id }]
     if !search.search.nil?
-      conds[0] += ' AND ([guid] = :search OR [channel_relative_id] = :search OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search)'
+      conds[0] += ' AND ([id] = :search_exact OR [guid] = :search_exact OR [channel_relative_id] = :search_exact OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search)'
+      conds[1][:search_exact] = search.search
       conds[1][:search] = '%' + search.search + '%'
     end
     
@@ -403,6 +404,22 @@ class HomeController < ApplicationController
     flash[:notice] = "#{affected} Application Terminated messages #{affected == 1 ? 'was' : 'were'} marked as cancelled"    
     params[:action] = :home
     redirect_to params
+  end
+  
+  def view_ao_message_log
+    @id = params[:id]
+    @hide_title = true
+    @logs = ApplicationLog.find_all_by_ao_message_id(@id)
+    @kind = 'ao'
+    render "message_log.html.erb"
+  end
+  
+  def view_at_message_log
+    @id = params[:id]
+    @hide_title = true
+    @logs = ApplicationLog.find_all_by_at_message_id(@id)
+    @kind = 'at'
+    render "message_log.html.erb"
   end
   
   def logoff

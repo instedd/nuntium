@@ -135,6 +135,7 @@ Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
       <th>Body</th>
       <th>Tries</th>
       <th>State</th>
+      <th></th>
     </tr>
     <tr>
     <% @ao_messages.each do |msg| %>
@@ -150,6 +151,7 @@ Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
         <td><%= short_html msg.body %></td>
         <td><%= msg.tries %></td>
         <td><%= msg.state %></td>
+        <td><%= js 'view log', "view_ao_message_log(#{msg.id})" %></td>
       </tr>
     <% end %>
   </table>
@@ -193,6 +195,7 @@ Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
       <th>Body</th>
       <th>Tries</th>
       <th>State</th>
+      <th></th>
     </tr>
     <tr>
     <% @at_messages.each do |msg| %>
@@ -208,6 +211,7 @@ Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
         <td><%= short_html msg.body %></td>
         <td><%= msg.tries %></td>
         <td><%= msg.state %></td>
+        <td><%= js 'view log', "view_at_message_log(#{msg.id})" %></td>
       </tr>
     <% end %>
   </table>

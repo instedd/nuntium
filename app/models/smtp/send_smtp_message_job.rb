@@ -41,10 +41,10 @@ END_OF_MESSAGE
       begin
         smtp.send_message msgstr, msg.from.without_protocol, msg.to.without_protocol
       rescue => e
-        ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
         msg.tries += 1
         msg.channel_relative_id = channel_relative_id
         msg.save
+        ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
         raise
       else
         msg.state = 'delivered'
@@ -53,6 +53,7 @@ END_OF_MESSAGE
         msg.save
       end
     
+      ApplicationLogger.message_channeled msg, channel
       smtp.finish
     end
   end

@@ -42,6 +42,9 @@ class PushQstMessageJob
     # Mark new status for messages based on post result increasing retries
     ATMessage.update_msgs_status new_msgs, app.max_tries, last_id
     
+    # Logging: say that valid messages were returned and invalid no
+    ATMessage.log_delivery(new_msgs, app, 'qst')
+    
     # Save changes to the app
     app.set_last_at_guid last_id
     
