@@ -48,23 +48,23 @@ class ApplicationLogger
   end
 
   def error_obtaining_last_id(message)
-    error(:message => "Error obtaining last id from server: '#{message}'")
+    error(:message => "Error obtaining last id from server in QST operation: '#{message}'")
   end
 
   def error_initializing_http(exception)
-    error(:message => "Error initializing http connection: '#{exception.message}'")
+    error(:message => "Error initializing http connection in QST operation: '#{exception.message}'")
   end
   
   def error_posting_msgs(msg)
-    error(:message => "Error posting messages to server: '#{msg}'")
+    error(:message => "Error posting messages to server in QST operation: '#{msg}'")
   end
   
   def error_pulling_msgs(msg)
-    error(:message => "Error pulling messages from server: '#{msg}'")
+    error(:message => "Error pulling messages from server in QST operation: '#{msg}'")
   end
   
   def error_processing_msgs(msg)
-    error(:message => "Error processing messages from server: '#{msg}'")
+    error(:message => "Error processing messages from server in QST operation: '#{msg}'")
   end
 
   def more_than_one_channel_found_for(protocol, ao_msg)
