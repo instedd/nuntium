@@ -18,14 +18,13 @@ class ReceiveTwitterMessageJob
     
     begin
       @client = TwitterChannelHandler.new_client(@config)
-      
       download_new_messages
       follow_and_send_welcome_to_new_followers
-      
-      @status.save unless @status.nil?
     rescue => e
       ApplicationLogger.exception_in_channel @channel, e
       raise
+    ensure
+      @status.save unless @status.nil?
     end
   end
   
@@ -37,10 +36,10 @@ class ReceiveTwitterMessageJob
     
     begin
       msgs = @client.direct_messages(query)
+      @status ||= TwitterChannelStatus.new(:channel_id => @channel_id)
       
       # Remember last_id
       if query[:page] == 1 && !msgs.empty?
-        @status ||= TwitterChannelStatus.new(:channel_id => @channel_id)
         @status[:last_id] = msgs[0].id
       end
       
