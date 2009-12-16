@@ -1,11 +1,12 @@
 require 'test_helper'
 
 class ClickatellControllerTest < ActionController::TestCase
+  tests ClickatellController
 
   test "index" do
     app = Application.create(:name => 'app', :password => 'app_pass')
     chan = Channel.new(:application_id => app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Both)
-    chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :incoming_password => 'incoming' }
+    chan.configuration = {:user => 'user', :password => 'password', :api_id => '1034412', :incoming_password => 'incoming' }
     chan.save
     
     api_id, from, to, timestamp, charset, udh, text, mo_msg_id =  '1034412',  '442345235413', '61234234231', '2009-12-16 19:34:40', 'ISO-8859-1', '', 'some text', '5223433'
@@ -21,7 +22,7 @@ class ClickatellControllerTest < ActionController::TestCase
     assert_equal 'sms://' + from, msg.from
     assert_equal 'sms://' + to, msg.to
     assert_equal text, msg.subject
-    assert_equal Time.parse('2009-12-16 17:34:40'), msg.timestamp
+    assert_equal Time.parse('2009-12-16 17:34:40 UTC'), msg.timestamp
     assert_equal mo_msg_id, msg.channel_relative_id
     assert_equal 'queued', msg.state
     assert_not_nil msg.guid
