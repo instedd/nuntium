@@ -55,7 +55,7 @@ class PullQstMessageJob
       return :error_processing_messages
     else
       # On success, update last id and return success or pending
-      if etag.nil?
+      if last_new_id.nil?
         RAILS_DEFAULT_LOGGER.info "Pull QST in application #{app.name}: polled '#{size}' messages to server"
       else
         RAILS_DEFAULT_LOGGER.info "Pull QST in application #{app.name}: polled '#{size}' messages to server up to id '#{last_new_id}'"
