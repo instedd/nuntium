@@ -46,10 +46,6 @@ begin
       Delayed::Job.clear_locks!
     end
   
-    def service_stop
-      exit!
-    end
-    
     def say(text)
       logger.info text if logger
     end

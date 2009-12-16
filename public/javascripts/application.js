@@ -6,6 +6,25 @@ function $n(id) {
   return document.getElementsByName(id);
 }
 
+function openCenteredWindow(url, name, width, height, features) {
+  if(screen.width){
+	  var winl = (screen.width-width)/2;
+	  var wint = (screen.height-height)/2;
+  } else {
+		winl = 0;
+		wint =0;
+  }
+  if (winl < 0) winl = 0;
+  if (wint < 0) wint = 0;
+  var settings = 'height=' + height + ',';
+  settings += 'width=' + width + ',';
+  settings += 'top=' + wint + ',';
+  settings += 'left=' + winl + ',';
+  settings += features;
+  win = window.open(url, name, settings);
+  win.window.focus();
+}
+
 function toggle(id) {
   var elem = $(id);
   if (elem.style.display != 'none') {
@@ -102,6 +121,14 @@ function mark_at_messages_as_cancelled() {
   var form = $('at_messages_form');
   form.action = '/mark_at_messages_as_cancelled';
   form.submit();
+}
+
+function view_ao_message_log(id) {
+  openCenteredWindow('/ao_message/' + id + '/log', 'log', 640, 480);
+}
+
+function view_at_message_log(id) {
+  openCenteredWindow('/at_message/' + id + '/log', 'log', 640, 480);
 }
 
 function delete_channel(id, name) {

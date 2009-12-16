@@ -35,16 +35,17 @@ class SendClickatellMessageJob
       response = request.get(uri)
       result = response.body[4 ... response.body.length]
     rescue => e
-      ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
       msg.tries += 1
       msg.save
+      ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
       raise
     else    
       msg.state = 'delivered'
       msg.tries += 1
       msg.save
     end
-    
+
+    ApplicationLogger.message_channeled msg, channel
     result
   end
   

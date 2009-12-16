@@ -31,7 +31,7 @@ class PushQstMessageJob
     
     # If there are no newer messages, finish
     if new_msgs.length == 0
-      #app.logger.no_new_messages
+      RAILS_DEFAULT_LOGGER.info "Push QST in application #{app.name}: no new messages"
       app.set_last_at_guid(last_msg.guid) unless last_msg.nil?
       return :success
     end
@@ -41,6 +41,9 @@ class PushQstMessageJob
     
     # Mark new status for messages based on post result increasing retries
     ATMessage.update_msgs_status new_msgs, app.max_tries, last_id
+    
+    # Logging: say that valid messages were returned and invalid no
+    ATMessage.log_delivery(new_msgs, app, 'qst')
     
     # Save changes to the app
     app.set_last_at_guid last_id
@@ -115,7 +118,11 @@ class PushQstMessageJob
     return nil
   else
     etag = response['etag']
-    #app.logger.pushed_n_messages msgs.length, etag
+    if etag.nil?
+      RAILS_DEFAULT_LOGGER.info "Push QST in application #{app.name}: posted '#{msgs.length}' messages to server"
+    else
+      RAILS_DEFAULT_LOGGER.info "Push QST in application #{app.name}: posted '#{msgs.length}' messages to server up to id '#{etag}'"
+    end
     return etag
   end
   

@@ -53,10 +53,6 @@ begin
         end
     end
     
-    def service_stop
-      exit!
-    end
-    
   end
   
   # Start the loop iif this file was invoked directly

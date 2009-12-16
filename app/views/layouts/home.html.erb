@@ -6,12 +6,12 @@
   <%= yield :head%>
 </head>
 <body>
-<h2>Welcome to nuntium</h2>
-
-<% if !@application.nil? && !@application.id.nil? %>
-  <h3>Current application is: <%= @application.name %> (<%= link_to "logoff", :controller => :home, :action => :logoff %>)</h3>
+<% if @hide_title.nil? %>
+  <h2>Welcome to nuntium</h2>
+  <% if !@application.nil? && !@application.id.nil? %>
+    <h3>Current application is: <%= @application.name %> (<%= link_to "logoff", :controller => :home, :action => :logoff %>)</h3>
+  <% end %>
 <% end %>
-
 <%= yield %>
 </body>
 </html>

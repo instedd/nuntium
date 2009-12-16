@@ -18,14 +18,16 @@ class SendTwitterMessageJob
       # TODO: from the response get twitter message id and assign it
       # to channel_relative_id before saving the message
     rescue => e
-      ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
       msg.tries += 1
       msg.save
+      ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
       raise
     else
       msg.state = 'delivered'
       msg.tries += 1
       msg.save
     end
+    
+    ApplicationLogger.message_channeled msg, channel
   end
 end

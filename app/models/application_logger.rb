@@ -3,85 +3,72 @@ class ApplicationLogger
     @application_id = application_id
   end
   
-  def protocol_not_found_for(ao_msg)
+  def protocol_not_found_for_ao_message(ao_msg)
     error(:ao_message_id => ao_msg.id, :message => "Protocol not found in 'to' field")
   end
 
-  def wrong_interface(expected, actual)
-    error(:message => "Found interface #{actual} when expecting #{expected}")
-  end
-  
-  def no_channel_found_for(protocol, ao_msg)
+  def no_channel_found_for_ao_message(protocol, ao_msg)
     error(:ao_message_id => ao_msg.id, :message => "No channel found for protocol '#{protocol}'")
   end
   
-  def app_not_found(app_id=nil)
-    if app_id.nil?
-      error(:message => "Application not found")
-    else
-      error(:message => "Application with id '#{app_id}' not found")
-    end
-      
+  def at_message_delivery_succeeded(msg, interface)
+    info(:at_message_id => msg.id, :message => "Try number #{msg.tries} for delivering message through interface #{interface} succeeded")
   end
   
-  def no_url_in_configuration()
-    error(:message => 'No url found in application configuration for pushing/pulling messages')
+  def at_message_delivery_exceeded_tries(msg, interface)
+    info(:at_message_id => msg.id, :message => "Try number #{msg.tries} for delivering message through interface #{interface} exceeded maximum number of tries")
   end
-
+  
+  def ao_message_delivery_succeeded(msg, interface)
+    info(:ao_message_id => msg.id, :message => "Try number #{msg.tries} for delivering message through interface #{interface} succeeded")
+  end
+  
+  def ao_message_delivery_exceeded_tries(msg, interface)
+    info(:ao_message_id => msg.id, :message => "Try number #{msg.tries} for delivering message through interface #{interface} exceeded maximum number of tries")
+  end
+  
+  def ao_message_received(msg, interface)
+    info(:ao_message_id => msg.id, :message => "Message received via interface #{interface}")
+  end
+  
+  def ao_message_handled_by_channel(msg, channel)
+    info(:ao_message_id => msg.id, :message => "Message handled by #{channel.kind} channel '#{channel.name}'")
+  end
+  
+  def at_message_received_via_channel(msg, channel)
+    info(:at_message_id => msg.id, :message => "Message received via #{channel.kind} channel '#{channel.name}'")
+  end
+  
+  def at_message_received_via(msg, via)
+    info(:at_message_id => msg.id, :message => "Message received via #{via}")
+  end
+  
   def error_routing_msg(ao_msg, e)
     error(:message => "Error routing message '#{e.to_s}'", :ao_message_id => ao_msg.id)
   end
 
   def error_obtaining_last_id(message)
-    error(:message => "Error obtaining last id from server: '#{message}'")
+    error(:message => "Error obtaining last id from server in QST operation: '#{message}'")
   end
 
   def error_initializing_http(exception)
-    error(:message => "Error initializing http connection: '#{exception.message}'")
+    error(:message => "Error initializing http connection in QST operation: '#{exception.message}'")
   end
   
   def error_posting_msgs(msg)
-    error(:message => "Error posting messages to server: '#{msg}'")
+    error(:message => "Error posting messages to server in QST operation: '#{msg}'")
   end
   
   def error_pulling_msgs(msg)
-    error(:message => "Error pulling messages from server: '#{msg}'")
+    error(:message => "Error pulling messages from server in QST operation: '#{msg}'")
   end
   
   def error_processing_msgs(msg)
-    error(:message => "Error processing messages from server: '#{msg}'")
+    error(:message => "Error processing messages from server in QST operation: '#{msg}'")
   end
 
   def more_than_one_channel_found_for(protocol, ao_msg)
     warning(:ao_message_id => ao_msg.id, :message => "More than one channel found for protocol '#{protocol}'")
-  end
-
-  def starting_qst_push(uri)
-    info(:message => "Starting new QST push job to server #{uri}")
-  end
-
-  def starting_qst_pull(uri)
-    info(:message => "Starting new QST pull job from server #{uri}")
-  end
-
-  def pushed_n_messages(n, last_id = nil)
-    if last_id.nil?
-      info(:message => "Posted '#{n}' messages to server")
-    else
-      info(:message => "Posted '#{n}' messages to server up to id '#{last_id}'")
-    end
-  end
-
-  def pulled_n_messages(n, last_id = nil)
-    if last_id.nil?
-      info(:message => "Pulled '#{n}' messages from server")
-    else
-      info(:message => "Pulled '#{n}' messages from server up to id '#{last_id}'")
-    end
-  end
-
-  def no_new_messages
-    info(:message => 'No new messages to push/pull to the server')
   end
   
   def info(hash_or_message)
@@ -103,7 +90,12 @@ class ApplicationLogger
   
   def self.exception_in_channel_and_ao_message(channel, ao_msg, exception)
     logger = ApplicationLogger.new(channel.application_id)
-    logger.error(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => exception.to_s)
+    logger.error(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => "Try number #{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' failed:" + exception.to_s)
+  end
+  
+  def self.message_channeled(ao_msg, channel)
+    logger = ApplicationLogger.new(channel.application_id)
+    logger.info(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => "Try number #{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' succeeded")
   end
   
   def create(hash_or_message, severity)

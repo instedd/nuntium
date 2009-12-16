@@ -53,6 +53,8 @@ class ReceiveTwitterMessageJob
         msg.channel_relative_id = twit.id
         msg.state = 'queued'
         msg.save
+        
+        logger.at_message_received_via_channel msg, @channel
       end
       
       query[:page] += 1

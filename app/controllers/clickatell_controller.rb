@@ -13,6 +13,8 @@ class ClickatellController < ApplicationController
     msg.state = 'queued'
     msg.save!
     
+    @application.logger.at_message_received_via_channel msg, @channel
+    
     head :ok
   end
   

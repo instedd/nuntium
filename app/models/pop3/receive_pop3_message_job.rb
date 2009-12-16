@@ -27,6 +27,8 @@ class ReceivePop3MessageJob
       raise
     end
     
+    logger = ApplicationLogger.new(@application_id)
+    
     pop.each_mail do |mail|
       tmail = TMail::Mail.parse(mail.pop)
       tmail_body = get_body tmail
@@ -42,6 +44,8 @@ class ReceivePop3MessageJob
         msg.timestamp = tmail.date
         msg.state = 'queued'
         msg.save
+        
+        logger.at_message_received_via_channel msg, channel
       end
       
       mail.delete
