@@ -39,13 +39,13 @@ module ClientQstJob
   # Validates application for QST
   def validate_app(app)
     if app.nil?
-      app.logger.app_not_found
+      RAILS_DEFAULT_LOGGER.warn 'Validate application for QST: application not found'
       return :error_no_application
     elsif app.configuration.nil? or app.configuration[:url].nil?
-      app.logger.no_url_in_configuration
+      RAILS_DEFAULT_LOGGER.warn "Validate application for QST: no url found in application configuration for pushing/pulling messages in application #{app.name}"
       return :error_no_url_in_configuration
     elsif not app.interface == 'qst'
-      app.logger.wrong_interface 'qst', app.interface
+      RAILS_DEFAULT_LOGGER.warn "Validate application for QST: found interface #{app.interface} when expecting qst in application #{app.name}"
       return :error_wrong_interface
     end
     nil
