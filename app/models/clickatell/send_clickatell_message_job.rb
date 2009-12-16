@@ -1,6 +1,7 @@
 require 'uri'
 require 'net/http'
 require 'net/https'
+include ActiveSupport::Multibyte
 
 class SendClickatellMessageJob
   attr_accessor :application_id, :channel_id, :message_id
@@ -25,7 +26,12 @@ class SendClickatellMessageJob
       uri = append uri, 'mo', '1'
     end
     uri = append uri, 'to', msg.to.without_protocol
-    uri = append uri, 'text', msg.subject_and_body
+    if is_low_ascii(msg.subject_and_body)
+      uri = append uri, 'text', msg.subject_and_body
+    else
+      uri = append uri, 'text', to_unicode_raw_string(msg.subject_and_body)
+      uri = append uri, 'unicode', '1'
+    end
     
     host = URI::parse('https://api.clickatell.com')
     
@@ -58,5 +64,14 @@ class SendClickatellMessageJob
     str += '='
     str += CGI::escape(value)
     str
+  end
+  
+  def is_low_ascii(str)
+    Chars.u_unpack(str).all? { |x| x < 128 }
+  end
+  
+  def to_unicode_raw_string(str)
+    chars = Chars.u_unpack(str).map { |x| x.to_s(16).rjust(4, '0') }
+    chars.to_s
   end
 end
