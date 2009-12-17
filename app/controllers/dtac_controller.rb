@@ -20,7 +20,7 @@ class DtacController < ApplicationController
   end
   
   def authenticate
-    @application = Application.find_by_id(params[:application_id]) || Application.find_by_name(params[:application_id])
+    @application = Application.find_by_id_or_name(params[:application_id])
     return !@application.nil?
   end
   

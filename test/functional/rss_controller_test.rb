@@ -381,6 +381,16 @@ class RssControllerTest < ActionController::TestCase
     assert_response 401
   end
   
+  test "index not authorized wrong interface" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
+    app.update_attribute :interface, 'qst'
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
+    get :index
+    
+    assert_response 401
+  end
+  
   # Utility methods follow
   def new_rss_feed(to)
     <<-eos
