@@ -40,17 +40,17 @@ begin
     include CronDaemonRun
     
     def service_init
-      require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
-      require(File.join(RAILS_ROOT, 'config', 'environment'))
       true  
     end
     
     def service_main
-        while running?
-          cron_run
-          break if not running?
-          sleep SLEEP
-        end
+      require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
+      require(File.join(RAILS_ROOT, 'config', 'environment'))
+      while running?
+        cron_run
+        break if not running?
+        sleep SLEEP
+      end
     end
     
   end

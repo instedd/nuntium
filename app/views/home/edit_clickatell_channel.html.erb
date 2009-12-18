@@ -20,6 +20,10 @@
     <%= c.text_field :api_id, :value => @channel[:configuration][:api_id] %>
     </p>
     <p>
+    <%= c.label :from %><br/>
+    <%= c.text_field :from, :value => @channel[:configuration][:from]%>
+    </p>
+    <p>
     <%= c.label :incoming_password %><br/>
     <%= c.password_field :incoming_password, :value => @channel[:configuration][:incoming_password] %>
     </p>

@@ -12,12 +12,12 @@ begin
     SLEEP = 5
   
     def service_init
-      require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
-      require(File.join(RAILS_ROOT, 'config', 'environment'))
       true
     end
   
     def service_main
+      require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
+      require(File.join(RAILS_ROOT, 'config', 'environment'))
       say "*** Starting job worker #{Delayed::Job.worker_name}"
 
       while running?

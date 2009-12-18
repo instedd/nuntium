@@ -38,4 +38,17 @@ class ApplicationTest < ActiveSupport::TestCase
     assert app1.authenticate('foo')
     assert !app1.authenticate('foo2')
   end
+  
+  test "should find by id if numerical" do
+    app = Application.create(:name => 'app', :password => 'foo')
+    found = Application.find_by_id_or_name(app.id.to_s)
+    assert_equal app, found
+  end
+  
+  test "should find by name if string" do
+    app = Application.create(:name => 'app2', :password => 'foo')
+    found = Application.find_by_id_or_name('app2')
+    assert_equal app, found
+  end  
+  
 end
