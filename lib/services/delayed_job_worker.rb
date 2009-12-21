@@ -1,17 +1,15 @@
 # Initialize Ruby on Rails
 begin
-  LOG_FILE = 'C:\\ruby.log'
-  ENV["RAILS_ENV"] = 'development' # ARGV[0] unless ARGV.empty?
+  # LOG_FILE = 'C:\\ruby.log'
+  ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   SLEEP = 5
-  
-  File.open(LOG_FILE, 'a'){ |fh| fh.puts 'Starting a new worker!' }   
   
   require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
   require(File.join(RAILS_ROOT, 'config', 'environment'))
   
   def say(text)
     logger.info text if logger
-    File.open(LOG_FILE, 'a'){ |fh| fh.puts text }   
+    # File.open(LOG_FILE, 'a'){ |fh| fh.puts text }   
   end
   
   def logger
@@ -37,7 +35,7 @@ begin
   end
 rescue => err
   # File.open("C:\\temp_ruby.log", 'a'){ |fh| fh.puts 'Daemon failure: ' + err }
-  File.open(LOG_FILE, 'a'){ |fh| fh.puts 'Daemon failure: ' + err }   
+  logger.error "Daemon failure: #{err}"
 ensure
   Delayed::Job.clear_locks!
 end

@@ -13,7 +13,6 @@ class SendSmtpMessageJob
     channel = Channel.find @channel_id
     msg = AOMessage.find @message_id
     config = channel.configuration
-    
     channel_relative_id = "<#{msg.guid}@nuntium.instedd.org>"
     
 msgstr = <<-END_OF_MESSAGE
@@ -52,9 +51,13 @@ END_OF_MESSAGE
         msg.channel_relative_id = channel_relative_id
         msg.save
       end
-    
       ApplicationLogger.message_channeled msg, channel
       smtp.finish
     end
   end
+  
+  def to_s
+    "<SendSmtpMessageJob:#{@message_id}>"
+  end
+  
 end
