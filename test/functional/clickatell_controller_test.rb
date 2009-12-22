@@ -43,7 +43,7 @@ class ClickatellControllerTest < ActionController::TestCase
     get :index, :application_id => app.name, :api_id => api_id, :from => from, :to => to, :text => text, :timestamp => timestamp, :charset => charset, :moMsgId => mo_msg_id, :udh => udh
     assert_response :ok
     
-    api_id, from, to, timestamp, charset, udh, text, mo_msg_id =  '1034412',  '442345235413', '61234234231', '2009-12-16 19:34:40', 'ISO-8859-1', '050003050202', 'world', '1'
+    api_id, from, to, timestamp, charset, udh, text, mo_msg_id =  '1034412',  '442345235413', '61234234231', '2009-12-16 19:34:40', 'ISO-8859-1', '050003050202', 'world', '2'
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'incoming')
     get :index, :application_id => app.name, :api_id => api_id, :from => from, :to => to, :text => text, :timestamp => timestamp, :charset => charset, :moMsgId => mo_msg_id, :udh => udh
     assert_response :ok
@@ -59,7 +59,7 @@ class ClickatellControllerTest < ActionController::TestCase
     assert_equal 'sms://' + to, msg.to
     assert_equal 'Hello world', msg.subject
     assert_equal Time.parse('2009-12-16 17:34:40 UTC'), msg.timestamp
-    assert_equal '1', msg.channel_relative_id
+    assert_equal '2', msg.channel_relative_id
     assert_equal 'queued', msg.state
     assert_not_nil msg.guid
   end
@@ -70,7 +70,7 @@ class ClickatellControllerTest < ActionController::TestCase
     chan.configuration = {:user => 'user', :password => 'password', :api_id => '1034412', :incoming_password => 'incoming' }
     chan.save
     
-    api_id, from, to, timestamp, charset, udh, text, mo_msg_id =  '1034412',  '442345235413', '61234234231', '2009-12-16 19:34:40', 'ISO-8859-1', '050003050202', 'world', '1'
+    api_id, from, to, timestamp, charset, udh, text, mo_msg_id =  '1034412',  '442345235413', '61234234231', '2009-12-16 19:34:40', 'ISO-8859-1', '050003050202', 'world', '2'
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'incoming')
     get :index, :application_id => app.name, :api_id => api_id, :from => from, :to => to, :text => text, :timestamp => timestamp, :charset => charset, :moMsgId => mo_msg_id, :udh => udh
     assert_response :ok
