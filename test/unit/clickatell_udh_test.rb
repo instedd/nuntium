@@ -19,7 +19,7 @@ class ClickatellUdhTest < ActiveSupport::TestCase
   end
   
   test "from complex" do
-    udh = ClickatellUdh.from_string('0b0504c35000000003f51202')
+    udh = ClickatellUdh.from_string('0b0804c35000000003f51202')
     assert_equal 0xF5, udh.reference_number
     assert_equal 0x12, udh.part_count
     assert_equal 0x02, udh.part_number

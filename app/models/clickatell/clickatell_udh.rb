@@ -21,6 +21,8 @@ class ClickatellUdh
         udh.part_number = self.get_byte str, i
         return udh
       else
+        i += 1
+        byte = self.get_byte str, i
         i += byte + 1
       end
     end
