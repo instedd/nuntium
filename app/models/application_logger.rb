@@ -35,12 +35,20 @@ class ApplicationLogger
     info(:ao_message_id => msg.id, :message => "Message handled by #{channel.kind} channel '#{channel.name}'")
   end
   
+  def ao_message_created_via_ui(msg)
+    info(:ao_message_id => msg.id, :message => "Message created via user interface")
+  end
+  
   def at_message_received_via_channel(msg, channel)
     info(:at_message_id => msg.id, :message => "Message received via #{channel.kind} channel '#{channel.name}'")
   end
   
   def at_message_received_via(msg, via)
     info(:at_message_id => msg.id, :message => "Message received via #{via}")
+  end
+  
+  def at_message_created_via_ui(msg)
+    info(:at_message_id => msg.id, :message => "Message created via user interface")
   end
   
   def error_routing_msg(ao_msg, e)

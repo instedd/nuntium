@@ -65,7 +65,7 @@ class HomeController < ApplicationController
     
     @ao_messages = AOMessage.paginate(
       :conditions => @ao_conditions,
-      :order => 'timestamp DESC',
+      :order => 'id DESC',
       :page => @ao_page,
       :per_page => @results_per_page
       )
@@ -74,7 +74,7 @@ class HomeController < ApplicationController
       
     @at_messages = ATMessage.paginate(
       :conditions => @at_conditions,
-      :order => 'timestamp DESC',
+      :order => 'id DESC',
       :page => @at_page,
       :per_page => @results_per_page
       )
@@ -365,6 +365,56 @@ class HomeController < ApplicationController
     @channel.delete
     
     flash[:notice] = 'Channel was deleted'
+    redirect_to :action => :home
+  end
+  
+  def new_ao_message
+    @kind = 'ao'
+    render "new_message.html.erb"
+  end
+  
+  def new_at_message
+    @kind = 'at'
+    render "new_message.html.erb"
+  end
+  
+  def create_ao_message
+    m = params[:message]
+  
+    msg = AOMessage.new
+    msg.application_id = @application.id
+    msg.from = m[:from]
+    msg.to = m[:to]
+    msg.subject = m[:subject]
+    msg.body = m[:body]
+    msg.timestamp = DateTime.parse(m[:timestamp]) rescue Time.new.utc
+    msg.guid = m[:guid]
+    
+    @application.logger.ao_message_created_via_ui msg
+    
+    @application.route msg
+    
+    flash[:notice] = 'AO Message was created'
+    redirect_to :action => :home
+  end
+  
+  def create_at_message
+    m = params[:message]
+  
+    msg = ATMessage.new
+    msg.application_id = @application.id
+    msg.from = m[:from]
+    msg.to = m[:to]
+    msg.subject = m[:subject]
+    msg.body = m[:body]
+    msg.timestamp = DateTime.parse(m[:timestamp]) rescue Time.new.utc
+    msg.guid = m[:guid]
+    msg.state = 'queued'
+    msg.save!
+    
+    @application.logger.at_message_created_via_ui msg
+    
+    flash[:notice] = 'AT Message was created'
     redirect_to :action => :home
   end
   

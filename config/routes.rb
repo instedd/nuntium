@@ -25,6 +25,10 @@ ActionController::Routing::Routes.draw do |map|
   map.mark_at_messages_as_cancelled '/mark_at_messages_as_cancelled', :controller => 'home', :action => :mark_at_messages_as_cancelled
   map.view_ao_message_log '/ao_message/:id/log', :controller => 'home', :action => :view_ao_message_log
   map.view_at_message_log '/at_message/:id/log', :controller => 'home', :action => :view_at_message_log
+  map.new_ao_message '/ao_message/new', :controller => 'home', :action => :new_ao_message
+  map.new_at_message '/at_message/new', :controller => 'home', :action => :new_at_message
+  map.create_ao_message '/ao_message/create', :controller => 'home', :action => :create_ao_message
+  map.create_at_message '/at_message/create', :controller => 'home', :action => :create_at_message
   
   map.twitter_callback '/twitter_callback', :controller => 'home', :action => :twitter_callback
 
