@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091214154931) do
+ActiveRecord::Schema.define(:version => 20091222092416) do
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -74,6 +74,17 @@ ActiveRecord::Schema.define(:version => 20091214154931) do
     t.string   "configuration"
     t.string   "protocol"
     t.integer  "direction"
+  end
+
+  create_table "clickatell_message_parts", :force => true do |t|
+    t.string   "originating_isdn"
+    t.datetime "timestamp"
+    t.integer  "reference_number"
+    t.integer  "part_count"
+    t.integer  "part_number"
+    t.string   "text"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "cron_tasks", :force => true do |t|

@@ -104,7 +104,6 @@ class ApplicationLogger
     end
     hash_or_message[:application_id] = @application_id
     hash_or_message[:severity] = severity
-    puts hash_or_message if ENV['RAILS_ENV'] == 'test'
     ApplicationLog.create(hash_or_message)
   end
 end

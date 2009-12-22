@@ -8,6 +8,8 @@ class ClickatellUdh
   # Returns a ClickatellUdh from the given string
   # or false if it's not a valid udh string.
   def self.from_string(str)
+    return false if str.nil?
+  
     i = 1
     while i < str.length/2
       byte = self.get_byte str, i

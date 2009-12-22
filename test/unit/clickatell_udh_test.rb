@@ -1,6 +1,11 @@
 require 'test_helper'
 
 class ClickatellUdhTest < ActiveSupport::TestCase
+  test "nil returns false" do
+    udh = ClickatellUdh.from_string(nil)
+    assert_false udh
+  end
+
   test "empty string returns false" do
     udh = ClickatellUdh.from_string('')
     assert_false udh
