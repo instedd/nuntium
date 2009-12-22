@@ -1,6 +1,6 @@
 # Initialize Ruby on Rails
 begin
-  LOG_FILE = 'C:\\ruby.log'
+  # LOG_FILE = 'C:\\ruby.log'
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   
   require 'win32/daemon'
@@ -11,28 +11,28 @@ begin
   # and adapted to be run as a Windows Service.
   class DelayedJobDaemon < Daemon
     SLEEP = 5
+    NUMBER_OF_PROCESSES = 2
   
     def service_init
-      File.open(LOG_FILE, 'a'){ |fh| fh.puts "8" }
       true
     end
   
     def service_main
       require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
       require(File.join(RAILS_ROOT, 'config', 'environment'))
+      
+      current_dir = File.dirname(File.expand_path($0)).tr('/', '\\');
     
-      File.open(LOG_FILE, 'a'){ |fh| fh.puts "9" }
       ruby = File.join(CONFIG['bindir'], 'ruby').tr('/', '\\')
-      path = ' "' + File.dirname(File.expand_path($0)).tr('/', '\\')
+      path = ' "' + current_dir
       path += '\\delayed_job_worker.rb"'
       cmd = ruby + path + ' ' + ENV["RAILS_ENV"]
       
-      File.open(LOG_FILE, 'a'){ |fh| fh.puts "Command: #{cmd}" }   
-      
+      # Create processes and pids file for each of them
       @processes = []
-      (1..8).each do
+      (1..NUMBER_OF_PROCESSES).each do
         pi = Process.create(:app_name => cmd)
-        File.open(LOG_FILE, 'a'){ |fh| fh.puts pi.to_s }   
+        File.open(current_dir + "\\" + pi.process_id.to_s, 'a') { |fh| fh.puts "Working" }
         @processes.push pi
       end
       
@@ -45,8 +45,11 @@ begin
     end
     
     def service_stop
-      @processes.each do |p|
-        Process.kill(9, p.process_id)
+      current_dir = File.dirname(File.expand_path($0)).tr('/', '\\');
+    
+      # Delete the pids file so that the processes can exit cleanly
+      @processes.each do |pi|
+        File.delete(current_dir + "\\" + pi.process_id.to_s)
       end
     end
   

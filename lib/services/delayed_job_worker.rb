@@ -1,3 +1,9 @@
+def finished
+  current_dir = File.dirname(File.expand_path($0)).tr('/', '\\');
+  process_file = current_dir + '\\' + Process.pid.to_s
+  !File.exists?(process_file)
+end
+
 # Initialize Ruby on Rails
 begin
   # LOG_FILE = 'C:\\ruby.log'
@@ -18,7 +24,7 @@ begin
   
   say "*** Starting job worker #{Delayed::Job.worker_name}"
 
-  while true
+  while !finished
     result = nil
 
     realtime = Benchmark.realtime do
@@ -33,9 +39,12 @@ begin
       say "#{count} jobs processed at %.4f j/s, %d failed ..." % [count / realtime, result.last]
     end
   end
+  
+  
 rescue => err
-  # File.open("C:\\temp_ruby.log", 'a'){ |fh| fh.puts 'Daemon failure: ' + err }
+  File.open("C:\\ruby.log", 'a'){ |fh| fh.puts 'Daemon failure: ' + err }
   logger.error "Daemon failure: #{err}"
 ensure
+  # say "*** Stopping job worker #{Delayed::Job.worker_name}"
   Delayed::Job.clear_locks!
 end
