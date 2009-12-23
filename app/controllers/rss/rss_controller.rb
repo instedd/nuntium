@@ -73,6 +73,7 @@ class RssController < ApplicationController
     end
     
     response.last_modified = @at_messages.last.timestamp
+    render :layout => false
   end
   
   # POST /rss
