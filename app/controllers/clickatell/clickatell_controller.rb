@@ -1,3 +1,5 @@
+require 'iconv'
+
 class ClickatellController < ApplicationController
   before_filter :authenticate
 
@@ -55,7 +57,7 @@ class ClickatellController < ApplicationController
     msg.application_id = @application.id
     msg.from = 'sms://' + params[:from]
     msg.to = 'sms://' + params[:to]
-    msg.subject = text
+    msg.subject = Iconv.new('UTF-8', params[:charset]).iconv(text)
     msg.channel_relative_id = params[:moMsgId]
     msg.timestamp = get_timestamp
     msg.state = 'queued'
