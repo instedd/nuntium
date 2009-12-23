@@ -28,15 +28,11 @@ class ApplicationLogger
   end
   
   def ao_message_received(msg, interface)
-    info(:ao_message_id => msg.id, :message => "Message received via interface #{interface}")
+    info(:ao_message_id => msg.id, :message => "Message received via #{interface} interface")
   end
   
   def ao_message_handled_by_channel(msg, channel)
     info(:ao_message_id => msg.id, :message => "Message handled by #{channel.kind} channel '#{channel.name}'")
-  end
-  
-  def ao_message_created_via_ui(msg)
-    info(:ao_message_id => msg.id, :message => "Message created via user interface")
   end
   
   def at_message_received_via_channel(msg, channel)

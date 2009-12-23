@@ -1,6 +1,6 @@
 <h4>Create new <%= @kind == 'ao' ? 'Application Originated' : 'Application Terminated' %> Message</h4>
 
-<% form_for :message, :url => { :controller => 'home', :action => (@kind == 'ao' ? :create_ao_message : :create_at_message)} do |f| %>
+<% form_for :message, :url => { :controller => 'message', :action => (@kind == 'ao' ? :create_ao_message : :create_at_message)} do |f| %>
   <% [:from, :to, :subject].each do |field| %>
     <p>
     <%= f.label field %><br/>

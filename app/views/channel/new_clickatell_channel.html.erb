@@ -1,6 +1,6 @@
 <h4>Create new Clickatell channel</h4>
 
-<% form_for :channel, :url => { :controller => 'home', :action => :create_channel, :kind => params[:kind] } do |f| %>
+<% form_for :channel, :url => { :controller => 'channel', :action => :create_channel, :kind => params[:kind] } do |f| %>
   <%= f.error_messages %>
   <input type="hidden" name="direction" value="<%= Channel::Both %>" />
   <p>

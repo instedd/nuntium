@@ -14,23 +14,26 @@ ActionController::Routing::Routes.draw do |map|
   map.home '/home', :controller => 'home', :action => :home
   map.edit_application '/application/edit', :controller => 'home', :action => :edit_application
   map.update_application '/application/update', :controller => 'home', :action => :update_application
-  map.edit_channel '/channel/edit/:id', :controller => 'home', :action => :edit_channel
-  map.update_channel '/channel/update/:id', :controller => 'home', :action => :update_channel
-  map.update_twitter_channel '/channel/update/twitter/:id', :controller => 'home', :action => :update_twitter_channel
-  map.delete_channel '/channel/delete/:id', :controller => 'home', :action => :delete_channel
-  map.new_channel '/channel/new/:kind', :controller => 'home', :action => :new_channel
-  map.create_twitter_channel '/channel/create/twitter', :controller => 'home', :action => :create_twitter_channel, :kind => 'twitter'
-  map.create_channel '/channel/create/:kind', :controller => 'home', :action => :create_channel
-  map.mark_ao_messages_as_cancelled '/mark_ao_messages_as_cancelled', :controller => 'home', :action => :mark_ao_messages_as_cancelled
-  map.mark_at_messages_as_cancelled '/mark_at_messages_as_cancelled', :controller => 'home', :action => :mark_at_messages_as_cancelled
-  map.view_ao_message_log '/ao_message/:id/log', :controller => 'home', :action => :view_ao_message_log
-  map.view_at_message_log '/at_message/:id/log', :controller => 'home', :action => :view_at_message_log
-  map.new_ao_message '/ao_message/new', :controller => 'home', :action => :new_ao_message
-  map.new_at_message '/at_message/new', :controller => 'home', :action => :new_at_message
-  map.create_ao_message '/ao_message/create', :controller => 'home', :action => :create_ao_message
-  map.create_at_message '/at_message/create', :controller => 'home', :action => :create_at_message
   
+  map.new_channel '/channel/new/:kind', :controller => 'channel', :action => :new_channel
+  map.create_channel '/channel/create/:kind', :controller => 'channel', :action => :create_channel
+  map.edit_channel '/channel/edit/:id', :controller => 'channel', :action => :edit_channel
+  map.update_channel '/channel/update/:id', :controller => 'channel', :action => :update_channel
+  map.delete_channel '/channel/delete/:id', :controller => 'channel', :action => :delete_channel  
+  
+  map.create_twitter_channel '/channel/create/twitter', :controller => 'twitter', :action => :create_twitter_channel, :kind => 'twitter'
+  map.update_twitter_channel '/channel/update/twitter/:id', :controller => 'twitter', :action => :update_twitter_channel
   map.twitter_callback '/twitter_callback', :controller => 'home', :action => :twitter_callback
+  
+  map.new_ao_message '/message/ao/new', :controller => 'message', :action => :new_ao_message
+  map.create_ao_message '/message/ao/create', :controller => 'message', :action => :create_ao_message
+  map.view_ao_message_log '/message/ao/:id/log', :controller => 'message', :action => :view_ao_message_log
+  map.mark_ao_messages_as_cancelled '/message/ao/mark_as_cancelled', :controller => 'message', :action => :mark_ao_messages_as_cancelled
+  
+  map.new_at_message '/message/at/new', :controller => 'message', :action => :new_at_message
+  map.create_at_message '/message/at/create', :controller => 'message', :action => :create_at_message
+  map.view_at_message_log '/message/at/:id/log', :controller => 'message', :action => :view_at_message_log
+  map.mark_at_messages_as_cancelled '/message/at/mark_as_cancelled', :controller => 'message', :action => :mark_at_messages_as_cancelled
 
   # The priority is based upon order of creation: first created -> highest priority.
 

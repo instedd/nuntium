@@ -1,6 +1,6 @@
 <h4>Edit channel <%= @channel.name %></h4>
 
-<% form_for :channel, :url => { :controller => 'home', :action => :update_channel } do |f| %>
+<% form_for :channel, :url => { :controller => 'channel', :action => :update_channel } do |f| %>
   <%= f.error_messages %>
   <p>
   <%= f.label :protocol %><br/>

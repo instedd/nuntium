@@ -1,12 +1,14 @@
 require 'will_paginate'
 
-class HomeController < ApplicationController
+class HomeController < AuthenticatedController
+
+  include MessageFilter
 
   before_filter :check_login, :except => [:index, :login, :create_application]
 
   def index
     if !session[:application].nil?
-      redirect_to :home
+      redirect_to_home
       return
     end
   
@@ -18,7 +20,7 @@ class HomeController < ApplicationController
     app = params[:application]
     
     if app.nil?
-      redirect_to :action => :home
+      redirect_to_home
       return
     end
     
@@ -33,14 +35,14 @@ class HomeController < ApplicationController
     @application.clear_password
     
     session[:application] = @application
-    redirect_to :action => :home
+    redirect_to_home
   end
   
   def create_application
     app = params[:new_application]
     
     if app.nil?
-      redirect_to :action => :home
+      redirect_to_home
       return
     end
     
@@ -55,7 +57,7 @@ class HomeController < ApplicationController
     new_app.clear_password
     
     session[:application] = new_app
-    redirect_to :action => :home
+    redirect_to_home
   end
   
   def home
@@ -90,66 +92,6 @@ class HomeController < ApplicationController
     @channels = @application.channels.all
   end
   
-  def build_ao_messages_filter
-    @ao_page = params[:ao_page]
-    @ao_page = 1 if @ao_page.blank?    
-    @ao_search = params[:ao_search]
-    @ao_previous_search = params[:ao_previous_search]
-    # Reset pages if search changes (so as to not stay in a later page that doesn't exist in the new result set)
-    @ao_page = 1 if !@ao_previous_search.blank? and @ao_previous_search != @ao_search
-    @ao_conditions = build_message_filter(@ao_search)
-  end
-  
-  def build_at_messages_filter
-    @at_page = params[:at_page]
-    @at_page = 1 if @at_page.blank?    
-    @at_search = params[:at_search]
-    @at_previous_search = params[:at_previous_search]
-    # Reset pages if search changes (so as to not stay in a later page that doesn't exist in the new result set)
-    @at_page = 1 if !@at_previous_search.blank? and @at_previous_search != @at_search
-    @at_conditions = build_message_filter(@at_search)
-  end
-  
-  def build_message_filter(search)
-    search = Search.new(search)
-    conds = ['application_id = :application_id', { :application_id => @application.id }]
-    if !search.search.nil?
-      conds[0] += ' AND ([id] = :search_exact OR [guid] = :search_exact OR [channel_relative_id] = :search_exact OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search)'
-      conds[1][:search_exact] = search.search
-      conds[1][:search] = '%' + search.search + '%'
-    end
-    
-    [:id, :guid, :channel_relative_id, :tries].each do |sym|
-      if !search[sym].nil?
-        conds[0] += " AND [#{sym}] = :#{sym}"
-        conds[1][sym] = search[sym]
-      end
-    end
-    [:from, :to, :subject, :body, :state].each do |sym|
-      if !search[sym].nil?
-        conds[0] += " AND [#{sym}] LIKE :#{sym}"
-        conds[1][sym] = '%' + search[sym] + '%'
-      end
-    end
-    if !search[:after].nil?
-      begin
-        after = Time.parse(search[:after])
-        conds[0] += ' AND timestamp >= :after'
-        conds[1][:after] = after
-      rescue
-      end
-    end
-    if !search[:before].nil?
-      begin
-        before = Time.parse(search[:before])
-        conds[0] += ' AND timestamp <= :before'
-        conds[1][:before] = before
-      rescue
-      end
-    end
-    conds
-  end
-  
   def edit_application
     @application = flash[:application] if not flash[:application].nil?
     @application.configuration ||= {} if not @application.nil?
@@ -159,7 +101,7 @@ class HomeController < ApplicationController
     app = params[:application]
     
     if app.nil?
-      redirect_to :action => :home
+      redirect_to_home
       return
     end
     
@@ -190,300 +132,13 @@ class HomeController < ApplicationController
       existing_app.clear_password
       flash[:notice] = 'Application was changed'
       session[:application] = existing_app
-      redirect_to :action => :home
+      redirect_to_home
     end
-  end
-  
-  def new_channel
-    @channel = flash[:channel]
-    
-    kind = params[:kind]
-    render "new_#{kind}_channel.html.erb"
-  end
-  
-  def create_channel
-    chan = params[:channel]
-    
-    if chan.nil?
-      redirect_to :action => :home
-      return
-    end
-    
-    @channel = Channel.new(chan)
-    @channel.application_id = @application.id
-    @channel.kind = params[:kind]
-    @channel.direction = params[:direction]
-    
-    @channel.check_valid_in_ui
-    if !@channel.save
-      @channel.clear_password
-      flash[:channel] = @channel
-      redirect_to :action => :new_channel
-      return
-    end
-    
-    flash[:notice] = 'Channel was created'
-    redirect_to :action => :home
-  end
-  
-  def create_twitter_channel
-    chan = params[:channel]
-    
-    if chan.nil?
-      redirect_to :action => :home
-      return
-    end
-    
-    @channel = Channel.new(chan)
-    if @channel.name.blank?
-      @channel.errors.add(:name, "can't be blank")
-      flash[:channel] = @channel
-      redirect_to :action => :new_channel
-      return
-    end
-    
-    require 'twitter'
-    
-    oauth = TwitterChannelHandler.new_oauth
-    
-    request_token = oauth.request_token
-  
-    session['twitter_token'] = request_token.token
-    session['twitter_secret'] = request_token.secret
-    session['twitter_channel_name'] = @channel.name
-    session['twitter_channel_welcome_message'] = @channel.configuration[:welcome_message]
-    
-    redirect_to request_token.authorize_url
-  end
-  
-  def update_twitter_channel
-    require 'twitter'
-    
-    oauth = TwitterChannelHandler.new_oauth
-    
-    request_token = oauth.request_token
-    
-    session['twitter_token'] = request_token.token
-    session['twitter_secret'] = request_token.secret
-    session['twitter_channel_id'] = params[:id]
-    session['twitter_channel_welcome_message'] = params[:channel][:configuration][:welcome_message]
-    
-    redirect_to request_token.authorize_url
-  end
-  
-  def twitter_callback
-    require 'twitter'
-    
-    oauth = TwitterChannelHandler.new_oauth
-    oauth.authorize_from_request(session['twitter_token'], session['twitter_secret'], params[:oauth_verifier])
-    profile = Twitter::Base.new(oauth).verify_credentials
-    access_token = oauth.access_token
-    
-    if session['twitter_channel_id'].nil?
-      @update = false
-      @channel = Channel.new
-      @channel.application_id = @application.id
-      @channel.name = session['twitter_channel_name']      
-      @channel.kind = 'twitter'
-      @channel.protocol = 'twitter'
-      @channel.direction = Channel::Both  
-    else
-      @update = true
-      @channel = Channel.find session['twitter_channel_id']
-    end
-    
-    @channel.configuration = {
-      :welcome_message => session['twitter_channel_welcome_message'],
-      :screen_name => profile.screen_name,
-      :token => access_token.token,
-      :secret => access_token.secret
-      }
-    
-    session['twitter_token']  = nil
-    session['twitter_secret'] = nil
-    session['twitter_channel_id'] = nil
-    session['twitter_channel_name'] = nil
-    session['twitter_channel_welcome_message'] = nil    
-
-    if @channel.save
-      flash[:notice] = @update ? 'Channel was updated' : 'Channel was created'
-    else
-      flash[:notice] = "Channel couldn't be saved"
-    end
-    redirect_to :action => :home
-  end
-  
-  def edit_channel
-    @channel = Channel.find params[:id]
-    if @channel.nil? || @channel.application_id != @application.id
-      redirect_to :action => :home
-      return
-    end
-    
-    if !flash[:channel].nil?
-      @channel = flash[:channel]
-    end
-    
-    render "edit_#{@channel.kind}_channel.html.erb"
-  end
-  
-  def update_channel
-    chan = params[:channel]
-    
-    if chan.nil?
-      redirect_to :action => :home
-      return
-    end
-    
-    @channel = Channel.find params[:id]
-    if @channel.nil? || @channel.application_id != @application.id
-      redirect_to :action => :home
-      return
-    end
-    
-    @channel.handler.update(chan)
-    
-    @channel.check_valid_in_ui
-    if !@channel.save
-      @channel.clear_password
-      flash[:channel] = @channel
-      redirect_to :action => :edit_channel
-      return
-    end
-    
-    flash[:notice] = 'Channel was updated'
-    redirect_to :action => :home
-  end
-  
-  def delete_channel
-    @channel = Channel.find params[:id]
-    if @channel.nil? || @channel.application_id != @application.id
-      redirect_to :action => :home
-      return
-    end
-    
-    @channel.delete
-    
-    flash[:notice] = 'Channel was deleted'
-    redirect_to :action => :home
-  end
-  
-  def new_ao_message
-    @kind = 'ao'
-    render "new_message.html.erb"
-  end
-  
-  def new_at_message
-    @kind = 'at'
-    render "new_message.html.erb"
-  end
-  
-  def create_ao_message
-    m = params[:message]
-  
-    msg = AOMessage.new
-    msg.application_id = @application.id
-    msg.from = m[:from]
-    msg.to = m[:to]
-    msg.subject = m[:subject]
-    msg.body = m[:body]
-    msg.timestamp = DateTime.parse(m[:timestamp]) rescue Time.new.utc
-    msg.guid = m[:guid]
-    
-    @application.logger.ao_message_created_via_ui msg
-    
-    @application.route msg
-    
-    flash[:notice] = 'AO Message was created'
-    redirect_to :action => :home
-  end
-  
-  def create_at_message
-    m = params[:message]
-  
-    msg = ATMessage.new
-    msg.application_id = @application.id
-    msg.from = m[:from]
-    msg.to = m[:to]
-    msg.subject = m[:subject]
-    msg.body = m[:body]
-    msg.timestamp = DateTime.parse(m[:timestamp]) rescue Time.new.utc
-    msg.guid = m[:guid]
-    msg.state = 'queued'
-    msg.save!
-    
-    @application.logger.at_message_created_via_ui msg
-    
-    flash[:notice] = 'AT Message was created'
-    redirect_to :action => :home
-  end
-  
-  def mark_ao_messages_as_cancelled
-    if !params[:ao_all].nil? && params[:ao_all] == '1'
-      build_ao_messages_filter
-      
-      AOMessage.update_all("state = 'cancelled'", @ao_conditions)
-      affected = AOMessage.count(:conditions => @ao_conditions)
-    else
-      ids = params[:ao_messages]
-      
-      AOMessage.update_all("state = 'cancelled'", ['id IN (?)', ids])
-      
-      affected = ids.length
-    end
-
-    flash[:notice] = "#{affected} Application Oriented messages #{affected == 1 ? 'was' : 'were'} marked as cancelled"    
-    params[:action] = :home
-    redirect_to params
-  end
-  
-  def mark_at_messages_as_cancelled
-    if !params[:at_all].nil? && params[:at_all] == '1'
-      build_at_messages_filter
-      
-      ATMessage.update_all("state = 'cancelled'", @at_conditions)
-      affected = ATMessage.count(:conditions => @at_conditions)
-    else
-      ids = params[:at_messages]
-      
-      ATMessage.update_all("state = 'cancelled'", ['id IN (?)', ids])
-      
-      affected = ids.length
-    end
-
-    flash[:notice] = "#{affected} Application Terminated messages #{affected == 1 ? 'was' : 'were'} marked as cancelled"    
-    params[:action] = :home
-    redirect_to params
-  end
-  
-  def view_ao_message_log
-    @id = params[:id]
-    @hide_title = true
-    @logs = ApplicationLog.find_all_by_ao_message_id(@id)
-    @kind = 'ao'
-    render "message_log.html.erb"
-  end
-  
-  def view_at_message_log
-    @id = params[:id]
-    @hide_title = true
-    @logs = ApplicationLog.find_all_by_at_message_id(@id)
-    @kind = 'at'
-    render "message_log.html.erb"
   end
   
   def logoff
     session[:application] = nil
     redirect_to :action => :index
-  end
-  
-  def check_login
-    if session[:application].nil?
-      redirect_to :action => :index
-      return
-    end
-    
-    @application = session[:application]
   end
 
 end

@@ -37,7 +37,7 @@ class Application < ActiveRecord::Base
   end
   
   # Route an AOMessage
-  def route(msg)
+  def route(msg, via_interface)
     if @outgoing_channels.nil?
       @outgoing_channels = self.channels.all(:conditions => ['direction = ? OR direction = ?', Channel::Outgoing, Channel::Both])
     end
@@ -51,7 +51,7 @@ class Application < ActiveRecord::Base
     if protocol.nil?
       msg.state = 'error'
       msg.save!
-      logger.ao_message_received msg, self.interface
+      logger.ao_message_received msg, via_interface
       logger.protocol_not_found_for_ao_message msg
       return true
     end
@@ -62,7 +62,7 @@ class Application < ActiveRecord::Base
     if channels.empty?
       msg.state = 'error'
       msg.save!
-      logger.ao_message_received msg, self.interface
+      logger.ao_message_received msg, via_interface
       logger.no_channel_found_for_ao_message protocol, msg
       return true
     end
@@ -71,7 +71,7 @@ class Application < ActiveRecord::Base
     msg.state = 'queued'
     msg.save!
     
-    logger.ao_message_received msg, self.interface
+    logger.ao_message_received msg, via_interface
     
     if channels.length > 1
       logger.more_than_one_channel_found_for protocol, msg

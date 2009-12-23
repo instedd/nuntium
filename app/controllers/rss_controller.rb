@@ -92,7 +92,7 @@ class RssController < ApplicationController
       msg.timestamp = item.pubDate.to_datetime
       
       # And let the application handle it
-      @application.route msg
+      @application.route msg, 'rss'
     end
      
     head :ok

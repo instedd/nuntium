@@ -1,0 +1,36 @@
+<h4>Create new DTAC channel</h4>
+
+<% form_for :channel, :url => { :controller => 'channel', :action => :create_channel, :kind => params[:kind] } do |f| %>
+  <%= f.error_messages %>
+  <input type="hidden" name="direction" value="<%= Channel::Both %>" />
+  <p>
+  <%= f.label :name %><br/>
+  <%= f.text_field :name %>
+  </p>
+  <p>
+  <%= f.label :protocol %><br/>
+  <%= f.text_field :protocol, :value => 'sms', :readonly => 'readonly' %>
+  </p>
+  <% f.fields_for :configuration do |c| %>
+    <p>
+    <%= c.label :user %><br/>
+    <%= c.text_field :user, :autocomplete => :off %>
+    </p>
+    <p>
+    <%= c.label :password %><br/>
+    <%= c.password_field :password, :autocomplete => :off %>
+    </p>
+    <p>
+    <%= c.label :sno %><br/>
+    <%= c.text_field :sno %>
+    </p>
+	<p>
+	Callback urls for incoming messages:<br/>
+    <code>/dtac/<%= @application.name %>/incoming</code><br/>
+	<code>/dtac/<%= @application.id %>/incoming</code>
+	</p>
+  <% end %>
+  <%= submit_tag 'Create channel' %>
+<% end %>
+
+<%= link_to 'Go back', :controller => :home, :action => :home %>

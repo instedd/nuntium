@@ -108,7 +108,7 @@ function mark_ao_messages_as_cancelled() {
   }
   
   var form = $('ao_messages_form');
-  form.action = '/mark_ao_messages_as_cancelled';
+  form.action = '/message/ao/mark_as_cancelled';
   form.submit();
 }
 
@@ -119,16 +119,16 @@ function mark_at_messages_as_cancelled() {
   }
   
   var form = $('at_messages_form');
-  form.action = '/mark_at_messages_as_cancelled';
+  form.action = '/message/at/mark_as_cancelled';
   form.submit();
 }
 
 function view_ao_message_log(id) {
-  openCenteredWindow('/ao_message/' + id + '/log', 'log', 640, 480);
+  openCenteredWindow('/message/ao/' + id + '/log', 'log', 640, 480);
 }
 
 function view_at_message_log(id) {
-  openCenteredWindow('/at_message/' + id + '/log', 'log', 640, 480);
+  openCenteredWindow('/message/at/' + id + '/log', 'log', 640, 480);
 }
 
 function delete_channel(id, name) {

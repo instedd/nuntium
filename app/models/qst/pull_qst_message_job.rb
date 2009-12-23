@@ -44,7 +44,7 @@ class PullQstMessageJob
     begin
       # Process successfully downloaded messages
       AOMessage.parse_xml response.body do |msg|
-        app.route(msg)
+        app.route msg, 'qst'
         last_new_id = msg.guid
         size+= 1
       end

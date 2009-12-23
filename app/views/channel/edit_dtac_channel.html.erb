@@ -1,12 +1,7 @@
-<h4>Create new DTAC channel</h4>
+<h4>Edit channel <%= @channel.name %></h4>
 
-<% form_for :channel, :url => { :controller => 'home', :action => :create_channel, :kind => params[:kind] } do |f| %>
+<% form_for :channel, :url => { :controller => 'channel', :action => :update_channel } do |f| %>
   <%= f.error_messages %>
-  <input type="hidden" name="direction" value="<%= Channel::Both %>" />
-  <p>
-  <%= f.label :name %><br/>
-  <%= f.text_field :name %>
-  </p>
   <p>
   <%= f.label :protocol %><br/>
   <%= f.text_field :protocol, :value => 'sms', :readonly => 'readonly' %>
@@ -14,23 +9,23 @@
   <% f.fields_for :configuration do |c| %>
     <p>
     <%= c.label :user %><br/>
-    <%= c.text_field :user, :autocomplete => :off %>
+    <%= c.text_field :user, :value => @channel[:configuration][:user] %>
     </p>
     <p>
     <%= c.label :password %><br/>
-    <%= c.password_field :password, :autocomplete => :off %>
+    <%= c.password_field :password, :value => @channel[:configuration][:password] %>
     </p>
     <p>
     <%= c.label :sno %><br/>
-    <%= c.text_field :sno %>
+    <%= c.text_field :sno, :value => @channel[:configuration][:sno] %>
     </p>
 	<p>
-	Callback urls for incoming messages:<br/>
+    Callback urls for incoming messages:<br/>
     <code>/dtac/<%= @application.name %>/incoming</code><br/>
 	<code>/dtac/<%= @application.id %>/incoming</code>
-	</p>
+    </p>
   <% end %>
-  <%= submit_tag 'Create channel' %>
+  <%= submit_tag 'Update channel' %>
 <% end %>
 
 <%= link_to 'Go back', :controller => :home, :action => :home %>

@@ -79,7 +79,7 @@
         <td><b><%= chan.name %></b></td>
         <td><%= chan.protocol %>://...</td>
         <td><%= chan.info.blank? ? '' : "(#{chan.info})" %></td>
-        <td><%= link_to "edit", :controller => :home, :action => :edit_channel, :id => chan.id %></td>
+        <td><%= link_to "edit", :controller => :channel, :action => :edit_channel, :id => chan.id %></td>
         <td><%= js 'delete', "delete_channel(#{chan.id}, '#{h chan.name}')" %></td>
       </tr>
     <% end %>
@@ -87,13 +87,13 @@
 <% end %>
 <br/>
 
-<%= link_to "Create new Clickatell channel", :controller => :home, :action => :new_channel, :kind => 'clickatell' %><br/>
-<%= link_to "Create new DTAC channel", :controller => :home, :action => :new_channel, :kind => 'dtac' %><br/>
-<%= link_to "Create new POP3 channel", :controller => :home, :action => :new_channel, :kind => 'pop3' %><br/>
-<%= link_to "Create new QST channel", :controller => :home, :action => :new_channel, :kind => 'qst' %><br/>
-<%= link_to "Create new SMTP channel", :controller => :home, :action => :new_channel, :kind => 'smtp' %><br/>
-<%= link_to "Create new Twitter channel", :controller => :home, :action => :new_channel, :kind => 'twitter' %><br/>
-<%= link_to "Create new SMPP channel", :controller => :home, :action => :new_channel, :kind => 'smpp' %>
+<%= link_to "Create new Clickatell channel", :controller => :channel, :action => :new_channel, :kind => 'clickatell' %><br/>
+<%= link_to "Create new DTAC channel", :controller => :channel, :action => :new_channel, :kind => 'dtac' %><br/>
+<%= link_to "Create new POP3 channel", :controller => :channel, :action => :new_channel, :kind => 'pop3' %><br/>
+<%= link_to "Create new QST channel", :controller => :channel, :action => :new_channel, :kind => 'qst' %><br/>
+<%= link_to "Create new SMTP channel", :controller => :channel, :action => :new_channel, :kind => 'smtp' %><br/>
+<%= link_to "Create new Twitter channel", :controller => :channel, :action => :new_channel, :kind => 'twitter' %><br/>
+<%= link_to "Create new SMPP channel", :controller => :channel, :action => :new_channel, :kind => 'smpp' %>
 </div>
 
 <h4><%= js 'Last Application Originated Messages', "toggle('last_ao_messages')" %></h4>
@@ -106,7 +106,7 @@
 <input type="hidden" name="at_search" value="<%= @at_search %>" />
 <input type="hidden" id="ao_all" name="ao_all" value="0" />
 
-<%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AO Message">Create new AO Message', :controller => :home, :action => :new_ao_message %> &nbsp; &nbsp;
+<%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AO Message">Create new AO Message', :controller => :message, :action => :new_ao_message %> &nbsp; &nbsp;
 Search: <input type="text" name="ao_search" value="<%= h @ao_search %>" size="50" /> <acronym title="You can filter by field like 'id:5', 'before:&quot;2007-06-03 09:39:21 UTC&quot;', 'state:queued', etc.">?</acronym> &nbsp; &nbsp;
 Select: <%= js 'all', 'select_all_ao_messages()' %>, <%= js 'none', 'select_none_ao_messages()' %> &nbsp; &nbsp;
 Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
@@ -172,7 +172,7 @@ Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
 <input type="hidden" name="ao_search" value="<%= @ao_search %>" />
 <input type="hidden" id="at_all" name="at_all" value="0" />
 
-<%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AT Message">Create new AT Message', :controller => :home, :action => :new_at_message %> &nbsp; &nbsp;
+<%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AT Message">Create new AT Message', :controller => :message, :action => :new_at_message %> &nbsp; &nbsp;
 Search: <input type="text" name="at_search" value="<%= h @at_search %>" size= "50" /> <acronym title="You can filter by field like 'id:5', 'before:&quot;2007-06-03 09:39:21 UTC&quot;', 'state:queued', etc.">?</acronym> &nbsp; &nbsp;
 Select: <%= js 'all', 'select_all_at_messages()' %>, <%= js 'none', 'select_none_at_messages()' %> &nbsp; &nbsp;
 Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
