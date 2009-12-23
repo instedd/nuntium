@@ -22,7 +22,8 @@ module DaemonController
              :service_name    => @service_name,
              :display_name     => @service_displayname,
              :description      => @service_description,
-             :binary_path_name => cmd
+             :binary_path_name => cmd,
+             :service_type     => Service::WIN32_OWN_PROCESS
           )
           puts 'Service ' + @service_name + ' installed'      
        
