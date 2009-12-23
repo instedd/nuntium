@@ -2,7 +2,7 @@ require 'will_paginate'
 
 class HomeController < AuthenticatedController
 
-  include MessageFilter
+  include MessageFilters
 
   before_filter :check_login, :except => [:index, :login, :create_application]
 

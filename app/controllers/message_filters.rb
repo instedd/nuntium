@@ -1,4 +1,4 @@
-module MessageFilter
+module MessageFilters
 
   def build_ao_messages_filter
     @ao_page = params[:ao_page]

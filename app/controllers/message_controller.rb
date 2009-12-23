@@ -1,6 +1,6 @@
 class MessageController < AuthenticatedController
 
-  include MessageFilter
+  include MessageFilters
 
   before_filter :check_login
 
