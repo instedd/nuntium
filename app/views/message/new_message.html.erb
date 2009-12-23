@@ -11,13 +11,5 @@
   <%= f.label :body %><br/>
   <%= f.text_area :body, :rows => 5, :cols => 50 %>
   </p>
-  <p>
-  <%= f.label :timestamp %><br/>
-  <%= f.text_field :timestamp, :value => Time.now.utc, :style => 'width:200px' %>
-  </p>
-  <p>
-  <%= f.label :guid %><br/>
-  <%= f.text_field :guid, :value => Guid.new.to_s, :style => 'width:260px' %>
-  </p>
   <%= submit_tag 'Create Message' %>
 <% end %>

@@ -25,6 +25,9 @@ class MessageController < AuthenticatedController
   
   def create_at_message
     msg = create_message ATMessage
+    msg.timestamp = Time.new.utc
+    msg.state = 'pending'
+    msg.save!
     
     @application.logger.at_message_created_via_ui msg
     
@@ -41,10 +44,7 @@ class MessageController < AuthenticatedController
     msg.to = m[:to]
     msg.subject = m[:subject]
     msg.body = m[:body]
-    msg.timestamp = DateTime.parse(m[:timestamp]) rescue Time.new.utc
-    msg.guid = m[:guid]
-    msg.state = 'queued'
-    msg.save!
+    return msg
   end
   
   def mark_ao_messages_as_cancelled
