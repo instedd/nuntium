@@ -89,7 +89,7 @@ class HomeController < AuthenticatedController
       :per_page => @results_per_page
       )
       
-    @channels = @application.channels.all
+    @channels = Channel.all(:conditions => ['application_id = ?', @application.id])
   end
   
   def edit_application

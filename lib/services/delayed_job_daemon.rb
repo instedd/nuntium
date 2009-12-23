@@ -1,15 +1,17 @@
 # Initialize Ruby on Rails
 begin
-  LOG_FILE = 'C:\\ruby.log'
+  # LOG_FILE = 'C:\\ruby.log'
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   
   require 'win32/daemon'
+  require 'win32/process'
   include Win32
   
   # The code for this daemon was copied from Delayed::Worker
   # and adapted to be run as a Windows Service.
   class DelayedJobDaemon < Daemon
     SLEEP = 5
+    NUMBER_OF_PROCESSES = 2
   
     def service_init
       true
@@ -18,32 +20,37 @@ begin
     def service_main
       require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
       require(File.join(RAILS_ROOT, 'config', 'environment'))
-      say "*** Starting job worker #{Delayed::Job.worker_name}"
-
+      
+      current_dir = File.dirname(File.expand_path($0)).tr('/', '\\');
+    
+      ruby = File.join(CONFIG['bindir'], 'ruby').tr('/', '\\')
+      path = ' "' + current_dir
+      path += '\\delayed_job_worker.rb"'
+      cmd = ruby + path + ' ' + ENV["RAILS_ENV"]
+      
+      # Create processes and pids file for each of them
+      @processes = []
+      (1..NUMBER_OF_PROCESSES).each do
+        pi = Process.create(:app_name => cmd)
+        File.open(current_dir + "\\" + pi.process_id.to_s, 'a') { |fh| fh.puts "Working" }
+        @processes.push pi
+      end
+      
       while running?
-        result = nil
-
-        realtime = Benchmark.realtime do
-          result = Delayed::Job.work_off
-        end
-
-        count = result.sum
-
-        break if !running?
-
-        if count.zero?
-          sleep SLEEP
-        else
-          say "#{count} jobs processed at %.4f j/s, %d failed ..." % [count / realtime, result.last]
-        end
-
-        break if !running?
+        sleep SLEEP
       end
     rescue => err
       # File.open("C:\\temp_ruby.log", 'a'){ |fh| fh.puts 'Daemon failure: ' + err }
       File.open(LOG_FILE, 'a'){ |fh| fh.puts 'Daemon failure: ' + err }   
-    ensure
-      Delayed::Job.clear_locks!
+    end
+    
+    def service_stop
+      current_dir = File.dirname(File.expand_path($0)).tr('/', '\\');
+    
+      # Delete the pids file so that the processes can exit cleanly
+      @processes.each do |pi|
+        File.delete(current_dir + "\\" + pi.process_id.to_s)
+      end
     end
   
     def say(text)
