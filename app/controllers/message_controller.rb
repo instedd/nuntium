@@ -26,7 +26,7 @@ class MessageController < AuthenticatedController
   def create_at_message
     msg = create_message ATMessage
     msg.timestamp = Time.new.utc
-    msg.state = 'pending'
+    msg.state = 'queued'
     msg.save!
     
     @application.logger.at_message_created_via_ui msg
