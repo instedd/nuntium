@@ -17,7 +17,7 @@ begin
       rescue => err
         logger.error "Error running scheduler: #{err}" if defined?(logger) and not logger.nil?
       else
-        logger.info "Scheduler executed successfully enqueuing #{to_run.size} task(s)." if defined?(logger) and not logger.nil?
+        logger.debug "Scheduler executed successfully enqueuing #{to_run.size} task(s)." if defined?(logger) and not logger.nil?
       ensure
         CronTask.set_next_run(to_run) unless to_run.nil?
     end
