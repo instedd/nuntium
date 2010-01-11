@@ -2,7 +2,7 @@ require 'net/smtp'
 
 class SmppChannelHandler < ChannelHandler
   def handle(msg)
-    #Delayed::Job.enqueue SendSmtpMessageJob.new(@channel.application_id, @channel.id, msg.id)
+    Delayed::Job.enqueue SendSmppMessageJob.new(@channel.application_id, @channel.id, msg.id)
   end
   
   def check_valid
@@ -28,21 +28,9 @@ class SmppChannelHandler < ChannelHandler
   def check_valid_in_ui
     config = @channel.configuration
     
-=begin
-    
-    smtp = Net::SMTP.new(config[:host], config[:port].to_i)
-    if (config[:use_ssl] == '1')
-      smtp.enable_tls
-    end
-    
-    begin
-      smtp.start('localhost.localdomain', config[:user], config[:password])
-      smtp.finish
-    rescue => e
-      @channel.errors.add_to_base(e.message)
-    end
-    
-=end
+    # what kind of validation should we put here?
+    # what if the smpp connection require a vpn?
+
   end
   
   def info
