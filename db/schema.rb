@@ -100,6 +100,8 @@ ActiveRecord::Schema.define(:version => 20100108092249) do
   end
 
   create_table "d_rb_processes", :force => true do |t|
+    t.integer  "application_id"
+    t.integer  "channel_id"
     t.string   "uri"
     t.datetime "created_at"
     t.datetime "updated_at"
