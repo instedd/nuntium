@@ -1,5 +1,3 @@
-require 'net/smtp'
-
 class SmppChannelHandler < ChannelHandler
   def handle(msg)
     Delayed::Job.enqueue SendSmppMessageJob.new(@channel.application_id, @channel.id, msg.id)

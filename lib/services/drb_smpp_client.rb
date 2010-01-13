@@ -7,7 +7,7 @@ require 'drb'
 
 class SmppGateway
   
-  # MT id counter. 
+  # MT id counter
   @@mt_id = 0
   
   # expose SMPP transceiver's send_mt method
@@ -15,12 +15,27 @@ class SmppGateway
     @@mt_id += 1
     @@tx.send_mt(@@mt_id, *args)
   end
+
+  def send_message(from, to, body)
+    ar = [ from, to, body ]
     
+    puts "Sending MT from #{from} to #{to}: #{body}"   
+    @@tx.send_mt(@@mt_id, *ar)
+  end
+
   def send_msg(message_id)
-    puts 'here i am'
+    
+    # apparently the following line cause the transceiver to unbound
     msg = AOMessage.find message_id
-    ar = [ '301', '85510718266', 'probando la sintaxis de envio de mensajes' ]
-    #ar = [ msg.from, msg.to, msg.body ]
+    
+    # should we put body, subject or both here?
+    #from = msg.from.without_protocol
+    #to = msg.to.without_protocol
+    
+    #ar = [ from, to, msg.body ]
+    #ar = [ '301', '85510718266', 'test' ]
+    
+    #puts "Sending MT from #{from} to #{to}: #{msg.body}"
     @@tx.send_mt(@@mt_id, *ar)
   end
     
@@ -32,7 +47,7 @@ class SmppGateway
     # Run EventMachine in loop so we can reconnect when the SMSC drops our connection.
     puts "Connecting to SMSC..."
     loop do
-      EventMachine::run do             
+      EventMachine::run do      
         @@tx = EventMachine::connect(
           config[:host], 
           config[:port], 
@@ -42,7 +57,7 @@ class SmppGateway
         )    
         
       end
-      puts "Disconnected. Reconnecting in 5 seconds.."
+      puts "Disconnected. Reconnecting in 5 seconds..."
       sleep 5
     end
   end
@@ -52,12 +67,16 @@ class SmppGateway
   def mo_received(transceiver, source_addr, destination_addr, short_message)
     puts "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{short_message}"   
 
+    # temporary workaround to cut extra characters we receive from Smart
+    l = short_message.length - 6
+    sms = short_message[0,l]
+
     msg = ATMessage.new
-    msg.application_id = @channel.application_id
+    msg.application_id = @@application_id
     msg.from = 'sms://' + source_addr
     msg.to = 'sms://' + destination_addr
-    msg.subject = short_message
-    msg.body = short_message
+    msg.subject = sms
+    msg.body = sms
     # now?
     msg.timestamp = DateTime.now
     msg.state = 'queued'
@@ -96,8 +115,9 @@ begin
 
   # find Channel and fetch configuration
   channel_id = ARGV[0]
-  @channel = Channel.find channel_id 
+  @channel = Channel.find channel_id
   @configuration = @channel.configuration
+  @@application_id = @channel.application_id
   
   config = {
     :host => @configuration[:host],
@@ -122,7 +142,7 @@ begin
 
   # register in d_rb_processes table so clients can communicate
   # only one record should exist per channel
-  @d_rb_process= DRbProcess.find_or_create_by_channel_id @channel.id
+  @d_rb_process = DRbProcess.find_or_create_by_channel_id @channel.id
   @d_rb_process.application_id = @channel.application_id
   @d_rb_process.uri = DRb.uri
   @d_rb_process.save
