@@ -13,7 +13,7 @@ class ChannelController < AuthenticatedController
     chan = params[:channel]
     
     if chan.nil?
-      go_home
+      redirect_to_home
       return
     end
     
