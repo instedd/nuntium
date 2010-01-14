@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100108092249) do
+ActiveRecord::Schema.define(:version => 20100114032149) do
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -128,6 +128,15 @@ ActiveRecord::Schema.define(:version => 20100108092249) do
   end
 
   add_index "qst_outgoing_messages", ["ao_message_id"], :name => "index_unread_ao_messages_on_guid"
+
+  create_table "smpp_message_parts", :force => true do |t|
+    t.integer  "reference_number"
+    t.integer  "part_count"
+    t.integer  "part_number"
+    t.string   "text"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "twitter_channel_statuses", :force => true do |t|
     t.integer  "channel_id"
