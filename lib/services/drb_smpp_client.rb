@@ -66,21 +66,35 @@ class SmppGateway
 
   def mo_received(transceiver, source_addr, destination_addr, short_message)
     puts "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{short_message}"   
-
+    
     # temporary workaround to cut extra characters we receive from Smart
     l = short_message.length - 6
     sms = short_message[0,l]
 
-    msg = ATMessage.new
-    msg.application_id = @@application_id
-    msg.from = 'sms://' + source_addr
-    msg.to = 'sms://' + destination_addr
-    msg.subject = sms
-    msg.body = sms
-    # now?
-    msg.timestamp = DateTime.now
-    msg.state = 'queued'
-    msg.save
+=begin
+
+USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated_SMS)
+
+1st: Length of User Data Header = 5
+2nd: Information Element Identifier = 0
+3rd: Length of the header, excluding the first two fields = 3
+4th: CSMS reference number, must be the same for all the SMS parts
+5th: Total number of parts
+6th: This part's number in the sequence
+
+=end
+    
+    # check if it is a CSMS
+  
+    first_octect = sms[0]
+    second_octect = sms[1]
+  
+    if (first_octect == 5 && second_octect == 0)
+      handleCSMS(source_addr, destination_addr, sms)
+    else
+      # single part SMS, just create and ATMessage
+      createATMessage(@@application_id, source_addr, destination_addr, sms)
+    end
   end
 
   def delivery_report_received(transceiver, msg_reference, stat, pdu)
@@ -98,6 +112,65 @@ class SmppGateway
   def unbound(transceiver)  
     puts "Delegate: transceiver unbound"
     EventMachine::stop_event_loop
+  end
+  
+  # helpers
+  
+  def createATMessage(app_id, source_addr, destination_addr, sms)
+      msg = ATMessage.new
+      msg.application_id = app_id
+      msg.from = 'smpp://' + source_addr
+      msg.to = 'smpp://' + destination_addr
+      msg.subject = sms
+      msg.body = sms
+      # now?
+      msg.timestamp = DateTime.now
+      msg.state = 'queued'
+      msg.save
+  end
+  
+  def handleCSMS(source_addr, destination_addr, short_message)
+    # split UDH and SMS
+    udh = short_message[0,6]
+    sms = short_message[6..short_message.length-1]
+    
+=begin
+4th: CSMS reference number, must be the same for all the SMS parts
+5th: Total number of parts
+6th: This part's number in the sequence  
+=end
+
+    # parse UDH relevant fields
+    ref = udh[3]
+    total = udh[4]
+    partn = udh[5]
+    
+    # check if we have all the parts for this reference number in the database
+    conditions = ['reference_number = ?', ref]
+    parts = SmppMessagePart.all(:conditions => conditions)
+    
+    # If all other parts are here
+    if parts.length == total-1
+      # Add this new part, sort and get text
+      parts.push SmppMessagePart.new(:part_number => partn, :text => sms)
+      parts.sort! { |x,y| x.part_number <=> y.part_number }
+      text = parts.collect { |x| x.text }.to_s
+      
+      # Create message from the resulting text
+      createATMessage(@@application_id, source_addr, destination_addr, text)
+            
+      # Delete stored information
+      SmppMessagePart.delete_all conditions
+    else
+      # Just save the part
+      SmppMessagePart.create(
+        :reference_number => ref,
+        :part_count => total,
+        :part_number => partn,
+        :text => sms
+        )
+    end
+    
   end
   
 end
