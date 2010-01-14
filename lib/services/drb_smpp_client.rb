@@ -19,23 +19,21 @@ class SmppGateway
   def send_message(from, to, body)
     ar = [ from, to, body ]
     
-    puts "Sending MT from #{from} to #{to}: #{body}"   
+    @@log.info "Sending MT from #{from} to #{to}: #{body}"   
     @@tx.send_mt(@@mt_id, *ar)
   end
 
   def send_msg(message_id)
-    
-    # apparently the following line cause the transceiver to unbound
+    # apparently the following line cause the transceiver to unbound (in Windows only)
     msg = AOMessage.find message_id
     
     # should we put body, subject or both here?
-    #from = msg.from.without_protocol
-    #to = msg.to.without_protocol
+    from = msg.from.without_protocol
+    to = msg.to.without_protocol
     
-    #ar = [ from, to, msg.body ]
-    #ar = [ '301', '85510718266', 'test' ]
+    ar = [ from, to, msg.body ]
     
-    #puts "Sending MT from #{from} to #{to}: #{msg.body}"
+    @@log.info "Sending MT from #{from} to #{to}: #{msg.body}"
     @@tx.send_mt(@@mt_id, *ar)
   end
     
@@ -45,7 +43,7 @@ class SmppGateway
     pdr_storage = {} 
 
     # Run EventMachine in loop so we can reconnect when the SMSC drops our connection.
-    puts "Connecting to SMSC..."
+    @@log.debug "Connecting to SMSC..."
     loop do
       EventMachine::run do      
         @@tx = EventMachine::connect(
@@ -57,7 +55,7 @@ class SmppGateway
         )    
         
       end
-      puts "Disconnected. Reconnecting in 5 seconds..."
+      @@log.warn "Disconnected. Reconnecting in 5 seconds..."
       sleep 5
     end
   end
@@ -65,7 +63,7 @@ class SmppGateway
   # ruby-smpp delegate methods 
 
   def mo_received(transceiver, source_addr, destination_addr, short_message)
-    puts "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{short_message}"   
+    @@log.info "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{short_message}"   
     
     # temporary workaround to cut extra characters we receive from Smart
     l = short_message.length - 6
@@ -98,19 +96,19 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
   end
 
   def delivery_report_received(transceiver, msg_reference, stat, pdu)
-    puts "Delegate: delivery_report_received: ref #{msg_reference} stat #{stat} pdu #{pdu}"
+    @@log.info "Delegate: delivery_report_received: ref #{msg_reference} stat #{stat} pdu #{pdu}"
   end
 
   def message_accepted(transceiver, mt_message_id, smsc_message_id)
-    puts "Delegate: message_sent: id #{mt_message_id} smsc ref id: #{smsc_message_id}"
+    @@log.info "Delegate: message_sent: id #{mt_message_id} smsc ref id: #{smsc_message_id}"
   end
 
   def bound(transceiver)
-    puts "Delegate: transceiver bound"
+    @@log.info "Delegate: transceiver bound"
   end
 
   def unbound(transceiver)  
-    puts "Delegate: transceiver unbound"
+    @@log.warn "Delegate: transceiver unbound"
     EventMachine::stop_event_loop
   end
   
@@ -178,16 +176,18 @@ end
 # Start the Gateway
 begin
   # Initialize Ruby on Rails
-  #LOG_FILE = 'C:\\ruby.log'
+  #LOG_FILE = 'log/smpp.log'
   #ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
 
   require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
   require(File.join(RAILS_ROOT, 'config', 'environment'))
 
-  puts "Starting SMPP Gateway."  
+  # log to the standard output for debugging purposes
+  @@log = Logger.new(STDOUT)
 
   # find Channel and fetch configuration
   channel_id = ARGV[0]
+  @@log.debug "Fetching channel with id #{channel_id} from database."
   @channel = Channel.find channel_id
   @configuration = @channel.configuration
   @@application_id = @channel.application_id
@@ -210,9 +210,10 @@ begin
   gw = SmppGateway.new
   
   # start distributed ruby service
+  @@log.debug "Starting Distributed Ruby service."
   DRb.start_service nil, gw
-  puts DRb.uri
-
+  @@log.info "Distributed Ruby service started on URI #{DRb.uri}"
+  
   # register in d_rb_processes table so clients can communicate
   # only one record should exist per channel
   @d_rb_process = DRbProcess.find_or_create_by_channel_id @channel.id
@@ -222,5 +223,5 @@ begin
   
   gw.start(config)  
 rescue Exception => ex
-  puts "Exception in SMPP Gateway: #{ex} at #{ex.backtrace.join("\n")}"
+  @@log.fatal "Exception in SMPP Gateway: #{ex} at #{ex.backtrace.join("\n")}"
 end
