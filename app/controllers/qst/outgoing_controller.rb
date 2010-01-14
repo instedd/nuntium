@@ -13,10 +13,18 @@ class OutgoingController < QSTController
     
     # If there's an etag
     if !etag.nil?
-      # Find the message in qst for that etag
-      last = QSTOutgoingMessage.first(
-        :order => :id, 
-        :conditions => ['channel_id = ? AND ao_message_id = ?', @channel.id, etag])
+	
+	  # Find the message by guid
+	  msg = AOMessage.find_by_guid(etag)
+	
+	  if msg.nil?
+	    last = nil
+	  else
+        # Find the message in qst for that etag
+        last = QSTOutgoingMessage.first(
+          :order => :id, 
+          :conditions => ['channel_id = ? AND ao_message_id = ?', @channel.id, msg.id])
+      end
         
       if !last.nil?
         # Mark messsages as delivered
@@ -73,5 +81,7 @@ class OutgoingController < QSTController
     if !@ao_messages.empty?
       response.headers['ETag'] = @ao_messages.last.id
     end
+	
+	render :layout => false
   end
 end
