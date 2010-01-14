@@ -1,0 +1,13 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  reference_number: 1
+  part_count: 1
+  part_number: 1
+  text: MyString
+
+two:
+  reference_number: 1
+  part_count: 1
+  part_number: 1
+  text: MyString
