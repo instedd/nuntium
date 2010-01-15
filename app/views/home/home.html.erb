@@ -72,12 +72,12 @@
 <% if @channels.empty? %>
   No channels.
 <% else %>
-  <table>
+  <table cellspacing="4">
     <% @channels.each do |chan| %>
       <tr>
         <td><img src="/images/icon_<%= chan.kind %>.png" width="16" height="16" style="position:relative; top:1px" alt="<%= chan.kind %>"/></td>
-        <td><img src="/images/direction_<%= chan.direction_text %>.png" width="16" height="16" style="position:relative; top:1px" alt="<%= chan.direction_text %>"/></td>
         <td><b><%= chan.name %></b></td>
+        <td><%= chan.direction_text %></td>
         <td><%= chan.protocol %>://...</td>
         <td><%= chan.info.blank? ? '' : "(#{chan.info})" %></td>
         <td><%= link_to "edit", :controller => :channel, :action => :edit_channel, :id => chan.id %></td>

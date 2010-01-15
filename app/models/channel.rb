@@ -55,7 +55,7 @@ class Channel < ActiveRecord::Base
     when Outgoing
       'outgoing'
     when Both
-      'both'
+      'bi-directional'
     end
   end
   
