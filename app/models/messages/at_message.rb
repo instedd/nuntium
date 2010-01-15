@@ -88,7 +88,7 @@ class ATMessage < ActiveRecord::Base
   # Logs that each message was delivered/not delivered through the given interface
   def self.log_delivery(msgs, application, interface)
     msgs.each do |msg|
-      if msg.tries >= application.max_tries
+      if msg.tries < application.max_tries
         application.logger.at_message_delivery_succeeded msg, interface
       else
         application.logger.at_message_delivery_exceeded_tries msg, interface
