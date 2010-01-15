@@ -6,6 +6,14 @@
   <%= f.label :protocol %><br/>
   <%= f.text_field :protocol %>
   </p>
+  <p>
+  Direction:</br>
+  <select id="channel_direction" name="channel[direction]">
+    <option value="<%= Channel::Incoming %>" <%= @channel.direction == Channel::Incoming ? 'selected="selected"' : "" %>>Incoming</option>
+    <option value="<%= Channel::Outgoing %>" <%= @channel.direction == Channel::Outgoing ? 'selected="selected"' : "" %>>Outgoing</option>
+    <option value="<%= Channel::Both %>" <%= @channel.direction == Channel::Both ? 'selected="selected"' : "" %>>Bi-directional</option>
+  </select>
+  </p>
   <% f.fields_for :configuration do |c| %>
     <p>
     <b>Leave blank if you don't want to change the password</b><br/>

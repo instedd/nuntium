@@ -20,7 +20,7 @@ class ChannelController < AuthenticatedController
     @channel = Channel.new(chan)
     @channel.application_id = @application.id
     @channel.kind = params[:kind]
-    @channel.direction = params[:direction]
+    @channel.direction = chan[:direction]
     
     @channel.check_valid_in_ui
     if !@channel.save

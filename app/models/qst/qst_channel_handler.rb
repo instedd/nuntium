@@ -20,6 +20,8 @@ class QstChannelHandler < ChannelHandler
   
   def update(params)
     @channel.protocol = params[:protocol]
+    @channel.direction = params[:direction]
+    
     if !params[:configuration][:password].chomp.empty?
       @channel.configuration[:salt] = nil
       @channel.configuration[:password] = params[:configuration][:password]

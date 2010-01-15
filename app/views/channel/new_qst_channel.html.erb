@@ -11,6 +11,14 @@
   <%= f.label :protocol %><br/>
   <%= f.text_field :protocol %>
   </p>
+  <p>
+  Direction:</br>
+  <select id="channel_direction" name="channel[direction]">
+    <option value="<%= Channel::Incoming %>">Incoming</option>
+    <option value="<%= Channel::Outgoing %>">Outgoing</option>
+    <option value="<%= Channel::Both %>">Bi-directional</option>
+  </select>
+  </p>
   <% f.fields_for :configuration do |c| %>
     <p>
     <%= c.label :password %><br/>
