@@ -6,12 +6,20 @@
   <%= f.label :protocol %><br/>
   <%= f.text_field :protocol, :value => 'sms', :readonly => 'readonly' %>
   </p>
+  <p>
+  Direction:</br>
+  <select id="channel_direction" name="channel[direction]" onchange="clickatell_channel_direction_changed()">
+    <option value="<%= Channel::Incoming %>" <%= @channel.direction == Channel::Incoming ? 'selected="selected"' : "" %>>Incoming</option>
+    <option value="<%= Channel::Outgoing %>" <%= @channel.direction == Channel::Outgoing ? 'selected="selected"' : "" %>>Outgoing</option>
+    <option value="<%= Channel::Both %>" <%= @channel.direction == Channel::Both ? 'selected="selected"' : "" %>>Bi-directional</option>
+  </select>
+  </p>
   <% f.fields_for :configuration do |c| %>
-    <p>
+    <p id="user_container">
     <%= c.label :user %><br/>
     <%= c.text_field :user, :value => @channel[:configuration][:user] %>
     </p>
-    <p>
+    <p id="password_container">
     <%= c.label :password %><br/>
     <%= c.password_field :password, :value => @channel[:configuration][:password] %>
     </p>
@@ -19,11 +27,11 @@
     <%= c.label :api_id %><br/>
     <%= c.text_field :api_id, :value => @channel[:configuration][:api_id] %>
     </p>
-    <p>
+    <p id="from_container">
     <%= c.label :from %><br/>
     <%= c.text_field :from, :value => @channel[:configuration][:from]%>
     </p>
-    <p>
+    <p id="incoming_password_container">
     <%= c.label :incoming_password %><br/>
     <%= c.password_field :incoming_password, :value => @channel[:configuration][:incoming_password] %>
     </p>
@@ -37,3 +45,7 @@
 <% end %>
 
 <%= link_to 'Go back', :controller => :home, :action => :home %>
+
+<script>
+clickatell_channel_changed();
+</script>

@@ -34,6 +34,24 @@ function toggle(id) {
   }
 }
 
+function show(id) {
+  if (arguments.length == 1) {
+    $(id).style.display = '';
+  } else {
+    for(var i = 0; i < arguments.length; i++)
+      $(arguments[i]).style.display = '';
+  }
+}
+
+function hide(id) {
+  if (arguments.length == 1) {
+    $(id).style.display = 'none';
+  } else {
+    for(var i = 0; i < arguments.length; i++)
+      $(arguments[i]).style.display = 'none';
+  }
+}
+
 function select_all(id) {
   var elems = $n(id);
   for(i = 0; i < elems.length; i++) {
@@ -134,5 +152,23 @@ function view_at_message_log(id) {
 function delete_channel(id, name) {
   if (confirm('Are you sure you want to delete the channel ' + name + '?')) {
     window.location = '/channel/delete/' + id;
+  }
+}
+
+function clickatell_channel_direction_changed() {
+  var dir = $('channel_direction').value;
+  
+  // incoming
+  if (dir & 1) {
+    show('incoming_password_container');
+  } else {
+    hide('incoming_password_container');
+  }
+  
+  // outgoing
+  if (dir & 2) { 
+    show('user_container', 'password_container', 'from_container');
+  } else {
+    hide('user_container', 'password_container', 'from_container');
   }
 }
