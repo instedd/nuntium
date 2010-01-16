@@ -17,7 +17,10 @@ class MessageController < AuthenticatedController
   def create_ao_message
     msg = create_message AOMessage
     
-    @application.route msg, 'user'
+    # This is because @application in session saves the channels,
+    # so we don't want to keep those in memory, we want new ones
+    # in case they were created. FIX THIS!
+    Application.find_by_id(@application.id).route msg, 'user'
     
     flash[:notice] = 'AO Message was created'
     redirect_to_home

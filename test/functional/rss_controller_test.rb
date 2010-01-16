@@ -163,14 +163,7 @@ class RssControllerTest < ActionController::TestCase
     unread = QSTOutgoingMessage.all
     assert_equal 1, unread.length
     assert_equal messages[0].id, unread[0].ao_message_id
-    assert_equal chan.id, unread[0].channel_id
-    
-    logs = ApplicationLog.all
-    assert_equal 3, logs.length
-    log = logs[1]
-    assert_equal app.id, log.application_id
-    assert_equal messages[0].id, log.ao_message_id
-    assert_equal "More than one channel found for protocol 'protocol'", log.message
+    assert_true unread[0].channel_id == chan.id || unread[0].channel_id == chan2.id
   end
   
   test "should convert one message to rss item" do

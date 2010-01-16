@@ -56,6 +56,10 @@ class Application < ActiveRecord::Base
       return true
     end
     
+    puts "!!!!"
+    puts self.channels.all.map{|x| x.direction}.to_a
+    puts "!!!!"
+    
     # Find channel that handles that protocol
     channels = @outgoing_channels.select {|x| x.protocol == protocol}
     
@@ -73,14 +77,13 @@ class Application < ActiveRecord::Base
     
     logger.ao_message_received msg, via_interface
     
-    if channels.length > 1
-      logger.more_than_one_channel_found_for protocol, msg
-    end
+    # Select a random channel to handle the message
+    channel = channels[rand(channels.length)]
     
-    logger.ao_message_handled_by_channel msg, channels[0]
+    logger.ao_message_handled_by_channel msg, channel
     
     # Let the channel handle the message
-    channels[0].handle msg
+    channel.handle msg
     true
     
   rescue => e
