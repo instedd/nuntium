@@ -39,7 +39,7 @@ class Application < ActiveRecord::Base
   # Route an AOMessage
   def route(msg, via_interface)
     if @outgoing_channels.nil?
-      @outgoing_channels = self.channels.all(:conditions => ['direction = ? OR direction = ?', Channel::Outgoing, Channel::Both])
+      @outgoing_channels = self.channels.all(:conditions => ['enabled = ? AND (direction = ? OR direction = ?)', true, Channel::Outgoing, Channel::Both])
     end
     
     # Fill msg missing fields

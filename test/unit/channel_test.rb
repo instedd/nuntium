@@ -45,4 +45,13 @@ class ChannelTest < ActiveSupport::TestCase
     chan = Channel.new(:name => 'chan', :kind => 'qst', :protocol => 'sms', :configuration => {:password => 'foo', :password_confirmation => 'foo'})
     assert !chan.save
   end
+  
+  test "should be enabled by default" do
+    app1 = Application.create(:name => 'app', :password => 'foo')
+    app2 = Application.create(:name => 'app2', :password => 'foo')
+    ch1 = Channel.new :name =>'channel', :application_id => app1.id, :kind => 'qst', :protocol => 'sms'
+    ch1.configuration = {:password => 'foo', :password_confirmation => 'foo'}
+    ch1.save
+    assert_true ch1.enabled
+  end
 end

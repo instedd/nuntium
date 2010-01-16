@@ -88,5 +88,33 @@ class ChannelController < AuthenticatedController
     flash[:notice] = 'Channel was deleted'
     redirect_to_home
   end
+  
+  def enable_channel
+    @channel = Channel.find params[:id]
+    if @channel.nil? || @channel.application_id != @application.id
+      redirect_to_home
+      return
+    end
+    
+    @channel.enabled = true
+    @channel.save!
+    
+    flash[:notice] = 'Channel was enabled'
+    redirect_to_home
+  end
+  
+  def disable_channel
+    @channel = Channel.find params[:id]
+    if @channel.nil? || @channel.application_id != @application.id
+      redirect_to_home
+      return
+    end
+    
+    @channel.enabled = false
+    @channel.save!
+    
+    flash[:notice] = 'Channel was disabled'
+    redirect_to_home
+  end
 
 end

@@ -57,7 +57,7 @@
 
 <div id="settings" style="display:none">
 <ul>
-  <li>Interface: <img src="/images/icon_<%= @application.interface %>.png" width="16" height="16" style="position:relative; top:2px" alt="<%= @application.interface %>"/> <%= @application.interface_description %></li>
+  <li>Interface: <img src="/images/icon_<%= @application.interface %>.png" width="16" height="16" style="position:relative; top:2px" alt="<%= @application.interface %>" title="<%= @application.interface %>"/> <%= @application.interface_description %></li>
   <li>Max tries: <%= @application.max_tries %></li>
 </ul>
 
@@ -75,11 +75,17 @@
   <table cellspacing="4">
     <% @channels.each do |chan| %>
       <tr>
-        <td><img src="/images/icon_<%= chan.kind %>.png" width="16" height="16" style="position:relative; top:1px" alt="<%= chan.kind %>"/></td>
+        <td><img src="/images/<%= chan.enabled ? 'enabled' : 'disabled' %>.png" width="16" height="16" style="position:relative; top:1px" alt="<%= chan.enabled ? 'enabled' : 'disabled' %>" title="<%= 'This channel is ' + (chan.enabled ? 'enabled' : 'disabled') %>"/></td>
+        <td><img src="/images/icon_<%= chan.kind %>.png" width="16" height="16" style="position:relative; top:1px" alt="<%= chan.kind %>" title="<%= chan.kind %>"/></td>
         <td><b><%= chan.name %></b></td>
         <td><%= chan.direction_text %></td>
         <td><%= chan.protocol %>://...</td>
         <td><%= chan.info.blank? ? '' : "(#{chan.info})" %></td>
+        <% if chan.enabled %>
+          <td><%= link_to "disable", :controller => :channel, :action => :disable_channel, :id => chan.id %></td>
+        <% else %>
+          <td><%= link_to "enable", :controller => :channel, :action => :enable_channel, :id => chan.id %></td>
+        <% end %>
         <td><%= link_to "edit", :controller => :channel, :action => :edit_channel, :id => chan.id %></td>
         <td><%= js 'delete', "delete_channel(#{chan.id}, '#{h chan.name}')" %></td>
       </tr>

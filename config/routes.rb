@@ -20,6 +20,8 @@ ActionController::Routing::Routes.draw do |map|
   map.edit_channel '/channel/edit/:id', :controller => 'channel', :action => :edit_channel
   map.update_channel '/channel/update/:id', :controller => 'channel', :action => :update_channel
   map.delete_channel '/channel/delete/:id', :controller => 'channel', :action => :delete_channel  
+  map.enable_channel '/channel/enable/:id', :controller => 'channel', :action => :enable_channel  
+  map.disable_channel '/channel/disable/:id', :controller => 'channel', :action => :disable_channel  
   
   map.create_twitter_channel '/channel/create/twitter', :controller => 'twitter', :action => :create_twitter_channel, :kind => 'twitter'
   map.update_twitter_channel '/channel/update/twitter/:id', :controller => 'twitter', :action => :update_twitter_channel
