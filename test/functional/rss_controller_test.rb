@@ -15,6 +15,7 @@ class RssControllerTest < ActionController::TestCase
     assert_equal 1, messages.length
     
     msg = messages[0]
+    
     assert_equal app.id, msg.application_id
     assert_equal "First message", msg.subject
     assert_equal "Body of the message", msg.body
@@ -23,6 +24,7 @@ class RssControllerTest < ActionController::TestCase
     assert_equal "someguid", msg.guid
     assert_equal time_for_msg(0) , msg.timestamp
     assert_equal 'queued', msg.state
+    assert_equal chan.id, msg.channel_id
   end
   
   test "should create qst outgoing message" do

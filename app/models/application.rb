@@ -56,10 +56,6 @@ class Application < ActiveRecord::Base
       return true
     end
     
-    puts "!!!!"
-    puts self.channels.all.map{|x| x.direction}.to_a
-    puts "!!!!"
-    
     # Find channel that handles that protocol
     channels = @outgoing_channels.select {|x| x.protocol == protocol}
     
@@ -70,16 +66,16 @@ class Application < ActiveRecord::Base
       logger.no_channel_found_for_ao_message protocol, msg
       return true
     end
+    
+    # Select a random channel to handle the message
+    channel = channels[rand(channels.length)]
 
     # Now save the message
+    msg.channel_id = channel.id
     msg.state = 'queued'
     msg.save!
     
     logger.ao_message_received msg, via_interface
-    
-    # Select a random channel to handle the message
-    channel = channels[rand(channels.length)]
-    
     logger.ao_message_handled_by_channel msg, channel
     
     # Let the channel handle the message

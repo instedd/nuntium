@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091222092416) do
+ActiveRecord::Schema.define(:version => 20100116224451) do
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -24,6 +24,7 @@ ActiveRecord::Schema.define(:version => 20091222092416) do
     t.string   "subject"
     t.string   "state",               :default => "pending", :null => false
     t.string   "channel_relative_id"
+    t.integer  "channel_id"
   end
 
   add_index "ao_messages", ["guid"], :name => "index_ao_messages_on_guid"
