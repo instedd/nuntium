@@ -72,18 +72,18 @@ h4 a:hover {
   text-decoration: none;
 }
 
-table.messages {
+table.table {
   padding: 0px;
   border: 0px;
 }
 
-.messages td {
+.table td {
   border: 0px;
   padding: 1px;
   background-color: #EFEFEF;
 }
 
-.messages th  {
+.table th  {
   border: 0px;
   padding: 1px;
   background-color: #BCD1DA;

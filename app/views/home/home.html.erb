@@ -72,22 +72,35 @@
 <% if @channels.empty? %>
   No channels.
 <% else %>
-  <table cellspacing="4">
+  <table class="table" cellspacing="4">
+    <tr>
+      <th>Name</th>
+      <th>Kind</th>
+      <th>Direction</th>
+      <th>Protocol</th>
+      <th>Info</th>
+      <th>Queued AO Messages</th>
+      <th></th>
+    </tr>
     <% @channels.each do |chan| %>
       <tr>
-        <td><img src="/images/<%= chan.enabled ? 'enabled' : 'disabled' %>.png" width="16" height="16" style="position:relative; top:1px" alt="<%= chan.enabled ? 'enabled' : 'disabled' %>" title="<%= 'This channel is ' + (chan.enabled ? 'enabled' : 'disabled') %>"/></td>
-        <td><img src="/images/icon_<%= chan.kind %>.png" width="16" height="16" style="position:relative; top:1px" alt="<%= chan.kind %>" title="<%= chan.kind %>"/></td>
-        <td><b><%= chan.name %></b></td>
+        <td>
+          <img src="/images/<%= chan.enabled ? 'enabled' : 'disabled' %>.png" width="16" height="16" style="position:relative; top:1px" alt="<%= chan.enabled ? 'enabled' : 'disabled' %>" title="<%= 'This channel is ' + (chan.enabled ? 'enabled' : 'disabled') %>"/>
+          <b><%= chan.name %></b></td>
+        <td><%= chan.kind %></td>
         <td><%= chan.direction_text %></td>
-        <td><%= chan.protocol %>://...</td>
+        <td><%= chan.protocol %></td>
         <td><%= chan.info.blank? ? '' : "(#{chan.info})" %></td>
-        <% if chan.enabled %>
-          <td><%= link_to "disable", :controller => :channel, :action => :disable_channel, :id => chan.id %></td>
-        <% else %>
-          <td><%= link_to "enable", :controller => :channel, :action => :enable_channel, :id => chan.id %></td>
-        <% end %>
-        <td><%= link_to "edit", :controller => :channel, :action => :edit_channel, :id => chan.id %></td>
-        <td><%= js 'delete', "delete_channel(#{chan.id}, '#{h chan.name}')" %></td>
+        <td align="right"><%= @channels_queued_count.include?(chan.id) ? @channels_queued_count[chan.id] : '0' %></td>
+        <td>
+          <% if chan.enabled %>
+            <%= link_to "disable", :controller => :channel, :action => :disable_channel, :id => chan.id %>
+          <% else %>
+            <%= link_to "enable", :controller => :channel, :action => :enable_channel, :id => chan.id %>
+          <% end %>
+          <%= link_to "edit", :controller => :channel, :action => :edit_channel, :id => chan.id %>
+          <%= js 'delete', "delete_channel(#{chan.id}, '#{h chan.name}')" %>
+        </td>
       </tr>
     <% end %>
   </table>
@@ -130,7 +143,7 @@ Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
 <% if @ao_messages.empty? %>
   <div>No messages.</div>
 <% else %>
-  <table border="1" class="messages">
+  <table border="1" class="table">
     <tr>
       <th></th>
       <th>When</th>
@@ -154,7 +167,7 @@ Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
       <tr>
         <td><input type="checkbox" name="ao_messages[]" value="<%= msg.id %>" <% if !params[:ao_messages].nil? && params[:ao_messages].include?(msg.id.to_s); %>checked="checked"<% end; %>/></td>
         <td><%= msg.timestamp %></td>
-        <td><%= msg.id %></td>
+        <td align="right"><%= msg.id %></td>
         <td><%= short_html msg.guid %></td>
         <td><%= short_html msg.channel_relative_id %></td>
         <td><%= msg.from %></td>
@@ -162,7 +175,7 @@ Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
         <td><%= short_html msg.subject %></td>
         <td><%= short_html msg.body %></td>
         <td><%= chan.length > 0 ? chan[0].name : '' %></td>
-        <td><%= msg.tries %></td>
+        <td align="right"><%= msg.tries %></td>
         <td><%= msg.state %></td>
         <td><%= js 'view log', "view_ao_message_log(#{msg.id})" %></td>
       </tr>
@@ -196,7 +209,7 @@ Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
 <% if @at_messages.empty? %>
   <div>No messages.</div>
 <% else %>
-  <table border="1" class="messages">
+  <table border="1" class="table">
     <tr>
       <th></th>
       <th>When</th>
@@ -216,14 +229,14 @@ Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
       <tr>
         <td><input type="checkbox" name="at_messages[]" value="<%= msg.id %>" <% if !params[:at_messages].nil? && params[:at_messages].include?(msg.id.to_s); %>checked="checked"<% end; %>/></td>
         <td><%= msg.timestamp %></td>
-        <td><%= msg.id %></td>
+        <td align="right"><%= msg.id %></td>
         <td><%= short_html msg.guid %></td>
         <td><%= short_html msg.channel_relative_id %></td>
         <td><%= msg.from %></td>
         <td><%= msg.to %></td>
         <td><%= short_html msg.subject %></td>
         <td><%= short_html msg.body %></td>
-        <td><%= msg.tries %></td>
+        <td align="right"><%= msg.tries %></td>
         <td><%= msg.state %></td>
         <td><%= js 'view log', "view_at_message_log(#{msg.id})" %></td>
       </tr>
@@ -243,7 +256,7 @@ Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
 <% if @logs.empty? %>
   <div>No logs.</div>
 <% else %>
-  <table border="1" class="messages">
+  <table border="1" class="table">
     <tr>
       <th>When</th>
       <th>Severity</th>
@@ -259,7 +272,7 @@ Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
         <td><%= log.severity_html %></td>
         <td>
           <% if !log.channel.nil? %>
-            <%= log.channel .name %>
+            <%= log.channel.name %>
           <% end %>
         </td>
         <td><%= if !log.ao_message_id.nil?; link_to log.ao_message_id, :controller => :home, :action => :home, :ao_search => log.ao_message_id; end; %></td>
