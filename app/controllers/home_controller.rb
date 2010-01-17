@@ -7,7 +7,7 @@ class HomeController < AuthenticatedController
   before_filter :check_login, :except => [:index, :login, :create_application]
 
   def index
-    if !session[:application].nil?
+    if !session[:application_id].nil?
       redirect_to_home
       return
     end
@@ -32,9 +32,7 @@ class HomeController < AuthenticatedController
       return
     end
     
-    @application.clear_password
-    
-    session[:application] = @application
+    session[:application_id] = @application.id
     redirect_to_home
   end
   
@@ -54,9 +52,7 @@ class HomeController < AuthenticatedController
       return
     end
     
-    new_app.clear_password
-    
-    session[:application] = new_app
+    session[:application_id] = new_app.id
     redirect_to_home
   end
   
@@ -138,15 +134,13 @@ class HomeController < AuthenticatedController
       flash[:application] = existing_app
       redirect_to :action => :edit_application
     else    
-      existing_app.clear_password
       flash[:notice] = 'Application was changed'
-      session[:application] = existing_app
       redirect_to_home
     end
   end
   
   def logoff
-    session[:application] = nil
+    session[:application_id] = nil
     redirect_to :action => :index
   end
 

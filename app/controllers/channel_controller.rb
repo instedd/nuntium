@@ -113,20 +113,17 @@ class ChannelController < AuthenticatedController
     @channel.enabled = false
     @channel.save!
     
-    # Read app gain because channels might be cached and have changed
-    app = Application.find_by_id @application.id
-    
     # If other channels for the same protocol exist, re-queue
     # queued messages in those channels.
     requeued_messages_count = 0;
     
-    other_channels = app.channels.all(:conditions => ['enabled = ? AND protocol = ? AND (direction = ? OR direction = ?)', true, @channel.protocol, Channel::Outgoing, Channel::Both])
+    other_channels = @application.channels.all(:conditions => ['enabled = ? AND protocol = ? AND (direction = ? OR direction = ?)', true, @channel.protocol, Channel::Outgoing, Channel::Both])
     
     if !other_channels.empty?
       queued_messages = AOMessage.all(:conditions => ['channel_id = ? AND state = ?', @channel.id, 'queued'])
       requeued_messages_count = queued_messages.length
       queued_messages.each do |msg|
-        app.route(msg, 'user')
+        @application.route(msg, 'user')
       end
     end
     

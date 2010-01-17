@@ -17,9 +17,7 @@ class MessageController < AuthenticatedController
   def create_ao_message
     msg = create_message AOMessage
     
-    # Read app again because channels might be cached and have changed
-    app = Application.find_by_id @application.id
-    app.route msg, 'user'
+    @application.route msg, 'user'
     
     flash[:notice] = 'AO Message was created'
     redirect_to_home
