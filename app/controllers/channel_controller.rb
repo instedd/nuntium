@@ -120,7 +120,8 @@ class ChannelController < AuthenticatedController
     # queued messages in those channels.
     requeued_messages_count = 0;
     
-    other_channels = @application.channels.all(:conditions => ['enabled = ? AND (direction = ? OR direction = ?)', true, Channel::Outgoing, Channel::Both])
+    other_channels = app.channels.all(:conditions => ['enabled = ? AND protocol = ? AND (direction = ? OR direction = ?)', true, @channel.protocol, Channel::Outgoing, Channel::Both])
+    
     if !other_channels.empty?
       queued_messages = AOMessage.all(:conditions => ['channel_id = ? AND state = ?', @channel.id, 'queued'])
       requeued_messages_count = queued_messages.length
