@@ -42,9 +42,11 @@ class Application < ActiveRecord::Base
       @outgoing_channels = self.channels.all(:conditions => ['enabled = ? AND (direction = ? OR direction = ?)', true, Channel::Outgoing, Channel::Both])
     end
     
-    # Fill msg missing fields
-    msg.application_id ||= self.id
-    msg.timestamp ||= Time.now.utc
+    if msg.new_record?
+      # Fill msg missing fields
+      msg.application_id ||= self.id
+      msg.timestamp ||= Time.now.utc
+    end
     
     # Find protocol of message (based on "to" field)
     protocol = msg.to.protocol

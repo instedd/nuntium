@@ -113,7 +113,29 @@ class ChannelController < AuthenticatedController
     @channel.enabled = false
     @channel.save!
     
-    flash[:notice] = 'Channel was disabled'
+    # Read app again because channels might be cached and have changed
+    app = Application.find_by_id @application.id
+    
+    # If other channels for the same protocol exist, re-queue
+    # queued messages in those channels.
+    requeued_messages_count = 0;
+    
+    other_channels = @application.channels.all(:conditions => ['enabled = ? AND (direction = ? OR direction = ?)', true, Channel::Outgoing, Channel::Both])
+    if !other_channels.empty?
+      queued_messages = AOMessage.all(:conditions => ['channel_id = ? AND state = ?', @channel.id, 'queued'])
+      requeued_messages_count = queued_messages.length
+      queued_messages.each do |msg|
+        app.route(msg, 'user')
+      end
+    end
+    
+    if requeued_messages_count == 0
+      flash[:notice] = 'Channel was disabled'
+    else if requeued_messages_count == 1
+      flash[:notice] = 'Channel was disabled and 1 message was re-queued'
+    else
+      flash[:notice] = 'Channel was disabled and ' + requeued_messages_count.to_s + ' messages were re-queued'
+    end
     redirect_to_home
   end
 

@@ -141,12 +141,16 @@ Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
       <th>To</th>
       <th>Subject</th>
       <th>Body</th>
+      <th>In channel</th>
       <th>Tries</th>
       <th>State</th>
       <th></th>
     </tr>
     <tr>
     <% @ao_messages.each do |msg| %>
+      <%
+      chan = @channels.select{|x| msg.channel_id == x.id}
+      %>
       <tr>
         <td><input type="checkbox" name="ao_messages[]" value="<%= msg.id %>" <% if !params[:ao_messages].nil? && params[:ao_messages].include?(msg.id.to_s); %>checked="checked"<% end; %>/></td>
         <td><%= msg.timestamp %></td>
@@ -157,6 +161,7 @@ Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
         <td><%= msg.to %></td>
         <td><%= short_html msg.subject %></td>
         <td><%= short_html msg.body %></td>
+        <td><%= chan.length > 0 ? chan[0].name : '' %></td>
         <td><%= msg.tries %></td>
         <td><%= msg.state %></td>
         <td><%= js 'view log', "view_ao_message_log(#{msg.id})" %></td>
