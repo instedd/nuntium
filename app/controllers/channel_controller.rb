@@ -113,7 +113,7 @@ class ChannelController < AuthenticatedController
     @channel.enabled = false
     @channel.save!
     
-    # Read app again because channels might be cached and have changed
+    # Read app gain because channels might be cached and have changed
     app = Application.find_by_id @application.id
     
     # If other channels for the same protocol exist, re-queue
@@ -131,7 +131,7 @@ class ChannelController < AuthenticatedController
     
     if requeued_messages_count == 0
       flash[:notice] = 'Channel was disabled'
-    else if requeued_messages_count == 1
+    elsf requeued_messages_count == 1
       flash[:notice] = 'Channel was disabled and 1 message was re-queued'
     else
       flash[:notice] = 'Channel was disabled and ' + requeued_messages_count.to_s + ' messages were re-queued'
