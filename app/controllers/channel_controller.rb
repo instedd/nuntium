@@ -131,7 +131,7 @@ class ChannelController < AuthenticatedController
     
     if requeued_messages_count == 0
       flash[:notice] = 'Channel was disabled'
-    elsf requeued_messages_count == 1
+    elsif requeued_messages_count == 1
       flash[:notice] = 'Channel was disabled and 1 message was re-queued'
     else
       flash[:notice] = 'Channel was disabled and ' + requeued_messages_count.to_s + ' messages were re-queued'
