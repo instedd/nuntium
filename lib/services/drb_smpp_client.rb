@@ -1,17 +1,18 @@
-#!/usr/bin/env ruby -w
+#!/usr/bin/env ruby
 
 require 'rubygems'
 gem 'ruby-smpp'
 require 'smpp'
 require 'drb'
 
-DEBUG = false
+DEBUG = true
 
 class SmppGateway
   
   # MT id counter
   @@mt_id = 0
 
+=begin
   # expose SMPP transceiver's send_mt method
   def self.send_mt(*args)
     @@mt_id += 1
@@ -35,6 +36,31 @@ class SmppGateway
     
     @@log.info "Sending MT from #{from} to #{to}: #{msg.subject_and_body}"
     @@tx.send_mt(@@mt_id, *ar)
+  end
+=end
+
+  def send_message(from, to, msg)
+    
+    body = msg.subject_and_body
+    
+    ar = [ from, to, body ]
+    @@log.info "Sending MT from #{from} to #{to}: #{body}"
+    
+    begin
+      @@tx.send_mt(@@mt_id, *ar)
+    rescue => e
+      msg.tries += 1
+      msg.channel_relative_id = @@mt_id
+      msg.save
+      ApplicationLogger.exception_in_channel_and_ao_message @@channel, msg, e
+      raise
+    else
+      msg.state = 'delivered'
+      msg.tries += 1
+      msg.channel_relative_id = @@mt_id
+      msg.save
+    end
+    ApplicationLogger.message_channeled msg, @@channel
   end
   
   def start(config)
@@ -195,9 +221,9 @@ begin
   # find Channel and fetch configuration
   channel_id = ARGV[0]
   @@log.debug "Fetching channel with id #{channel_id} from database."
-  @channel = Channel.find channel_id
-  @configuration = @channel.configuration
-  @@application_id = @channel.application_id
+  @@channel = Channel.find channel_id
+  @configuration = @@channel.configuration
+  @@application_id = @@channel.application_id
   
   config = {
     :host => @configuration[:host],
@@ -223,8 +249,8 @@ begin
   
   # register in d_rb_processes table so clients can communicate
   # only one record should exist per channel
-  @d_rb_process = DRbProcess.find_or_create_by_channel_id @channel.id
-  @d_rb_process.application_id = @channel.application_id
+  @d_rb_process = DRbProcess.find_or_create_by_channel_id @@channel.id
+  @d_rb_process.application_id = @@channel.application_id
   @d_rb_process.uri = DRb.uri
   @d_rb_process.save
   

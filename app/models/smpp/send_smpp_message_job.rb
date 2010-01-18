@@ -30,9 +30,9 @@ class SendSmppMessageJob
   
       #@smpp_gw.send_msg(@message_id)
       RAILS_DEFAULT_LOGGER.debug "Sending AOMessage with id #{@message_id} through SMPP channel with id #{@channel_id}."
-      @smpp_gw.send_message(from, to, msg.subject_and_body)
+      @smpp_gw.send_message(from, to, msg)
     rescue => e
-      ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
+      ApplicationLogger.exception_in_channel_and_ao_message @channel, msg, e
       raise
     end
   end
