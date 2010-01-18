@@ -75,10 +75,6 @@ class Application < ActiveRecord::Base
     # Select channels with less or equal metric than the other channels
     channels = channels.select{|c| channels.all?{|x| c.metric <= x.metric }}
     
-    puts "!!!!"
-    puts channels.map{|x| x.inspect }
-    puts "!!!!"
-    
     # Select a random channel to handle the message
     channel = channels[rand(channels.length)]
 
