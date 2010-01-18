@@ -9,17 +9,16 @@ class SmppGateway
   
   # MT id counter
   @@mt_id = 0
-  
+
   # expose SMPP transceiver's send_mt method
   def self.send_mt(*args)
     @@mt_id += 1
     @@tx.send_mt(@@mt_id, *args)
   end
 
-  def send_message(from, to, body)
-    ar = [ from, to, body ]
-    
-    @@log.info "Sending MT from #{from} to #{to}: #{body}"   
+  def send_message(from, to, msg)
+    ar = [ from, to, msg ]
+    @@log.info "Sending MT from #{from} to #{to}: #{msg}"   
     @@tx.send_mt(@@mt_id, *ar)
   end
 
@@ -27,16 +26,15 @@ class SmppGateway
     # apparently the following line cause the transceiver to unbound (in Windows only)
     msg = AOMessage.find message_id
     
-    # should we put body, subject or both here?
     from = msg.from.without_protocol
     to = msg.to.without_protocol
     
-    ar = [ from, to, msg.body ]
+    ar = [ from, to, msg.subject_and_body ]
     
-    @@log.info "Sending MT from #{from} to #{to}: #{msg.body}"
+    @@log.info "Sending MT from #{from} to #{to}: #{msg.subject_and_body}"
     @@tx.send_mt(@@mt_id, *ar)
   end
-    
+  
   def start(config)
     # The transceiver sends MT messages to the SMSC. It needs a storage with Hash-like
     # semantics to map SMSC message IDs to your own message IDs.

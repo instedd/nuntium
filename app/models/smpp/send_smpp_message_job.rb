@@ -20,7 +20,6 @@ class SendSmppMessageJob
     
     msg = AOMessage.find @message_id
     
-    # should we put body, subject or both here?
     from = msg.from.without_protocol
     to = msg.to.without_protocol
 
@@ -31,7 +30,7 @@ class SendSmppMessageJob
   
       #@smpp_gw.send_msg(@message_id)
       RAILS_DEFAULT_LOGGER.debug "Sending AOMessage with id #{@message_id} through SMPP channel with id #{@channel_id}."
-      @smpp_gw.send_message(from, to, msg.body)
+      @smpp_gw.send_message(from, to, msg.subject_and_body)
     rescue => e
       ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
       raise
