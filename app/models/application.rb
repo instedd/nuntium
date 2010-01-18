@@ -61,6 +61,9 @@ class Application < ActiveRecord::Base
     # Find channel that handles that protocol
     channels = @outgoing_channels.select {|x| x.protocol == protocol}
     
+    # Discard channels that cannot handle the message
+    channels = channels.select{|c| !c.handler.respond_to?(:can_handle) || c.handler.can_handle(msg)}
+    
     if channels.empty?
       msg.state = 'error'
       msg.save!
