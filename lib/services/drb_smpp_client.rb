@@ -1,9 +1,11 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env ruby -w
 
 require 'rubygems'
 gem 'ruby-smpp'
 require 'smpp'
 require 'drb'
+
+DEBUG = false
 
 class SmppGateway
   
@@ -166,7 +168,10 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
         :text => sms
         )
     end
-    
+  end
+  
+  def logger
+    Smpp::Base.logger
   end
   
 end
@@ -174,14 +179,18 @@ end
 # Start the Gateway
 begin
   # Initialize Ruby on Rails
-  #LOG_FILE = 'log/smpp.log'
+  LOG_FILE = 'log/smpp.log'
   #ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
 
   require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
   require(File.join(RAILS_ROOT, 'config', 'environment'))
 
-  # log to the standard output for debugging purposes
-  @@log = Logger.new(STDOUT)
+  # if debugging log to the standard output
+  OUT = if DEBUG then STDOUT else LOG_FILE end
+  @@log = Logger.new OUT
+  
+  # Uncomment this line to get a lot more debugging information
+  #Smpp::Base.logger = @@log
 
   # find Channel and fetch configuration
   channel_id = ARGV[0]
