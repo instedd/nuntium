@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100116225533) do
+ActiveRecord::Schema.define(:version => 20100118012259) do
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -76,6 +76,7 @@ ActiveRecord::Schema.define(:version => 20100116225533) do
     t.string   "protocol"
     t.integer  "direction"
     t.boolean  "enabled",        :default => true
+    t.integer  "metric",         :default => 100
   end
 
   create_table "clickatell_message_parts", :force => true do |t|
