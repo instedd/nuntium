@@ -4,6 +4,7 @@ require "lib/services/cron_daemon"
 class CronDaemonTest < ActiveSupport::TestCase
   
   include CronDaemonRun
+  include Mocha::API
   
   test "enqueue tasks to run" do
     t1 = CronTask.create :interval => 30, :next_run => base_time + 10

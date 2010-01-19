@@ -33,7 +33,7 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_equal chan.id, unread[1].channel_id
     assert_equal msg.id, unread[1].ao_message_id
     
-    @request.env["HTTP_IF_NONE_MATCH"] = msg.id
+    @request.env["HTTP_IF_NONE_MATCH"] = msg.guid
     get 'index', :application_id => 'app'
     
     assert_select "message", {:count => 0}
@@ -91,7 +91,7 @@ class OutgoingControllerTest < ActionController::TestCase
     new_qst_outgoing_message(chan, msg1.id)
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
-    @request.env["HTTP_IF_NONE_MATCH"] = msg1.id
+    @request.env["HTTP_IF_NONE_MATCH"] = msg1.guid
     get 'index', :application_id => 'app'
     
     assert_select "message", {:count => 0}
@@ -112,7 +112,7 @@ class OutgoingControllerTest < ActionController::TestCase
     new_qst_outgoing_message(chan, msg1.id)
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
-    @request.env["HTTP_IF_NONE_MATCH"] = msg0.id
+    @request.env["HTTP_IF_NONE_MATCH"] = msg0.guid
     get 'index', :application_id => 'app'
     
     assert_equal msg1.id, @response.headers['ETag']
@@ -145,7 +145,7 @@ class OutgoingControllerTest < ActionController::TestCase
     end
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
-    @request.env["HTTP_IF_NONE_MATCH"] = msgs[1].id.to_s
+    @request.env["HTTP_IF_NONE_MATCH"] = msgs[1].guid.to_s
     get 'index', :application_id => 'app', :max => 1
     
     assert_equal msgs[2].id, @response.headers['ETag']
@@ -188,7 +188,7 @@ class OutgoingControllerTest < ActionController::TestCase
     new_qst_outgoing_message(chan, msg1.id)
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
-    @request.env["HTTP_IF_NONE_MATCH"] = msg.id.to_s
+    @request.env["HTTP_IF_NONE_MATCH"] = msg.guid.to_s
     get 'index', :application_id => 'app'
     
     assert_equal msg1.id, @response.headers['ETag']

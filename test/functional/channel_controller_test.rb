@@ -5,7 +5,7 @@ class ChannelControllerTest < ActionController::TestCase
   test "create qst channel succeeds" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
     
-    get :create_channel, {:kind => 'qst', :channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application => app}
+    get :create_channel, {:kind => 'qst', :channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application_id => app.id}
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -29,7 +29,7 @@ class ChannelControllerTest < ActionController::TestCase
     chan.configuration = {:password => 'chan_pass'}
     chan.save
     
-    get :update_channel, {:id => chan.id, :channel => {:protocol => 'sms', :configuration => {:password => 'new_pass', :password_confirmation => 'new_pass'}}}, {:application => app}
+    get :update_channel, {:id => chan.id, :channel => {:protocol => 'sms', :configuration => {:password => 'new_pass', :password_confirmation => 'new_pass'}}}, {:application_id => app.id}
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -49,7 +49,7 @@ class ChannelControllerTest < ActionController::TestCase
     chan.configuration = {:password => 'chan_pass'}
     chan.save
     
-    get :update_channel, {:id => chan.id, :channel => {:protocol => 'mail', :configuration => {:password => '', :password_confirmation => ''}}}, {:application => app}
+    get :update_channel, {:id => chan.id, :channel => {:protocol => 'mail', :configuration => {:password => '', :password_confirmation => ''}}}, {:application_id => app.id}
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -71,7 +71,7 @@ class ChannelControllerTest < ActionController::TestCase
     chan.configuration = {:password => 'chan_pass'}
     chan.save
     
-    get :delete_channel, {:id => chan.id}, {:application => app}
+    get :delete_channel, {:id => chan.id}, {:application_id => app.id}
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -92,7 +92,7 @@ class ChannelControllerTest < ActionController::TestCase
     chan.configuration = {:password => 'chan_pass'}
     chan.save
     
-    get :update_channel, {:id => chan.id, :channel => {:protocol => '', :configuration => {:password => '', :password_confirmation => ''}}}, {:application => app}
+    get :update_channel, {:id => chan.id, :channel => {:protocol => '', :configuration => {:password => '', :password_confirmation => ''}}}, {:application_id => app.id}
     assert_redirected_to(:controller => 'channel', :action => 'edit_channel')
   end
 
@@ -102,7 +102,7 @@ class ChannelControllerTest < ActionController::TestCase
     chan.configuration = {:password => 'chan_pass'}
     chan.save
     
-    get :create_channel, {:kind => 'qst', :channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application => app}
+    get :create_channel, {:kind => 'qst', :channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application_id => app.id}
     assert_redirected_to(:controller => 'channel', :action => 'new_channel')
   end
   

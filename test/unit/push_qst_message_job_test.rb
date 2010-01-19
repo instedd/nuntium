@@ -339,7 +339,6 @@ include Net
         setup_http app,
           :expects_post => false, 
           :expects_head => false
-        puts "Setup null http"
       else
         setup_http app, 
           :msgs_posted => (current...current+10), 
@@ -350,9 +349,6 @@ include Net
         lapse += 10
         
         set_current_time(base_time + lapse)
-        
-        puts "Time is #{Time.now.utc}" 
-        puts "Current is #{current}"
       end
     end
     

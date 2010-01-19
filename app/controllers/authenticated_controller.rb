@@ -2,7 +2,7 @@ class AuthenticatedController < ApplicationController
 
   def check_login
     if session[:application_id].nil?
-      redirect_to :action => :index
+      redirect_to :controller => :home, :action => :index
       return
     end
     
