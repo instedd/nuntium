@@ -18,6 +18,7 @@ class SendSmppMessageJob
       return :error_finding_drb_service
     end
     
+    channel = Channel.find @channel_id
     msg = AOMessage.find @message_id
     
     from = msg.from.without_protocol
@@ -28,15 +29,13 @@ class SendSmppMessageJob
       DRb.start_service
       @smpp_gw = DRbObject.new nil, @d_rb_process.uri
   
-      #@smpp_gw.send_msg(@message_id)
       RAILS_DEFAULT_LOGGER.debug "Sending AOMessage with id #{@message_id} through SMPP channel with id #{@channel_id}."
       @smpp_gw.send_message(from, to, msg)
     rescue => e
-      ApplicationLogger.exception_in_channel_and_ao_message @channel, msg, e
+      ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
       raise
     end
   end
-  
   
   def to_s
     "<SendSmppMessageJob:#{@message_id}>"

@@ -4,8 +4,9 @@ require 'rubygems'
 gem 'ruby-smpp'
 require 'smpp'
 require 'drb'
+require 'iconv'
 
-DEBUG = true
+DEBUG = false
 
 class SmppGateway
   
@@ -90,7 +91,7 @@ class SmppGateway
 
   def mo_received(transceiver, source_addr, destination_addr, short_message)
     @@log.info "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{short_message}"   
-    
+        
     # temporary workaround to cut extra characters we receive from Smart
     l = short_message.length - 6
     sms = short_message[0,l]
@@ -146,7 +147,7 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
       msg.from = 'smpp://' + source_addr
       msg.to = 'smpp://' + destination_addr
       msg.subject = sms
-      msg.body = sms
+      #msg.body = sms
       # now?
       msg.timestamp = DateTime.now
       msg.state = 'queued'
@@ -206,7 +207,8 @@ end
 begin
   # Initialize Ruby on Rails
   LOG_FILE = 'log/smpp.log'
-  #ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
+  # MUST pass environment as the first parameter
+  ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
 
   require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
   require(File.join(RAILS_ROOT, 'config', 'environment'))
@@ -219,7 +221,7 @@ begin
   #Smpp::Base.logger = @@log
 
   # find Channel and fetch configuration
-  channel_id = ARGV[0]
+  channel_id = ARGV[1]
   @@log.debug "Fetching channel with id #{channel_id} from database."
   @@channel = Channel.find channel_id
   @configuration = @@channel.configuration
