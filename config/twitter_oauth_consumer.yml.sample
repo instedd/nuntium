@@ -1,3 +1,4 @@
+# Just leave this "as is" if you don't plan to use twitter for development
 token: Copy "Consumer key" from http://twitter.com/oauth_clients
 secret: Copy "Consumer secret" from http://twitter.com/oauth_clients
 callback_url: /twitter_callback

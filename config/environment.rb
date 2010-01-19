@@ -52,7 +52,7 @@ end
 
 # Twitter OAuth configuration
 if !File.exists?(Rails.root + 'config/twitter_oauth_consumer.yml')
-  $stderr.puts('ERROR: /config/twitter_oauth_consumer.yml not found, please copy it from /config/twitter_oauth_consumer.yml.sample and put some real data in it.')
+  $stderr.puts("ERROR! But please, DON\'T PANIC and read what follows: '/config/twitter_oauth_consumer.yml' not found, please copy it from '/config/twitter_oauth_consumer.yml.sample' into the same directory. If you don't plan to use twitter in development, that's enough. Else, read what's in the sample and put some real data in the yml.")
   exit 1
 end
 TwitterConsumerConfig = YAML.load(File.read(Rails.root + 'config/twitter_oauth_consumer.yml'))
