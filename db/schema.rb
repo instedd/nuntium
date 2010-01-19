@@ -102,6 +102,14 @@ ActiveRecord::Schema.define(:version => 20100119150301) do
     t.string   "name"
   end
 
+  create_table "d_rb_processes", :force => true do |t|
+    t.integer  "application_id"
+    t.integer  "channel_id"
+    t.string   "uri"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0
     t.integer  "attempts",   :default => 0
@@ -123,6 +131,15 @@ ActiveRecord::Schema.define(:version => 20100119150301) do
   end
 
   add_index "qst_outgoing_messages", ["ao_message_id"], :name => "index_unread_ao_messages_on_guid"
+
+  create_table "smpp_message_parts", :force => true do |t|
+    t.integer  "reference_number"
+    t.integer  "part_count"
+    t.integer  "part_number"
+    t.string   "text"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "twitter_channel_statuses", :force => true do |t|
     t.integer  "channel_id"
