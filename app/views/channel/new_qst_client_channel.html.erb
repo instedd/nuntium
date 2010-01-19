@@ -21,11 +21,11 @@
   <% f.fields_for :configuration do |c| %>
     <p>
     <%= c.label :url %><br/>
-    <%= c.password_field :url %>
+    <%= c.text_field :url %>
     </p>
     <p>
     <%= c.label :user %><br/>
-    <%= c.password_field :user %>
+    <%= c.text_field :user %>
     </p>
     <p>
     <%= c.label :password %><br/>

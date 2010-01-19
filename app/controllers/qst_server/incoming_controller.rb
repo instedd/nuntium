@@ -6,7 +6,7 @@ class IncomingController < QSTServerController
     return head(:not_found) if !request.head?
     
     msg = @application.last_at_message
-    etag = msg.nil? ? nil : msg.id
+    etag = msg.nil? ? nil : msg.guid
     head :ok, 'ETag' => etag
   end
   
@@ -28,7 +28,7 @@ class IncomingController < QSTServerController
       msg.state = 'queued'
       msg.save
       
-      last_id = msg.id
+      last_id = msg.guid
     end
     
     head :ok, 'ETag' => last_id

@@ -17,11 +17,11 @@
   <% f.fields_for :configuration do |c| %>
     <p>
     <%= c.label :url %><br/>
-    <%= c.password_field :url, :value => @channel[:configuration][:url] %>
+    <%= c.text_field :url, :value => @channel[:configuration][:url] %>
     </p>
     <p>
     <%= c.label :user %><br/>
-    <%= c.password_field :user, :value => @channel[:configuration][:user] %>
+    <%= c.text_field :user, :value => @channel[:configuration][:user] %>
     </p>
     <p>
     <%= c.label :password %><br/>
