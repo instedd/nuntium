@@ -17,7 +17,7 @@ class IncomingControllerTest < ActionController::TestCase
     head 'index', :application_id => 'app'
     
     assert_response :ok
-    assert_equal msg.id.to_s, @response.headers['ETag']
+    assert_equal msg.guid.to_s, @response.headers['ETag']
   end
   
   test "get last message id not exists" do
@@ -60,7 +60,7 @@ class IncomingControllerTest < ActionController::TestCase
     msg = messages[0]
     
     assert_response :ok
-    assert_equal msg.id.to_s, @response.headers['ETag']
+    assert_equal msg.guid.to_s, @response.headers['ETag']
     
     assert_equal app.id, msg.application_id
     assert_equal "Hello!", msg.body
