@@ -1,4 +1,4 @@
-<h4>Create new QST server channel</h4>
+<h4>Create new QST client channel</h4>
 
 <% form_for :channel, :url => { :controller => 'channel', :action => :create_channel, :kind => params[:kind] } do |f| %>
   <%= f.error_messages %>
@@ -20,12 +20,16 @@
   </p>
   <% f.fields_for :configuration do |c| %>
     <p>
-    <%= c.label :password %><br/>
-    <%= c.password_field :password %>
+    <%= c.label :url %><br/>
+    <%= c.password_field :url %>
     </p>
     <p>
-    <%= c.label :password_confirmation %><br/>
-    <%= c.password_field :password_confirmation %>
+    <%= c.label :user %><br/>
+    <%= c.password_field :user %>
+    </p>
+    <p>
+    <%= c.label :password %><br/>
+    <%= c.password_field :password %>
     </p>
   <% end %>
   <%= submit_tag 'Create Channel' %>

@@ -2,7 +2,6 @@ class PullQstMessageJob
   
   BATCH_SIZE = 10
   
-  require 'qst_common'
   include ClientQstJob
   
   def initialize(app_id)
