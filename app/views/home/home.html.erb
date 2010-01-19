@@ -25,7 +25,7 @@
     <%
   end
   %>
-  <% if !@channels.select {|c| c.kind == 'qst'}.empty? %>
+  <% if !@channels.select {|c| c.kind == 'qst_server'}.empty? %>
     <div><b>Via <a href="http://code.google.com/p/geochat/wiki/QueueStateTransfer" target="_blank">QueueStateTransfer</a></b></div>
     Use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Http Basic Authentication</a> with channel credentials.
     
@@ -110,7 +110,7 @@
 <%= link_to "Create new Clickatell channel", :controller => :channel, :action => :new_channel, :kind => 'clickatell' %><br/>
 <%= link_to "Create new DTAC channel", :controller => :channel, :action => :new_channel, :kind => 'dtac' %><br/>
 <%= link_to "Create new POP3 channel", :controller => :channel, :action => :new_channel, :kind => 'pop3' %><br/>
-<%= link_to "Create new QST channel", :controller => :channel, :action => :new_channel, :kind => 'qst' %><br/>
+<%= link_to "Create new QST server channel", :controller => :channel, :action => :new_channel, :kind => 'qst_server' %><br/>
 <%= link_to "Create new SMTP channel", :controller => :channel, :action => :new_channel, :kind => 'smtp' %><br/>
 <%= link_to "Create new Twitter channel", :controller => :channel, :action => :new_channel, :kind => 'twitter' %><br/>
 <%= link_to "Create new SMPP channel", :controller => :channel, :action => :new_channel, :kind => 'smpp' %>
