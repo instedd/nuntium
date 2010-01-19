@@ -6,7 +6,10 @@ require 'smpp'
 require 'drb'
 require 'iconv'
 
-DEBUG = false
+# DEBUG = true goes to the console, = false to log file
+DEBUG = true
+# set encoding to UTF-8
+$KCODE = "U"
 
 class SmppGateway
   
@@ -41,9 +44,7 @@ class SmppGateway
 =end
 
   def send_message(from, to, msg)
-    
-    body = msg.subject_and_body
-    
+    body = msg.subject_and_body    
     ar = [ from, to, body ]
     @@log.info "Sending MT from #{from} to #{to}: #{body}"
     
@@ -61,7 +62,7 @@ class SmppGateway
       msg.channel_relative_id = @@mt_id
       msg.save
     end
-    ApplicationLogger.message_channeled msg, @@channel
+    ApplicationLogger.message_channeled msg, @@channel  
   end
   
   def start(config)
@@ -89,12 +90,22 @@ class SmppGateway
   
   # ruby-smpp delegate methods 
 
-  def mo_received(transceiver, source_addr, destination_addr, short_message)
-    @@log.info "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{short_message}"   
-        
+  def mo_received(transceiver, source_addr, destination_addr, short_message)        
     # temporary workaround to cut extra characters we receive from Smart
     l = short_message.length - 6
     sms = short_message[0,l]
+
+    # detect encoding (when we switch to Unix I'll use the charguess lib)
+    ic = Iconv.new 'UTF-8', 'UTF-16'
+    begin
+      utf8string = ic.iconv sms
+      #it's UCS-2
+      sms =  utf8string
+    rescue
+      #it's ascii
+    end
+  
+    @@log.info "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{sms}"   
 
 =begin
 
@@ -206,18 +217,18 @@ end
 # Start the Gateway
 begin
   # Initialize Ruby on Rails
-  LOG_FILE = 'log/smpp.log'
   # MUST pass environment as the first parameter
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
 
   require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
   require(File.join(RAILS_ROOT, 'config', 'environment'))
 
+  LOG_FILE = "#{RAILS_ROOT}/log/smpp.log"
   # if debugging log to the standard output
   OUT = if DEBUG then STDOUT else LOG_FILE end
   @@log = Logger.new OUT
   
-  # Uncomment this line to get a lot more debugging information
+  # Uncomment this line to get a lot more debugging information in the log file
   #Smpp::Base.logger = @@log
 
   # find Channel and fetch configuration
@@ -258,5 +269,9 @@ begin
   
   gw.start(config)  
 rescue Exception => ex
-  @@log.fatal "Exception in SMPP Gateway: #{ex} at #{ex.backtrace.join("\n")}"
+  if defined?(@@log).nil?
+    raise ex
+  else
+    @@log.fatal "Exception in SMPP Gateway: #{ex} at #{ex.backtrace.join("\n")}"
+  end
 end
