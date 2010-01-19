@@ -1,4 +1,4 @@
-class QstChannelHandler < ChannelHandler
+class QstServerChannelHandler < ChannelHandler
   def handle(msg)
     outgoing = QSTOutgoingMessage.new
     outgoing.channel_id = @channel.id

@@ -43,7 +43,7 @@ class PushQstMessageJob
     ATMessage.update_msgs_status new_msgs, app.max_tries, last_id
     
     # Logging: say that valid messages were returned and invalid no
-    ATMessage.log_delivery(new_msgs, app, 'qst')
+    ATMessage.log_delivery(new_msgs, app, 'qst_client')
     
     # Save changes to the app
     app.set_last_at_guid last_id
@@ -128,7 +128,7 @@ class PushQstMessageJob
   
   # Enqueues jobs of this class for each qst push interface
   def self.enqueue_for_all_interfaces
-    Application.find_all_by_interface('qst').each do |app|
+    Application.find_all_by_interface('qst_client').each do |app|
       job = PushQstMessageJob.new(app.id)
       Delayed::Job.enqueue job
     end

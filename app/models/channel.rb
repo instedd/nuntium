@@ -37,7 +37,7 @@ class Channel < ActiveRecord::Base
     if kind.nil?
       nil
     else
-      eval(kind.capitalize + 'ChannelHandler.new(self)')
+      eval(ActiveSupport::Inflector.camelize(kind) + 'ChannelHandler.new(self)')
     end
   end
   

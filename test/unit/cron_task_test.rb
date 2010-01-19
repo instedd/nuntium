@@ -14,7 +14,7 @@ class CronTaskTest < ActiveSupport::TestCase
   end
   
   test "should create task when creating qst app and drop if changed" do
-    app = Application.create :name => 'app', :password => 'foo', :interface => 'qst'
+    app = Application.create :name => 'app', :password => 'foo', :interface => 'qst_client'
     
     assert_equal 2, app.cron_tasks.size
     t1, t2 = app.cron_tasks.all
@@ -35,7 +35,7 @@ class CronTaskTest < ActiveSupport::TestCase
     assert_equal 0, app.cron_tasks.size
     assert_equal 0, CronTask.all.size
     
-    app.update_attribute(:interface, 'qst')
+    app.update_attribute(:interface, 'qst_client')
     app.reload
     assert_equal 2, app.cron_tasks.size
     
@@ -49,7 +49,7 @@ class CronTaskTest < ActiveSupport::TestCase
   end
   
   test "should drop task with application" do
-    app = Application.create :name => 'app', :password => 'foo', :interface => 'qst'
+    app = Application.create :name => 'app', :password => 'foo', :interface => 'qst_client'
     
     assert_equal 2, app.cron_tasks.size
     assert_equal PushQstMessageJob, app.cron_tasks.first.get_handler.class
@@ -74,7 +74,7 @@ class CronTaskTest < ActiveSupport::TestCase
   end
   
   test "should not create task for non task channel" do
-    create_channel 'qst'
+    create_channel 'qst_server'
     assert_equal 0, CronTask.all.size
   end
   
@@ -149,7 +149,7 @@ class CronTaskTest < ActiveSupport::TestCase
     assert_equal base_time, task.last_run 
   end
   
-  def create_channel(kind = 'qst')
+  def create_channel(kind = 'qst_server')
     app = Application.create :name => 'app', :password => 'foo'
     ch = Channel.new :name =>'channel', :application_id => app.id, :kind => kind, :protocol => 'sms'
     ch.configuration = {:password => 'foo', :password_confirmation => 'foo', :user => 'foobar', :port => 600, :host => 'example.com'}

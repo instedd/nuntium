@@ -2,15 +2,15 @@ require 'test_helper'
 
 class IncomingControllerTest < ActionController::TestCase
   test "get last message id" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
     new_at_message(app, 0)
     msg = new_at_message(app, 1)
     
     # This is so that we have another channel but the one we are looking for is used
-    create_channel(app, 'chan3', 'chan_pass3', 'qst')
+    create_channel(app, 'chan3', 'chan_pass3', 'qst_server')
     
     # This is to see that this doesn't interfere with the test
-    app2, chan2 = create_app_and_channel('app2', 'app_pass2', 'chan2', 'chan_pass2', 'qst')
+    app2, chan2 = create_app_and_channel('app2', 'app_pass2', 'chan2', 'chan_pass2', 'qst_server')
     new_at_message(app2, 2)
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
@@ -21,7 +21,7 @@ class IncomingControllerTest < ActionController::TestCase
   end
   
   test "get last message id not exists" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
     head 'index', :application_id => 'app'
@@ -31,7 +31,7 @@ class IncomingControllerTest < ActionController::TestCase
   end
   
   test "can't read" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
     
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
     get 'index', :application_id => 'app'
@@ -40,7 +40,7 @@ class IncomingControllerTest < ActionController::TestCase
   end
   
   test "push message" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
   
     @request.env['RAW_POST_DATA'] = <<-eos
       <?xml version="1.0" encoding="utf-8"?>
@@ -71,7 +71,7 @@ class IncomingControllerTest < ActionController::TestCase
   end
   
   test "get last message id not authorized" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'wrong_chan_pass')
     head 'index', :application_id => 'app'
@@ -80,7 +80,7 @@ class IncomingControllerTest < ActionController::TestCase
   end
   
   test "push messages not authorized" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst')
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'wrong_chan_pass')
     post 'create', :application_id => 'app'

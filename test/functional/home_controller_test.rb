@@ -34,7 +34,7 @@ class HomeControllerTest < ActionController::TestCase
   test "edit app succeeds" do
     app = Application.create({:name => 'app', :password => 'app_pass', :interface => 'rss' })
     
-    get :update_application, {:application => {:max_tries => 1, :interface => 'qst', :configuration => { :url => 'myurl' }, :password => '', :password_confirmation => ''}}, {:application_id => app.id}
+    get :update_application, {:application => {:max_tries => 1, :interface => 'qst_client', :configuration => { :url => 'myurl' }, :password => '', :password_confirmation => ''}}, {:application_id => app.id}
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')

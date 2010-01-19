@@ -1,6 +1,6 @@
 require 'rexml/document'
 
-class IncomingController < QSTController
+class IncomingController < QSTServerController
   # HEAD /qst/:application_id/incoming
   def index
     return head(:not_found) if !request.head?
