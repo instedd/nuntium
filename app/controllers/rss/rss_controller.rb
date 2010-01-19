@@ -73,6 +73,7 @@ class RssController < ApplicationController
     end
     
     response.last_modified = @at_messages.last.timestamp
+    response.headers['ETag'] = @at_messages.last.guid
     render :layout => false
   end
   

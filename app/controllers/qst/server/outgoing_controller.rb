@@ -1,4 +1,4 @@
-class OutgoingController < QSTController
+class OutgoingController < QSTServerController
   # GET /qst/:application_id/outgoing
   def index
     etag = request.env['HTTP_IF_NONE_MATCH']
@@ -68,9 +68,9 @@ class OutgoingController < QSTController
       # Logging: say that valid messages were returned and invalid no
       @ao_messages.each do |msg|
         if msg.tries >= @application.max_tries
-          @application.logger.ao_message_delivery_succeeded msg, 'qst'
+          @application.logger.ao_message_delivery_succeeded msg, 'qst_server'
         else
-          @application.logger.ao_message_delivery_exceeded_tries msg, 'qst'
+          @application.logger.ao_message_delivery_exceeded_tries msg, 'qst_server'
         end
       end
       

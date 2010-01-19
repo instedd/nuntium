@@ -19,21 +19,21 @@
   <p>
   <%= f.label :interface %><br/>
   <%= f.radio_button :interface, 'rss', :onclick => "disableConfig(true);" %>Rss<br/>
-  <%= f.radio_button :interface, 'qst', :onclick => "disableConfig(false);"%>QST<br/>
+  <%= f.radio_button :interface, 'qst_client', :onclick => "disableConfig(false);"%>QST client<br/>
   <div>
   	<% f.fields_for :configuration do |c| %>
     <h5>Configuration:</h5>
 	<p>
     <%= c.label :url %><br/>
-    <%= c.text_field :url, :value => @application.configuration[:url], :disabled => @application.interface != 'qst', :class => 'configurl' %>
+    <%= c.text_field :url, :value => @application.configuration[:url], :disabled => @application.interface != 'qst_client', :class => 'configurl' %>
     </p>
     <p>
     <%= c.label :cred_user %><br/>
-    <%= c.text_field :cred_user, :value => @application.configuration[:cred_user], :disabled => @application.interface != 'qst', :class => 'configurl' %>
+    <%= c.text_field :cred_user, :value => @application.configuration[:cred_user], :disabled => @application.interface != 'qst_client', :class => 'configurl' %>
     </p>
     <p>
     <%= c.label :cred_pass %><br/>
-    <%= c.password_field :cred_pass, :value => @application.configuration[:cred_pass], :disabled => @application.interface != 'qst', :autocomplete => :off, :class => 'configurl' %>
+    <%= c.password_field :cred_pass, :value => @application.configuration[:cred_pass], :disabled => @application.interface != 'qst_client', :autocomplete => :off, :class => 'configurl' %>
     </p>
   <% end %>
   </div>
@@ -42,11 +42,11 @@
   <p>
   <b>Leave blank if you don't want to change the password</b><br/>
   <%= f.label :password %><br/>
-  <%= f.password_field :password, :autocomplete => :off %>
+  <%= f.password_field :password, :value => '', :autocomplete => :off %>
   </p>
   <p>
   <%= f.label :password_confirmation %><br/>
-  <%= f.password_field :password_confirmation, :autocomplete => :off %>
+  <%= f.password_field :password_confirmation, :value => '', :autocomplete => :off %>
   </p>
   <hr />
   <%= submit_tag 'Update' %>

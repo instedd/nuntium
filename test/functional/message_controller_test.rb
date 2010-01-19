@@ -8,7 +8,7 @@ class MessageControllerTest < ActionController::TestCase
     msg2 = AOMessage.create(:application_id => app.id, :state => 'queued')
     msg3 = AOMessage.create(:application_id => app.id, :state => 'queued')
     
-    get :mark_ao_messages_as_cancelled, {:ao_messages => [msg1.id, msg2.id]}, {:application => app}
+    get :mark_ao_messages_as_cancelled, {:ao_messages => [msg1.id, msg2.id]}, {:application_id => app.id}
     
     assert_redirected_to(:controller => 'home', :action => 'home', :ao_messages => [msg1.id, msg2.id])
     assert_equal '2 Application Oriented messages were marked as cancelled', flash[:notice]
@@ -25,7 +25,7 @@ class MessageControllerTest < ActionController::TestCase
     msg2 = AOMessage.create(:application_id => app.id, :state => 'queued', :body => 'one')
     msg3 = AOMessage.create(:application_id => app.id, :state => 'queued', :body => 'two')
     
-    get :mark_ao_messages_as_cancelled, {:ao_all => 1, :ao_search => 'one'}, {:application => app}
+    get :mark_ao_messages_as_cancelled, {:ao_all => 1, :ao_search => 'one'}, {:application_id => app.id}
     
     assert_redirected_to(:controller => 'home', :action => 'home', :ao_all => 1, :ao_search => 'one')
     assert_equal '2 Application Oriented messages were marked as cancelled', flash[:notice]
@@ -42,7 +42,7 @@ class MessageControllerTest < ActionController::TestCase
     msg2 = ATMessage.create(:application_id => app.id, :state => 'queued')
     msg3 = ATMessage.create(:application_id => app.id, :state => 'queued')
     
-    get :mark_at_messages_as_cancelled, {:at_messages => [msg1.id, msg2.id]}, {:application => app}
+    get :mark_at_messages_as_cancelled, {:at_messages => [msg1.id, msg2.id]}, {:application_id => app.id}
     
     assert_redirected_to(:controller => 'home', :action => 'home', :at_messages => [msg1.id, msg2.id])
     assert_equal '2 Application Terminated messages were marked as cancelled', flash[:notice]
@@ -59,7 +59,7 @@ class MessageControllerTest < ActionController::TestCase
     msg2 = ATMessage.create(:application_id => app.id, :state => 'queued', :body => 'one')
     msg3 = ATMessage.create(:application_id => app.id, :state => 'queued', :body => 'two')
     
-    get :mark_at_messages_as_cancelled, {:at_all => 1, :at_search => 'one'}, {:application => app}
+    get :mark_at_messages_as_cancelled, {:at_all => 1, :at_search => 'one'}, {:application_id => app.id}
     
     assert_redirected_to(:controller => 'home', :action => 'home', :at_all => 1, :at_search => 'one')
     assert_equal '2 Application Terminated messages were marked as cancelled', flash[:notice]

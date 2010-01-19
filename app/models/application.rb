@@ -15,7 +15,7 @@ class Application < ActiveRecord::Base
   validates_uniqueness_of :name
   validates_confirmation_of :password
   validates_numericality_of :max_tries, :only_integer => true, :greater_than_or_equal_to => 0
-  validates_inclusion_of :interface, :in => ['rss', 'qst']
+  validates_inclusion_of :interface, :in => ['rss', 'qst_client']
   
   before_save :hash_password 
   after_save :handle_tasks
@@ -134,8 +134,8 @@ class Application < ActiveRecord::Base
     case interface
     when 'rss'
       return 'rss'
-    when 'qst'
-      return self.configuration[:url]
+    when 'qst_client'
+      return 'qst_client: ' + self.configuration[:url]
     end
   end
 
@@ -145,7 +145,7 @@ class Application < ActiveRecord::Base
   def handle_tasks(force = false)
     if self.interface_changed? || force
       case self.interface
-        when 'qst'
+        when 'qst_client'
           create_task('qst-push', QST_PUSH_INTERVAL, PushQstMessageJob.new(self.id))
           create_task('qst-pull', QST_PULL_INTERVAL, PullQstMessageJob.new(self.id))
       else

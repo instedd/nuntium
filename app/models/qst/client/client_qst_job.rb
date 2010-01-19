@@ -44,7 +44,7 @@ module ClientQstJob
     elsif app.configuration.nil? or app.configuration[:url].nil?
       RAILS_DEFAULT_LOGGER.warn "Validate application for QST: no url found in application configuration for pushing/pulling messages in application #{app.name}"
       return :error_no_url_in_configuration
-    elsif not app.interface == 'qst'
+    elsif not app.interface == 'qst_client'
       RAILS_DEFAULT_LOGGER.warn "Validate application for QST: found interface #{app.interface} when expecting qst in application #{app.name}"
       return :error_wrong_interface
     end
