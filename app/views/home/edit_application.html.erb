@@ -42,11 +42,11 @@
   <p>
   <b>Leave blank if you don't want to change the password</b><br/>
   <%= f.label :password %><br/>
-  <%= f.password_field :password, :autocomplete => :off %>
+  <%= f.password_field :password, :value => '', :autocomplete => :off %>
   </p>
   <p>
   <%= f.label :password_confirmation %><br/>
-  <%= f.password_field :password_confirmation, :autocomplete => :off %>
+  <%= f.password_field :password_confirmation, :value => '', :autocomplete => :off %>
   </p>
   <hr />
   <%= submit_tag 'Update' %>

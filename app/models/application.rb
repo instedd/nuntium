@@ -135,7 +135,7 @@ class Application < ActiveRecord::Base
     when 'rss'
       return 'rss'
     when 'qst_client'
-      return self.configuration[:url]
+      return 'qst_client: ' + self.configuration[:url]
     end
   end
 
