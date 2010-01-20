@@ -106,7 +106,7 @@ class Smpp::Transceiver < Smpp::Base
       if pdu.esm_class != 4
         # MO message
         if @delegate.respond_to?(:mo_received)
-          @delegate.mo_received(self, pdu.source_addr, pdu.destination_addr, pdu.short_message)
+          @delegate.mo_received(self, pdu.source_addr, pdu.destination_addr, pdu.short_message, pdu.data_coding)
         end
       else
         # Delivery report

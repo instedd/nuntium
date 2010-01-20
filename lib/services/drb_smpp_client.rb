@@ -8,6 +8,8 @@ require 'rubygems'
 require 'drb'
 require 'iconv'
 require 'eventmachine'
+
+#require 'lib/ruby-smpp/smpp'
 require '../ruby-smpp/smpp'
 
 # DEBUG = true goes to the console, = false to log file
@@ -20,53 +22,26 @@ class SmppGateway
   # MT id counter
   @@mt_id = 0
 
-=begin
-  # expose SMPP transceiver's send_mt method
-  def self.send_mt(*args)
-    @@mt_id += 1
-    @@tx.send_mt(@@mt_id, *args)
-  end
-
-  def send_message(from, to, msg)
-    ar = [ from, to, msg ]
-    @@log.info "Sending MT from #{from} to #{to}: #{msg}"   
-    @@tx.send_mt(@@mt_id, *ar)
-  end
-
-  def send_msg(message_id)
-    # apparently the following line cause the transceiver to unbound (in Windows only)
-    msg = AOMessage.find message_id
-    
-    from = msg.from.without_protocol
-    to = msg.to.without_protocol
-    
-    ar = [ from, to, msg.subject_and_body ]
-    
-    @@log.info "Sending MT from #{from} to #{to}: #{msg.subject_and_body}"
-    @@tx.send_mt(@@mt_id, *ar)
-  end
+  def send_message(from, to, sms)
+    options = {}
+    options[:data_coding] = 3
+=begin   
+    ic = Iconv.new 'UCS-2', 'UTF-8'
+    ucs2string = ic.iconv sms
+    sms =  ucs2string
 =end
-
-  def send_message(from, to, msg)
-    body = msg.subject_and_body    
-    ar = [ from, to, body ]
-    @@log.info "Sending MT from #{from} to #{to}: #{body}"
+    
+    ar = [ from, to, sms]
+    #ar = [ from, to, sms , options]
+    @@log.info "Sending MT from #{from} to #{to}: #{sms}"
     
     begin
       @@tx.send_mt(@@mt_id, *ar)
     rescue => e
-      msg.tries += 1
-      msg.channel_relative_id = @@mt_id
-      msg.save
-      ApplicationLogger.exception_in_channel_and_ao_message @@channel, msg, e
-      raise
+      return false
     else
-      msg.state = 'delivered'
-      msg.tries += 1
-      msg.channel_relative_id = @@mt_id
-      msg.save
+      return true
     end
-    ApplicationLogger.message_channeled msg, @@channel  
   end
   
   def start(config)
@@ -94,19 +69,16 @@ class SmppGateway
   
   # ruby-smpp delegate methods 
 
-  def mo_received(transceiver, source_addr, destination_addr, short_message)        
+  def mo_received(transceiver, source_addr, destination_addr, short_message, data_coding)        
     # temporary workaround to cut extra characters we receive from Smart
     l = short_message.length - 6
     sms = short_message[0,l]
 
-    # detect encoding (when we switch to Unix I'll use the charguess lib)
-    ic = Iconv.new 'UTF-8', 'UTF-16'
-    begin
+    # data_coding == 0 means 'SMSC default alphabet' and == 8 means 'UCS-2'
+    if (data_coding == 8)
+      ic = Iconv.new 'UTF-8', 'UCS-2'
       utf8string = ic.iconv sms
-      #it's UCS-2
       sms =  utf8string
-    rescue
-      #it's ascii
     end
   
     @@log.info "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{sms}"   
