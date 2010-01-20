@@ -18,3 +18,12 @@ rake db:seed
 
 ruby script/server
 
+5. Run the delayed jobs worker:
+(rake gems:install should add the "delayed_job" and "daemons" gems but, just in case, ensure you have them)
+
+Unix: ruby script/delayed_job start
+
+Windows: ruby script\console
+and once in the console: Delayed::Worker.new.start
+
+For more info about delayed_job check http://github.com/collectiveidea/delayed_job.
