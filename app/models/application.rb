@@ -111,23 +111,15 @@ class Application < ActiveRecord::Base
   end
   
   def set_last_at_guid(value)
-    if self.configuration.nil?
-      self.configuration = { :last_at_guid => value }
-      self.save
-    elsif self.configuration[:last_at_guid] != value
-      self.configuration[:last_at_guid] = value
-      self.save
-    end
+    self.configuration ||= {}
+    self.configuration[:last_at_guid] = value
+    self.save
   end
   
   def set_last_ao_guid(value)
-    if self.configuration.nil?
-      self.configuration = { :last_ao_guid => value }
-      self.save
-    elsif self.configuration[:last_ao_guid] != value
-      self.configuration[:last_ao_guid] = value
-      self.save
-    end
+    self.configuration ||= {}
+    self.configuration[:last_ao_guid] = value
+    self.save
   end
   
   def interface_description

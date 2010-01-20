@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100119150301) do
+ActiveRecord::Schema.define(:version => 20100119200047) do
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -120,6 +120,8 @@ ActiveRecord::Schema.define(:version => 20100119150301) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "channel_id"
+    t.string   "state"
+    t.string   "timestamp"
   end
 
   add_index "qst_outgoing_messages", ["ao_message_id"], :name => "index_unread_ao_messages_on_guid"
