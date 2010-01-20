@@ -23,14 +23,20 @@ class SmppGateway
   @@mt_id = 0
 
   def send_message(from, to, sms)
+=begin
     options = {}
-    options[:data_coding] = 3
-=begin   
+    options[:data_coding] = 3 # 3 for Latin-1 and 8 for UCS-2
+
     ic = Iconv.new 'UCS-2', 'UTF-8'
     ucs2string = ic.iconv sms
     sms =  ucs2string
-=end
     
+    #007A = z
+    sms = "\x00\x7a" # no anda
+    sms = "\x7a\x00" # anda!!! recibo 'z'
+    sms = "\x7a\x00\x7a\x00" # anda! recibo 'zz'    
+=end
+
     ar = [ from, to, sms]
     #ar = [ from, to, sms , options]
     @@log.info "Sending MT from #{from} to #{to}: #{sms}"
