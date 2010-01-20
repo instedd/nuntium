@@ -27,11 +27,9 @@ class PushQstChannelMessageJob
     # If last transfer failed get last expected id from server
     last_msg = process_last_id cfg, http, path
     return :error_obtaining_last_id if last_msg == :error_obtaining_last_id
-    puts 'Last msg', last_msg
     
     # Get newer messages
     new_msgs = AOMessage.fetch_newer_messages(last_msg, :channel_id => @channel_id, :batch_size => BATCH_SIZE)
-    puts 'New msgs', new_msgs
     
     # If there are no newer messages, finish
     if new_msgs.length == 0

@@ -69,7 +69,6 @@ module MessageState
       
       # Filter by app/channel/timestamp
       add_filter query, params, args
-      puts 'Query', query, params
       
       # Order by time, last arrived message will be first
       return self.all(
