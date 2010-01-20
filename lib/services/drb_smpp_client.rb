@@ -1,10 +1,14 @@
 #!/usr/bin/env ruby
 
+# required if using ruby-smpp gem
+#gem 'ruby-smpp'
+#require 'smpp'
+
 require 'rubygems'
-gem 'ruby-smpp'
-require 'smpp'
 require 'drb'
 require 'iconv'
+require 'eventmachine'
+require '../ruby-smpp/smpp'
 
 # DEBUG = true goes to the console, = false to log file
 DEBUG = true
