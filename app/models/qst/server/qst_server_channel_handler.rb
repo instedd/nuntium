@@ -1,9 +1,6 @@
 class QstServerChannelHandler < ChannelHandler
   def handle(msg)
-    outgoing = QSTOutgoingMessage.new
-    outgoing.channel_id = @channel.id
-    outgoing.ao_message_id = msg.id
-    outgoing.save
+    # AO Message should be queued, we just query them
   end
   
   def authenticate(password)

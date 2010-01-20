@@ -51,10 +51,14 @@ module ClientQstJob
     nil
   end
 
+  # Validates channel for QST
   def validate_channel(channel)
     if channel.nil?
       RAILS_DEFAULT_LOGGER.warn 'Validate channel for QST: channel not found'
       return :error_no_channel
+    elsif not channel.enabled
+      RAILS_DEFAULT_LOGGER.warn "Validate channel for QST: channel #{channel.id} is disabled"
+      return :error_channel_disabled
     elsif channel.configuration.nil? or channel.configuration[:url].nil?
       RAILS_DEFAULT_LOGGER.warn "Validate channel for QST: no url found in channel configuration for pushing/pulling messages in channel #{channel.id}"
       return :error_no_url_in_configuration

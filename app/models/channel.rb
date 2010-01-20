@@ -4,7 +4,7 @@ class Channel < ActiveRecord::Base
   belongs_to :application
   
   has_many :qst_outgoing_messages
-  has_many :cron_tasks, :as => :parent, :dependent => :destroy
+  has_many :cron_tasks, :as => :parent, :dependent => :destroy # TODO: Tasks are not being destroyed
   
   serialize :configuration, Hash
   
@@ -13,8 +13,8 @@ class Channel < ActiveRecord::Base
   
   validate :handler_check_valid
   before_save :handler_before_save
-  after_save :handler_after_save
   after_create :handler_after_create
+  after_update :handler_after_update
   
   # Channel directions
   Incoming = 1
@@ -77,21 +77,32 @@ class Channel < ActiveRecord::Base
   end
   
   def handler_before_save
-    if self.handler.respond_to?(:before_save)
-      self.handler.before_save
-    end
-  end
-  
-  def handler_after_save
-    if self.handler.respond_to?(:after_save)
-      self.handler.after_save
-    end
+    self.handler.before_save
+    true
   end
   
   def handler_after_create
-    if self.handler.respond_to?(:after_create)
-      self.handler.after_create
+    if self.enabled
+        self.handler.on_enable
+      else
+        self.handler.on_disable
     end
   end
   
+  def handler_after_update
+    if self.enabled_changed?
+      if self.enabled
+        self.handler.on_enable
+      else
+        self.handler.on_disable
+      end
+    end
+    true
+  end
+
+  def handler_before_destroy
+    self.handler.on_destroy
+    true
+  end
+
 end

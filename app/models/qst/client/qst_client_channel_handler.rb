@@ -17,9 +17,18 @@ class QstClientChannelHandler < ChannelHandler
         @channel.configuration[:password].nil? || @channel.configuration[:password].chomp.empty?
   end
 
-  def after_save
+  def on_enable
     @channel.create_task('qst-client-channel-push', QST_PUSH_INTERVAL, PushQstChannelMessageJob.new(@channel.application_id, @channel.id))
     @channel.create_task('qst-client-channel-pull', QST_PULL_INTERVAL, PullQstChannelMessageJob.new(@channel.application_id, @channel.id))
+  end
+  
+  def on_disable
+    @channel.drop_task('qst-client-channel-push')
+    @channel.drop_task('qst-client-channel-pull')
+  end
+  
+  def on_destroy
+    on_disable
   end
 
 end

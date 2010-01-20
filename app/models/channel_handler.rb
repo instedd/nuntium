@@ -17,4 +17,16 @@ class ChannelHandler
     @channel.attributes = params
   end
   
+  def before_save
+  end
+  
+  def on_enable
+  end
+
+  def on_disable
+  end
+  
+  def on_destroy
+  end
+  
 end
