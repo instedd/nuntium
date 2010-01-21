@@ -221,12 +221,16 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelle
       <th>To</th>
       <th>Subject</th>
       <th>Body</th>
+      <th>In channel</th>
       <th>Tries</th>
       <th>State</th>
       <th></th>
     </tr>
     <tr>
     <% @at_messages.each do |msg| %>
+      <%
+      chan = @channels.select{|x| msg.channel_id == x.id}
+      %>
       <tr>
         <td><input type="checkbox" name="at_messages[]" value="<%= msg.id %>" <%= 'checked="checked"' if !params[:at_messages].nil? && params[:at_messages].include?(msg.id.to_s) %>/></td>
         <td><%= msg.timestamp %></td>
@@ -237,6 +241,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelle
         <td><%= msg.to %></td>
         <td><%= short_html msg.subject %></td>
         <td><%= short_html msg.body %></td>
+        <td><%= chan.length > 0 ? chan[0].name : '' %></td>
         <td align="right"><%= msg.tries %></td>
         <td><%= msg.state %></td>
         <td><%= link_to_function 'view log', "view_at_message_log(#{msg.id})" %></td>
