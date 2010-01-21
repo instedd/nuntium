@@ -40,6 +40,7 @@ class ReceivePop3MessageJob
         msg.to = 'mailto://' + receiver
         msg.subject = tmail.subject
         msg.body = tmail_body
+        msg.channel_id = channel.id
         msg.channel_relative_id = tmail.message_id
         msg.timestamp = tmail.date
         msg.state = 'queued'

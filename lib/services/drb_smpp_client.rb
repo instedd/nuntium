@@ -161,6 +161,7 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
       #msg.body = sms
       # now?
       msg.timestamp = DateTime.now
+      msg.channel_id = @@channel.id
       msg.state = 'queued'
       msg.save
   end
