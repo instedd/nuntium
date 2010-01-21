@@ -100,10 +100,10 @@ class ActiveSupport::TestCase
 
   # Creates an app with a specific interface and configuration
   def create_app_with_interface(app_name, app_pass, interface, cfg)
-    app = Application.create(:name => app_name, :password => app_pass, :interface => interface)
+    app = Application.create!(:name => app_name, :password => app_pass, :interface => interface)
     app.configuration = {}
     cfg.each_pair do |k,v| app.configuration[k] = v end
-    app.save
+    app.save!
     app
   end
   
@@ -237,7 +237,7 @@ class ActiveSupport::TestCase
     msg = QSTOutgoingMessage.new
     msg.channel_id = chan.id
     msg.ao_message_id = ao_message_id
-    msg.save
+    msg.save!
   end
   
   def assert_shows_message(msg)

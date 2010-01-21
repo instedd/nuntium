@@ -1,9 +1,6 @@
 class QstClientChannelHandler < ChannelHandler
   def handle(msg)
-    QSTOutgoingMessage.create :ao_message_id => msg.id,
-      :state => 'pending',
-      :timestamp => msg.timestamp,
-      :channel_id => @channel.id
+    # AO Message should be queued, we just query them
   end
   
   def check_valid
