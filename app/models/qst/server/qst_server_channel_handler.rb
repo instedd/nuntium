@@ -18,7 +18,7 @@ class QstServerChannelHandler < ChannelHandler
     
     if !pass.nil? && !confirm.nil? && pass != confirm
       if !pass.nil? and !salt.nil?
-        config[:password_confirmation] = Digest::SHA2.hexdigest(salt + confirm)
+        confirm = Digest::SHA2.hexdigest(salt + confirm)
         if !pass.nil? && !confirm.nil? && pass != confirm
           @channel.errors.add(:password, "doesn't match confirmation")
         end
