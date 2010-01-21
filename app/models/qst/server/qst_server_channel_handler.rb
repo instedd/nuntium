@@ -1,6 +1,9 @@
 class QstServerChannelHandler < ChannelHandler
   def handle(msg)
-    # AO Message should be queued, we just query them
+    outgoing = QSTOutgoingMessage.new
+    outgoing.channel_id = @channel.id
+    outgoing.ao_message_id = msg.id
+    outgoing.save
   end
   
   def authenticate(password)
@@ -18,7 +21,7 @@ class QstServerChannelHandler < ChannelHandler
     
     if !pass.nil? && !confirm.nil? && pass != confirm
       if !pass.nil? and !salt.nil?
-        config[:password_confirmation] = Digest::SHA2.hexdigest(salt + confirm)
+        confirm = Digest::SHA2.hexdigest(salt + confirm)
         if !pass.nil? && !confirm.nil? && pass != confirm
           @channel.errors.add(:password, "doesn't match confirmation")
         end

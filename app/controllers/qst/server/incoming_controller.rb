@@ -25,8 +25,11 @@ class IncomingController < QSTServerController
       msg.body = elem.elements['text'].text
       msg.guid = elem.attributes['id']
       msg.timestamp = Time.parse(elem.attributes['when'])
+      msg.channel_id = @channel.id
       msg.state = 'queued'
       msg.save
+      
+      @application.logger.at_message_received_via_channel msg, @channel
       
       last_id = msg.guid
     end
