@@ -173,16 +173,17 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
   # helpers
   
   def createATMessage(app_id, source_addr, destination_addr, sms)
-    msg = ATMessage.new
-    msg.application_id = app_id
-    msg.from = 'smpp://' + source_addr
-    msg.to = 'smpp://' + destination_addr
-    msg.subject = sms
-    #msg.body = sms
-    # now?
-    msg.timestamp = DateTime.now
-    msg.state = 'queued'
-    msg.save
+      msg = ATMessage.new
+      msg.application_id = app_id
+      msg.from = 'smpp://' + source_addr
+      msg.to = 'smpp://' + destination_addr
+      msg.subject = sms
+      #msg.body = sms
+      # now?
+      msg.timestamp = DateTime.now
+      msg.channel_id = @@channel.id
+      msg.state = 'queued'
+      msg.save
   end
   
   def handleCSMS(source_addr, destination_addr, short_message)

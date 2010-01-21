@@ -39,7 +39,7 @@ Rails::Initializer.run do |config|
   # config.frameworks -= [ :active_record, :active_resource, :action_mailer ]
 
   # Activate observers that should always be running
-  # config.active_record.observers = :cacher, :garbage_collector, :forum_observer
+  config.active_record.observers = :at_message_haiti_observer
 
   # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
   # Run "rake -D time" for a list of tasks for finding time zone names.
@@ -48,11 +48,16 @@ Rails::Initializer.run do |config|
   # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
   # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}')]
   # config.i18n.default_locale = :de
+  
+  #config.after_initialize do
+  #  ATMessage.send(:before_save, Proc.new { |m| puts msg.to = 'LALALALALALALALLALLALALALALALAL' })
+  #end
+  
 end
 
 # Twitter OAuth configuration
 if !File.exists?(Rails.root + 'config/twitter_oauth_consumer.yml')
-  $stderr.puts('ERROR: /config/twitter_oauth_consumer.yml not found, please copy it from /config/twitter_oauth_consumer.yml.sample and put some real data in it.')
+  $stderr.puts("ERROR! But please, DON\'T PANIC and read what follows: '/config/twitter_oauth_consumer.yml' not found, please copy it from '/config/twitter_oauth_consumer.yml.sample' into the same directory. If you don't plan to use twitter in development, that's enough. Else, read what's in the sample and put some real data in the yml.")
   exit 1
 end
 TwitterConsumerConfig = YAML.load(File.read(Rails.root + 'config/twitter_oauth_consumer.yml'))

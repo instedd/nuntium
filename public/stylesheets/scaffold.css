@@ -52,6 +52,10 @@ a:hover { color: #fff; background-color:#000; }
   list-style: square;
 }
 
+img {
+  border: 0px;
+}
+
 h4 {
   color: white;
   text-decoration: none;

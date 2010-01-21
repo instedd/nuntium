@@ -1,22 +1,24 @@
-class PushQstMessageJob
+class PushQstChannelMessageJob
   
   BATCH_SIZE = 10
   
   include ClientQstJob
   
-  def initialize(app_id)
+  def initialize(app_id, channel_id)
     @application_id = app_id
+    @channel_id = channel_id
   end
   
   def perform_batch
     require 'uri'
     require 'net/http'
     require 'builder'
-
+    
     app = Application.find_by_id(@application_id)
-    cfg = ClientQstConfiguration.new app
-    err = validate_app(app)
-    return err unless err.nil?
+    channel = Channel.find_by_id(@channel_id)
+    cfg = ClientQstConfiguration.new channel
+    err = validate_channel(channel)
+    return err if not err.nil?
 
     # Create http requestor and uri
     http, path = create_http cfg, 'incoming' 
@@ -27,26 +29,26 @@ class PushQstMessageJob
     return :error_obtaining_last_id if last_msg == :error_obtaining_last_id
     
     # Get newer messages
-    new_msgs = ATMessage.fetch_newer_messages(last_msg, :desc => false, :batch_size => BATCH_SIZE, :app_id => @application_id)
+    new_msgs = AOMessage.fetch_newer_messages(last_msg, :channel_id => @channel_id, :batch_size => BATCH_SIZE)
     
     # If there are no newer messages, finish
     if new_msgs.length == 0
-      RAILS_DEFAULT_LOGGER.info "Push QST in application #{app.name}: no new messages"
-      cfg.set_last_at_guid(last_msg.guid) unless last_msg.nil?
+      RAILS_DEFAULT_LOGGER.info "Push QST in channel #{@channel_id}: no new messages"
+      cfg.set_last_ao_guid(last_msg.guid) unless last_msg.nil?
       return :success
     end
 
     # Push the new messages to the endpoint
-    last_id = post_msgs app, cfg, http, path, new_msgs
+    last_id = post_msgs app, channel, cfg, http, path, new_msgs
     
     # Mark new status for messages based on post result increasing retries
-    ATMessage.update_msgs_status new_msgs, app.max_tries, last_id
+    AOMessage.update_msgs_status new_msgs, cfg.max_tries, last_id
     
     # Logging: say that valid messages were returned and invalid no
-    ATMessage.log_delivery(new_msgs, app, 'qst_client')
+    # TODO: AOMessage.log_delivery(new_msgs, app, 'qst_client')
     
     # Save changes to the app
-    app.set_last_at_guid last_id
+    cfg.set_last_ao_guid last_id
     
     # Return value depending success and whether must continue or not
     if last_id.nil?
@@ -64,7 +66,7 @@ class PushQstMessageJob
   # * returns nil if last id does not belong to any known messages
   # * returns last message or :error symbol
   def process_last_id(cfg, http, path)
-    if cfg.last_at_guid.nil?
+    if cfg.last_ao_guid.nil?
       begin
         user = cfg.user
         pass = cfg.pass
@@ -82,12 +84,12 @@ class PushQstMessageJob
         return :error_obtaining_last_id
       else
         return nil if last_id.nil?
-        last_msg = ATMessage.find_by_guid last_id 
+        last_msg = AOMessage.find_by_guid last_id 
         if last_msg.nil?
           cfg.logger.error_obtaining_last_id "Invalid guid #{last_id}" 
           return nil # if we don't know which message the server is talking about, send everything
         else
-          ATMessage.mark_older_as_confirmed last_msg, :app_id => @application_id
+          AOMessage.mark_older_as_confirmed last_msg, :channel_id => @channel_id
           return last_msg
         end
       end
@@ -98,9 +100,9 @@ class PushQstMessageJob
   
 
   # Post all specified messages to the server as xml
-  def post_msgs(app, cfg, http, path, msgs)
+  def post_msgs(app, channel, cfg, http, path, msgs)
     # Obtain data
-    xml = ATMessage.write_xml msgs
+    xml = AOMessage.write_xml msgs
     user = cfg.user
     pass = cfg.pass
     # Make the request
@@ -119,17 +121,17 @@ class PushQstMessageJob
   else
     etag = response['etag']
     if etag.nil?
-      RAILS_DEFAULT_LOGGER.info "Push QST in application #{app.name}: posted '#{msgs.length}' messages to server"
+      RAILS_DEFAULT_LOGGER.info "Push QST in application #{app.name} channel #{channel.name}: posted '#{msgs.length}' messages to server"
     else
-      RAILS_DEFAULT_LOGGER.info "Push QST in application #{app.name}: posted '#{msgs.length}' messages to server up to id '#{etag}'"
+      RAILS_DEFAULT_LOGGER.info "Push QST in application #{app.name} channel #{channel.name}: posted '#{msgs.length}' messages to server up to id '#{etag}'"
     end
     return etag
   end
   
-  # Enqueues jobs of this class for each qst push interface
-  def self.enqueue_for_all_interfaces
-    Application.find_all_by_interface('qst_client').each do |app|
-      job = PushQstMessageJob.new(app.id)
+  # Enqueues jobs of this class for each qst client channel 
+  def self.enqueue_for_all_channels
+    Channel.find_each(:conditions => "kind = 'qst_client'") do |chan|
+      job = PushQstChannelMessageJob.new(chan.application_id, chan.id)
       Delayed::Job.enqueue job
     end
   end

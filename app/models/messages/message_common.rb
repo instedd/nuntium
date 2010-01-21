@@ -1,6 +1,6 @@
 require 'guid'
 
-module Message
+module MessageCommon
 
   def self.included(base)
     base.extend(ClassMethods)
@@ -36,6 +36,7 @@ module Message
       xml.text self.subject_and_body
     end
   end
+
 
   module ClassMethods
     # Given a collection of messages serializes them to a single document

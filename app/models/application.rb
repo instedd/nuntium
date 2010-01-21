@@ -21,6 +21,7 @@ class Application < ActiveRecord::Base
   after_save :handle_tasks
   
   include(CronTask::CronTaskOwner)
+  include(HaitiFixes)
   
   def self.find_by_id_or_name(id_or_name)
     app = self.find_by_id(id_or_name) if id_or_name =~ /\A\d+\Z/ or id_or_name.kind_of? Integer
@@ -38,6 +39,12 @@ class Application < ActiveRecord::Base
   
   # Route an AOMessage
   def route(msg, via_interface)
+    
+    # HACK: Only for Haiti branch
+    if HAITI_APP_IDS.include? self.id
+      msg.to = haiti_fixed_number msg.to
+    end
+    
     if @outgoing_channels.nil?
       @outgoing_channels = self.channels.all(:conditions => ['enabled = ? AND (direction = ? OR direction = ?)', true, Channel::Outgoing, Channel::Both])
     end
@@ -111,23 +118,15 @@ class Application < ActiveRecord::Base
   end
   
   def set_last_at_guid(value)
-    if self.configuration.nil?
-      self.configuration = { :last_at_guid => value }
-      self.save
-    elsif self.configuration[:last_at_guid] != value
-      self.configuration[:last_at_guid] = value
-      self.save
-    end
+    self.configuration ||= {}
+    self.configuration[:last_at_guid] = value
+    self.save
   end
   
   def set_last_ao_guid(value)
-    if self.configuration.nil?
-      self.configuration = { :last_ao_guid => value }
-      self.save
-    elsif self.configuration[:last_ao_guid] != value
-      self.configuration[:last_ao_guid] = value
-      self.save
-    end
+    self.configuration ||= {}
+    self.configuration[:last_ao_guid] = value
+    self.save
   end
   
   def interface_description

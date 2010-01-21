@@ -26,8 +26,17 @@ class TwitterChannelHandler < ChannelHandler
     @channel.configuration[:screen_name]
   end
   
-  def after_create
-    @channel.create_task('twitter-receive', TWITTER_RECEIVE_INTERVAL, ReceiveTwitterMessageJob.new(@channel.application_id, @channel.id))
+  def on_enable
+    @channel.create_task 'twitter-receive', TWITTER_RECEIVE_INTERVAL, 
+      ReceiveTwitterMessageJob.new(@channel.application_id, @channel.id)
+  end
+  
+  def on_disable
+    @channel.drop_task('twitter-receive')
+  end
+  
+  def on_destroy
+    on_disable
   end
   
 end

@@ -13,10 +13,6 @@ module ApplicationHelper
   end
   
   def short_html(msg, length = 15)
-    '<a title="' + (h msg) + '">' + short(msg, length) + '</a>'
+    '<span title="' + (h msg) + '">' + short(msg, length) + '</span>'
   end
-    
-  def js(name, js_function)    
-    "<a href=\"javascript:void(0)\" onclick=\"#{js_function}\">#{name}</a>"  
-  end 
 end
