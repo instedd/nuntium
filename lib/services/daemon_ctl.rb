@@ -13,7 +13,7 @@ module DaemonController
     ruby = File.join(CONFIG['bindir'], 'ruby').tr('/', '\\')
     path = ' "' + File.dirname(File.expand_path($0)).tr('/', '\\')
     path += '\\'+ @service_file + '"'
-    cmd = ruby + path + ' ' + @service_parameters
+    cmd = ruby + path + ' ' + @service_parameters.join(' ')
   
     case option.downcase
        

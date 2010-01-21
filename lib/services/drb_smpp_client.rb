@@ -15,7 +15,9 @@ class SmppGateway
   
   # MT id counter
   @@mt_id = 0
-
+  
+  @is_running = false
+  
 =begin
   # expose SMPP transceiver's send_mt method
   def self.send_mt(*args)
@@ -42,7 +44,7 @@ class SmppGateway
     @@tx.send_mt(@@mt_id, *ar)
   end
 =end
-
+  
   def send_message(from, to, msg)
     body = msg.subject_and_body    
     ar = [ from, to, body ]
@@ -68,33 +70,51 @@ class SmppGateway
   def start(config)
     # The transceiver sends MT messages to the SMSC. It needs a storage with Hash-like
     # semantics to map SMSC message IDs to your own message IDs.
-    pdr_storage = {} 
-
-    # Run EventMachine in loop so we can reconnect when the SMSC drops our connection.
-    @@log.debug "Connecting to SMSC..."
-    loop do
-      EventMachine::run do      
-        @@tx = EventMachine::connect(
-          config[:host], 
-          config[:port], 
-          Smpp::Transceiver, 
-          config, 
-          self    # delegate that will receive callbacks on MOs and DRs and other events
-        )    
-        
+    
+    pdr_storage = {}    
+    
+    if not @is_running
+      @is_running = true
+      
+      # Run EventMachine in loop so we can reconnect when the SMSC drops our connection.
+      @@log.debug "Connecting to SMSC..."
+      
+      loop do
+        if @is_running          
+          
+          EventMachine::run do      
+            @@tx = EventMachine::connect(
+                                         config[:host], 
+            config[:port], 
+            Smpp::Transceiver, 
+            config, 
+            self    # delegate that will receive callbacks on MOs and DRs and other events
+            )    
+            
+          end
+          @@log.warn "Disconnected. Reconnecting in 5 seconds..."
+          sleep 5
+        else
+          # Gateway was stopped
+          @@log.debug "SMPP gateway stopped."
+          break
+        end
       end
-      @@log.warn "Disconnected. Reconnecting in 5 seconds..."
-      sleep 5
-    end
+    end  
   end
   
+  def stop
+    @is_running = false
+    @@log.debug "Stopping SMPP gateway..."
+  end    
+  
   # ruby-smpp delegate methods 
-
+  
   def mo_received(transceiver, source_addr, destination_addr, short_message)        
     # temporary workaround to cut extra characters we receive from Smart
     l = short_message.length - 6
     sms = short_message[0,l]
-
+    
     # detect encoding (when we switch to Unix I'll use the charguess lib)
     ic = Iconv.new 'UTF-8', 'UTF-16'
     begin
@@ -104,9 +124,9 @@ class SmppGateway
     rescue
       #it's ascii
     end
-  
+    
     @@log.info "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{sms}"   
-
+    
 =begin
 
 USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated_SMS)
@@ -121,10 +141,10 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
 =end
     
     # check if it is a CSMS
-  
+    
     first_octect = sms[0]
     second_octect = sms[1]
-  
+    
     if (first_octect == 5 && second_octect == 0)
       handleCSMS(source_addr, destination_addr, sms)
     else
@@ -132,19 +152,19 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
       createATMessage(@@application_id, source_addr, destination_addr, sms)
     end
   end
-
+  
   def delivery_report_received(transceiver, msg_reference, stat, pdu)
     @@log.info "Delegate: delivery_report_received: ref #{msg_reference} stat #{stat} pdu #{pdu}"
   end
-
+  
   def message_accepted(transceiver, mt_message_id, smsc_message_id)
     @@log.info "Delegate: message_sent: id #{mt_message_id} smsc ref id: #{smsc_message_id}"
   end
-
+  
   def bound(transceiver)
     @@log.info "Delegate: transceiver bound"
   end
-
+  
   def unbound(transceiver)  
     @@log.warn "Delegate: transceiver unbound"
     EventMachine::stop_event_loop
@@ -176,7 +196,7 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
 5th: Total number of parts
 6th: This part's number in the sequence  
 =end
-
+    
     # parse UDH relevant fields
     ref = udh[3]
     total = udh[4]
@@ -195,7 +215,7 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
       
       # Create message from the resulting text
       createATMessage(@@application_id, source_addr, destination_addr, text)
-            
+      
       # Delete stored information
       SmppMessagePart.delete_all conditions
     else
@@ -205,7 +225,7 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
         :part_count => total,
         :part_number => partn,
         :text => sms
-        )
+      )
     end
   end
   
@@ -215,25 +235,30 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
   
 end
 
-# Start the Gateway
-begin
-  # Initialize Ruby on Rails
-  # MUST pass environment as the first parameter
-  ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
+def stopSMPPGateway()
+  @@log.debug 'Trying to stop gateway...'
+  @@gw.stop 
+  @@log.debug 'Gateway stopped...'
+  sleep 6
+  @@log.debug 'Trying to stop DRb server...'
+  @@drb_server.stop_service
+  @@log.debug "DRb server stopped.. #{@@drb_server.alive?}"
+end
 
+def startSMPPGateway(channel_id)
+  
   require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
   require(File.join(RAILS_ROOT, 'config', 'environment'))
-
-  LOG_FILE = "#{RAILS_ROOT}/log/smpp.log"
+  
+  log_file = "#{RAILS_ROOT}/log/smpp.log"
   # if debugging log to the standard output
-  OUT = if DEBUG then STDOUT else LOG_FILE end
-  @@log = Logger.new OUT
+  out = if DEBUG then STDOUT else log_file end
+  @@log = Logger.new out
   
   # Uncomment this line to get a lot more debugging information in the log file
   #Smpp::Base.logger = @@log
-
+  
   # find Channel and fetch configuration
-  channel_id = ARGV[1]
   @@log.debug "Fetching channel with id #{channel_id} from database."
   @@channel = Channel.find channel_id
   @configuration = @@channel.configuration
@@ -254,11 +279,11 @@ begin
     :destination_address_range => '',
     :enquire_link_delay_secs => 10
   }  
-  gw = SmppGateway.new
+  @@gw = SmppGateway.new
   
   # start distributed ruby service
   @@log.debug "Starting Distributed Ruby service."
-  DRb.start_service nil, gw
+  @@drb_server = DRb.start_service nil, @@gw
   @@log.info "Distributed Ruby service started on URI #{DRb.uri}"
   
   # register in d_rb_processes table so clients can communicate
@@ -268,11 +293,26 @@ begin
   @d_rb_process.uri = DRb.uri
   @d_rb_process.save
   
-  gw.start(config)  
+  @@gw.start(config)
 rescue Exception => ex
   if defined?(@@log).nil?
     raise ex
   else
     @@log.fatal "Exception in SMPP Gateway: #{ex} at #{ex.backtrace.join("\n")}"
+  end  
+end
+
+# Start the Gateway
+begin
+  if $0 == __FILE__  
+    # Initialize Ruby on Rails
+    # MUST pass environment as the first parameter
+    ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
+    
+    channel_id = ARGV[1] unless ARGV.empty?  
+    
+    startSMPPGateway(channel_id)
   end
+rescue => e
+  File.open('C:\\ruby.log', 'a'){ |fh| fh.puts 'Daemon failure: ' + e }
 end
