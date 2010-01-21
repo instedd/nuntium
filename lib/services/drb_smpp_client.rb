@@ -9,38 +9,41 @@ require 'drb'
 require 'iconv'
 require 'eventmachine'
 
+# use this one if running from Eclipse debugger
 #require 'lib/ruby-smpp/smpp'
+# use this one if running from DOS console
 require '../ruby-smpp/smpp'
 
 # DEBUG = true goes to the console, = false to log file
-DEBUG = true
+DEBUG = false
 # set encoding to UTF-8
 $KCODE = "U"
 
 class SmppGateway
-  
   # MT id counter
   @@mt_id = 0
 
-  def send_message(from, to, sms)
-=begin
+  def send_message(from, to, sms)    
     options = {}
-    options[:data_coding] = 3 # 3 for Latin-1 and 8 for UCS-2
 
-    ic = Iconv.new 'UCS-2', 'UTF-8'
-    ucs2string = ic.iconv sms
-    sms =  ucs2string
-    
-    #007A = z
-    sms = "\x00\x7a" # no anda
-    sms = "\x7a\x00" # anda!!! recibo 'z'
-    sms = "\x7a\x00\x7a\x00" # anda! recibo 'zz'    
-=end
+    # we first need to detect if the string can be fully encode in latin-1 so we can use 160 chars
+    # note that non-ascii iso-8859-1 character will be encoded in utf-8
+    begin
+      latin1 = convertEncoding('UTF-8', 'ISO-8859-1', sms)
+      # can be encoded in latin-1
+      @@log.debug "Encoded in ISO-8859-1" 
+      options[:data_coding] = 3 # 3 for Latin-1 and 8 for UCS-2
+      sms = latin1
+    rescue
+      # error, cannot be encoded in latin1, has to be encoded in utf-16 (little endian)
+      utf16le = convertEncoding('UTF-8', 'UTF-16LE', sms)
+      @@log.debug "Encoded in UTF-16LE"
+      options[:data_coding] = 8 # 3 for Latin-1 and 8 for UCS-2
+      sms = utf16le
+    end    
 
-    ar = [ from, to, sms]
-    #ar = [ from, to, sms , options]
+    ar = [ from, to, sms , options]
     @@log.info "Sending MT from #{from} to #{to}: #{sms}"
-    
     begin
       @@tx.send_mt(@@mt_id, *ar)
     rescue => e
@@ -51,10 +54,6 @@ class SmppGateway
   end
   
   def start(config)
-    # The transceiver sends MT messages to the SMSC. It needs a storage with Hash-like
-    # semantics to map SMSC message IDs to your own message IDs.
-    pdr_storage = {} 
-
     # Run EventMachine in loop so we can reconnect when the SMSC drops our connection.
     @@log.debug "Connecting to SMSC..."
     loop do
@@ -65,8 +64,7 @@ class SmppGateway
           Smpp::Transceiver, 
           config, 
           self    # delegate that will receive callbacks on MOs and DRs and other events
-        )    
-        
+        )      
       end
       @@log.warn "Disconnected. Reconnecting in 5 seconds..."
       sleep 5
@@ -76,17 +74,6 @@ class SmppGateway
   # ruby-smpp delegate methods 
 
   def mo_received(transceiver, source_addr, destination_addr, short_message, data_coding)        
-    sms = short_message
-
-    # data_coding == 0 means 'SMSC default alphabet' and == 8 means 'UCS-2'
-    if (data_coding == 8)
-      ic = Iconv.new 'UTF-8', 'UCS-2'
-      utf8string = ic.iconv sms
-      sms =  utf8string
-    end
-  
-    @@log.info "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{sms}"   
-
 =begin
 
 USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated_SMS)
@@ -101,16 +88,32 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
 =end
     
     # check if it is a CSMS
-  
-    first_octect = sms[0]
-    second_octect = sms[1]
+    first_octect = short_message[0]
+    second_octect = short_message[1]
   
     if (first_octect == 5 && second_octect == 0)
-      handleCSMS(source_addr, destination_addr, sms)
+      # split UDH and SMS
+      udh = short_message[0,6]
+      sms = short_message[6..short_message.length-1]
+
+      # data_coding == 0 means 'SMSC default alphabet' and == 8 means 'UCS-2'
+      if (data_coding == 8)
+        sms = convertEncoding('UCS-2', 'UTF-8', sms)
+      end
+      
+      handleCSMS(source_addr, destination_addr, udh, sms)
     else
       # single part SMS, just create and ATMessage
+
+      # data_coding == 0 means 'SMSC default alphabet' and == 8 means 'UCS-2'
+      if (data_coding == 8)
+        sms = convertEncoding('UCS-2', 'UTF-8', sms)
+      end
+      
       createATMessage(@@application_id, source_addr, destination_addr, sms)
     end
+
+    @@log.info "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{sms}"   
   end
 
   def delivery_report_received(transceiver, msg_reference, stat, pdu)
@@ -132,6 +135,17 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
   
   # helpers
   
+  def convertEncoding(from, to, str)
+    begin
+      ic = Iconv.new to, from
+      converted = ic.iconv str
+      return converted
+    rescue => e
+      # could not convert
+      raise e
+    end  
+  end
+  
   def createATMessage(app_id, source_addr, destination_addr, sms)
       msg = ATMessage.new
       msg.application_id = app_id
@@ -145,11 +159,7 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
       msg.save
   end
   
-  def handleCSMS(source_addr, destination_addr, short_message)
-    # split UDH and SMS
-    udh = short_message[0,6]
-    sms = short_message[6..short_message.length-1]
-    
+  def handleCSMS(source_addr, destination_addr, udh, sms)
 =begin
 4th: CSMS reference number, must be the same for all the SMS parts
 5th: Total number of parts
@@ -191,7 +201,6 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
   def logger
     Smpp::Base.logger
   end
-  
 end
 
 # Start the Gateway
@@ -208,7 +217,7 @@ begin
   OUT = if DEBUG then STDOUT else LOG_FILE end
   @@log = Logger.new OUT
   
-  # Uncomment this line to get a lot more debugging information in the log file
+  # Uncomment this line to get a lot more debugging information in the log file, if not will go to the console by default
   #Smpp::Base.logger = @@log
 
   # find Channel and fetch configuration
