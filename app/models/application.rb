@@ -44,6 +44,9 @@ class Application < ActiveRecord::Base
     if HAITI_APP_IDS.include? self.id
       msg.to = haiti_fixed_number msg.to
     end
+    if APP_REDIRECT_AT_TO_ID == self.id and msg.to == APP_REDIRECT_PHONE
+      return route_app(msg, via_interface)  
+    end
     
     if @outgoing_channels.nil?
       @outgoing_channels = self.channels.all(:conditions => ['enabled = ? AND (direction = ? OR direction = ?)', true, Channel::Outgoing, Channel::Both])
