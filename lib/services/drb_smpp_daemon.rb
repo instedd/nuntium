@@ -1,9 +1,6 @@
 # Initialize Ruby on Rails
-begin
-  LOG_FILE = 'C:\\ruby.log'
+begin  
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
-  
-  require(File.join(File.dirname(__FILE__), 'drb_smpp_client'))  
   
   require 'win32/daemon'
   require 'win32/process'
@@ -11,17 +8,13 @@ begin
   
   class SmppGatewayDaemon < Daemon       
     SLEEP = 5
-    NUMBER_OF_PROCESSES = 2
-    
-    @smppGateway = nil
     
     def service_init
       true      
     end
-  
+    
     def service_main  
-      require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
-      require(File.join(RAILS_ROOT, 'config', 'environment'))
+      require(File.join(File.dirname(__FILE__), 'drb_smpp_client'))
       
       channel_id = ARGV[1] unless ARGV.empty?   
       
@@ -30,12 +23,14 @@ begin
       while running?
         sleep SLEEP
       end       
+    rescue => error
+      File.open('C:\\smppserv.log', 'a'){ |fh| fh.puts 'Daemon failure: ' + error }
     end
     
     def service_stop      
       stopSMPPGateway
     end
-  
+    
     def say(text)
       logger.info text if logger
     end
@@ -47,6 +42,6 @@ begin
   
   SmppGatewayDaemon.mainloop
 rescue => err
-   # File.open(LOG_FILE, 'a'){ |fh| fh.puts 'Smpp gateway failure: ' + err }
-   raise
+  File.open('C:\\smppservmain.log', 'a'){ |fh| fh.puts 'Smpp gateway failure: ' + err }
+  raise
 end
