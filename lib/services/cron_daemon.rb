@@ -3,7 +3,7 @@ begin
   LOG_FILE = 'C:\\ruby.log'
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty? 
   SLEEP = 20
-  
+
   require 'win32/daemon'
   include Win32
   
