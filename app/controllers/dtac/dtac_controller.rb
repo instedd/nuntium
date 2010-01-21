@@ -3,10 +3,10 @@ class DtacController < ApplicationController
 	require 'iconv'
   
   def index  
-	converter = Iconv.new('UTF-8','TIS-620')
-	text = converter.iconv(params[:CONTENT])
-	
-	msg = ATMessage.new
+  	converter = Iconv.new('UTF-8','TIS-620')
+  	text = converter.iconv(params[:CONTENT])
+  	
+  	msg = ATMessage.new
     msg.application_id = @application.id
     msg.from = 'sms://' + params[:MSISDN]
     msg.to = 'sms://' + params[:SMSCODE]

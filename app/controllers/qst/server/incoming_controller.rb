@@ -28,6 +28,8 @@ class IncomingController < QSTServerController
       msg.state = 'queued'
       msg.save
       
+      @application.logger.at_message_received_via_channel msg, @channel
+      
       last_id = msg.guid
     end
     
