@@ -76,9 +76,7 @@ class SmppGateway
   # ruby-smpp delegate methods 
 
   def mo_received(transceiver, source_addr, destination_addr, short_message, data_coding)        
-    # temporary workaround to cut extra characters we receive from Smart
-    l = short_message.length - 6
-    sms = short_message[0,l]
+    sms = short_message
 
     # data_coding == 0 means 'SMSC default alphabet' and == 8 means 'UCS-2'
     if (data_coding == 8)

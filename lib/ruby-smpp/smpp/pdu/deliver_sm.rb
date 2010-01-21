@@ -62,8 +62,17 @@ class Smpp::Pdu::DeliverSm < Smpp::Pdu::Base
     options[:data_coding], 
     options[:sm_default_msg_id],
     options[:sm_length], 
-    short_message = body.unpack('Z*CCZ*CCZ*CCCZ*Z*CCCCCa*')    
-
+    remainder = body.unpack('Z*CCZ*CCZ*CCCZ*Z*CCCCCa*')
+    
+    sm_length = options[:sm_length]
+    if sm_length == 0
+      short_message = remainder
+    else
+      short_message = remainder[0..(sm_length - 1)]  
+    end
+    
+    Smpp::Base.logger.debug "DeliverSM with source_addr=#{@source_addr}, destination_addr=#{@destination_addr}  short_message='#{@short_message}'"
+    
     #Note: if the SM is a delivery receipt (esm_class=4) then the short_message _may_ be in this format:  
     # "id:Smsc2013 sub:1 dlvrd:1 submit date:0610171515 done date:0610171515 stat:0 err:0 text:blah"
     # or this format:
