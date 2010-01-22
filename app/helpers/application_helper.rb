@@ -15,4 +15,8 @@ module ApplicationHelper
   def short_html(msg, length = 15)
     '<span title="' + (h msg) + '">' + short(msg, length) + '</span>'
   end
+  
+  def time_ago(time)
+    time_ago_in_words(time.utc, true) + ' ago'
+  end
 end

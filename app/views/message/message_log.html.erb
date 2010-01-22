@@ -1,6 +1,6 @@
 <h2>Log for Application <%= @kind == 'ao' ? 'Oriented' : 'Terminated' %> Message #<%= @id %></h2>
 
-<table border="1" class="messages">
+<table border="1" class="table">
   <tr>
     <th>When</th>
     <th>Severity</th>
@@ -9,7 +9,7 @@
   <tr>
   <% @logs.each do |log| %>
     <tr>
-      <td><%= log.created_at %></td>
+      <td><%= time_ago log.created_at %></td>
       <td><%= log.severity_html %></td>
       <td><%= log.message %></td>
     </tr>
