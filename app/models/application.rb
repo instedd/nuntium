@@ -38,9 +38,9 @@ class Application < ActiveRecord::Base
   
   # Route an AOMessage
   def route(msg, via_interface)
-    if @outgoing_channels.nil?
-      @outgoing_channels = self.channels.all(:conditions => ['direction = ? OR direction = ?', Channel::Outgoing, Channel::Both])
-    end
+    # we need to fetch the channels every time because if we keep them in memory
+    # and we delete one the app will still try to use it
+    @outgoing_channels = self.channels.all(:conditions => ['direction = ? OR direction = ?', Channel::Outgoing, Channel::Both])
     
     # Fill msg missing fields
     msg.application_id ||= self.id
