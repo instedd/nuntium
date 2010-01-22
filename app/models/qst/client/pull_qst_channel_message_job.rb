@@ -47,8 +47,12 @@ class PullQstChannelMessageJob
       # Process successfully downloaded messages
       ATMessage.parse_xml response.body do |msg|
         msg.application_id = @application_id
+        msg.channel_id = @channel_id
         msg.state = 'queued'
         msg.save
+        
+        app.logger.at_message_received_via_channel msg, channel
+        
         last_new_id = msg.guid
         size+= 1
       end
