@@ -234,10 +234,10 @@ begin
     :password => @configuration[:password],
     :system_type => 'vma', # default given according to SMPP 3.4 Spec
     :interface_version => 52,
-    :source_ton  => @configuration[:ton],
-    :source_npi => @configuration[:npi],
-    :destination_ton => @configuration[:ton],
-    :destination_npi => @configuration[:npi],
+    :source_ton  => @configuration[:ton].to_i,
+    :source_npi => @configuration[:npi].to_i,
+    :destination_ton => @configuration[:ton].to_i,
+    :destination_npi => @configuration[:npi].to_i,
     :source_address_range => '',
     :destination_address_range => '',
     :enquire_link_delay_secs => 10
