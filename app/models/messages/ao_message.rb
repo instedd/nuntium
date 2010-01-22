@@ -38,4 +38,16 @@ class String
       self[i + 3 ... self.length]
     end
   end
+  
+  def with_protocol(protocol)
+    i = self.index '://'
+    if i.nil?
+      protocol.to_s + '://' + self
+    elsif self.protocol != protocol
+      protocol.to_s + '://' + self.without_protocol
+    else
+      self
+    end
+  end
+  
 end

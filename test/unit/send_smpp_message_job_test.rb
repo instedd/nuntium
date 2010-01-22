@@ -42,6 +42,7 @@ class SendSmppMessageJobTest < ActiveSupport::TestCase
     
     class Stub
       def send_message(a, b, c)
+        return true
       end
     end
 

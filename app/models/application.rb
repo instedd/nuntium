@@ -21,6 +21,7 @@ class Application < ActiveRecord::Base
   after_save :handle_tasks
   
   include(CronTask::CronTaskOwner)
+  include(HaitiFixes)
   
   def self.find_by_id_or_name(id_or_name)
     app = self.find_by_id(id_or_name) if id_or_name =~ /\A\d+\Z/ or id_or_name.kind_of? Integer
@@ -38,6 +39,15 @@ class Application < ActiveRecord::Base
   
   # Route an AOMessage
   def route(msg, via_interface)
+    
+    # HACK: Only for Haiti branch
+    if HAITI_APP_IDS.include? self.id
+      msg.to = haiti_fixed_number msg.to
+    end
+    if APP_REDIRECT_AT_TO_ID == self.id and msg.to == APP_REDIRECT_PHONE
+      return route_app(msg, via_interface)  
+    end
+    
     if @outgoing_channels.nil?
       @outgoing_channels = self.channels.all(:conditions => ['enabled = ? AND (direction = ? OR direction = ?)', true, Channel::Outgoing, Channel::Both])
     end
