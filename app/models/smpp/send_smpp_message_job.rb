@@ -26,7 +26,7 @@ class SendSmppMessageJob
     
     begin
       # start DRb service (required to talk to other services)
-      DRb.start_service
+      DRb.start_service if DRb.thread == nil
       @smpp_gw = DRbObject.new nil, @d_rb_process.uri
   
       RAILS_DEFAULT_LOGGER.debug "Sending AOMessage with id #{@message_id} through SMPP channel with id #{@channel_id}."
