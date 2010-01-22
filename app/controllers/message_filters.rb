@@ -57,6 +57,15 @@ module MessageFilters
       rescue
       end
     end
+    if !search[:channel].nil?
+      channel = Channel.find_by_name search[:channel]
+      if !channel.nil?
+        conds[0] += ' AND channel_id = :channel_id'
+        conds[1][:channel_id] = channel.id
+      else
+        conds[0] += ' AND 0'
+      end
+    end
     conds
   end
 
