@@ -28,7 +28,7 @@ class AOMessageTest < ActiveSupport::TestCase
   
   test "to.protocol nil" do
     msg = AOMessage.new(:to => 'something')
-    assert_nil msg.to.protocol
+    assert_equal '', msg.to.protocol
   end
   
   test "to.without_protocol nil" do
@@ -43,7 +43,7 @@ class AOMessageTest < ActiveSupport::TestCase
   
   test "from.protocol nil" do
     msg = AOMessage.new(:from => 'something')
-    assert_nil msg.from.protocol
+    assert_equal '', msg.from.protocol
   end
   
   test "from.without_protocol nil" do

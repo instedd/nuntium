@@ -2,8 +2,8 @@ module HaitiFixes
 
   HAITI_APP_IDS = [1,2,3]
 
-  APP_REDIRECT_AT_FROM_ID = 5
-  APP_REDIRECT_AT_TO_ID = 6
+  APP_REDIRECT_AT_FROM_ID = 1
+  APP_REDIRECT_AT_TO_ID = 2
   APP_REDIRECT_PHONE = 'sms://200'
   
   def redirect_app(msg)
@@ -19,7 +19,7 @@ module HaitiFixes
 
   def haiti_fixed_number(target)
     return nil if target.nil?
-    return target if target.nil? || target.protocol.nil? || target.protocol.downcase != 'sms'
+    return target if not target.protocol.downcase == 'sms'
     number = target.without_protocol
     number = number[1..-1] if number[0..0] == '+'
     number = '509' + number if number.size == 8

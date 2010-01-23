@@ -51,7 +51,7 @@ class Application < ActiveRecord::Base
     
     # Find protocol of message (based on "to" field)
     protocol = msg.to.protocol
-    if protocol.nil?
+    if protocol == ''
       msg.state = 'error'
       msg.save!
       logger.ao_message_received msg, via_interface

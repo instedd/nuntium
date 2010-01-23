@@ -15,13 +15,13 @@ end
 
 # TODO: This should not be here...
 class String
-  # Returns this string's protocol or nil if it doesn't have one.
+  # Returns this string's protocol or '' if it doesn't have one.
   #   'sms://foobar'.protocol => 'sms'
-  #   'foobar'.protocol => nil
+  #   'foobar'.protocol => ''
   def protocol
     i = self.index '://'
     if i.nil?
-      nil
+      ''
     else
       self[0 ... i]
     end
