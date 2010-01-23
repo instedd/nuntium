@@ -14,6 +14,8 @@ ActionController::Routing::Routes.draw do |map|
   map.home '/home', :controller => 'home', :action => :home
   map.edit_application '/application/edit', :controller => 'home', :action => :edit_application
   map.update_application '/application/update', :controller => 'home', :action => :update_application
+  map.edit_application_ao_routing '/application/ao_routing/edit', :controller => 'home', :action => :edit_application_ao_routing
+  map.update_application_ao_routing '/application/ao_routing/update', :controller => 'home', :action => :update_application_ao_routing
   
   map.new_channel '/channel/new/:kind', :controller => 'channel', :action => :new_channel
   map.create_channel '/channel/create/:kind', :controller => 'channel', :action => :create_channel

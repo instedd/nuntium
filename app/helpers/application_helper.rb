@@ -17,6 +17,7 @@ module ApplicationHelper
   end
   
   def time_ago(time)
+    return '' if time.nil?
     time_ago_in_words(time.utc, true) + ' ago'
   end
 end

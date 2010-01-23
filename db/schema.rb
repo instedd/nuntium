@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100121054914) do
+ActiveRecord::Schema.define(:version => 20100123023942) do
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -49,6 +49,7 @@ ActiveRecord::Schema.define(:version => 20100121054914) do
     t.integer  "max_tries",     :default => 3,     :null => false
     t.string   "interface",     :default => "rss"
     t.string   "configuration"
+    t.string   "ao_routing"
   end
 
   create_table "at_messages", :force => true do |t|

@@ -28,11 +28,19 @@ class ApplicationLogger
   end
   
   def ao_message_received(msg, interface)
-    info(:ao_message_id => msg.id, :message => "Message received via #{interface} interface")
+    if interface.class == Hash and interface[:application].class == Application
+      info(:ao_message_id => msg.id, :message => "Message received from application '#{interface[:application].name}'")
+    else
+      info(:ao_message_id => msg.id, :message => "Message received via #{interface} interface")
+    end
   end
   
   def ao_message_handled_by_channel(msg, channel)
     info(:ao_message_id => msg.id, :message => "Message handled by #{channel.kind} channel '#{channel.name}'")
+  end
+  
+  def ao_message_routed_to_application(msg, app)
+    info(:ao_message_id => msg.id, :message => "Message routed to application '#{app.name}'")
   end
   
   def at_message_received_via_channel(msg, channel)

@@ -39,15 +39,6 @@ class Application < ActiveRecord::Base
   
   # Route an AOMessage
   def route(msg, via_interface)
-    
-    # HACK: Only for Haiti branch
-    if HAITI_APP_IDS.include? self.id
-      msg.to = haiti_fixed_number msg.to
-    end
-    if APP_REDIRECT_AT_TO_ID == self.id and msg.from == APP_REDIRECT_PHONE
-      return route_app(msg, via_interface)  
-    end
-    
     if @outgoing_channels.nil?
       @outgoing_channels = self.channels.all(:conditions => ['enabled = ? AND (direction = ? OR direction = ?)', true, Channel::Outgoing, Channel::Both])
     end
@@ -71,12 +62,41 @@ class Application < ActiveRecord::Base
     # Find channel that handles that protocol
     channels = @outgoing_channels.select {|x| x.protocol == protocol}
     
-    # Discard channels that cannot handle the message
-    channels = channels.select{|c| !c.handler.respond_to?(:can_handle) || c.handler.can_handle(msg)}
+    # See if there's a custom AO routing logic 
+    if !self.ao_routing.nil? && self.ao_routing.strip.length != 0
+      # Create ao_routing function is not yet defined
+      if !respond_to?(:ao_routing_function)
+        instance_eval 'def ao_routing_function(msg, channels);' + self.ao_routing + '; end;'
+      end
+      
+      routing = ao_routing_function(msg, channels)
+      if !msg.application.nil? and msg.application.id != self.id
+        msg.state = 'pending'
+        msg.save!
+        logger.ao_message_received msg, via_interface
+        logger.ao_message_routed_to_application msg, msg.application
+        msg.application.route msg, {:application => self}
+        return
+      end
+      
+      if routing.nil?
+        # Routing logic was not overriden, just a transform was applied
+      elsif routing.class == String
+        # Route to channel by name
+        channels = channels.select{|x| x.name == routing}
+      elsif routing.class == Array && routing.length > 0
+        if routing[0].class == String
+          channels = channels.select{|x| routing.include?(x.name)}
+        elsif routing[0].class == Channel
+          channels = routing
+        end
+      end
+    end
     
     if channels.empty?
       msg.state = 'error'
       msg.save!
+      
       logger.ao_message_received msg, via_interface
       logger.no_channel_found_for_ao_message protocol, msg
       return true
