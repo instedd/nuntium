@@ -43,6 +43,14 @@ class ApplicationLogger
     info(:ao_message_id => msg.id, :message => "Message routed to application '#{app.name}'")
   end
   
+  def channel_not_found(msg, channel_name)
+    if channel_name.class == Array
+      info(:ao_message_id => msg.id, :message => "Channels with names '#{channel_name.join('\"')}' do not exist or are disabled")
+    else
+      info(:ao_message_id => msg.id, :message => "Channel with name '#{channel_name}' does not exist or is disabled")
+    end
+  end
+  
   def at_message_received_via_channel(msg, channel)
     info(:at_message_id => msg.id, :message => "Message received via #{channel.kind} channel '#{channel.name}'")
   end

@@ -80,15 +80,19 @@ class ApplicationTest < ActiveSupport::TestCase
     msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
     app.route(msg, 'test')
     
+    assert_equal 1, AOMessage.all.length
+    
     msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
     app.route(msg, 'test')
+    
+    assert_equal 2, AOMessage.all.length
     
     assert_equal 'sms://1234', msg.from
   end
   
   test "ao routing select channel by name" do
     app = Application.new(:name => 'app', :password => 'foo')
-    app.ao_routing = "'Dos'"
+    app.ao_routing = "msg.route_to_channel 'Dos'"
     app.save!
     
     chan1 = new_channel app, 'Uno'
@@ -99,6 +103,8 @@ class ApplicationTest < ActiveSupport::TestCase
     msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
     app.route(msg, 'test')
     
+    assert_equal 1, AOMessage.all.length
+    
     qsts = QSTOutgoingMessage.all
     assert_equal 1, qsts.length
     assert_equal chan2.id, qsts[0].channel_id
@@ -106,7 +112,7 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "ao routing select channel by array" do
     app = Application.new(:name => 'app', :password => 'foo')
-    app.ao_routing = "['Dos', 'Tres']"
+    app.ao_routing = "msg.route_to_any_channel 'Dos', 'Tres'"
     app.save!
     
     chan1 = new_channel app, 'Uno'
@@ -120,32 +126,16 @@ class ApplicationTest < ActiveSupport::TestCase
     msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
     app.route(msg, 'test')
     
+    assert_equal 1, AOMessage.all.length
+    
     qsts = QSTOutgoingMessage.all
     assert_equal 1, qsts.length
     assert_equal chan3.id, qsts[0].channel_id
-  end
-  
-  test "ao routing select channel explicitly" do
-    app = Application.new(:name => 'app', :password => 'foo')
-    app.ao_routing = "channels.select{|x| x.name == 'Dos'}"
-    app.save!
-    
-    chan1 = new_channel app, 'Uno'
-    chan2 = new_channel app, 'Dos'
-    chan2.metric = chan1.metric + 100
-    chan2.save!
-    
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
-    app.route(msg, 'test')
-    
-    qsts = QSTOutgoingMessage.all
-    assert_equal 1, qsts.length
-    assert_equal chan2.id, qsts[0].channel_id
   end
   
   test "ao routing change application" do
     app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.ao_routing = "msg.application = Application.find_by_name 'app2'"
+    app1.ao_routing = "msg.route_to_application 'app2'"
     app1.save!
     
     app2 = Application.create!(:name => 'app2', :password => 'foo')
@@ -156,33 +146,36 @@ class ApplicationTest < ActiveSupport::TestCase
     
     msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
     app1.route(msg, 'test')
+    
+    assert_equal 1, AOMessage.all.length
     
     qsts = QSTOutgoingMessage.all
     assert_equal 1, qsts.length
     assert_equal chan3.id, qsts[0].channel_id
   end
   
-  test "ao routing change application id" do
+  test "ao routing copy in two channels" do
     app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.ao_routing = "msg.application.id = Application.find_by_name('app2').id"
+    app1.ao_routing = "msg.copy{|x| x.from = 'UNO'; x.route_to_channel 'Uno'}; msg.copy{|x| x.from = 'DOS'; x.route_to_channel 'Dos'};"
     app1.save!
     
     app2 = Application.create!(:name => 'app2', :password => 'foo')
     
     chan1 = new_channel app1, 'Uno'
     chan2 = new_channel app1, 'Dos'
-    chan3 = new_channel app2, 'Tres'
     
     msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
     app1.route(msg, 'test')
     
-    qsts = QSTOutgoingMessage.all
-    assert_equal 1, qsts.length
-    assert_equal chan3.id, qsts[0].channel_id
+    msgs = AOMessage.all
+    assert_equal 2, msgs.length
+    assert_equal 'UNO', msgs[0].from
+    assert_equal 'DOS', msgs[1].from
     
-    logs = ApplicationLog.all
-    assert_equal 4, logs.length
-    assert_equal "Message received from application 'app1'", logs[2].message
+    qsts = QSTOutgoingMessage.all
+    assert_equal 2, qsts.length
+    assert_equal chan1.id, qsts[0].channel_id
+    assert_equal chan2.id, qsts[1].channel_id
   end
   
   def new_channel(app, name)

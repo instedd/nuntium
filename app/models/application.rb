@@ -66,64 +66,32 @@ class Application < ActiveRecord::Base
     if !self.ao_routing.nil? && self.ao_routing.strip.length != 0
       # Create ao_routing function is not yet defined
       if !respond_to?(:ao_routing_function)
-        instance_eval 'def ao_routing_function(msg, channels);' + self.ao_routing + '; end;'
+        instance_eval ao_routing_function_template self.ao_routing
       end
-      
-      routing = ao_routing_function(msg, channels)
-      if !msg.application.nil? and msg.application.id != self.id
-        msg.state = 'pending'
-        msg.save!
-        logger.ao_message_received msg, via_interface
-        logger.ao_message_routed_to_application msg, msg.application
-        msg.application.route msg, {:application => self}
-        return
-      end
-      
-      if routing.nil?
-        # Routing logic was not overriden, just a transform was applied
-      elsif routing.class == String
-        # Route to channel by name
-        channels = channels.select{|x| x.name == routing}
-      elsif routing.class == Array && routing.length > 0
-        if routing[0].class == String
-          channels = channels.select{|x| routing.include?(x.name)}
-        elsif routing[0].class == Channel
-          channels = routing
-        end
-      end
-    end
-    
-    if channels.empty?
-      msg.state = 'error'
-      msg.save!
-      
-      logger.ao_message_received msg, via_interface
-      logger.no_channel_found_for_ao_message protocol, msg
-      return true
-    end
-    
-    # Select channels with less or equal metric than the other channels
-    channels = channels.select{|c| channels.all?{|x| c.metric <= x.metric }}
-    
-    # Select a random channel to handle the message
-    channel = channels[rand(channels.length)]
 
-    # Now save the message
-    msg.channel_id = channel.id
-    msg.state = 'queued'
-    msg.save!
+      had_actions = ao_routing_function(self, msg, channels, via_interface, logger)
+      return true if had_actions
+    end
     
-    logger.ao_message_received msg, via_interface
-    logger.ao_message_handled_by_channel msg, channel
-    
-    # Let the channel handle the message
-    channel.handle msg
+    msg = MessageRouter.new(self, msg, channels, via_interface, logger)
+    msg.route_to_any_channel
     true
-    
   rescue => e
     # Log any errors and return false
     logger.error_routing_msg msg, e
     return false
+  end
+  
+  def ao_routing_function_template(code)
+    s = <<-END_OF_FUNC
+      def ao_routing_function(app, msg, channels, via_interface, logger)
+        msg = MessageRouter.new(app, msg, channels, via_interface, logger)
+        
+        #{code}
+        msg.executed_action
+      end
+END_OF_FUNC
+    s
   end
   
   def logger
@@ -186,5 +154,113 @@ class Application < ActiveRecord::Base
     
     self.salt = ActiveSupport::SecureRandom.base64(8)
     self.password = Digest::SHA2.hexdigest(self.salt + self.password)
+  end
+end
+
+class MessageRouter 
+
+  attr_reader :executed_action
+  attr_reader :msg
+
+  def initialize(application, msg, channels, via_interface, logger)
+    @application = application
+    @msg = msg
+    @channels = channels
+    @via_interface = via_interface
+    @logger = logger
+    @executed_action = false
+  end
+  
+  def from; @msg.from; end
+  def from=(value); @msg.from = value; end
+  def to; @msg.to; end
+  def to=(value); @msg.to= value; end
+  def subject; @msg.subject; end
+  def subject=(value); @msg.subject = value; end
+  def body; @msg.body; end
+  def body=(value); @msg.body = value; end
+  def guid; @msg.guid; end
+  def guid=(value); @msg.guid = value; end
+  def timestamp; @msg.timestamp; end
+  def timestamp=(value); @msg.timestamp = value; end
+  
+  def route_to_channel(name)
+    @executed_action = true
+  
+    channels = @channels.select{|x| x.name == name}
+    if channels.empty?
+      @msg.state = 'error'
+      @msg.save!
+      
+      @logger.ao_message_received @msg, @via_interface
+      @logger.channel_not_found @msg, name
+      return
+    end
+    
+    push_message_into channels[0]
+  end
+  
+  def route_to_any_channel(*names)
+    @executed_action = true
+  
+    if names.length > 0
+      channels = @channels.select{|x| names.include?(x.name)}
+    else
+      channels = @channels
+    end
+    
+    if channels.empty?
+      @msg.state = 'error'
+      @msg.save!
+      
+      @logger.ao_message_received @msg, @via_interface
+      if names.length == 0
+        @logger.no_channel_found_for_ao_message @msg.to.protocol, @msg
+      else
+        @logger.channel_not_found @msg, names
+      end
+      return
+    end
+    
+    # Select channels with less or equal metric than the other channels
+    channels = channels.select{|c| channels.all?{|x| c.metric <= x.metric }}
+    
+    # Select a random channel to handle the message
+    channel = channels[rand(channels.length)]
+
+    push_message_into channel
+  end
+  
+  def route_to_application(name)
+    @executed_action = true
+    
+    @msg.application = Application.find_by_name name
+    @msg.state = 'pending'
+    @msg.save!
+
+    @logger.ao_message_received @msg, @via_interface
+    @logger.ao_message_routed_to_application @msg, @msg.application
+    @msg.application.route @msg, {:application => @application}
+  end
+  
+  def push_message_into(channel)
+    # Save the message
+    @msg.channel_id = channel.id
+    @msg.state = 'queued'
+    @msg.save!
+    
+    # Do some logging
+    @logger.ao_message_received @msg, @via_interface
+    @logger.ao_message_handled_by_channel @msg, channel
+    
+    # Let the channel handle the message
+    channel.handle @msg
+  end
+  
+  def copy
+    @executed_action = true
+  
+    other = MessageRouter.new(@application, @msg.clone, @channels, @via_interface, @logger)
+    yield other
   end
 end

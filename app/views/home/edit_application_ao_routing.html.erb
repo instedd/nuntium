@@ -4,25 +4,43 @@
   <table>
     <tr valign="top">
       <td><%= f.text_area :ao_routing, :rows => 25, :cols => 60, :wrap => 'off' %></td>
-      <td style="background-color: #E5ECF9; padding:8px;">
-        <p>You can apply custom logic to incoming AO Messages by defining <b>the contents</b> of a function
-        with signature <b><code>def ao_routing(msg, channels)</code></b>.</p>
-        <p>Each <code>msg</code> is:</p>
-        <pre class="example">class Message
+      <td>
+        <div style="width:600px; height:400px; overflow:auto; background-color: #E5ECF9; padding:8px;">
+          <p>You can apply custom logic to incoming AO Messages by defining <b>the contents</b> of a function
+          with signature <b><code>def ao_routing(msg)</code></b>.</p>
+          <p>Each <code>msg</code> is:</p>
+          <pre class="example">class Message
   attr_accessor :from, :to, :subject, :body, :guid, :timestamp
-  attr_accessor :application
+  
+  def route_to_channel(channel_name)
+  def route_to_any_channel(*channel_names)
+  def route_to_application(application_name)
+  def copy
 end</pre>
-        <p>You can query and modify any of <code>Message</code>'s accessors.</p>
-        <p>The function should return:</p>
-        <ul>
-          <li><code>nil</code> to route the message as usual.</li>
-          <li>A string that identifies a channel name.</li>
-          <li>An array of strings that identifies the channel names. One of these will be chosen randomly.</li>
-          <li>An array of channels. Example: <code>channels.select{|x| x.name[0].chr == 'a'}</code> will route to
-          channels that start with the letter 'a'.</li>
-        </ul>
-        <p>If you change the <code>application</code> accessor, the message will be routed to that
-        other application. For example:<br/><code>msg.application = Application.find_by_name 'some_name'</code></p>
+          <p>You can query and modify any of <code>Message</code>'s accessors.</p>
+          <p>Available routing actions:</p>
+          <ul>
+            <li><code><b>route_to_channel</b></code>: routes the message to the channel with the given name.
+              <pre class="example">msg.route_to_channel 'SomeChannel'</pre>
+            </li>
+            <li><code><b>route_to_any_channel</b></code>: routes the message to one of the channels identified by the given names.              
+              If no name is given then the message is routed to one of all the available channels for that message's protocol.
+              <pre class="example">msg.route_to_any_channel 'SomeChannel1', 'SomeChannel2'</pre>
+            </li>
+            <li><code><b>route_to_application</b></code>: routes the message to the application identified by the given name.
+              <pre class="example">msg.route_to_application 'OtherApp'</pre>
+            </li>
+            <li><code><b>copy</b></code>: receives a block with a fresh new copy of the Message and allows execution of actions on it.
+                Useful for broadcasting to many channels, optionally applying a transform to each copy.
+                <pre class="example">msg.copy do |m|
+  m.from = 'sms://123'
+  m.route_to_channel 'SomeChannel'
+end</pre>
+            </li>
+          </ul>
+          <p>If you don't trigger any of these actions, the default logic is to route the message to one of all the available channels for that message's protocol.</p>
+          <p>If you <b>do</b> trigger any of these actions, nothing else is done with the message after the code is invoked.</p>
+        </div>
       </td>
     </tr>
   </table>
