@@ -178,6 +178,35 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal chan2.id, qsts[1].channel_id
   end
   
+  test "at routing" do
+    app1 = Application.new(:name => 'app1', :password => 'foo')
+    app1.at_routing = "msg.from = 'foo'"
+    app1.save!
+    
+    chan = new_channel app1, 'Uno'
+    
+    msg = ATMessage.new(:application_id => app1.id, :from => 'bar')
+    app1.accept msg, chan    
+    
+    assert_equal 'foo', msg.from
+    assert_equal 'foo', ATMessage.all[0].from
+  end
+  
+  test "at routing change application" do
+    app1 = Application.new(:name => 'app1', :password => 'foo')
+    app1.at_routing = "msg.application = Application.find_by_name 'app2'"
+    app1.save!
+    
+    app2 = Application.create!(:name => 'app2', :password => 'foo')
+    
+    chan = new_channel app1, 'Uno'
+    
+    msg = ATMessage.new(:application_id => app1.id, :from => 'bar')
+    app1.accept msg, chan    
+    
+    assert_equal app2.id, ATMessage.all[0].application_id
+  end
+  
   def new_channel(app, name)
     chan = Channel.new(:application_id => app.id, :name => name, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Both);
     chan.configuration = {:url => 'a', :user => 'b', :password => 'c'};

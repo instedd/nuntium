@@ -172,15 +172,14 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
   
   def createATMessage(app_id, source_addr, destination_addr, sms)
     msg = ATMessage.new
-    msg.application_id = app_id
     msg.from = 'smpp://' + source_addr
     msg.to = 'smpp://' + destination_addr
     msg.subject = sms
     #msg.body = sms
     # now?
     msg.timestamp = DateTime.now
-    msg.state = 'queued'
-    msg.save
+    
+    @@application.accept msg, @@channel
   end
   
   def handleCSMS(source_addr, destination_addr, udh, sms)
@@ -250,6 +249,7 @@ def startSMPPGateway(channel_id)
   @@channel = Channel.find channel_id
   @configuration = @@channel.configuration
   @@application_id = @@channel.application_id
+  @@application = Application.find @@application_id
   
   config = {
     :host => @configuration[:host],

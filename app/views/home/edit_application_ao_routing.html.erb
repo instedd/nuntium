@@ -3,9 +3,9 @@
 <% form_for :application, :url => { :controller => 'home', :action => :update_application_ao_routing } do |f| %>
   <table>
     <tr valign="top">
-      <td><%= f.text_area :ao_routing, :rows => 25, :cols => 60, :wrap => 'off' %></td>
+      <td><%= f.text_area :ao_routing, :rows => 13, :cols => 60, :wrap => 'off' %></td>
       <td>
-        <div style="width:600px; height:400px; overflow:auto; background-color: #E5ECF9; padding:8px;">
+        <div style="width:600px; height:210px; overflow:auto; background-color: #E5ECF9; padding:8px;">
           <p>You can apply custom logic to incoming AO Messages by defining <b>the contents</b> of a function
           with signature <b><code>def ao_routing(msg)</code></b>.</p>
           <p>Each <code>msg</code> is:</p>

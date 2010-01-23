@@ -12,6 +12,7 @@ class ReceiveTwitterMessageJob
   end
   
   def perform
+    @application = Application.find @application_id
     @channel = Channel.find @channel_id
     @config = @channel.configuration
     @status = TwitterChannelStatus.first(:conditions => { :channel_id => @channel_id })
@@ -45,17 +46,13 @@ class ReceiveTwitterMessageJob
       
       msgs.each do |twit|
         msg = ATMessage.new
-        msg.application_id = @application_id
         msg.from = 'twitter://' + twit.sender_screen_name
         msg.to = 'twitter://' + twit.recipient_screen_name
         msg.subject = twit.text
         msg.timestamp = Time.parse(twit.created_at)
-        msg.channel_id = @channel.id
         msg.channel_relative_id = twit.id
-        msg.state = 'queued'
-        msg.save
         
-        logger.at_message_received_via_channel msg, @channel
+        @application.accept msg, @channel
       end
       
       query[:page] += 1

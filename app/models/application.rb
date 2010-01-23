@@ -66,13 +66,18 @@ class Application < ActiveRecord::Base
     if !self.ao_routing.nil? && self.ao_routing.strip.length != 0
       # Create ao_routing function is not yet defined
       if !respond_to?(:ao_routing_function)
-        instance_eval ao_routing_function_template self.ao_routing
+        instance_eval 'def ao_routing_function(app, msg, channels, via_interface, logger);' +
+          'msg = MessageRouter.new(app, msg, channels, via_interface, logger);' +
+          self.ao_routing + ';' +
+          'msg.executed_action;' +
+        'end;'
       end
 
       had_actions = ao_routing_function(self, msg, channels, via_interface, logger)
       return true if had_actions
     end
     
+    # If no action triggered, or no custom logic, route to any channel
     msg = MessageRouter.new(self, msg, channels, via_interface, logger)
     msg.route_to_any_channel
     true
@@ -82,16 +87,25 @@ class Application < ActiveRecord::Base
     return false
   end
   
-  def ao_routing_function_template(code)
-    s = <<-END_OF_FUNC
-      def ao_routing_function(app, msg, channels, via_interface, logger)
-        msg = MessageRouter.new(app, msg, channels, via_interface, logger)
-        
-        #{code}
-        msg.executed_action
+  # Accepts an ATMessage via a channel
+  def accept(msg, via_channel)
+    msg.application_id = self.id
+    msg.channel_id = via_channel.id if !via_channel.nil?
+    msg.state = 'queued'
+    
+    # See if there's a custom AT routing logic
+    if !self.at_routing.nil? && self.at_routing.strip.length != 0
+      # Create at_routing function is not yet defined
+      if !respond_to?(:at_routing_function)
+        instance_eval 'def at_routing_function(msg);' + self.at_routing + '; end;'
       end
-END_OF_FUNC
-    s
+      
+      at_routing_function msg
+    end
+    
+    msg.save!
+    
+    logger.at_message_received_via_channel msg, via_channel if !via_channel.nil?
   end
   
   def logger

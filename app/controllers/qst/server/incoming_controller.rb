@@ -19,17 +19,12 @@ class IncomingController < QSTServerController
     
     doc.elements.each 'messages/message' do |elem|
       msg = ATMessage.new
-      msg.application_id = @application.id
       msg.from = elem.attributes['from']
       msg.to = elem.attributes['to']
       msg.body = elem.elements['text'].text
       msg.guid = elem.attributes['id']
       msg.timestamp = Time.parse(elem.attributes['when'])
-      msg.channel_id = @channel.id
-      msg.state = 'queued'
-      msg.save
-      
-      @application.logger.at_message_received_via_channel msg, @channel
+      @application.accept msg, @channel
       
       last_id = msg.guid
     end

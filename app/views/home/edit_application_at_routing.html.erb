@@ -1,0 +1,31 @@
+<h4>Edit AO Messages routing</h4>
+
+<% form_for :application, :url => { :controller => 'home', :action => :update_application_at_routing } do |f| %>
+  <table>
+    <tr valign="top">
+      <td><%= f.text_area :at_routing, :rows => 13, :cols => 60, :wrap => 'off' %></td>
+      <td>
+        <div style="width:600px; height:210px; overflow:auto; background-color: #E5ECF9; padding:8px;">
+          <p>You can apply custom logic to incoming AT Messages by defining <b>the contents</b> of a function
+          with signature <b><code>def at_routing(msg)</code></b>.</p>
+          <p>Each <code>msg</code> is:</p>
+          <pre class="example">class Message
+  attr_accessor :from, :to, :subject, :body, :guid, :timestamp, :application
+end</pre>
+          <p>You can query and modify any of <code>Message</code>'s accessors.</p>
+          <h3>String extensions</h3>
+          <p>Methods added to the String class:</p>
+          <ul>
+            <li><code>protocol</code></li>
+            <li><code>with_protocol(protocol_to_add)</code></li>
+            <li><code>without_protocol</code></li>
+            <li><code>starts_with?(str)</code></li>
+          </ul>
+        </div>
+      </td>
+    </tr>
+  </table>
+  <%= submit_tag 'Update' %>
+<% end %>
+
+<%= link_to 'Go back', :controller => :home, :action => :home %>

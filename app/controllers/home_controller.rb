@@ -151,6 +151,19 @@ class HomeController < AuthenticatedController
     redirect_to_home
   end
   
+  def edit_application_at_routing
+  end
+  
+  def update_application_at_routing
+  
+    app = params[:application]
+    @application.at_routing = app[:at_routing]
+    @application.save
+    
+    flash[:notice] = 'AT messages routing was changed'
+    redirect_to_home
+  end
+  
   def logoff
     session[:application_id] = nil
     redirect_to :action => :index

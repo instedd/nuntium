@@ -7,14 +7,13 @@ class DtacController < ApplicationController
   	text = converter.iconv(params[:CONTENT])
   	
   	msg = ATMessage.new
-    msg.application_id = @application.id
     msg.from = 'sms://' + params[:MSISDN]
     msg.to = 'sms://' + params[:SMSCODE]
     msg.body = text
     msg.channel_relative_id = params[:ID]
     msg.timestamp = Time.now.utc
-    msg.state = 'queued'
-    msg.save!
+    
+    @application.accept msg, nil
     
     head :ok
   end
