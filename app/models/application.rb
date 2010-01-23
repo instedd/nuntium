@@ -16,6 +16,7 @@ class Application < ActiveRecord::Base
   validates_confirmation_of :password
   validates_numericality_of :max_tries, :only_integer => true, :greater_than_or_equal_to => 0
   validates_inclusion_of :interface, :in => ['rss', 'qst_client']
+  validate :ao_routing_test_assertions
   
   before_save :hash_password 
   after_save :handle_tasks
@@ -173,6 +174,19 @@ class Application < ActiveRecord::Base
     self.salt = ActiveSupport::SecureRandom.base64(8)
     self.password = Digest::SHA2.hexdigest(self.salt + self.password)
   end
+  
+  def ao_routing_test_assertions
+    has_test = (!self.ao_routing_test.nil? and self.ao_routing_test.strip.length > 0)
+  
+    if (!self.ao_routing.nil? and self.ao_routing.strip.length > 0) or has_test
+      begin
+        assert = MessageRouterAsserter.new self
+        eval self.ao_routing_test if has_test
+      rescue SyntaxError => e
+        self.errors.add(has_test ? :ao_routing_test : :ao_routing, "syntax error: #{e.inspect}")
+      end
+    end
+  end
 end
 
 class MessageRouter 
@@ -279,6 +293,149 @@ class MessageRouter
     @executed_action = true
   
     other = MessageRouter.new(@application, @msg.clone, @channels, @via_interface, @logger)
+    yield other
+  end
+end
+
+class MessageRouterAsserter
+
+  attr_reader :events
+
+  def initialize(application)
+    @application = application
+    instance_eval 'def ao_routing_function(assert, msg);' +
+          application.ao_routing + ';' + 
+        'end;'
+    @events = []
+  end
+
+  def routed_to_channel(*args)
+    simulate args
+    name = args.length == 2 ? args[1] : args[2]
+    es = @events.select{|x| x[:kind] == :route_to_channel && x[:args] == name}
+    prelude 'assert.routed_to_channel', args, es
+  end
+  
+  def routed_to_any_channel(*args)
+    simulate args
+    
+    names = []
+    if args.length > 1 && args[1].class == String
+      names = args[1..-1]
+    elsif args.length > 2 and args[2].class == String
+      names = args[2..-1]
+    else
+      names = nil
+    end
+    
+    es = []
+    if names.nil? || names.empty?
+      es = @events.select{|x| x[:kind] == :route_to_any_channel}
+    else
+      es = @events.select{|x| x[:kind] == :route_to_any_channel && x[:args].all?{|y| names.include?(y)} && names.all?{|y| x[:args].include?(y)}}
+    end
+    
+    prelude 'assert.routed_to_any_channel', args, es
+  end
+  
+  def routed_to_application(*args)
+    simulate args
+    name = args.length == 2 ? args[1] : args[2]
+    es = @events.select{|x| x[:kind] == :route_to_application && x[:args] == name}
+    prelude 'assert.routed_to_application', args, es
+  end
+  
+  def simulate(args)
+    @events = []
+    msg = AOMessage.new args[0]
+    tester = MessageRouterTester.new self, msg
+    ao_routing_function self, tester
+    if !tester.executed_action
+      tester.route_to_any_channel
+    end
+  rescue => e
+    @application.errors.add(:ao_routing_test, "failed: #{e}")
+  end
+  
+  def prelude(name, args, es)
+    if es.empty?
+      @application.errors.add(:ao_routing_test, "failed in #{format_func(name, args)}: incorrect destination")
+      return
+    end
+    
+    if args.length > 1 && args[1].class == Hash
+      check_message_transform name, args, es[0][:msg]
+    end
+  end
+  
+  def check_message_transform(name, args, original)
+    expected = args[1]
+    expected.each_pair do |key, value|
+      actual = original.send(key)
+      if actual != value
+        @application.errors.add(:ao_routing_test, "failed in #{format_func(name, args)}: '#{key}' expected to be '#{value}' but was '#{actual}'")
+      end
+    end
+  end
+  
+  def format_func(name, args)
+    s = name
+    s += '('
+    args.each_index do |i|
+      s += ', ' if i != 0
+      if args[i].respond_to?(:inspect)
+        s += args[i].inspect
+      else
+        s += args[i].to_s
+      end
+    end
+    s += ')'
+    s
+  end
+
+end
+
+class MessageRouterTester
+
+  attr_reader :executed_action
+
+  def initialize(assert, msg)
+    @assert = assert
+    @msg = msg
+    @executed_action = false
+  end
+  
+  def from; @msg.from; end
+  def from=(value); @msg.from = value; end
+  def to; @msg.to; end
+  def to=(value); @msg.to= value; end
+  def subject; @msg.subject; end
+  def subject=(value); @msg.subject = value; end
+  def body; @msg.body; end
+  def body=(value); @msg.body = value; end
+  def guid; @msg.guid; end
+  def guid=(value); @msg.guid = value; end
+  def timestamp; @msg.timestamp; end
+  def timestamp=(value); @msg.timestamp = value; end
+  
+  def route_to_channel(name)
+    @executed_action = true
+    @assert.events.push(:kind => :route_to_channel, :msg => @msg, :args => name)
+  end
+  
+  def route_to_any_channel(*names)
+    @executed_action = true
+    @assert.events.push(:kind => :route_to_any_channel, :msg => @msg, :args => names)
+  end
+  
+  def route_to_application(name)
+    @executed_action = true
+    @assert.events.push(:kind => :route_to_application, :msg => @msg, :args => name)
+  end
+  
+  def copy
+    @executed_action = true
+    other = MessageRouterTester.new(@assert, @msg.clone)
     yield other
   end
 end

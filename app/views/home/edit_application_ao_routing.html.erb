@@ -1,11 +1,12 @@
 <h4>Edit AO Messages routing</h4>
 
 <% form_for :application, :url => { :controller => 'home', :action => :update_application_ao_routing } do |f| %>
+  <%= f.error_messages %>
   <table>
     <tr valign="top">
       <td><%= f.text_area :ao_routing, :rows => 13, :cols => 60, :wrap => 'off' %></td>
       <td>
-        <div style="width:600px; height:210px; overflow:auto; background-color: #E5ECF9; padding:8px;">
+        <div style="width:600px; height:226px; overflow:auto; background-color: #E5ECF9; padding:0px 8px 0px 8px;">
           <p>You can apply custom logic to incoming AO Messages by defining <b>the contents</b> of a function
           with signature <b><code>def ao_routing(msg)</code></b>.</p>
           <p>Each <code>msg</code> is:</p>
@@ -49,6 +50,38 @@ end</pre>
             <li><code>starts_with?(str)</code></li>
           </ul>
         </div>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">Test</td>
+    </tr>
+    <tr valign="top">
+      <td><%= f.text_area :ao_routing_test, :rows => 10, :cols => 60, :wrap => 'off' %></td>
+      <td>
+        <div style="width:600px; height:180px; overflow:auto; background-color: #E5ECF9; padding:0px 8px 0px 8px;">
+          <h3>Test your routing!</h3>
+          <ul>
+            <li><code><b>assert.routed_to_channel</b>(original, expected, channel_name)</code>: asserts that the
+              original message was transformed to the expected one and it was routed to the channel 
+              identified by the given name.
+              <pre class="example">assert.routed_to_channel {:from => 'in'}, {:from => 'out'}, 'ChannelName'</pre>
+              The second hash can be ommited to not check the transformation but just focus on the channel.
+            </li>
+            <li><code><b>assert.routed_to_any_channel</b>(original, expected, *channel_names)</code>: asserts
+              that the original message was transformed to the expected one and it was routed in one of the channels
+              identified by the given names.
+              <pre class="example">assert_routed_to_any_channel {:from => 'in'}, {:from => 'out'},
+  'Chan1', 'Chan2'</pre>
+              The second hash can be ommited to not check the transformation but just focus on the channel.</br>
+              The channel names can be ommited to check that the message was routed in one of all the available channels for the message's protocol.
+            </li>
+            <li><code><b>assert.routed_to_application</b>(original, expected, application_name)</code>: asserts that the
+              original message was transformed to the expected one and it was routed to the application
+              identified by the given name.
+              <pre class="example">assert_routed_to_application {:from => 'in'}, {:from => 'out'}, 'AppName'</pre>
+              The second hash can be ommited to not check the transformation but just focus on the application.
+            </li>
+          </ul>
       </td>
     </tr>
   </table>

@@ -54,7 +54,7 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "ao routing change from" do
     app = Application.new(:name => 'app', :password => 'foo')
-    app.ao_routing = "msg.from = 'sms://1234' \r\n nil"
+    app.ao_routing = "msg.from = 'sms://1234'"
     app.save!
     
     chan1 = new_channel app, 'Uno'
@@ -71,7 +71,7 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "ao routing change from twice" do
     app = Application.new(:name => 'app', :password => 'foo')
-    app.ao_routing = "msg.from = 'sms://1234' \r\n nil"
+    app.ao_routing = "msg.from = 'sms://1234'"
     app.save!
     
     chan1 = new_channel app, 'Uno'
@@ -205,6 +205,155 @@ class ApplicationTest < ActiveSupport::TestCase
     app1.accept msg, chan    
     
     assert_equal app2.id, ATMessage.all[0].application_id
+  end
+  
+  test "ao routing route to any channel test passes" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    app.ao_routing = "msg.from = 'bar'"
+    app.ao_routing_test = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'bar'})" 
+    assert_true app.save
+  end
+  
+  test "ao routing route to any channel test fails" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    app.ao_routing = "msg.from = 'bar'"
+    app.ao_routing_test = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'baZ'})" 
+    assert_false app.save
+  end
+  
+  test "ao routing route to any channel explicit test passes" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    assert_true app.save
+    
+    chan = new_channel app, 'Uno'
+    
+    app.ao_routing = "msg.route_to_any_channel 'Uno'"
+    app.ao_routing_test = "assert.routed_to_any_channel({:from => 'foo'}, 'Uno')" 
+    assert_true app.save
+  end
+  
+  test "ao routing route to any channel explicit test fails" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    assert_true app.save
+    
+    chan = new_channel app, 'Uno'
+    
+    app.ao_routing = "msg.route_to_any_channel 'Uno'"
+    app.ao_routing_test = "assert.routed_to_any_channel({:from => 'foo'}, 'Dos')" 
+    assert_false app.save
+  end
+  
+  test "ao routing route to any channel explicit test fails many" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    assert_true app.save
+    
+    chan = new_channel app, 'Uno'
+    
+    app.ao_routing = "msg.route_to_any_channel 'Uno', 'Dos'"
+    app.ao_routing_test = "assert.routed_to_any_channel({:from => 'foo'}, 'Dos')" 
+    assert_false app.save
+  end
+  
+  test "ao routing route to any channel explicit and change from test passes" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    assert_true app.save
+    
+    chan = new_channel app, 'Uno'
+    
+    app.ao_routing = "msg.from = 'bar'; msg.route_to_any_channel 'Uno'"
+    app.ao_routing_test = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'bar'}, 'Uno')" 
+    assert_true app.save
+  end
+  
+  test "ao routing route to any channel explicit and change from test fails" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    assert_true app.save
+    
+    chan = new_channel app, 'Uno'
+    
+    app.ao_routing = "msg.from = 'bar'; msg.route_to_any_channel 'Uno'"
+    app.ao_routing_test = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'foo'}, 'Uno')" 
+    assert_false app.save
+  end
+  
+  test "ao routing route to channel test passes" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    assert_true app.save
+    
+    chan = new_channel app, 'Uno'
+    
+    app.ao_routing = "msg.route_to_channel 'Uno'"
+    app.ao_routing_test = "assert.routed_to_channel({:from => 'foo'}, 'Uno')" 
+    assert_true app.save
+  end
+  
+  test "ao routing route to channel test fails" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    assert_true app.save
+    
+    chan = new_channel app, 'Uno'
+    
+    app.ao_routing = "msg.route_to_channel 'Uno'"
+    app.ao_routing_test = "assert.routed_to_channel({:from => 'foo'}, 'Dos')" 
+    assert_false app.save
+  end
+  
+  test "ao routing route to channel and change from test passes" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    assert_true app.save
+    
+    chan = new_channel app, 'Uno'
+    
+    app.ao_routing = "msg.from = 'bar'; msg.route_to_channel 'Uno'"
+    app.ao_routing_test = "assert.routed_to_channel({:from => 'foo'}, {:from => 'bar'}, 'Uno')" 
+    assert_true app.save
+  end
+  
+  test "ao routing route to channel and change from test fails" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    assert_true app.save
+    
+    chan = new_channel app, 'Uno'
+    
+    app.ao_routing = "msg.from = 'bar'; msg.route_to_channel 'Uno'"
+    app.ao_routing_test = "assert.routed_to_channel({:from => 'foo'}, {:from => 'foo'}, 'Uno')" 
+    assert_false app.save
+  end
+  
+   test "ao routing route to application test passes" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    assert_true app.save
+    
+    app.ao_routing = "msg.route_to_application 'app'"
+    app.ao_routing_test = "assert.routed_to_application({:from => 'foo'}, 'app')" 
+    assert_true app.save
+  end
+  
+  test "ao routing route to application test fails" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    assert_true app.save
+    
+    app.ao_routing = "msg.route_to_application 'app'"
+    app.ao_routing_test = "assert.routed_to_application({:from => 'foo'}, 'app2')" 
+    assert_false app.save
+  end
+  
+  test "ao routing route to application and change from test passes" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    assert_true app.save
+    
+    app.ao_routing = "msg.from = 'bar'; msg.route_to_application 'app'"
+    app.ao_routing_test = "assert.routed_to_application({:from => 'foo'}, {:from => 'bar'}, 'app')" 
+    assert_true app.save
+  end
+  
+  test "ao routing route to application and change from test fails" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    assert_true app.save
+    
+    app.ao_routing = "msg.from = 'bar'; msg.route_to_application 'app'"
+    app.ao_routing_test = "assert.routed_to_application({:from => 'foo'}, {:from => 'foo'}, 'app')" 
+    assert_false app.save
   end
   
   def new_channel(app, name)
