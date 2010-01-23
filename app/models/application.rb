@@ -105,7 +105,11 @@ class Application < ActiveRecord::Base
     
     msg.save!
     
-    logger.at_message_received_via_channel msg, via_channel if !via_channel.nil?
+    if 'ui' == via_channel
+      logger.at_message_created_via_ui msg
+    else
+      logger.at_message_received_via_channel msg, via_channel if !via_channel.nil?
+    end
   end
   
   def logger

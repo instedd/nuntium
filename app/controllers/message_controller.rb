@@ -26,10 +26,7 @@ class MessageController < AuthenticatedController
   def create_at_message
     msg = create_message ATMessage
     msg.timestamp = Time.new.utc
-    msg.state = 'queued'
-    msg.save!
-    
-    @application.logger.at_message_created_via_ui msg
+    @application.accept msg, 'ui'
     
     flash[:notice] = 'AT Message was created'
     redirect_to_home

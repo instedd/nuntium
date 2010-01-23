@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>nuntium</title>
+  <title>nuntium<%= ' - ' + @application.name if !@application.nil? && !@application.id.nil? %></title>
   <link rel="stylesheet" href="/stylesheets/scaffold.css" type="text/css"/>
   <script src="/javascripts/application.js" type="text/javascript"></script>
   <%= yield :head%>
