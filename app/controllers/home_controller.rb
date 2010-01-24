@@ -144,7 +144,6 @@ class HomeController < AuthenticatedController
   end
   
   def update_application_ao_routing
-  
     app = params[:application]
     @application.ao_routing = app[:ao_routing]
     @application.ao_routing_test = app[:ao_routing_test]
@@ -159,16 +158,22 @@ class HomeController < AuthenticatedController
   end
   
   def edit_application_at_routing
+    @application = flash[:application] if not flash[:application].nil?
+    @application.configuration ||= {} if not @application.nil?
   end
   
   def update_application_at_routing
-  
     app = params[:application]
     @application.at_routing = app[:at_routing]
-    @application.save
-    
-    flash[:notice] = 'AT messages routing was changed'
-    redirect_to_home
+    @application.at_routing_test = app[:at_routing_test]
+    if !@application.save
+      @application.clear_password
+      flash[:application] = @application
+      redirect_to :action => :edit_application_at_routing
+    else
+      flash[:notice] = 'AT messages routing was changed'
+      redirect_to_home
+    end
   end
   
   def logoff

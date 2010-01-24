@@ -1,6 +1,7 @@
-<h4>Edit AO Messages routing</h4>
+<h4>Edit AT Messages routing</h4>
 
 <% form_for :application, :url => { :controller => 'home', :action => :update_application_at_routing } do |f| %>
+  <%= f.error_messages %>
   <table>
     <tr valign="top">
       <td><%= f.text_area :at_routing, :rows => 13, :cols => 60, :wrap => 'off' %></td>
@@ -16,12 +17,28 @@ end</pre>
           <h3>String extensions</h3>
           <p>Methods added to the String class:</p>
           <ul>
-            <li><code>protocol</code></li>
-            <li><code>with_protocol(protocol_to_add)</code></li>
-            <li><code>without_protocol</code></li>
-            <li><code>starts_with?(str)</code></li>
+            <li><code>protocol</code>: returns the string's protocol</li>
+            <li><code>with_protocol(protocol)</code>: adds or replaces the string's protocol</li>
+            <li><code>without_protocol</code>: returns the string without the protocol</li>
+            <li><code>starts_with?(str)</code>: does the string start with <code>str</code?</li>
           </ul>
         </div>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">Test</td>
+    </tr>
+    <tr valign="top">
+      <td><%= f.text_area :at_routing_test, :rows => 10, :cols => 60, :wrap => 'off' %></td>
+      <td>
+        <div style="width:600px; height:180px; overflow:auto; background-color: #E5ECF9; padding:0px 8px 0px 8px;">
+          <h3>Test your routing!</h3>
+          <ul>
+            <li><code><b>assert.transform</b>(original, expected)</code>: asserts that the
+              original message was transformed to the expected one.
+              <pre class="example">assert.transform({:from => 'in'}, {:from => 'out'})</pre>
+            </li>
+          </ul>
       </td>
     </tr>
   </table>

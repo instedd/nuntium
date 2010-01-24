@@ -178,35 +178,6 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal chan2.id, qsts[1].channel_id
   end
   
-  test "at routing" do
-    app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.at_routing = "msg.from = 'foo'"
-    app1.save!
-    
-    chan = new_channel app1, 'Uno'
-    
-    msg = ATMessage.new(:application_id => app1.id, :from => 'bar')
-    app1.accept msg, chan    
-    
-    assert_equal 'foo', msg.from
-    assert_equal 'foo', ATMessage.all[0].from
-  end
-  
-  test "at routing change application" do
-    app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.at_routing = "msg.application = Application.find_by_name 'app2'"
-    app1.save!
-    
-    app2 = Application.create!(:name => 'app2', :password => 'foo')
-    
-    chan = new_channel app1, 'Uno'
-    
-    msg = ATMessage.new(:application_id => app1.id, :from => 'bar')
-    app1.accept msg, chan    
-    
-    assert_equal app2.id, ATMessage.all[0].application_id
-  end
-  
   test "ao routing route to any channel test passes" do
     app = Application.new(:name => 'app', :password => 'foo')
     app.ao_routing = "msg.from = 'bar'"
@@ -354,6 +325,51 @@ class ApplicationTest < ActiveSupport::TestCase
     app.ao_routing = "msg.from = 'bar'; msg.route_to_application 'app'"
     app.ao_routing_test = "assert.routed_to_application({:from => 'foo'}, {:from => 'foo'}, 'app')" 
     assert_false app.save
+  end
+  
+  test "at routing" do
+    app1 = Application.new(:name => 'app1', :password => 'foo')
+    app1.at_routing = "msg.from = 'foo'"
+    app1.save!
+    
+    chan = new_channel app1, 'Uno'
+    
+    msg = ATMessage.new(:application_id => app1.id, :from => 'bar')
+    app1.accept msg, chan    
+    
+    assert_equal 'foo', msg.from
+    assert_equal 'foo', ATMessage.all[0].from
+  end
+  
+  test "at routing change application" do
+    app1 = Application.new(:name => 'app1', :password => 'foo')
+    app1.at_routing = "msg.application = Application.find_by_name 'app2'"
+    app1.save!
+    
+    app2 = Application.create!(:name => 'app2', :password => 'foo')
+    
+    chan = new_channel app1, 'Uno'
+    
+    msg = ATMessage.new(:application_id => app1.id, :from => 'bar')
+    app1.accept msg, chan    
+    
+    assert_equal app2.id, ATMessage.all[0].application_id
+  end
+  
+  test "at routing test passes" do
+    app1 = Application.new(:name => 'app1', :password => 'foo')
+    app1.at_routing = "msg.from = 'foo'"
+    app1.at_routing_test = "assert.transform({:from => 'bar'}, {:from => 'foo'})"
+    if !app1.save
+      puts app1.errors.map &:inspect
+    end
+  end
+  
+  test "at routing test fails" do
+    app1 = Application.new(:name => 'app1', :password => 'foo')
+    app1.at_routing = "msg.from = 'foo'"
+    app1.at_routing_test = "assert.transform({:from => 'bar'}, {:from => 'bar'})"
+    assert_false app1.save
   end
   
   def new_channel(app, name)

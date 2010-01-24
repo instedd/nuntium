@@ -17,6 +17,7 @@ class Application < ActiveRecord::Base
   validates_numericality_of :max_tries, :only_integer => true, :greater_than_or_equal_to => 0
   validates_inclusion_of :interface, :in => ['rss', 'qst_client']
   validate :ao_routing_test_assertions
+  validate :at_routing_test_assertions
   
   before_save :hash_password 
   after_save :handle_tasks
@@ -184,6 +185,19 @@ class Application < ActiveRecord::Base
         eval self.ao_routing_test if has_test
       rescue SyntaxError => e
         self.errors.add(has_test ? :ao_routing_test : :ao_routing, "syntax error: #{e.inspect}")
+      end
+    end
+  end
+  
+  def at_routing_test_assertions
+    has_test = (!self.at_routing_test.nil? and self.at_routing_test.strip.length > 0)
+  
+    if (!self.at_routing.nil? and self.at_routing.strip.length > 0) or has_test
+      begin
+        assert = MessageAccepterAsserter.new self
+        eval self.at_routing_test if has_test
+      rescue SyntaxError => e
+        self.errors.add(has_test ? :at_routing_test : :at_routing, "syntax error: #{e.inspect}")
       end
     end
   end
@@ -383,11 +397,7 @@ class MessageRouterAsserter
     s += '('
     args.each_index do |i|
       s += ', ' if i != 0
-      if args[i].respond_to?(:inspect)
-        s += args[i].inspect
-      else
-        s += args[i].to_s
-      end
+      s += args[i].inspect
     end
     s += ')'
     s
@@ -438,4 +448,32 @@ class MessageRouterTester
     other = MessageRouterTester.new(@assert, @msg.clone)
     yield other
   end
+end
+
+class MessageAccepterAsserter
+
+  def initialize(application)
+    @application = application
+    instance_eval 'def at_routing_function(msg);' +
+          application.at_routing + ';' + 
+        'end;'
+  end
+
+  def transform(original, expected)
+    msg = ATMessage.new original
+    at_routing_function msg
+    check_message_transform original, msg, expected 
+  rescue => e
+    @application.errors.add(:ao_routing_test, "failed: #{e}")
+  end
+  
+  def check_message_transform(original_hash, original, expected)
+    expected.each_pair do |key, value|
+      actual = original.send(key)
+      if actual != value
+        @application.errors.add(:ao_routing_test, "failed in assert.transform(#{original_hash.inspect}, #{expected.inspect}): '#{key}' expected to be '#{value}' but was '#{actual}'")
+      end
+    end
+  end
+
 end

@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100123133045) do
+ActiveRecord::Schema.define(:version => 20100124010458) do
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -52,6 +52,7 @@ ActiveRecord::Schema.define(:version => 20100123133045) do
     t.string   "ao_routing"
     t.string   "at_routing"
     t.string   "ao_routing_test"
+    t.string   "at_routing_test"
   end
 
   create_table "at_messages", :force => true do |t|
