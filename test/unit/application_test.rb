@@ -327,6 +327,14 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_false app.save
   end
   
+  test "ao routing route same message twice fails" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    assert_true app.save
+    
+    app.ao_routing = "msg.route_to_channel 'one'; msg.route_to_application 'app'"
+    assert_false app.save
+  end
+  
   test "at routing" do
     app1 = Application.new(:name => 'app1', :password => 'foo')
     app1.at_routing = "msg.from = 'foo'"

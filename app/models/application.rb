@@ -23,7 +23,6 @@ class Application < ActiveRecord::Base
   after_save :handle_tasks
   
   include(CronTask::CronTaskOwner)
-  include(HaitiFixes)
   
   def self.find_by_id_or_name(id_or_name)
     app = self.find_by_id(id_or_name) if id_or_name =~ /\A\d+\Z/ or id_or_name.kind_of? Integer
