@@ -33,6 +33,8 @@ end</pre>
       <td>
         <div style="width:600px; height:180px; overflow:auto; background-color: #E5ECF9; padding:0px 8px 0px 8px;">
           <h3>Test your routing!</h3>
+          <p>The original hash builds the message to route and the expected hash is used to assert properties
+          of the routed messages at the end of routing logic.</p>
           <ul>
             <li><code><b>assert.transform</b>(original, expected)</code>: asserts that the
               original message was transformed to the expected one.
