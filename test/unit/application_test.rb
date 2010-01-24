@@ -332,6 +332,7 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_true app.save
     
     app.ao_routing = "msg.route_to_channel 'one'; msg.route_to_application 'app'"
+    app.ao_routing_test = "assert.routed_to_application({}, {}, 'app')" 
     assert_false app.save
   end
   

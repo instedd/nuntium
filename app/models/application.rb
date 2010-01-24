@@ -181,7 +181,11 @@ class Application < ActiveRecord::Base
     if (!self.ao_routing.nil? and self.ao_routing.strip.length > 0) or has_test
       begin
         assert = MessageRouterAsserter.new self
-        eval self.ao_routing_test if has_test
+        if has_test
+          eval self.ao_routing_test
+        else
+          assert.simulate_dummy
+        end
       rescue SyntaxError => e
         self.errors.add(has_test ? :ao_routing_test : :ao_routing, "syntax error: #{e.inspect}")
       end
@@ -194,7 +198,11 @@ class Application < ActiveRecord::Base
     if (!self.at_routing.nil? and self.at_routing.strip.length > 0) or has_test
       begin
         assert = MessageAccepterAsserter.new self
-        eval self.at_routing_test if has_test
+        if has_test
+          eval self.at_routing_test
+        else
+          assert.simulate_dummy
+        end
       rescue SyntaxError => e
         self.errors.add(has_test ? :at_routing_test : :at_routing, "syntax error: #{e.inspect}")
       end
@@ -313,6 +321,7 @@ end
 class MessageRouterAsserter
 
   attr_reader :events
+  attr_reader :application
 
   def initialize(application)
     @application = application
@@ -370,6 +379,10 @@ class MessageRouterAsserter
     @application.errors.add(:ao_routing_test, "failed: #{e}")
   end
   
+  def simulate_dummy
+    simulate([{:from => '', :to => '', :subject => '', :body => '', :guid => '', :timestamp => Time.now.utc}, {}])
+  end
+  
   def prelude(name, args, es)
     if es.empty?
       @application.errors.add(:ao_routing_test, "failed in #{format_func(name, args)}: incorrect destination")
@@ -412,6 +425,7 @@ class MessageRouterTester
     @assert = assert
     @msg = msg
     @executed_action = false
+    @routed = false
   end
   
   def from; @msg.from; end
@@ -428,18 +442,24 @@ class MessageRouterTester
   def timestamp=(value); @msg.timestamp = value; end
   
   def route_to_channel(name)
-    @executed_action = true
+    check_already_routed
     @assert.events.push(:kind => :route_to_channel, :msg => @msg, :args => name)
   end
   
   def route_to_any_channel(*names)
-    @executed_action = true
+    check_already_routed
     @assert.events.push(:kind => :route_to_any_channel, :msg => @msg, :args => names)
   end
   
   def route_to_application(name)
-    @executed_action = true
+    check_already_routed
     @assert.events.push(:kind => :route_to_application, :msg => @msg, :args => name)
+  end
+  
+  def check_already_routed
+    @executed_action = true
+    @assert.application.errors.add(:ao_routing_test, 'failed: same message routed more than once; use msg.copy') if @routed
+    @routed = true
   end
   
   def copy
@@ -463,7 +483,11 @@ class MessageAccepterAsserter
     at_routing_function msg
     check_message_transform original, msg, expected 
   rescue => e
-    @application.errors.add(:ao_routing_test, "failed: #{e}")
+    @application.errors.add(:at_routing_test, "failed: #{e}")
+  end
+  
+  def simulate_dummy
+    transform({:from => '', :to => '', :subject => '', :body => '', :guid => '', :timestamp => Time.now.utc}, {})
   end
   
   def check_message_transform(original_hash, original, expected)
