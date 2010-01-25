@@ -385,7 +385,7 @@ class MessageRouterAsserter
   
   def prelude(name, args, es)
     if es.empty?
-      @application.errors.add(:ao_routing_test, "failed in #{format_func(name, args)}: incorrect destination")
+      assertion_failed name, args, "incorrect destination"
       return
     end
     
@@ -399,20 +399,17 @@ class MessageRouterAsserter
     expected.each_pair do |key, value|
       actual = original.send(key)
       if actual != value
-        @application.errors.add(:ao_routing_test, "failed in #{format_func(name, args)}: '#{key}' expected to be '#{value}' but was '#{actual}'")
+        assertion_failed name, args, "'#{key}' expected to be '#{value}' but was '#{actual}'"
       end
     end
   end
   
+  def assertion_failed(name, args, message)
+    @application.errors.add(:ao_routing_test, "failed in #{format_func(name, args)}: #{message}")
+  end
+  
   def format_func(name, args)
-    s = name
-    s += '('
-    args.each_index do |i|
-      s += ', ' if i != 0
-      s += args[i].inspect
-    end
-    s += ')'
-    s
+    name + '(' + args.map(&:inspect).join(', ') + ')'
   end
 
 end
@@ -467,6 +464,9 @@ class MessageRouterTester
     other = MessageRouterTester.new(@assert, @msg.clone)
     yield other
   end
+  
+  def inspect; 'Message'; end;
+  def to_s; 'Message'; end;
 end
 
 class MessageAccepterAsserter
