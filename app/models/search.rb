@@ -1,6 +1,6 @@
 require 'strscan'
 
-# Reperesents a search. It's a hash of key value pairs plus a search string.
+# Represents a search. It's a hash of key value pairs plus a search string.
 #
 # Examples:
 #   Search.new('hello') => search = 'hello', {}

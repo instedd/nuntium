@@ -18,6 +18,6 @@ module ApplicationHelper
   
   def time_ago(time)
     return '' if time.nil?
-    time_ago_in_words(time.utc, true) + ' ago'
+    '<span title="' + time.utc.to_s + '">' + time_ago_in_words(time.utc, true) + ' ago</span>'
   end
 end
