@@ -210,8 +210,6 @@ class Application < ActiveRecord::Base
           assert.simulate_dummy
         end
       rescue Exception => e
-        puts '!!!!'
-        puts e.message
         self.errors.add(has_test ? :at_routing_test : :at_routing, "error: #{fix_error(e.message)}")
       end
     end
@@ -492,8 +490,11 @@ class MessageAccepterAsserter
         'end;'
   end
 
-  def transform(original, expected)
+  def transform(original, expected, channel_name = nil)
     msg = ATMessage.new original
+    if !channel_name.nil?
+      msg.channel = Channel.new(:name => channel_name)
+    end
     at_routing_function msg
     check_message_transform original, msg, expected 
   rescue => e
