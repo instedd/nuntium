@@ -141,8 +141,9 @@ class HomeController < AuthenticatedController
   
   def update_application_ao_routing
     app = params[:application]
-    @application.configuration[:ao_routing] = app[:ao_routing]
-    @application.configuration[:ao_routing_test] = app[:ao_routing_test]
+    cfg = app[:configuration]
+    @application.configuration[:ao_routing] = cfg[:ao_routing]
+    @application.configuration[:ao_routing_test] = cfg[:ao_routing_test]
     if !@application.save
       @application.clear_password
       flash[:application] = @application
@@ -159,8 +160,9 @@ class HomeController < AuthenticatedController
   
   def update_application_at_routing
     app = params[:application]
-    @application.configuration[:at_routing] = app[:at_routing]
-    @application.configuration[:at_routing_test] = app[:at_routing_test]
+    cfg = app[:configuration]
+    @application.configuration[:at_routing] = cfg[:at_routing]
+    @application.configuration[:at_routing_test] = cfg[:at_routing_test]
     if !@application.save
       @application.clear_password
       flash[:application] = @application

@@ -2,9 +2,10 @@
 
 <% form_for :application, :url => { :controller => 'home', :action => :update_application_ao_routing } do |f| %>
   <%= f.error_messages %>
+	<% f.fields_for :configuration do |c| %>
   <table>
     <tr valign="top">
-      <td><%= f.text_area :ao_routing, :rows => 13, :cols => 60, :wrap => 'off', :value => @application.configuration[:ao_routing] %></td>
+      <td><%= c.text_area :ao_routing, :rows => 13, :cols => 60, :wrap => 'off', :value => @application.configuration[:ao_routing] %></td>
       <td>
         <div style="width:600px; height:226px; overflow:auto; background-color: #E5ECF9; padding:0px 8px 0px 8px;">
           <p>You can apply custom logic to incoming AO Messages by defining <b>the contents</b> of a function
@@ -56,7 +57,7 @@ end</pre>
       <td colspan="2">Test</td>
     </tr>
     <tr valign="top">
-      <td><%= f.text_area :ao_routing_test, :rows => 10, :cols => 60, :wrap => 'off', :value => @application.configuration[:ao_routing_test] %></td>
+      <td><%= c.text_area :ao_routing_test, :rows => 10, :cols => 60, :wrap => 'off', :value => @application.configuration[:ao_routing_test] %></td>
       <td>
         <div style="width:600px; height:180px; overflow:auto; background-color: #E5ECF9; padding:0px 8px 0px 8px;">
           <h3>Test your routing!</h3>
@@ -87,6 +88,7 @@ end</pre>
       </td>
     </tr>
   </table>
+	<% end %>
   <%= submit_tag 'Update' %>
 <% end %>
 

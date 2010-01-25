@@ -192,7 +192,7 @@ class Application < ActiveRecord::Base
           assert.simulate_dummy
         end
       rescue Exception => e
-        self.errors.add(has_test ? :ao_routing_test : :ao_routing, "syntax error: #{e.inspect}")
+        self.errors.add(has_test ? :ao_routing_test : :ao_routing, "error: #{e.inspect}")
       end
     end
   end
@@ -209,7 +209,7 @@ class Application < ActiveRecord::Base
           assert.simulate_dummy
         end
       rescue Exception => e
-        self.errors.add(has_test ? :at_routing_test : :at_routing, "syntax error: #{e.inspect}")
+        self.errors.add(has_test ? :at_routing_test : :at_routing, "error: #{e.inspect}")
       end
     end
   end
