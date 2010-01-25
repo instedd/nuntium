@@ -1,5 +1,6 @@
 class ATMessage < ActiveRecord::Base
   belongs_to :application
+  belongs_to :channel
   validates_presence_of :application
 
   include MessageCommon

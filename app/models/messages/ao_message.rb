@@ -5,6 +5,7 @@ class AOMessage < ActiveRecord::Base
   include DRbUndumped
   
   belongs_to :application
+  belongs_to :channel
   validates_presence_of :application
   
   include MessageCommon

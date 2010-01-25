@@ -91,6 +91,7 @@ class Application < ActiveRecord::Base
   # Accepts an ATMessage via a channel
   def accept(msg, via_channel)
     msg.application_id = self.id
+    msg.channel = via_channel if !via_channel.nil?
     msg.channel_id = via_channel.id if !via_channel.nil?
     msg.state = 'queued'
     

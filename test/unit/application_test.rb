@@ -369,9 +369,22 @@ class ApplicationTest < ActiveSupport::TestCase
     app1 = Application.new(:name => 'app1', :password => 'foo')
     app1.configuration[:at_routing] = "msg.from = 'foo'"
     app1.configuration[:at_routing_test] = "assert.transform({:from => 'bar'}, {:from => 'foo'})"
-    if !app1.save
-      puts app1.errors.map &:inspect
-    end
+    assert_true app1.save
+  end
+  
+  test "at routing inspect channel" do
+    app1 = Application.new(:name => 'app1', :password => 'foo')
+    app1.save!
+    
+    chan1 = new_channel app1, 'Uno'
+    chan2 = new_channel app1, 'Dos'
+    
+    app1.configuration[:at_routing] = "if !msg.channel.nil? && msg.channel.name == 'Uno'; msg.from = 'bar'; end;"
+    app1.save!
+    
+    msg = ATMessage.new(:from => 'foo')
+    app1.accept(msg, chan1)
+    assert_equal 'bar', msg.from
   end
   
   test "at routing test fails" do
