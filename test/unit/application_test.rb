@@ -54,7 +54,7 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "ao routing change from" do
     app = Application.new(:name => 'app', :password => 'foo')
-    app.ao_routing = "msg.from = 'sms://1234'"
+    app.configuration[:ao_routing] = "msg.from = 'sms://1234'"
     app.save!
     
     chan1 = new_channel app, 'Uno'
@@ -71,7 +71,7 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "ao routing change from twice" do
     app = Application.new(:name => 'app', :password => 'foo')
-    app.ao_routing = "msg.from = 'sms://1234'"
+    app.configuration[:ao_routing] = "msg.from = 'sms://1234'"
     app.save!
     
     chan1 = new_channel app, 'Uno'
@@ -92,7 +92,7 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "ao routing select channel by name" do
     app = Application.new(:name => 'app', :password => 'foo')
-    app.ao_routing = "msg.route_to_channel 'Dos'"
+    app.configuration[:ao_routing] = "msg.route_to_channel 'Dos'"
     app.save!
     
     chan1 = new_channel app, 'Uno'
@@ -112,7 +112,7 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "ao routing select channel by array" do
     app = Application.new(:name => 'app', :password => 'foo')
-    app.ao_routing = "msg.route_to_any_channel 'Dos', 'Tres'"
+    app.configuration[:ao_routing] = "msg.route_to_any_channel 'Dos', 'Tres'"
     app.save!
     
     chan1 = new_channel app, 'Uno'
@@ -135,7 +135,7 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "ao routing change application" do
     app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.ao_routing = "msg.route_to_application 'app2'"
+    app1.configuration[:ao_routing] = "msg.route_to_application 'app2'"
     app1.save!
     
     app2 = Application.create!(:name => 'app2', :password => 'foo')
@@ -156,7 +156,7 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "ao routing copy in two channels" do
     app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.ao_routing = "msg.copy{|x| x.from = 'UNO'; x.route_to_channel 'Uno'}; msg.copy{|x| x.from = 'DOS'; x.route_to_channel 'Dos'};"
+    app1.configuration[:ao_routing] = "msg.copy{|x| x.from = 'UNO'; x.route_to_channel 'Uno'}; msg.copy{|x| x.from = 'DOS'; x.route_to_channel 'Dos'};"
     app1.save!
     
     app2 = Application.create!(:name => 'app2', :password => 'foo')
@@ -180,15 +180,15 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "ao routing route to any channel test passes" do
     app = Application.new(:name => 'app', :password => 'foo')
-    app.ao_routing = "msg.from = 'bar'"
-    app.ao_routing_test = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'bar'})" 
+    app.configuration[:ao_routing] = "msg.from = 'bar'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'bar'})" 
     assert_true app.save
   end
   
   test "ao routing route to any channel test fails" do
     app = Application.new(:name => 'app', :password => 'foo')
-    app.ao_routing = "msg.from = 'bar'"
-    app.ao_routing_test = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'baZ'})" 
+    app.configuration[:ao_routing] = "msg.from = 'bar'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'baZ'})" 
     assert_false app.save
   end
   
@@ -198,8 +198,8 @@ class ApplicationTest < ActiveSupport::TestCase
     
     chan = new_channel app, 'Uno'
     
-    app.ao_routing = "msg.route_to_any_channel 'Uno'"
-    app.ao_routing_test = "assert.routed_to_any_channel({:from => 'foo'}, 'Uno')" 
+    app.configuration[:ao_routing] = "msg.route_to_any_channel 'Uno'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, 'Uno')" 
     assert_true app.save
   end
   
@@ -209,8 +209,8 @@ class ApplicationTest < ActiveSupport::TestCase
     
     chan = new_channel app, 'Uno'
     
-    app.ao_routing = "msg.route_to_any_channel 'Uno'"
-    app.ao_routing_test = "assert.routed_to_any_channel({:from => 'foo'}, 'Dos')" 
+    app.configuration[:ao_routing] = "msg.route_to_any_channel 'Uno'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, 'Dos')" 
     assert_false app.save
   end
   
@@ -220,8 +220,8 @@ class ApplicationTest < ActiveSupport::TestCase
     
     chan = new_channel app, 'Uno'
     
-    app.ao_routing = "msg.route_to_any_channel 'Uno', 'Dos'"
-    app.ao_routing_test = "assert.routed_to_any_channel({:from => 'foo'}, 'Dos')" 
+    app.configuration[:ao_routing] = "msg.route_to_any_channel 'Uno', 'Dos'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, 'Dos')" 
     assert_false app.save
   end
   
@@ -231,8 +231,8 @@ class ApplicationTest < ActiveSupport::TestCase
     
     chan = new_channel app, 'Uno'
     
-    app.ao_routing = "msg.from = 'bar'; msg.route_to_any_channel 'Uno'"
-    app.ao_routing_test = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'bar'}, 'Uno')" 
+    app.configuration[:ao_routing] = "msg.from = 'bar'; msg.route_to_any_channel 'Uno'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'bar'}, 'Uno')" 
     assert_true app.save
   end
   
@@ -242,8 +242,8 @@ class ApplicationTest < ActiveSupport::TestCase
     
     chan = new_channel app, 'Uno'
     
-    app.ao_routing = "msg.from = 'bar'; msg.route_to_any_channel 'Uno'"
-    app.ao_routing_test = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'foo'}, 'Uno')" 
+    app.configuration[:ao_routing] = "msg.from = 'bar'; msg.route_to_any_channel 'Uno'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'foo'}, 'Uno')" 
     assert_false app.save
   end
   
@@ -253,8 +253,8 @@ class ApplicationTest < ActiveSupport::TestCase
     
     chan = new_channel app, 'Uno'
     
-    app.ao_routing = "msg.route_to_channel 'Uno'"
-    app.ao_routing_test = "assert.routed_to_channel({:from => 'foo'}, 'Uno')" 
+    app.configuration[:ao_routing] = "msg.route_to_channel 'Uno'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_channel({:from => 'foo'}, 'Uno')" 
     assert_true app.save
   end
   
@@ -264,8 +264,8 @@ class ApplicationTest < ActiveSupport::TestCase
     
     chan = new_channel app, 'Uno'
     
-    app.ao_routing = "msg.route_to_channel 'Uno'"
-    app.ao_routing_test = "assert.routed_to_channel({:from => 'foo'}, 'Dos')" 
+    app.configuration[:ao_routing] = "msg.route_to_channel 'Uno'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_channel({:from => 'foo'}, 'Dos')" 
     assert_false app.save
   end
   
@@ -275,8 +275,8 @@ class ApplicationTest < ActiveSupport::TestCase
     
     chan = new_channel app, 'Uno'
     
-    app.ao_routing = "msg.from = 'bar'; msg.route_to_channel 'Uno'"
-    app.ao_routing_test = "assert.routed_to_channel({:from => 'foo'}, {:from => 'bar'}, 'Uno')" 
+    app.configuration[:ao_routing] = "msg.from = 'bar'; msg.route_to_channel 'Uno'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_channel({:from => 'foo'}, {:from => 'bar'}, 'Uno')" 
     assert_true app.save
   end
   
@@ -286,8 +286,8 @@ class ApplicationTest < ActiveSupport::TestCase
     
     chan = new_channel app, 'Uno'
     
-    app.ao_routing = "msg.from = 'bar'; msg.route_to_channel 'Uno'"
-    app.ao_routing_test = "assert.routed_to_channel({:from => 'foo'}, {:from => 'foo'}, 'Uno')" 
+    app.configuration[:ao_routing] = "msg.from = 'bar'; msg.route_to_channel 'Uno'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_channel({:from => 'foo'}, {:from => 'foo'}, 'Uno')" 
     assert_false app.save
   end
   
@@ -295,8 +295,8 @@ class ApplicationTest < ActiveSupport::TestCase
     app = Application.new(:name => 'app', :password => 'foo')
     assert_true app.save
     
-    app.ao_routing = "msg.route_to_application 'app'"
-    app.ao_routing_test = "assert.routed_to_application({:from => 'foo'}, 'app')" 
+    app.configuration[:ao_routing] = "msg.route_to_application 'app'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_application({:from => 'foo'}, 'app')" 
     assert_true app.save
   end
   
@@ -304,8 +304,8 @@ class ApplicationTest < ActiveSupport::TestCase
     app = Application.new(:name => 'app', :password => 'foo')
     assert_true app.save
     
-    app.ao_routing = "msg.route_to_application 'app'"
-    app.ao_routing_test = "assert.routed_to_application({:from => 'foo'}, 'app2')" 
+    app.configuration[:ao_routing] = "msg.route_to_application 'app'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_application({:from => 'foo'}, 'app2')" 
     assert_false app.save
   end
   
@@ -313,8 +313,8 @@ class ApplicationTest < ActiveSupport::TestCase
     app = Application.new(:name => 'app', :password => 'foo')
     assert_true app.save
     
-    app.ao_routing = "msg.from = 'bar'; msg.route_to_application 'app'"
-    app.ao_routing_test = "assert.routed_to_application({:from => 'foo'}, {:from => 'bar'}, 'app')" 
+    app.configuration[:ao_routing] = "msg.from = 'bar'; msg.route_to_application 'app'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_application({:from => 'foo'}, {:from => 'bar'}, 'app')" 
     assert_true app.save
   end
   
@@ -322,8 +322,8 @@ class ApplicationTest < ActiveSupport::TestCase
     app = Application.new(:name => 'app', :password => 'foo')
     assert_true app.save
     
-    app.ao_routing = "msg.from = 'bar'; msg.route_to_application 'app'"
-    app.ao_routing_test = "assert.routed_to_application({:from => 'foo'}, {:from => 'foo'}, 'app')" 
+    app.configuration[:ao_routing] = "msg.from = 'bar'; msg.route_to_application 'app'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_application({:from => 'foo'}, {:from => 'foo'}, 'app')" 
     assert_false app.save
   end
   
@@ -331,14 +331,14 @@ class ApplicationTest < ActiveSupport::TestCase
     app = Application.new(:name => 'app', :password => 'foo')
     assert_true app.save
     
-    app.ao_routing = "msg.route_to_channel 'one'; msg.route_to_application 'app'"
-    app.ao_routing_test = "assert.routed_to_application({}, {}, 'app')" 
+    app.configuration[:ao_routing] = "msg.route_to_channel 'one'; msg.route_to_application 'app'"
+    app.configuration[:ao_routing_test] = "assert.routed_to_application({}, {}, 'app')" 
     assert_false app.save
   end
   
   test "at routing" do
     app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.at_routing = "msg.from = 'foo'"
+    app1.configuration[:at_routing] = "msg.from = 'foo'"
     app1.save!
     
     chan = new_channel app1, 'Uno'
@@ -352,7 +352,7 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "at routing change application" do
     app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.at_routing = "msg.application = Application.find_by_name 'app2'"
+    app1.configuration[:at_routing] = "msg.application = Application.find_by_name 'app2'"
     app1.save!
     
     app2 = Application.create!(:name => 'app2', :password => 'foo')
@@ -367,8 +367,8 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "at routing test passes" do
     app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.at_routing = "msg.from = 'foo'"
-    app1.at_routing_test = "assert.transform({:from => 'bar'}, {:from => 'foo'})"
+    app1.configuration[:at_routing] = "msg.from = 'foo'"
+    app1.configuration[:at_routing_test] = "assert.transform({:from => 'bar'}, {:from => 'foo'})"
     if !app1.save
       puts app1.errors.map &:inspect
     end
@@ -376,8 +376,8 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "at routing test fails" do
     app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.at_routing = "msg.from = 'foo'"
-    app1.at_routing_test = "assert.transform({:from => 'bar'}, {:from => 'bar'})"
+    app1.configuration[:at_routing] = "msg.from = 'foo'"
+    app1.configuration[:at_routing_test] = "assert.transform({:from => 'bar'}, {:from => 'bar'})"
     assert_false app1.save
   end
   

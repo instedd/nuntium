@@ -64,12 +64,12 @@ class Application < ActiveRecord::Base
     channels = @outgoing_channels.select {|x| x.protocol == protocol}
     
     # See if there's a custom AO routing logic 
-    if !self.ao_routing.nil? && self.ao_routing.strip.length != 0
+    if !self.configuration[:ao_routing].nil? && self.configuration[:ao_routing].strip.length != 0
       # Create ao_routing function is not yet defined
       if !respond_to?(:ao_routing_function)
         instance_eval 'def ao_routing_function(app, msg, channels, via_interface, logger);' +
           'msg = MessageRouter.new(app, msg, channels, via_interface, logger);' +
-          self.ao_routing + ';' +
+          self.configuration[:ao_routing] + ';' +
           'msg.executed_action;' +
         'end;'
       end
@@ -95,10 +95,10 @@ class Application < ActiveRecord::Base
     msg.state = 'queued'
     
     # See if there's a custom AT routing logic
-    if !self.at_routing.nil? && self.at_routing.strip.length != 0
+    if !self.configuration[:at_routing].nil? && self.configuration[:at_routing].strip.length != 0
       # Create at_routing function is not yet defined
       if !respond_to?(:at_routing_function)
-        instance_eval 'def at_routing_function(msg);' + self.at_routing + '; end;'
+        instance_eval 'def at_routing_function(msg);' + self.configuration[:at_routing] + '; end;'
       end
       
       at_routing_function msg
@@ -147,6 +147,11 @@ class Application < ActiveRecord::Base
       return 'qst_client: ' + self.configuration[:url]
     end
   end
+  
+  def configuration
+    self[:configuration] = {} if self[:configuration].nil?
+    self[:configuration]
+  end
 
   protected
   
@@ -176,34 +181,34 @@ class Application < ActiveRecord::Base
   end
   
   def ao_routing_test_assertions
-    has_test = (!self.ao_routing_test.nil? and self.ao_routing_test.strip.length > 0)
+    has_test = (!self.configuration[:ao_routing_test].nil? and self.configuration[:ao_routing_test].strip.length > 0)
   
-    if (!self.ao_routing.nil? and self.ao_routing.strip.length > 0) or has_test
+    if (!self.configuration[:ao_routing].nil? and self.configuration[:ao_routing].strip.length > 0) or has_test
       begin
         assert = MessageRouterAsserter.new self
         if has_test
-          eval self.ao_routing_test
+          eval self.configuration[:ao_routing_test]
         else
           assert.simulate_dummy
         end
-      rescue SyntaxError => e
+      rescue Exception => e
         self.errors.add(has_test ? :ao_routing_test : :ao_routing, "syntax error: #{e.inspect}")
       end
     end
   end
   
   def at_routing_test_assertions
-    has_test = (!self.at_routing_test.nil? and self.at_routing_test.strip.length > 0)
+    has_test = (!self.configuration[:at_routing_test].nil? and self.configuration[:at_routing_test].strip.length > 0)
   
-    if (!self.at_routing.nil? and self.at_routing.strip.length > 0) or has_test
+    if (!self.configuration[:at_routing].nil? and self.configuration[:at_routing].strip.length > 0) or has_test
       begin
         assert = MessageAccepterAsserter.new self
         if has_test
-          eval self.at_routing_test
+          eval self.configuration[:at_routing_test]
         else
           assert.simulate_dummy
         end
-      rescue SyntaxError => e
+      rescue Exception => e
         self.errors.add(has_test ? :at_routing_test : :at_routing, "syntax error: #{e.inspect}")
       end
     end
@@ -326,7 +331,7 @@ class MessageRouterAsserter
   def initialize(application)
     @application = application
     instance_eval 'def ao_routing_function(assert, msg);' +
-          application.ao_routing + ';' + 
+          application.configuration[:ao_routing] + ';' + 
         'end;'
     @events = []
   end
@@ -474,7 +479,7 @@ class MessageAccepterAsserter
   def initialize(application)
     @application = application
     instance_eval 'def at_routing_function(msg);' +
-          application.at_routing + ';' + 
+          application.configuration[:at_routing] + ';' + 
         'end;'
   end
 

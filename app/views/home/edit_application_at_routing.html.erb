@@ -4,7 +4,7 @@
   <%= f.error_messages %>
   <table>
     <tr valign="top">
-      <td><%= f.text_area :at_routing, :rows => 13, :cols => 60, :wrap => 'off' %></td>
+      <td><%= f.text_area :at_routing, :rows => 13, :cols => 60, :wrap => 'off', :value => @application.configuration[:at_routing] %></td>
       <td>
         <div style="width:600px; height:210px; overflow:auto; background-color: #E5ECF9; padding:8px;">
           <p>You can apply custom logic to incoming AT Messages by defining <b>the contents</b> of a function
@@ -29,7 +29,7 @@ end</pre>
       <td colspan="2">Test</td>
     </tr>
     <tr valign="top">
-      <td><%= f.text_area :at_routing_test, :rows => 10, :cols => 60, :wrap => 'off' %></td>
+      <td><%= f.text_area :at_routing_test, :rows => 10, :cols => 60, :wrap => 'off', :value => @application.configuration[:at_routing_test] %></td>
       <td>
         <div style="width:600px; height:180px; overflow:auto; background-color: #E5ECF9; padding:0px 8px 0px 8px;">
           <h3>Test your routing!</h3>

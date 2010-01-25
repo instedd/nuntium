@@ -99,7 +99,6 @@ class HomeController < AuthenticatedController
   
   def edit_application
     @application = flash[:application] if not flash[:application].nil?
-    @application.configuration ||= {} if not @application.nil?
   end
   
   def update_application
@@ -112,8 +111,6 @@ class HomeController < AuthenticatedController
     
     @application.max_tries = app[:max_tries]
     @application.interface = app[:interface]
-    
-    @application.configuration ||= {}
     
     if not app[:configuration].nil?
       cfg = app[:configuration]
@@ -140,13 +137,12 @@ class HomeController < AuthenticatedController
   
   def edit_application_ao_routing
     @application = flash[:application] if not flash[:application].nil?
-    @application.configuration ||= {} if not @application.nil?
   end
   
   def update_application_ao_routing
     app = params[:application]
-    @application.ao_routing = app[:ao_routing]
-    @application.ao_routing_test = app[:ao_routing_test]
+    @application.configuration[:ao_routing] = app[:ao_routing]
+    @application.configuration[:ao_routing_test] = app[:ao_routing_test]
     if !@application.save
       @application.clear_password
       flash[:application] = @application
@@ -159,13 +155,12 @@ class HomeController < AuthenticatedController
   
   def edit_application_at_routing
     @application = flash[:application] if not flash[:application].nil?
-    @application.configuration ||= {} if not @application.nil?
   end
   
   def update_application_at_routing
     app = params[:application]
-    @application.at_routing = app[:at_routing]
-    @application.at_routing_test = app[:at_routing_test]
+    @application.configuration[:at_routing] = app[:at_routing]
+    @application.configuration[:at_routing_test] = app[:at_routing_test]
     if !@application.save
       @application.clear_password
       flash[:application] = @application
