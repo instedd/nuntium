@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100121054914) do
+ActiveRecord::Schema.define(:version => 20100125150430) do
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -46,9 +46,9 @@ ActiveRecord::Schema.define(:version => 20100121054914) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "salt"
-    t.integer  "max_tries",     :default => 3,     :null => false
-    t.string   "interface",     :default => "rss"
-    t.string   "configuration"
+    t.integer  "max_tries",                    :default => 3,     :null => false
+    t.string   "interface",                    :default => "rss"
+    t.text     "configuration", :limit => 255
   end
 
   create_table "at_messages", :force => true do |t|
@@ -73,11 +73,11 @@ ActiveRecord::Schema.define(:version => 20100121054914) do
     t.integer  "application_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "configuration"
+    t.text     "configuration",  :limit => 255
     t.string   "protocol"
     t.integer  "direction"
-    t.boolean  "enabled",        :default => true
-    t.integer  "metric",         :default => 100
+    t.boolean  "enabled",                       :default => true
+    t.integer  "metric",                        :default => 100
   end
 
   create_table "clickatell_message_parts", :force => true do |t|
