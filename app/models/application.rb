@@ -192,7 +192,7 @@ class Application < ActiveRecord::Base
           assert.simulate_dummy
         end
       rescue Exception => e
-        self.errors.add(has_test ? :ao_routing_test : :ao_routing, "error: #{e.inspect}")
+        self.errors.add(has_test ? :ao_routing_test : :ao_routing, "error: #{fix_error(e.inspect)}")
       end
     end
   end
@@ -209,9 +209,17 @@ class Application < ActiveRecord::Base
           assert.simulate_dummy
         end
       rescue Exception => e
-        self.errors.add(has_test ? :at_routing_test : :at_routing, "error: #{e.inspect}")
+        puts '!!!!'
+        puts e.message
+        self.errors.add(has_test ? :at_routing_test : :at_routing, "error: #{fix_error(e.message)}")
       end
     end
+  end
+  
+  # If many dots are sent to a validation error, an "interning empty string" error
+  # happens. This is a hack/fix for this.
+  def fix_error(msg)
+    msg.gsub('.', ' ')
   end
 end
 
