@@ -92,13 +92,15 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "ao routing select channel by name" do
     app = Application.new(:name => 'app', :password => 'foo')
-    app.configuration[:ao_routing] = "msg.route_to_channel 'Dos'"
     app.save!
     
     chan1 = new_channel app, 'Uno'
     chan2 = new_channel app, 'Dos'
     chan2.metric = chan1.metric + 100
     chan2.save!
+    
+    app.configuration[:ao_routing] = "msg.route_to_channel 'Dos'"
+    app.save!
     
     msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
     app.route(msg, 'test')
@@ -112,7 +114,6 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "ao routing select channel by array" do
     app = Application.new(:name => 'app', :password => 'foo')
-    app.configuration[:ao_routing] = "msg.route_to_any_channel 'Dos', 'Tres'"
     app.save!
     
     chan1 = new_channel app, 'Uno'
@@ -122,6 +123,9 @@ class ApplicationTest < ActiveSupport::TestCase
     chan3 = new_channel app, 'Tres'
     chan3.metric = chan1.metric + 90
     chan3.save!
+    
+    app.configuration[:ao_routing] = "msg.route_to_any_channel 'Dos', 'Tres'"
+    app.save!
     
     msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
     app.route(msg, 'test')
@@ -135,7 +139,6 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "ao routing change application" do
     app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.configuration[:ao_routing] = "msg.route_to_application 'app2'"
     app1.save!
     
     app2 = Application.create!(:name => 'app2', :password => 'foo')
@@ -143,6 +146,9 @@ class ApplicationTest < ActiveSupport::TestCase
     chan1 = new_channel app1, 'Uno'
     chan2 = new_channel app1, 'Dos'
     chan3 = new_channel app2, 'Tres'
+    
+    app1.configuration[:ao_routing] = "msg.route_to_application 'app2'"
+    app1.save!
     
     msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
     app1.route(msg, 'test')
@@ -156,13 +162,15 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "ao routing copy in two channels" do
     app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.configuration[:ao_routing] = "msg.copy{|x| x.from = 'UNO'; x.route_to_channel 'Uno'}; msg.copy{|x| x.from = 'DOS'; x.route_to_channel 'Dos'};"
     app1.save!
     
     app2 = Application.create!(:name => 'app2', :password => 'foo')
     
     chan1 = new_channel app1, 'Uno'
     chan2 = new_channel app1, 'Dos'
+    
+    app1.configuration[:ao_routing] = "msg.copy{|x| x.from = 'UNO'; x.route_to_channel 'Uno'}; msg.copy{|x| x.from = 'DOS'; x.route_to_channel 'Dos'};"
+    app1.save!
     
     msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
     app1.route(msg, 'test')

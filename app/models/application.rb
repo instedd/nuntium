@@ -452,17 +452,34 @@ class MessageRouterTester
   
   def route_to_channel(name)
     check_already_routed
+    check_channel_names([name])
     @assert.events.push(:kind => :route_to_channel, :msg => @msg, :args => name)
   end
   
   def route_to_any_channel(*names)
     check_already_routed
+    check_channel_names(names)
     @assert.events.push(:kind => :route_to_any_channel, :msg => @msg, :args => names)
   end
   
   def route_to_application(name)
     check_already_routed
+    check_application_name(name)
     @assert.events.push(:kind => :route_to_application, :msg => @msg, :args => name)
+  end
+  
+  def check_channel_names(names)
+    names.each do |name|
+      if Channel.find_by_name(name).nil?
+        @assert.application.errors.add(:ao_routing, "failed: channel with name '#{name}' does not exist")
+      end
+    end
+  end
+  
+  def check_application_name(name)
+    if Application.find_by_name(name).nil?
+      @assert.application.errors.add(:ao_routing, "failed: application with name '#{name}' does not exist")
+    end
   end
   
   def check_already_routed
