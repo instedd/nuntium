@@ -46,8 +46,16 @@ class Pop3ChannelHandler < ChannelHandler
     "#{c[:user]}@#{c[:host]}:#{c[:port]}"
   end
 
-  def after_create
+  def on_enable
     @channel.create_task('pop3-receive', POP3_RECEIVE_INTERVAL, ReceivePop3MessageJob.new(@channel.application_id, @channel.id))
+  end
+  
+  def on_disable
+    @channel.drop_task('pop3-receive')
+  end
+  
+  def on_destroy
+    on_disable  
   end
   
 end

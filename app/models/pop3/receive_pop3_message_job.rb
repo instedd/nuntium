@@ -12,6 +12,7 @@ class ReceivePop3MessageJob
   end
   
   def perform
+    application = Application.find @application_id
     channel = Channel.find @channel_id
     config = channel.configuration
     
@@ -35,17 +36,14 @@ class ReceivePop3MessageJob
       
       tmail.to.each do |receiver|
         msg = ATMessage.new
-        msg.application_id = @application_id
         msg.from = 'mailto://' + tmail.from[0]
         msg.to = 'mailto://' + receiver
         msg.subject = tmail.subject
         msg.body = tmail_body
         msg.channel_relative_id = tmail.message_id
         msg.timestamp = tmail.date
-        msg.state = 'queued'
-        msg.save
         
-        logger.at_message_received_via_channel msg, channel
+        application.accept msg, channel
       end
       
       mail.delete

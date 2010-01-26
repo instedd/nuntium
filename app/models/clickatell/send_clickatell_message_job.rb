@@ -42,7 +42,13 @@ class SendClickatellMessageJob
     result = ''
     begin
       response = request.get(uri)
-      result = response.body[4 ... response.body.length]
+      if response.body[0..2] == "ID:"
+         msg.channel_relative_id = response.body[4..-1]
+      elsif response.body[0..3] == "ERR:"
+        raise response.body[5..-1]
+      else
+        raise response.body
+      end
     rescue => e
       msg.tries += 1
       msg.save

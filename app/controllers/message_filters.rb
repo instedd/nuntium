@@ -24,18 +24,18 @@ module MessageFilters
     search = Search.new(search)
     conds = ['application_id = :application_id', { :application_id => @application.id }]
     if !search.search.nil?
-      conds[0] += ' AND ([id] = :search_exact OR [guid] = :search_exact OR [channel_relative_id] = :search_exact OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search)'
+      conds[0] += ' AND ([id] = :search_exact OR [guid] LIKE :search OR [channel_relative_id] LIKE :search OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search)'
       conds[1][:search_exact] = search.search
       conds[1][:search] = '%' + search.search + '%'
     end
     
-    [:id, :guid, :channel_relative_id, :tries].each do |sym|
+    [:id, :tries].each do |sym|
       if !search[sym].nil?
         conds[0] += " AND [#{sym}] = :#{sym}"
         conds[1][sym] = search[sym]
       end
     end
-    [:from, :to, :subject, :body, :state].each do |sym|
+    [:guid, :channel_relative_id, :from, :to, :subject, :body, :state].each do |sym|
       if !search[sym].nil?
         conds[0] += " AND [#{sym}] LIKE :#{sym}"
         conds[1][sym] = '%' + search[sym] + '%'
@@ -55,6 +55,15 @@ module MessageFilters
         conds[0] += ' AND timestamp <= :before'
         conds[1][:before] = before
       rescue
+      end
+    end
+    if !search[:channel].nil?
+      channel = Channel.find_by_name search[:channel]
+      if !channel.nil?
+        conds[0] += ' AND channel_id = :channel_id'
+        conds[1][:channel_id] = channel.id
+      else
+        conds[0] += ' AND 0'
       end
     end
     conds

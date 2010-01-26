@@ -221,7 +221,7 @@ include Net
   end
   
   def test_failed_when_no_url
-    app = create_app_with_interface('myapp', 'mypass', 'qst', {})
+    app = create_app_with_interface('myapp', 'mypass', 'qst_client', {})
     msgs = sample_messages(app)
     setup_null_http app
     
@@ -339,7 +339,6 @@ include Net
         setup_http app,
           :expects_post => false, 
           :expects_head => false
-        puts "Setup null http"
       else
         setup_http app, 
           :msgs_posted => (current...current+10), 
@@ -350,9 +349,6 @@ include Net
         lapse += 10
         
         set_current_time(base_time + lapse)
-        
-        puts "Time is #{Time.now.utc}" 
-        puts "Current is #{current}"
       end
     end
     
@@ -373,11 +369,11 @@ include Net
   end
   
   def setup_app(cfg = {})
-    create_app_with_interface('app', 'pass', 'qst', { :last_at_guid => nil, :url => 'http://example.com', :cred_user => 'theuser', :cred_pass => 'thepass' }.merge(cfg))
+    create_app_with_interface('app', 'pass', 'qst_client', { :last_at_guid => nil, :url => 'http://example.com', :cred_user => 'theuser', :cred_pass => 'thepass' }.merge(cfg))
   end
   
   def setup_app_unauth(cfg = {})
-    create_app_with_interface('app', 'pass', 'qst', { :last_at_guid => nil, :url => 'http://example.com'}.merge(cfg))
+    create_app_with_interface('app', 'pass', 'qst_client', { :last_at_guid => nil, :url => 'http://example.com'}.merge(cfg))
   end
   
   def setup_null_http(app)

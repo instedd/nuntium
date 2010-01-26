@@ -9,13 +9,8 @@ class HomeControllerTest < ActionController::TestCase
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
     
-    # App was saved in session
-    assert_equal app.id, session[:application].id
-    assert_equal app.name, session[:application].name
-    
-    # But salt and password are not
-    assert_nil session[:application].salt
-    assert_nil session[:application].password
+    # App id was saved in session
+    assert_equal app.id, session[:application_id]
   end
   
   test "create app succeeds" do
@@ -33,18 +28,13 @@ class HomeControllerTest < ActionController::TestCase
     assert(apps[0].authenticate('app_pass'))
     
     # App was saved in session
-    assert_equal app.id, session[:application].id
-    assert_equal app.name, session[:application].name
-    
-    # But salt and password are not
-    assert_nil session[:application].salt
-    assert_nil session[:application].password
+    assert_equal app.id, session[:application_id]
   end
   
   test "edit app succeeds" do
     app = Application.create({:name => 'app', :password => 'app_pass', :interface => 'rss' })
     
-    get :update_application, {:application => {:max_tries => 1, :interface => 'qst', :configuration => { :url => 'myurl' }, :password => '', :password_confirmation => ''}}, {:application => app}
+    get :update_application, {:application => {:max_tries => 1, :interface => 'qst_client', :configuration => { :url => 'myurl' }, :password => '', :password_confirmation => ''}}, {:application_id => app.id}
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -57,17 +47,12 @@ class HomeControllerTest < ActionController::TestCase
     app = apps[0]
     assert_equal 1, app.max_tries
     assert(app.authenticate('app_pass'))
-    
-    # The session's app was changed
-    assert_equal 1, session[:application].max_tries
-    assert_equal 'qst', session[:application].interface
-    assert_equal 'myurl', session[:application].configuration[:url]
   end
   
   test "edit app change password succeeds" do
     app = Application.create({:name => 'app', :password => 'app_pass', :interface => 'rss'})
     
-    get :update_application, {:application => {:max_tries => 3, :interface => 'rss', :password => 'new_pass', :password_confirmation => 'new_pass'}}, {:application => app}
+    get :update_application, {:application => {:max_tries => 3, :interface => 'rss', :password => 'new_pass', :password_confirmation => 'new_pass'}}, {:application_id => app.id}
     
     # Go to app home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -83,7 +68,7 @@ class HomeControllerTest < ActionController::TestCase
 
   test "home" do
     app = Application.create({:name => 'app', :password => 'app_pass'});
-    get :home, {}, {:application => app}
+    get :home, {}, {:application_id => app.id}
     assert_template 'home/home.html.erb'
   end
   
@@ -93,13 +78,13 @@ class HomeControllerTest < ActionController::TestCase
   
   test "edit app fails with max tries" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
-    get :update_application, {:application => {:max_tries => 'foo', :password => '', :password_confirmation => ''}}, {:application => app}
+    get :update_application, {:application => {:max_tries => 'foo', :password => '', :password_confirmation => ''}}, {:application_id => app.id}
     assert_redirected_to(:controller => 'home', :action => 'edit_application')
   end
   
   test "edit app fails with invalid interface" do
     app = Application.create({:name => 'app', :password => 'app_pass', :interface => 'rss'})
-    get :update_application, {:application => {:max_tries => '1', :interface => 'invalid' , :password => '', :password_confirmation => ''}}, {:application => app}
+    get :update_application, {:application => {:max_tries => '1', :interface => 'invalid' , :password => '', :password_confirmation => ''}}, {:application_id => app.id}
     assert_redirected_to(:controller => 'home', :action => 'edit_application')
   end
   

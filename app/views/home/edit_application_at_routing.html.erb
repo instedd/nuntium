@@ -1,0 +1,56 @@
+<h4>Edit AT Messages routing</h4>
+
+<% form_for :application, :url => { :controller => 'home', :action => :update_application_at_routing } do |f| %>
+  <%= f.error_messages %>
+  <% f.fields_for :configuration do |c| %>  
+  <table>
+    <tr valign="top">
+      <td><%= c.text_area :at_routing, :rows => 13, :cols => 60, :wrap => 'off', :value => @application.configuration[:at_routing] %></td>
+      <td>
+        <div style="width:600px; height:210px; overflow:auto; background-color: #E5ECF9; padding:8px;">
+          <p>You can apply custom logic to incoming AT Messages by defining <b>the contents</b> of a function
+          with signature <b><code>def at_routing(msg)</code></b>.</p>
+          <p>Each <code>msg</code> is:</p>
+          <pre class="example">class Message
+  attr_accessor :from, :to, :subject, :body, :guid, :timestamp
+  attr_accessor :channel, :application
+end</pre>
+          <p>You can query and modify any of <code>Message</code>'s accessors.</p>
+          <p><b>Note</b>: <code>channel</code> will be <code>nil</code> if the message is created from the user interface.</p>
+          <h3>String extensions</h3>
+          <p>Methods added to the String class:</p>
+          <ul>
+            <li><code>protocol</code>: returns the string's protocol</li>
+            <li><code>with_protocol(protocol)</code>: adds or replaces the string's protocol</li>
+            <li><code>without_protocol</code>: returns the string without the protocol</li>
+            <li><code>starts_with?(str)</code>: does the string start with <code>str</code?</li>
+          </ul>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">Test</td>
+    </tr>
+    <tr valign="top">
+      <td><%= c.text_area :at_routing_test, :rows => 10, :cols => 60, :wrap => 'off', :value => @application.configuration[:at_routing_test] %></td>
+      <td>
+        <div style="width:600px; height:180px; overflow:auto; background-color: #E5ECF9; padding:0px 8px 0px 8px;">
+          <h3>Test your routing!</h3>
+          <p>The original hash builds the message to route and the expected hash is used to assert properties
+          of the routed messages at the end of routing logic.</p>
+          <ul>
+            <li><code><b>assert.transform</b>(original, expected, channel_name = nil)</code>: asserts that the
+              original message was transformed to the expected one. If a channel name is provided then
+              <code>msg.channel.name</code> will have that value.
+              <pre class="example">assert.transform({:from => 'in'}, {:from => 'out'})
+assert.transform({:from => 'in'}, {:from => 'out'}, 'FromChannelName')</pre>
+            </li>
+          </ul>
+      </td>
+    </tr>
+  </table>
+	<% end %>
+  <%= submit_tag 'Update' %>
+<% end %>
+
+<%= link_to 'Go back', :controller => :home, :action => :home %>

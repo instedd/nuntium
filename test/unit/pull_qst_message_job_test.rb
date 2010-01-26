@@ -181,7 +181,7 @@ include Net
   end
   
   def setup_app(cfg = {})
-    create_app_with_interface 'app', 'pass', 'qst', 
+    create_app_with_interface 'app', 'pass', 'qst_client', 
       { :last_ao_guid => nil, 
         :url => 'http://example.com', 
         :cred_user => 'theuser', 
@@ -189,7 +189,7 @@ include Net
   end
   
   def setup_app_unauth(cfg = {})
-    create_app_with_interface  'app', 'pass', 'qst', 
+    create_app_with_interface  'app', 'pass', 'qst_client', 
       { :last_ao_guid => nil, 
         :url => 'http://example.com' }.merge(cfg)
   end

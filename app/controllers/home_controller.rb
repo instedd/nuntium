@@ -7,7 +7,7 @@ class HomeController < AuthenticatedController
   before_filter :check_login, :except => [:index, :login, :create_application]
 
   def index
-    if !session[:application].nil?
+    if !session[:application_id].nil?
       redirect_to_home
       return
     end
@@ -32,9 +32,7 @@ class HomeController < AuthenticatedController
       return
     end
     
-    @application.clear_password
-    
-    session[:application] = @application
+    session[:application_id] = @application.id
     redirect_to_home
   end
   
@@ -54,9 +52,7 @@ class HomeController < AuthenticatedController
       return
     end
     
-    new_app.clear_password
-    
-    session[:application] = new_app
+    session[:application_id] = new_app.id
     redirect_to_home
   end
   
@@ -90,11 +86,19 @@ class HomeController < AuthenticatedController
       )
       
     @channels = Channel.all(:conditions => ['application_id = ?', @application.id])
+    @channels_queued_count = {}
+    
+    AOMessage.connection.select_all(
+      "select count(*) as count, m.channel_id " +
+      "from ao_messages m, channels c " +
+      "where m.channel_id = c.id and m.application_id = #{@application.id} AND m.state = 'queued' " +
+      "group by channel_id").each do |r|
+      @channels_queued_count[r['channel_id'].to_i] = r['count'].to_i
+    end
   end
   
   def edit_application
     @application = flash[:application] if not flash[:application].nil?
-    @application.configuration ||= {} if not @application.nil?
   end
   
   def update_application
@@ -105,39 +109,72 @@ class HomeController < AuthenticatedController
       return
     end
     
-    existing_app = Application.find @application.id
-    existing_app.max_tries = app[:max_tries]
-    existing_app.interface = app[:interface]
-    
-    existing_app.configuration ||= {}
+    @application.max_tries = app[:max_tries]
+    @application.interface = app[:interface]
     
     if not app[:configuration].nil?
       cfg = app[:configuration]
-      existing_app.configuration.update({:url => cfg[:url]}) 
-      existing_app.configuration.update({:cred_user => cfg[:cred_user]}) 
-      existing_app.configuration.update({:cred_pass => cfg[:cred_pass]}) unless (cfg[:cred_pass].nil? or cfg[:cred_pass].chomp.empty?) and not (cfg[:cred_user].nil? or cfg[:cred_user].chomp.empty?)  
+      @application.configuration.update({:url => cfg[:url]}) 
+      @application.configuration.update({:cred_user => cfg[:cred_user]}) 
+      @application.configuration.update({:cred_pass => cfg[:cred_pass]}) unless (cfg[:cred_pass].nil? or cfg[:cred_pass].chomp.empty?) and not (cfg[:cred_user].nil? or cfg[:cred_user].chomp.empty?)  
     end
       
     if !app[:password].chomp.empty?
-      existing_app.salt = nil
-      existing_app.password = app[:password]
-      existing_app.password_confirmation = app[:password_confirmation]
+      @application.salt = nil
+      @application.password = app[:password]
+      @application.password_confirmation = app[:password_confirmation]
     end
     
-    if !existing_app.save
-      existing_app.clear_password
-      flash[:application] = existing_app
+    if !@application.save
+      @application.clear_password
+      flash[:application] = @application
       redirect_to :action => :edit_application
-    else    
-      existing_app.clear_password
+    else
       flash[:notice] = 'Application was changed'
-      session[:application] = existing_app
+      redirect_to_home
+    end
+  end
+  
+  def edit_application_ao_routing
+    @application = flash[:application] if not flash[:application].nil?
+  end
+  
+  def update_application_ao_routing
+    app = params[:application]
+    cfg = app[:configuration]
+    @application.configuration[:ao_routing] = cfg[:ao_routing]
+    @application.configuration[:ao_routing_test] = cfg[:ao_routing_test]
+    if !@application.save
+      @application.clear_password
+      flash[:application] = @application
+      redirect_to :action => :edit_application_ao_routing
+    else
+      flash[:notice] = 'AO messages routing was changed'
+      redirect_to_home
+    end
+  end
+  
+  def edit_application_at_routing
+    @application = flash[:application] if not flash[:application].nil?
+  end
+  
+  def update_application_at_routing
+    app = params[:application]
+    cfg = app[:configuration]
+    @application.configuration[:at_routing] = cfg[:at_routing]
+    @application.configuration[:at_routing_test] = cfg[:at_routing_test]
+    if !@application.save
+      @application.clear_password
+      flash[:application] = @application
+      redirect_to :action => :edit_application_at_routing
+    else
+      flash[:notice] = 'AT messages routing was changed'
       redirect_to_home
     end
   end
   
   def logoff
-    session[:application] = nil
+    session[:application_id] = nil
     redirect_to :action => :index
   end
 

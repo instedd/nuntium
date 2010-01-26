@@ -54,16 +54,12 @@ class ClickatellController < ApplicationController
   
   def create_message(text)
     msg = ATMessage.new
-    msg.application_id = @application.id
     msg.from = 'sms://' + params[:from]
     msg.to = 'sms://' + params[:to]
     msg.subject = Iconv.new('UTF-8', params[:charset]).iconv(text)
     msg.channel_relative_id = params[:moMsgId]
     msg.timestamp = get_timestamp
-    msg.state = 'queued'
-    msg.save!
-    
-    @application.logger.at_message_received_via_channel msg, @channel
+    @application.accept msg, @channel
   end
   
   def get_timestamp

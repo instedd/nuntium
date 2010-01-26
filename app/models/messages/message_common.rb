@@ -1,6 +1,6 @@
 require 'guid'
 
-module Message
+module MessageCommon
 
   def self.included(base)
     base.extend(ClassMethods)
@@ -37,6 +37,7 @@ module Message
     end
   end
 
+
   module ClassMethods
     # Given a collection of messages serializes them to a single document
     def write_xml(msgs)
@@ -70,4 +71,47 @@ module Message
     end
     
   end
+end
+
+# TODO: This should not be here...
+class String
+  # Returns this string's protocol or '' if it doesn't have one.
+  #   'sms://foobar'.protocol => 'sms'
+  #   'foobar'.protocol => ''
+  def protocol
+    i = self.index '://'
+    if i.nil?
+      ''
+    else
+      self[0 ... i]
+    end
+  end
+  
+  # Returns this string without the protocol part.
+  #   'sms://foobar'.without_protocol => 'foobar'
+  #   'foobar'.without_protocol => 'foobar'
+  def without_protocol
+    i = self.index '://'
+    if i.nil?
+      self
+    else
+      self[i + 3 ... self.length]
+    end
+  end
+  
+  def with_protocol(protocol)
+    i = self.index '://'
+    if i.nil?
+      protocol.to_s + '://' + self
+    elsif self.protocol != protocol
+      protocol.to_s + '://' + self.without_protocol
+    else
+      self
+    end
+  end
+  
+  def starts_with?(str)
+    self[0...str.length] == str
+  end
+  
 end

@@ -1,4 +1,4 @@
-class QstChannelHandler < ChannelHandler
+class QstServerChannelHandler < ChannelHandler
   def handle(msg)
     outgoing = QSTOutgoingMessage.new
     outgoing.channel_id = @channel.id
@@ -11,15 +11,30 @@ class QstChannelHandler < ChannelHandler
   end
   
   def check_valid
+    config = @channel.configuration
+    pass = config[:password]
+    confirm = config[:password_confirmation]
+    salt = config[:salt]
+  
     @channel.errors.add(:password, "can't be blank") if
-        @channel.configuration[:password].nil? || @channel.configuration[:password].chomp.empty?
-        
-    @channel.errors.add(:password, "doesn't match confirmation") if
-        !@channel.configuration[:password].nil? && !@channel.configuration[:password_confirmation].nil? && @channel.configuration[:password] != @channel.configuration[:password_confirmation]
+        pass.nil? || pass.chomp.empty?
+    
+    if !pass.nil? && !confirm.nil? && pass != confirm
+      if !pass.nil? and !salt.nil?
+        confirm = Digest::SHA2.hexdigest(salt + confirm)
+        if !pass.nil? && !confirm.nil? && pass != confirm
+          @channel.errors.add(:password, "doesn't match confirmation")
+        end
+      else
+        @channel.errors.add(:password, "doesn't match confirmation")
+      end
+    end  
   end
   
   def update(params)
     @channel.protocol = params[:protocol]
+    @channel.direction = params[:direction]
+    
     if !params[:configuration][:password].chomp.empty?
       @channel.configuration[:salt] = nil
       @channel.configuration[:password] = params[:configuration][:password]

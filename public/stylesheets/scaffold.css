@@ -52,6 +52,10 @@ a:hover { color: #fff; background-color:#000; }
   list-style: square;
 }
 
+img {
+  border: 0px;
+}
+
 h4 {
   color: white;
   text-decoration: none;
@@ -72,18 +76,18 @@ h4 a:hover {
   text-decoration: none;
 }
 
-table.messages {
+table.table {
   padding: 0px;
   border: 0px;
 }
 
-.messages td {
+.table td {
   border: 0px;
   padding: 1px;
   background-color: #EFEFEF;
 }
 
-.messages th  {
+.table th  {
   border: 0px;
   padding: 1px;
   background-color: #BCD1DA;
@@ -99,4 +103,11 @@ table.messages {
 
 acronym {
   border-bottom: 1px dashed black;
+}
+
+.example {
+  background-color: white;
+  border: 2px solid #6192A7;
+  padding: 10px;
+  font-size: 11px;
 }

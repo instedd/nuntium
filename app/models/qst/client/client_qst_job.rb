@@ -14,17 +14,17 @@ module ClientQstJob
   end
   
   # Initialize http connection
-  def create_http(app, target=nil)
+  def create_http(cfg, target=nil)
     begin
-      uri = URI.parse(app.configuration[:url]) 
+      uri = URI.parse(cfg.url) 
       http = Net::HTTP.new(uri.host, uri.port)
       if uri.scheme == 'https'
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
     rescue => e
-      app.logger.error_initializing_http e
-      app.set_last_at_guid nil
+      cfg.logger.error_initializing_http e
+      cfg.set_last_at_guid nil
       return nil, nil
     else
       path = uri.path
@@ -44,9 +44,24 @@ module ClientQstJob
     elsif app.configuration.nil? or app.configuration[:url].nil?
       RAILS_DEFAULT_LOGGER.warn "Validate application for QST: no url found in application configuration for pushing/pulling messages in application #{app.name}"
       return :error_no_url_in_configuration
-    elsif not app.interface == 'qst'
+    elsif not app.interface == 'qst_client'
       RAILS_DEFAULT_LOGGER.warn "Validate application for QST: found interface #{app.interface} when expecting qst in application #{app.name}"
       return :error_wrong_interface
+    end
+    nil
+  end
+
+  # Validates channel for QST
+  def validate_channel(channel)
+    if channel.nil?
+      RAILS_DEFAULT_LOGGER.warn 'Validate channel for QST: channel not found'
+      return :error_no_channel
+    elsif not channel.enabled
+      RAILS_DEFAULT_LOGGER.warn "Validate channel for QST: channel #{channel.id} is disabled"
+      return :error_channel_disabled
+    elsif channel.configuration.nil? or channel.configuration[:url].nil?
+      RAILS_DEFAULT_LOGGER.warn "Validate channel for QST: no url found in channel configuration for pushing/pulling messages in channel #{channel.id}"
+      return :error_no_url_in_configuration
     end
     nil
   end

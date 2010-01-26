@@ -2,7 +2,7 @@
 <div style="border:1px solid black; background:#FFF1A8; padding:4px; font-weight:bold"><%= flash[:notice] %></div>
 <% end %>
 
-<h4><%= js 'Interactions', "toggle('interactions')" %></h4>
+<h4><%= link_to_function 'Interactions', "toggle('interactions')" %></h4>
 
 <div id="interactions" style="display:none">
 <% if @channels.empty? %>
@@ -13,8 +13,8 @@
   <%
   if @application.interface == 'rss'
     %>
-    <div><b>Via <a href="http://en.wikipedia.org/wiki/RSS" target="_blank">RSS</a></b></div>
-    Use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Http Basic Authentication</a> with application credentials.
+    <div><b>Via <%= link_to 'RSS', 'http://en.wikipedia.org/wiki/RSS', :target => '_blank' %>"</b></div>
+    Use <%= link_to 'Http Basic Authentication', 'http://en.wikipedia.org/wiki/Basic_access_authentication', :target => '_blank' %> with application credentials.
     
     <ul>
       <li><span style="font-family:monospace">POST <%= url_for :controller => :rss, :action => :create %></span>: 
@@ -25,9 +25,9 @@
     <%
   end
   %>
-  <% if !@channels.select {|c| c.kind == 'qst'}.empty? %>
-    <div><b>Via <a href="http://code.google.com/p/geochat/wiki/QueueStateTransfer" target="_blank">QueueStateTransfer</a></b></div>
-    Use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Http Basic Authentication</a> with channel credentials.
+  <% if !@channels.select {|c| c.kind == 'qst_server'}.empty? %>
+    <div><b>Via <%= link_to 'QueueStateTransfer', 'http://code.google.com/p/geochat/wiki/QueueStateTransfer', :target => '_blank' %></b></div>
+    Use <%= link_to 'Http Basic Authentication', 'http://en.wikipedia.org/wiki/Basic_access_authentication', :target => '_blank' %> with channel credentials.
     
     <ul>
       <li><span style="font-family:monospace">GET <%= url_for :controller => :outgoing, :action => :index, :application_id => @application.name %></span>:
@@ -40,8 +40,8 @@
   <% end %>
   
   <% if !@channels.select {|c| c.kind == 'clickatell'}.empty? %>
-    <div><b>Via <a href="http://www.clickatell.com/" target="_blank">Clickatell</a></b></div>
-    Use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Http Basic Authentication</a> with channel name and incoming password.
+    <div><b>Via <%= link_to 'Clickatell', 'http://www.clickatell.com', :target => '_blank' %></b></div>
+    Use <%= link_to 'Http Basic Authentication', 'http://en.wikipedia.org/wiki/Basic_access_authentication', :target => '_blank' %> with channel name and incoming password.
     
     <ul>
       <li><span style="font-family:monospace">GET <%= url_for :controller => :clickatell, :action => :index, :application_id => @application.name %></span>:
@@ -53,34 +53,56 @@
 <% end %>
 </div>
 
-<h4><%= js 'Settings', "toggle('settings')" %></h4>
+<h4><%= link_to_function 'Settings', "toggle('settings')" %></h4>
 
 <div id="settings" style="display:none">
 <ul>
-  <li>Interface: <img src="/images/icon_<%= @application.interface %>.png" width="16" height="16" style="position:relative; top:2px" alt="<%= @application.interface %>"/> <%= @application.interface_description %></li>
+  <li>Interface: <%= @application.interface_description %></li>
   <li>Max tries: <%= @application.max_tries %></li>
 </ul>
 
 <ul>
   <li><%= link_to "Edit settings / Change password", :controller => :home, :action => :edit_application %></li>
+  <li><%= link_to "Edit AO Messages routing", :controller => :home, :action => :edit_application_ao_routing %></li>
+  <li><%= link_to "Edit AT Messages routing", :controller => :home, :action => :edit_application_at_routing %></li>
 </ul>
 </div>
 
-<h4><%= js 'Channels', "toggle('channels')" %></h4>
+<h4><%= link_to_function 'Channels', "toggle('channels')" %></h4>
 
 <div id="channels">
 <% if @channels.empty? %>
   No channels.
 <% else %>
-  <table>
+  <table class="table" cellspacing="4">
+    <tr>
+      <th>Name</th>
+      <th>Kind</th>
+      <th>Direction</th>
+      <th>Protocol</th>
+      <th>Info</th>
+      <th>Queued AO Messages</th>
+      <th></th>
+    </tr>
     <% @channels.each do |chan| %>
       <tr>
-        <td><img src="/images/icon_<%= chan.kind %>.png" width="16" height="16" style="position:relative; top:1px" alt="<%= chan.kind %>"/></td>
-        <td><b><%= chan.name %></b></td>
-        <td><%= chan.protocol %>://...</td>
+        <td>
+          <%= image_tag (chan.enabled ? 'enabled' : 'disabled') + '.png', :size => '16x16', :style => 'position:relative; top:1px', :title => 'This channel is ' + (chan.enabled ? 'enabled' : 'disabled') %>
+          <b><%= chan.name %></b></td>
+        <td><%= chan.kind %></td>
+        <td><%= chan.direction_text %></td>
+        <td><%= chan.protocol %></td>
         <td><%= chan.info.blank? ? '' : "(#{chan.info})" %></td>
-        <td><%= link_to "edit", :controller => :channel, :action => :edit_channel, :id => chan.id %></td>
-        <td><%= js 'delete', "delete_channel(#{chan.id}, '#{h chan.name}')" %></td>
+        <td align="right"><%= @channels_queued_count.include?(chan.id) ? @channels_queued_count[chan.id] : '0' %></td>
+        <td>
+          <% if chan.enabled %>
+            <%= link_to "disable", :controller => :channel, :action => :disable_channel, :id => chan.id %>
+          <% else %>
+            <%= link_to "enable", :controller => :channel, :action => :enable_channel, :id => chan.id %>
+          <% end %>
+          <%= link_to "edit", :controller => :channel, :action => :edit_channel, :id => chan.id %>
+          <%= link_to_function 'delete', "delete_channel(#{chan.id}, '#{h chan.name}')" %>
+        </td>
       </tr>
     <% end %>
   </table>
@@ -90,13 +112,14 @@
 <%= link_to "Create new Clickatell channel", :controller => :channel, :action => :new_channel, :kind => 'clickatell' %><br/>
 <%= link_to "Create new DTAC channel", :controller => :channel, :action => :new_channel, :kind => 'dtac' %><br/>
 <%= link_to "Create new POP3 channel", :controller => :channel, :action => :new_channel, :kind => 'pop3' %><br/>
-<%= link_to "Create new QST channel", :controller => :channel, :action => :new_channel, :kind => 'qst' %><br/>
+<%= link_to "Create new QST client channel", :controller => :channel, :action => :new_channel, :kind => 'qst_client' %><br/>
+<%= link_to "Create new QST server channel", :controller => :channel, :action => :new_channel, :kind => 'qst_server' %><br/>
 <%= link_to "Create new SMTP channel", :controller => :channel, :action => :new_channel, :kind => 'smtp' %><br/>
 <%= link_to "Create new Twitter channel", :controller => :channel, :action => :new_channel, :kind => 'twitter' %><br/>
 <%= link_to "Create new SMPP channel", :controller => :channel, :action => :new_channel, :kind => 'smpp' %>
 </div>
 
-<h4><%= js 'Last Application Originated Messages', "toggle('last_ao_messages')" %></h4>
+<h4><%= link_to_function 'Last Application Originated Messages', "toggle('last_ao_messages')" %></h4>
 
 <div id="last_ao_messages">
 <form id="ao_messages_form">
@@ -108,8 +131,8 @@
 
 <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AO Message">Create new AO Message', :controller => :message, :action => :new_ao_message %> &nbsp; &nbsp;
 Search: <input type="text" name="ao_search" value="<%= h @ao_search %>" size="50" /> <acronym title="You can filter by field like 'id:5', 'before:&quot;2007-06-03 09:39:21 UTC&quot;', 'state:queued', etc.">?</acronym> &nbsp; &nbsp;
-Select: <%= js 'all', 'select_all_ao_messages()' %>, <%= js 'none', 'select_none_ao_messages()' %> &nbsp; &nbsp;
-Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
+Select: <%= link_to_function 'all', 'select_all_ao_messages()' %>, <%= link_to_function 'none', 'select_none_ao_messages()' %> &nbsp; &nbsp;
+Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
 
 <%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_search => @ao_search } %>
 
@@ -123,7 +146,7 @@ Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
 <% if @ao_messages.empty? %>
   <div>No messages.</div>
 <% else %>
-  <table border="1" class="messages">
+  <table border="1" class="table">
     <tr>
       <th></th>
       <th>When</th>
@@ -134,25 +157,30 @@ Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
       <th>To</th>
       <th>Subject</th>
       <th>Body</th>
+      <th>In channel</th>
       <th>Tries</th>
       <th>State</th>
       <th></th>
     </tr>
     <tr>
     <% @ao_messages.each do |msg| %>
+      <%
+      chan = @channels.select{|x| msg.channel_id == x.id}
+      %>
       <tr>
-        <td><input type="checkbox" name="ao_messages[]" value="<%= msg.id %>" <% if !params[:ao_messages].nil? && params[:ao_messages].include?(msg.id.to_s); %>checked="checked"<% end; %>/></td>
-        <td><%= msg.timestamp %></td>
-        <td><%= msg.id %></td>
+        <td><input type="checkbox" name="ao_messages[]" value="<%= msg.id %>" <%= 'checked="checked"' if !params[:ao_messages].nil? && params[:ao_messages].include?(msg.id.to_s) %>/></td>
+        <td><%= time_ago msg.timestamp %></td>
+        <td align="right"><%= msg.id %></td>
         <td><%= short_html msg.guid %></td>
         <td><%= short_html msg.channel_relative_id %></td>
         <td><%= msg.from %></td>
         <td><%= msg.to %></td>
         <td><%= short_html msg.subject %></td>
         <td><%= short_html msg.body %></td>
-        <td><%= msg.tries %></td>
+        <td><%= chan.length > 0 ? chan[0].name : '' %></td>
+        <td align="right"><%= msg.tries %></td>
         <td><%= msg.state %></td>
-        <td><%= js 'view log', "view_ao_message_log(#{msg.id})" %></td>
+        <td><%= link_to_function 'view log', "view_ao_message_log(#{msg.id})" %></td>
       </tr>
     <% end %>
   </table>
@@ -162,7 +190,7 @@ Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
 <%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_search => @ao_search } %>
 </div>
 
-<h4><%= js 'Last Application Terminated Messages', "toggle('last_at_messages')" %></h4>
+<h4><%= link_to_function 'Last Application Terminated Messages', "toggle('last_at_messages')" %></h4>
 
 <div id="last_at_messages">
 <form id="at_messages_form">
@@ -174,8 +202,8 @@ Actions: <%= js 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>
 
 <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AT Message">Create new AT Message', :controller => :message, :action => :new_at_message %> &nbsp; &nbsp;
 Search: <input type="text" name="at_search" value="<%= h @at_search %>" size= "50" /> <acronym title="You can filter by field like 'id:5', 'before:&quot;2007-06-03 09:39:21 UTC&quot;', 'state:queued', etc.">?</acronym> &nbsp; &nbsp;
-Select: <%= js 'all', 'select_all_at_messages()' %>, <%= js 'none', 'select_none_at_messages()' %> &nbsp; &nbsp;
-Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
+Select: <%= link_to_function 'all', 'select_all_at_messages()' %>, <%= link_to_function 'none', 'select_none_at_messages()' %> &nbsp; &nbsp;
+Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
 
 <%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_search => @at_search } %>
 
@@ -184,7 +212,7 @@ Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
 <% if @at_messages.empty? %>
   <div>No messages.</div>
 <% else %>
-  <table border="1" class="messages">
+  <table border="1" class="table">
     <tr>
       <th></th>
       <th>When</th>
@@ -195,25 +223,30 @@ Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
       <th>To</th>
       <th>Subject</th>
       <th>Body</th>
+      <th>In channel</th>
       <th>Tries</th>
       <th>State</th>
       <th></th>
     </tr>
     <tr>
     <% @at_messages.each do |msg| %>
+      <%
+      chan = @channels.select{|x| msg.channel_id == x.id}
+      %>
       <tr>
-        <td><input type="checkbox" name="at_messages[]" value="<%= msg.id %>" <% if !params[:at_messages].nil? && params[:at_messages].include?(msg.id.to_s); %>checked="checked"<% end; %>/></td>
-        <td><%= msg.timestamp %></td>
-        <td><%= msg.id %></td>
+        <td><input type="checkbox" name="at_messages[]" value="<%= msg.id %>" <%= 'checked="checked"' if !params[:at_messages].nil? && params[:at_messages].include?(msg.id.to_s) %>/></td>
+        <td><%= time_ago msg.timestamp %></td>
+        <td align="right"><%= msg.id %></td>
         <td><%= short_html msg.guid %></td>
         <td><%= short_html msg.channel_relative_id %></td>
         <td><%= msg.from %></td>
         <td><%= msg.to %></td>
         <td><%= short_html msg.subject %></td>
         <td><%= short_html msg.body %></td>
-        <td><%= msg.tries %></td>
+        <td><%= chan.length > 0 ? chan[0].name : '' %></td>
+        <td align="right"><%= msg.tries %></td>
         <td><%= msg.state %></td>
-        <td><%= js 'view log', "view_at_message_log(#{msg.id})" %></td>
+        <td><%= link_to_function 'view log', "view_at_message_log(#{msg.id})" %></td>
       </tr>
     <% end %>
   </table>
@@ -223,7 +256,7 @@ Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
 </form>
 </div>
 
-<h4><%= js 'Logs', "toggle('logs')" %></h4>
+<h4><%= link_to_function 'Logs', "toggle('logs')" %></h4>
 
 <div id="logs">
 <%= will_paginate @logs, :param_name => 'logs_page' %>
@@ -231,7 +264,7 @@ Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
 <% if @logs.empty? %>
   <div>No logs.</div>
 <% else %>
-  <table border="1" class="messages">
+  <table border="1" class="table">
     <tr>
       <th>When</th>
       <th>Severity</th>
@@ -243,15 +276,13 @@ Actions: <%= js 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
     <tr>
     <% @logs.each do |log| %>
       <tr>
-        <td><%= log.created_at %></td>
+        <td><%= time_ago log.created_at %></td>
         <td><%= log.severity_html %></td>
         <td>
-          <% if !log.channel.nil? %>
-            <%= log.channel .name %>
-          <% end %>
+          <%= log.channel.name if !log.channel.nil? %>
         </td>
         <td><%= if !log.ao_message_id.nil?; link_to log.ao_message_id, :controller => :home, :action => :home, :ao_search => log.ao_message_id; end; %></td>
-        <td><%= if !log.at_message_id.nil?; link_to log.at_message_id, :controller => :home, :action => :home, :ao_search => log.at_message_id; end; %></td>
+        <td><%= if !log.at_message_id.nil?; link_to log.at_message_id, :controller => :home, :action => :home, :at_search => log.at_message_id; end; %></td>
         <td><%= short_html log.message, 100 %></td>
       </tr>
     <% end %>

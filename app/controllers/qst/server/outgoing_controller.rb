@@ -1,4 +1,4 @@
-class OutgoingController < QSTController
+class OutgoingController < QSTServerController
   # GET /qst/:application_id/outgoing
   def index
     etag = request.env['HTTP_IF_NONE_MATCH']
@@ -13,10 +13,18 @@ class OutgoingController < QSTController
     
     # If there's an etag
     if !etag.nil?
-      # Find the message in qst for that etag
-      last = QSTOutgoingMessage.first(
-        :order => :id, 
-        :conditions => ['channel_id = ? AND ao_message_id = ?', @channel.id, etag])
+	
+	  # Find the message by guid
+	  msg = AOMessage.find_by_guid(etag)
+	
+	  if msg.nil?
+	    last = nil
+	  else
+        # Find the message in qst for that etag
+        last = QSTOutgoingMessage.first(
+          :order => :id, 
+          :conditions => ['channel_id = ? AND ao_message_id = ?', @channel.id, msg.id])
+      end
         
       if !last.nil?
         # Mark messsages as delivered
@@ -60,9 +68,9 @@ class OutgoingController < QSTController
       # Logging: say that valid messages were returned and invalid no
       @ao_messages.each do |msg|
         if msg.tries >= @application.max_tries
-          @application.logger.ao_message_delivery_succeeded msg, 'qst'
+          @application.logger.ao_message_delivery_succeeded msg, 'qst_server'
         else
-          @application.logger.ao_message_delivery_exceeded_tries msg, 'qst'
+          @application.logger.ao_message_delivery_exceeded_tries msg, 'qst_server'
         end
       end
       
@@ -73,5 +81,7 @@ class OutgoingController < QSTController
     if !@ao_messages.empty?
       response.headers['ETag'] = @ao_messages.last.id
     end
+	
+	render :layout => false
   end
 end

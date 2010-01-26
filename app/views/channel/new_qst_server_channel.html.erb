@@ -1,8 +1,7 @@
-<h4>Create new QST channel</h4>
+<h4>Create new QST server channel</h4>
 
 <% form_for :channel, :url => { :controller => 'channel', :action => :create_channel, :kind => params[:kind] } do |f| %>
   <%= f.error_messages %>
-  <input type="hidden" name="direction" value="<%= Channel::Both %>" />
   <p>
   <%= f.label :name %><br/>
   <%= f.text_field :name %>
@@ -10,6 +9,14 @@
   <p>
   <%= f.label :protocol %><br/>
   <%= f.text_field :protocol %>
+  </p>
+  <p>
+  Direction:</br>
+  <select id="channel_direction" name="channel[direction]">
+    <option value="<%= Channel::Incoming %>">Incoming</option>
+    <option value="<%= Channel::Outgoing %>">Outgoing</option>
+    <option value="<%= Channel::Both %>">Bi-directional</option>
+  </select>
   </p>
   <% f.fields_for :configuration do |c| %>
     <p>

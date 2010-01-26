@@ -14,12 +14,18 @@ ActionController::Routing::Routes.draw do |map|
   map.home '/home', :controller => 'home', :action => :home
   map.edit_application '/application/edit', :controller => 'home', :action => :edit_application
   map.update_application '/application/update', :controller => 'home', :action => :update_application
+  map.edit_application_ao_routing '/application/ao_routing/edit', :controller => 'home', :action => :edit_application_ao_routing
+  map.update_application_ao_routing '/application/ao_routing/update', :controller => 'home', :action => :update_application_ao_routing
+  map.edit_application_at_routing '/application/at_routing/edit', :controller => 'home', :action => :edit_application_at_routing
+  map.update_application_at_routing '/application/at_routing/update', :controller => 'home', :action => :update_application_at_routing
   
   map.new_channel '/channel/new/:kind', :controller => 'channel', :action => :new_channel
   map.create_channel '/channel/create/:kind', :controller => 'channel', :action => :create_channel
   map.edit_channel '/channel/edit/:id', :controller => 'channel', :action => :edit_channel
   map.update_channel '/channel/update/:id', :controller => 'channel', :action => :update_channel
   map.delete_channel '/channel/delete/:id', :controller => 'channel', :action => :delete_channel  
+  map.enable_channel '/channel/enable/:id', :controller => 'channel', :action => :enable_channel  
+  map.disable_channel '/channel/disable/:id', :controller => 'channel', :action => :disable_channel  
   
   map.create_twitter_channel '/channel/create/twitter', :controller => 'twitter', :action => :create_twitter_channel, :kind => 'twitter'
   map.update_twitter_channel '/channel/update/twitter/:id', :controller => 'twitter', :action => :update_twitter_channel

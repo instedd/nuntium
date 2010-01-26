@@ -1,8 +1,9 @@
 syntax: glob
 *.log
 *.sqlite3
-*.tmp
+*.tmp*~
 *.orig
 sqlite3.dll
 vendor
 twitter_oauth_consumer.yml
+.loadpath
