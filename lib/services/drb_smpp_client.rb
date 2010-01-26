@@ -172,8 +172,8 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
   
   def createATMessage(app_id, source_addr, destination_addr, sms)
     msg = ATMessage.new
-    msg.from = 'smpp://' + source_addr
-    msg.to = 'smpp://' + destination_addr
+    msg.from = 'sms://' + source_addr
+    msg.to = 'sms://' + destination_addr
     msg.subject = sms
     #msg.body = sms
     # now?
