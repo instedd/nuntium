@@ -67,11 +67,11 @@ class Application < ActiveRecord::Base
     if !self.configuration[:ao_routing].nil? && self.configuration[:ao_routing].strip.length != 0
       # Create ao_routing function is not yet defined
       if !respond_to?(:ao_routing_function)
-        instance_eval 'def ao_routing_function(app, msg, channels, via_interface, logger);' +
-          'msg = MessageRouter.new(app, msg, channels, via_interface, logger);' +
-          self.configuration[:ao_routing] + ';' +
-          'msg.executed_action;' +
-        'end;'
+        instance_eval "def ao_routing_function(app, msg, channels, via_interface, logger);\n" +
+          "msg = MessageRouter.new(app, msg, channels, via_interface, logger);\n" +
+          self.configuration[:ao_routing] + ";\n" +
+          "msg.executed_action;\n" +
+        "end;"
       end
 
       had_actions = ao_routing_function(self, msg, channels, via_interface, logger)
@@ -99,7 +99,9 @@ class Application < ActiveRecord::Base
     if !self.configuration[:at_routing].nil? && self.configuration[:at_routing].strip.length != 0
       # Create at_routing function is not yet defined
       if !respond_to?(:at_routing_function)
-        instance_eval 'def at_routing_function(msg);' + self.configuration[:at_routing] + '; end;'
+        instance_eval "def at_routing_function(msg);\n"+ 
+          self.configuration[:at_routing] + ";\n" +
+        "end;"
       end
       
       at_routing_function msg
@@ -337,9 +339,9 @@ class MessageRouterAsserter
 
   def initialize(application)
     @application = application
-    instance_eval 'def ao_routing_function(assert, msg);' +
-          application.configuration[:ao_routing] + ';' + 
-        'end;'
+    instance_eval "def ao_routing_function(assert, msg);\n" +
+      application.configuration[:ao_routing] + ";\n" + 
+    "end;"
     @events = []
   end
 
@@ -502,9 +504,9 @@ class MessageAccepterAsserter
 
   def initialize(application)
     @application = application
-    instance_eval 'def at_routing_function(msg);' +
-          application.configuration[:at_routing] + ';' + 
-        'end;'
+    instance_eval "def at_routing_function(msg);\n" +
+      application.configuration[:at_routing] + ";\n" + 
+    "end;"
   end
 
   def transform(original, expected, channel_name = nil)

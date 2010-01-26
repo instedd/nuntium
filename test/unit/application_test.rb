@@ -200,6 +200,19 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_false app.save
   end
   
+  test "ao routing route to any channel test passes with comments in the end" do
+    app = Application.new(:name => 'app', :password => 'foo')
+    app.configuration[:ao_routing] = "msg.from = 'bar'
+    #comment"
+    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'bar'})
+    #comment" 
+    assert_true app.save
+
+    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')    
+    app.route msg, 'test'
+    assert_equal 'bar', AOMessage.all[0].from
+  end
+  
   test "ao routing route to any channel explicit test passes" do
     app = Application.new(:name => 'app', :password => 'foo')
     assert_true app.save
@@ -385,6 +398,19 @@ class ApplicationTest < ActiveSupport::TestCase
     app1.configuration[:at_routing] = "msg.from = 'foo'"
     app1.configuration[:at_routing_test] = "assert.transform({:from => 'bar'}, {:from => 'bar'})"
     assert_false app1.save
+  end
+  
+  test "at routing test passes with comments" do
+    app1 = Application.new(:name => 'app1', :password => 'foo')
+    app1.configuration[:at_routing] = "msg.from = 'foo'
+    #comment"
+    app1.configuration[:at_routing_test] = "assert.transform({:from => 'bar'}, {:from => 'foo'})
+    #comment"
+    assert_true app1.save
+    
+    chan1 = new_channel app1, 'Uno'
+    app1.accept ATMessage.new, chan1
+    assert_equal 'foo', ATMessage.first.from
   end
   
   test "at routing inspect channel in test passes" do
