@@ -87,12 +87,12 @@
     <% @channels.each do |chan| %>
       <tr>
         <td>
-          <%= image_tag (chan.enabled ? 'enabled' : 'disabled') + '.png', :size => '16x16', :style => 'position:relative; top:1px', :title => 'This channel is ' + (chan.enabled ? 'enabled' : 'disabled') %>
+          <%= image_tag (chan.enabled ? 'enabled' : 'disabled') + '.png', :size => '16x16', :style => 'position:relative; top:4px', :title => 'This channel is ' + (chan.enabled ? 'enabled' : 'disabled') %>
           <b><%= chan.name %></b></td>
         <td><%= chan.kind %></td>
         <td><%= chan.direction_text %></td>
         <td><%= chan.protocol %></td>
-        <td><%= chan.info.blank? ? '' : "(#{chan.info})" %></td>
+        <td><%= chan.info.blank? ? '' : chan.info %></td>
         <td align="right"><%= @channels_queued_count.include?(chan.id) ? @channels_queued_count[chan.id] : '0' %></td>
         <td>
           <% if chan.enabled %>

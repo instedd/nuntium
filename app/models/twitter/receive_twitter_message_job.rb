@@ -30,7 +30,7 @@ class ReceiveTwitterMessageJob
   end
   
   def download_new_messages
-    query = {:page => 1}
+    query = {:page => 1, :count => 200}
     
     # Use last_id if available
     query[:since_id] = @status.last_id unless @status.nil?

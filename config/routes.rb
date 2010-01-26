@@ -18,7 +18,12 @@ ActionController::Routing::Routes.draw do |map|
   map.update_application_ao_routing '/application/ao_routing/update', :controller => 'home', :action => :update_application_ao_routing
   map.edit_application_at_routing '/application/at_routing/edit', :controller => 'home', :action => :edit_application_at_routing
   map.update_application_at_routing '/application/at_routing/update', :controller => 'home', :action => :update_application_at_routing
-  
+
+  # Twitter mappings must come before generic channel mapping
+  map.create_twitter_channel '/channel/create/twitter', :controller => 'twitter', :action => :create_twitter_channel, :kind => 'twitter'
+  map.update_twitter_channel '/channel/update/twitter/:id', :controller => 'twitter', :action => :update_twitter_channel
+  map.twitter_callback '/twitter_callback', :controller => 'twitter', :action => :twitter_callback
+    
   map.new_channel '/channel/new/:kind', :controller => 'channel', :action => :new_channel
   map.create_channel '/channel/create/:kind', :controller => 'channel', :action => :create_channel
   map.edit_channel '/channel/edit/:id', :controller => 'channel', :action => :edit_channel
@@ -26,10 +31,6 @@ ActionController::Routing::Routes.draw do |map|
   map.delete_channel '/channel/delete/:id', :controller => 'channel', :action => :delete_channel  
   map.enable_channel '/channel/enable/:id', :controller => 'channel', :action => :enable_channel  
   map.disable_channel '/channel/disable/:id', :controller => 'channel', :action => :disable_channel  
-  
-  map.create_twitter_channel '/channel/create/twitter', :controller => 'twitter', :action => :create_twitter_channel, :kind => 'twitter'
-  map.update_twitter_channel '/channel/update/twitter/:id', :controller => 'twitter', :action => :update_twitter_channel
-  map.twitter_callback '/twitter_callback', :controller => 'home', :action => :twitter_callback
   
   map.new_ao_message '/message/ao/new', :controller => 'message', :action => :new_ao_message
   map.create_ao_message '/message/ao/create', :controller => 'message', :action => :create_ao_message

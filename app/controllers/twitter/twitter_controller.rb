@@ -2,6 +2,8 @@ require 'twitter'
 
 class TwitterController < AuthenticatedController
 
+  before_filter :check_login
+
   def create_twitter_channel
     chan = params[:channel]
     
