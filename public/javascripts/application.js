@@ -158,6 +158,7 @@ function delete_channel(id, name) {
 function create_channel(select) {
   if (!select.value) return;
   window.location = '/channel/new/' + select.value;
+  select.value = '';
 }
 
 function clickatell_channel_direction_changed() {
