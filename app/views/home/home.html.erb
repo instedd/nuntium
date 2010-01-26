@@ -109,14 +109,21 @@
 <% end %>
 <br/>
 
-<%= link_to "Create new Clickatell channel", :controller => :channel, :action => :new_channel, :kind => 'clickatell' %><br/>
-<%= link_to "Create new DTAC channel", :controller => :channel, :action => :new_channel, :kind => 'dtac' %><br/>
-<%= link_to "Create new POP3 channel", :controller => :channel, :action => :new_channel, :kind => 'pop3' %><br/>
-<%= link_to "Create new QST client channel", :controller => :channel, :action => :new_channel, :kind => 'qst_client' %><br/>
-<%= link_to "Create new QST server channel", :controller => :channel, :action => :new_channel, :kind => 'qst_server' %><br/>
-<%= link_to "Create new SMTP channel", :controller => :channel, :action => :new_channel, :kind => 'smtp' %><br/>
-<%= link_to "Create new Twitter channel", :controller => :channel, :action => :new_channel, :kind => 'twitter' %><br/>
-<%= link_to "Create new SMPP channel", :controller => :channel, :action => :new_channel, :kind => 'smpp' %>
+<%
+channel_kinds = [
+  ['Create new...', ''], 
+  ['Clickatell', 'clickatell'], 
+  ['DTAC', 'dtac'], 
+  ['POP3', 'pop3'],
+  ['QST client', 'qst_client'],
+  ['QST server', 'qst_server'],
+  ['SMPP', 'smpp'],
+  ['SMTP', 'smtp'],
+  ['Twitter', 'twitter'],  
+  ]
+channel_kinds[1..-1].map!{|x| x[0] += ' channel'}
+%>
+<%= select_tag('new_channel', options_for_select(channel_kinds), :onchange => 'create_channel(this)') %>
 </div>
 
 <h4><%= link_to_function 'Last Application Originated Messages', "toggle('last_ao_messages')" %></h4>
