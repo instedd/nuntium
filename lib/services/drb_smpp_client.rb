@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
 # required if using ruby-smpp gem
-gem 'ruby-smpp'
-require 'smpp'
+#gem 'ruby-smpp'
+#require 'smpp'
 
 require 'rubygems'
 require 'drb'
@@ -12,13 +12,16 @@ require 'eventmachine'
 # use this one if running from Eclipse debugger
 #require 'lib/ruby-smpp/smpp'
 # use this one if running from DOS console
-#require '../ruby-smpp/smpp'
+require (File.join(File.dirname(__FILE__), '..', 'ruby-smpp', 'smpp'))
 
 # DEBUG = true goes to the console, = false to log file
 DEBUG = false
 # set encoding to UTF-8
 $KCODE = "U"
 
+# Initialize Ruby on Rails
+# MUST pass environment as the first parameter
+ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
 require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
 require(File.join(RAILS_ROOT, 'config', 'environment'))
 
@@ -34,7 +37,6 @@ class SmppGateway
   
   def send_message(from, to, sms)    
     options = {}
-    
     # we first need to detect if the string can be fully encode in latin-1 so we can use 160 chars
     # note that non-ascii iso-8859-1 character will be encoded in utf-8
     begin
@@ -50,7 +52,6 @@ class SmppGateway
       options[:data_coding] = 8 # 3 for Latin-1 and 8 for UCS-2
       sms = utf16le
     end    
-    
     ar = [ from, to, sms , options]
     @@log.info "Sending MT from #{from} to #{to}: #{sms}"
     begin
@@ -63,22 +64,19 @@ class SmppGateway
   end
   
   def start(config)
-    
     # Run EventMachine in loop so we can reconnect when the SMSC drops our connection.
     @@log.debug "Connecting to SMSC..."
     
-    if not @is_running
-      @is_running = true
-    end
+    @is_running = true
     
     while @is_running do
       EventMachine::run do      
         @@tx = EventMachine::connect(
-                                     config[:host], 
-        config[:port], 
-        Smpp::Transceiver, 
-        config, 
-        self    # delegate that will receive callbacks on MOs and DRs and other events
+          config[:host], 
+          config[:port], 
+          Smpp::Transceiver, 
+          config, 
+          self    # delegate that will receive callbacks on MOs and DRs and other events
         )      
       end
       @@log.warn "Disconnected. Reconnecting in 5 seconds..."
@@ -95,7 +93,6 @@ class SmppGateway
   end    
   
   # ruby-smpp delegate methods 
-  
   def mo_received(transceiver, source_addr, destination_addr, short_message, data_coding)        
 =begin
 
@@ -113,12 +110,10 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
     # check if it is a CSMS
     first_octect = short_message[0]
     second_octect = short_message[1]
-    
     if (first_octect == 5 && second_octect == 0)
       # split UDH and SMS
       udh = short_message[0,6]
       sms = short_message[6..short_message.length-1]
-      
       # data_coding == 0 means 'SMSC default alphabet' and == 8 means 'UCS-2'
       if (data_coding == 8)
         sms = convertEncoding('UCS-2', 'UTF-8', sms)
@@ -136,22 +131,21 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
       
       createATMessage(@@application_id, source_addr, destination_addr, sms)
     end
-    
     @@log.info "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{sms}"   
   end
-  
+
   def delivery_report_received(transceiver, msg_reference, stat, pdu)
     @@log.info "Delegate: delivery_report_received: ref #{msg_reference} stat #{stat} pdu #{pdu}"
   end
-  
+
   def message_accepted(transceiver, mt_message_id, smsc_message_id)
     @@log.info "Delegate: message_sent: id #{mt_message_id} smsc ref id: #{smsc_message_id}"
   end
-  
+
   def bound(transceiver)
     @@log.info "Delegate: transceiver bound"
   end
-  
+
   def unbound(transceiver)  
     @@log.warn "Delegate: transceiver unbound"
     EventMachine::stop_event_loop
@@ -188,7 +182,6 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
 5th: Total number of parts
 6th: This part's number in the sequence  
 =end
-    
     # parse UDH relevant fields
     ref = udh[3]
     total = udh[4]
@@ -207,7 +200,7 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
       
       # Create message from the resulting text
       createATMessage(@@application_id, source_addr, destination_addr, text)
-      
+
       # Delete stored information
       SmppMessagePart.delete_all conditions
     else
@@ -217,7 +210,7 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
         :part_count => total,
         :part_number => partn,
         :text => sms
-      )
+        )
     end
   end
   
@@ -242,7 +235,6 @@ def startSMPPGateway(channel_id)
   
   # Uncomment this line to get a lot more debugging information in the log file, if not will go to the console by default
   #Smpp::Base.logger = @@log
-  
   # find Channel and fetch configuration
   channel_id = ARGV[1]
   @@log.debug "Fetching channel with id #{channel_id} from database."
@@ -258,10 +250,10 @@ def startSMPPGateway(channel_id)
     :password => @configuration[:password],
     :system_type => 'vma', # default given according to SMPP 3.4 Spec
     :interface_version => 52,
-    :source_ton  => 0,
-    :source_npi => 1,
-    :destination_ton => 0,
-    :destination_npi => 1,
+    :source_ton  => @configuration[:ton].to_i,
+    :source_npi => @configuration[:npi].to_i,
+    :destination_ton => @configuration[:ton].to_i,
+    :destination_npi => @configuration[:npi].to_i,
     :source_address_range => '',
     :destination_address_range => '',
     :enquire_link_delay_secs => 10
@@ -292,12 +284,7 @@ end
 # Start the Gateway
 begin
   if $0 == __FILE__  
-    # Initialize Ruby on Rails
-    # MUST pass environment as the first parameter
-    ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
-    
     channel_id = ARGV[1] unless ARGV.empty?  
-    
     startSMPPGateway(channel_id)
   end
 rescue => e

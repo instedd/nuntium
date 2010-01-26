@@ -15,6 +15,14 @@
     <%= c.label :port %><br/>
     <%= c.text_field :port, :value => @channel[:configuration][:port] %>
     </p>
+	<p>
+    <%= c.label :ton %><br/>
+    <%= c.text_field :ton, :value => @channel[:configuration][:ton] %>
+    </p>
+	<p>
+    <%= c.label :npi %><br/>
+    <%= c.text_field :npi, :value => @channel[:configuration][:npi] %>
+    </p>
     <p>
     <%= c.label :user %><br/>
     <%= c.text_field :user, :value => @channel[:configuration][:user] %>
