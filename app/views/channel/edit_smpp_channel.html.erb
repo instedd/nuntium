@@ -37,7 +37,7 @@
     </p>
 	<p>
 	When AO messages cannot be encoded in one byte, which encoding would you like to use (the SMSC has to support it):<br/>	
-	<%= c.label :encoding %> <%= c.select :encoding, options_for_select(['UTF-16LE, UTF16BE, UTF-16'], @channel[:configuration][:encoding]) %>	
+	<%= c.label :encoding %> <%= c.select :encoding, options_for_select(['UTF-16LE', 'UTF-16BE', 'UTF-16'], @channel[:configuration][:encoding]) %>	
 	</p>
   <% end %>
   <%= submit_tag 'Update channel' %>
