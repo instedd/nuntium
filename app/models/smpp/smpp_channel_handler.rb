@@ -39,6 +39,9 @@ class SmppChannelHandler < ChannelHandler
         
     @channel.errors.add(:password, "can't be blank") if
         @channel.configuration[:password].nil? || @channel.configuration[:password].chomp.empty?
+        
+    @channel.errors.add(:encoding, "can't be blank") if
+        @channel.configuration[:encoding].nil? || @channel.configuration[:encoding].chomp.empty?
   end
   
   def check_valid_in_ui
