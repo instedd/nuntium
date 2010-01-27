@@ -15,7 +15,7 @@ require 'eventmachine'
 require '../ruby-smpp/smpp'
 
 # DEBUG = true goes to the console, = false to log file
-DEBUG = false
+DEBUG = true
 # set encoding to UTF-8
 $KCODE = "U"
 
@@ -26,20 +26,30 @@ class SmppGateway
   def send_message(from, to, sms)    
     options = {}
 
-    # we first need to detect if the string can be fully encode in latin-1 so we can use 160 chars
+    # we first need to detect if the string can be fully encode in latin-1 or ascii so we can use 160 chars
     # note that non-ascii iso-8859-1 character will be encoded in utf-8
     begin
-      latin1 = convertEncoding('UTF-8', 'ISO-8859-1', sms)
-      # can be encoded in latin-1
-      @@log.debug "Encoded in ISO-8859-1" 
-      options[:data_coding] = 3 # 3 for Latin-1 and 8 for UCS-2
-      sms = latin1
+      if @@use_latin1
+        latin1 = convertEncoding('UTF-8', 'ISO-8859-1', sms)
+        # can be encoded in latin-1
+        @@log.debug "Encoded in ISO-8859-1" 
+        options[:data_coding] = 3 # 3 for Latin-1 and 8 for UCS-2
+        sms = latin1
+      else
+        ascii = convertEncoding('UTF-8', 'ASCII', sms)
+        # can be encoded in ascii
+        @@log.debug "Encoded in ASCII" 
+        options[:data_coding] = 0 # 0 for SMSC default (usually ASCII)
+        sms = ascii      
+      end  
     rescue
-      # error, cannot be encoded in latin1, has to be encoded in utf-16 (little endian)
-      utf16le = convertEncoding('UTF-8', 'UTF-16LE', sms)
-      @@log.debug "Encoded in UTF-16LE"
+      # error, cannot be encoded in latin1, has to be encoded in utf-16
+      # Smart: little endian, ETL: big endian
+      # if 'utf16' is used first 2 bytes will indicate endianness (FFFE or FEFF)
+      utf16 = convertEncoding('UTF-8', @@encoding, sms)
+      @@log.debug "Encoded in #{@@encoding}"
       options[:data_coding] = 8 # 3 for Latin-1 and 8 for UCS-2
-      sms = utf16le
+      sms = utf16
     end    
 
     ar = [ from, to, sms , options]
@@ -227,6 +237,8 @@ begin
   @@channel = Channel.find channel_id
   @configuration = @@channel.configuration
   @@application_id = @@channel.application_id
+  @@use_latin1 = @configuration[:use_latin1] == '1'
+  @@encoding = @configuration[:encoding]
   
   config = {
     :host => @configuration[:host],

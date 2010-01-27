@@ -31,6 +31,14 @@
     <%= c.label :password %><br/>
     <%= c.password_field :password, :value => @channel[:configuration][:password] %>
     </p>
+	<p>
+	Check this box if you would like to encode AO messages in ISO-8859-1 when possible (the SMSC has to support it).<br/>
+    <%= c.label :use_latin1 %> <%= c.check_box :use_latin1, :checked => @channel[:configuration][:use_latin1] == '1' %>
+    </p>
+	<p>
+	When AO messages cannot be encoded in one byte, which encoding would you like to use (the SMSC has to support it):<br/>	
+	<%= c.label :encoding %> <%= c.select :encoding, options_for_select({ 'Smart - Cambodia (UTF-16LE)' => 'UTF-16LE', 'ETL - Lao (UTF-16BE)' => 'UTF-16BE', 'UTF-16LE' => 'UTF-16LE', 'UTF-16BE' => 'UTF-16BE' }, @channel[:configuration][:encoding]) %>	
+	</p>
   <% end %>
   <%= submit_tag 'Update channel' %>
 <% end %>
