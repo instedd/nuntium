@@ -32,6 +32,9 @@ class SendClickatellMessageJob
       uri = append uri, 'text', to_unicode_raw_string(msg.subject_and_body)
       uri = append uri, 'unicode', '1'
     end
+    if !config[:concat].nil? && !config[:concat].empty?
+      uri = append uri, 'concat', config[:concat]
+    end
     
     host = URI::parse('https://api.clickatell.com')
     

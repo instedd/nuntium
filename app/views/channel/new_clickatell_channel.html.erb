@@ -36,6 +36,10 @@
     <%= c.label :from %><br/>
     <%= c.text_field :from %>
     </p>
+	<p id="concat_container">
+	<%= c.label :concatenation %><br/>
+	<%= c.text_field :concat, :value => 3 %>
+	</p>
     <p id="incoming_password_container">
     <%= c.label :incoming_password %><br/>
     <%= c.password_field :incoming_password %>
