@@ -111,6 +111,17 @@ class Application < ActiveRecord::Base
     
     msg.save!
     
+    # Update AddressSource if the app uses it
+    if !self.configuration[:use_address_source].nil? && !via_channel.nil? && via_channel.class == Channel
+      as = AddressSource.find_by_application_id_and_address self.id, msg.from
+      if as.nil?
+        AddressSource.create!(:application_id => self.id, :address => msg.from, :channel_id => via_channel.id) 
+      else
+        as.channel_id = via_channel.id
+        as.save!
+      end
+    end
+    
     if 'ui' == via_channel
       logger.at_message_created_via_ui msg
     else

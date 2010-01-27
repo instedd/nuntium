@@ -10,12 +10,12 @@ class SendSmppMessageJobTest < ActiveSupport::TestCase
   def initialize_objects
     @time = Time.now
     
-    @app = Application.create(:name => 'app', :password => 'pass')
+    @app = Application.create!(:name => 'app', :password => 'pass')
     @chan = Channel.new(:application_id => @app.id, :name => 'chan', :protocol => 'smpp', :kind => 'smpp')
-    @chan.configuration = {:host => 'the_host', :port => 3200, :ton => 0, :npi => 1, :user => 'the_user', :password => 'the_password', :use_ssl => '0'}
-    @chan.save
+    @chan.configuration = {:host => 'the_host', :port => 3200, :ton => 0, :npi => 1, :user => 'the_user', :password => 'the_password', :use_ssl => '0', :encoding => 'utf-8'}
+    @chan.save!
     
-    @msg = AOMessage.create(:application_id => @app.id, :from => 'smpp://301', :to => 'smpp://856123456', :subject => 'some subject', :body => 'some body', :timestamp => @time, :guid => 'some guid', :state => 'pending')
+    @msg = AOMessage.create!(:application_id => @app.id, :from => 'smpp://301', :to => 'smpp://856123456', :subject => 'some subject', :body => 'some body', :timestamp => @time, :guid => 'some guid', :state => 'pending')
   
     @job = SendSmppMessageJob.new(@app.id, @chan.id, @msg.id)  
   end
@@ -41,7 +41,7 @@ class SendSmppMessageJobTest < ActiveSupport::TestCase
     drb = DRbProcess.create(:application_id => @app.id, :channel_id => @chan.id, :uri => uri)
     
     class Stub
-      def send_message(a, b, c)
+      def send_message(a, b, c, d)
         return true
       end
     end

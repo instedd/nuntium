@@ -114,6 +114,13 @@ class HomeController < AuthenticatedController
     
     if not app[:configuration].nil?
       cfg = app[:configuration]
+      
+      if cfg[:use_address_source] == '1'
+        @application.configuration[:use_address_source] = 1
+      else
+        @application.configuration.delete :use_address_source
+      end
+      
       @application.configuration.update({:url => cfg[:url]}) 
       @application.configuration.update({:cred_user => cfg[:cred_user]}) 
       @application.configuration.update({:cred_pass => cfg[:cred_pass]}) unless (cfg[:cred_pass].nil? or cfg[:cred_pass].chomp.empty?) and not (cfg[:cred_user].nil? or cfg[:cred_user].chomp.empty?)  

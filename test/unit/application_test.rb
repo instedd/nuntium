@@ -437,6 +437,58 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_false app1.save
   end
   
+  test "at routing doesn't create address source" do
+    app = Application.create!(:name => 'app1', :password => 'foo')
+    chan = new_channel app, 'Uno'
+    
+    msg = ATMessage.new(:application_id => app.id, :from => 'bar')
+    app.accept msg, chan
+    
+    assert_equal 0, AddressSource.all.length
+  end
+  
+  test "at routing creates address source" do
+    app = Application.new(:name => 'app1', :password => 'foo')
+    app.configuration[:use_address_source] = 1
+    app.save!
+    
+    chan = new_channel app, 'Uno'
+    
+    msg = ATMessage.new(:application_id => app.id, :from => 'sms://1234')
+    app.accept msg, chan
+    
+    ass = AddressSource.all
+    assert_equal 1, ass.length
+    
+    as = ass[0]
+    assert_equal app.id, as.application_id
+    assert_equal 'sms://1234', as.address
+    assert_equal chan.id, as.channel_id
+  end
+  
+  test "at routing overrides address source" do
+    app = Application.new(:name => 'app1', :password => 'foo')
+    app.configuration[:use_address_source] = 1
+    app.save!
+    
+    chan1 = new_channel app, 'Uno'
+    chan2 = new_channel app, 'Dos'
+    
+    msg = ATMessage.new(:application_id => app.id, :from => 'sms://1234')
+    app.accept msg, chan1
+    
+    msg = ATMessage.new(:application_id => app.id, :from => 'sms://1234')
+    app.accept msg, chan2
+    
+    ass = AddressSource.all
+    assert_equal 1, ass.length
+    
+    as = ass[0]
+    assert_equal app.id, as.application_id
+    assert_equal 'sms://1234', as.address
+    assert_equal chan2.id, as.channel_id
+  end
+  
   def new_channel(app, name)
     chan = Channel.new(:application_id => app.id, :name => name, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Both);
     chan.configuration = {:url => 'a', :user => 'b', :password => 'c'};

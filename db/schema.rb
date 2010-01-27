@@ -9,7 +9,18 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100125150430) do
+ActiveRecord::Schema.define(:version => 20100127161556) do
+
+  create_table "address_sources", :force => true do |t|
+    t.integer  "application_id"
+    t.string   "address"
+    t.integer  "channel_id"
+    t.datetime "timestamp"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "address_sources", ["application_id", "address"], :name => "index_address_sources_on_application_id_and_address", :unique => true
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
