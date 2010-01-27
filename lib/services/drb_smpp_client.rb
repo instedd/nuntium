@@ -166,7 +166,7 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
     # Find message with mt_message_id
     msg = AOMessage.find mt_message_id
     if msg.nil?
-      @@log.info "AOMessage with id mt_message_id not found (ref id: #{smsc_message_id})"
+      @@log.info "AOMessage with id #{mt_message_id} not found (ref id: #{smsc_message_id})"
       return
     end
     
