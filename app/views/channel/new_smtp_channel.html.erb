@@ -2,7 +2,7 @@
 
 <% form_for :channel, :url => { :controller => 'channel', :action => :create_channel, :kind => params[:kind] } do |f| %>
   <%= f.error_messages %>
-  <input type="hidden" name="direction" value="<%= Channel::Outgoing %>" />
+  <%= f.hidden_field :direction, :value => Channel::Outgoing %>
   <p>
   <%= f.label :name %><br/>
   <%= f.text_field :name %>

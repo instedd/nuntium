@@ -11,7 +11,7 @@ class MessageControllerTest < ActionController::TestCase
     get :mark_ao_messages_as_cancelled, {:ao_messages => [msg1.id, msg2.id]}, {:application_id => app.id}
     
     assert_redirected_to(:controller => 'home', :action => 'home', :ao_messages => [msg1.id, msg2.id])
-    assert_equal '2 Application Oriented messages were marked as cancelled', flash[:notice]
+    assert_equal '2 Application Originated messages were marked as cancelled', flash[:notice]
     
     msgs = AOMessage.all
     assert_equal 'cancelled', msgs[0].state
@@ -28,7 +28,7 @@ class MessageControllerTest < ActionController::TestCase
     get :mark_ao_messages_as_cancelled, {:ao_all => 1, :ao_search => 'one'}, {:application_id => app.id}
     
     assert_redirected_to(:controller => 'home', :action => 'home', :ao_all => 1, :ao_search => 'one')
-    assert_equal '2 Application Oriented messages were marked as cancelled', flash[:notice]
+    assert_equal '2 Application Originated messages were marked as cancelled', flash[:notice]
     
     msgs = AOMessage.all
     assert_equal 'cancelled', msgs[0].state
