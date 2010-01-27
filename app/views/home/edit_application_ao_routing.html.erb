@@ -9,7 +9,7 @@
       <td>
         <div style="width:600px; height:226px; overflow:auto; background-color: #E5ECF9; padding:0px 8px 0px 8px;">
           <p>You can apply custom logic to incoming AO Messages by defining <b>the contents</b> of a function
-          with signature <b><code>def ao_routing(msg)</code></b>.</p>
+          with signature <b><code>def ao_routing(msg, preferred_channel)</code></b>.</p>
           <p>Each <code>msg</code> is:</p>
           <pre class="example">class Message
   attr_accessor :from, :to, :subject, :body, :guid, :timestamp
@@ -20,6 +20,8 @@
   def copy
 end</pre>
           <p>You can query and modify any of <code>Message</code>'s accessors.</p>
+          <p>The <code>preferred_channel</code> is the name of the channel that will be used in case this application
+          routes via the last AT channel used, or <code>nil</code> if there's no such channel.</p>
           <p>Available routing actions:</p>
           <ul>
             <li><code><b>route_to_channel</b></code>: routes the message to the channel with the given name.
@@ -63,6 +65,8 @@ end</pre>
           <h3>Test your routing!</h3>
           <p>The original hash builds the message to route and the expected hash is used to assert properties
           of the routed messages at the end of routing logic.</p>
+          <p>The original hash can contain a <code>:preferred_channel => channel_name</code> key. See the definition
+          of a preferred channel above.</p>
           <ul>
             <li><code><b>assert.routed_to_channel</b>(original, expected, channel_name)</code>: asserts that the
               original message was transformed to the expected one and it was routed to the channel 

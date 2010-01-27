@@ -63,23 +63,27 @@ class Application < ActiveRecord::Base
     # Find channel that handles that protocol
     channels = @outgoing_channels.select {|x| x.protocol == protocol}
     
+    # Find the preffered channel to route this message, if any,
+    # based on the AcceptSource model
+    preferred_channel = get_preferred_channel_name_for msg.to, @outgoing_channels
+    
     # See if there's a custom AO routing logic 
     if !self.configuration[:ao_routing].nil? && self.configuration[:ao_routing].strip.length != 0
       # Create ao_routing function is not yet defined
       if !respond_to?(:ao_routing_function)
-        instance_eval "def ao_routing_function(app, msg, channels, via_interface, logger);\n" +
-          "msg = MessageRouter.new(app, msg, channels, via_interface, logger);\n" +
+        instance_eval "def ao_routing_function(app, msg, channels, preferred_channel, via_interface, logger);\n" +
+          "msg = MessageRouter.new(app, msg, channels, preferred_channel, via_interface, logger);\n" +
           self.configuration[:ao_routing] + ";\n" +
           "msg.executed_action;\n" +
         "end;"
       end
 
-      had_actions = ao_routing_function(self, msg, channels, via_interface, logger)
+      had_actions = ao_routing_function(self, msg, channels, preferred_channel, via_interface, logger)
       return true if had_actions
     end
     
     # If no action triggered, or no custom logic, route to any channel
-    msg = MessageRouter.new(self, msg, channels, via_interface, logger)
+    msg = MessageRouter.new(self, msg, channels, preferred_channel, via_interface, logger)
     msg.route_to_any_channel
     true
   rescue => e
@@ -196,6 +200,16 @@ class Application < ActiveRecord::Base
     self.password = Digest::SHA2.hexdigest(self.salt + self.password)
   end
   
+  # Returns the Channel or nil
+  def get_preferred_channel_name_for(address, outgoing_channels)
+    return nil if self.configuration[:use_address_source].nil?
+    as = AddressSource.first(:conditions => ['application_id = ? AND address = ?', self.id, address])
+    return nil if as.nil?
+    candidates = outgoing_channels.select{|x| x.id == as.channel_id}
+    return nil if candidates.empty?
+    return candidates[0].name
+  end
+  
   def ao_routing_test_assertions
     has_test = (!self.configuration[:ao_routing_test].nil? and self.configuration[:ao_routing_test].strip.length > 0)
   
@@ -242,10 +256,11 @@ class MessageRouter
   attr_reader :executed_action
   attr_reader :msg
 
-  def initialize(application, msg, channels, via_interface, logger)
+  def initialize(application, msg, channels, preferred_channel, via_interface, logger)
     @application = application
     @msg = msg
     @channels = channels
+    @preferred_channel = preferred_channel
     @via_interface = via_interface
     @logger = logger
     @executed_action = false
@@ -285,6 +300,8 @@ class MessageRouter
   
     if names.length > 0
       channels = @channels.select{|x| names.include?(x.name)}
+    elsif !@preferred_channel.nil?
+      channels = @channels.select{|x| x.name == @preferred_channel}
     else
       channels = @channels
     end
@@ -340,7 +357,7 @@ class MessageRouter
   def copy
     @executed_action = true
   
-    other = MessageRouter.new(@application, @msg.clone, @channels, @via_interface, @logger)
+    other = MessageRouter.new(@application, @msg.clone, @channels, @preferred_channel, @via_interface, @logger)
     yield other
   end
 end
@@ -352,7 +369,7 @@ class MessageRouterAsserter
 
   def initialize(application)
     @application = application
-    instance_eval "def ao_routing_function(assert, msg);\n" +
+    instance_eval "def ao_routing_function(assert, msg, preferred_channel);\n" +
       application.configuration[:ao_routing] + ";\n" + 
     "end;"
     @events = []
@@ -396,9 +413,12 @@ class MessageRouterAsserter
   
   def simulate(args)
     @events = []
+    
+    preferred_channel = args[0].delete :preferred_channel
+    
     msg = AOMessage.new args[0]
     tester = MessageRouterTester.new self, msg
-    ao_routing_function self, tester
+    ao_routing_function self, tester, preferred_channel
     if !tester.executed_action
       tester.route_to_any_channel
     end

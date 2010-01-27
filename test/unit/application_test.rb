@@ -489,6 +489,67 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal chan2.id, as.channel_id
   end
   
+  test "ao routing uses address source" do
+    app = Application.new(:name => 'app1', :password => 'foo')
+    app.configuration[:use_address_source] = 1
+    app.save!
+    
+    chan1 = new_channel app, 'Uno'
+    chan2 = new_channel app, 'Dos'
+    chan2.metric = chan1.metric - 10
+    chan2.save!
+    
+    msg = ATMessage.new(:application_id => app.id, :from => 'sms://1234')
+    app.accept msg, chan1
+    
+    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://1234', :subject => 'foo', :body => 'bar')
+    app.route(msg, 'test')
+    
+    assert_equal chan1.id, msg.channel_id
+  end
+  
+  test "ao routing does not use address source" do
+    app = Application.new(:name => 'app1', :password => 'foo')
+    app.configuration[:use_address_source] = 1
+    app.save!
+    
+    chan1 = new_channel app, 'Uno'
+    chan2 = new_channel app, 'Dos'
+    chan2.metric = chan1.metric - 10
+    chan2.save!
+    
+    msg = ATMessage.new(:application_id => app.id, :from => 'sms://1234')
+    app.accept msg, chan1
+    
+    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://1239', :subject => 'foo', :body => 'bar')
+    app.route(msg, 'test')
+    
+    assert_equal chan2.id, msg.channel_id
+  end
+  
+  test "ao routing test with address source" do
+    app = Application.new(:name => 'app1', :password => 'foo')
+    app.configuration[:use_address_source] = 1
+    app.save!
+    
+    chan1 = new_channel app, 'Uno'
+    chan2 = new_channel app, 'Dos'
+    chan2.metric = chan1.metric - 10
+    chan2.save!
+    
+    app.configuration[:ao_routing] = "if !preferred_channel.nil?; msg.route_to_channel preferred_channel; else; msg.route_to_channel 'Dos'; end;"
+    app.configuration[:ao_routing_test] = "assert.routed_to_channel({:preferred_channel => 'Uno'}, {}, 'Uno')"
+    app.save!
+    
+    msg = ATMessage.new(:application_id => app.id, :from => 'sms://1234')
+    app.accept msg, chan1
+    
+    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://1239', :subject => 'foo', :body => 'bar')
+    app.route(msg, 'test')
+    
+    assert_equal chan2.id, msg.channel_id
+  end
+  
   def new_channel(app, name)
     chan = Channel.new(:application_id => app.id, :name => name, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Both);
     chan.configuration = {:url => 'a', :user => 'b', :password => 'c'};
