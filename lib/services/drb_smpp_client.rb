@@ -30,12 +30,10 @@ LOG_FILE = "#{RAILS_ROOT}/log/smpp.log"
 OUT = if DEBUG then STDOUT else LOG_FILE end
 
 class SmppGateway
-  # MT id counter
-  @@mt_id = 0
-  
   @is_running = false
   
-  def send_message(from, to, sms)    
+  # The id here is an id of an AOMessage, so in the callback we get the same id
+  def send_message(id, from, to, sms)    
     options = {}
     # we first need to detect if the string can be fully encode in latin-1 or ascii so we can use 160 chars
     # note that non-ascii iso-8859-1 character will be encoded in utf-8
@@ -65,7 +63,7 @@ class SmppGateway
     ar = [ from, to, sms , options]
     @@log.info "Sending MT from #{from} to #{to}: #{sms}"
     begin
-      @@tx.send_mt(@@mt_id, *ar)
+      @@tx.send_mt(id, *ar)
     rescue => e
       return false
     else
@@ -145,11 +143,45 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
   end
 
   def delivery_report_received(transceiver, msg_reference, stat, pdu)
-    @@log.info "Delegate: delivery_report_received: ref #{msg_reference} stat #{stat} pdu #{pdu}"
+    @@log.info "Delegate: delivery_report_received: ref #{msg_reference} stat #{stat} pdu #{pdu.to_yaml}"
+    
+    # Find message with channel_relative_id
+    msg_reference = msg_reference.to_i
+    msg = AOMessage.first(:conditions => ['channel_id = ? AND channel_relative_id = ?', @@channel.id, msg_reference])
+    if msg.nil?
+      @@log.info "AOMessage with channel_relative_id #{msg_reference} not found"
+      return
+    end
+    
+    # Reflect in message state
+    msg.state = stat == 'DELIVRD' ? 'confirmed' : 'failed'
+    msg.save!
+    
+    @@application.logger.ao_message_status_receieved msg, stat
   end
 
   def message_accepted(transceiver, mt_message_id, smsc_message_id)
     @@log.info "Delegate: message_sent: id #{mt_message_id} smsc ref id: #{smsc_message_id}"
+    
+    # Find message with mt_message_id
+    msg = AOMessage.find mt_message_id
+    if msg.nil?
+      @@log.info "AOMessage with id mt_message_id not found (ref id: #{smsc_message_id})"
+      return
+    end
+    
+    # smsc_message_id comes in hexadecimal
+    reference_id = smsc_message_id.to_i(16).to_s
+    
+    # Blank all messages with that reference id in case the reference id is already used
+    AOMessage.update_all(['channel_relative_id = ?', nil], ['channel_id = ? AND channel_relative_id = ?', @@channel.id, reference_id])
+    
+    # And set this message's channel relative id to later look it up
+    # in the delivery_report_received method
+    msg.channel_relative_id = reference_id
+    msg.save!
+    
+    @@application.logger.ao_message_status_receieved msg, 'ACK'
   end
 
   def bound(transceiver)

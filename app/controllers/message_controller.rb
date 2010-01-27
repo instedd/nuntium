@@ -74,7 +74,7 @@ class MessageController < AuthenticatedController
       affected = ids.length
     end
     
-    k = kind == AOMessage ? 'Oriented' : 'Terminated'
+    k = kind == AOMessage ? 'Originated' : 'Terminated'
     flash[:notice] = "#{affected} Application #{k} messages #{affected == 1 ? 'was' : 'were'} marked as cancelled"    
     
     params[:controller] = :home

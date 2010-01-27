@@ -121,7 +121,7 @@ function select_none_at_messages() {
 
 function mark_ao_messages_as_cancelled() {
   if (get_selected_count('ao_messages[]') == 0) {
-    alert('No Application Oriented messages were selected');
+    alert('No Application Originated messages were selected');
     return;
   }
   
