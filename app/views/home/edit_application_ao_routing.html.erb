@@ -30,6 +30,7 @@ end</pre>
             <li><code><b>route_to_any_channel</b></code>: routes the message to one of the channels identified by the given names.              
               If no name is given then the message is routed to one of all the available channels for that message's protocol.
               <pre class="example">msg.route_to_any_channel 'SomeChannel1', 'SomeChannel2'</pre>
+              Note that if there is a <code>preferred_channel</code> and no channel name is given, this will route the message to it.
             </li>
             <li><code><b>route_to_application</b></code>: routes the message to the application identified by the given name.
               <pre class="example">msg.route_to_application 'OtherApp'</pre>
