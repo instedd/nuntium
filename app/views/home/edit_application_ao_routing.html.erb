@@ -21,7 +21,8 @@
 end</pre>
           <p>You can query and modify any of <code>Message</code>'s accessors.</p>
           <p>The <code>preferred_channel</code> is the name of the channel that will be used in case this application
-          routes via the last AT channel used, or <code>nil</code> if there's no such channel.</p>
+          routes via the last AT channel used, or <code>nil</code> if there's no such channel. This allows you to do, for
+          example, <code>msg.route_to_channel preferred_channel</code></p>
           <p>Available routing actions:</p>
           <ul>
             <li><code><b>route_to_channel</b></code>: routes the message to the channel with the given name.
