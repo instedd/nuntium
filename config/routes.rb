@@ -41,6 +41,8 @@ ActionController::Routing::Routes.draw do |map|
   map.create_at_message '/message/at/create', :controller => 'message', :action => :create_at_message
   map.view_at_message_log '/message/at/:id/log', :controller => 'message', :action => :view_at_message_log
   map.mark_at_messages_as_cancelled '/message/at/mark_as_cancelled', :controller => 'message', :action => :mark_at_messages_as_cancelled
+  
+  map.send_ao '/send_ao', :controller => 'send_ao', :action => :create
 
   # The priority is based upon order of creation: first created -> highest priority.
 

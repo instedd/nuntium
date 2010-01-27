@@ -51,7 +51,7 @@ class Application < ActiveRecord::Base
     end
     
     # Find protocol of message (based on "to" field)
-    protocol = msg.to.protocol
+    protocol = msg.to.nil? ? '' : msg.to.protocol
     if protocol == ''
       msg.state = 'error'
       msg.save!
