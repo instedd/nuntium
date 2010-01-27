@@ -31,6 +31,10 @@
     <%= c.label :from %><br/>
     <%= c.text_field :from, :value => @channel[:configuration][:from]%>
     </p>
+    <p id="concat_container">
+	<%= c.label :concat %><br/>
+	<%= c.text_field :concat, :value => @channel[:configuration][:concat]%>
+	</p>
     <p id="incoming_password_container">
     <%= c.label :incoming_password %><br/>
     <%= c.password_field :incoming_password, :value => @channel[:configuration][:incoming_password] %>
