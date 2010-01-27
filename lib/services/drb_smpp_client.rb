@@ -15,7 +15,7 @@ require 'eventmachine'
 require (File.join(File.dirname(__FILE__), '..', 'ruby-smpp', 'smpp'))
 
 # DEBUG = true goes to the console, = false to log file
-DEBUG = true
+DEBUG = $0 == __FILE__
 # set encoding to UTF-8
 $KCODE = "U"
 
@@ -327,7 +327,7 @@ end
 
 # Start the Gateway
 begin
-  if $0 == __FILE__  
+  if $0 == __FILE__
     channel_id = ARGV[1] unless ARGV.empty?  
     startSMPPGateway(channel_id)
   end
