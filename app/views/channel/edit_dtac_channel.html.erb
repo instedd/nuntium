@@ -19,10 +19,10 @@
     <%= c.label :sno %><br/>
     <%= c.text_field :sno, :value => @channel[:configuration][:sno] %>
     </p>
-	<p>
+    <p>
     Callback urls for incoming messages:<br/>
     <code>/dtac/<%= @application.name %>/incoming</code><br/>
-	<code>/dtac/<%= @application.id %>/incoming</code>
+    <code>/dtac/<%= @application.id %>/incoming</code>
     </p>
   <% end %>
   <%= submit_tag 'Update channel' %>

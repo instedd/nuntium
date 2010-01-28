@@ -157,9 +157,9 @@ function clickatell_channel_direction_changed() {
   
   // incoming
   if (dir & 1) {
-    show('incoming_password_container');
+    show('incoming_password_container', 'callback_urls');
   } else {
-    hide('incoming_password_container');
+    hide('incoming_password_container', 'callback_urls');
   }
   
   // outgoing

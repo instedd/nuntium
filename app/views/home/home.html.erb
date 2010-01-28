@@ -10,21 +10,37 @@
 <% else %>
   <div style="padding-left:20px">
   
-  <%
-  if @application.interface == 'rss'
-    %>
-    <div><b>Via <%= link_to 'RSS', 'http://en.wikipedia.org/wiki/RSS', :target => '_blank' %>"</b></div>
-    Use <%= link_to 'Http Basic Authentication', 'http://en.wikipedia.org/wiki/Basic_access_authentication', :target => '_blank' %> with application credentials.
-    
+  <% if !@channels.select{|c| c.kind == 'clickatell'}.empty? %>
+    <div><b>Via <%= link_to 'Clickatell', 'http://www.clickatell.com', :target => '_blank' %></b></div>
+    Use <%= link_to 'Http Basic Authentication', 'http://en.wikipedia.org/wiki/Basic_access_authentication', :target => '_blank' %> with channel name and incoming password.
     <ul>
-      <li><span style="font-family:monospace">POST <%= url_for :controller => :rss, :action => :create %></span>: 
-        create Application Originated Messages</li>
-      <li><span style="font-family:monospace">GET <%= url_for :controller => :rss, :action => :index %></span>:
-        read Application Terminated Messages</li>
+      <li><span style="font-family:monospace">GET <%= url_for :controller => :clickatell, :action => :index, :application_id => @application.name %></span>:
+        create Application Terminated Messages</li>
+      <li><span style="font-family:monospace">GET <%= url_for :controller => :clickatell, :action => :index, :application_id => @application.id %></span>:
+        create Application Terminated Messages</li>
     </ul>
-    <%
-  end
-  %>
+  <% end %>
+  
+  <% if !@channels.select{|c| c.kind == 'dtac'}.empty? %>
+    <div><b>Via <%= link_to 'DTAC', 'http://www.dtac.co.th/', :target => '_blank' %></b></div>
+    Use <%= link_to 'Http Basic Authentication', 'http://en.wikipedia.org/wiki/Basic_access_authentication', :target => '_blank' %> with channel name and incoming password.
+    <ul>
+      <li><span style="font-family:monospace">GET <%= url_for :controller => :dtac, :action => :index, :application_id => @application.name %></span>:
+        create Application Terminated Messages</li>
+      <li><span style="font-family:monospace">GET <%= url_for :controller => :dtac, :action => :index, :application_id => @application.id %></span>:
+        create Application Terminated Messages</li>
+    </ul>
+  <% end %>
+  
+  <% if !@channels.select{|c| c.kind == 'pop3'}.empty? %>
+    <div><b>Via Email</b></div>
+    <ul>
+      <% @channels.select{|c| c.kind == 'pop3'}.each do |c| %>
+        <li>Send an email to <%= c.configuration[:user] %>: create Application Terminated Messages</li>
+      <% end %>
+    </ul>
+  <% end %>
+  
   <% if !@channels.select {|c| c.kind == 'qst_server'}.empty? %>
     <div><b>Via <%= link_to 'QueueStateTransfer', 'http://code.google.com/p/geochat/wiki/QueueStateTransfer', :target => '_blank' %></b></div>
     Use <%= link_to 'Http Basic Authentication', 'http://en.wikipedia.org/wiki/Basic_access_authentication', :target => '_blank' %> with channel credentials.
@@ -39,13 +55,24 @@
     </ul>
   <% end %>
   
-  <% if !@channels.select {|c| c.kind == 'clickatell'}.empty? %>
-    <div><b>Via <%= link_to 'Clickatell', 'http://www.clickatell.com', :target => '_blank' %></b></div>
-    Use <%= link_to 'Http Basic Authentication', 'http://en.wikipedia.org/wiki/Basic_access_authentication', :target => '_blank' %> with channel name and incoming password.
+  <% if @application.interface == 'rss' %>
+    <div><b>Via <%= link_to 'RSS', 'http://en.wikipedia.org/wiki/RSS', :target => '_blank' %></b></div>
+    Use <%= link_to 'Http Basic Authentication', 'http://en.wikipedia.org/wiki/Basic_access_authentication', :target => '_blank' %> with application credentials.
     
     <ul>
-      <li><span style="font-family:monospace">GET <%= url_for :controller => :clickatell, :action => :index, :application_id => @application.name %></span>:
-        create Application Terminated Messages</li>
+      <li><span style="font-family:monospace">POST <%= url_for :controller => :rss, :action => :create %></span>: 
+        create Application Originated Messages</li>
+      <li><span style="font-family:monospace">GET <%= url_for :controller => :rss, :action => :index %></span>:
+        read Application Terminated Messages</li>
+    </ul>
+  <% end %>
+  
+  <% if !@channels.select{|c| c.kind == 'twitter'}.empty? %>
+    <div><b>Via <%= link_to 'Twitter', 'http://www.twitter.com', :target => '_blank' %></b></div>
+    <ul>
+      <% @channels.select{|c| c.kind == 'twitter'}.each do |c| %>
+        <li>Send a direct message to <%= c.configuration[:screen_name] %>: create Application Terminated Messages</li>
+      <% end %>
     </ul>
   <% end %>
   
