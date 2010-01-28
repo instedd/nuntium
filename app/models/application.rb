@@ -379,7 +379,7 @@ class MessageRouterAsserter
     simulate args
     name = args.length == 2 ? args[1] : args[2]
     es = @events.select{|x| x[:kind] == :route_to_channel && x[:args] == name}
-    prelude 'assert.routed_to_channel', args, es
+    postlude 'assert.routed_to_channel', args, es
   end
   
   def routed_to_any_channel(*args)
@@ -401,14 +401,14 @@ class MessageRouterAsserter
       es = @events.select{|x| x[:kind] == :route_to_any_channel && x[:args].all?{|y| names.include?(y)} && names.all?{|y| x[:args].include?(y)}}
     end
     
-    prelude 'assert.routed_to_any_channel', args, es
+    postlude 'assert.routed_to_any_channel', args, es
   end
   
   def routed_to_application(*args)
     simulate args
     name = args.length == 2 ? args[1] : args[2]
     es = @events.select{|x| x[:kind] == :route_to_application && x[:args] == name}
-    prelude 'assert.routed_to_application', args, es
+    postlude 'assert.routed_to_application', args, es
   end
   
   def simulate(args)
@@ -430,7 +430,7 @@ class MessageRouterAsserter
     simulate([{:from => '', :to => '', :subject => '', :body => '', :guid => '', :timestamp => Time.now.utc}, {}])
   end
   
-  def prelude(name, args, es)
+  def postlude(name, args, es)
     if es.empty?
       assertion_failed name, args, "incorrect destination"
       return
