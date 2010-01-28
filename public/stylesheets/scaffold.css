@@ -70,6 +70,11 @@ h4 a {
   text-decoration: none;
 }
 
+h4 a:visited {
+  color: white;
+  text-decoration: none;
+}
+
 h4 a:hover {
   color: yellow;
   background-color: #6192A7;
