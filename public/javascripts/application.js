@@ -1,7 +1,3 @@
-function $(id) {
-  return document.getElementById(id);
-}
-
 function $n(id) {
   return document.getElementsByName(id);
 }
@@ -26,29 +22,24 @@ function openCenteredWindow(url, name, width, height, features) {
 }
 
 function toggle(id) {
-  var elem = $(id);
-  if (elem.style.display != 'none') {
-    elem.style.display = 'none';
-  } else {
-    elem.style.display = '';
-  }
+  $('#' + id).toggle('fast');
 }
 
 function show(id) {
   if (arguments.length == 1) {
-    $(id).style.display = '';
+    $('#' + id).show('fast')
   } else {
     for(var i = 0; i < arguments.length; i++)
-      $(arguments[i]).style.display = '';
+      $('#' + arguments[i]).show('fast');
   }
 }
 
 function hide(id) {
   if (arguments.length == 1) {
-    $(id).style.display = 'none';
+    $('#' + id).hide('fast');
   } else {
     for(var i = 0; i < arguments.length; i++)
-      $(arguments[i]).style.display = 'none';
+      $('#' + arguments[i]).hide('fast');
   }
 }
 
@@ -78,45 +69,45 @@ function get_selected_count(id) {
 function select_all_ao_messages() {
   select_all('ao_messages[]');
   if (total_ao_messages > current_ao_messages) {
-    var e = $('all_ao_messages_text');
-    e.style.display = '';
-    e.innerHTML = '' + current_ao_messages + ' messages are selected. <a href="javascript:void(0)" onclick="select_all_pages_ao_messages()">Select all ' + total_ao_messages + ' messages</a>.';
+    var e = $('#all_ao_messages_text');
+    e.show();
+    e.html('' + current_ao_messages + ' messages are selected. <a href="javascript:void(0)" onclick="select_all_pages_ao_messages()">Select all ' + total_ao_messages + ' messages</a>.');
   }
 }
 
 function select_all_pages_ao_messages() {
-  $('ao_all').value = 1;
-  var e = $('all_ao_messages_text');
-  e.style.display = '';
-  e.innerHTML = 'All ' + total_ao_messages + ' messages are selected. <a href="javascript:void(0)" onclick="select_none_ao_messages()">Clear selection</a>.';
+  $('#ao_all').value = 1;
+  var e = $('#all_ao_messages_text');
+  e.show();
+  e.html('All ' + total_ao_messages + ' messages are selected. <a href="javascript:void(0)" onclick="select_none_ao_messages()">Clear selection</a>.');
 }
 
 function select_none_ao_messages() {
   select_none('ao_messages[]');
-  $('ao_all').value = 0;
-  $('all_ao_messages_text').style.display = 'none';
+  $('#ao_all').val(0);
+  $('#all_ao_messages_text').hide();
 }
 
 function select_all_at_messages() {
   select_all('at_messages[]');
   if (total_at_messages > current_at_messages) {
-    var e = $('all_at_messages_text');
-    e.style.display = '';
-    e.innerHTML = '' + current_at_messages + ' messages are selected. <a href="javascript:void(0)" onclick="select_all_pages_at_messages()">Select all ' + total_at_messages + ' messages</a>.';
+    var e = $('#all_at_messages_text');
+    e.show();
+    e.html('' + current_at_messages + ' messages are selected. <a href="javascript:void(0)" onclick="select_all_pages_at_messages()">Select all ' + total_at_messages + ' messages</a>.');
   }
 }
 
 function select_all_pages_at_messages() {
-  $('at_all').value = 1;
-  var e = $('all_at_messages_text');
-  e.style.display = '';
-  e.innerHTML = 'All ' + total_at_messages + ' messages are selected. <a href="javascript:void(0)" onclick="select_none_at_messages()">Clear selection</a>.';
+  $('#at_all').value = 1;
+  var e = $('#all_at_messages_text');
+  e.show();
+  e.html('All ' + total_at_messages + ' messages are selected. <a href="javascript:void(0)" onclick="select_none_at_messages()">Clear selection</a>.');
 }
 
 function select_none_at_messages() {
   select_none('at_messages[]');
-  $('at_all').value = 0;
-  $('all_at_messages_text').style.display = 'none';
+  $('#at_all').val(0);
+  $('#all_at_messages_text').hide();
 }
 
 function mark_ao_messages_as_cancelled() {
@@ -125,7 +116,7 @@ function mark_ao_messages_as_cancelled() {
     return;
   }
   
-  var form = $('ao_messages_form');
+  var form = document.getElementById('ao_messages_form');
   form.action = '/message/ao/mark_as_cancelled';
   form.submit();
 }
@@ -136,7 +127,7 @@ function mark_at_messages_as_cancelled() {
     return;
   }
   
-  var form = $('at_messages_form');
+  var form = document.getElementById('at_messages_form');
   form.action = '/message/at/mark_as_cancelled';
   form.submit();
 }
@@ -162,7 +153,7 @@ function create_channel(select) {
 }
 
 function clickatell_channel_direction_changed() {
-  var dir = $('channel_direction').value;
+  var dir = $('#channel_direction :selected').val();
   
   // incoming
   if (dir & 1) {
