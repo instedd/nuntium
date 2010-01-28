@@ -180,6 +180,11 @@ class HomeController < AuthenticatedController
     end
   end
   
+  def find_address_source
+    chan = Channel.first(:joins => :address_sources, :conditions => ['address_sources.application_id = ? AND address_sources.address = ?', @application.id, params[:address]]);
+    render :text => chan.nil? ? '' : chan.name
+  end
+  
   def logoff
     session[:application_id] = nil
     redirect_to :action => :index

@@ -111,3 +111,8 @@ acronym {
   padding: 10px;
   font-size: 11px;
 }
+
+#address_source_result {
+  color:blue;
+  font-weight:bold;
+}

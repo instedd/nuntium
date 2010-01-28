@@ -169,3 +169,28 @@ function clickatell_channel_direction_changed() {
     hide('user_container', 'password_container', 'from_container');
   }
 }
+
+// Find address source 
+$(function() {
+  var find_address_source = function() {
+    $.get('/application/find_address_source', 
+      {address: $('#address_source').val()},
+      function(name) {
+        if (name) {
+          $('#address_source_result').html(name);
+        } else {
+          $('#address_source_result').html('No channel found');
+        }
+      });
+  };
+  
+  $('#address_source').keydown(function(event) {
+    if (event.keyCode == 13) {
+      find_address_source();
+      return false;
+    } else if (event.keyCode != 37 && event.keyCode != 39) {
+      $('#address_source_result').html('');
+    }
+  });
+  $('#address_source_button').click(find_address_source);
+});

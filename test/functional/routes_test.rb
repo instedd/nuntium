@@ -12,6 +12,7 @@ class RoutesTest < ActionController::TestCase
     end
     ["edit", "update"].each do |op|
       assert_routing({:path => "/application/#{op}"}, { :controller => "home", :action => "#{op}_application"})
+      assert_routing({:path => "/application/find_address_source"}, { :controller => "home", :action => "find_address_source"})
       ["ao", "at"].each do |kind|
         assert_routing({:path => "/application/#{kind}_routing/#{op}"}, { :controller => "home", :action => "#{op}_application_#{kind}_routing"})
       end
