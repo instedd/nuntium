@@ -34,13 +34,13 @@ ActionController::Routing::Routes.draw do |map|
   
   map.new_ao_message '/message/ao/new', :controller => 'message', :action => :new_ao_message
   map.create_ao_message '/message/ao/create', :controller => 'message', :action => :create_ao_message
-  map.view_ao_message '/message/ao/:id', :controller => 'message', :action => :view_ao_message
   map.mark_ao_messages_as_cancelled '/message/ao/mark_as_cancelled', :controller => 'message', :action => :mark_ao_messages_as_cancelled
+  map.view_ao_message '/message/ao/:id', :controller => 'message', :action => :view_ao_message
   
   map.new_at_message '/message/at/new', :controller => 'message', :action => :new_at_message
   map.create_at_message '/message/at/create', :controller => 'message', :action => :create_at_message
-  map.view_at_message '/message/at/:id', :controller => 'message', :action => :view_at_message
   map.mark_at_messages_as_cancelled '/message/at/mark_as_cancelled', :controller => 'message', :action => :mark_at_messages_as_cancelled
+  map.view_at_message '/message/at/:id', :controller => 'message', :action => :view_at_message
   
   map.send_ao '/send_ao', :controller => 'send_ao', :action => :create
 
