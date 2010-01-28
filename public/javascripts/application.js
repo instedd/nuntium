@@ -142,11 +142,11 @@ function mark_at_messages_as_cancelled() {
 }
 
 function view_ao_message_log(id) {
-  openCenteredWindow('/message/ao/' + id + '/log', 'log', 640, 480);
+  openCenteredWindow('/message/ao/' + id, 'log', 640, 480, 'scrollbars=yes');
 }
 
 function view_at_message_log(id) {
-  openCenteredWindow('/message/at/' + id + '/log', 'log', 640, 480);
+  openCenteredWindow('/message/at/' + id, 'log', 640, 480, 'scrollbars=yes');
 }
 
 function delete_channel(id, name) {

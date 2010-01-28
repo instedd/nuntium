@@ -82,20 +82,32 @@ class MessageController < AuthenticatedController
     redirect_to params
   end
   
-  def view_ao_message_log
+  def view_ao_message
     @id = params[:id]
     @hide_title = true
+    @msg = AOMessage.find_by_id @id
+    if @msg.nil? || @msg.application_id != @application.id
+      redirect_to_home
+      return
+    end
+    
     @logs = ApplicationLog.find_all_by_ao_message_id(@id)
     @kind = 'ao'
-    render "message_log.html.erb"
+    render "message.html.erb"
   end
   
-  def view_at_message_log
+  def view_at_message
     @id = params[:id]
     @hide_title = true
+    @msg = ATMessage.find_by_id @id
+    if @msg.nil? || @msg.application_id != @application.id
+      redirect_to_home
+      return
+    end
+    
     @logs = ApplicationLog.find_all_by_at_message_id(@id)
     @kind = 'at'
-    render "message_log.html.erb"
+    render "message.html.erb"
   end
 
 end

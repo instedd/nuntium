@@ -1,0 +1,72 @@
+<h2>Application <%= @kind == 'ao' ? 'Originated' : 'Terminated' %> Message #<%= @id %></h2>
+
+<h4><%= link_to_function 'Log', "toggle('log')" %></h4>
+
+<div id="log">
+<table border="1" class="table">
+  <tr>
+    <th>When</th>
+    <th>Severity</th>
+    <th>Text</th>
+  </tr>
+  <tr>
+  <% @logs.each do |log| %>
+    <tr>
+      <td><%= time_ago log.created_at %></td>
+      <td><%= log.severity_html %></td>
+      <td><%= log.message %></td>
+    </tr>
+  <% end %>
+</table>
+</div>
+
+<h4><%= link_to_function 'Details', "toggle('details')" %></h4>
+
+<div id="details">
+<table class="table">
+  <tr valign="baseline">
+    <td><b>Id:</b></td>
+    <td><%= @msg.id %></td>
+  </tr>
+  <tr valign="baseline">
+    <td><b>Guid:</b></td>
+    <td><%= @msg.guid %></td>
+  </tr>
+  <tr valign="baseline">
+    <td><b>When:</b></td>
+    <td><%= time_ago @msg.timestamp %></td>
+  </tr>
+  <tr valign="baseline">
+    <td><b>Channel relative id:</b></td>
+    <td><%= @msg.channel_relative_id %></td>
+  </tr>
+  <tr valign="baseline">
+    <td><b>From:</b></td>
+    <td><%= @msg.from %></td>
+  </tr>
+  <tr valign="baseline">
+    <td><b>To:</b></td>
+    <td><%= @msg.to %></td>
+  </tr>
+  <tr valign="baseline">
+    <td><b>Subject:</b></td>
+    <td><%= @msg.subject %></td>
+  </tr>
+  <tr valign="baseline">
+    <td><b>Body:</b></td>
+    <td><%= @msg.body %></td>
+  </tr>
+  <tr valign="baseline">
+    <td><b>In channel:</b></td>
+    <td><%= @msg.channel.name rescue '' %></td>
+  </tr>
+  <tr valign="baseline">
+    <td><b>Tries:</b></td>
+    <td><%= @msg.tries %></td>
+  </tr>
+  <tr valign="baseline">
+    <td><b>State:</b></td>
+    <td><%= @msg.state %></td>
+  </tr>
+</table>
+</div>
