@@ -8,9 +8,11 @@
 </head>
 <body>
 <% if @hide_title.nil? %>
-  <h2>Welcome to nuntium</h2>
   <% if !@application.nil? && !@application.id.nil? %>
-    <h3>Current application is: <%= @application.name %> (<%= link_to "logoff", :controller => :home, :action => :logoff %>)</h3>
+    <h2 style="color:blue;float:left">nuntium</h2>
+    <h3 style="text-align:right"><%= @application.name %> | <%= link_to "logoff", :controller => :home, :action => :logoff %></h3>
+  <% else %>
+    <h2 style="color:blue">nuntium</h2>
   <% end %>
 <% end %>
 <%= yield %>
