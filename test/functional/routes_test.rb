@@ -12,11 +12,11 @@ class RoutesTest < ActionController::TestCase
     end
     ["edit", "update"].each do |op|
       assert_routing({:path => "/application/#{op}"}, { :controller => "home", :action => "#{op}_application"})
-      assert_routing({:path => "/application/find_address_source"}, { :controller => "home", :action => "find_address_source"})
       ["ao", "at"].each do |kind|
         assert_routing({:path => "/application/#{kind}_routing/#{op}"}, { :controller => "home", :action => "#{op}_application_#{kind}_routing"})
       end
     end
+    assert_routing({:path => "/application/find_address_source"}, { :controller => "home", :action => "find_address_source"})
     assert_routing({:path => "/channel/create/twitter"}, { :controller => "twitter", :action => "create_twitter_channel", :kind => "twitter" })
     assert_routing({:path => "/channel/update/twitter"}, { :controller => "twitter", :action => "update_twitter_channel" })
     assert_routing({:path => "/twitter_callback"}, { :controller => "twitter", :action => "twitter_callback" })
