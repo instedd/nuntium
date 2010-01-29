@@ -12,7 +12,7 @@ class SendSmppMessageJobTest < ActiveSupport::TestCase
     
     @app = Application.create!(:name => 'app', :password => 'pass')
     @chan = Channel.new(:application_id => @app.id, :name => 'chan', :protocol => 'smpp', :kind => 'smpp')
-    @chan.configuration = {:host => 'the_host', :port => 3200, :ton => 0, :npi => 1, :user => 'the_user', :password => 'the_password', :use_ssl => '0', :encoding => 'utf-8'}
+    @chan.configuration = {:host => 'the_host', :port => 3200, :ton => 0, :npi => 1, :user => 'the_user', :password => 'the_password', :use_latin1 => '0', :encoding => 'utf-8'}
     @chan.save!
     
     @msg = AOMessage.create!(:application_id => @app.id, :from => 'smpp://301', :to => 'smpp://856123456', :subject => 'some subject', :body => 'some body', :timestamp => @time, :guid => 'some guid', :state => 'pending')
@@ -20,7 +20,7 @@ class SendSmppMessageJobTest < ActiveSupport::TestCase
     @job = SendSmppMessageJob.new(@app.id, @chan.id, @msg.id)  
   end
 
-  should "throw :error_finding_drb_service if not drb service found" do
+  should "throw :error_finding_drb_service if drb service is not found" do
     assert_equal(@job.perform, :error_finding_drb_service)
     
     aom = AOMessage.first
@@ -49,6 +49,9 @@ class SendSmppMessageJobTest < ActiveSupport::TestCase
     DRb.start_service uri, Stub.new
 
     @job.perform
+    
+    aom = AOMessage.first
+    assert_equal 'delivered', aom.state
   end
   
 end

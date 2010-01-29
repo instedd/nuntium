@@ -173,15 +173,21 @@ function clickatell_channel_direction_changed() {
 // Find address source 
 $(function() {
   var find_address_source = function() {
-    $.get('/application/find_address_source', 
-      {address: $('#address_source').val()},
-      function(name) {
+    $.ajax({
+      type: "GET",
+      url: '/application/find_address_source', 
+      data: {address: $('#address_source').val()},
+      success: function(name) {
         if (name) {
           $('#address_source_result').html(name);
         } else {
           $('#address_source_result').html('No channel found');
         }
-      });
+      },
+      error: function() {
+        $('#address_source_result').html('An error happened :-(');
+      }
+    });
   };
   
   $('#address_source').keydown(function(event) {

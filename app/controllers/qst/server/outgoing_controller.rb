@@ -66,11 +66,11 @@ class OutgoingController < QSTServerController
       end
       
       # Logging: say that valid messages were returned and invalid no
-      @ao_messages.each do |msg|
-        if msg.tries >= @application.max_tries
-          @application.logger.ao_message_delivery_succeeded msg, 'qst_server'
+      @ao_messages.each do |message|
+        if message.tries >= @application.max_tries
+          @application.logger.ao_message_delivery_succeeded message, 'qst_server'
         else
-          @application.logger.ao_message_delivery_exceeded_tries msg, 'qst_server'
+          @application.logger.ao_message_delivery_exceeded_tries message, 'qst_server'
         end
       end
       
