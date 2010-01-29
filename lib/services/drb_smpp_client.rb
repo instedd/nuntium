@@ -36,7 +36,7 @@ class SmppGateway
   def send_message(id, from, to, sms)    
     options = {}
     # we first need to detect if the string can be fully encode in latin-1 or ascii so we can use 160 chars
-    # note that non-ascii iso-8859-1 character will be encoded in utf-8
+    # notice that non-ascii iso-8859-1 character will be encoded in utf-8
     begin
       if @@use_latin1
         latin1 = convertEncoding('UTF-8', 'ISO-8859-1', sms)
