@@ -173,10 +173,6 @@ class Application < ActiveRecord::Base
     self[:configuration]
   end
   
-  def inspect
-    to_s
-  end
-  
   def to_s
     name || id || 'unknown'
   end
