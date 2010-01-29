@@ -38,10 +38,31 @@ class SendDtacMessageJob
         'User' =>  config[:user],
         'Password' => config[:password]})
         
-    if response.code[0,1] == "2" # success
-      msg.state = 'delivered'
-      msg.tries += 1
-      msg.save
+    if response.code[0,1] == "2" # HTTP OK
+      # we have to check the status value, 0 means success
+      values = {};
+    
+      # split the body and put the key-value pairs in a hash
+      array = response.read_body.split("\n")
+      array.each { |e| 
+        ar = e.split("=")
+        values[ar[0]] = ar[1]  
+      }
+    
+      status = values["Status"].to_i
+      if ( status == 0 )
+        # message successfully sent
+        msg.state = 'delivered'
+        msg.tries += 1
+        msg.save
+      else
+        # error ocurred
+        msg.tries += 1
+        msg.save
+        error_message = values['Message']
+        ApplicationLogger.exception_in_channel_and_ao_message channel, msg, error_message
+        raise error_message
+      end
     else
       msg.tries += 1
       msg.save
