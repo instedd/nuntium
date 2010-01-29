@@ -20,7 +20,7 @@ class SendSmppMessageJobTest < ActiveSupport::TestCase
     @job = SendSmppMessageJob.new(@app.id, @chan.id, @msg.id)  
   end
 
-  should "throw :error_finding_drb_service if not drb service found" do
+  should "throw :error_finding_drb_service if drb service is not found" do
     assert_equal(@job.perform, :error_finding_drb_service)
     
     aom = AOMessage.first
