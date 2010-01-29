@@ -172,6 +172,14 @@ class Application < ActiveRecord::Base
     self[:configuration] = {} if self[:configuration].nil?
     self[:configuration]
   end
+  
+  def inspect
+    to_s
+  end
+  
+  def to_s
+    name || id || 'unknown'
+  end
 
   protected
   
@@ -222,14 +230,14 @@ class Application < ActiveRecord::Base
           assert.simulate_dummy
         end
       rescue Exception => e
-        self.errors.add(has_test ? :ao_routing_test : :ao_routing, "error: #{fix_error(e.inspect)}")
+        self.errors.add(has_test ? :ao_routing_test : :ao_routing, fix_error("error: #{e.inspect}"))
       end
     end
   end
   
   def at_routing_test_assertions
     has_test = (!self.configuration[:at_routing_test].nil? and self.configuration[:at_routing_test].strip.length > 0)
-  
+    
     if (!self.configuration[:at_routing].nil? and self.configuration[:at_routing].strip.length > 0) or has_test
       begin
         assert = MessageAccepterAsserter.new self
@@ -239,16 +247,16 @@ class Application < ActiveRecord::Base
           assert.simulate_dummy
         end
       rescue Exception => e
-        self.errors.add(has_test ? :at_routing_test : :at_routing, "error: #{fix_error(e.message)}")
+        self.errors.add(has_test ? :at_routing_test : :at_routing, fix_error("error: #{e.message}"))
       end
     end
   end
-  
-  # If many dots are sent to a validation error, an "interning empty string" error
-  # happens. This is a hack/fix for this.
-  def fix_error(msg)
-    msg.gsub('.', ' ')
-  end
+end
+
+# If many dots are sent to a validation error, an "interning empty string" error
+# happens. This is a hack/fix for this.
+def fix_error(msg)
+  msg.gsub('.', ' ')
 end
 
 class MessageRouter 
@@ -450,7 +458,7 @@ class MessageRouterAsserter
   end
   
   def assertion_failed(name, args, message)
-    @application.errors.add(:ao_routing_test, "failed in #{format_func(name, args)}: #{message}")
+    @application.errors.add(:ao_routing_test, fix_error("failed in #{format_func(name, args)}: #{message}"))
   end
   
   def format_func(name, args)
@@ -504,20 +512,20 @@ class MessageRouterTester
   def check_channel_names(names)
     names.each do |name|
       if Channel.find_by_name(name).nil?
-        @assert.application.errors.add(:ao_routing, "failed: channel with name '#{name}' does not exist")
+        @assert.application.errors.add(:ao_routing, fix_error("failed: channel with name '#{name}' does not exist"))
       end
     end
   end
   
   def check_application_name(name)
     if Application.find_by_name(name).nil?
-      @assert.application.errors.add(:ao_routing, "failed: application with name '#{name}' does not exist")
+      @assert.application.errors.add(:ao_routing, fix_error("failed: application with name '#{name}' does not exist"))
     end
   end
   
   def check_already_routed
     @executed_action = true
-    @assert.application.errors.add(:ao_routing_test, 'failed: same message routed more than once; use msg.copy') if @routed
+    @assert.application.errors.add(:ao_routing_test, fix_error('failed: same message routed more than once; use msg.copy')) if @routed
     @routed = true
   end
   
@@ -557,7 +565,7 @@ class MessageAccepterAsserter
     expected.each_pair do |key, value|
       actual = original.send(key)
       if actual != value
-        @application.errors.add(:ao_routing_test, "failed in assert.transform(#{original_hash.inspect}, #{expected.inspect}): '#{key}' expected to be '#{value}' but was '#{actual}'")
+        @application.errors.add(:ao_routing_test, fix_error("failed in assert.transform(#{original_hash.inspect}, #{expected.inspect}): '#{key}' expected to be '#{value}' but was '#{actual}'"))
       end
     end
   end
