@@ -422,8 +422,6 @@ class MessageRouterAsserter
     if !tester.executed_action
       tester.route_to_any_channel
     end
-  rescue => e
-    @application.errors.add(:ao_routing_test, "failed: #{e}")
   end
   
   def simulate_dummy
@@ -549,8 +547,6 @@ class MessageAccepterAsserter
     end
     at_routing_function msg
     check_message_transform original, msg, expected 
-  rescue => e
-    @application.errors.add(:at_routing_test, "failed: #{e}")
   end
   
   def simulate_dummy
