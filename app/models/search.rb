@@ -7,6 +7,8 @@ require 'strscan'
 #   Search.new('key:value') => search = nil, {:key => 'value'}
 #   Search.new('key:"many words"') => search = nil, {:key => 'many words'}
 #   Search.new('something key:"many words"') => search = 'something', {:key => 'many words'}
+#   Search.new('sms://foo') => search = 'sms://foo', {}
+#   Search.new('from:sms://foo') => search = nil, {:from => 'sms://foo'}
 #
 class Search < Hash
   attr_reader :search
@@ -24,15 +26,19 @@ class Search < Hash
       key = s.scan(/\w+/)
       
       # Check if there's a colon so we have key:...
+      # (but not key://)
       colon = s.scan(/:/)
-      if !colon.nil?
+      if colon
+        # Check key://value
+        value = s.scan(/\/\/(\S)+/)
+        if value
+          add_to_search("#{key}:#{value}")
+          next
+        end
+        
         # Check key:"value"
         value = s.scan(/".+?"/)
-        if value.nil?
-          value = s.scan(/(\S)+/)
-        else
-          value = value[1...-1]
-        end
+        value = value ? value[1...-1] : s.scan(/(\S)+/)
         self[key.to_sym] = value
         next
       end
@@ -41,11 +47,11 @@ class Search < Hash
       key = s.scan(/\W+/) if key.nil?
 
       # Just a word to add to the search
-      if @search.nil?
-        @search = key
-      else
-        @search += ' ' + key
-      end
+      add_to_search key
     end
+  end
+  
+  def add_to_search(value)
+    @search = @search ? "#{@search} #{value}" : value
   end
 end

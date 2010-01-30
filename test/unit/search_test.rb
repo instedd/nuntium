@@ -16,6 +16,11 @@ class SearchTest < ActiveSupport::TestCase
     assert_equal 'hello world', s.search
   end
   
+  test "with protocol" do
+    s = Search.new('sms://foo')
+    assert_equal 'sms://foo', s.search
+  end
+  
   test "key value" do
     s = Search.new('key:value')
     assert_nil s.search
@@ -52,6 +57,12 @@ class SearchTest < ActiveSupport::TestCase
     s = Search.new('key:something:else')
     assert_nil s.search
     assert_equal 'something:else', s[:key]
+  end
+  
+  test "key value with protocol" do
+    s = Search.new('key:value://hola')
+    assert_nil s.search
+    assert_equal 'value://hola', s[:key]
   end
   
   test "quotes" do
