@@ -156,10 +156,10 @@ channel_kinds[1..-1].map!{|x| x[0] += ' channel'}
 <%= select_tag('new_channel', options_for_select(channel_kinds), :onchange => 'create_channel(this)') %>
 </div>
 
-<h4><%= link_to_function 'Last Application Originated Messages', "toggle('last_ao_messages')" %></h4>
+<h4><%= link_to_function 'Last Application Originated Messages', "toggle('last_ao_messages')", :name => 'ao' %></h4>
 
 <div id="last_ao_messages">
-<form id="ao_messages_form">
+<form id="ao_messages_form" action="#ao">
 <input type="hidden" name="ao_page" value="<%= @ao_page %>" />
 <input type="hidden" name="ao_previous_search" value="<%= @ao_search %>" />
 <input type="hidden" name="at_page" value="<%= @at_page %>" />
@@ -227,10 +227,10 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
 <%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_search => @ao_search } %>
 </div>
 
-<h4><%= link_to_function 'Last Application Terminated Messages', "toggle('last_at_messages')" %></h4>
+<h4><%= link_to_function 'Last Application Terminated Messages', "toggle('last_at_messages')", :name => 'at' %></h4>
 
 <div id="last_at_messages">
-<form id="at_messages_form">
+<form id="at_messages_form" action="#at">
 <input type="hidden" name="at_page" value="<%= @at_page %>" />
 <input type="hidden" name="at_previous_search" value="<%= @at_search %>" />
 <input type="hidden" name="ao_page" value="<%= @ao_page %>" />
