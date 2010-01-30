@@ -68,7 +68,7 @@ module MessageFilters
         conds[0] += ' AND channel_id = :channel_id'
         conds[1][:channel_id] = channel.id
       else
-        conds[0] += ' AND 0'
+        conds[0] += ' AND FALSE'
       end
     end
     conds
