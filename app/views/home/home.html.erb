@@ -318,8 +318,8 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelle
         <td>
           <%= log.channel.name if !log.channel.nil? %>
         </td>
-        <td><%= link_to log.ao_message_id, :controller => :home, :action => :home, :ao_search => log.ao_message_id, :anchor => 'ao' if !log.ao_message_id.nil? %></td>
-        <td><%= link_to log.at_message_id, :controller => :home, :action => :home, :at_search => log.at_message_id, :anchor => 'at' if !log.at_message_id.nil? %></td>
+        <td><%= link_to log.ao_message_id, :controller => :home, :action => :home, :ao_search => "id:#{log.ao_message_id}", :anchor => 'ao' if !log.ao_message_id.nil? %></td>
+        <td><%= link_to log.at_message_id, :controller => :home, :action => :home, :at_search => "id:#{log.at_message_id}", :anchor => 'at' if !log.at_message_id.nil? %></td>
         <td><%= short_html log.message, 100 %></td>
       </tr>
     <% end %>
