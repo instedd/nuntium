@@ -1,9 +1,9 @@
 <% content_for :head do%>
 	<script type="text/javascript" charset="utf-8">
 	function disableConfig(value) {
-		$('application_configuration_url').disabled=value;
-		$('application_configuration_cred_user').disabled=value;
-		$('application_configuration_cred_pass').disabled=value;
+		document.getElementById('application_configuration_url').disabled=value;
+		document.getElementById('application_configuration_cred_user').disabled=value;
+		document.getElementById('application_configuration_cred_pass').disabled=value;
 	} 
 	</script>
 <% end%>
