@@ -28,18 +28,18 @@
 
 <script>
 function twitter_channel_update() {
-  var f = $('edit_twitter_channel_form');
+  var f = document.getElementById('edit_twitter_channel_form');
   f.action = '<%= url_for :controller => :channel, :action => :update_channel %>';
   f.submit();
 }
 
 function twitter_channel_update_user() {
-  var f = $('edit_twitter_channel_form');
+  var f = document.getElementById('edit_twitter_channel_form');
   f.action = '<%= url_for :controller => :twitter, :action => :update_twitter_channel %>';
   f.submit();
 }
 
-$('twitter_welcome_message').onkeydown = function(e) {
+document.getElementById('twitter_welcome_message').onkeydown = function(e) {
   if (e.keyCode == 13) {
     twitter_channel_update();
     return false;
