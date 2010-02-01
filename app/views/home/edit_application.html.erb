@@ -25,8 +25,8 @@
   
   <p>
   Route via last AT channel used <acronym title="When an AO message needs to be routed, if it's 'to' field matches the 'from' field of the last AT message received, the channel used to receieve that AT message will be used.">?</acronym><br/>
+  <%= c.radio_button :use_address_source, 0, :checked => @application.configuration[:use_address_source].nil? %> <%= c.label :use_address_source, 'No', :value => 0 %><br/>
   <%= c.radio_button :use_address_source, 1, :checked => !@application.configuration[:use_address_source].nil? %> <%= c.label :use_address_source, 'Yes', :value => 1 %>
-  <%= c.radio_button :use_address_source, 0, :checked => @application.configuration[:use_address_source].nil? %> <%= c.label :use_address_source, 'No', :value => 0 %>
   </p>
   
   <div>
