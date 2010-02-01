@@ -22,7 +22,7 @@ class PushQstChannelMessageJob
 
     # Create http requestor and uri
     http, path = create_http cfg, 'incoming' 
-    if http.nil? then return :error_initializing_http end 
+    return :error_initializing_http if http.nil?
     
     # If last transfer failed get last expected id from server
     last_msg = process_last_id cfg, http, path

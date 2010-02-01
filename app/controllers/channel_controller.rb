@@ -47,8 +47,7 @@ class ChannelController < AuthenticatedController
     if !@channel.save
       @channel.clear_password
       flash[:channel] = @channel
-      redirect_to :action => :edit_channel
-      return
+      return redirect_to :action => :edit_channel
     end
     
     redirect_to_home 'Channel was updated'

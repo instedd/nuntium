@@ -18,18 +18,13 @@ class HomeController < AuthenticatedController
   
   def login
     app = params[:application]
-    
-    if app.nil?
-      redirect_to_home
-      return
-    end
+    return redirect_to_home if app.nil?
     
     @application = Application.find_by_name app[:name]
     if @application.nil? || !@application.authenticate(app[:password])
       flash[:application] = Application.new(:name => app[:name])
       flash[:notice] = 'Invalid name/password'
-      redirect_to :action => :index
-      return
+      return redirect_to :action => :index
     end
     
     session[:application_id] = @application.id
@@ -38,18 +33,13 @@ class HomeController < AuthenticatedController
   
   def create_application
     app = params[:new_application]
-    
-    if app.nil?
-      redirect_to_home
-      return
-    end
+    return redirect_to_home if app.nil?
     
     new_app = Application.new(app)
     if !new_app.save
       new_app.clear_password
       flash[:new_application] = new_app
-      redirect_to :action => :index
-      return
+      return redirect_to :action => :index
     end
     
     session[:application_id] = new_app.id
@@ -103,11 +93,7 @@ class HomeController < AuthenticatedController
   
   def update_application
     app = params[:application]
-    
-    if app.nil?
-      redirect_to_home
-      return
-    end
+    return redirect_to_home if app.nil?
     
     @application.max_tries = app[:max_tries]
     @application.interface = app[:interface]

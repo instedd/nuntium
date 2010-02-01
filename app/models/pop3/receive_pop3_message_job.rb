@@ -17,9 +17,7 @@ class ReceivePop3MessageJob
     config = channel.configuration
     
     pop = Net::POP3.new(config[:host], config[:port].to_i)
-    if (config[:use_ssl] == '1')
-      pop.enable_ssl(OpenSSL::SSL::VERIFY_NONE)
-    end
+    pop.enable_ssl(OpenSSL::SSL::VERIFY_NONE) if config[:use_ssl] == '1'
     
     begin
       pop.start(config[:user], config[:password])
@@ -56,15 +54,11 @@ class ReceivePop3MessageJob
   
   def get_body(tmail)
     # Not multipart? Return body as is.
-    if !tmail.multipart?
-      return tmail.body
-    end
+    return tmail.body if !tmail.multipart?
     
     # Return text/plain part.
     tmail.parts.each do |part|
-      if part.content_type == 'text/plain'
-        return part.body
-      end
+      return part.body if part.content_type == 'text/plain'
     end
     
     # Or body if not found

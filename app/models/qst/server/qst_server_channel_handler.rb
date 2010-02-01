@@ -45,10 +45,7 @@ class QstServerChannelHandler < ChannelHandler
   end
   
   def before_save
-    if !@channel.configuration[:salt].nil?
-      return
-    end
-    
+    return if !@channel.configuration[:salt].nil?
     @channel.configuration[:salt] = ActiveSupport::SecureRandom.base64(8)
     @channel.configuration[:password] = Digest::SHA2.hexdigest(@channel.configuration[:salt] + @channel.configuration[:password])
   end

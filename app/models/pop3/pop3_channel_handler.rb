@@ -29,9 +29,7 @@ class Pop3ChannelHandler < ChannelHandler
     config = @channel.configuration
     
     pop = Net::POP3.new(config[:host], config[:port].to_i)
-    if (config[:use_ssl] == '1')
-      pop.enable_ssl(OpenSSL::SSL::VERIFY_NONE)
-    end
+    pop.enable_ssl(OpenSSL::SSL::VERIFY_NONE) if config[:use_ssl] == '1'
     
     begin
       pop.start(config[:user], config[:password])

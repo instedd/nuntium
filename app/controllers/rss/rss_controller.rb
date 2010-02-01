@@ -22,25 +22,17 @@ class RssController < ApplicationController
     # Order by time, last arrived message will be first
     @at_messages = ATMessage.all(:order => 'timestamp DESC', :conditions => [query] + params)
     
-    if @at_messages.empty?
-      head :not_modified
-      return
-    end
+    return head :not_modified if @at_messages.empty?
     
     if !etag.nil?
       # If there's an etag, find the matching message and collect up to it in temp_messages
       temp_messages = []
       @at_messages.each do |msg|
-        if msg.guid == etag
-          break
-        end
+        break if msg.guid == etag
         temp_messages.push msg
       end
       
-      if temp_messages.empty?
-        head :not_modified
-        return
-      end
+      return head :not_modified if temp_messages.empty?
       
       @at_messages = temp_messages
     end
@@ -67,10 +59,7 @@ class RssController < ApplicationController
     ATMessage.log_delivery(@at_messages, @application, 'rss')
     
     @at_messages = valid_messages
-    if @at_messages.empty?
-      head :not_modified
-      return
-    end
+    return head :not_modified if @at_messages.empty?
     
     response.last_modified = @at_messages.last.timestamp
     response.headers['ETag'] = @at_messages.last.guid

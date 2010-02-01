@@ -7,9 +7,7 @@ class QSTOutgoingMessage < ActiveRecord::Base
   include MessageGetter
   
   def guid
-    self.ao_message.guid
-  rescue
-    nil
+    self.ao_message.guid rescue nil
   end
   
 end

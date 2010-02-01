@@ -6,18 +6,13 @@ class TwitterController < AuthenticatedController
 
   def create_twitter_channel
     chan = params[:channel]
-    
-    if chan.nil?
-      redirect_to_home
-      return
-    end
+    return redirect_to_home if chan.nil?
     
     @channel = Channel.new(chan)
     if @channel.name.blank?
       @channel.errors.add(:name, "can't be blank")
       flash[:channel] = @channel
-      redirect_to :controller => :home, :action => :new_channel
-      return
+      return redirect_to :controller => :home, :action => :new_channel
     end
     
     oauth = TwitterChannelHandler.new_oauth

@@ -80,11 +80,7 @@ class String
   #   'foobar'.protocol => ''
   def protocol
     i = self.index '://'
-    if i.nil?
-      ''
-    else
-      self[0 ... i]
-    end
+    i.nil? ? '' : self[0 ... i]
   end
   
   # Returns this string without the protocol part.
@@ -92,11 +88,7 @@ class String
   #   'foobar'.without_protocol => 'foobar'
   def without_protocol
     i = self.index '://'
-    if i.nil?
-      self
-    else
-      self[i + 3 ... self.length]
-    end
+    i.nil? ? self : self[i + 3 ... self.length]
   end
   
   def with_protocol(protocol)

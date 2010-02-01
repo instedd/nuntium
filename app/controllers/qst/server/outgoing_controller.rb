@@ -5,21 +5,15 @@ class OutgoingController < QSTServerController
     max = params[:max]
     
     # Default max to 10 if not specified
-    if max.nil?
-      max = 10
-    else
-      max = max.to_i
-    end
+    max = max.nil? ? 10 : max.to_i
     
     # If there's an etag
     if !etag.nil?
-	
-	  # Find the message by guid
-	  msg = AOMessage.find_by_guid(etag)
-	
-	  if msg.nil?
-	    last = nil
-	  else
+  	  # Find the message by guid
+  	  msg = AOMessage.find_by_guid(etag)
+  	  if msg.nil?
+  	    last = nil
+  	  else
         # Find the message in qst for that etag
         last = QSTOutgoingMessage.first(
           :order => :id, 
@@ -78,10 +72,7 @@ class OutgoingController < QSTServerController
       @ao_messages.sort! {|x,y| x.timestamp <=> y.timestamp}
     end
     
-    if !@ao_messages.empty?
-      response.headers['ETag'] = @ao_messages.last.id
-    end
-	
-	render :layout => false
+    response.headers['ETag'] = @ao_messages.last.id if !@ao_messages.empty?
+	  render :layout => false
   end
 end
