@@ -1,6 +1,7 @@
 class ChannelController < AuthenticatedController
 
   before_filter :check_login
+  before_filter :check_channel, :except => [:new_channel, :create_channel]
   
   def new_channel
     @channel = flash[:channel]
@@ -11,11 +12,7 @@ class ChannelController < AuthenticatedController
   
   def create_channel
     chan = params[:channel]
-    
-    if chan.nil?
-      redirect_to_home
-      return
-    end
+    return redirect_to_home if chan.nil?
     
     @channel = Channel.new(chan)
     @channel.application_id = @application.id
@@ -35,12 +32,6 @@ class ChannelController < AuthenticatedController
   end
   
   def edit_channel
-    @channel = Channel.find params[:id]
-    if @channel.nil? || @channel.application_id != @application.id
-      redirect_to_home
-      return
-    end
-    
     if !flash[:channel].nil?
       @channel = flash[:channel]
     end
@@ -50,17 +41,7 @@ class ChannelController < AuthenticatedController
   
   def update_channel
     chan = params[:channel]
-    
-    if chan.nil?
-      redirect_to_home
-      return
-    end
-    
-    @channel = Channel.find params[:id]
-    if @channel.nil? || @channel.application_id != @application.id
-      redirect_to_home
-      return
-    end
+    return redirect_to_home if chan.nil?
     
     @channel.handler.update(chan)
     
@@ -77,12 +58,6 @@ class ChannelController < AuthenticatedController
   end
   
   def delete_channel
-    @channel = Channel.find params[:id]
-    if @channel.nil? || @channel.application_id != @application.id
-      redirect_to_home
-      return
-    end
-    
     @channel.delete
     
     flash[:notice] = 'Channel was deleted'
@@ -90,12 +65,6 @@ class ChannelController < AuthenticatedController
   end
   
   def enable_channel
-    @channel = Channel.find params[:id]
-    if @channel.nil? || @channel.application_id != @application.id
-      redirect_to_home
-      return
-    end
-    
     @channel.enabled = true
     @channel.save!
     
@@ -104,12 +73,6 @@ class ChannelController < AuthenticatedController
   end
   
   def disable_channel
-    @channel = Channel.find params[:id]
-    if @channel.nil? || @channel.application_id != @application.id
-      redirect_to_home
-      return
-    end
-    
     @channel.enabled = false
     @channel.save!
     
@@ -135,6 +98,16 @@ class ChannelController < AuthenticatedController
       flash[:notice] = 'Channel was disabled and ' + requeued_messages_count.to_s + ' messages were re-queued'
     end
     redirect_to_home
+  end
+  
+  protected
+  
+  def check_channel
+    @channel = Channel.find_by_id params[:id]
+    if @channel.nil? || @channel.application_id != @application.id
+      redirect_to_home
+      return
+    end
   end
 
 end
