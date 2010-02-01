@@ -3,7 +3,6 @@ class MessageController < AuthenticatedController
   include MessageFilters
 
   before_filter :check_login
-  before_filter :check_message, :only => [:view_ao_message, :view_at_message]
   after_filter :compress, :only => [:view_ao_message, :view_at_message]
 
   def new_ao_message
@@ -78,6 +77,9 @@ class MessageController < AuthenticatedController
   end
   
   def view_ao_message
+    @id = params[:id]
+    @msg = AOMessage.find_by_id @id
+    redirect_to_home if @msg.nil? || @msg.application_id != @application.id
     @hide_title = true
     @logs = ApplicationLog.find_all_by_ao_message_id(@id)
     @kind = 'ao'
@@ -85,18 +87,13 @@ class MessageController < AuthenticatedController
   end
   
   def view_at_message
+    @id = params[:id]
+    @msg = ATMessage.find_by_id @id
+    redirect_to_home if @msg.nil? || @msg.application_id != @application.id
     @hide_title = true
     @logs = ApplicationLog.find_all_by_at_message_id(@id)
     @kind = 'at'
     render "message.html.erb"
-  end
-  
-  protected
-  
-  def check_message
-    @id = params[:id]
-    @msg = ATMessage.find_by_id @id
-    redirect_to_home if @msg.nil? || @msg.application_id != @application.id
   end
 
 end
