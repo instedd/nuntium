@@ -19,8 +19,7 @@ class MessageController < AuthenticatedController
     
     @application.route msg, 'user'
     
-    flash[:notice] = 'AO Message was created'
-    redirect_to_home
+    redirect_to_home 'AO Message was created'
   end
   
   def create_at_message
@@ -28,8 +27,7 @@ class MessageController < AuthenticatedController
     msg.timestamp = Time.new.utc
     @application.accept msg, 'ui'
     
-    flash[:notice] = 'AT Message was created'
-    redirect_to_home
+    redirect_to_home 'AT Message was created'
   end
   
   def create_message(kind)

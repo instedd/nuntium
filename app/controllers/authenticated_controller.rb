@@ -10,7 +10,8 @@ class AuthenticatedController < ApplicationController
     @application = Application.find_by_id @application_id
   end
   
-  def redirect_to_home
+  def redirect_to_home(msg = nil)
+    flash[:notice] = msg if msg
     redirect_to :controller => :home, :action => :home
   end
 

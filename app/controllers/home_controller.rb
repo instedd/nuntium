@@ -137,8 +137,7 @@ class HomeController < AuthenticatedController
       flash[:application] = @application
       redirect_to :action => :edit_application
     else
-      flash[:notice] = 'Application was changed'
-      redirect_to_home
+      redirect_to_home 'Application was changed'
     end
   end
   
@@ -156,8 +155,7 @@ class HomeController < AuthenticatedController
       flash[:application] = @application
       redirect_to :action => :edit_application_ao_routing
     else
-      flash[:notice] = 'AO messages routing was changed'
-      redirect_to_home
+      redirect_to_home 'AO messages routing was changed'
     end
   end
   
@@ -175,8 +173,7 @@ class HomeController < AuthenticatedController
       flash[:application] = @application
       redirect_to :action => :edit_application_at_routing
     else
-      flash[:notice] = 'AT messages routing was changed'
-      redirect_to_home
+      redirect_to_home 'AT messages routing was changed'
     end
   end
   

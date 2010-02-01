@@ -27,8 +27,7 @@ class ChannelController < AuthenticatedController
       return
     end
     
-    flash[:notice] = 'Channel was created'
-    redirect_to_home
+    redirect_to_home 'Channel was created'
   end
   
   def edit_channel
@@ -53,23 +52,20 @@ class ChannelController < AuthenticatedController
       return
     end
     
-    flash[:notice] = 'Channel was updated'
-    redirect_to_home
+    redirect_to_home 'Channel was updated'
   end
   
   def delete_channel
     @channel.delete
     
-    flash[:notice] = 'Channel was deleted'
-    redirect_to_home
+    redirect_to_home 'Channel was deleted'
   end
   
   def enable_channel
     @channel.enabled = true
     @channel.save!
     
-    flash[:notice] = 'Channel was enabled'
-    redirect_to_home
+    redirect_to_home 'Channel was enabled'
   end
   
   def disable_channel
@@ -95,7 +91,7 @@ class ChannelController < AuthenticatedController
     elsif requeued_messages_count == 1
       flash[:notice] = 'Channel was disabled and 1 message was re-queued'
     else
-      flash[:notice] = 'Channel was disabled and ' + requeued_messages_count.to_s + ' messages were re-queued'
+      flash[:notice] = "Channel was disabled and #{requeued_messages_count} messages were re-queued"
     end
     redirect_to_home
   end
