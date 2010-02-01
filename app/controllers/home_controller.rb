@@ -5,6 +5,7 @@ class HomeController < AuthenticatedController
   include MessageFilters
 
   before_filter :check_login, :except => [:index, :login, :create_application]
+  after_filter :compress, :only => [:index, :login, :home, :edit_application, :edit_application_ao_routing, :edit_application_at_routing]
 
   def index
     if !session[:application_id].nil?

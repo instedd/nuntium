@@ -4,6 +4,7 @@ class MessageController < AuthenticatedController
 
   before_filter :check_login
   before_filter :check_message, :only => [:view_ao_message, :view_at_message]
+  after_filter :compress, :only => [:view_ao_message, :view_at_message]
 
   def new_ao_message
     @kind = 'ao'

@@ -2,6 +2,7 @@ class ChannelController < AuthenticatedController
 
   before_filter :check_login
   before_filter :check_channel, :except => [:new_channel, :create_channel]
+  after_filter :compress, :only => [:new_channel, :edit_channel]
   
   def new_channel
     @channel = flash[:channel]
