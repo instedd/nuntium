@@ -3,6 +3,7 @@ class MessageController < AuthenticatedController
   include MessageFilters
 
   before_filter :check_login
+  before_filter :check_message, :only => [:view_ao_message, :view_at_message]
 
   def new_ao_message
     @kind = 'ao'
@@ -54,12 +55,7 @@ class MessageController < AuthenticatedController
     all = kind == AOMessage ? :ao_all : :at_all
   
     if !params[all].nil? && params[all] == '1'
-      if kind == AOMessage
-        build_ao_messages_filter
-      else
-        build_at_messages_filter
-      end
-      
+      kind == AOMessage ? build_ao_messages_filter : build_at_messages_filter
       conditions = kind == AOMessage ? @ao_conditions : @at_conditions
       kind.update_all("state = 'cancelled'", conditions)
       affected = kind.count(:conditions => conditions)
@@ -81,31 +77,25 @@ class MessageController < AuthenticatedController
   end
   
   def view_ao_message
-    @id = params[:id]
     @hide_title = true
-    @msg = AOMessage.find_by_id @id
-    if @msg.nil? || @msg.application_id != @application.id
-      redirect_to_home
-      return
-    end
-    
     @logs = ApplicationLog.find_all_by_ao_message_id(@id)
     @kind = 'ao'
     render "message.html.erb"
   end
   
   def view_at_message
-    @id = params[:id]
     @hide_title = true
-    @msg = ATMessage.find_by_id @id
-    if @msg.nil? || @msg.application_id != @application.id
-      redirect_to_home
-      return
-    end
-    
     @logs = ApplicationLog.find_all_by_at_message_id(@id)
     @kind = 'at'
     render "message.html.erb"
+  end
+  
+  protected
+  
+  def check_message
+    @id = params[:id]
+    @msg = ATMessage.find_by_id @id
+    redirect_to_home if @msg.nil? || @msg.application_id != @application.id
   end
 
 end

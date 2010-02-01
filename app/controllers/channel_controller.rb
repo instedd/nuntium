@@ -23,8 +23,7 @@ class ChannelController < AuthenticatedController
     if !@channel.save
       @channel.clear_password
       flash[:channel] = @channel
-      redirect_to :action => :new_channel
-      return
+      return redirect_to :action => :new_channel
     end
     
     redirect_to_home 'Channel was created'
@@ -100,10 +99,7 @@ class ChannelController < AuthenticatedController
   
   def check_channel
     @channel = Channel.find_by_id params[:id]
-    if @channel.nil? || @channel.application_id != @application.id
-      redirect_to_home
-      return
-    end
+    redirect_to_home if @channel.nil? || @channel.application_id != @application.id
   end
 
 end
