@@ -40,6 +40,8 @@ class Application < ActiveRecord::Base
   
   # Route an AOMessage
   def route(msg, via_interface)
+    check_modified
+  
     if @outgoing_channels.nil?
       @outgoing_channels = self.channels.all(:conditions => ['enabled = ? AND (direction = ? OR direction = ?)', true, Channel::Outgoing, Channel::Both])
     end
@@ -94,6 +96,8 @@ class Application < ActiveRecord::Base
   
   # Accepts an ATMessage via a channel
   def accept(msg, via_channel)
+    check_modified
+  
     msg.application_id = self.id
     if !via_channel.nil? && via_channel.class == Channel
       msg.channel = via_channel
@@ -204,7 +208,18 @@ class Application < ActiveRecord::Base
     self.password = Digest::SHA2.hexdigest(self.salt + self.password)
   end
   
-  # Returns the Channel or nil
+  def check_modified
+    # Check whether the date of the application in the database is greater
+    # than our date. If so, empty cached values.
+    app = Application.find_by_id(self.id, :select => :updated_at);
+    if !app.nil? && app.updated_at > self.updated_at
+      @outgoing_channels = nil
+      undef :ao_routing_function if self.respond_to? :ao_routing_function
+      undef :at_routing_function if self.respond_to? :at_routing_function
+    end
+  end
+  
+  # Returns the Channel's name or nil
   def get_preferred_channel_name_for(address, outgoing_channels)
     return nil if self.configuration[:use_address_source].nil?
     as = AddressSource.first(:conditions => ['application_id = ? AND address = ?', self.id, address])

@@ -28,8 +28,10 @@ class ApplicationController < ActionController::Base
   end
   
   def compress
-    if self.request.env['HTTP_ACCEPT_ENCODING'].match(/gzip/)
-      if self.response.headers["Content-Transfer-Encoding"] != 'binary'
+    accept = self.request.env['HTTP_ACCEPT_ENCODING']
+    if accept && accept.match(/gzip/)
+      encoding = self.response.headers["Content-Transfer-Encoding"]
+      if encoding != 'binary'
         begin 
           ostream = StringIO.new
           gz = Zlib::GzipWriter.new(ostream)
