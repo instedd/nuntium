@@ -8,6 +8,11 @@ class AuthenticatedController < ApplicationController
     
     @application_id = session[:application_id]
     @application = Application.find_by_id @application_id
+    if @application.nil?
+      session.delete :application_id
+      redirect_to :controller => :home, :action => :index
+      return
+    end
   end
   
   def redirect_to_home(msg = nil)
