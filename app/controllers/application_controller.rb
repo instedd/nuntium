@@ -39,7 +39,7 @@ class ApplicationController < ActionController::Base
           self.response.body = ostream.string
           self.response.headers['Content-Encoding'] = 'gzip'
         ensure
-          gz.close
+          gz.close if not gz.nil
         end
       end
     end
