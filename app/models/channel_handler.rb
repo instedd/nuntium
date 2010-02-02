@@ -29,4 +29,12 @@ class ChannelHandler
   def on_destroy
   end
   
+  protected
+  
+  def check_config_not_blank(*keys)
+    keys.each do |key|
+      @channel.errors.add(key, "can't be blank") if @channel.configuration[key].blank?
+    end
+  end
+  
 end

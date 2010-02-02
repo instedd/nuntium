@@ -4,23 +4,14 @@ class ClickatellChannelHandler < ChannelHandler
   end
   
   def check_valid
-    @channel.errors.add(:api_ID, "can't be blank") if
-        @channel.configuration[:api_id].blank?
+    check_config_not_blank :api_id
     
     if (@channel.direction & Channel::Incoming) != 0    
-      @channel.errors.add(:incoming_password, "can't be blank") if
-          @channel.configuration[:incoming_password].blank?
+      check_config_not_blank :incoming_password
     end
     
     if (@channel.direction & Channel::Outgoing) != 0
-      @channel.errors.add(:user, "can't be blank") if
-          @channel.configuration[:user].blank?
-          
-      @channel.errors.add(:password, "can't be blank") if
-          @channel.configuration[:password].blank?
-          
-      @channel.errors.add(:from, "can't be blank") if
-          @channel.configuration[:from].blank?
+      check_config_not_blank :user, :password, :from
     end
   end
   

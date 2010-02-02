@@ -4,14 +4,7 @@ class DtacChannelHandler < ChannelHandler
   end
   
   def check_valid
-    @channel.errors.add(:user, "can't be blank") if
-        @channel.configuration[:user].blank?
-        
-    @channel.errors.add(:password, "can't be blank") if
-        @channel.configuration[:password].blank?
-        
-    @channel.errors.add(:sno, "can't be blank") if
-        @channel.configuration[:sno].blank?
+    check_config_not_blank :user, :password, :sno
   end
   
   def info

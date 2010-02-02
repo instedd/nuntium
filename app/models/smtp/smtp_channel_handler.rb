@@ -6,8 +6,7 @@ class SmtpChannelHandler < ChannelHandler
   end
   
   def check_valid
-    @channel.errors.add(:host, "can't be blank") if
-        @channel.configuration[:host].blank?
+    check_config_not_blank :host, :user, :password
         
     if @channel.configuration[:port].nil?
       @channel.errors.add(:port, "can't be blank")
@@ -17,12 +16,6 @@ class SmtpChannelHandler < ChannelHandler
         @channel.errors.add(:port, "must be a positive number")
       end
     end
-  
-    @channel.errors.add(:user, "can't be blank") if
-        @channel.configuration[:user].blank?
-        
-    @channel.errors.add(:password, "can't be blank") if
-        @channel.configuration[:password].blank?
   end
   
   def check_valid_in_ui
