@@ -31,19 +31,19 @@ class SendSmppMessageJob
   
       RAILS_DEFAULT_LOGGER.debug "Sending AOMessage with id #{@message_id} through SMPP channel with id #{@channel_id}."
       # try to send it through SMPP connection
-      success = @smpp_gw.send_message(msg.id, from, to, sms)
+      error_or_nil = @smpp_gw.send_message(msg.id, from, to, sms)
     rescue => e
       ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
       raise
     else
       # increase one try
       msg.tries += 1
-      if success
+      if error_or_nil.nil?
         msg.state = 'delivered'
-        msg.save    
+        msg.save
       else
         msg.save
-        ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
+        ApplicationLogger.exception_in_channel_and_ao_message channel, msg, error_or_nil
         raise
       end
       ApplicationLogger.message_channeled msg, channel

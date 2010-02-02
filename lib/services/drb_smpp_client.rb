@@ -62,13 +62,10 @@ class SmppGateway
     end    
     ar = [ from, to, sms , options]
     @@log.info "Sending MT from #{from} to #{to}: #{sms}"
-    begin
-      @@tx.send_mt(id, *ar)
-    rescue => e
-      return false
-    else
-      return true
-    end
+    @@tx.send_mt(id, *ar)
+    return nil
+  rescue Exception => e
+    return "#{e.class} #{e.message}"
   end
   
   def start(config)
