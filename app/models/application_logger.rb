@@ -76,7 +76,7 @@ class ApplicationLogger
   end
 
   def error_initializing_http(exception)
-    error(:message => "Error initializing http connection in QST operation: '#{exception.message}'")
+    error(:message => "Error initializing http connection in QST operation: '#{exception.class} #{exception.message}'")
   end
   
   def error_posting_msgs(msg)
@@ -109,12 +109,12 @@ class ApplicationLogger
   
   def self.exception_in_channel(channel, exception)
     logger = ApplicationLogger.new(channel.application_id)
-    logger.error(:channel_id => channel.id, :message => exception.to_s)
+    logger.error(:channel_id => channel.id, :message => "#{exception.class} #{exception.message}")
   end
   
   def self.exception_in_channel_and_ao_message(channel, ao_msg, exception)
     logger = ApplicationLogger.new(channel.application_id)
-    logger.error(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => 'Try #' + "#{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' failed:" + exception.to_s)
+    logger.error(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => 'Try #' + "#{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' failed: #{exception.class} #{exception.message}")
   end
   
   def self.message_channeled(ao_msg, channel)
