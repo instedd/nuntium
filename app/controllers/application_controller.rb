@@ -1,6 +1,9 @@
 # Filters added to this controller apply to all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
+require 'stringio'
+require 'zlib'
+
 class ApplicationController < ActionController::Base
   helper :all # include all helpers, all the time
   # protect_from_forgery # See ActionController::RequestForgeryProtection for details
@@ -39,7 +42,7 @@ class ApplicationController < ActionController::Base
           self.response.body = ostream.string
           self.response.headers['Content-Encoding'] = 'gzip'
         ensure
-          gz.close if not gz.nil?
+          gz.close
         end
       end
     end
