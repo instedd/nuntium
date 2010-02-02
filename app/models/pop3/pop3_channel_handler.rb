@@ -7,7 +7,7 @@ class Pop3ChannelHandler < ChannelHandler
   
   def check_valid
     @channel.errors.add(:host, "can't be blank") if
-        @channel.configuration[:host].nil? || @channel.configuration[:host].chomp.empty?
+        @channel.configuration[:host].blank?
         
     if @channel.configuration[:port].nil?
       @channel.errors.add(:port, "can't be blank")
@@ -19,10 +19,10 @@ class Pop3ChannelHandler < ChannelHandler
     end
   
     @channel.errors.add(:user, "can't be blank") if
-        @channel.configuration[:user].nil? || @channel.configuration[:user].chomp.empty?
+        @channel.configuration[:user].blank?
         
     @channel.errors.add(:password, "can't be blank") if
-        @channel.configuration[:password].nil? || @channel.configuration[:password].chomp.empty?
+        @channel.configuration[:password].blank?
   end
   
   def check_valid_in_ui

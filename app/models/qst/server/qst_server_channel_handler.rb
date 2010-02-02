@@ -16,8 +16,7 @@ class QstServerChannelHandler < ChannelHandler
     confirm = config[:password_confirmation]
     salt = config[:salt]
   
-    @channel.errors.add(:password, "can't be blank") if
-        pass.nil? || pass.chomp.empty?
+    @channel.errors.add(:password, "can't be blank") if pass.blank?
     
     if !pass.nil? && !confirm.nil? && pass != confirm
       if !pass.nil? and !salt.nil?
@@ -35,7 +34,7 @@ class QstServerChannelHandler < ChannelHandler
     @channel.protocol = params[:protocol]
     @channel.direction = params[:direction]
     
-    if !params[:configuration][:password].chomp.empty?
+    if !params[:configuration][:password].blank?
       @channel.configuration[:salt] = nil
       @channel.configuration[:password] = params[:configuration][:password]
       @channel.configuration[:password_confirmation] = params[:configuration][:password_confirmation]

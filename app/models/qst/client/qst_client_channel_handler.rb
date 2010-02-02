@@ -5,13 +5,13 @@ class QstClientChannelHandler < ChannelHandler
   
   def check_valid
     @channel.errors.add(:url, "can't be blank") if
-        @channel.configuration[:url].nil? || @channel.configuration[:url].chomp.empty?
+        @channel.configuration[:url].blank?
         
     @channel.errors.add(:user, "can't be blank") if
-        @channel.configuration[:user].nil? || @channel.configuration[:user].chomp.empty?
+        @channel.configuration[:user].blank?
         
     @channel.errors.add(:password, "can't be blank") if
-        @channel.configuration[:password].nil? || @channel.configuration[:password].chomp.empty?
+        @channel.configuration[:password].blank?
   end
 
   def on_enable

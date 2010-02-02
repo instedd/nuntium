@@ -110,10 +110,10 @@ class HomeController < AuthenticatedController
       
       @application.configuration.update({:url => cfg[:url]}) 
       @application.configuration.update({:cred_user => cfg[:cred_user]}) 
-      @application.configuration.update({:cred_pass => cfg[:cred_pass]}) unless (cfg[:cred_pass].nil? or cfg[:cred_pass].chomp.empty?) and not (cfg[:cred_user].nil? or cfg[:cred_user].chomp.empty?)  
+      @application.configuration.update({:cred_pass => cfg[:cred_pass]}) unless (cfg[:cred_pass].nil? or cfg[:cred_pass].blank?) and not (cfg[:cred_user].nil? or cfg[:cred_user].blank?)  
     end
       
-    if !app[:password].chomp.empty?
+    if !app[:password].blank?
       @application.salt = nil
       @application.password = app[:password]
       @application.password_confirmation = app[:password_confirmation]

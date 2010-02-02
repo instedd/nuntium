@@ -414,7 +414,7 @@ class MessageRouterAsserter
     end
     
     es = []
-    if names.nil? || names.empty?
+    if names.blank?
       es = @events.select{|x| x[:kind] == :route_to_any_channel}
     else
       es = @events.select{|x| x[:kind] == :route_to_any_channel && x[:args].all?{|y| names.include?(y)} && names.all?{|y| x[:args].include?(y)}}

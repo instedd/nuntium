@@ -21,7 +21,7 @@ class SendClickatellMessageJob
     uri = append uri, 'api_id', config[:api_id], true
     uri = append uri, 'user', config[:user]
     uri = append uri, 'password', config[:password]
-    if config[:from] != nil && !config[:from].empty?
+    unless config[:from].blank?
       uri = append uri, 'from', config[:from]
       uri = append uri, 'mo', '1'
     end
@@ -32,7 +32,7 @@ class SendClickatellMessageJob
       uri = append uri, 'text', to_unicode_raw_string(msg.subject_and_body)
       uri = append uri, 'unicode', '1'
     end
-    if !config[:concat].nil? && !config[:concat].empty?
+    unless config[:concat].blank?
       uri = append uri, 'concat', config[:concat]
     end
     

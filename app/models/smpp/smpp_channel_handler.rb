@@ -5,7 +5,7 @@ class SmppChannelHandler < ChannelHandler
   
   def check_valid
     @channel.errors.add(:host, "can't be blank") if
-        @channel.configuration[:host].nil? || @channel.configuration[:host].chomp.empty?
+        @channel.configuration[:host].blank?
         
     if @channel.configuration[:port].nil?
       @channel.errors.add(:port, "can't be blank")
@@ -35,13 +35,13 @@ class SmppChannelHandler < ChannelHandler
     end  
   
     @channel.errors.add(:user, "can't be blank") if
-        @channel.configuration[:user].nil? || @channel.configuration[:user].chomp.empty?
+        @channel.configuration[:user].blank?
         
     @channel.errors.add(:password, "can't be blank") if
-        @channel.configuration[:password].nil? || @channel.configuration[:password].chomp.empty?
+        @channel.configuration[:password].blank?
         
     @channel.errors.add(:encoding, "can't be blank") if
-        @channel.configuration[:encoding].nil? || @channel.configuration[:encoding].chomp.empty?
+        @channel.configuration[:encoding].blank?
   end
   
   def check_valid_in_ui

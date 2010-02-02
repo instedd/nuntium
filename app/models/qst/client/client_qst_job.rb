@@ -29,7 +29,7 @@ module ClientQstJob
     else
       path = uri.path
       if not target.nil?
-        path += '/' unless path.nil? or path.empty? or path[-1..-1] == '/'
+        path += '/' unless path.blank? or path[-1..-1] == '/'
         path += target
       end
       return http, path  
