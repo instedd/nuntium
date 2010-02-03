@@ -3,6 +3,7 @@ require 'twitter'
 class TwitterController < AuthenticatedController
 
   before_filter :check_login
+  before_filter :check_twitter_properly_configured
 
   def create_twitter_channel
     chan = params[:channel]
@@ -78,6 +79,12 @@ class TwitterController < AuthenticatedController
       flash[:notice] = "Channel couldn't be saved"
     end
     redirect_to_home
+  end
+  
+  protected
+  
+  def check_twitter_properly_configured
+    return redirect_to_home if TwitterConsumerConfig.nil?
   end
 
 end
