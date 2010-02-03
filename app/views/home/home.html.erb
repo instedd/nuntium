@@ -217,7 +217,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
         <td><%= chan.length > 0 ? chan[0].name : '' %></td>
         <td align="right"><%= msg.tries %></td>
         <td><%= msg.state %></td>
-        <td><%= link_to_function 'view log', "view_ao_message_log(#{msg.id})" %></td>
+        <td><%= link_to 'view log', {:controller => :message, :action => :view_ao_message, :id => msg.id}, :popup => ['log', 'width=640,height=480,scrollbars=yes'] %></td>
       </tr>
     <% end %>
   </table>
@@ -283,7 +283,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelle
         <td><%= chan.length > 0 ? chan[0].name : '' %></td>
         <td align="right"><%= msg.tries %></td>
         <td><%= msg.state %></td>
-        <td><%= link_to_function 'view log', "view_at_message_log(#{msg.id})" %></td>
+        <td><%= link_to 'view log', {:controller => :message, :action => :view_at_message, :id => msg.id}, :popup => ['log', 'width=640,height=480,scrollbars=yes'] %></td>
       </tr>
     <% end %>
   </table>

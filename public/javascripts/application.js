@@ -2,25 +2,6 @@ function $n(id) {
   return document.getElementsByName(id);
 }
 
-function openCenteredWindow(url, name, width, height, features) {
-  if(screen.width){
-	  var winl = (screen.width-width)/2;
-	  var wint = (screen.height-height)/2;
-  } else {
-		winl = 0;
-		wint =0;
-  }
-  if (winl < 0) winl = 0;
-  if (wint < 0) wint = 0;
-  var settings = 'height=' + height + ',';
-  settings += 'width=' + width + ',';
-  settings += 'top=' + wint + ',';
-  settings += 'left=' + winl + ',';
-  settings += features;
-  win = window.open(url, name, settings);
-  win.window.focus();
-}
-
 function toggle(id) {
   $('#' + id).toggle('fast');
 }
@@ -130,14 +111,6 @@ function mark_at_messages_as_cancelled() {
   var form = document.getElementById('at_messages_form');
   form.action = '/message/at/mark_as_cancelled';
   form.submit();
-}
-
-function view_ao_message_log(id) {
-  openCenteredWindow('/message/ao/' + id, 'log', 640, 480, 'scrollbars=yes');
-}
-
-function view_at_message_log(id) {
-  openCenteredWindow('/message/at/' + id, 'log', 640, 480, 'scrollbars=yes');
 }
 
 function create_channel(select) {
