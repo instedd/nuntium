@@ -15,8 +15,8 @@ class OutgoingController < QSTServerController
   	    last = nil
   	  else
         # Find the message in qst for that etag
-        last = QSTOutgoingMessage.first(
-          :order => :id, 
+        last = QSTOutgoingMessage.last(
+          :order => :id,
           :conditions => ['channel_id = ? AND ao_message_id = ?', @channel.id, msg.id])
       end
         
