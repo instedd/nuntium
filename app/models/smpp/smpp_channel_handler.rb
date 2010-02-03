@@ -4,7 +4,7 @@ class SmppChannelHandler < ChannelHandler
   end
   
   def check_valid
-    check_config_not_blank :host
+    check_config_not_blank :host, :system_type
         
     if @channel.configuration[:port].nil?
       @channel.errors.add(:port, "can't be blank")

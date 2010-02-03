@@ -289,7 +289,7 @@ def startSMPPGateway(channel_id)
     :port => @configuration[:port],
     :system_id => @configuration[:user],
     :password => @configuration[:password],
-    :system_type => 'vma', # default given according to SMPP 3.4 Spec
+    :system_type => @configuration[:system_type],
     :interface_version => 52,
     :source_ton  => @configuration[:ton].to_i,
     :source_npi => @configuration[:npi].to_i,

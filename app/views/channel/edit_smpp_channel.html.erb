@@ -15,11 +15,15 @@
     <%= c.label :port %><br/>
     <%= c.text_field :port, :value => @channel[:configuration][:port] %>
     </p>
-	<p>
+    <p>
+		<%= c.label :system_type %><br/>
+		<%= c.text_field :system_type, :value => @channel[:configuration][:system_type] %>
+		</p>
+    <p>
     <%= c.label :ton %><br/>
     <%= c.text_field :ton, :value => @channel[:configuration][:ton] %>
     </p>
-	<p>
+    <p>
     <%= c.label :npi %><br/>
     <%= c.text_field :npi, :value => @channel[:configuration][:npi] %>
     </p>
@@ -31,14 +35,14 @@
     <%= c.label :password %><br/>
     <%= c.password_field :password, :value => @channel[:configuration][:password] %>
     </p>
-	<p>
-	Check this box if you would like to encode AO messages in ISO-8859-1 when possible (the SMSC has to support it).<br/>
+    <p>
+    Check this box if you would like to encode AO messages in ISO-8859-1 when possible (the SMSC has to support it).<br/>
     <%= c.label :use_latin1 %> <%= c.check_box :use_latin1, :checked => @channel[:configuration][:use_latin1] == '1' %>
     </p>
-	<p>
-	When AO messages cannot be encoded in one byte, which encoding would you like to use (the SMSC has to support it):<br/>	
-	<%= c.label :encoding %> <%= c.select :encoding, options_for_select(['UTF-16LE', 'UTF-16BE', 'UCS-2'], @channel[:configuration][:encoding]) %>	
-	</p>
+    <p>
+    When AO messages cannot be encoded in one byte, which encoding would you like to use (the SMSC has to support it):<br/> 
+    <%= c.label :encoding %> <%= c.select :encoding, options_for_select(['UTF-16LE', 'UTF-16BE', 'UCS-2'], @channel[:configuration][:encoding]) %>  
+    </p>
   <% end %>
   <%= submit_tag 'Update channel' %>
 <% end %>

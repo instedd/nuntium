@@ -1,51 +1,55 @@
 <h4>Create new SMPP channel</h4>
 
 <% form_for :channel, :url => { :controller => 'channel', :action => :create_channel, :kind => params[:kind] } do |f| %>
-  <%= f.error_messages %>
-  <%= f.hidden_field :direction, :value => Channel::Both %>
-  <p>
-  <%= f.label :name %><br/>
-  <%= f.text_field :name %>
-  </p>
-  <p>
-  <%= f.label :protocol %><br/>
-  <%= f.text_field :protocol, :value => 'sms', :readonly => 'readonly' %>
-  </p>
-  <% f.fields_for :configuration do |c| %>
-  	<p>
-    <%= c.label :host %><br/>
-    <%= c.text_field :host %>
-    </p>
-  	<p>
-    <%= c.label :port %><br/>
-    <%= c.text_field :port %>
-    </p>
+	<%= f.error_messages %>
+	<%= f.hidden_field :direction, :value => Channel::Both %>
 	<p>
-    <%= c.label :ton %><br/>
-    <%= c.text_field :ton %>
-    </p>
-	<p>
-    <%= c.label :npi %><br/>
-    <%= c.text_field :npi %>
-    </p>
-	<p>
-  	<%= c.label :user %><br/>
-  	<%= c.text_field :user %>
-  	</p>
-  	<p>
-  	<%= c.label :password %><br/>
-  	<%= c.password_field :password %>
-  	</p>
-	<p>
-	Check this field if you would like to encode AO messages in ISO-8859-1 when possible (the SMSC has to support it).<br/>
-    <%= c.label :use_latin1 %> <%= c.check_box :use_latin1, {} %>
-    </p>
-	<p>
-	When AO messages cannot be encoded in one byte, which encoding would you like to use (the SMSC has to support it):<br/>	
-	<%= c.label :encoding %> <%= c.select :encoding, options_for_select(['UTF-16LE', 'UTF-16BE', 'UCS-2']) %>	
+	<%= f.label :name %><br/>
+	<%= f.text_field :name %>
 	</p>
-  <% end %>
-  <%= submit_tag 'Create Channel' %>
+	<p>
+	<%= f.label :protocol %><br/>
+	<%= f.text_field :protocol, :value => 'sms', :readonly => 'readonly' %>
+	</p>
+	<% f.fields_for :configuration do |c| %>
+		<p>
+		<%= c.label :host %><br/>
+		<%= c.text_field :host %>
+		</p>
+		<p>
+		<%= c.label :port %><br/>
+		<%= c.text_field :port %>
+		</p>
+		<p>
+		<%= c.label :system_type %><br/>
+		<%= c.text_field :system_type, :value => 'vma' %>
+		</p>
+		<p>
+		<%= c.label :ton %><br/>
+		<%= c.text_field :ton %>
+		</p>
+	  <p>
+		<%= c.label :npi %><br/>
+		<%= c.text_field :npi %>
+		</p>
+	  <p>
+		<%= c.label :user %><br/>
+		<%= c.text_field :user %>
+		</p>
+		<p>
+		<%= c.label :password %><br/>
+		<%= c.password_field :password %>
+		</p>
+	  <p>
+	  Check this field if you would like to encode AO messages in ISO-8859-1 when possible (the SMSC has to support it).<br/>
+		<%= c.label :use_latin1 %> <%= c.check_box :use_latin1, {} %>
+		</p>
+  	<p>
+  	When AO messages cannot be encoded in one byte, which encoding would you like to use (the SMSC has to support it):<br/> 
+  	<%= c.label :encoding %> <%= c.select :encoding, options_for_select(['UTF-16LE', 'UTF-16BE', 'UCS-2']) %> 
+  	</p>
+	<% end %>
+	<%= submit_tag 'Create Channel' %>
 <% end %>
 
 <%= link_to 'Go back', :controller => :home, :action => :home %>
