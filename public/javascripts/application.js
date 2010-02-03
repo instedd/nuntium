@@ -57,7 +57,7 @@ function select_all_ao_messages() {
 }
 
 function select_all_pages_ao_messages() {
-  $('#ao_all').value = 1;
+  $('#ao_all').val(1);
   var e = $('#all_ao_messages_text');
   e.show();
   e.html('All ' + total_ao_messages + ' messages are selected. <a href="javascript:void(0)" onclick="select_none_ao_messages()">Clear selection</a>.');
@@ -79,7 +79,7 @@ function select_all_at_messages() {
 }
 
 function select_all_pages_at_messages() {
-  $('#at_all').value = 1;
+  $('#at_all').val(1);
   var e = $('#all_at_messages_text');
   e.show();
   e.html('All ' + total_at_messages + ' messages are selected. <a href="javascript:void(0)" onclick="select_none_at_messages()">Clear selection</a>.');
@@ -92,10 +92,18 @@ function select_none_at_messages() {
 }
 
 function mark_ao_messages_as_cancelled() {
-  if (get_selected_count('ao_messages[]') == 0) {
+  var count = get_selected_count('ao_messages[]');
+  if (count == 0) {
     alert('No Application Originated messages were selected');
     return;
   }
+  
+  if ($('#ao_all').val() == 1) {
+    count = total_ao_messages;
+  }
+  
+  if (!confirm('' + count + ' Application Originated message' + (count == 1 ? '' : 's') + ' will be cancelled. Are you sure?'))
+    return;
   
   var form = document.getElementById('ao_messages_form');
   form.action = '/message/ao/mark_as_cancelled';
@@ -103,13 +111,40 @@ function mark_ao_messages_as_cancelled() {
 }
 
 function mark_at_messages_as_cancelled() {
-  if (get_selected_count('at_messages[]') == 0) {
+  var count = get_selected_count('at_messages[]');
+  if (count == 0) {
     alert('No Application Terminated messages were selected');
     return;
   }
   
+  if ($('#at_all').val() == 1) {
+    count = total_at_messages;
+  }
+  
+  if (!confirm('' + count + ' Application Terminated message' + (count == 1 ? '' : 's') + ' will be cancelled. Are you sure?'))
+    return;
+  
   var form = document.getElementById('at_messages_form');
   form.action = '/message/at/mark_as_cancelled';
+  form.submit();
+}
+
+function reroute_ao_messages() {
+  var count = get_selected_count('ao_messages[]');
+  if (count == 0) {
+    alert('No Application Originated messages were selected');
+    return;
+  }
+  
+  if ($('#ao_all').val() == 1) {
+    count = total_ao_messages;
+  }
+  
+  if (!confirm('' + count + ' Application Originated message' + (count == 1 ? '' : 's') + ' will be re-routed. Are you sure?'))
+    return;
+  
+  var form = document.getElementById('ao_messages_form');
+  form.action = '/message/ao/reroute';
   form.submit();
 }
 

@@ -30,6 +30,8 @@ class ApplicationLogger
   def ao_message_received(msg, interface)
     if interface.class == Hash and interface[:application].class == Application
       info(:ao_message_id => msg.id, :message => "Message received from application '#{interface[:application].name}'")
+    elsif interface == 're-route'
+      info(:ao_message_id => msg.id, :message => "Message was re-routed")
     else
       info(:ao_message_id => msg.id, :message => "Message received via #{interface} interface")
     end

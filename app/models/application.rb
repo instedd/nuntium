@@ -94,6 +94,12 @@ class Application < ActiveRecord::Base
     return false
   end
   
+  def reroute(msg)
+    msg.tries = 0
+    msg.state = 'pending'
+    self.route msg, 're-route'
+  end
+  
   # Accepts an ATMessage via a channel
   def accept(msg, via_channel)
     check_modified

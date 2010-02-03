@@ -76,6 +76,28 @@ class MessageController < AuthenticatedController
     redirect_to params
   end
   
+  def reroute_ao_messages
+    msgs = []
+    if !params[:ao_all].nil? && params[:ao_all] == '1'
+      build_ao_messages_filter
+      conditions = @ao_conditions
+      msgs = AOMessage.all(:conditions => conditions)
+    else
+      ids = params[:ao_messages]
+      msgs = AOMessage.all(:conditions => ['id IN (?)', ids])
+    end
+    
+    msgs.each do |msg|
+      @application.reroute msg
+    end
+    
+    flash[:notice] = "#{msgs.length} Application Originated messages #{msgs.length == 1 ? 'was' : 'were'} re-routed"
+    
+    params[:controller] = :home
+    params[:action] = :home
+    redirect_to params
+  end
+  
   def view_ao_message
     @id = params[:id]
     @msg = AOMessage.find_by_id @id
