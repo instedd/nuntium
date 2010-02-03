@@ -26,7 +26,7 @@ module MessageFilters
     if !search.search.nil?
       conds[0] += ' AND ('
       # Add id condition only if searching a number
-      if search.search.to_i != 0
+      if search.search.integer?
         conds[0] += '[id] = :search_exact OR '
       end
       conds[0] += '[guid] LIKE :search OR [channel_relative_id] LIKE :search OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search)'
@@ -36,8 +36,12 @@ module MessageFilters
     
     [:id, :tries].each do |sym|
       if !search[sym].nil?
-        conds[0] += " AND [#{sym}] = :#{sym}"
-        conds[1][sym] = search[sym].to_i
+        if search[sym].integer?
+          conds[0] += " AND [#{sym}] = :#{sym}"
+          conds[1][sym] = search[sym].to_i
+        else
+          conds[0] += " AND id = 0"
+        end
       end
     end
     [:guid, :channel_relative_id, :from, :to, :subject, :body, :state].each do |sym|

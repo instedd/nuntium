@@ -106,4 +106,8 @@ class String
     self[0...str.length] == str
   end
   
+  def integer?
+    Integer(self) rescue nil
+  end
+  
 end

@@ -174,9 +174,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
 <input type="hidden" name="at_page" value="<%= @at_page %>" />
 <input type="hidden" name="at_search" value="<%= @at_search %>" />
 
-<% if @ao_messages.empty? %>
-  <div>No messages.</div>
-<% else %>
+<% if !@ao_messages.empty? %>
   <table border="1" class="table">
     <tr>
       <th></th>
@@ -241,9 +239,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelle
 
 <div id="all_at_messages_text" style="display:none"></div>
 
-<% if @at_messages.empty? %>
-  <div>No messages.</div>
-<% else %>
+<% if !@at_messages.empty? %>
   <table border="1" class="table">
     <tr>
       <th></th>
@@ -294,9 +290,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelle
 <div><%= page_entries_info @logs, :entry_name => 'log entry' %></div>
 <%= will_paginate @logs, :param_name => 'logs_page' %>
 
-<% if @logs.empty? %>
-  <div>No logs.</div>
-<% else %>
+<% if !@logs.empty? %>
   <table border="1" class="table">
     <tr>
       <th>When</th>
