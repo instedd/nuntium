@@ -48,7 +48,7 @@ class HomeController < AuthenticatedController
   end
   
   def home
-    @results_per_page = 1
+    @results_per_page = 10
     
     build_ao_messages_filter
     

@@ -164,6 +164,7 @@ Search: <input type="text" name="ao_search" value="<%= h @ao_search %>" size="50
 Select: <%= link_to_function 'all', 'select_all_ao_messages()' %>, <%= link_to_function 'none', 'select_none_ao_messages()' %> &nbsp; &nbsp;
 Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>, <%= link_to_function 're-route', 'reroute_ao_messages()' %>
 
+<div><%= page_entries_info @ao_messages, :entry_name => 'message' %></div>
 <%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_search => @ao_search, :anchor => 'ao' } %>
 
 <div id="all_ao_messages_text" style="display:none"></div>
@@ -215,9 +216,9 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
     <% end %>
   </table>
 <% end %>
-</form>
 
 <%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_search => @ao_search, :anchor => 'ao' } %>
+</form>
 </div>
 
 <h4><%= link_to_function 'Last Application Terminated Messages', "toggle('last_at_messages')", :name => 'at' %></h4>
@@ -235,6 +236,7 @@ Search: <input type="text" name="at_search" value="<%= h @at_search %>" size= "5
 Select: <%= link_to_function 'all', 'select_all_at_messages()' %>, <%= link_to_function 'none', 'select_none_at_messages()' %> &nbsp; &nbsp;
 Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
 
+<div><%= page_entries_info @at_messages, :entry_name => 'message' %></div>
 <%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_search => @at_search, :anchor => 'at' } %>
 
 <div id="all_at_messages_text" style="display:none"></div>
@@ -289,6 +291,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelle
 <h4><%= link_to_function 'Logs', "toggle('logs')" %></h4>
 
 <div id="logs">
+<div><%= page_entries_info @logs, :entry_name => 'log entry' %></div>
 <%= will_paginate @logs, :param_name => 'logs_page' %>
 
 <% if @logs.empty? %>
