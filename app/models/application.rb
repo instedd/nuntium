@@ -375,7 +375,11 @@ class MessageRouter
   
   def copy
     @executed_action = true
-    other = MessageRouter.new(@application, @msg.clone, @channels, @preferred_channel, @via_interface, @logger)
+    msg_clone = @msg.clone
+  	msg_clone.guid = nil
+  	msg_clone.state = 'pending'
+  	msg_clone.tries = 0
+    other = MessageRouter.new(@application, msg_clone, @channels, @preferred_channel, @via_interface, @logger)
     yield other
   end
 end
