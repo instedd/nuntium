@@ -140,12 +140,6 @@ function view_at_message_log(id) {
   openCenteredWindow('/message/at/' + id, 'log', 640, 480, 'scrollbars=yes');
 }
 
-function delete_channel(id, name) {
-  if (confirm('Are you sure you want to delete the channel ' + name + '?')) {
-    window.location = '/channel/delete/' + id;
-  }
-}
-
 function create_channel(select) {
   if (!select.value) return;
   window.location = '/channel/new/' + select.value;
