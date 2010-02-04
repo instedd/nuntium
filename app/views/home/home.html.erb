@@ -160,7 +160,7 @@ channel_kinds[1..-1].map!{|x| x[0] += ' channel'}
 <input type="hidden" id="ao_all" name="ao_all" value="0" />
 
 <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AO Message">Create new AO Message', :controller => :message, :action => :new_ao_message %> &nbsp; &nbsp;
-Search: <input type="text" name="ao_search" value="<%= h @ao_search %>" size="50" /> <acronym title="You can filter by field like 'id:5', 'before:&quot;2007-06-03 09:39:21 UTC&quot;', 'state:queued', etc.">?</acronym> &nbsp; &nbsp;
+Search: <input type="text" name="ao_search" value="<%= h @ao_search %>" size="50" /> <acronym title="You can filter by field like 'id:5', 'before:&quot;20 minutes ago&quot;', 'state:queued', etc.">?</acronym> &nbsp; &nbsp;
 Select: <%= link_to_function 'all', 'select_all_ao_messages()' %>, <%= link_to_function 'none', 'select_none_ao_messages()' %> &nbsp; &nbsp;
 Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>, <%= link_to_function 're-route', 'reroute_ao_messages()' %>
 
@@ -230,7 +230,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
 <input type="hidden" id="at_all" name="at_all" value="0" />
 
 <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AT Message">Create new AT Message', :controller => :message, :action => :new_at_message %> &nbsp; &nbsp;
-Search: <input type="text" name="at_search" value="<%= h @at_search %>" size= "50" /> <acronym title="You can filter by field like 'id:5', 'before:&quot;2007-06-03 09:39:21 UTC&quot;', 'state:queued', etc.">?</acronym> &nbsp; &nbsp;
+Search: <input type="text" name="at_search" value="<%= h @at_search %>" size= "50" /> <acronym title="You can filter by field like 'id:5', 'before:&quot;20 minutes ago&quot;', 'state:queued', etc.">?</acronym> &nbsp; &nbsp;
 Select: <%= link_to_function 'all', 'select_all_at_messages()' %>, <%= link_to_function 'none', 'select_none_at_messages()' %> &nbsp; &nbsp;
 Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
 

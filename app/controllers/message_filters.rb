@@ -51,19 +51,17 @@ module MessageFilters
       end
     end
     if !search[:after].nil?
-      begin
-        after = Time.parse(search[:after])
+      after = parse_time(search[:after])
+      if !after.nil?
         conds[0] += ' AND timestamp >= :after'
         conds[1][:after] = after
-      rescue
       end
     end
     if !search[:before].nil?
-      begin
-        before = Time.parse(search[:before])
+      before = parse_time(search[:before])
+      if !before.nil?
         conds[0] += ' AND timestamp <= :before'
         conds[1][:before] = before
-      rescue
       end
     end
     if !search[:channel].nil?
@@ -76,6 +74,21 @@ module MessageFilters
       end
     end
     conds
+  end
+  
+  def parse_time(time)
+    if time.include?('ago') || 
+      time.include?('year') || time.include?('month') || time.include?('day') ||
+      time.include?('hour') || time.include?('minute') || time.include?('second')
+      return nil if time.to_i == 0
+      time = time.gsub(' ', '.')
+      result = eval(time)
+      return result.class <= Time || result.class <= ActiveSupport::TimeWithZone ? result : nil
+    else
+      return Time.parse(time)
+    end
+  rescue Exception => e
+    return nil
   end
 
 end
