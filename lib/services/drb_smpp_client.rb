@@ -136,7 +136,9 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
       
       createATMessage(@@application_id, source_addr, destination_addr, sms)
     end
-    @@log.info "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{sms}"   
+    @@log.info "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{sms}"
+  rescue Exception => e   
+    @@log.error "Error in mo_received: #{e.class} #{e.to_s}"
   end
 
   def delivery_report_received(transceiver, msg_reference, stat, pdu)
