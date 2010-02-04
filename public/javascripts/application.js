@@ -175,6 +175,7 @@ function clickatell_channel_direction_changed() {
 // Find address source 
 $(function() {
   var find_address_source = function() {
+    $('#address_source_result').html('Searching...');
     $.ajax({
       type: "GET",
       url: '/application/find_address_source', 
