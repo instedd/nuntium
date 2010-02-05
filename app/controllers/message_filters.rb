@@ -47,9 +47,10 @@ module MessageFilters
     
     [:id, :tries].each do |sym|
       if !search[sym].nil?
-        if search[sym].integer?
-          conds[0] += " AND [#{sym}] = :#{sym}"
-          conds[1][sym] = search[sym].to_i
+        op, val = get_op_and_val search[sym]
+        if val.integer?
+          conds[0] += " AND [#{sym}] #{op} :#{sym}"
+          conds[1][sym] = val.to_i
         else
           conds[0] += " AND id = 0"
         end
@@ -85,6 +86,18 @@ module MessageFilters
       end
     end
     conds
+  end
+  
+  def get_op_and_val(val)
+    op = '='
+    if val.length > 1 && (val[0..1] == '<=' || val[0..1] == '>=')
+      op = val[0..1]
+      val = val[2..-1]
+    elsif val.length > 0 && (val[0].chr == '<' || val[0].chr == '>')
+      op = val[0].chr
+      val = val[1..-1]
+    end
+    [op, val]
   end
   
   def build_log_filter(search)
