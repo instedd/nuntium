@@ -68,9 +68,10 @@ class HomeController < AuthenticatedController
       :per_page => @results_per_page
       )
       
+    build_logs_filter
+      
     @logs = ApplicationLog.paginate(
-      :conditions => ['application_id = ?', @application.id],
-      :include => :channel,
+      :conditions => @log_conditions,
       :order => 'id DESC',
       :page => params[:logs_page],
       :per_page => @results_per_page

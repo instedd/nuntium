@@ -29,4 +29,13 @@ class ApplicationLog < ActiveRecord::Base
       '<span style="color:red">error</span>'
     end
   end
+  
+  def self.severity_from_text(text)
+    text = text.downcase
+    return Info if 'info'.starts_with? text
+    return Warning if 'warning'.starts_with? text
+    return Error if 'error'.starts_with? text
+    return 0
+  end
+  
 end

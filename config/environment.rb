@@ -61,3 +61,6 @@ if File.exists?(Rails.root + 'config/twitter_oauth_consumer.yml')
 else
   TwitterConsumerConfig = nil
 end
+
+# Include string extensions
+require 'string'
