@@ -4,73 +4,73 @@ class ApplicationLogger
   end
   
   def protocol_not_found_for_ao_message(ao_msg)
-    error(:ao_message_id => ao_msg.id, :message => "Protocol not found in 'to' field")
+    error(:ao_message_id => ao_msg.id, :channel_id => ao_msg.channel_id, :message => "Protocol not found in 'to' field")
   end
 
   def no_channel_found_for_ao_message(protocol, ao_msg)
-    error(:ao_message_id => ao_msg.id, :message => "No channel found for protocol '#{protocol}'")
+    error(:ao_message_id => ao_msg.id, :channel_id => ao_msg.channel_id, :message => "No channel found for protocol '#{protocol}'")
   end
   
   def at_message_delivery_succeeded(msg, interface)
-    info(:at_message_id => msg.id, :message => 'Try #' + "#{msg.tries} for delivering message through interface #{interface} succeeded")
+    info(:at_message_id => msg.id, :channel_id => msg.channel_id, :message => 'Try #' + "#{msg.tries} for delivering message through interface #{interface} succeeded")
   end
   
   def at_message_delivery_exceeded_tries(msg, interface)
-    info(:at_message_id => msg.id, :message => 'Try #' + "#{msg.tries} for delivering message through interface #{interface} exceeded maximum number of tries")
+    info(:at_message_id => msg.id, :channel_id => msg.channel_id, :message => 'Try #' + "#{msg.tries} for delivering message through interface #{interface} exceeded maximum number of tries")
   end
   
   def ao_message_delivery_succeeded(msg, interface)
-    info(:ao_message_id => msg.id, :message => 'Try #' + "#{msg.tries} for delivering message through interface #{interface} succeeded")
+    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => 'Try #' + "#{msg.tries} for delivering message through interface #{interface} succeeded")
   end
   
   def ao_message_delivery_exceeded_tries(msg, interface)
-    info(:ao_message_id => msg.id, :message => 'Try #' + "#{msg.tries} for delivering message through interface #{interface} exceeded maximum number of tries")
+    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => 'Try #' + "#{msg.tries} for delivering message through interface #{interface} exceeded maximum number of tries")
   end
   
   def ao_message_received(msg, interface)
     if interface.class == Hash and interface[:application].class == Application
-      info(:ao_message_id => msg.id, :message => "Message received from application '#{interface[:application].name}'")
+      info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message received from application '#{interface[:application].name}'")
     elsif interface == 're-route'
-      info(:ao_message_id => msg.id, :message => "Message was re-routed")
+      info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message was re-routed")
     else
-      info(:ao_message_id => msg.id, :message => "Message received via #{interface} interface")
+      info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message received via #{interface} interface")
     end
   end
   
   def ao_message_handled_by_channel(msg, channel)
-    info(:ao_message_id => msg.id, :message => "Message handled by #{channel.kind} channel '#{channel.name}'")
+    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message handled by #{channel.kind} channel '#{channel.name}'")
   end
   
   def ao_message_routed_to_application(msg, app)
-    info(:ao_message_id => msg.id, :message => "Message routed to application '#{app.name}'")
+    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message routed to application '#{app.name}'")
   end
   
   def ao_message_status_receieved(msg, status)
-    info(:ao_message_id => msg.id, :message => "#{status} received from server")
+    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "#{status} received from server")
   end
   
   def channel_not_found(msg, channel_name)
     if channel_name.class == Array
-      info(:ao_message_id => msg.id, :message => "Channels with names '#{channel_name.join('\"')}' do not exist or are disabled")
+      info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Channels with names '#{channel_name.join('\"')}' do not exist or are disabled")
     else
-      info(:ao_message_id => msg.id, :message => "Channel with name '#{channel_name}' does not exist or is disabled")
+      info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Channel with name '#{channel_name}' does not exist or is disabled")
     end
   end
   
   def at_message_received_via_channel(msg, channel)
-    info(:at_message_id => msg.id, :message => "Message received via #{channel.kind} channel '#{channel.name}'")
+    info(:at_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message received via #{channel.kind} channel '#{channel.name}'")
   end
   
   def at_message_received_via(msg, via)
-    info(:at_message_id => msg.id, :message => "Message received via #{via}")
+    info(:at_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message received via #{via}")
   end
   
   def at_message_created_via_ui(msg)
-    info(:at_message_id => msg.id, :message => "Message created via user interface")
+    info(:at_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message created via user interface")
   end
   
   def error_routing_msg(ao_msg, e)
-    error(:message => "Error routing message '#{e.to_s}'", :ao_message_id => ao_msg.id)
+    error(:message => "Error routing message '#{e.to_s}'", :ao_message_id => ao_msg.id, :channel_id => ao_msg.channel_id)
   end
 
   def error_obtaining_last_id(message)
@@ -94,7 +94,7 @@ class ApplicationLogger
   end
 
   def more_than_one_channel_found_for(protocol, ao_msg)
-    warning(:ao_message_id => ao_msg.id, :message => "More than one channel found for protocol '#{protocol}'")
+    warning(:ao_message_id => ao_msg.id, :message => "More than one channel found for protocol '#{protocol}'", :channel_id => ao_msg.channel_id)
   end
   
   def info(hash_or_message)
