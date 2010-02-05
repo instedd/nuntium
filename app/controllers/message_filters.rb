@@ -117,8 +117,9 @@ module MessageFilters
       conds[1][:search] = '%' + search.search + '%'
     end
     if !search[:severity].nil?
-      conds[0] += " AND [severity] = :severity"
-      conds[1][:severity] = ApplicationLog.severity_from_text search[:severity]
+      op, val = get_op_and_val search[:severity]
+      conds[0] += " AND [severity] #{op} :severity"
+      conds[1][:severity] = ApplicationLog.severity_from_text val
     end
     [:ao, :ao_message_id, :ao_message].each do |sym|
       if !search[sym].nil?
