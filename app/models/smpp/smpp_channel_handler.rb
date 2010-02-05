@@ -14,24 +14,17 @@ class SmppChannelHandler < ChannelHandler
         @channel.errors.add(:port, "must be a positive number")
       end
     end
-
-    if @channel.configuration[:ton].nil?
-      @channel.errors.add(:ton, "can't be blank")
-    else
-      ton_num = @channel.configuration[:ton].to_i
-      if ton_num < 0 || ton_num > 7
-        @channel.errors.add(:ton, "must be a number between 0 and 7")
+    
+    [:source_ton, :source_npi, :destination_ton, :destination_npi].each do |sym|
+      if @channel.configuration[sym].nil?
+        @channel.errors.add(sym, "can't be blank")
+      else
+        s = @channel.configuration[sym].to_i
+        if s < 0 || s > 7
+          @channel.errors.add(sym, "must be a number between 0 and 7")
+        end
       end
     end
-
-    if @channel.configuration[:npi].nil?
-      @channel.errors.add(:npi, "can't be blank")
-    else
-      npi_num = @channel.configuration[:npi].to_i
-      if npi_num < 0 || npi_num > 7
-        @channel.errors.add(:npi, "must be a number between 0 and 7")
-      end
-    end  
   
     check_config_not_blank :user, :password, :encoding
   end

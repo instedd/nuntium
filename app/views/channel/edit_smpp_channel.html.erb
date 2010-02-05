@@ -20,12 +20,20 @@
 		<%= c.text_field :system_type, :value => @channel[:configuration][:system_type] %>
 		</p>
     <p>
-    <%= c.label :ton %><br/>
-    <%= c.text_field :ton, :value => @channel[:configuration][:ton] %>
+    <%= c.label :source_ton %><br/>
+    <%= c.text_field :source_ton, :value => @channel[:configuration][:source_ton] %>
     </p>
     <p>
-    <%= c.label :npi %><br/>
-    <%= c.text_field :npi, :value => @channel[:configuration][:npi] %>
+    <%= c.label :source_npi %><br/>
+    <%= c.text_field :source_npi, :value => @channel[:configuration][:source_npi] %>
+    </p>
+    <p>
+    <%= c.label :destination_ton %><br/>
+    <%= c.text_field :destination_ton, :value => @channel[:configuration][:destination_ton] %>
+    </p>
+    <p>
+    <%= c.label :destination_npi %><br/>
+    <%= c.text_field :destination_npi, :value => @channel[:configuration][:destination_npi] %>
     </p>
     <p>
     <%= c.label :user %><br/>

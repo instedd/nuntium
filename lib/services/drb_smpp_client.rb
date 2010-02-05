@@ -162,6 +162,13 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
     msg.save!
     
     @@application.logger.ao_message_status_receieved msg, stat
+  rescue Exception => e
+    @@log.error "Error in delivery_report_received: #{e.class} #{e.to_s}"
+    begin
+      @@application.logger.exception_in_channel @@channel, e
+    rescue Exception => e2
+      @@log.error "Error in delivery_report_received logging: #{e2.class} #{e2.to_s}"
+    end
   end
 
   def message_accepted(transceiver, mt_message_id, smsc_message_id)
@@ -186,6 +193,13 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
     msg.save!
     
     @@application.logger.ao_message_status_receieved msg, 'ACK'
+  rescue Exception => e
+    @@log.error "Error in message_accepted: #{e.class} #{e.to_s}"
+    begin
+      @@application.logger.exception_in_channel @@channel, e
+    rescue Exception => e2
+      @@log.error "Error in message_accepted logging: #{e2.class} #{e2.to_s}"
+    end
   end
 
   def bound(transceiver)
@@ -298,10 +312,10 @@ def startSMPPGateway(channel_id)
     :password => @configuration[:password],
     :system_type => @configuration[:system_type],
     :interface_version => 52,
-    :source_ton  => @configuration[:ton].to_i,
-    :source_npi => @configuration[:npi].to_i,
-    :destination_ton => @configuration[:ton].to_i,
-    :destination_npi => @configuration[:npi].to_i,
+    :source_ton  => @configuration[:source_ton].to_i,
+    :source_npi => @configuration[:source_npi].to_i,
+    :destination_ton => @configuration[:destination_ton].to_i,
+    :destination_npi => @configuration[:destination_npi].to_i,
     :source_address_range => '',
     :destination_address_range => '',
     :enquire_link_delay_secs => 10
