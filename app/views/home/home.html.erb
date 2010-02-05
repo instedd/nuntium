@@ -325,8 +325,8 @@ Search: <input type="text" name="log_search" value="<%= h @log_search %>" size= 
         <td><%= time_ago log.created_at %></td>
         <td><%= log.severity_html %></td>
         <td><%= chan.length > 0 ? chan[0].name : '' %></td>
-        <td><%= link_to_function log.ao_message_id, "view_ao_message_log(#{log.ao_message_id})" if !log.ao_message_id.nil? %></td>
-        <td><%= link_to_function log.at_message_id, "view_at_message_log(#{log.at_message_id})" if !log.at_message_id.nil? %></td>
+        <td><%= link_to "#{log.ao_message_id}", {:controller => :message, :action => :view_ao_message, :id => log.ao_message_id}, :popup => ['log', 'width=640,height=480,scrollbars=yes'] if !log.ao_message_id.nil? %></td>
+        <td><%= link_to "#{log.at_message_id}", {:controller => :message, :action => :view_at_message, :id => log.at_message_id}, :popup => ['log', 'width=640,height=480,scrollbars=yes'] if !log.at_message_id.nil? %></td>
         <td><%= short_html log.message, 100 %></td>
       </tr>
     <% end %>
