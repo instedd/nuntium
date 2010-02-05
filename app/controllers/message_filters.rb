@@ -122,9 +122,10 @@ module MessageFilters
     end
     [:ao, :ao_message_id, :ao_message].each do |sym|
       if !search[sym].nil?
-        if search[sym].integer?
-          conds[0] += " AND [ao_message_id] = :#{sym}"
-          conds[1][sym] = search[sym].to_i
+        op, val = get_op_and_val search[sym]
+        if val.integer?
+          conds[0] += " AND [ao_message_id] #{op} :#{sym}"
+          conds[1][sym] = val.to_i
         else
           conds[0] += " AND id = 0"
         end
@@ -132,9 +133,10 @@ module MessageFilters
     end
     [:at, :at_message_id, :at_message].each do |sym|
       if !search[sym].nil?
-        if search[sym].integer?
-          conds[0] += " AND [at_message_id] = :#{sym}"
-          conds[1][sym] = search[sym].to_i
+        op, val = get_op_and_val search[sym]
+        if val.integer?
+          conds[0] += " AND [at_message_id] #{op} :#{sym}"
+          conds[1][sym] = val.to_i
         else
           conds[0] += " AND id = 0"
         end
