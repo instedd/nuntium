@@ -105,7 +105,7 @@ module Smpp::Pdu
 
     def Base.next_sequence_number
       @@seq.synchronize do 
-        (@@seq[0] += 1) % 512
+        ((@@seq[0] += 1) % 0x7FFFFFFE) + 1
       end
     end
 

@@ -21,7 +21,7 @@ class Smpp::Transceiver < Smpp::Base
     # Array of un-acked MT message IDs indexed by sequence number.
     # As soon as we receive SubmitSmResponse we will use this to find the 
     # associated message ID, and then create a pending delivery report.
-    @ack_ids = Array.new(512)         
+    @ack_ids = Hash.new
     
     ed = @config[:enquire_link_delay_secs] || 5
     comm_inactivity_timeout = 2 * ed
