@@ -20,7 +20,7 @@ class MessageController < AuthenticatedController
     
     @application.route msg, 'user'
     
-    redirect_to_home "AO Message was created with id #{msg.id}"
+    redirect_to_home "AO Message was created with id <a href=\"/message/ao/#{msg.id}\" onclick=\"window.open(this.href,'log','width=640,height=480,scrollbars=yes');return false;\">#{msg.id}</a>"
   end
   
   def create_at_message
@@ -28,7 +28,7 @@ class MessageController < AuthenticatedController
     msg.timestamp = Time.new.utc
     @application.accept msg, 'ui'
     
-    redirect_to_home "AT Message was created with id #{msg.id}"
+    redirect_to_home "AT Message was created with id <a href=\"/message/at/#{msg.id}\" onclick=\"window.open(this.href,'log','width=640,height=480,scrollbars=yes');return false;\">#{msg.id}</a>"
   end
   
   def create_message(kind)
