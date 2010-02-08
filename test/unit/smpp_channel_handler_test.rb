@@ -24,7 +24,7 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
     assert !@chan.save
   end  
 
-  test "should not save if npi is blank" do
+  test "should not save if npi ien lugar de  usar enqueue_with_channels blank" do
     @chan.configuration = {:host => 'host', :ton => 0, :port => 3200, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
     assert !@chan.save
   end
@@ -88,4 +88,30 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
     @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
     assert @chan.save
   end
+  
+  test "sould create delayed job if channel throttle is nil" do
+    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
+    msg = AOMessage.new(:application_id => @app.id)
+    @chan.handler.handle(msg)
+    
+    jobs = Delayed::Job.all
+    assert_equal 1, jobs.length
+    assert_equal 0, ThrottledJob.all.length
+    
+    assert_equal SendSmppMessageJob, jobs[0].payload_object.class
+  end
+  
+  test "sould create throttled job if channel throttle is not nil" do
+    @chan.throttle = 20
+    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
+    msg = AOMessage.new(:application_id => @app.id)
+    @chan.handler.handle(msg)
+    
+    jobs = ThrottledJob.all
+    assert_equal 0, Delayed::Job.all.length
+    assert_equal 1, jobs.length
+    
+    assert_equal SendSmppMessageJob, jobs[0].payload_object.class
+  end
+  
 end
