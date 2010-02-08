@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100208160703) do
+ActiveRecord::Schema.define(:version => 20100208171251) do
 
   create_table "address_sources", :force => true do |t|
     t.integer  "application_id"
@@ -89,6 +89,7 @@ ActiveRecord::Schema.define(:version => 20100208160703) do
     t.integer  "direction"
     t.boolean  "enabled",                       :default => true
     t.integer  "metric",                        :default => 100
+    t.integer  "throttle"
   end
 
   create_table "clickatell_message_parts", :force => true do |t|
@@ -150,6 +151,13 @@ ActiveRecord::Schema.define(:version => 20100208160703) do
     t.integer  "part_count"
     t.integer  "part_number"
     t.string   "text"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "throttled_jobs", :force => true do |t|
+    t.integer  "channel_id"
+    t.text     "handler"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

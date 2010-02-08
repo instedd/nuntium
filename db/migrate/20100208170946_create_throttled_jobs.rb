@@ -1,7 +1,7 @@
 class CreateThrottledJobs < ActiveRecord::Migration
   def self.up
     create_table :throttled_jobs do |t|
-      t.integer, :channel_id
+      t.integer :channel_id
       t.text :handler
 
       t.timestamps
