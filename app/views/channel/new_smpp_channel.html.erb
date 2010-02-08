@@ -11,6 +11,7 @@
 	<%= f.label :protocol %><br/>
 	<%= f.text_field :protocol, :value => 'sms', :readonly => 'readonly' %>
 	</p>
+	<%= render :partial => 'throttle', :locals => {:f => f} %>
 	<% f.fields_for :configuration do |c| %>
 		<p>
 		<%= c.label :host %><br/>

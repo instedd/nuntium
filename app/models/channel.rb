@@ -11,6 +11,7 @@ class Channel < ActiveRecord::Base
   
   validates_presence_of :name, :protocol, :kind, :application
   validates_uniqueness_of :name, :scope => :application_id, :message => 'Name has already been used by another channel in the application'
+  validates_numericality_of :throttle, :allow_nil => true, :only_integer => true, :greater_than => 0
   
   validate :handler_check_valid
   before_save :handler_before_save
@@ -62,6 +63,10 @@ class Channel < ActiveRecord::Base
   
   def check_valid_in_ui
     @check_valid_in_ui = true
+  end
+  
+  def throttle_opt
+    self.throttle.nil? ? 'off' : 'on'
   end
     
   private

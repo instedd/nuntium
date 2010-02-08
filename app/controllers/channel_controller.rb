@@ -15,10 +15,13 @@ class ChannelController < AuthenticatedController
     chan = params[:channel]
     return redirect_to_home if chan.nil?
     
+    throttle_opt = chan.delete :throttle_opt
+    
     @channel = Channel.new(chan)
     @channel.application_id = @application.id
     @channel.kind = params[:kind]
     @channel.direction = chan[:direction]
+    @channel.throttle = throttle_opt == 'on' ? chan[:throttle] : nil
     
     @channel.check_valid_in_ui
     if !@channel.save
@@ -42,7 +45,10 @@ class ChannelController < AuthenticatedController
     chan = params[:channel]
     return redirect_to_home if chan.nil?
     
+    throttle_opt = chan.delete :throttle_opt
+    
     @channel.handler.update(chan)
+    @channel.throttle = throttle_opt == 'on' ? chan[:throttle] : nil
     
     @channel.check_valid_in_ui
     if !@channel.save

@@ -104,6 +104,7 @@
       <th>Direction</th>
       <th>Protocol</th>
       <th>Info</th>
+      <th>Throttle</th>
       <th>Queued AO Messages</th>
       <th></th>
     </tr>
@@ -116,6 +117,7 @@
         <td><%= chan.direction_text %></td>
         <td><%= chan.protocol %></td>
         <td><%= chan.info.blank? ? '' : chan.info %></td>
+        <td align="right"><%= chan.throttle.nil? ? '' : "#{chan.throttle}/min" %></td>
         <td align="right"><%= @channels_queued_count.include?(chan.id) ? @channels_queued_count[chan.id] : '0' %></td>
         <td>
           <% if chan.enabled %>
