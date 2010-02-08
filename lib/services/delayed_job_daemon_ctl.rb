@@ -1,6 +1,5 @@
 require 'daemon_ctl'
 
-
 class DelayedJobDaemonController
 
   extend DaemonController

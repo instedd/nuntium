@@ -7,10 +7,12 @@ class ThrottledWorker
       available_count = chan.throttle - running_count
       if available_count > 0
         jobs = ThrottledJob.all(:conditions => ['channel_id = ?', chan.id], :limit => available_count)
-        jobs.each do |job|
-          Delayed::Job::enqueue_with_channel_id chan.id, job.payload_object 
+        if jobs.length > 0
+          jobs.each do |job|
+            Delayed::Job::enqueue_with_channel_id chan.id, job.payload_object 
+          end
+          ThrottledJob.delete_all(['id IN (?)', jobs.map{|j| j.id}])
         end
-        ThrottledJob.delete_all(['id IN (?)', jobs.map{|j| j.id}])
       end
     end
   end
