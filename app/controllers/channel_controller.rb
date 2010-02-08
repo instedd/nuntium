@@ -21,7 +21,7 @@ class ChannelController < AuthenticatedController
     @channel.application_id = @application.id
     @channel.kind = params[:kind]
     @channel.direction = chan[:direction]
-    @channel.throttle = throttle_opt == 'on' ? chan[:throttle] : nil
+    @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
     
     @channel.check_valid_in_ui
     if !@channel.save
@@ -48,7 +48,7 @@ class ChannelController < AuthenticatedController
     throttle_opt = chan.delete :throttle_opt
     
     @channel.handler.update(chan)
-    @channel.throttle = throttle_opt == 'on' ? chan[:throttle] : nil
+    @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
     
     @channel.check_valid_in_ui
     if !@channel.save
