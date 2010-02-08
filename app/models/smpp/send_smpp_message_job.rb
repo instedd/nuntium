@@ -44,7 +44,7 @@ class SendSmppMessageJob
       else
         msg.save
         ApplicationLogger.exception_in_channel_and_ao_message channel, msg, error_or_nil
-        raise
+        raise error_or_nil
       end
       ApplicationLogger.message_channeled msg, channel
     end
