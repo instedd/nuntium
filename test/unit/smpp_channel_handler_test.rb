@@ -111,6 +111,7 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
     assert_equal 0, Delayed::Job.all.length
     assert_equal 1, jobs.length
     
+    assert_equal @chan.id, jobs[0].channel_id
     assert_equal SendSmppMessageJob, jobs[0].payload_object.class
   end
   
