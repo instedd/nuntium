@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100127161556) do
+ActiveRecord::Schema.define(:version => 20100208160703) do
 
   create_table "address_sources", :force => true do |t|
     t.integer  "application_id"
@@ -133,6 +133,7 @@ ActiveRecord::Schema.define(:version => 20100127161556) do
     t.string   "locked_by"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "channel_id"
   end
 
   create_table "qst_outgoing_messages", :force => true do |t|

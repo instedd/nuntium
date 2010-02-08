@@ -62,5 +62,6 @@ else
   TwitterConsumerConfig = nil
 end
 
-# Include string extensions
+# Include extensions
 require 'string'
+require 'delayed/job'
