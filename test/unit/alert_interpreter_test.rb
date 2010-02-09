@@ -12,7 +12,9 @@ class AlertInterpreterTest < ActiveSupport::TestCase
     interpreter.interpret_for app
     
     assert_equal 1, Alert.count
-    assert_equal 'something', AOMessage.first.subject
+    msg = AOMessage.first
+    assert_equal 'Nuntium alert for app', msg.subject
+    assert_equal 'something', msg.body
   end
   
   test "alert fails semantic error" do
@@ -26,7 +28,7 @@ class AlertInterpreterTest < ActiveSupport::TestCase
     interpreter.interpret_for app
     
     assert_equal 1, Alert.count
-    assert_true AOMessage.first.subject.include?('You have an error in your alert code:')
+    assert_true AOMessage.first.body.include?('You have an error in your alert code:')
   end
   
    test "does nothing if no alert config" do
