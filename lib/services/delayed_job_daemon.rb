@@ -1,6 +1,8 @@
-# Initialize Ruby on Rails
+require 'logger'
+
 begin
-  # LOG_FILE = 'C:\\ruby.log'
+  logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'delayed_job_daemon.log'))
+  logger.formatter = Logger::Formatter.new
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   
   require 'win32/daemon'
@@ -36,12 +38,11 @@ begin
         @processes.push pi
       end
       
-      while running?
+      while running?require 'logger'
         sleep SLEEP
       end
     rescue => err
-      # File.open("C:\\temp_ruby.log", 'a'){ |fh| fh.puts 'Daemon failure: ' + err }
-      File.open(LOG_FILE, 'a'){ |fh| fh.puts 'Daemon failure: ' + err }   
+      logger.error "Daemon failure: #{err}"
     end
     
     def service_stop
@@ -56,14 +57,10 @@ begin
     def say(text)
       logger.info text if logger
     end
-    
-    def logger
-      RAILS_DEFAULT_LOGGER
-    end
   end
   
   DelayedJobDaemon.mainloop
 rescue => err
-   File.open(LOG_FILE, 'a'){ |fh| fh.puts 'Daemon failure: ' + err }
+   logger.error "Daemon failure: #{err}"
    raise
 end

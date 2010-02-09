@@ -1,6 +1,9 @@
+require 'logger'
+
 # Initialize Ruby on Rails
 begin
-  LOG_FILE = 'C:\\throttled.log'
+  logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'throttled_job_daemon.log'))
+  logger.formatter = Logger::Formatter.new
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   
   require 'win32/daemon'
@@ -23,26 +26,22 @@ begin
         begin
           worker.perform
         rescue Exception => err
-          File.open(LOG_FILE, 'a'){ |fh| fh.puts 'Daemon failure: ' + err }   
+          logger.error "Daemon failure: #{err}"   
         ensure
           sleep SLEEP
         end
       end
     rescue Exception => err
-      File.open(LOG_FILE, 'a'){ |fh| fh.puts 'Daemon failure: ' + err }   
+      logger.error "Daemon failure: #{err}"   
     end
   
     def say(text)
       logger.info text if logger
     end
-    
-    def logger
-      RAILS_DEFAULT_LOGGER
-    end
   end
   
   ThrottledJobDaemon.mainloop
 rescue => err
-   File.open(LOG_FILE, 'a'){ |fh| fh.puts 'Daemon failure: ' + err }
-   raise
+  logger.error "Daemon failure: #{err}"
+  raise
 end

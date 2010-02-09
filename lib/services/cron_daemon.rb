@@ -1,6 +1,8 @@
-# Initialize Ruby on Rails
+require 'logger'
+
 begin
-  LOG_FILE = 'C:\\ruby.log'
+  logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'cron_daemon.log'))
+  logger.formatter = Logger::Formatter.new
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty? 
   SLEEP = 20
 
@@ -33,10 +35,6 @@ begin
   # Daemon class that will execute the loop
   class CronDaemon < Daemon
     
-    def logger
-      RAILS_DEFAULT_LOGGER
-    end
-    
     include CronDaemonRun
     
     def service_init
@@ -62,6 +60,6 @@ begin
 
 rescue => err
    # If there was an error initializing the rails environment, we cannot use its logger
-   File.open(LOG_FILE, 'a'){ |fh| fh.puts "#{Time.now} Daemon failure: #{err}" }
+   logger.error "Daemon failure: #{err}"
    raise
 end
