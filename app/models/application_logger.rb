@@ -45,6 +45,10 @@ class ApplicationLogger
     info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message routed to application '#{app.name}'")
   end
   
+  def ao_message_created_as_alert(msg)
+    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message was created as an alert")
+  end
+  
   def ao_message_status_receieved(msg, status)
     info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "#{status} received from server")
   end
