@@ -1,6 +1,14 @@
 class ClickatellChannelHandler < ChannelHandler
   def handle(msg)
-    Delayed::Job.enqueue SendClickatellMessageJob.new(@channel.application_id, @channel.id, msg.id)
+    Delayed::Job.enqueue create_job(msg)
+  end
+  
+  def handle_now(msg)
+    create_job(msg).perform
+  end
+  
+  def create_job(msg)
+    SendClickatellMessageJob.new(@channel.application_id, @channel.id, msg.id)
   end
   
   def check_valid

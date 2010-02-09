@@ -1,10 +1,18 @@
 class SmppChannelHandler < ChannelHandler
   def handle(msg)
     if @channel.throttle.nil?
-      Delayed::Job.enqueue SendSmppMessageJob.new(@channel.application_id, @channel.id, msg.id)
+      Delayed::Job.enqueue create_job(msg)
     else
-      ThrottledJob.enqueue @channel.id, SendSmppMessageJob.new(@channel.application_id, @channel.id, msg.id)
+      ThrottledJob.enqueue @channel.id, create_job(msg)
     end
+  end
+  
+  def handle_now
+    create_job(msg).perform
+  end
+  
+  def create_job(msg)
+    SendSmppMessageJob.new(@channel.application_id, @channel.id, msg.id)
   end
   
   def check_valid

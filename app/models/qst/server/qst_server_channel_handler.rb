@@ -6,6 +6,10 @@ class QstServerChannelHandler < ChannelHandler
     outgoing.save
   end
   
+  def handle_now(msg)
+    handle(msg)
+  end
+  
   def authenticate(password)
     @channel.configuration[:password] == Digest::SHA2.hexdigest(@channel.configuration[:salt] + password)
   end

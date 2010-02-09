@@ -21,3 +21,4 @@ end
 
 # Default logger. Invoke this call in your client to use another logger.
 Smpp::Base.logger = Logger.new(STDOUT)
+Smpp::Base.formatter = Logger::Formatter.new

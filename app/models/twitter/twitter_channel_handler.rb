@@ -2,7 +2,15 @@ require 'twitter'
 
 class TwitterChannelHandler < ChannelHandler
   def handle(msg)
-    Delayed::Job.enqueue SendTwitterMessageJob.new(@channel.application_id, @channel.id, msg.id)
+    Delayed::Job.enqueue create_job(msg)
+  end
+  
+  def handle_now(msg)
+    create_job(msg).perform
+  end
+  
+  def create_job(msg)
+    SendTwitterMessageJob.new(@channel.application_id, @channel.id, msg.id)
   end
   
   def update(params)

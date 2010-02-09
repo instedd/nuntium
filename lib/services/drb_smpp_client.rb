@@ -292,6 +292,7 @@ end
 def startSMPPGateway(channel_id)
   
   @@log = Logger.new OUT
+  @@log.formatter = Logger::Formatter.new
   
   # Uncomment this line to get a lot more debugging information in the log file, if not will go to the console by default
   #Smpp::Base.logger = @@log

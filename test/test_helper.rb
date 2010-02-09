@@ -262,4 +262,11 @@ class ActiveSupport::TestCase
     assert_select "item guid", msg.guid
     assert_select "item pubDate", msg.timestamp.rfc822
   end
+  
+  def new_channel(app, name)
+    chan = Channel.new(:application_id => app.id, :name => name, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Both);
+    chan.configuration = {:url => 'a', :user => 'b', :password => 'c'};
+    chan.save!
+    chan
+  end
 end

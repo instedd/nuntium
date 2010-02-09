@@ -15,7 +15,7 @@ When an alert is triggered a message with the given <i>from</i> and <i>to</i> wi
     </tr>
     <% @channels.each do |chan| %>
       <%
-      cfg = @alert_configurations.select{|cfg| cfg.channel_id == chan.id }.first
+      cfg = @alert_configurations.first{|cfg| cfg.channel_id == chan.id }
       %>
       <tr>
         <th><%= chan.name %></th>

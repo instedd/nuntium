@@ -543,11 +543,4 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal chan1.id, msg.channel_id
   end
   
-  def new_channel(app, name)
-    chan = Channel.new(:application_id => app.id, :name => name, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Both);
-    chan.configuration = {:url => 'a', :user => 'b', :password => 'c'};
-    chan.save!
-    chan
-  end
-  
 end
