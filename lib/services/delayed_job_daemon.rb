@@ -1,8 +1,8 @@
 require 'logger'
 
 begin
-  logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'delayed_job_daemon.log'))
-  logger.formatter = Logger::Formatter.new
+  $logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'delayed_job_daemon.log'))
+  $logger.formatter = Logger::Formatter.new
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   
   require 'win32/daemon'
@@ -38,11 +38,11 @@ begin
         @processes.push pi
       end
       
-      while running?require 'logger'
+      while running?
         sleep SLEEP
       end
     rescue => err
-      logger.error "Daemon failure: #{err}"
+      $logger.error "Daemon failure: #{err}"
     end
     
     def service_stop
@@ -55,12 +55,12 @@ begin
     end
   
     def say(text)
-      logger.info text if logger
+      $logger.info text if $logger
     end
   end
   
   DelayedJobDaemon.mainloop
 rescue => err
-   logger.error "Daemon failure: #{err}"
+   $logger.error "Daemon failure: #{err}"
    raise
 end

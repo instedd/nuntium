@@ -1,8 +1,8 @@
 require 'logger'
 
 begin
-  logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'drb_smpp_daemon.log'))
-  logger.formatter = Logger::Formatter.new
+  $logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'drb_smpp_daemon.log'))
+  $logger.formatter = Logger::Formatter.new
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   
   require 'win32/daemon'
@@ -27,7 +27,7 @@ begin
         sleep SLEEP
       end       
     rescue => error
-      logger.error "Daemon failure: #{error}"
+      $logger.error "Daemon failure: #{error}"
     end
     
     def service_stop      
@@ -35,12 +35,12 @@ begin
     end
     
     def say(text)
-      logger.info text if logger
+      $logger.info text if $logger
     end
   end
   
   SmppGatewayDaemon.mainloop
 rescue => err
-  logger.error "Daemon failure: #{err}"
+  $logger.error "Daemon failure: #{err}"
   raise
 end

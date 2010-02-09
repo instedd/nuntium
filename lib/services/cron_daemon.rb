@@ -1,8 +1,8 @@
 require 'logger'
 
 begin
-  logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'cron_daemon.log'))
-  logger.formatter = Logger::Formatter.new
+  $logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'cron_daemon.log'))
+  $logger.formatter = Logger::Formatter.new
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty? 
   SLEEP = 20
 
@@ -17,9 +17,9 @@ begin
       to_run = CronTask.to_run
       to_run.each { |task| enqueue task }
       rescue => err
-        logger.error "Error running scheduler: #{err}" if defined?(logger) and not logger.nil?
+        $logger.error "Error running scheduler: #{err}" if defined?($logger) and not $logger.nil?
       else
-        logger.debug "Scheduler executed successfully enqueuing #{to_run.size} task(s)." if defined?(logger) and not logger.nil?
+        $logger.debug "Scheduler executed successfully enqueuing #{to_run.size} task(s)." if defined?($logger) and not $logger.nil?
       ensure
         CronTask.set_next_run(to_run) unless to_run.nil?
     end
@@ -27,7 +27,7 @@ begin
     # Enqueue a descriptor for the specified task
     def enqueue(task)
       Delayed::Job.enqueue CronTaskDescriptor.new(task.id)
-      logger.debug "Enqueued job for task '#{task.id}'" if defined?(logger) and not logger.nil?
+      $logger.debug "Enqueued job for task '#{task.id}'" if defined?($logger) and not $logger.nil?
     end
     
   end
@@ -60,6 +60,6 @@ begin
 
 rescue => err
    # If there was an error initializing the rails environment, we cannot use its logger
-   logger.error "Daemon failure: #{err}"
+   $logger.error "Daemon failure: #{err}"
    raise
 end
