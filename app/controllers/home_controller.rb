@@ -166,7 +166,7 @@ class HomeController < AuthenticatedController
   def edit_application_alerts
     @application = flash[:application] if not flash[:application].nil?
     @channels = @application.channels
-    @alert_configurations = @application.alert_configurations
+    @alert_configurations = AlertConfiguration.find_all_by_application_id @application.id
   end
   
   def update_application_alerts
