@@ -6,6 +6,7 @@ class Application < ActiveRecord::Base
   has_many :ao_messages
   has_many :at_messages
   has_many :cron_tasks, :as => :parent, :dependent => :destroy
+  has_many :alert_configurations
   
   serialize :configuration, Hash
   
@@ -18,6 +19,7 @@ class Application < ActiveRecord::Base
   validates_inclusion_of :interface, :in => ['rss', 'qst_client']
   validate :ao_routing_test_assertions
   validate :at_routing_test_assertions
+  validate :alert_well_formed
   
   before_save :hash_password 
   after_save :handle_tasks
@@ -268,6 +270,19 @@ class Application < ActiveRecord::Base
       end
     end
   end
+  
+  def alert_well_formed
+    if (!self.configuration[:alert].nil? and self.configuration[:alert].strip.length > 0)
+      begin
+        instance_eval "def alert_function;\n" +
+          self.configuration[:alert] + ";\n" + 
+        "end;"
+      rescue Exception => e
+        self.errors.add(:alert, fix_error("error: #{e.message}"))
+      end
+    end
+  end
+  
 end
 
 # If many dots are sent to a validation error, an "interning empty string" error

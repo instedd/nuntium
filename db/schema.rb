@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100208171251) do
+ActiveRecord::Schema.define(:version => 20100209142200) do
 
   create_table "address_sources", :force => true do |t|
     t.integer  "application_id"
@@ -21,6 +21,25 @@ ActiveRecord::Schema.define(:version => 20100208171251) do
   end
 
   add_index "address_sources", ["application_id", "address"], :name => "index_address_sources_on_application_id_and_address", :unique => true
+
+  create_table "alert_configurations", :force => true do |t|
+    t.integer  "application_id"
+    t.integer  "channel_id"
+    t.string   "from"
+    t.string   "to"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "alerts", :force => true do |t|
+    t.integer  "application_id"
+    t.integer  "channel_id"
+    t.string   "kind"
+    t.integer  "ao_message_id"
+    t.datetime "sent_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"

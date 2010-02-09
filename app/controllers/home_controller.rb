@@ -139,7 +139,6 @@ class HomeController < AuthenticatedController
     @application.configuration[:ao_routing] = cfg[:ao_routing]
     @application.configuration[:ao_routing_test] = cfg[:ao_routing_test]
     if !@application.save
-      @application.clear_password
       flash[:application] = @application
       redirect_to :action => :edit_application_ao_routing
     else
@@ -157,12 +156,49 @@ class HomeController < AuthenticatedController
     @application.configuration[:at_routing] = cfg[:at_routing]
     @application.configuration[:at_routing_test] = cfg[:at_routing_test]
     if !@application.save
-      @application.clear_password
       flash[:application] = @application
       redirect_to :action => :edit_application_at_routing
     else
       redirect_to_home 'AT messages routing was changed'
     end
+  end
+  
+  def edit_application_alerts
+    @application = flash[:application] if not flash[:application].nil?
+    @channels = @application.channels
+    @alert_configurations = @application.alert_configurations
+  end
+  
+  def update_application_alerts
+    # Validation
+    params[:channel].each do |chan|
+      next if !chan[1][:activated]
+      
+      if chan[1][:from].blank? || chan[1][:to].blank?
+        @application.errors.add(:alert_configuration, 'You left a <i>from</i> or <i>to</i> field blank for an alert-activated channel') 
+        flash[:application] = @application
+        return redirect_to :action => :edit_application_alerts
+      end
+    end
+    
+    # Alert logic validation
+    app = params[:application]
+    cfg = app[:configuration]
+    @application.configuration[:alert] = cfg[:alert]
+    
+    if !@application.save
+      flash[:application] = @application
+      return redirect_to :action => :edit_application_alerts
+    end
+  
+    AlertConfiguration.delete_all(['application_id = ?', @application.id])
+    
+    params[:channel].each do |chan|
+      next if !chan[1][:activated]
+      AlertConfiguration.create!(:application_id => @application.id, :channel_id => chan[0].to_i, :from => chan[1][:from], :to => chan[1][:to]) 
+    end
+    
+    redirect_to_home 'Alerts were changed'
   end
   
   def find_address_source

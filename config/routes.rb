@@ -19,6 +19,8 @@ ActionController::Routing::Routes.draw do |map|
   map.update_application_ao_routing '/application/ao_routing/update', :controller => 'home', :action => :update_application_ao_routing
   map.edit_application_at_routing '/application/at_routing/edit', :controller => 'home', :action => :edit_application_at_routing
   map.update_application_at_routing '/application/at_routing/update', :controller => 'home', :action => :update_application_at_routing
+  map.edit_application_alerts '/application/alerts/edit', :controller => 'home', :action => :edit_application_alerts
+  map.update_application_alerts '/application/alerts/update', :controller => 'home', :action => :update_application_alerts
 
   # Twitter mappings must come before generic channel mapping
   map.create_twitter_channel '/channel/create/twitter', :controller => 'twitter', :action => :create_twitter_channel, :kind => 'twitter'

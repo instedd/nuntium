@@ -16,6 +16,8 @@ class RoutesTest < ActionController::TestCase
         assert_routing({:path => "/application/#{kind}_routing/#{op}"}, { :controller => "home", :action => "#{op}_application_#{kind}_routing"})
       end
     end
+    assert_routing({:path => "/application/alerts/edit"}, { :controller => "home", :action => "edit_application_alerts"})
+    assert_routing({:path => "/application/alerts/update"}, { :controller => "home", :action => "update_application_alerts"})
     assert_routing({:path => "/application/find_address_source"}, { :controller => "home", :action => "find_address_source"})
     assert_routing({:path => "/channel/create/twitter"}, { :controller => "twitter", :action => "create_twitter_channel", :kind => "twitter" })
     assert_routing({:path => "/channel/update/twitter"}, { :controller => "twitter", :action => "update_twitter_channel" })
