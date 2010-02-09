@@ -53,6 +53,10 @@ class ApplicationLogger
     info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "#{status} received from server")
   end
   
+  def ao_message_status_warning(msg, status)
+    warning(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "#{status} received from server")
+  end
+  
   def channel_not_found(msg, channel_name)
     if channel_name.class == Array
       info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Channels with names '#{channel_name.join('\"')}' do not exist or are disabled")

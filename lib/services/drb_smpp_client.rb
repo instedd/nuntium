@@ -201,6 +201,26 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
       @@log.error "Error in message_accepted logging: #{e2.class} #{e2.to_s}"
     end
   end
+  
+  def message_accepted_with_error(transceiver, mt_message_id, pdu_command_status)
+    @@log.info "Delegate: message_sent_with_error: id #{mt_message_id} smsc ref id: #{smsc_message_id}"
+    
+    # Find message with mt_message_id
+    msg = AOMessage.find mt_message_id
+    if msg.nil?
+      @@log.info "AOMessage with id #{mt_message_id} not found (pdu_command_status: #{pdu_command_status})"
+      return
+    end
+    
+    @@application.logger.ao_message_status_warning msg, "Command Status '#{pdu_command_status}'"
+  rescue Exception => e
+    @@log.error "Error in message_accepted_with_error: #{e.class} #{e.to_s}"
+    begin
+      @@application.logger.exception_in_channel @@channel, e
+    rescue Exception => e2
+      @@log.error "Error in message_accepted_with_error logging: #{e2.class} #{e2.to_s}"
+    end
+  end
 
   def bound(transceiver)
     @@log.info "Delegate: transceiver bound"
