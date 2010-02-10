@@ -13,6 +13,13 @@ class AlertSender
         ao_msg = AOMessage.find_by_id alert.ao_message_id
         next if ao_msg.nil?
         
+        if ao_msg.tries >= 3
+          ao_msg.state = 'failed'
+          ao_msg.save!
+          alert.delete
+          return
+        end
+        
         alert.channel.handle_now(ao_msg)
         alert.sent_at = Time.now.utc
         alert.save!
