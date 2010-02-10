@@ -16,7 +16,9 @@ class AlertSender
         if ao_msg.tries >= 3
           ao_msg.state = 'failed'
           ao_msg.save!
-          alert.delete
+          alert.failed = true
+          alert.sent_at = Time.now.utc
+          alert.save!
           return
         end
         

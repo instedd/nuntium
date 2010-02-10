@@ -14,6 +14,7 @@ class AlertSenderTest < ActiveSupport::TestCase
     alerts = Alert.all
     assert_equal 1, alerts.length
     assert_not_nil alerts[0].sent_at
+    assert_false alerts[0].failed
     
     assert_equal 'pending', AOMessage.first.state
   end
@@ -29,7 +30,9 @@ class AlertSenderTest < ActiveSupport::TestCase
     sender.perform
     
     alerts = Alert.all
-    assert_equal 0, alerts.length
+    assert_equal 1, alerts.length
+    assert_not_nil alerts[0].sent_at
+    assert_true alerts[0].failed
     
     assert_equal 'failed', AOMessage.first.state
   end
