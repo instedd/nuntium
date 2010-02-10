@@ -208,6 +208,11 @@ class HomeController < AuthenticatedController
     render :text => chan.nil? ? '' : chan.name
   end
   
+  def delete_failed_alerts
+    Alert.delete_all(['application_id = ? and failed = ?', @application.id, true])
+    redirect_to_home
+  end
+  
   def logoff
     session[:application_id] = nil
     redirect_to :action => :index

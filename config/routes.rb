@@ -15,6 +15,7 @@ ActionController::Routing::Routes.draw do |map|
   map.edit_application '/application/edit', :controller => 'home', :action => :edit_application
   map.update_application '/application/update', :controller => 'home', :action => :update_application
   map.update_application '/application/find_address_source', :controller => 'home', :action => :find_address_source
+  map.update_application '/application/failed_alerts/delete', :controller => 'home', :action => :delete_failed_alerts
   map.edit_application_ao_routing '/application/ao_routing/edit', :controller => 'home', :action => :edit_application_ao_routing
   map.update_application_ao_routing '/application/ao_routing/update', :controller => 'home', :action => :update_application_ao_routing
   map.edit_application_at_routing '/application/at_routing/edit', :controller => 'home', :action => :edit_application_at_routing

@@ -6,6 +6,7 @@
   <div id="alerts">
   Some alerts could not be sent, please check the log of the following messages:
   <%= @failed_alerts.map { |alert| link_to alert.ao_message_id.to_s, {:controller => :message, :action => :view_ao_message, :id => alert.ao_message_id}, :popup => ['log', 'width=640,height=480,scrollbars=yes'] }.join(', ') %>
+  (<%= link_to 'clear this message', :controller => 'home', :action => 'delete_failed_alerts' %>)
   </div>
 <% end %>
 
