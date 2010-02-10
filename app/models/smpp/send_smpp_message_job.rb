@@ -42,6 +42,10 @@ class SendSmppMessageJob
         msg.state = 'delivered'
         msg.save
       else
+        app = Application.find_by_id @application_id
+        if msg.tries >= app.max_tries
+          msg.state = 'failed'
+        end
         msg.save
         ApplicationLogger.exception_in_channel_and_ao_message channel, msg, error_or_nil
         raise error_or_nil
