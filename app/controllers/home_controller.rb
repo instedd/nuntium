@@ -87,6 +87,8 @@ class HomeController < AuthenticatedController
       "group by channel_id").each do |r|
       @channels_queued_count[r['channel_id'].to_i] = r['count'].to_i
     end
+    
+    @failed_alerts = Alert.all(:conditions => ['application_id = ? and failed = ?', @application.id, true])
   end
   
   def edit_application

@@ -1,5 +1,12 @@
 <% if !flash[:notice].nil? %>
-<div style="border:1px solid black; background:#FFF1A8; padding:4px; font-weight:bold"><%= flash[:notice] %></div>
+<div id="notice"><%= flash[:notice] %></div>
+<% end %>
+
+<% if !@failed_alerts.empty? %>
+  <div id="alerts">
+  Some alerts could not be sent, please check the log of the following messages:
+  <%= @failed_alerts.map { |alert| link_to alert.ao_message_id.to_s, {:controller => :message, :action => :view_ao_message, :id => alert.ao_message_id}, :popup => ['log', 'width=640,height=480,scrollbars=yes'] }.join(', ') %>
+  </div>
 <% end %>
 
 <h4><%= link_to_function 'Interactions', "toggle('interactions')" %></h4>
@@ -82,8 +89,8 @@
 </ul>
 
 <ul>
-  <li><%= link_to "Edit settings / Change password", :controller => :home, :action => :edit_application %></li>
-  <li><%= link_to "Edit alerts", :controller => :home, :action => :edit_application_alerts %></li>
+  <li><%= link_to "Edit Settings / Change password", :controller => :home, :action => :edit_application %></li>
+  <li><%= link_to "Edit Alerts", :controller => :home, :action => :edit_application_alerts %></li>
   <li><%= link_to "Edit AO Messages routing", :controller => :home, :action => :edit_application_ao_routing %></li>
   <li><%= link_to "Edit AT Messages routing", :controller => :home, :action => :edit_application_at_routing %></li>
   <% unless @application.configuration[:use_address_source].nil? %>

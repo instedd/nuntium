@@ -121,3 +121,22 @@ acronym {
   color:blue;
   font-weight:bold;
 }
+
+#notice {
+  border:1px solid black;
+  background:#FFF1A8;
+  padding:4px;
+  font-weight:bold
+}
+
+#alerts {
+  border:2px solid black;
+  background:red;
+  padding:4px;
+  font-weight:bold;
+  color:white
+}
+
+#alerts a {
+  color: white
+}
