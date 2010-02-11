@@ -86,7 +86,7 @@ class ApplicationLogger
   end
 
   def error_initializing_http(exception)
-    error(:message => "Error initializing http connection in QST operation: '#{exception.class} #{exception.to_s}'")
+    error(:message => "Error initializing http connection in QST operation: '#{exception_msg(exception)}'")
   end
   
   def error_posting_msgs(msg)
@@ -119,17 +119,15 @@ class ApplicationLogger
   
   def self.exception_in_channel(channel, exception)
     logger = ApplicationLogger.new(channel.application_id)
-    logger.error(:channel_id => channel.id, :message => "#{exception.class} #{exception.to_s}")
+    logger.error(:channel_id => channel.id, :message => "#{exception_msg(exception)}")
   end
   
-  def self.exception_in_channel_and_ao_message(channel, ao_msg, exception)
-    logger = ApplicationLogger.new(channel.application_id)
-    logger.error(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => 'Try #' + "#{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' failed: #{exception.class} #{exception.to_s}")
+  def exception_in_channel_and_ao_message(channel, ao_msg, exception)
+    error(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => 'Try #' + "#{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' failed: #{exception_msg(exception)}")
   end
   
-  def self.message_channeled(ao_msg, channel)
-    logger = ApplicationLogger.new(channel.application_id)
-    logger.info(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => 'Try #' + "#{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' succeeded")
+  def message_channeled(ao_msg, channel)
+    info(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => 'Try #' + "#{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' succeeded")
   end
   
   def create(hash_or_message, severity)
@@ -139,5 +137,13 @@ class ApplicationLogger
     hash_or_message[:application_id] = @application_id
     hash_or_message[:severity] = severity
     ApplicationLog.create(hash_or_message)
+  end
+  
+  def exception_msg(exception)
+    if exception.class == String || exception.class == RuntimeError
+      exception
+    else
+      "#{exception.class} - #{exception}"
+    end
   end
 end

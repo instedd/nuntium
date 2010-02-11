@@ -17,6 +17,7 @@ class SendSmppMessageJob
       return :error_finding_drb_service
     end
     
+    app = Application.find_by_id @application_id
     channel = Channel.find @channel_id
     msg = AOMessage.find @message_id
     
@@ -33,24 +34,13 @@ class SendSmppMessageJob
       # try to send it through SMPP connection
       error_or_nil = @smpp_gw.send_message(msg.id, from, to, sms)
     rescue => e
-      ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
-      raise
+      msg.send_failed app, channel, e
     else
-      # increase one try
-      msg.tries += 1
       if error_or_nil.nil?
-        msg.state = 'delivered'
-        msg.save
+        msg.send_succeeed app, channel
       else
-        app = Application.find_by_id @application_id
-        if msg.tries >= app.max_tries
-          msg.state = 'failed'
-        end
-        msg.save
-        ApplicationLogger.exception_in_channel_and_ao_message channel, msg, error_or_nil
-        raise error_or_nil
+        msg.send_failed app, channel, error_or_nil
       end
-      ApplicationLogger.message_channeled msg, channel
     end
   end
   

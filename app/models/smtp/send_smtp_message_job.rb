@@ -10,6 +10,7 @@ class SendSmtpMessageJob
   end
 
   def perform
+    app = Application.find_by_id @application_id
     channel = Channel.find @channel_id
     msg = AOMessage.find @message_id
     config = channel.configuration
@@ -34,25 +35,17 @@ END_OF_MESSAGE
     begin
       smtp.start('localhost.localdomain', config[:user], config[:password])
     rescue => e
-      ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
-      raise
+      msg.send_failed app, channel, e
     else
       begin
         smtp.send_message msgstr, msg.from.without_protocol, msg.to.without_protocol
       rescue => e
-        msg.tries += 1
-        msg.channel_relative_id = channel_relative_id
-        msg.save
-        ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
-        raise
+        msg.send_failed app, channel, e
       else
-        msg.state = 'delivered'
-        msg.tries += 1
-        msg.channel_relative_id = channel_relative_id
-        msg.save
+        msg.send_succeeed app, channel, channel_relative_id
+      ensure
+        smtp.finish
       end
-      ApplicationLogger.message_channeled msg, channel
-      smtp.finish
     end
   end
   

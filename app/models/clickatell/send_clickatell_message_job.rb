@@ -13,6 +13,7 @@ class SendClickatellMessageJob
   end
 
   def perform
+    app = Application.find_by_id @application_id
     channel = Channel.find @channel_id
     msg = AOMessage.find @message_id
     config = channel.configuration
@@ -53,18 +54,10 @@ class SendClickatellMessageJob
         raise response.body
       end
     rescue => e
-      msg.tries += 1
-      msg.save
-      ApplicationLogger.exception_in_channel_and_ao_message channel, msg, e
-      raise
-    else    
-      msg.state = 'delivered'
-      msg.tries += 1
-      msg.save
+      msg.send_failed app, channel, e
+    else
+      msg.send_succeeed app, channel
     end
-
-    ApplicationLogger.message_channeled msg, channel
-    result
   end
   
   def append(str, name, value, first = false)

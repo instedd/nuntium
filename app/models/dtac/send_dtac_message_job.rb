@@ -11,8 +11,9 @@ class SendDtacMessageJob
   end
 
   def perform
-    msg = AOMessage.find @message_id
+    app = Application.find_by_id @application_id
     channel = Channel.find_by_id @channel_id
+    msg = AOMessage.find @message_id
     return if msg.nil? or channel.nil?
     config = channel.configuration
   
@@ -51,26 +52,13 @@ class SendDtacMessageJob
     
       status = values["Status"].to_i
       if ( status == 0 )
-        # message successfully sent
-        msg.state = 'delivered'
-        msg.tries += 1
-        msg.save
+        msg.send_succeeed app, channel
       else
-        # error ocurred
-        msg.tries += 1
-        msg.save
-        error_message = values['Message']
-        ApplicationLogger.exception_in_channel_and_ao_message channel, msg, error_message
-        raise error_message
+        msg.send_failed app, channel, values['Message']
       end
     else
-      msg.tries += 1
-      msg.save
-      ApplicationLogger.exception_in_channel_and_ao_message channel, msg, response.message
-      raise response.message
+      msg.send_failed app, channel, response.message
     end
-    
-    ApplicationLogger.message_channeled msg, channel
     :success
   end
   
