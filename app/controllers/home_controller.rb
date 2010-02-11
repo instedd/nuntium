@@ -167,7 +167,7 @@ class HomeController < AuthenticatedController
   
   def edit_application_alerts
     @application = flash[:application] if not flash[:application].nil?
-    @channels = @application.channels
+    @channels = Channel.all(:conditions => ['application_id = ? and (direction = ? or direction = ?)', @application.id, Channel::Outgoing, Channel::Both])
     @alert_configurations = AlertConfiguration.find_all_by_application_id @application.id
   end
   
