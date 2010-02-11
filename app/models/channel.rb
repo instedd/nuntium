@@ -12,7 +12,7 @@ class Channel < ActiveRecord::Base
   
   validates_presence_of :name, :protocol, :kind, :application
   validates_uniqueness_of :name, :scope => :application_id, :message => 'Name has already been used by another channel in the application'
-  validates_numericality_of :throttle, :allow_nil => true, :only_integer => true, :greater_than => 0
+  validates_numericality_of :throttle, :allow_nil => true, :only_integer => true, :greater_than_or_equal_to => 0
   
   validate :handler_check_valid
   before_save :handler_before_save
