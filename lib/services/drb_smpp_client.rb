@@ -316,7 +316,7 @@ def startSMPPGateway(channel_id)
   channel_id = ARGV[1]
   @@channel = Channel.find channel_id
   if OUT.class == String && OUT.include? 'smpp.log'
-    OUT = OUT.gsub 'smpp.log', "smpp_#{channel.name}.log"
+    OUT = OUT.gsub 'smpp.log', "smpp_#{@@channel.name}.log"
   end
   @@log = Logger.new OUT
   @@log.formatter = Logger::Formatter.new
