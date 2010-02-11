@@ -9,10 +9,10 @@
 <body>
 <% if @hide_title.nil? %>
   <% if !@application.nil? && !@application.id.nil? %>
-    <h2 style="color:blue;float:left">nuntium</h2>
-    <h3 style="text-align:right"><%= @application.name %> | <%= link_to 'Help', 'http://code.google.com/p/nuntium/', :target => '_blank' %> | <%= link_to 'Logoff', :controller => :home, :action => :logoff %></h3>
+    <span id="title">nuntium</span>
+    <span id="toolbar"><%= @application.name %> | <%= link_to 'Help', 'http://code.google.com/p/nuntium/', :target => '_blank' %> | <%= link_to 'Logoff', :controller => :home, :action => :logoff %></span>
   <% else %>
-    <h2 style="color:blue">nuntium</h2>
+    <span id="title">nuntium</span>
   <% end %>
 <% end %>
 <%= yield %>

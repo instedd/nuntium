@@ -122,6 +122,18 @@ acronym {
   font-weight:bold;
 }
 
+#title {
+  color: blue;
+  font-weight:bold;
+  font-size: 20px;
+}
+
+#toolbar {
+  font-size: 14px;
+  float:right;
+  clear:both;
+}
+
 #notice {
   border:1px solid black;
   background:#FFF1A8;
