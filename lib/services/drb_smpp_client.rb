@@ -315,10 +315,11 @@ def startSMPPGateway(channel_id)
   # find Channel and fetch configuration
   channel_id = ARGV[1]
   @@channel = Channel.find channel_id
-  if OUT.class == String && OUT.include? 'smpp.log'
-    OUT = OUT.gsub 'smpp.log', "smpp_#{@@channel.name}.log"
+  logfile = OUT
+  if logfile.class == String && logfile.include? 'smpp.log'
+    logfile = logfile.gsub 'smpp.log', "smpp_#{@@channel.name}.log"
   end
-  @@log = Logger.new OUT
+  @@log = Logger.new logfile
   @@log.formatter = Logger::Formatter.new
   
   @configuration = @@channel.configuration
