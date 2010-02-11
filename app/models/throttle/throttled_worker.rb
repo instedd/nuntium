@@ -1,7 +1,7 @@
 class ThrottledWorker
 
   def perform
-    chans = Channel.all(:conditions => 'throttle is not null')
+    chans = Channel.all(:conditions => 'throttle is not null and throttle != 0')
     chans.each do |chan|
       running_count = Delayed::Job.count(:conditions => ['channel_id = ? AND failed_at is null', chan.id])
       available_count = chan.throttle - running_count
