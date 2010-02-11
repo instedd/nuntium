@@ -310,16 +310,17 @@ def stopSMPPGateway()
 end
 
 def startSMPPGateway(channel_id)
-  
-  @@log = Logger.new OUT
-  @@log.formatter = Logger::Formatter.new
-  
   # Uncomment this line to get a lot more debugging information in the log file, if not will go to the console by default
   #Smpp::Base.logger = @@log
   # find Channel and fetch configuration
   channel_id = ARGV[1]
-  @@log.debug "Fetching channel with id #{channel_id} from database."
   @@channel = Channel.find channel_id
+  if OUT.class == String && OUT.include? 'smpp.log'
+    OUT = OUT.gsub 'smpp.log', "smpp_#{channel.name}.log"
+  end
+  @@log = Logger.new OUT
+  @@log.formatter = Logger::Formatter.new
+  
   @configuration = @@channel.configuration
   @@application_id = @@channel.application_id
   @@application = Application.find @@application_id
