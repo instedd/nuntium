@@ -30,6 +30,12 @@ class ChannelHandler
   def on_destroy
   end
   
+  # Returns additional info for the given ao_msg in a hash, to be
+  # displayed in the message view
+  def more_info(ao_msg)
+    {}
+  end
+  
   protected
   
   def check_config_not_blank(*keys)

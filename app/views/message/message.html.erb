@@ -26,7 +26,7 @@
 <table class="table">
   <tr valign="baseline">
     <td><b>Id:</b></td>
-    <td><%= @msg.id %></td>
+    <td><%= @msg.id %></tmsg.channeld>
   </tr>
   <tr valign="baseline">
     <td><b>Guid:</b></td>
@@ -68,5 +68,17 @@
     <td><b>State:</b></td>
     <td><%= @msg.state %></td>
   </tr>
+  <% if @msg.class == AOMessage && !@msg.channel.nil?
+    hash = @msg.channel.handler.more_info(@msg)
+    hash.each_pair do |key, value|
+      %>
+      <tr valign="baseline">
+      <td><b style="color:blue"><%= key %>:</b></td>
+      <td><%= value %></td>
+    </tr>
+      <%
+    end
+  end 
+  %>
 </table>
 </div>
