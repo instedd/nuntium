@@ -31,7 +31,14 @@ class TwitterChannelHandler < ChannelHandler
   end
   
   def info
-    @channel.configuration[:screen_name]
+    @channel.configuration[:screen_name] +
+      " <a href=\"#\" onclick=\"twitter_view_rate_limit_status(#{@channel.id}); return false;\">view rate limit status</a>"
+  end
+  
+  def get_rate_limit_status
+    client = TwitterChannelHandler.new_client @channel.configuration
+    stat = client.rate_limit_status
+    "Hourly limit: #{stat.hourly_limit}, Remaining hits for this hour: #{stat.remaining_hits}"
   end
   
   def on_enable

@@ -16,7 +16,7 @@ class AlertTrigger
       
       tos.each do |to|
         alert = alerts_for_kind.select{|a| a.channel_id = cfg.channel_id && a.ao_message.to == to}.first
-        ao_msg = AOMessage.create!(:application_id => @application.id, :from => cfg.from, :to => to, :subject => "Nuntium alert for #{@application.name}", :body => msg, :state => 'pending', :timestamp => Time.now.utc)
+        ao_msg = AOMessage.create!(:application_id => @application.id, :channel_id => cfg.channel_id, :from => cfg.from, :to => to, :subject => "Nuntium alert for #{@application.name}", :body => msg, :state => 'pending', :timestamp => Time.now.utc)
         @application.logger.ao_message_created_as_alert ao_msg
         if alert.nil?
           Alert.create!(:application_id => @application.id, :channel_id => cfg.channel_id, :kind => kind, :ao_message_id => ao_msg.id)

@@ -59,6 +59,7 @@ class AlertTriggerTest < ActiveSupport::TestCase
     assert_equal app.id, msgs[0].application_id
     assert_equal 'f', msgs[0].from
     assert_equal 't', msgs[0].to
+    assert_equal chan.id, msgs[0].channel_id
     assert_equal app.id, msgs[1].application_id
     assert_equal 'f', msgs[1].from
     assert_equal 'u', msgs[1].to

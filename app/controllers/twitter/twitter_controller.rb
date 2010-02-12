@@ -81,6 +81,16 @@ class TwitterController < AuthenticatedController
     redirect_to_home
   end
   
+  def view_rate_limit_status
+    id = params[:id]
+    @channel = Channel.find_by_id id
+    if @channel.nil? || @channel.application_id != @application.id || @channel.kind != 'twitter'
+      return redirect_to_home
+    end
+    
+    render :text => @channel.handler.get_rate_limit_status
+  end
+  
   protected
   
   def check_twitter_properly_configured
