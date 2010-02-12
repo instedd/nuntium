@@ -17,6 +17,7 @@ class AlertTriggerTest < ActiveSupport::TestCase
     assert_equal 'Nuntium alert for app', msgs[0].subject
     assert_equal 'something', msgs[0].body
     assert_equal 'pending', msgs[0].state
+    assert_not_nil msgs[0].timestamp
     
     alerts = Alert.all
     assert_equal 1, alerts.length
@@ -45,10 +46,10 @@ class AlertTriggerTest < ActiveSupport::TestCase
     assert_equal msgs[1].id, alerts[0].ao_message_id
   end
   
-  test "alert many from" do
+  test "alert many to" do
     app = Application.create!(:name => 'app', :password => 'pass')
     chan = new_channel(app, 'one')
-    cfg = AlertConfiguration.create!(:application_id => app.id, :channel_id => chan.id, :from => 'f, g', :to => 't')
+    cfg = AlertConfiguration.create!(:application_id => app.id, :channel_id => chan.id, :from => 'f', :to => 't, u')
     
     trigger = AlertTrigger.new(app)
     trigger.alert('k1', 'something')
@@ -59,8 +60,8 @@ class AlertTriggerTest < ActiveSupport::TestCase
     assert_equal 'f', msgs[0].from
     assert_equal 't', msgs[0].to
     assert_equal app.id, msgs[1].application_id
-    assert_equal 'g', msgs[1].from
-    assert_equal 't', msgs[1].to
+    assert_equal 'f', msgs[1].from
+    assert_equal 'u', msgs[1].to
     
     alerts = Alert.all
     assert_equal 2, alerts.length
