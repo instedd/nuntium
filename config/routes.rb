@@ -3,6 +3,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :incoming, :path_prefix => '/qst/:application_id', :only => [:index, :create]
   map.resources :outgoing, :path_prefix => '/qst/:application_id', :only => [:index]
   
+  map.clickatel_credit '/clickatell/view_credit', :controller => 'clickatell', :action => :view_credit
   map.clickatel '/clickatell/:application_id/incoming', :controller => 'clickatell', :action => :index
   map.dtac '/dtac/:application_id/incoming', :controller => 'dtac', :action => :index
   

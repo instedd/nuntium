@@ -1,7 +1,8 @@
 require 'iconv'
 
-class ClickatellController < ApplicationController
-  before_filter :authenticate
+class ClickatellController < AuthenticatedController
+  before_filter :authenticate, :only => :index
+  before_filter :check_login, :only => :view_credit
 
   @@clickatell_timezone = ActiveSupport::TimeZone.new 2.hours
 
@@ -64,6 +65,16 @@ class ClickatellController < ApplicationController
   
   def get_timestamp
     @@clickatell_timezone.parse(params[:timestamp]).utc rescue Time.now.utc
+  end
+  
+  def view_credit
+    id = params[:id]
+    @channel = Channel.find_by_id id
+    if @channel.nil? || @channel.application_id != @application.id || @channel.kind != 'clickatell'
+      return redirect_to_home
+    end
+    
+    render :text => @channel.handler.get_credit
   end
   
   def authenticate

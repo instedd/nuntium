@@ -1,3 +1,6 @@
+require 'uri'
+require 'net/http'
+
 class ClickatellChannelHandler < ChannelHandler
   def handle(msg)
     Delayed::Job.enqueue create_job(msg)
@@ -24,6 +27,14 @@ class ClickatellChannelHandler < ChannelHandler
   end
   
   def info
-    @channel.configuration[:user] + " / " + @channel.configuration[:api_id]
+    @channel.configuration[:user] + " / " + @channel.configuration[:api_id] +
+      " <a href=\"javascript:void()\" onclick=\"clickatell_view_credit(#{@channel.id})\">view credit</a>"
+  end
+  
+  def get_credit
+    cfg = @channel.configuration
+    uri = "/http/getbalance?api_id=#{cfg[:api_id]}&user=#{cfg[:user]}&password=#{cfg[:password]}"
+    host = URI::parse('http://api.clickatell.com')
+    Net::HTTP::new(host.host, host.port).get(uri).body
   end
 end

@@ -172,6 +172,20 @@ function clickatell_channel_direction_changed() {
   }
 }
 
+function clickatell_view_credit(id) {
+  $.ajax({
+    type: "GET",
+    url: '/clickatell/view_credit', 
+    data: {id: id},
+    success: function(data) {
+      alert(data)
+    },
+    error: function() {
+      alert('An error happened while retreiving the clickatell credit :-(');
+    }
+  });
+}
+
 // Find address source 
 $(function() {
   var find_address_source = function() {
