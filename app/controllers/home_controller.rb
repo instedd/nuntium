@@ -12,9 +12,6 @@ class HomeController < AuthenticatedController
       redirect_to_home
       return
     end
-  
-    @application = flash[:application]
-    @new_application = flash[:new_application]
   end
   
   def login
@@ -23,9 +20,9 @@ class HomeController < AuthenticatedController
     
     @application = Application.find_by_name app[:name]
     if @application.nil? || !@application.authenticate(app[:password])
-      flash[:application] = Application.new(:name => app[:name])
+      @application.clear_password
       flash[:notice] = 'Invalid name/password'
-      return redirect_to :action => :index
+      return render :index
     end
     
     session[:application_id] = @application.id
@@ -36,11 +33,10 @@ class HomeController < AuthenticatedController
     app = params[:new_application]
     return redirect_to_home if app.nil?
     
-    new_app = Application.new(app)
-    if !new_app.save
-      new_app.clear_password
-      flash[:new_application] = new_app
-      return redirect_to :action => :index
+    @new_application = Application.new(app)
+    if !@new_application.save
+      @new_application.clear_password
+      return render :index
     end
     
     session[:application_id] = new_app.id
@@ -92,7 +88,6 @@ class HomeController < AuthenticatedController
   end
   
   def edit_application
-    @application = flash[:application] if not flash[:application].nil?
   end
   
   def update_application
@@ -124,15 +119,13 @@ class HomeController < AuthenticatedController
     
     if !@application.save
       @application.clear_password
-      flash[:application] = @application
-      redirect_to :action => :edit_application
+      render :edit_application
     else
       redirect_to_home 'Application was changed'
     end
   end
   
   def edit_application_ao_routing
-    @application = flash[:application] if not flash[:application].nil?
   end
   
   def update_application_ao_routing
@@ -141,15 +134,13 @@ class HomeController < AuthenticatedController
     @application.configuration[:ao_routing] = cfg[:ao_routing]
     @application.configuration[:ao_routing_test] = cfg[:ao_routing_test]
     if !@application.save
-      flash[:application] = @application
-      redirect_to :action => :edit_application_ao_routing
+      render :edit_application_ao_routing
     else
       redirect_to_home 'AO messages routing was changed'
     end
   end
   
   def edit_application_at_routing
-    @application = flash[:application] if not flash[:application].nil?
   end
   
   def update_application_at_routing
@@ -158,17 +149,19 @@ class HomeController < AuthenticatedController
     @application.configuration[:at_routing] = cfg[:at_routing]
     @application.configuration[:at_routing_test] = cfg[:at_routing_test]
     if !@application.save
-      flash[:application] = @application
-      redirect_to :action => :edit_application_at_routing
+      render :edit_application_at_routing
     else
       redirect_to_home 'AT messages routing was changed'
     end
   end
   
-  def edit_application_alerts
-    @application = flash[:application] if not flash[:application].nil?
+  def setup_application_alerts
     @channels = Channel.all(:conditions => ['application_id = ? and (direction = ? or direction = ?)', @application.id, Channel::Outgoing, Channel::Both])
     @alert_configurations = AlertConfiguration.find_all_by_application_id @application.id
+  end
+  
+  def edit_application_alerts
+    setup_application_alerts
   end
   
   def update_application_alerts
@@ -178,8 +171,8 @@ class HomeController < AuthenticatedController
       
       if chan[1][:from].blank? || chan[1][:to].blank?
         @application.errors.add(:alert_configuration, 'You left a <i>from</i> or <i>to</i> field blank for an alert-activated channel') 
-        flash[:application] = @application
-        return redirect_to :action => :edit_application_alerts
+        setup_application_alerts
+        return render :edit_application_alerts
       end
     end
     
@@ -189,8 +182,8 @@ class HomeController < AuthenticatedController
     @application.configuration[:alert] = cfg[:alert]
     
     if !@application.save
-      flash[:application] = @application
-      return redirect_to :action => :edit_application_alerts
+      setup_application_alerts
+      return render :edit_application_alerts
     end
   
     AlertConfiguration.delete_all(['application_id = ?', @application.id])
