@@ -41,7 +41,7 @@ class HomeController < AuthenticatedController
       return render :index
     end
     
-    session[:application_id] = new_app.id
+    session[:application_id] = @new_application.id
     redirect_to_home
   end
   
