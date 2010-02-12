@@ -1,14 +1,6 @@
 require 'net/pop'
 
 class Pop3ChannelHandler < ChannelHandler
-  def handle(msg)
-    # TODO: can't handle messages
-  end
-  
-  def handle_now(msg)
-    # TODO: can't handle messages
-  end
-  
   def check_valid
     check_config_not_blank :host, :user, :password
         

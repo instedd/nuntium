@@ -8,15 +8,15 @@ class SendTwitterMessageJob
   end
 
   def perform
+    app = Application.find_by_id @application_id
     channel = Channel.find @channel_id
     msg = AOMessage.find @message_id
     config = channel.configuration
     
     begin
       client = TwitterChannelHandler.new_client(config)
-      client.direct_message_create(msg.to.without_protocol, msg.subject_and_body)
-      # TODO: from the response get twitter message id and assign it
-      # to channel_relative_id before saving the message
+      response = client.direct_message_create(msg.to.without_protocol, msg.subject_and_body)
+      msg.channel_relative_id = response.id
     rescue => e
       msg.send_failed app, channel, e
     else
