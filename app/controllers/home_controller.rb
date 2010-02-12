@@ -20,7 +20,7 @@ class HomeController < AuthenticatedController
     
     @application = Application.find_by_name app[:name]
     if @application.nil? || !@application.authenticate(app[:password])
-      @application.clear_password
+      @application.clear_password unless @application.nil?
       flash[:notice] = 'Invalid name/password'
       return render :index
     end
