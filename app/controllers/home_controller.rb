@@ -30,6 +30,8 @@ class HomeController < AuthenticatedController
   end
   
   def create_application
+    return render :text => 'This funcionality has been disabled, contact the system administrator' if ApplicationCreationDisabled
+  
     app = params[:new_application]
     return redirect_to_home if app.nil?
     

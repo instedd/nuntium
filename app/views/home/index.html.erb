@@ -13,6 +13,8 @@
   <%= submit_tag 'Login' %>
 <% end %>
 
+<% unless ApplicationCreationDisabled %>
+
 <h3>Or create a new one:</h3>
 
 <% form_for :new_application, :url => { :controller => 'home', :action => :create_application } do |f| %>
@@ -30,4 +32,6 @@
   <%= f.password_field :password_confirmation, :autocomplete => :off  %>
   </p>
   <%= submit_tag 'Create Application' %>
+<% end %>
+
 <% end %>

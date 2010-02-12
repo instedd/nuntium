@@ -62,6 +62,9 @@ else
   TwitterConsumerConfig = nil
 end
 
+# Disable application creation from UI
+ApplicationCreationDisabled = false
+
 # Include extensions
 require 'string'
 require 'delayed/job'
