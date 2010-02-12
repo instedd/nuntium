@@ -7,7 +7,7 @@ class ChannelController < AuthenticatedController
   def new_channel
     @channel = flash[:channel] if not flash[:channel].nil? 
     kind = params[:kind]
-    render "new_#{kind}_channel.html.erb"
+    render "new_#{kind}_channel"
   end
   
   def create_channel
@@ -24,15 +24,15 @@ class ChannelController < AuthenticatedController
     
     @channel.check_valid_in_ui
     if !@channel.save
-      @channel.clear_passwordl
-      return render :new_channel
+      @channel.clear_password
+      return render "new_#{@channel.kind}_channel"
     end
     
     redirect_to_home 'Channel was created'
   end
   
   def edit_channel
-    render "edit_#{@channel.kind}_channel.html.erb"
+    render "edit_#{@channel.kind}_channel"
   end
   
   def update_channel
@@ -47,7 +47,7 @@ class ChannelController < AuthenticatedController
     @channel.check_valid_in_ui
     if !@channel.save
       @channel.clear_password
-      return render :edit_channel
+      return render "edit_#{@channel.kind}_channel"
     end
     
     redirect_to_home 'Channel was updated'

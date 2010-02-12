@@ -1,7 +1,8 @@
 <h4>Edit alerts</h4>
 
 <p>
-When an alert is triggered a message with the given <i>from</i> and <i>to</i> will be sent to the given channels:
+When an alert is triggered a message with the given <i>from</i> and <i>to</i> will be sent to the given channels.<br/>
+You can specify many <i>to</i> receipients by separating them with a comma. It's not necessary to specify a protocol in the <i>from</i> and <i>to</i> fields.
 </p>
 
 <% form_for :application, :url => { :controller => 'home', :action => :update_application_alerts } do |f| %>

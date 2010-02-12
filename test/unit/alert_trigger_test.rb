@@ -45,4 +45,49 @@ class AlertTriggerTest < ActiveSupport::TestCase
     assert_equal msgs[1].id, alerts[0].ao_message_id
   end
   
+  test "alert many from" do
+    app = Application.create!(:name => 'app', :password => 'pass')
+    chan = new_channel(app, 'one')
+    cfg = AlertConfiguration.create!(:application_id => app.id, :channel_id => chan.id, :from => 'f, g', :to => 't')
+    
+    trigger = AlertTrigger.new(app)
+    trigger.alert('k1', 'something')
+    
+    msgs = AOMessage.all
+    assert_equal 2, msgs.length
+    assert_equal app.id, msgs[0].application_id
+    assert_equal 'f', msgs[0].from
+    assert_equal 't', msgs[0].to
+    assert_equal app.id, msgs[1].application_id
+    assert_equal 'g', msgs[1].from
+    assert_equal 't', msgs[1].to
+    
+    alerts = Alert.all
+    assert_equal 2, alerts.length
+    assert_equal app.id, alerts[0].application_id
+    assert_equal chan.id, alerts[0].channel_id
+    assert_equal msgs[0].id, alerts[0].ao_message_id
+    assert_equal app.id, alerts[1].application_id
+    assert_equal chan.id, alerts[1].channel_id
+    assert_equal msgs[1].id, alerts[1].ao_message_id
+    
+    # Second trigger in less than an hour doesn't modify anything
+    trigger.alert('k1', 'something else')
+    
+    assert_equal 2, AOMessage.count
+    assert_equal 2, Alert.count
+    
+    # Expire alerts
+    [0, 1].each do |i|
+      alerts[i].sent_at = Time.now.utc - (1.hours.to_i + 1)
+      alerts[i].save!
+    end
+    
+    # This time alert should be updated and new AOMessage created
+    trigger.alert('k1', 'and another thing')
+    
+    assert_equal 4, AOMessage.count
+    assert_equal 2, Alert.count
+  end
+  
 end

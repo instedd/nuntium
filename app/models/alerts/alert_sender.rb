@@ -6,7 +6,7 @@ class AlertSender
   end
 
   def perform
-    Alert.all(:conditions => 'sent_at is null').each do |alert|
+    Alert.all(:conditions => 'sent_at is null', :include => [:channel, :ao_message]).each do |alert|
       begin
         next if alert.channel.nil?
       

@@ -93,7 +93,7 @@ class ChannelControllerTest < ActionController::TestCase
     chan.save
     
     get :update_channel, {:id => chan.id, :channel => {:protocol => '', :configuration => {:password => '', :password_confirmation => ''}}}, {:application_id => app.id}
-    assert_redirected_to(:controller => 'channel', :action => 'edit_channel')
+    assert_template 'edit_qst_server_channel'
   end
 
   test "create chan fails name already exists" do
@@ -103,7 +103,7 @@ class ChannelControllerTest < ActionController::TestCase
     chan.save
     
     get :create_channel, {:kind => 'qst_server', :channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application_id => app.id}
-    assert_redirected_to(:controller => 'channel', :action => 'new_channel')
+    assert_template 'new_qst_server_channel'
   end
   
 

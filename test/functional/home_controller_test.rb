@@ -79,31 +79,31 @@ class HomeControllerTest < ActionController::TestCase
   test "edit app fails with max tries" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
     get :update_application, {:application => {:max_tries => 'foo', :password => '', :password_confirmation => ''}}, {:application_id => app.id}
-    assert_redirected_to(:controller => 'home', :action => 'edit_application')
+    assert_template 'edit_application'
   end
   
   test "edit app fails with invalid interface" do
     app = Application.create({:name => 'app', :password => 'app_pass', :interface => 'rss'})
     get :update_application, {:application => {:max_tries => '1', :interface => 'invalid' , :password => '', :password_confirmation => ''}}, {:application_id => app.id}
-    assert_redirected_to(:controller => 'home', :action => 'edit_application')
+    assert_template 'edit_application'
   end
   
   test "login fails wrong name" do
     app = Application.create({:name => 'app', :password => 'app_pass'});
     get :login, :application => {:name => 'wrong_app', :password => 'app_pass'}
-    assert_redirected_to(:controller => 'home', :action => 'index')
+    assert_template 'index'
   end
   
   test "login fails wrong pass" do
     app = Application.create({:name => 'app', :password => 'app_pass'});
     get :login, :application => {:name => 'app', :password => 'wrong_pass'}
-    assert_redirected_to(:controller => 'home', :action => 'index')
+    assert_template 'index'
   end
   
   test "create app fails name is empty" do
     app = Application.create({:name => 'app', :password => 'app_pass'});
     get :create_application, :new_application => {:name => '   ', :password=> 'foo'}
-    assert_redirected_to(:controller => 'home', :action => 'index')
+    assert_template 'index'
   end
   
 end
