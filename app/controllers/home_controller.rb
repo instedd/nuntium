@@ -25,6 +25,7 @@ class HomeController < AuthenticatedController
       return render :index
     end
     
+    flash[:notice] = nil
     session[:application_id] = @application.id
     redirect_to_home
   end
