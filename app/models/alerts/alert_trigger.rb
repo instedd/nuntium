@@ -12,7 +12,7 @@ class AlertTrigger
     return unless pending_alerts.empty?
     
     @alert_configurations.each do |cfg|
-      tos = cfg.to.split(',').map{|x| x.strip}
+      tos = cfg.to.split(',').map(&:strip)
       
       tos.each do |to|
         alert = alerts_for_kind.select{|a| a.channel_id = cfg.channel_id && a.ao_message.to == to}.first
@@ -22,6 +22,7 @@ class AlertTrigger
           Alert.create!(:application_id => @application.id, :channel_id => cfg.channel_id, :kind => kind, :ao_message_id => ao_msg.id)
         else
           alert.ao_message_id = ao_msg.id
+          alert.channel_id = cfg.channel_id
           alert.sent_at = nil
           alert.save!
         end

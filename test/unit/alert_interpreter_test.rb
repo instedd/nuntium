@@ -43,4 +43,28 @@ class AlertInterpreterTest < ActiveSupport::TestCase
     assert_equal 0, Alert.count
   end
   
+  test "alert bug" do
+    interpreter = AlertInterpreter.new
+  
+    app = Application.create!(:name => 'app', :password => 'pass')
+    app.configuration = {:alert => "trigger.alert 'k1', 'something'"}
+    
+    chan1 = new_channel(app, 'one')
+    chan2 = new_channel(app, 'two')
+    cfg1 = AlertConfiguration.create!(:application_id => app.id, :channel_id => chan1.id, :from => 'f', :to => 'c1a, c1b')
+    cfg2 = AlertConfiguration.create!(:application_id => app.id, :channel_id => chan2.id, :from => 'f', :to => 'c2')
+    
+    interpreter.interpret_for app
+    
+    assert_equal [chan1.id, chan1.id, chan2.id], Alert.all.map(&:channel_id)
+    assert_equal [chan1.id, chan1.id, chan2.id], AOMessage.all.map(&:channel_id)
+    
+    Alert.update_all(['sent_at = ?', Time.now - 2.hours])
+    
+    interpreter.interpret_for app
+    
+    assert_equal [chan1.id, chan1.id, chan2.id], Alert.all.map(&:channel_id)
+    assert_equal [chan1.id, chan1.id, chan2.id], AOMessage.all[3 .. -1].map(&:channel_id)
+  end
+  
 end
