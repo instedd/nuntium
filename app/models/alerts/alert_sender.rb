@@ -1,7 +1,7 @@
 class AlertSender
 
   def initialize
-    @logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', '..', 'log', 'alerts.log'), 50, 1 * 1024 * 1024)
+    @logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', '..', 'log', 'alerts.log'), 5, 10 * 1024 * 1024)
     @logger.formatter = Logger::Formatter.new
   end
 

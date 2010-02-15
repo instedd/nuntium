@@ -21,5 +21,5 @@ end
 
 # Default logger. Invoke this call in your client to use another logger.
 Smpp::Base.logger = Logger.new(STDOUT)
-# Smpp::Base.logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'ruby_smpp.log'), 50, 1 * 1024 * 1024)
+# Smpp::Base.logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'ruby_smpp.log'), 5, 10 * 1024 * 1024)
 Smpp::Base.logger.formatter = Logger::Formatter.new

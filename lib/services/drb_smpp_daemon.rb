@@ -1,7 +1,7 @@
 require 'logger'
 
 begin
-  $logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'drb_smpp_daemon.log'), 50, 1 * 1024 * 1024)
+  $logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'drb_smpp_daemon.log'), 5, 10 * 1024 * 1024)
   $logger.formatter = Logger::Formatter.new
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   

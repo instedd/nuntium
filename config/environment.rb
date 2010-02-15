@@ -53,8 +53,8 @@ Rails::Initializer.run do |config|
   #  ATMessage.send(:before_save, Proc.new { |m| puts msg.to = 'LALALALALALALALLALLALALALALALAL' })
   #end
   
-  # Keep 50 rotative logs of 1 megabyte each
-  config.logger = Logger.new("#{RAILS_ROOT}/log/#{ENV['RAILS_ENV']}.log", 50, 1 * 1024 * 1024)
+  # Keep 5 rotative logs of 10 megabyte each
+  config.logger = Logger.new("#{RAILS_ROOT}/log/#{ENV['RAILS_ENV']}.log", 5, 10 * 1024 * 1024)
   
 end
 
