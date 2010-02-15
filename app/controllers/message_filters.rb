@@ -173,7 +173,14 @@ module MessageFilters
     if time.include?('ago') || 
       time.include?('year') || time.include?('month') || time.include?('day') ||
       time.include?('hour') || time.include?('minute') || time.include?('second')
+      
+      # Replace words with numbers
+      @@numbers.each_with_index do |n, i|
+        time = (i + 1).to_s + time[n.length .. -1] if time.starts_with?(n) 
+      end
+      
       return nil if time.to_i == 0
+      
       time = time.gsub(' ', '.')
       result = eval(time)
       return result.class <= Time || result.class <= ActiveSupport::TimeWithZone ? result : nil
@@ -183,5 +190,7 @@ module MessageFilters
   rescue Exception => e
     return nil
   end
+  
+  @@numbers = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]
 
 end
