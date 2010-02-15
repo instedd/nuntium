@@ -54,8 +54,8 @@ Rails::Initializer.run do |config|
   #end
   
   # Keep 5 rotative logs of 10 megabyte each
-  config.logger = Logger.new("#{RAILS_ROOT}/log/#{ENV['RAILS_ENV']}.log", 5, 10 * 1024 * 1024)
-  config.logger.formatter = Logger::Formatter.new
+  # config.logger = Logger.new("#{RAILS_ROOT}/log/#{ENV['RAILS_ENV']}.log", 5, 5 * 1024)
+  # config.logger.formatter = Logger::Formatter.new
   
 end
 

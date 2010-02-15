@@ -2,7 +2,7 @@ require 'logger'
 
 # Initialize Ruby on Rails
 begin
-  $logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'alert_service_daemon.log'), 5, 10 * 1024 * 1024)
+  $logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'alert_service_daemon.log'))
   $logger.formatter = Logger::Formatter.new
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   

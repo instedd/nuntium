@@ -319,7 +319,7 @@ def startSMPPGateway(channel_id)
   if logfile.class == String && logfile.include?('smpp.log')
     logfile = logfile.gsub 'smpp.log', "smpp_#{@@channel.name}.log"
   end
-  @@log = Logger.new(logfile, 5, 10 * 1024 * 1024)
+  @@log = Logger.new(logfile)
   @@log.formatter = Logger::Formatter.new
   
   @configuration = @@channel.configuration
