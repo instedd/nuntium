@@ -7,7 +7,7 @@ def finished
 end
 
 begin
-  $logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'delayed_job_worker.log'))
+  $logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'delayed_job_worker.log'), 50, 1 * 1024 * 1024)
   $logger.formatter = Logger::Formatter.new
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   SLEEP = 5
