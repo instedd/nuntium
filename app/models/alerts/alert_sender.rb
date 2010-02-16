@@ -1,7 +1,7 @@
 class AlertSender
 
   def initialize
-    @logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', '..', 'log', 'alerts.log'))
+    @logger = NuntiumLogger.new(File.join(File.dirname(__FILE__), '..', '..', '..', 'log', 'alert_sender.log'), 'alert_sender')
     @logger.formatter = Logger::Formatter.new
   end
 

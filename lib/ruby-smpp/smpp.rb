@@ -20,6 +20,6 @@ Dir.glob(File.join(File.dirname(__FILE__), 'smpp', 'pdu', '*.rb')) do |f|
 end
 
 # Default logger. Invoke this call in your client to use another logger.
-Smpp::Base.logger = Logger.new(STDOUT)
-# Smpp::Base.logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'ruby_smpp.log'))
-Smpp::Base.logger.formatter = Logger::Formatter.new
+require (File.join(File.dirname(__FILE__), '..', '..', 'app', 'models', 'nuntium_logger'))
+# Smpp::Base.logger = NuntiumLogger.new(STDOUT)
+Smpp::Base.logger = NuntiumLogger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'ruby_smpp.log'), 'ruby_smpp')

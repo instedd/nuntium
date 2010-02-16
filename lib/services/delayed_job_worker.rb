@@ -1,5 +1,3 @@
-require 'logger'
-
 def finished
   current_dir = File.dirname(File.expand_path($0)).tr('/', '\\');
   process_file = current_dir + '\\' + Process.pid.to_s
@@ -7,8 +5,8 @@ def finished
 end
 
 begin
-  $logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'delayed_job_worker.log'))
-  $logger.formatter = Logger::Formatter.new
+  require(File.join(File.dirname(__FILE__), '..', '..', 'app', 'models', 'nuntium_logger'))
+  $logger = NuntiumLogger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'delayed_job_worker.log'), 'delayed_job_worker')
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   SLEEP = 5
   

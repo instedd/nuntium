@@ -1,8 +1,6 @@
-require 'logger'
-
 begin
-  $logger = Logger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'drb_smpp_daemon.log'))
-  $logger.formatter = Logger::Formatter.new
+  require(File.join(File.dirname(__FILE__), '..', '..', 'app', 'models', 'nuntium_logger'))
+  $logger = NuntiumLogger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'drb_smpp_daemon.log'), 'drb_smpp_daemon')
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   
   require 'win32/daemon'
