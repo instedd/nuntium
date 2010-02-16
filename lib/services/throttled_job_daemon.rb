@@ -26,13 +26,16 @@ begin
         begin
           worker.perform
         rescue Exception => err
-          $logger.error "Daemon failure: #{err}"   
+          $logger.error "Daemon failure: #{err} #{err.backtrace}"   
         ensure
-          sleep SLEEP
+          start = Time.now.to_i
+          while running? && (Time.now.to_i - start) < SLEEP
+            sleep 1
+          end
         end
       end
     rescue Exception => err
-      $logger.error "Daemon failure: #{err}"   
+      $logger.error "Daemon failure: #{err} #{err.backtrace}"   
     end
   
     def say(text)
@@ -42,6 +45,6 @@ begin
   
   ThrottledJobDaemon.mainloop
 rescue => err
-  $logger.error "Daemon failure: #{err}"
+  $logger.error "Daemon failure: #{err} #{err.backtrace}"
   raise
 end

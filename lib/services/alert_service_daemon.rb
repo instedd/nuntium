@@ -29,21 +29,24 @@ begin
         begin
           Application.all.each { |app| interpreter.interpret_for app }
         rescue Exception => err
-          $logger.error "Daemon failure when running scripts: #{err}"
+          $logger.error "Daemon failure when running scripts: #{err} #{err.backtrace}"
         end
         
         # Send pending alerts
         begin
           sender.perform
         rescue Exception => err
-          $logger.error "Daemon failure when sending alerts: #{err}"
+          $logger.error "Daemon failure when sending alerts: #{err} #{err.backtrace}"
         end
         
         # Wait some minutes
-        sleep SLEEP
+        start = Time.now.to_i
+        while running? && (Time.now.to_i - start) < SLEEP
+          sleep 1
+        end
       end
     rescue Exception => err
-      $logger.error "Daemon failure: #{err}"   
+      $logger.error "Daemon failure: #{err} #{err.backtrace}"
     end
   
     def say(text)
@@ -53,6 +56,6 @@ begin
   
   AlertServiceDaemon.mainloop
 rescue => err
-  $logger.error "Daemon failure: #{err}"
+  $logger.error "Daemon failure: #{err} #{err.backtrace}"
   raise
 end

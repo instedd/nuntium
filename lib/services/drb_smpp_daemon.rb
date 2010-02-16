@@ -10,7 +10,7 @@ begin
   include Win32  
   
   class SmppGatewayDaemon < Daemon       
-    SLEEP = 5
+    SLEEP = 1
     
     def service_init
       true      

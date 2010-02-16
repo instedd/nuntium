@@ -37,11 +37,11 @@ begin
         say "#{count} jobs processed at %.4f j/s, %d failed ..." % [count / realtime, result.last]
       end
     rescue Exception => err
-      $logger.error "Daemon failure: #{err}"
+      $logger.error "Daemon failure: #{err} #{err.backtrace}"
     end
   end
 rescue => err
-  $logger.error "Daemon failure: #{err}"
+  $logger.error "Daemon failure: #{err} #{err.backtrace}"
 ensure
   Delayed::Job.clear_locks!
 end

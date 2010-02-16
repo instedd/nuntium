@@ -12,7 +12,7 @@ begin
   # The code for this daemon was copied from Delayed::Worker
   # and adapted to be run as a Windows Service.
   class DelayedJobDaemon < Daemon
-    SLEEP = 5
+    SLEEP = 1
     NUMBER_OF_PROCESSES = 2
   
     def service_init
@@ -42,7 +42,7 @@ begin
         sleep SLEEP
       end
     rescue => err
-      $logger.error "Daemon failure: #{err}"
+      $logger.error "Daemon failure: #{err} #{err.backtrace}"
     end
     
     def service_stop
@@ -61,6 +61,6 @@ begin
   
   DelayedJobDaemon.mainloop
 rescue => err
-   $logger.error "Daemon failure: #{err}"
+   $logger.error "Daemon failure: #{err} #{err.backtrace}"
    raise
 end

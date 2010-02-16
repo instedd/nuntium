@@ -47,7 +47,11 @@ begin
       while running?
         cron_run
         break if not running?
-        sleep SLEEP
+        
+        start = Time.now.to_i
+        while running? && (Time.now.to_i - start) < SLEEP
+          sleep 1
+        end
       end
     end
     
@@ -60,6 +64,6 @@ begin
 
 rescue => err
    # If there was an error initializing the rails environment, we cannot use its logger
-   $logger.error "Daemon failure: #{err}"
+   $logger.error "Daemon failure: #{err} #{err.backtrace}"
    raise
 end
