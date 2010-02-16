@@ -127,7 +127,18 @@
         <td><%= chan.protocol %></td>
         <td><%= chan.info.blank? ? '' : chan.info %></td>
         <td align="right"><%= chan.throttle.nil? ? '' : "#{chan.throttle}/min" %></td>
-        <td align="right"><%= @channels_queued_count.include?(chan.id) ? @channels_queued_count[chan.id] : '0' %></td>
+        <%
+        queued = @channels_queued_count.include?(chan.id) ? @channels_queued_count[chan.id] : 0
+        if queued > 0
+          %>
+          <td align="right"><%= link_to queued, :controller => :home, :action => :home, :ao_search => "channel:#{chan.name} state:queued" %></td>
+          <%
+        else
+          %>
+          <td align="right">0</td>
+          <%
+        end
+        %>
         <td>
           <% if chan.enabled %>
             <%= link_to "disable", {:controller => :channel, :action => :disable_channel, :id => chan.id}, :confirm => "Are you sure you want to disable the channel #{chan.name}?" %>
