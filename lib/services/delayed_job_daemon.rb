@@ -1,6 +1,5 @@
 begin
-  require(File.join(File.dirname(__FILE__), '..', '..', 'app', 'models', 'nuntium_logger'))
-  $logger = NuntiumLogger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'delayed_job_daemon.log'), 'delayed_job_daemon')
+  $log_path = File.join(File.dirname(__FILE__), '..', '..', 'log', 'delayed_job_daemon.log')
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   
   require 'win32/daemon'
@@ -26,7 +25,7 @@ begin
       ruby = File.join(CONFIG['bindir'], 'ruby').tr('/', '\\')
       path = ' "' + current_dir
       path += '\\delayed_job_worker.rb"'
-      cmd = ruby + path + ' ' + ENV["RAILS_ENV"]
+      cmd = ruby + path + ' ' + (ENV["RAILS_ENV"] || '')
       
       # Create processes and pids file for each of them
       @processes = []
@@ -40,7 +39,7 @@ begin
         sleep SLEEP
       end
     rescue => err
-      $logger.error "Daemon failure: #{err} #{err.backtrace}"
+      File.open($log_path, 'a') { |f| f.write "Daemon failure: #{err} #{err.backtrace}" }
     end
     
     def service_stop
@@ -51,14 +50,10 @@ begin
         File.delete(current_dir + "\\" + pi.process_id.to_s)
       end
     end
-  
-    def say(text)
-      $logger.info text if $logger
-    end
   end
   
   DelayedJobDaemon.mainloop
 rescue => err
-   $logger.error "Daemon failure: #{err} #{err.backtrace}"
+   File.open($log_path, 'a') { |f| f.write "Daemon failure: #{err} #{err.backtrace}" }
    raise
 end

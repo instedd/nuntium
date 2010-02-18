@@ -1,7 +1,6 @@
 # Initialize Ruby on Rails
 begin
-  require(File.join(File.dirname(__FILE__), '..', '..', 'app', 'models', 'nuntium_logger'))
-  $logger = NuntiumLogger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'alert_service_daemon.log'), 'alert_service_daemon')
+  $log_path = File.join(File.dirname(__FILE__), '..', '..', 'log', 'alert_service_daemon.log')
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   
   require 'win32/daemon'
@@ -27,14 +26,14 @@ begin
         begin
           Application.all.each { |app| interpreter.interpret_for app }
         rescue Exception => err
-          $logger.error "Daemon failure when running scripts: #{err} #{err.backtrace}"
+          RAILS_DEFAULT_LOGGER.error "Daemon failure when running scripts: #{err} #{err.backtrace}"
         end
         
         # Send pending alerts
         begin
           sender.perform
         rescue Exception => err
-          $logger.error "Daemon failure when sending alerts: #{err} #{err.backtrace}"
+          RAILS_DEFAULT_LOGGER.error "Daemon failure when sending alerts: #{err} #{err.backtrace}"
         end
         
         # Wait some minutes
@@ -44,16 +43,12 @@ begin
         end
       end
     rescue Exception => err
-      $logger.error "Daemon failure: #{err} #{err.backtrace}"
-    end
-  
-    def say(text)
-      $logger.info text if $logger
+      File.open($log_path, 'a') { |f| f.write "Daemon failure: #{err} #{err.backtrace}" }
     end
   end
   
   AlertServiceDaemon.mainloop
 rescue => err
-  $logger.error "Daemon failure: #{err} #{err.backtrace}"
+  File.open($log_path, 'a') { |f| f.write "Daemon failure: #{err} #{err.backtrace}" }
   raise
 end

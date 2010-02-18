@@ -21,13 +21,10 @@ $KCODE = "U"
 
 # Initialize Ruby on Rails
 # MUST pass environment as the first parameter
+$log_path = File.join(File.dirname(__FILE__), '..', '..', 'log', "drb_smpp_client_#{ARGV[1]}.log")
 ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
 require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
 require(File.join(RAILS_ROOT, 'config', 'environment'))
-
-LOG_FILE = "#{RAILS_ROOT}/log/smpp.log"
-# if debugging log to the standard output
-OUT = if DEBUG then STDOUT else LOG_FILE end
 
 class SmppGateway
   @is_running = false
@@ -41,13 +38,13 @@ class SmppGateway
       if @@use_latin1
         latin1 = convertEncoding('UTF-8', 'ISO-8859-1', sms)
         # can be encoded in latin-1
-        @@log.debug "Encoded in ISO-8859-1" 
+        RAILS_DEFAULT_LOGGER.debug "Encoded in ISO-8859-1" 
         options[:data_coding] = 3 # 3 for Latin-1 and 8 for UCS-2
         sms = latin1
       else
         ascii = convertEncoding('UTF-8', 'ASCII', sms)
         # can be encoded in ascii
-        @@log.debug "Encoded in ASCII" 
+        RAILS_DEFAULT_LOGGER.debug "Encoded in ASCII" 
         options[:data_coding] = 0 # 0 for SMSC default (usually ASCII)
         sms = ascii      
       end  
@@ -56,12 +53,12 @@ class SmppGateway
       # Smart: little endian, ETL: big endian
       # if 'utf16' is used first 2 bytes will indicate endianness (FFFE or FEFF)
       utf16 = convertEncoding('UTF-8', @@encoding, sms)
-      @@log.debug "Encoded in #{@@encoding}"
+      RAILS_DEFAULT_LOGGER.debug "Encoded in #{@@encoding}"
       options[:data_coding] = 8 # 3 for Latin-1 and 8 for UCS-2
       sms = utf16
     end    
     ar = [ from, to, sms , options]
-    @@log.info "Sending MT from #{from} to #{to}: #{sms}"
+    RAILS_DEFAULT_LOGGER.info "Sending MT from #{from} to #{to}: #{sms}"
     @@tx.send_mt(id, *ar)
     return nil
   rescue Exception => e
@@ -70,7 +67,7 @@ class SmppGateway
   
   def start(config)
     # Run EventMachine in loop so we can reconnect when the SMSC drops our connection.
-    @@log.debug "Connecting to SMSC..."
+    RAILS_DEFAULT_LOGGER.debug "Connecting to SMSC..."
     
     @is_running = true
     
@@ -84,17 +81,17 @@ class SmppGateway
           self    # delegate that will receive callbacks on MOs and DRs and other events
         )      
       end
-      @@log.warn "Disconnected. Reconnecting in 5 seconds..."
+      RAILS_DEFAULT_LOGGER.warn "Disconnected. Reconnecting in 5 seconds..."
       sleep 5
     end
     
     # Gateway was stopped
-    @@log.debug "SMPP gateway stopped."    
+    RAILS_DEFAULT_LOGGER.debug "SMPP gateway stopped."    
   end
   
   def stop
     @is_running = false
-    @@log.debug "Stopping SMPP gateway..."
+    RAILS_DEFAULT_LOGGER.debug "Stopping SMPP gateway..."
   end    
   
   # ruby-smpp delegate methods 
@@ -136,24 +133,24 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
       
       createATMessage(@@application_id, source_addr, destination_addr, sms)
     end
-    @@log.info "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{sms}"
+    RAILS_DEFAULT_LOGGER.info "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{sms}"
   rescue Exception => e
-    @@log.error "Error in mo_received: #{e.class} #{e.to_s}"
+    RAILS_DEFAULT_LOGGER.error "Error in mo_received: #{e.class} #{e.to_s}"
     begin
       @@application.logger.exception_in_channel @@channel, e
     rescue Exception => e2
-      @@log.error "Error in mo_received logging: #{e2.class} #{e2.to_s}"
+      RAILS_DEFAULT_LOGGER.error "Error in mo_received logging: #{e2.class} #{e2.to_s}"
     end
   end
 
   def delivery_report_received(transceiver, msg_reference, stat, pdu)
-    @@log.info "Delegate: delivery_report_received: ref #{msg_reference} stat #{stat} pdu #{pdu.to_yaml}"
+    RAILS_DEFAULT_LOGGER.info "Delegate: delivery_report_received: ref #{msg_reference} stat #{stat} pdu #{pdu.to_yaml}"
     
     # Find message with channel_relative_id
     msg_reference = msg_reference.to_i
     msg = AOMessage.first(:conditions => ['channel_id = ? AND channel_relative_id = ?', @@channel.id, msg_reference])
     if msg.nil?
-      @@log.info "AOMessage with channel_relative_id #{msg_reference} not found"
+      RAILS_DEFAULT_LOGGER.info "AOMessage with channel_relative_id #{msg_reference} not found"
       return
     end
     
@@ -163,21 +160,21 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
     
     @@application.logger.ao_message_status_receieved msg, stat
   rescue Exception => e
-    @@log.error "Error in delivery_report_received: #{e.class} #{e.to_s}"
+    RAILS_DEFAULT_LOGGER.error "Error in delivery_report_received: #{e.class} #{e.to_s}"
     begin
       @@application.logger.exception_in_channel @@channel, e
     rescue Exception => e2
-      @@log.error "Error in delivery_report_received logging: #{e2.class} #{e2.to_s}"
+      RAILS_DEFAULT_LOGGER.error "Error in delivery_report_received logging: #{e2.class} #{e2.to_s}"
     end
   end
 
   def message_accepted(transceiver, mt_message_id, smsc_message_id)
-    @@log.info "Delegate: message_sent: id #{mt_message_id} smsc ref id: #{smsc_message_id}"
+    RAILS_DEFAULT_LOGGER.info "Delegate: message_sent: id #{mt_message_id} smsc ref id: #{smsc_message_id}"
     
     # Find message with mt_message_id
     msg = AOMessage.find mt_message_id
     if msg.nil?
-      @@log.info "AOMessage with id #{mt_message_id} not found (ref id: #{smsc_message_id})"
+      RAILS_DEFAULT_LOGGER.info "AOMessage with id #{mt_message_id} not found (ref id: #{smsc_message_id})"
       return
     end
     
@@ -194,40 +191,40 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
     
     @@application.logger.ao_message_status_receieved msg, 'ACK'
   rescue Exception => e
-    @@log.error "Error in message_accepted: #{e.class} #{e.to_s}"
+    RAILS_DEFAULT_LOGGER.error "Error in message_accepted: #{e.class} #{e.to_s}"
     begin
       @@application.logger.exception_in_channel @@channel, e
     rescue Exception => e2
-      @@log.error "Error in message_accepted logging: #{e2.class} #{e2.to_s}"
+      RAILS_DEFAULT_LOGGER.error "Error in message_accepted logging: #{e2.class} #{e2.to_s}"
     end
   end
   
   def message_accepted_with_error(transceiver, mt_message_id, pdu_command_status)
-    @@log.info "Delegate: message_sent_with_error: id #{mt_message_id} smsc ref id: #{smsc_message_id}"
+    RAILS_DEFAULT_LOGGER.info "Delegate: message_sent_with_error: id #{mt_message_id} smsc ref id: #{smsc_message_id}"
     
     # Find message with mt_message_id
     msg = AOMessage.find mt_message_id
     if msg.nil?
-      @@log.info "AOMessage with id #{mt_message_id} not found (pdu_command_status: #{pdu_command_status})"
+      RAILS_DEFAULT_LOGGER.info "AOMessage with id #{mt_message_id} not found (pdu_command_status: #{pdu_command_status})"
       return
     end
     
     @@application.logger.ao_message_status_warning msg, "Command Status '#{pdu_command_status}'"
   rescue Exception => e
-    @@log.error "Error in message_accepted_with_error: #{e.class} #{e.to_s}"
+    RAILS_DEFAULT_LOGGER.error "Error in message_accepted_with_error: #{e.class} #{e.to_s}"
     begin
       @@application.logger.exception_in_channel @@channel, e
     rescue Exception => e2
-      @@log.error "Error in message_accepted_with_error logging: #{e2.class} #{e2.to_s}"
+      RAILS_DEFAULT_LOGGER.error "Error in message_accepted_with_error logging: #{e2.class} #{e2.to_s}"
     end
   end
 
   def bound(transceiver)
-    @@log.info "Delegate: transceiver bound"
+    RAILS_DEFAULT_LOGGER.info "Delegate: transceiver bound"
   end
 
   def unbound(transceiver)  
-    @@log.warn "Delegate: transceiver unbound"
+    RAILS_DEFAULT_LOGGER.warn "Delegate: transceiver unbound"
     EventMachine::stop_event_loop
   end
   
@@ -300,27 +297,20 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
 end
 
 def stopSMPPGateway()
-  @@log.debug 'Trying to stop gateway...'
+  RAILS_DEFAULT_LOGGER.debug 'Trying to stop gateway...'
   @@gw.stop 
-  @@log.debug 'Gateway stopped...'
+  RAILS_DEFAULT_LOGGER.debug 'Gateway stopped...'
   sleep 6
-  @@log.debug 'Trying to stop DRb server...'
+  RAILS_DEFAULT_LOGGER.debug 'Trying to stop DRb server...'
   @@drb_server.stop_service
-  @@log.debug "DRb server stopped.. #{@@drb_server.alive?}"
+  RAILS_DEFAULT_LOGGER.debug "DRb server stopped.. #{@@drb_server.alive?}"
 end
 
 def startSMPPGateway(channel_id)
   # Uncomment this line to get a lot more debugging information in the log file, if not will go to the console by default
-  #Smpp::Base.logger = @@log
   # find Channel and fetch configuration
   channel_id = ARGV[1]
   @@channel = Channel.find channel_id
-  logfile = OUT
-  if logfile.class == String && logfile.include?('smpp.log')
-    logfile = logfile.gsub 'smpp.log', "smpp_#{@@channel.name}.log"
-  end
-  @@log = Logger.new(logfile)
-  @@log.formatter = Logger::Formatter.new
   
   @configuration = @@channel.configuration
   @@application_id = @@channel.application_id
@@ -346,9 +336,9 @@ def startSMPPGateway(channel_id)
   @@gw = SmppGateway.new
   
   # start distributed ruby service
-  @@log.debug "Starting Distributed Ruby service."
+  RAILS_DEFAULT_LOGGER.debug "Starting Distributed Ruby service."
   @@drb_server = DRb.start_service nil, @@gw
-  @@log.info "Distributed Ruby service started on URI #{DRb.uri}"
+  RAILS_DEFAULT_LOGGER.info "Distributed Ruby service started on URI #{DRb.uri}"
   
   # register in d_rb_processes table so clients can communicate
   # only one record should exist per channel
@@ -359,10 +349,10 @@ def startSMPPGateway(channel_id)
   
   @@gw.start(config)  
 rescue Exception => ex
-  if defined?(@@log).nil?
+  if defined?(RAILS_DEFAULT_LOGGER).nil?
     raise ex
   else
-    @@log.fatal "Exception in SMPP Gateway: #{ex} at #{ex.backtrace.join("\n")}"
+    RAILS_DEFAULT_LOGGER.fatal "Exception in SMPP Gateway: #{ex} at #{ex.backtrace.join("\n")}"
   end
 end
 

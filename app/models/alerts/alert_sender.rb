@@ -1,10 +1,5 @@
 class AlertSender
 
-  def initialize
-    @logger = NuntiumLogger.new(File.join(File.dirname(__FILE__), '..', '..', '..', 'log', 'alert_sender.log'), 'alert_sender')
-    @logger.formatter = Logger::Formatter.new
-  end
-
   def perform
     Alert.all(:conditions => 'sent_at is null', :include => [:channel, :ao_message]).each do |alert|
       begin
@@ -26,7 +21,7 @@ class AlertSender
         alert.sent_at = Time.now.utc
         alert.save!
       rescue Exception => e
-        @logger.error "#{e.class} #{e.message}"
+        RAILS_DEFAULT_LOGGER.error "#{e.class} #{e.message}"
       end
     end
   end

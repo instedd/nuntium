@@ -1,6 +1,5 @@
 begin
-  require(File.join(File.dirname(__FILE__), '..', '..', 'app', 'models', 'nuntium_logger'))
-  $logger = NuntiumLogger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'drb_smpp_daemon.log'), 'drb_smpp_daemon')
+  $log_path = File.join(File.dirname(__FILE__), '..', '..', 'log', 'drb_smpp_daemon.log')
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   
   require 'win32/daemon'
@@ -24,21 +23,17 @@ begin
       while running?
         sleep SLEEP
       end       
-    rescue => error
-      $logger.error "Daemon failure: #{error}"
+    rescue => err
+      File.open($log_path, 'a') { |f| f.write "Daemon failure: #{err} #{err.backtrace}" }
     end
     
     def service_stop      
       stopSMPPGateway
     end
-    
-    def say(text)
-      $logger.info text if $logger
-    end
   end
   
   SmppGatewayDaemon.mainloop
 rescue => err
-  $logger.error "Daemon failure: #{err}"
+  File.open($log_path, 'a') { |f| f.write "Daemon failure: #{err} #{err.backtrace}" }
   raise
 end

@@ -55,7 +55,8 @@ Rails::Initializer.run do |config|
   
   # Keep 5 rotative logs of 10 megabyte each
   require 'nuntium_logger'
-  config.logger = NuntiumLogger.new "#{RAILS_ROOT}/log/#{ENV['RAILS_ENV']}.log", 'rails'
+  $log_path = "#{RAILS_ROOT}/log/#{ENV['RAILS_ENV']}.log" if $log_path.nil?
+  config.logger = NuntiumLogger.new $log_path, 'rails'
   
 end
 

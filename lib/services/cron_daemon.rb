@@ -1,6 +1,5 @@
 begin
-  require(File.join(File.dirname(__FILE__), '..', '..', 'app', 'models', 'nuntium_logger'))
-  $logger = NuntiumLogger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'cron_daemon.log'), 'cron_daemon')
+  $log_path = File.join(File.dirname(__FILE__), '..', '..', 'log', 'cron_daemon.log')
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty? 
   SLEEP = 20
 
@@ -15,9 +14,9 @@ begin
       to_run = CronTask.to_run
       to_run.each { |task| enqueue task }
       rescue => err
-        $logger.error "Error running scheduler: #{err}" if defined?($logger) and not $logger.nil?
+        RAILS_DEFAULT_LOGGER.error "Error running scheduler: #{err}"
       else
-        $logger.debug "Scheduler executed successfully enqueuing #{to_run.size} task(s)." if defined?($logger) and not $logger.nil?
+        RAILS_DEFAULT_LOGGER.debug "Scheduler executed successfully enqueuing #{to_run.size} task(s)."
       ensure
         CronTask.set_next_run(to_run) unless to_run.nil?
     end
@@ -25,7 +24,7 @@ begin
     # Enqueue a descriptor for the specified task
     def enqueue(task)
       Delayed::Job.enqueue CronTaskDescriptor.new(task.id)
-      $logger.debug "Enqueued job for task '#{task.id}'" if defined?($logger) and not $logger.nil?
+      RAILS_DEFAULT_LOGGER.debug "Enqueued job for task '#{task.id}'"
     end
     
   end
@@ -42,6 +41,7 @@ begin
     def service_main
       require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
       require(File.join(RAILS_ROOT, 'config', 'environment'))
+      
       while running?
         cron_run
         break if not running?
@@ -62,6 +62,6 @@ begin
 
 rescue => err
    # If there was an error initializing the rails environment, we cannot use its logger
-   $logger.error "Daemon failure: #{err} #{err.backtrace}"
+   File.open($log_path, 'a') { |f| f.write "Daemon failure: #{err} #{err.backtrace}" }
    raise
 end
