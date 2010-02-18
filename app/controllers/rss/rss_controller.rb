@@ -71,19 +71,21 @@ class RssController < ApplicationController
     body = request.env['RAW_POST_DATA']
     tree = RSS::Parser.parse(body, false)
     
-    tree.channel.items.each do |item|
-      # Create AO message
-      msg = AOMessage.new
-      msg.application_id = @application.id
-      msg.from = item.author
-      msg.to = item.to
-      msg.subject = item.title
-      msg.body = item.description
-      msg.guid = item.guid.content
-      msg.timestamp = item.pubDate.to_datetime
-      
-      # And let the application handle it
-      @application.route msg, 'rss'
+    ActiveRecord::Base.transaction do
+      tree.channel.items.each do |item|
+        # Create AO message
+        msg = AOMessage.new
+        msg.application_id = @application.id
+        msg.from = item.author
+        msg.to = item.to
+        msg.subject = item.title
+        msg.body = item.description
+        msg.guid = item.guid.content
+        msg.timestamp = item.pubDate.to_datetime
+        
+        # And let the application handle it
+        @application.route msg, 'rss'
+      end
     end
      
     head :ok
