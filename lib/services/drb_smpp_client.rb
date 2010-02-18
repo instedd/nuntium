@@ -8,6 +8,7 @@ require 'rubygems'
 require 'drb'
 require 'iconv'
 require 'eventmachine'
+require 'cache'
 
 # use this one if running from Eclipse debugger
 #require 'lib/ruby-smpp/smpp'
@@ -31,6 +32,11 @@ OUT = if DEBUG then STDOUT else LOG_FILE end
 
 class SmppGateway
   @is_running = false
+  
+  def initialize()
+    @mo_cache = Cache.new(nil, nil, 100, 86400)
+    @delivery_report_cache = Cache.new(nil, nil, 100, 86400)
+  end
   
   # The id here is an id of an AOMessage, so in the callback we get the same id
   def send_message(id, from, to, sms)    
@@ -98,7 +104,15 @@ class SmppGateway
   end    
   
   # ruby-smpp delegate methods 
-  def mo_received(transceiver, source_addr, destination_addr, short_message, data_coding)        
+  def mo_received(transceiver, source_addr, destination_addr, short_message, data_coding)
+    
+    cache_value = source_addr + destination_addr + short_message
+    if @mo_cache[cache_value.hash] == cache_value
+      @@log.info "Ignoring duplicate message from #{source_addr} to #{destination_addr}: #{short_message}"
+      return true
+    end
+    @mo_cache[cache_value.hash] = cache_value
+    
 =begin
 
 USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated_SMS)
@@ -147,6 +161,14 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
   end
 
   def delivery_report_received(transceiver, msg_reference, stat, pdu)
+    
+    cache_value = msg_reference.to_s + stat
+    if @delivery_report_cache[cache_value.hash] == cache_value
+      @@log.info "Ignoring duplicate delivery report ref #{msg_reference} stat #{stat} pdu #{pdu.to_yaml}"
+      return true
+    end
+    @delivery_report_cache[cache_value.hash] = cache_value
+    
     @@log.info "Delegate: delivery_report_received: ref #{msg_reference} stat #{stat} pdu #{pdu.to_yaml}"
     
     # Find message with channel_relative_id
@@ -313,7 +335,7 @@ def startSMPPGateway(channel_id)
   # Uncomment this line to get a lot more debugging information in the log file, if not will go to the console by default
   #Smpp::Base.logger = @@log
   # find Channel and fetch configuration
-  channel_id = ARGV[1]
+  #channel_id = ARGV[1]
   @@channel = Channel.find channel_id
   logfile = OUT
   if logfile.class == String && logfile.include?('smpp.log')
