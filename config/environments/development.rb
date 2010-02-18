@@ -5,6 +5,9 @@
 # since you don't have to restart the webserver when you make code changes.
 config.cache_classes = false
 
+# Set log error to DEBUG
+config.logger.level = Log4r::DEBUG
+
 # Log error messages when you accidentally call methods on nil.
 config.whiny_nils = true
 

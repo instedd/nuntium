@@ -9,6 +9,7 @@ class NuntiumLogger
     f = File.open(path, 'a')
     f.close
     logger = Log4r::Logger.new logger_name
+    logger.level = INFO
     logger.add Log4r::RollingFileOutputter.new("#{logger_name}_outputter", :filename => path, :maxsize => 10 * 1024 * 1024, :formatter => pf)
     logger
   end
