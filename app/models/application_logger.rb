@@ -135,17 +135,10 @@ class ApplicationLogger
       hash_or_message = {:message => hash_or_message}
     end
     
-    now = "'" << Time.now.utc.to_s << "'"
+    now = Time.now.utc.to_s
+    message = hash_or_message[:message].gsub("'", "''")
     
-    insert = "INSERT INTO application_logs (application_id, channel_id, ao_message_id, at_message_id, message, severity, created_at, updated_at) VALUES (" <<
-      @application_id.to_s << ',' <<
-      (hash_or_message[:channel_id] || "NULL").to_s << ',' <<
-      (hash_or_message[:ao_message_id] || "NULL").to_s << ',' <<
-      (hash_or_message[:at_message_id] || "NULL").to_s << ",'" <<
-      hash_or_message[:message].gsub("'", "''") << "'," <<
-      severity.to_s << ',' <<
-      now << ',' <<
-      now << ')'
+    insert = "INSERT INTO application_logs (application_id, channel_id, ao_message_id, at_message_id, message, severity, created_at, updated_at) VALUES (#{@application_id},#{hash_or_message[:channel_id] || "NULL"},#{hash_or_message[:ao_message_id] || "NULL"},#{hash_or_message[:at_message_id] || "NULL"},'#{message}',#{severity},'#{now}','#{now}')"
     
     ApplicationLog.connection.execute insert
   end
