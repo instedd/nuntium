@@ -197,6 +197,33 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_shows_message msg1
   end
   
+  test "should skip failed messages" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
+  
+    10.times do |i|
+      msg = new_ao_message(app, i)
+      msg.tries = 4
+      msg.save!
+      new_qst_outgoing_message(chan, msg.id)
+    end
+    
+    msg11 = new_ao_message(app, 11)
+    new_qst_outgoing_message(chan, msg11.id)
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
+    get 'index', :application_id => 'app'
+    
+    assert_equal msg11.id.to_s, @response.headers['ETag']
+    
+    assert_select "message", {:count => 1}
+    assert_shows_message msg11
+    
+    # One unread message
+    unread = QSTOutgoingMessage.all
+    assert_equal 1, unread.length
+    assert_equal msg11.id, unread[0].ao_message_id
+  end
+  
   test "should work if HTTP_IF_NONE_MATCH is not found" do
     app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
   
