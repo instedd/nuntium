@@ -19,12 +19,12 @@ class ApplicationLogger
     info(:at_message_id => msg.id, :channel_id => msg.channel_id, :message => 'Try #' + "#{msg.tries} for delivering message through interface #{interface} exceeded maximum number of tries")
   end
   
-  def ao_message_delivery_succeeded(msg, interface)
-    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => 'Try #' + "#{msg.tries} for delivering message through interface #{interface} succeeded")
+  def ao_message_delivery_succeeded(msg, channel)
+    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => 'Try #' + "#{msg.tries} for delivering message through channel #{channel} succeeded")
   end
   
-  def ao_message_delivery_exceeded_tries(msg, interface)
-    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => 'Try #' + "#{msg.tries} for delivering message through interface #{interface} exceeded maximum number of tries")
+  def ao_message_delivery_exceeded_tries(msg, channel)
+    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => 'Try #' + "#{msg.tries} for delivering message through channel #{channel} exceeded maximum number of tries")
   end
   
   def ao_message_received(msg, interface)

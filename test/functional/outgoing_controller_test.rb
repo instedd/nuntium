@@ -19,7 +19,7 @@ class OutgoingControllerTest < ActionController::TestCase
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
     get 'index', :application_id => 'app'
     
-    assert_equal msg.id, @response.headers['ETag']
+    assert_equal msg.id.to_s, @response.headers['ETag']
     
     assert_select "message", {:count => 1}
     assert_shows_message msg
@@ -115,7 +115,7 @@ class OutgoingControllerTest < ActionController::TestCase
     @request.env["HTTP_IF_NONE_MATCH"] = msg0.guid
     get 'index', :application_id => 'app'
     
-    assert_equal msg1.id, @response.headers['ETag']
+    assert_equal msg1.id.to_s, @response.headers['ETag']
     
     assert_select "message", {:count => 1}
     assert_shows_message msg1
@@ -148,7 +148,7 @@ class OutgoingControllerTest < ActionController::TestCase
     @request.env["HTTP_IF_NONE_MATCH"] = msgs[1].guid.to_s
     get 'index', :application_id => 'app', :max => 1
     
-    assert_equal msgs[2].id, @response.headers['ETag']
+    assert_equal msgs[2].id.to_s, @response.headers['ETag']
     
     assert_select "message", {:count => 1}
     assert_shows_message msgs[2]
@@ -178,7 +178,7 @@ class OutgoingControllerTest < ActionController::TestCase
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
     get 'index', :application_id => 'app'
     
-    assert_equal msg.id, @response.headers['ETag']
+    assert_equal msg.id.to_s, @response.headers['ETag']
     
     assert_select "message", {:count => 1}
     assert_shows_message msg
@@ -191,7 +191,7 @@ class OutgoingControllerTest < ActionController::TestCase
     @request.env["HTTP_IF_NONE_MATCH"] = msg.guid.to_s
     get 'index', :application_id => 'app'
     
-    assert_equal msg1.id, @response.headers['ETag']
+    assert_equal msg1.id.to_s, @response.headers['ETag']
     
     assert_select "message", {:count => 1}
     assert_shows_message msg1
@@ -207,7 +207,7 @@ class OutgoingControllerTest < ActionController::TestCase
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 3"
     get 'index', :application_id => 'app'
     
-    assert_equal msg.id, @response.headers['ETag']
+    assert_equal msg.id.to_s, @response.headers['ETag']
     
     assert_select "message", {:count => 1}
     assert_shows_message msg

@@ -77,9 +77,9 @@ ActiveRecord::Schema.define(:version => 20100210153448) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "salt"
-    t.integer  "max_tries",                    :default => 3,     :null => false
-    t.string   "interface",                    :default => "rss"
-    t.text     "configuration", :limit => 255
+    t.integer  "max_tries",     :default => 3,     :null => false
+    t.string   "interface",     :default => "rss"
+    t.text     "configuration"
   end
 
   create_table "at_messages", :force => true do |t|
@@ -104,11 +104,11 @@ ActiveRecord::Schema.define(:version => 20100210153448) do
     t.integer  "application_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "configuration",  :limit => 255
+    t.text     "configuration"
     t.string   "protocol"
     t.integer  "direction"
-    t.boolean  "enabled",                       :default => true
-    t.integer  "metric",                        :default => 100
+    t.boolean  "enabled",        :default => true
+    t.integer  "metric",         :default => 100
     t.integer  "throttle"
   end
 
@@ -158,7 +158,7 @@ ActiveRecord::Schema.define(:version => 20100210153448) do
   end
 
   create_table "qst_outgoing_messages", :force => true do |t|
-    t.integer  "ao_message_id", :limit => 255
+    t.integer  "ao_message_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "channel_id"

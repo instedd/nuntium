@@ -36,43 +36,45 @@ class OutgoingController < QSTServerController
       end
     end
     
-    # Read outgoing messages
-    @ao_messages = AOMessage.all(
-      :order => 'qst_outgoing_messages.id',
-      :joins => 'INNER JOIN qst_outgoing_messages ON ao_messages.id = qst_outgoing_messages.ao_message_id',
-      :conditions => 'qst_outgoing_messages.channel_id = ' + @channel.id.to_s,
-      :limit => max)
-      
-    if !@ao_messages.empty?
-      # Using ids to increment tries
-      ao_messages_ids = @ao_messages.collect {|x| x.id}
+    # Loop while we have invalid messages
+    begin
+      # Read outgoing messages
+      @ao_messages = AOMessage.all(
+        :order => 'qst_outgoing_messages.id',
+        :joins => 'INNER JOIN qst_outgoing_messages ON ao_messages.id = qst_outgoing_messages.ao_message_id',
+        :conditions => 'qst_outgoing_messages.channel_id = ' + @channel.id.to_s,
+        :limit => max)
         
-      # Update their number of retries
-      AOMessage.update_all('tries = tries + 1', ['id IN (?)', ao_messages_ids])
-      
-      # Separate messages into ones that have their tries
-      # over max_tries and those still valid.
-      valid_messages, invalid_message_ids = filter_tries_exceeded_and_not_exceeded @ao_messages, @application
-      
-      # Mark as failed messages that have their tries over max_tries
-      if !invalid_message_ids.empty?
-        AOMessage.update_all(['state = ?', 'failed'], ['id IN (?)', invalid_message_ids])
-      end
-      
-      # Logging: say that valid messages were returned and invalid no
-      @ao_messages.each do |message|
-        if message.tries >= @application.max_tries
-          @application.logger.ao_message_delivery_exceeded_tries message, 'qst_server'
-        else
-          @application.logger.ao_message_delivery_succeeded message, 'qst_server'
+      if !@ao_messages.empty?
+        # Separate messages into ones that have their tries
+        # over max_tries and those still valid.
+        valid_messages, invalid_messages = filter_tries_exceeded_and_not_exceeded @ao_messages, @application
+        
+        # Mark as failed messages that have their tries over max_tries
+        if !invalid_messages.empty?
+          invalid_message_ids = invalid_messages.map(&:id)
+          AOMessage.update_all(['state = ?', 'failed'], ['id IN (?)', invalid_message_ids])
+          QSTOutgoingMessage.delete_all(['ao_message_id IN (?)', invalid_message_ids])
+          invalid_messages.each do |message|
+            @application.logger.ao_message_delivery_exceeded_tries message, 'qst_server'
+          end
         end
       end
-      
-      @ao_messages = valid_messages
-      @ao_messages.sort! {|x,y| x.timestamp <=> y.timestamp}
-    end
+    end until @ao_messages.empty? || invalid_messages.empty?  
     
-    response.headers['ETag'] = @ao_messages.last.id if !@ao_messages.empty?
+    if !@ao_messages.empty?
+      # Update their number of retries
+      AOMessage.update_all('tries = tries + 1', ['id IN (?)', @ao_messages.map(&:id)])
+      
+      # Logging: say that valid messages were returned
+      @ao_messages.each do |message|
+        @application.logger.ao_message_delivery_succeeded message, 'qst_server'
+      end
+      
+      @ao_messages.sort! {|x,y| x.timestamp <=> y.timestamp}
+    end 
+    
+    response.headers['ETag'] = @ao_messages.last.id.to_s if !@ao_messages.empty?
 	  render :layout => false
   end
 end

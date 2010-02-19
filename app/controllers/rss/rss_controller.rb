@@ -48,11 +48,11 @@ class RssController < ApplicationController
     
     # Separate messages into ones that have their tries
     # over max_tries and those still valid.
-    valid_messages, invalid_message_ids = filter_tries_exceeded_and_not_exceeded @at_messages, @application
+    valid_messages, invalid_messages = filter_tries_exceeded_and_not_exceeded @at_messages, @application
     
     # Mark as failed messages that have their tries over max_tries
-    if !invalid_message_ids.empty?
-      ATMessage.update_all(['state = ?', 'failed'], ['id IN (?)', invalid_message_ids])
+    if !invalid_messages.empty?
+      ATMessage.update_all(['state = ?', 'failed'], ['id IN (?)', invalid_messages.map(&:id)])
     end
     
     # Logging: say that valid messages were returned and invalid no
