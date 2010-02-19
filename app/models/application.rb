@@ -42,6 +42,7 @@ class Application < ActiveRecord::Base
   
   # Route an AOMessage
   def route(msg, via_interface)
+    return if duplicated? msg
     check_modified
   
     if @outgoing_channels.nil?
@@ -104,6 +105,7 @@ class Application < ActiveRecord::Base
   
   # Accepts an ATMessage via a channel
   def accept(msg, via_channel)
+    return if duplicated? msg
     check_modified
   
     msg.application_id = self.id
@@ -214,6 +216,11 @@ class Application < ActiveRecord::Base
     
     self.salt = ActiveSupport::SecureRandom.base64(8)
     self.password = Digest::SHA2.hexdigest(self.salt + self.password)
+  end
+  
+  def duplicated?(msg)
+    return false if !msg.new_record? || msg.guid.nil?
+    msg.class.exists?(['application_id = ? and guid = ?', self.id, msg.guid])
   end
   
   def check_modified
