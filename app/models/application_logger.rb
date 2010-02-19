@@ -130,30 +130,24 @@ class ApplicationLogger
     info(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => 'Try #' + "#{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' succeeded")
   end
   
-  # TODO refactor this
   def create(hash_or_message, severity)
     if hash_or_message.class.to_s == 'String'
       hash_or_message = {:message => hash_or_message}
     end
-    hash_or_message[:application_id] = @application_id
-    hash_or_message[:severity] = severity
     
-    now = Time.now.utc
-    hash_or_message[:created_at] = now
-    hash_or_message[:updated_at] = now
+    now = "'" << Time.now.utc.to_s << "'"
     
-    keys = hash_or_message.keys.join(',')
-    values = hash_or_message.values.map { |x|
-      if x.class == String
-        "'" + x.gsub("'", "''") + "'"
-      elsif x.class == Time
-        "'" + x.to_s + "'"
-      else
-        x
-      end
-    }.join(',')
+    insert = "INSERT INTO application_logs (application_id, channel_id, ao_message_id, at_message_id, message, severity, created_at, updated_at) VALUES (" <<
+      @application_id.to_s << ',' <<
+      (hash_or_message[:channel_id] || "NULL").to_s << ',' <<
+      (hash_or_message[:ao_message_id] || "NULL").to_s << ',' <<
+      (hash_or_message[:at_message_id] || "NULL").to_s << ",'" <<
+      hash_or_message[:message].gsub("'", "''") << "'," <<
+      severity.to_s << ',' <<
+      now << ',' <<
+      now << ')'
     
-    ApplicationLog.connection.execute "INSERT INTO application_logs (#{keys}) VALUES (#{values})"
+    ApplicationLog.connection.execute insert
   end
   
   def exception_msg(exception)
