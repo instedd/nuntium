@@ -61,10 +61,10 @@ class SendClickatellMessageJob
   end
   
   def append(str, name, value, first = false)
-    str += first ? '?' : '&'
-    str += name
-    str += '='
-    str += CGI::escape(value)
+    str << (first ? '?' : '&')
+    str << name
+    str << '='
+    str << CGI::escape(value)
     str
   end
   

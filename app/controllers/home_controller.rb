@@ -80,9 +80,9 @@ class HomeController < AuthenticatedController
     @channels_queued_count = {}
     
     AOMessage.connection.select_all(
-      "select count(*) as count, m.channel_id " +
-      "from ao_messages m, channels c " +
-      "where m.channel_id = c.id and m.application_id = #{@application.id} AND m.state = 'queued' " +
+      "select count(*) as count, m.channel_id " <<
+      "from ao_messages m, channels c " <<
+      "where m.channel_id = c.id and m.application_id = #{@application.id} AND m.state = 'queued' " <<
       "group by channel_id").each do |r|
       @channels_queued_count[r['channel_id'].to_i] = r['count'].to_i
     end

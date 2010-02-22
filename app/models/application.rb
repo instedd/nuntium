@@ -76,10 +76,10 @@ class Application < ActiveRecord::Base
     if !self.configuration[:ao_routing].nil? && self.configuration[:ao_routing].strip.length != 0
       # Create ao_routing function is not yet defined
       if !respond_to?(:ao_routing_function)
-        instance_eval "def ao_routing_function(app, msg, channels, preferred_channel, via_interface, logger);\n" +
-          "msg = MessageRouter.new(app, msg, channels, preferred_channel, via_interface, logger);\n" +
-          self.configuration[:ao_routing] + ";\n" +
-          "msg.executed_action;\n" +
+        instance_eval "def ao_routing_function(app, msg, channels, preferred_channel, via_interface, logger);\n" <<
+          "msg = MessageRouter.new(app, msg, channels, preferred_channel, via_interface, logger);\n" <<
+          self.configuration[:ao_routing] << ";\n" +
+          "msg.executed_action;\n" <<
         "end;"
       end
 
@@ -119,8 +119,8 @@ class Application < ActiveRecord::Base
     if !self.configuration[:at_routing].nil? && self.configuration[:at_routing].strip.length != 0
       # Create at_routing function is not yet defined
       if !respond_to?(:at_routing_function)
-        instance_eval "def at_routing_function(msg);\n"+ 
-          self.configuration[:at_routing] + ";\n" +
+        instance_eval "def at_routing_function(msg);\n" <<
+          self.configuration[:at_routing] << ";\n" <<
         "end;"
       end
       
@@ -178,7 +178,7 @@ class Application < ActiveRecord::Base
     when 'rss'
       return 'rss'
     when 'qst_client'
-      return 'qst_client: ' + self.configuration[:url]
+      return 'qst_client: ' << self.configuration[:url]
     end
   end
   
@@ -281,8 +281,8 @@ class Application < ActiveRecord::Base
   def alert_well_formed
     if (!self.configuration[:alert].nil? and self.configuration[:alert].strip.length > 0)
       begin
-        instance_eval "def alert_function;\n" +
-          self.configuration[:alert] + ";\n" + 
+        instance_eval "def alert_function;\n" <<
+          self.configuration[:alert] << ";\n" << 
         "end;"
       rescue Exception => e
         self.errors.add(:alert, fix_error("error: #{e.message}"))
@@ -419,8 +419,8 @@ class MessageRouterAsserter
 
   def initialize(application)
     @application = application
-    instance_eval "def ao_routing_function(assert, msg, preferred_channel);\n" +
-      application.configuration[:ao_routing] + ";\n" + 
+    instance_eval "def ao_routing_function(assert, msg, preferred_channel);\n" <<
+      application.configuration[:ao_routing] << ";\n" << 
     "end;"
     @events = []
   end
@@ -504,7 +504,7 @@ class MessageRouterAsserter
   end
   
   def format_func(name, args)
-    name + '(' + args.map(&:inspect).join(', ') + ')'
+    name + '(' << args.map(&:inspect).join(', ') << ')'
   end
 
 end
@@ -585,8 +585,8 @@ class MessageAccepterAsserter
 
   def initialize(application)
     @application = application
-    instance_eval "def at_routing_function(msg);\n" +
-      application.configuration[:at_routing] + ";\n" + 
+    instance_eval "def at_routing_function(msg);\n" <<
+      application.configuration[:at_routing] << ";\n" << 
     "end;"
   end
 

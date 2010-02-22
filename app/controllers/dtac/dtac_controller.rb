@@ -7,8 +7,8 @@ class DtacController < ApplicationController
   	text = converter.iconv(params[:CONTENT])
   	
   	msg = ATMessage.new
-    msg.from = 'sms://' + params[:MSISDN]
-    msg.to = 'sms://' + params[:SMSCODE]
+    msg.from = "sms://#{params[:MSISDN]}"
+    msg.to = "sms://#{params[:SMSCODE]}"
     msg.body = text
     msg.channel_relative_id = params[:ID]
     msg.timestamp = Time.now.utc

@@ -166,7 +166,7 @@ channel_kinds = [
   ['SMTP', 'smtp'],
   ['Twitter', 'twitter'],  
   ]
-channel_kinds[1..-1].map!{|x| x[0] += ' channel'}
+channel_kinds[1..-1].map!{|x| x[0] << ' channel'}
 %>
 <%= select_tag('new_channel', options_for_select(channel_kinds), :onchange => 'create_channel(this)') %>
 </div>

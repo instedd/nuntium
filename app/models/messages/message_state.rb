@@ -72,7 +72,7 @@ module MessageState
       
       # Order by time, last arrived message will be first
       return self.all(
-        :order => 'timestamp ' + (args[:desc] ? 'DESC' : 'ASC'), 
+        :order => 'timestamp ' << (args[:desc] ? 'DESC' : 'ASC'), 
         :conditions => [query] + params,
         :limit => args[:batch_size])
     end

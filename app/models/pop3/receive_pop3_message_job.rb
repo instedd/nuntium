@@ -34,8 +34,8 @@ class ReceivePop3MessageJob
       
       tmail.to.each do |receiver|
         msg = ATMessage.new
-        msg.from = 'mailto://' + tmail.from[0]
-        msg.to = 'mailto://' + receiver
+        msg.from = "mailto://#{tmail.from[0]}"
+        msg.to = "mailto://#{receiver}"
         msg.subject = tmail.subject
         msg.body = tmail_body
         msg.channel_relative_id = tmail.message_id

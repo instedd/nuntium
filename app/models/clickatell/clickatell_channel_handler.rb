@@ -28,7 +28,7 @@ class ClickatellChannelHandler < ChannelHandler
   end
   
   def info
-    @channel.configuration[:user] + " / " + @channel.configuration[:api_id] +
+    @channel.configuration[:user] + " / " << @channel.configuration[:api_id] <<
       " <a href=\"#\" onclick=\"clickatell_view_credit(#{@channel.id}); return false;\">view credit</a>"
   end
   

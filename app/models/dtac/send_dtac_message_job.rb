@@ -22,9 +22,7 @@ class SendDtacMessageJob
     
     File.open('c:\dtac.log', 'a'){ 
       |fh|  
-      fh.puts 'Sending new AO message'
-      fh.puts ' ' + msg.subject_and_body
-      fh.puts ' ' + encoded.to_s
+      fh.puts "Sending new AO message #{msg.subject_and_body} #{encoded.to_s}"
     }
   
     response = Net::HTTP.post_form(

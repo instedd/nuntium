@@ -16,7 +16,7 @@ class DtacChannelHandler < ChannelHandler
   end
   
   def info
-    @channel.configuration[:user] + " / " + @channel.configuration[:sno]
+    "#{@channel.configuration[:user]} / #{@channel.configuration[:sno]}"
   end
   
 end

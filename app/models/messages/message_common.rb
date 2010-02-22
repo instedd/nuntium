@@ -24,7 +24,7 @@ module MessageCommon
       if self.body.nil? || self.body == ''
         self.subject
       else
-        self.subject + ' - ' + self.body
+        "#{self.subject} - #{self.body}"
       end
     end
   end

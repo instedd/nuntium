@@ -12,19 +12,19 @@ class ApplicationLogger
   end
   
   def at_message_delivery_succeeded(msg, interface)
-    info(:at_message_id => msg.id, :channel_id => msg.channel_id, :message => 'Try #' + "#{msg.tries} for delivering message through interface #{interface} succeeded")
+    info(:at_message_id => msg.id, :channel_id => msg.channel_id, :message => "Try ##{msg.tries} for delivering message through interface #{interface} succeeded")
   end
   
   def at_message_delivery_exceeded_tries(msg, interface)
-    info(:at_message_id => msg.id, :channel_id => msg.channel_id, :message => 'Try #' + "#{msg.tries} for delivering message through interface #{interface} exceeded maximum number of tries")
+    info(:at_message_id => msg.id, :channel_id => msg.channel_id, :message => "Try ##{msg.tries} for delivering message through interface #{interface} exceeded maximum number of tries")
   end
   
   def ao_message_delivery_succeeded(msg, channel)
-    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => 'Try #' + "#{msg.tries} for delivering message through channel #{channel} succeeded")
+    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Try ##{msg.tries} for delivering message through channel #{channel} succeeded")
   end
   
   def ao_message_delivery_exceeded_tries(msg, channel)
-    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => 'Try #' + "#{msg.tries} for delivering message through channel #{channel} exceeded maximum number of tries")
+    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Try ##{msg.tries} for delivering message through channel #{channel} exceeded maximum number of tries")
   end
   
   def ao_message_received(msg, interface)
@@ -123,11 +123,11 @@ class ApplicationLogger
   end
   
   def exception_in_channel_and_ao_message(channel, ao_msg, exception)
-    error(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => 'Try #' + "#{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' failed: #{exception_msg(exception)}")
+    error(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => "Try ##{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' failed: #{exception_msg(exception)}")
   end
   
   def message_channeled(ao_msg, channel)
-    info(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => 'Try #' + "#{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' succeeded")
+    info(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => "Try ##{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' succeeded")
   end
   
   def create(hash_or_message, severity)

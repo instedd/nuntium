@@ -24,10 +24,10 @@ class OutgoingController < QSTServerController
         # Mark messsages as delivered
         sql = ActiveRecord::Base.connection();
         sql.execute(
-          "UPDATE ao_messages " + 
-          "SET state = 'delivered' " + 
-          "WHERE id IN " +
-          "(SELECT ao_message_id FROM qst_outgoing_messages WHERE id <= " + last.id.to_s + ")"
+          "UPDATE ao_messages " <<
+          "SET state = 'delivered' " << 
+          "WHERE id IN " <<
+          "(SELECT ao_message_id FROM qst_outgoing_messages WHERE id <= #{last.id})"
           )
         
         # Delete previous messages in qst including it
@@ -42,7 +42,7 @@ class OutgoingController < QSTServerController
       @ao_messages = AOMessage.all(
         :order => 'qst_outgoing_messages.id',
         :joins => 'INNER JOIN qst_outgoing_messages ON ao_messages.id = qst_outgoing_messages.ao_message_id',
-        :conditions => 'qst_outgoing_messages.channel_id = ' + @channel.id.to_s,
+        :conditions => "qst_outgoing_messages.channel_id = #{@channel.id}",
         :limit => max)
         
       if !@ao_messages.empty?

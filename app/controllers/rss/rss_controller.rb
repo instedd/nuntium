@@ -15,7 +15,7 @@ class RssController < ApplicationController
     
     # Filter by date if requested
     if !last_modified.nil?
-      query += ' AND timestamp > ?'
+      query << ' AND timestamp > ?'
       params.push DateTime.parse(last_modified)
     end
     

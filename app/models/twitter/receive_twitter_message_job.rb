@@ -46,8 +46,8 @@ class ReceiveTwitterMessageJob
       
       msgs.each do |twit|
         msg = ATMessage.new
-        msg.from = 'twitter://' + twit.sender_screen_name
-        msg.to = 'twitter://' + twit.recipient_screen_name
+        msg.from = "twitter://#{twit.sender_screen_name}"
+        msg.to ="twitter://#{twit.recipient_screen_name}"
         msg.subject = twit.text
         msg.timestamp = Time.parse(twit.created_at)
         msg.channel_relative_id = twit.id

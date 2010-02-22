@@ -55,8 +55,8 @@ class ClickatellController < AuthenticatedController
   
   def create_message(text)
     msg = ATMessage.new
-    msg.from = 'sms://' + params[:from]
-    msg.to = 'sms://' + params[:to]
+    msg.from = "sms://#{params[:from]}"
+    msg.to = "sms://#{params[:to]}"
     msg.subject = Iconv.new('UTF-8', params[:charset]).iconv(text)
     msg.channel_relative_id = params[:moMsgId]
     msg.timestamp = get_timestamp

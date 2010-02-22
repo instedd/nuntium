@@ -23,7 +23,7 @@ class PullQstChannelMessageJob
     # Create http requestor and uri
     http, path = create_http cfg, 'outgoing' 
     if http.nil? then return :error_initializing_http end
-    path += "?max=#{BATCH_SIZE}"  
+    path << "?max=#{BATCH_SIZE}"  
     
     # Get messages from server
     response = request_messages(app, channel, cfg, http, path) 
@@ -50,7 +50,7 @@ class PullQstChannelMessageJob
         app.accept msg, channel
         
         last_new_id = msg.guid
-        size+= 1
+        size += 1
       end
     rescue => e
       # On error, save last processed ok and quit
@@ -80,7 +80,7 @@ class PullQstChannelMessageJob
     request['if-none-match'] = last_id unless last_id.nil?
     http.request request
   rescue => err
-    cfg.logger.error :message => "Error getting messages from the server: " + err.to_s
+    cfg.logger.error :message => "Error getting messages from the server: #{err}"
     return nil
   end
   
