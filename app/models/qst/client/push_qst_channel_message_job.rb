@@ -128,12 +128,4 @@ class PushQstChannelMessageJob
     return etag
   end
   
-  # Enqueues jobs of this class for each qst client channel 
-  def self.enqueue_for_all_channels
-    Channel.find_each(:conditions => "kind = 'qst_client'") do |chan|
-      job = PushQstChannelMessageJob.new(chan.application_id, chan.id)
-      Delayed::Job.enqueue job
-    end
-  end
-  
 end

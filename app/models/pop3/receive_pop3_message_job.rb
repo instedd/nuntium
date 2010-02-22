@@ -64,13 +64,4 @@ class ReceivePop3MessageJob
     # Or body if not found
     return tmail.body
   end
-  
-  # Enqueues jobs of this class for each channel
-  # found in the application
-  def self.enqueue_for_all_channels
-    Channel.find_each(:conditions => "kind = 'pop3'") do |chan|
-      job = ReceivePop3MessageJob.new(chan.application_id, chan.id)
-      Delayed::Job.enqueue job
-    end
-  end
 end
