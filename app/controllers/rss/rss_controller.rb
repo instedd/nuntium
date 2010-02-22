@@ -80,7 +80,7 @@ class RssController < ApplicationController
         msg.to = item.to
         msg.subject = item.title
         msg.body = item.description
-        msg.guid = item.guid.content
+        msg.guid = item.guid.content unless item.guid.nil?
         msg.timestamp = item.pubDate.to_datetime
         
         # And let the application handle it
