@@ -5,7 +5,7 @@ class IncomingController < QSTServerController
   def index
     return head(:not_found) if !request.head?
     
-    msg = @application.last_at_message
+    msg = ATMessage.last(:order => :timestamp, :conditions => ['application_id = ?', @application.id], :select => 'guid')
     etag = msg.nil? ? nil : msg.guid
     head :ok, 'ETag' => etag
   end

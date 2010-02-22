@@ -36,10 +36,6 @@ class Application < ActiveRecord::Base
     self.password == Digest::SHA2.hexdigest(self.salt + password)
   end
   
-  def last_at_message
-    ATMessage.last(:order => :timestamp, :conditions => ['application_id = ?', self.id])
-  end
-  
   # Route an AOMessage
   def route(msg, via_interface)
     return if duplicated? msg
