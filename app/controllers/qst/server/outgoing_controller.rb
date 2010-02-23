@@ -10,15 +10,7 @@ class OutgoingController < QSTServerController
     # If there's an etag
     if !etag.nil?
   	  # Find the message by guid
-  	  msg = AOMessage.find_by_guid(etag)
-  	  if msg.nil?
-  	    last = nil
-  	  else
-        # Find the message in qst for that etag
-        last = QSTOutgoingMessage.last(
-          :order => :id,
-          :conditions => ['channel_id = ? AND ao_message_id = ?', @channel.id, msg.id])
-      end
+  	  last = AOMessage.find_by_guid(etag)
         
       if !last.nil?
         # Mark messsages as delivered
@@ -27,12 +19,12 @@ class OutgoingController < QSTServerController
           "UPDATE ao_messages " <<
           "SET state = 'delivered' " << 
           "WHERE id IN " <<
-          "(SELECT ao_message_id FROM qst_outgoing_messages WHERE channel_id = #{@channel.id} AND id <= #{last.id})"
+          "(SELECT ao_message_id FROM qst_outgoing_messages WHERE channel_id = #{@channel.id} AND ao_message_id <= #{last.id})"
           )
         
         # Delete previous messages in qst including it
         QSTOutgoingMessage.delete_all(
-            ["channel_id =? AND id <= ?", @channel.id, last.id])
+            ["channel_id =? AND ao_message_id <= ?", @channel.id, last.id])
       end
     end
     
