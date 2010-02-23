@@ -24,8 +24,8 @@ module MessageState
         self.update_tries(delivered_msgs_ids, 'delivered')
       else
         valid_msgs, invalid_msgs= msgs.partition {|m| m.tries < max_tries}
-        self.update_tries(valid_msgs.map { |m| m.id })
-        self.update_tries(invalid_msgs.map { |m| m.id }, 'failed')
+        self.update_tries(valid_msgs.map(&:id))
+        self.update_tries(invalid_msgs.map(&:id), 'failed')
       end
     end
   

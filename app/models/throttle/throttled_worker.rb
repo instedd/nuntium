@@ -11,7 +11,7 @@ class ThrottledWorker
           jobs.each do |job|
             Delayed::Job::enqueue_with_channel_id chan.id, job.payload_object 
           end
-          ThrottledJob.delete_all(['id IN (?)', jobs.map{|j| j.id}])
+          ThrottledJob.delete_all(['id IN (?)', jobs.map(&:id)])
         end
       end
     end
