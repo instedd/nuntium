@@ -243,4 +243,25 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_equal 1, unread.length
   end
   
+  test "bug update wrong ao messages" do
+    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
+    app2, chan2 = create_app_and_channel('app2', 'app_pass', 'chan2', 'chan_pass', 'qst_server')
+  
+    msg2 = new_ao_message(app2, 0)
+    msg2.save!
+    new_qst_outgoing_message(chan2, msg2.id)
+    
+    original_state = msg2.state
+  
+    msg = new_ao_message(app, 1)
+    msg.save!
+    new_qst_outgoing_message(chan, msg.id)
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
+    @request.env["HTTP_IF_NONE_MATCH"] = msg.guid    
+    get 'index', :application_id => 'app'
+    
+    assert_equal original_state, AOMessage.find(msg2.id).state
+  end
+  
 end

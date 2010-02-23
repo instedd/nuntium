@@ -27,7 +27,7 @@ class OutgoingController < QSTServerController
           "UPDATE ao_messages " <<
           "SET state = 'delivered' " << 
           "WHERE id IN " <<
-          "(SELECT ao_message_id FROM qst_outgoing_messages WHERE id <= #{last.id})"
+          "(SELECT ao_message_id FROM qst_outgoing_messages WHERE channel_id = #{@channel.id} AND id <= #{last.id})"
           )
         
         # Delete previous messages in qst including it
