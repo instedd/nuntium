@@ -3,6 +3,7 @@ class OutgoingController < QSTServerController
   def index
     etag = request.env['HTTP_IF_NONE_MATCH']
     max = params[:max]
+    sql = ActiveRecord::Base.connection;
     
     # Default max to 10 if not specified
     max = max.nil? ? 10 : max.to_i
@@ -10,8 +11,7 @@ class OutgoingController < QSTServerController
     # If there's an etag
     if !etag.nil?
   	  # Find the message by guid
-  	  last = AOMessage.find_by_guid(etag)
-        
+  	  last = AOMessage.find_by_guid(etag, :select => 'id')
       if !last.nil?
         # Mark messsages as delivered
         sql = ActiveRecord::Base.connection();
@@ -23,8 +23,7 @@ class OutgoingController < QSTServerController
           )
         
         # Delete previous messages in qst including it
-        QSTOutgoingMessage.delete_all(
-            ["channel_id =? AND ao_message_id <= ?", @channel.id, last.id])
+        sql.execute("DELETE FROM qst_outgoing_messages WHERE channel_id = #{@channel.id} AND ao_message_id <= #{last.id}")
       end
     end
     
@@ -44,9 +43,9 @@ class OutgoingController < QSTServerController
         
         # Mark as failed messages that have their tries over max_tries
         if !invalid_messages.empty?
-          invalid_message_ids = invalid_messages.map(&:id)
-          AOMessage.update_all(['state = ?', 'failed'], ['id IN (?)', invalid_message_ids])
-          QSTOutgoingMessage.delete_all(['ao_message_id IN (?)', invalid_message_ids])
+          invalid_message_ids = invalid_messages.map(&:id).join(',')
+          sql.execute("UPDATE ao_messages SET state = 'failed' WHERE id IN (#{invalid_message_ids})")
+          sql.execute("DELETE FROM qst_outgoing_messages WHERE ao_message_id IN (#{invalid_message_ids})") 
           invalid_messages.each do |message|
             @application.logger.ao_message_delivery_exceeded_tries message, 'qst_server'
           end
@@ -56,7 +55,7 @@ class OutgoingController < QSTServerController
     
     if !@ao_messages.empty?
       # Update their number of retries
-      AOMessage.update_all('tries = tries + 1', ['id IN (?)', @ao_messages.map(&:id)])
+      sql.execute("UPDATE ao_messages SET tries = tries + 1 WHERE id IN (#{@ao_messages.map(&:id).join(',')})")
       
       # Logging: say that valid messages were returned
       @ao_messages.each do |message|
