@@ -80,12 +80,4 @@ class PullQstMessageJob
     return nil
   end
   
-  # Enqueues jobs of this class for each qst push interface
-  def self.enqueue_for_all_interfaces
-    Application.find_all_by_interface('qst_client').each do |app|
-      job = PullQstMessageJob.new(app.id)
-      Delayed::Job.enqueue job
-    end
-  end
-  
 end

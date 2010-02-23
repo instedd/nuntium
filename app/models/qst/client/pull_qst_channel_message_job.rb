@@ -84,12 +84,4 @@ class PullQstChannelMessageJob
     return nil
   end
   
-  # Enqueues jobs of this class for each qst push interface
-  def self.enqueue_for_all_interfaces
-    Channel.find_each(:conditions => "kind = 'qst_client'") do |chan|
-      job = PullQstChannelMessageJob.new(chan.application_id, chan.id)
-      Delayed::Job.enqueue job
-    end
-  end
-  
 end
