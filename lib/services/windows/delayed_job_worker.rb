@@ -5,11 +5,11 @@ def finished
 end
 
 begin
-  $log_path = File.join(File.dirname(__FILE__), '..', '..', 'log', 'delayed_job_worker.log')
+  $log_path = File.join(File.dirname(__FILE__), '..', '..', '..', 'log', 'delayed_job_worker.log')
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   SLEEP = 5
   
-  require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
+  require(File.join(File.dirname(__FILE__), '..', '..', '..', 'config', 'boot'))
   require(File.join(RAILS_ROOT, 'config', 'environment'))
   
   RAILS_DEFAULT_LOGGER.info "*** Starting job worker #{Delayed::Job.worker_name}"

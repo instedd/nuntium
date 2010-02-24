@@ -1,5 +1,5 @@
 begin
-  $log_path = File.join(File.dirname(__FILE__), '..', '..', 'log', 'delayed_job_daemon.log')
+  $log_path = File.join(File.dirname(__FILE__), '..', '..', '..', 'log', 'delayed_job_daemon.log')
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   
   require 'win32/daemon'
@@ -17,7 +17,7 @@ begin
     end
   
     def service_main
-      require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
+      require(File.join(File.dirname(__FILE__), '..', '..', '..', 'config', 'boot'))
       require(File.join(RAILS_ROOT, 'config', 'environment'))
       
       current_dir = File.dirname(File.expand_path($0)).tr('/', '\\');

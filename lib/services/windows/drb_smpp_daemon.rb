@@ -1,5 +1,5 @@
 begin
-  $log_path = File.join(File.dirname(__FILE__), '..', '..', 'log', 'drb_smpp_daemon.log')
+  $log_path = File.join(File.dirname(__FILE__), '..', '..', '..', 'log', 'drb_smpp_daemon.log')
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   
   require 'win32/daemon'
@@ -14,7 +14,7 @@ begin
     end
     
     def service_main  
-      require(File.join(File.dirname(__FILE__), 'drb_smpp_client'))
+      require(File.join(File.dirname(__FILE__), '..', '..', '..', 'app', 'services', 'drb_smpp_client'))
       
       channel_id = ARGV[1] unless ARGV.empty?   
       
@@ -22,7 +22,7 @@ begin
       
       while running?
         sleep SLEEP
-      end       
+      end
     rescue => err
       File.open($log_path, 'a') { |f| f.write "Daemon failure: #{err} #{err.backtrace}" }
     end

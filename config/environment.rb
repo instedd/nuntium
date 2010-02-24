@@ -14,7 +14,8 @@ Rails::Initializer.run do |config|
   # Add additional load paths for your own custom dirs
   # config.load_paths += %W( #{RAILS_ROOT}/extras )
   config.load_paths += Dir["#{RAILS_ROOT}/app/controllers/**/**"] 
-  config.load_paths += Dir["#{RAILS_ROOT}/app/models/**/**"] 
+  config.load_paths += Dir["#{RAILS_ROOT}/app/models/**/**"]
+  config.load_paths += Dir["#{RAILS_ROOT}/app/services/**/**"] 
 
   # Specify gems that this application depends on and have them installed with rake gems:install
   # config.gem "bj"
@@ -53,10 +54,13 @@ Rails::Initializer.run do |config|
   #  ATMessage.send(:before_save, Proc.new { |m| puts msg.to = 'LALALALALALALALLALLALALALALALAL' })
   #end
   
-  # Keep 5 rotative logs of 10 megabyte each
-  require 'nuntium_logger'
-  $log_path = "#{RAILS_ROOT}/log/#{ENV['RAILS_ENV']}.log" if $log_path.nil?
-  config.logger = NuntiumLogger.new $log_path, 'rails'
+  if RUBY_PLATFORM.include?('mswin')
+    require 'nuntium_logger'
+    $log_path = "#{RAILS_ROOT}/log/#{ENV['RAILS_ENV']}.log" if $log_path.nil?
+    config.logger = NuntiumLogger.new $log_path, 'rails'
+  else
+    config.log_path = $log_path unless $log_path.nil? 
+  end
   
 end
 
