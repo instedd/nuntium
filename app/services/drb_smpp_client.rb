@@ -13,7 +13,7 @@ require 'cache'
 # use this one if running from Eclipse debugger
 #require 'lib/ruby-smpp/smpp'
 # use this one if running from DOS console
-require (File.join(File.dirname(__FILE__), '..', '..', 'lib', 'services', 'ruby-smpp', 'smpp'))
+require (File.join(File.dirname(__FILE__), '..', '..', 'lib', 'ruby-smpp', 'smpp'))
 
 # DEBUG = true goes to the console, = false to log file
 DEBUG = $0 == __FILE__
