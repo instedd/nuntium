@@ -193,7 +193,7 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
     RAILS_DEFAULT_LOGGER.info "Delegate: message_sent: id #{mt_message_id} smsc ref id: #{smsc_message_id}"
     
     # Find message with mt_message_id
-    msg = AOMessage.find mt_message_id
+    msg = AOMessage.find_by_id mt_message_id
     if msg.nil?
       RAILS_DEFAULT_LOGGER.info "AOMessage with id #{mt_message_id} not found (ref id: #{smsc_message_id})"
       return
@@ -221,10 +221,10 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
   end
   
   def message_accepted_with_error(transceiver, mt_message_id, pdu_command_status)
-    RAILS_DEFAULT_LOGGER.info "Delegate: message_sent_with_error: id #{mt_message_id} smsc ref id: #{smsc_message_id}"
+    RAILS_DEFAULT_LOGGER.info "Delegate: message_sent_with_error: id #{mt_message_id} pdu_command_status: #{pdu_command_status}"
     
     # Find message with mt_message_id
-    msg = AOMessage.find mt_message_id
+    msg = AOMessage.find_by_id mt_message_id
     if msg.nil?
       RAILS_DEFAULT_LOGGER.info "AOMessage with id #{mt_message_id} not found (pdu_command_status: #{pdu_command_status})"
       return
@@ -331,11 +331,11 @@ def startSMPPGateway(channel_id)
   # Uncomment this line to get a lot more debugging information in the log file, if not will go to the console by default
   # find Channel and fetch configuration
   #channel_id = ARGV[1]
-  @@channel = Channel.find channel_id
+  @@channel = Channel.find_by_id channel_id
   
   @configuration = @@channel.configuration
   @@application_id = @@channel.application_id
-  @@application = Application.find @@application_id
+  @@application = Application.find_by_id @@application_id
   @@use_latin1 = @configuration[:use_latin1] == '1'
   @@encoding = @configuration[:encoding]
   
