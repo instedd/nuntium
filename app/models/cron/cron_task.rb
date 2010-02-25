@@ -34,7 +34,20 @@ class CronTask < ActiveRecord::Base
       return :dropped
     end
     
+    # If it's locked, see if the process is alive
+    if !self.locked_tag.nil?
+      begin
+        Process.kill(0, self.locked_tag.to_i)
+        # The process exists, return
+        logger.warn "Dropping task '#{self.id}' with last run on #{self.last_run} and interval #{self.interval}"
+        return :dropped
+      rescue Errno::ESRCH => e
+        # The process doesn't exist, go on
+      end
+    end
+    
     begin
+      self.locked_tag = Process.pid.to_s
       self.last_run = Time.now.utc
       self.save!
     rescue => err
@@ -52,6 +65,9 @@ class CronTask < ActiveRecord::Base
     else
       logger.debug "Task '#{self.id}' executed successfully"
       return result
+    ensure
+      self.locked_tag = nil
+      self.save!
     end
   end
     

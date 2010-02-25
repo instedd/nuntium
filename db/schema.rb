@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100210153448) do
+ActiveRecord::Schema.define(:version => 20100225153142) do
 
   create_table "address_sources", :force => true do |t|
     t.integer  "application_id"
@@ -133,6 +133,7 @@ ActiveRecord::Schema.define(:version => 20100210153448) do
     t.string   "parent_type", :limit => 60
     t.string   "code"
     t.string   "name"
+    t.string   "locked_tag"
   end
 
   create_table "d_rb_processes", :force => true do |t|

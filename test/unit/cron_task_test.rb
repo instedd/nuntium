@@ -4,7 +4,11 @@ require 'mocha'
 
 class CronTaskTest < ActiveSupport::TestCase
 
+  self.use_transactional_fixtures = false
+
   include Mocha::API
+  
+  teardown :clean_database
   
   test "should save empty task" do
     task = CronTask.new :interval => 0
@@ -149,6 +153,22 @@ class CronTaskTest < ActiveSupport::TestCase
     assert_equal base_time, task.last_run 
   end
   
+  test "should not execute second task when first one is still executing" do
+    expect_execution 1
+  
+    set_current_time base_time + 1
+    task = create_task base_time, create_handler, 1, 2
+    th = Thread.start do
+      assert_equal :handler_success, task.perform
+    end
+    sleep 1
+    task2 = CronTask.find_by_id(task.id)
+    assert_equal :dropped, task2.perform
+    task2.reload
+    assert_not_nil task2.locked_tag
+    th.join
+  end
+  
   def create_channel(kind = 'qst_server')
     app = Application.create :name => 'app', :password => 'foo'
     ch = Channel.new :name =>'channel', :application_id => app.id, :kind => kind, :protocol => 'sms'
@@ -157,8 +177,9 @@ class CronTaskTest < ActiveSupport::TestCase
     ch
   end
 
-  def create_task(last_run=nil, handler=create_handler)
-    task = CronTask.new :interval => 60, :last_run => last_run
+  def create_task(last_run=nil, handler=create_handler, interval = 60, sleep_time = 0)
+    task = CronTask.new :interval => interval, :last_run => last_run
+    handler.sleep_time = sleep_time if sleep_time > 0 
     task.set_handler(handler)
     assert task.save!
     task
@@ -174,11 +195,17 @@ class CronTaskTest < ActiveSupport::TestCase
     Witness.expects(:execute).with(arg).times(times)
   end
   
+  def clean_database
+    [Application, ApplicationLog, Channel, CronTask, Delayed::Job].each(&:delete_all)
+  end
+  
   class Handler
+    attr_accessor :sleep_time
     def initialize(arg)
       @arg = arg
     end
     def perform
+      sleep sleep_time if !sleep_time.nil? && sleep_time > 0
       Witness.execute @arg
       return :handler_success
     end

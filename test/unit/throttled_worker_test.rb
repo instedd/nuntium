@@ -25,8 +25,10 @@ class ThrottledWorkerTest < ActiveSupport::TestCase
     assert_equal 4, Delayed::Job.count
     assert_equal 0, ThrottledJob.count
     
+    ids = Delayed::Job.all(:select => :id)[0..-2].map(&:id)
+    
     # The first four were taken
-    Delayed::Job.all.each {|j| assert_true j.id <= 4}
+    Delayed::Job.all.each {|j| ids.include?(j.id)}
     
     # Create 4 more throttled jobs
     4.times { chan.handler.handle AOMessage.new(:application_id => app.id) }

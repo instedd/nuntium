@@ -31,15 +31,19 @@ module MessageFilters
   end
   
   def build_message_filter(search)
+    def esc(name)
+      ActiveRecord::Base.connection.quote_column_name(name)
+    end
+  
     search = Search.new(search)
     conds = ['application_id = :application_id', { :application_id => @application.id }]
     if !search.search.nil?
       conds[0] << ' AND ('
       # Add id condition only if searching a number
       if search.search.integer?
-        conds[0] << '[id] = :search_exact OR '
+        conds[0] << 'id = :search_exact OR '
       end
-      conds[0] << '[guid] LIKE :search OR [channel_relative_id] LIKE :search OR [from] LIKE :search OR [to] LIKE :search OR subject LIKE :search OR body LIKE :search'
+      conds[0] << "#{esc('guid')} LIKE :search OR channel_relative_id LIKE :search OR #{esc('from')} LIKE :search OR #{esc('to')} LIKE :search OR subject LIKE :search OR body LIKE :search"
       conds[0] << ') '
       conds[1][:search_exact] = search.search
       conds[1][:search] = "%#{search.search}%"
@@ -49,7 +53,7 @@ module MessageFilters
       if !search[sym].nil?
         op, val = get_op_and_val search[sym]
         if val.integer?
-          conds[0] << " AND [#{sym}] #{op} :#{sym}"
+          conds[0] << " AND #{sym} #{op} :#{sym}"
           conds[1][sym] = val.to_i
         else
           conds[0] << " AND id = 0"
@@ -58,21 +62,21 @@ module MessageFilters
     end
     [:guid, :channel_relative_id, :from, :to, :subject, :body, :state].each do |sym|
       if !search[sym].nil?
-        conds[0] << " AND [#{sym}] LIKE :#{sym}"
+        conds[0] << " AND #{esc('sym')} LIKE :#{sym}"
         conds[1][sym] = "%#{search[sym]}%"
       end
     end
     if !search[:after].nil?
       after = parse_time(search[:after])
       if !after.nil?
-        conds[0] << ' AND timestamp >= :after'
+        conds[0] << " AND #{esc('timestamp')} >= :after"
         conds[1][:after] = after
       end
     end
     if !search[:before].nil?
       before = parse_time(search[:before])
       if !before.nil?
-        conds[0] << ' AND timestamp <= :before'
+        conds[0] << " AND #{esc('timestamp')} <= :before"
         conds[1][:before] = before
       end
     end
@@ -105,11 +109,11 @@ module MessageFilters
     conds = ['application_id = :application_id', { :application_id => @application.id }]
     if !search.search.nil?
       conds[0] << ' AND ('
-      conds[0] << '[message] LIKE :search'
+      conds[0] << 'message LIKE :search'
       
       severity = ApplicationLog.severity_from_text search.search
       if severity != 0
-        conds[0] << ' OR [severity] = :search_severity'
+        conds[0] << ' OR severity = :search_severity'
         conds[1][:search_severity] = severity
       end
       
@@ -118,14 +122,14 @@ module MessageFilters
     end
     if !search[:severity].nil?
       op, val = get_op_and_val search[:severity]
-      conds[0] << " AND [severity] #{op} :severity"
+      conds[0] << " AND severity #{op} :severity"
       conds[1][:severity] = ApplicationLog.severity_from_text val
     end
     [:ao, :ao_message_id, :ao_message].each do |sym|
       if !search[sym].nil?
         op, val = get_op_and_val search[sym]
         if val.integer?
-          conds[0] << " AND [ao_message_id] #{op} :#{sym}"
+          conds[0] << " AND ao_message_id #{op} :#{sym}"
           conds[1][sym] = val.to_i
         else
           conds[0] << " AND id = 0"
@@ -136,7 +140,7 @@ module MessageFilters
       if !search[sym].nil?
         op, val = get_op_and_val search[sym]
         if val.integer?
-          conds[0] << " AND [at_message_id] #{op} :#{sym}"
+          conds[0] << " AND at_message_id #{op} :#{sym}"
           conds[1][sym] = val.to_i
         else
           conds[0] << " AND id = 0"
