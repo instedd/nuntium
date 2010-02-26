@@ -105,7 +105,7 @@ class SmppGateway
     
     cache_value = source_addr + destination_addr + short_message
     if @mo_cache[cache_value.hash] == cache_value
-      @@log.info "Ignoring duplicate message from #{source_addr} to #{destination_addr}: #{short_message}"
+      RAILS_DEFAULT_LOGGER.info "Ignoring duplicate message from #{source_addr} to #{destination_addr}: #{short_message}"
       return true
     end
     @mo_cache[cache_value.hash] = cache_value
@@ -151,7 +151,7 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
   rescue Exception => e
     RAILS_DEFAULT_LOGGER.error "Error in mo_received: #{e.class} #{e.to_s}"
     begin
-      @@application.logger.exception_in_channel @@channel, e
+      ApplicationLogger.exception_in_channel @@channel, e
     rescue Exception => e2
       RAILS_DEFAULT_LOGGER.error "Error in mo_received logging: #{e2.class} #{e2.to_s}"
     end
