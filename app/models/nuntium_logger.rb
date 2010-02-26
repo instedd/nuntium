@@ -14,7 +14,9 @@ class NuntiumLogger
       logger.add Log4r::RollingFileOutputter.new("#{logger_name}_outputter", :filename => path, :maxsize => 10 * 1024 * 1024, :formatter => pf)
       logger
     else
-      Rails.logger
+      logger = Logger.new(path)
+      logger.formatter = Logger::Formatter.new
+      logger
     end
   end
 
