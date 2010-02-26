@@ -62,7 +62,7 @@ module MessageFilters
     end
     [:guid, :channel_relative_id, :from, :to, :subject, :body, :state].each do |sym|
       if !search[sym].nil?
-        conds[0] << " AND #{esc('sym')} LIKE :#{sym}"
+        conds[0] << " AND #{esc(sym)} LIKE :#{sym}"
         conds[1][sym] = "%#{search[sym]}%"
       end
     end
