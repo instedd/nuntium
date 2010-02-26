@@ -3,7 +3,7 @@ class OutgoingController < QSTServerController
   def index
     etag = request.env['HTTP_IF_NONE_MATCH']
     max = params[:max]
-    sql = ActiveRecord::Base.connection;
+    sql = ActiveRecord::Base.connection
     
     # Default max to 10 if not specified
     max = max.nil? ? 10 : max.to_i
@@ -14,7 +14,7 @@ class OutgoingController < QSTServerController
   	  last = AOMessage.find_by_guid(etag, :select => 'id')
       if !last.nil?
         # Mark messsages as delivered
-        sql = ActiveRecord::Base.connection();
+        sql = ActiveRecord::Base.connection()
         sql.execute(
           "UPDATE ao_messages " <<
           "SET state = 'delivered' " << 
