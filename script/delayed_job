@@ -1,5 +1,18 @@
 #!/usr/bin/env ruby
 
+# Must set RAILS_ENV *before* loading rails... so we just parse the options
+# and check for the -e or --enviornment flag (the other options must also be
+# taken into account because otherwise an error is raised)
+require 'optparse'
+opts = OptionParser.new do |opts|
+  opts.on('-h', '--help', '') {}
+  opts.on('-e', '--environment=NAME', '') { |e| ENV['RAILS_ENV'] = e }
+  opts.on('--min-priority N', '') {}
+  opts.on('--max-priority N', '') {}
+  opts.on('-n', '--number_of_workers=workers', "") {}
+end
+opts.parse!(ARGV.clone)
+
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 require 'delayed/command'
 
