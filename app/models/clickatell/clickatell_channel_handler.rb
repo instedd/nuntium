@@ -42,7 +42,7 @@ class ClickatellChannelHandler < ChannelHandler
         {'Clickatell status' => status}
       else
         status = status[idx + 7 .. -1].strip
-        codes = @@clickatellStatuses[status]
+        codes = @@clickatell_statuses[status]
         if codes.nil?
           {'Clickatell status' => status}
         else
@@ -74,7 +74,7 @@ class ClickatellChannelHandler < ChannelHandler
     request.get(uri).body
   end
   
-  @@clickatellStatuses = {
+  @@clickatell_statuses = {
     '001' => ['Message unknown', 'The message ID is incorrect or reporting is delayed.'],
     '002' => ['Message queued', 'The message could not be delivered and has been queued for attempted redelivery.'],
     '003' => ['Delivered to gateway', 'Delivered to the upstream gateway or network (delivered to the recipient).'],
