@@ -30,11 +30,17 @@ class OutgoingController < QSTServerController
     # Loop while we have invalid messages
     begin
       # Read outgoing messages
-      @ao_messages = AOMessage.all(
-        :order => 'qst_outgoing_messages.id',
-        :joins => 'INNER JOIN qst_outgoing_messages ON ao_messages.id = qst_outgoing_messages.ao_message_id',
-        :conditions => "qst_outgoing_messages.channel_id = #{@channel.id}",
-        :limit => max)
+      @ao_messages = nil
+      
+      # We need to do this query uncached in case we get back here in the loop
+      # so as to not get the same messages again.
+      ActiveRecord::Base.uncached do
+        @ao_messages = AOMessage.all(
+          :order => 'qst_outgoing_messages.id',
+          :joins => 'INNER JOIN qst_outgoing_messages ON ao_messages.id = qst_outgoing_messages.ao_message_id',
+          :conditions => "qst_outgoing_messages.channel_id = #{@channel.id}",
+          :limit => max)
+      end
         
       if !@ao_messages.empty?
         # Separate messages into ones that have their tries
