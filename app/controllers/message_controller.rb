@@ -103,7 +103,7 @@ class MessageController < AuthenticatedController
     @msg = AOMessage.find_by_id @id
     redirect_to_home if @msg.nil? || @msg.application_id != @application.id
     @hide_title = true
-    @logs = ApplicationLog.find_all_by_ao_message_id(@id)
+    @logs = ApplicationLog.find_all_by_ao_message_id(@id, :order => :created_at)
     @kind = 'ao'
     render "message.html.erb"
   end
@@ -113,7 +113,7 @@ class MessageController < AuthenticatedController
     @msg = ATMessage.find_by_id @id
     redirect_to_home if @msg.nil? || @msg.application_id != @application.id
     @hide_title = true
-    @logs = ApplicationLog.find_all_by_at_message_id(@id)
+    @logs = ApplicationLog.find_all_by_at_message_id(@id, :order => :created_at)
     @kind = 'at'
     render "message.html.erb"
   end
