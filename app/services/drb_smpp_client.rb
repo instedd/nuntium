@@ -318,12 +318,14 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
 end
 
 def stopSMPPGateway()
+  return if @@stopping
+  @@stopping = true
   RAILS_DEFAULT_LOGGER.debug 'Trying to stop gateway...'
   @@gw.stop 
   RAILS_DEFAULT_LOGGER.debug 'Gateway stopped...'
   sleep 6
   RAILS_DEFAULT_LOGGER.debug 'Trying to stop DRb server...'
-  @@drb_server.stop_service
+  DRb.stop_service
   RAILS_DEFAULT_LOGGER.debug "DRb server stopped.. #{@@drb_server.alive?}"
 end
 
@@ -331,6 +333,7 @@ def startSMPPGateway(channel_id)
   # Uncomment this line to get a lot more debugging information in the log file, if not will go to the console by default
   # find Channel and fetch configuration
   #channel_id = ARGV[1]
+  @@stopping = false 
   @@channel = Channel.find_by_id channel_id
   
   @configuration = @@channel.configuration
