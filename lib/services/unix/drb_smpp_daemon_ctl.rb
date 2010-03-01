@@ -2,4 +2,4 @@
 require 'rubygems'
 require 'daemons'
 
-Daemons.run('drb_smpp_daemon.rb')
+Daemons.run(File.join(File.dirname(__FILE__), 'drb_smpp_daemon.rb'))

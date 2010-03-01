@@ -2,4 +2,4 @@
 require 'rubygems'
 require 'daemons'
 
-Daemons.run('throttled_job_daemon.rb')
+Daemons.run(File.join(File.dirname(__FILE__), 'throttled_job_daemon.rb'))

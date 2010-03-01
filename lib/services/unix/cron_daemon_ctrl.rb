@@ -2,4 +2,4 @@
 require 'rubygems'
 require 'daemons'
 
-Daemons.run('cron_daemon.rb')
+Daemons.run(File.join(File.dirname(__FILE__), 'cron_daemon.rb'))
