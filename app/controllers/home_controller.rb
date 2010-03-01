@@ -77,7 +77,7 @@ class HomeController < AuthenticatedController
       )
       
     @channels = Channel.all(:conditions => ['application_id = ?', @application.id])
-    @channels_queued_count = {}
+    @channels_queued_count = Hash.new 0
     
     AOMessage.connection.select_all(
       "select count(*) as count, m.channel_id " <<

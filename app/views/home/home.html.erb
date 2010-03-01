@@ -128,7 +128,7 @@
         <td><%= chan.info.blank? ? '' : chan.info %></td>
         <td align="right"><%= chan.throttle.nil? ? '' : "#{chan.throttle}/min" %></td>
         <%
-        queued = @channels_queued_count.include?(chan.id) ? @channels_queued_count[chan.id] : 0
+        queued = @channels_queued_count[chan.id]
         if queued > 0
           %>
           <td align="right"><%= link_to queued, :controller => :home, :action => :home, :ao_search => "channel:#{chan.name} state:queued" %></td>
