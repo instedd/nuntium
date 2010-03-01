@@ -1,5 +1,5 @@
 class NuntiumLogger
-  
+
   def self.new(path, logger_name)
     if RUBY_PLATFORM.include?('mswin')
       require 'log4r'
