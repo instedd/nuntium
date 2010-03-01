@@ -22,4 +22,5 @@ end
 # Default logger. Invoke this call in your client to use another logger.
 require (File.join(File.dirname(__FILE__), '..', '..', 'app', 'models', 'nuntium_logger'))
 # Smpp::Base.logger = NuntiumLogger.new(STDOUT)
-Smpp::Base.logger = NuntiumLogger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', 'ruby_smpp.log'), 'ruby_smpp')
+log_file = ARGV.length > 1 ? "ruby_smpp_#{ARGV[1]}.log" : "ruby_smpp.log"
+Smpp::Base.logger = NuntiumLogger.new(File.join(File.dirname(__FILE__), '..', '..', 'log', log_file), 'ruby_smpp')

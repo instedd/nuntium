@@ -8,5 +8,5 @@ begin
 
   ThrottledService.new.start
 rescue Exception => err
-  File.open($log_path, 'w') { |f| f.write "Daemon failure: #{err} #{err.backtrace}\n" }
+  File.open($log_path, 'a') { |f| f.write "Daemon failure: #{err} #{err.backtrace}\n" }
 end

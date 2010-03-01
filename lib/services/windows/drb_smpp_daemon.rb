@@ -1,5 +1,5 @@
 begin
-  $log_path = File.join(File.dirname(__FILE__), '..', '..', '..', 'log', 'drb_smpp_daemon.log')
+  $log_path = File.join(File.dirname(__FILE__), '..', '..', '..', 'log', "drb_smpp_daemon_#{ARGV[1]}.log")
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
   
   require 'win32/daemon'

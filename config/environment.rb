@@ -54,13 +54,9 @@ Rails::Initializer.run do |config|
   #  ATMessage.send(:before_save, Proc.new { |m| puts msg.to = 'LALALALALALALALLALLALALALALALAL' })
   #end
   
-  if RUBY_PLATFORM.include?('mswin')
-    require 'nuntium_logger'
-    $log_path = "#{RAILS_ROOT}/log/#{ENV['RAILS_ENV']}.log" if $log_path.nil?
-    config.logger = NuntiumLogger.new $log_path, 'rails'
-  else
-    config.log_path = $log_path unless $log_path.nil? 
-  end
+  require 'nuntium_logger'
+  $log_path = "#{RAILS_ROOT}/log/#{ENV['RAILS_ENV']}.log" if $log_path.nil?
+  config.logger = NuntiumLogger.new $log_path, 'rails'
   
 end
 
