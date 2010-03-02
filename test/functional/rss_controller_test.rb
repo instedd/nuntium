@@ -4,9 +4,13 @@ require 'digest/md5'
 require 'yaml'
 
 class RssControllerTest < ActionController::TestCase
+  def setup
+    @request.env['CONTENT_TYPE'] = 'application/xml'
+  end
+
   test "should convert one rss item to out message" do
     app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-  
+    
     @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
     @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')
     post :create

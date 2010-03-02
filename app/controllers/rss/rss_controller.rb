@@ -1,5 +1,6 @@
 require 'rss/1.0'
 require 'rss/2.0'
+require 'nokogiri'
 
 class RssController < ApplicationController
   before_filter :authenticate
@@ -68,20 +69,21 @@ class RssController < ApplicationController
   
   # POST /rss
   def create
-    body = request.env['RAW_POST_DATA']
-    tree = RSS::Parser.parse(body, false)
+    tree = request.POST.present? ? request.POST : Hash.from_xml(request.raw_post).with_indifferent_access
     
     ActiveRecord::Base.transaction do
-      tree.channel.items.each do |item|
+      items = tree[:rss][:channel][:item]
+      items = [items] if items.class <= Hash 
+      items.each do |item|
         # Create AO message
         msg = AOMessage.new
         msg.application_id = @application.id
-        msg.from = item.author
-        msg.to = item.to
-        msg.subject = item.title
-        msg.body = item.description
-        msg.guid = item.guid.content unless item.guid.nil?
-        msg.timestamp = item.pubDate.to_datetime
+        msg.from = item[:author]
+        msg.to = item[:to]
+        msg.subject = item[:title]
+        msg.body = item[:description]
+        msg.guid = item[:guid] unless item[:guid].nil?
+        msg.timestamp = item[:pubDate].to_datetime
         
         # And let the application handle it
         @application.route msg, 'rss'
