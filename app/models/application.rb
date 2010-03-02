@@ -84,8 +84,8 @@ class Application < ActiveRecord::Base
     end
     
     # If no action triggered, or no custom logic, route to any channel
-    msg = MessageRouter.new(self, msg, channels, preferred_channel, via_interface, logger)
-    msg.route_to_any_channel
+    router = MessageRouter.new(self, msg, channels, preferred_channel, via_interface, logger)
+    router.route_to_any_channel
     true
   rescue => e
     # Log any errors and return false
