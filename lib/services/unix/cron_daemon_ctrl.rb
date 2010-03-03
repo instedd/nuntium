@@ -1,5 +1,3 @@
 #!/usr/bin/ruby
-require 'rubygems'
-require 'daemons'
-
-Daemons.run(File.join(File.dirname(__FILE__), 'cron_daemon.rb'))
+require(File.join(File.dirname(__FILE__), 'generic_ctl'))
+run('cron_daemon')
