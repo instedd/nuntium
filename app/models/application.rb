@@ -222,7 +222,7 @@ class Application < ActiveRecord::Base
   def check_modified
     # Check whether the date of the application in the database is greater
     # than our date. If so, empty cached values.
-    app = Application.find_by_id(self.id, :select => :updated_at);
+    app = Application.find_by_id(self.id, :select => :updated_at)
     if !app.nil? && app.updated_at > self.updated_at
       @outgoing_channels = nil
       undef :ao_routing_function if self.respond_to? :ao_routing_function
