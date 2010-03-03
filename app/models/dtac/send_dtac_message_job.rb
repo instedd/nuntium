@@ -20,7 +20,7 @@ class SendDtacMessageJob
     str = msg.subject_and_body
     encoded = ActiveSupport::Multibyte::Chars.u_unpack(str).map { |i| i.to_s(16).rjust(4, '0') }
     
-    File.open('c:\dtac.log', 'a'){ 
+    File.open(File.join(RAILS_ROOT, 'log', 'dtac.log'), 'a') { 
       |fh|  
       fh.puts "Sending new AO message #{msg.subject_and_body} #{encoded.to_s}"
     }
