@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100225153142) do
+ActiveRecord::Schema.define(:version => 20100304134018) do
 
   create_table "address_sources", :force => true do |t|
     t.integer  "application_id"
@@ -58,6 +58,7 @@ ActiveRecord::Schema.define(:version => 20100225153142) do
     t.integer  "channel_id"
   end
 
+  add_index "ao_messages", ["channel_id", "channel_relative_id"], :name => "index_ao_messages_on_channel_id_and_channel_relative_id"
   add_index "ao_messages", ["guid"], :name => "index_ao_messages_on_guid"
 
   create_table "application_logs", :force => true do |t|
@@ -182,6 +183,8 @@ ActiveRecord::Schema.define(:version => 20100225153142) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "throttled_jobs", ["channel_id"], :name => "index_throttled_jobs_on_channel_id"
 
   create_table "twitter_channel_statuses", :force => true do |t|
     t.integer  "channel_id"
