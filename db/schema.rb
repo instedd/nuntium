@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100304134018) do
+ActiveRecord::Schema.define(:version => 20100305141257) do
 
   create_table "address_sources", :force => true do |t|
     t.integer  "application_id"
@@ -157,6 +157,17 @@ ActiveRecord::Schema.define(:version => 20100304134018) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "channel_id"
+  end
+
+  create_table "managed_processes", :force => true do |t|
+    t.string   "name"
+    t.string   "start_command"
+    t.string   "stop_command"
+    t.string   "pid_file"
+    t.string   "log_file"
+    t.boolean  "enabled"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "qst_outgoing_messages", :force => true do |t|

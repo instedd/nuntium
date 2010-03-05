@@ -4,7 +4,7 @@ def run(script, id = nil)
   app_name = script
   app_name << ".#{id}" if id 
   Daemons.run(
-    File.join(File.dirname(__FILE__), 'alert_service_daemon.rb'),
+    File.join(File.dirname(__FILE__), "#{script}.rb"),
     :app_name => app_name,
     :dir_mode => :normal,
     :dir => File.join(File.dirname(__FILE__), '..', '..', '..', 'tmp', 'pids'),
