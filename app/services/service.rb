@@ -4,8 +4,9 @@ class Service
     @controller = controller
     
     if @controller.nil?
-      trap("INT") { stop; exit }
-      trap("EXIT") { stop; exit }
+      ["INT", "EXIT", "TERM", "KILL"].each do |signal|
+        trap(signal) { stop; exit }
+      end
     end
   end
   
