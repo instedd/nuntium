@@ -29,18 +29,20 @@ class ManagedProcessesService < Service
     logger.info "Starting #{proc.name}"
     controller = create_controller proc
     controller.start
-    @controllers[proc] = controller
   rescue Exception => err
     logger.error "Error starting #{proc.name}: #{err} #{err.backtrace}"
+  else
+    @controllers[proc] = controller
   end
   
   def stop_process(proc)
     logger.info "Stopping #{proc.name}"
     controller = @controllers[proc]
     controller.stop
-    @controllers.delete proc
   rescue Exception => err
     logger.error "Error stopping #{proc.name}: #{err} #{err.backtrace}"
+  else
+    @controllers.delete proc
   end
   
   def create_controller(proc)
