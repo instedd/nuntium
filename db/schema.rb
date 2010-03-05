@@ -160,6 +160,7 @@ ActiveRecord::Schema.define(:version => 20100305141257) do
   end
 
   create_table "managed_processes", :force => true do |t|
+    t.integer  "application_id"
     t.string   "name"
     t.string   "start_command"
     t.string   "stop_command"

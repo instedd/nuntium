@@ -17,6 +17,7 @@ class SmppChannelHandler < ChannelHandler
   
   def on_enable
     ManagedProcess.create!(
+      :application_id => @channel.application.id,
       :name => managed_process_name,
       :start_command => "drb_smpp_daemon_ctl.rb start -- #{ENV["RAILS_ENV"]} #{@channel.id}",
       :stop_command => "drb_smpp_daemon_ctl.rb stop -- #{ENV["RAILS_ENV"]} #{@channel.id}",
@@ -26,12 +27,12 @@ class SmppChannelHandler < ChannelHandler
   end
   
   def on_disable
-    proc = ManagedProcess.find_by_name managed_process_name
+    proc = ManagedProcess.find_by_application_id_and_name @channel.application.id, managed_process_name
     proc.delete if proc
   end
   
   def on_changed
-    proc = ManagedProcess.find_by_name managed_process_name
+    proc = ManagedProcess.find_by_application_id_and_name @channel.application.id, managed_process_name
     proc.touch if proc
   end
   
@@ -40,12 +41,11 @@ class SmppChannelHandler < ChannelHandler
   end
   
   def managed_process_name
-    "smpp #{@channel.name} - #{@channel.application.name}"
+    "SMPP #{@channel.name}"
   end
   
   def check_valid
     check_config_not_blank :host, :system_type
-        
     if @channel.configuration[:port].nil?
       @channel.errors.add(:port, "can't be blank")
     else

@@ -122,7 +122,8 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
     procs = ManagedProcess.all
     assert_equal 1, procs.length
     proc = procs[0]
-    assert_equal "smpp #{@chan.name} - #{@chan.application.name}", proc.name
+    assert_equal @chan.application.id, proc.application_id
+    assert_equal "SMPP #{@chan.name}", proc.name
     assert_equal "drb_smpp_daemon_ctl.rb start -- test #{@chan.id}", proc.start_command
     assert_equal "drb_smpp_daemon_ctl.rb stop -- test #{@chan.id}", proc.stop_command
     assert_equal "drb_smpp_daemon.#{@chan.id}.pid", proc.pid_file
