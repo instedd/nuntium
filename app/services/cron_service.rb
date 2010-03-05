@@ -23,14 +23,9 @@ end
 class CronService < Service
 
   include CronDaemonRun
-
-  def start
-    while running?
-      cron_run
-      break if not running?
-      
-      daydream 20
-    end
+  
+  loop_with_sleep(20) do
+    cron_run
   end
 
 end

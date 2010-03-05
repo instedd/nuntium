@@ -2,36 +2,28 @@ require 'daemon_controller'
 
 class ManagedProcessesService < Service
 
-  def start
-    @previous_status = nil
-    @controllers = {}
-    while running?
-      begin
-        new_status = ManagedProcess.status @previous_status
-        new_status.each do |proc, v|
-          case v
-          when :start
-            start_process proc
-          when :stop
-            stop_process proc
-          when :restart
-            stop_process proc
-            start_process proc
-          end
-        end
-        @previous_status = new_status
-      rescue Exception => err
-        logger.error "Daemon failure: #{err} #{err.backtrace}"
+  loop_with_sleep(60) do
+    @previous_status ||= nil
+    @controllers ||= {}
+    
+    new_status = ManagedProcess.status @previous_status
+    new_status.each do |proc, v|
+      case v
+      when :start
+        start_process proc
+      when :stop
+        stop_process proc
+      when :restart
+        stop_process proc
+        start_process proc
       end
-      daydream 60
     end
+    @previous_status = new_status
   end
   
   def stop
     @controllers.each_key{|proc| stop_process proc}
   end
-  
-  private
   
   def start_process(proc)
     logger.info "Starting #{proc.name}"
