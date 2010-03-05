@@ -18,6 +18,7 @@ class Channel < ActiveRecord::Base
   before_save :handler_before_save
   after_create :handler_after_create
   after_update :handler_after_update
+  before_destroy :handler_before_destroy
   
   # Channel directions
   Incoming = 1
@@ -108,6 +109,7 @@ class Channel < ActiveRecord::Base
         self.handler.on_disable
       end
     end
+    self.handler.on_changed
     true
   end
 

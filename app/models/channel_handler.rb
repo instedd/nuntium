@@ -21,6 +21,9 @@ class ChannelHandler
   def before_save
   end
   
+  def on_changed
+  end
+  
   def on_enable
   end
 

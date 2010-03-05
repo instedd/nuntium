@@ -115,4 +115,38 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
     assert_equal SendSmppMessageJob, jobs[0].payload_object.class
   end
   
+  test "on enable creates managed process" do
+    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
+    @chan.save!
+    
+    procs = ManagedProcess.all
+    assert_equal 1, procs.length
+    proc = procs[0]
+    assert_equal "smpp #{@chan.name} - #{@chan.application.name}", proc.name
+    assert_equal "drb_smpp_daemon_ctl.rb start -- test #{@chan.id}", proc.start_command
+    assert_equal "drb_smpp_daemon_ctl.rb stop -- test #{@chan.id}", proc.stop_command
+    assert_equal "drb_smpp_daemon.#{@chan.id}.pid", proc.pid_file
+    assert_equal "drb_smpp_daemon_#{@chan.id}.log", proc.log_file
+  end
+  
+  test "on destroy deletes managed process" do
+    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
+    @chan.save!
+    @chan.destroy
+    
+    assert_equal 0, ManagedProcess.count
+  end
+  
+  test "on change touches managed process" do
+    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
+    @chan.save!
+    
+    proc = ManagedProcess.first
+    
+    sleep 1
+    @chan.touch
+    
+    assert ManagedProcess.first.updated_at > proc.updated_at
+  end
+  
 end

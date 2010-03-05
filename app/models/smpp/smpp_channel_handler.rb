@@ -15,6 +15,34 @@ class SmppChannelHandler < ChannelHandler
     SendSmppMessageJob.new(@channel.application_id, @channel.id, msg.id)
   end
   
+  def on_enable
+    ManagedProcess.create!(
+      :name => managed_process_name,
+      :start_command => "drb_smpp_daemon_ctl.rb start -- #{ENV["RAILS_ENV"]} #{@channel.id}",
+      :stop_command => "drb_smpp_daemon_ctl.rb stop -- #{ENV["RAILS_ENV"]} #{@channel.id}",
+      :pid_file => "drb_smpp_daemon.#{@channel.id}.pid",
+      :log_file => "drb_smpp_daemon_#{@channel.id}.log"
+    )
+  end
+  
+  def on_disable
+    proc = ManagedProcess.find_by_name managed_process_name
+    proc.delete if proc
+  end
+  
+  def on_changed
+    proc = ManagedProcess.find_by_name managed_process_name
+    proc.touch if proc
+  end
+  
+  def on_destroy
+    on_disable
+  end
+  
+  def managed_process_name
+    "smpp #{@channel.name} - #{@channel.application.name}"
+  end
+  
   def check_valid
     check_config_not_blank :host, :system_type
         

@@ -54,7 +54,7 @@ class ChannelController < AuthenticatedController
   end
   
   def delete_channel
-    @channel.delete
+    @channel.destroy
     
     redirect_to_home 'Channel was deleted'
   end
