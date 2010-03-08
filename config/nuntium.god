@@ -4,7 +4,7 @@ RAILS_ROOT=File.join(File.dirname(__FILE__), '..')
   God.watch do |w|
     w.name = "nuntium-mongrel-#{port}"
     w.interval = 30.seconds
-    w.start = "mongrel_rails start -c #{RAILS_ROOT} -p #{port} -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid -d"
+    w.start = "mongrel_rails start -c #{RAILS_ROOT} -p #{port} -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid -d -e production"
     w.stop = "mongrel_rails stop -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid"
     w.restart = "mongrels_rails restart -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid"
     w.start_grace = 10.seconds
@@ -26,7 +26,7 @@ end
 God.watch do |w|
   w.name = "nuntium-cron"
   w.interval = 5.seconds
-  w.start = "ruby #{RAILS_ROOT}/lib/services/unix/cron_daemon_ctrl.rb start"
+  w.start = "ruby #{RAILS_ROOT}/lib/services/unix/cron_daemon_ctrl.rb start -- production"
   w.stop = "ruby #{RAILS_ROOT}/lib/services/unix/cron_daemon_ctrl.rb stop"
   w.pid_file = File.join(RAILS_ROOT, "tmp/pids/cron_daemon.pid")
   w.behavior(:clean_pid_file)
@@ -40,7 +40,7 @@ end
 God.watch do |w|
   w.name = "nuntium-throttling"
   w.interval = 5.seconds
-  w.start = "ruby #{RAILS_ROOT}/lib/services/unix/throttled_job_daemon_ctl.rb start"
+  w.start = "ruby #{RAILS_ROOT}/lib/services/unix/throttled_job_daemon_ctl.rb start -- production"
   w.stop = "ruby #{RAILS_ROOT}/lib/services/unix/throttled_job_daemon_ctl.rb stop"
   w.pid_file = File.join(RAILS_ROOT, "tmp/pids/throttled_job_daemon.pid")
   w.behavior(:clean_pid_file)
@@ -54,7 +54,7 @@ end
 God.watch do |w|
   w.name = "nuntium-alert-service"
   w.interval = 5.seconds
-  w.start = "ruby #{RAILS_ROOT}/lib/services/unix/alert_service_daemon_ctl.rb start"
+  w.start = "ruby #{RAILS_ROOT}/lib/services/unix/alert_service_daemon_ctl.rb start -- production"
   w.stop = "ruby #{RAILS_ROOT}/lib/services/unix/alert_service_daemon_ctl.rb stop"
   w.pid_file = File.join(RAILS_ROOT, "tmp/pids/alert_service_daemon.pid")
   w.behavior(:clean_pid_file)
@@ -69,7 +69,7 @@ end
 4.times do |i|
   God.watch do |w|
     w.name = "nuntium-worker-#{i}"
-    w.start = "rake -f #{RAILS_ROOT}/Rakefile jobs:work"
+    w.start = "rake -f #{RAILS_ROOT}/Rakefile jobs:work RAILS_ENV=production"
     w.interval = 30.seconds
     w.group = 'worker'
 
