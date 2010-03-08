@@ -5,8 +5,8 @@ RAILS_ROOT=File.join(File.dirname(__FILE__), '..')
     w.name = "nuntium-mongrel-#{port}"
     w.interval = 30.seconds
     w.start = "mongrel_rails start -c #{RAILS_ROOT} -p #{port} -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid -d"
-    w.stop = "mongrel_rails stop -P #{RAILS_ROOT}/tmp/mongrel.#{port}.pid"
-    w.restart = "mongrels_rails restart -P #{RAILS_ROOT}/tmp/mongrel.#{port}.pid"
+    w.stop = "mongrel_rails stop -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid"
+    w.restart = "mongrels_rails restart -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid"
     w.start_grace = 10.seconds
     w.restart_grace = 10.seconds
     w.pid_file = File.join(RAILS_ROOT, "tmp/pids/mongrel.#{port}.pid")
@@ -42,7 +42,7 @@ God.watch do |w|
   w.interval = 5.seconds
   w.start = "ruby #{RAILS_ROOT}/lib/services/unix/throttled_job_daemon_ctl.rb start"
   w.stop = "ruby #{RAILS_ROOT}/lib/services/unix/throttled_job_daemon_ctl.rb stop"
-  w.pid_file = File.join(RAILS_ROOT, "tmp/pids/throttled_job_daemon.pid")  
+  w.pid_file = File.join(RAILS_ROOT, "tmp/pids/throttled_job_daemon.pid")
   w.behavior(:clean_pid_file)
   w.start_if do |start|
     start.condition(:process_running) do |c|
@@ -56,7 +56,7 @@ God.watch do |w|
   w.interval = 5.seconds
   w.start = "ruby #{RAILS_ROOT}/lib/services/unix/alert_service_daemon_ctl.rb start"
   w.stop = "ruby #{RAILS_ROOT}/lib/services/unix/alert_service_daemon_ctl.rb stop"
-  w.pid_file = File.join(RAILS_ROOT, "tmp/pids/alert_service_daemon.pid")  
+  w.pid_file = File.join(RAILS_ROOT, "tmp/pids/alert_service_daemon.pid")
   w.behavior(:clean_pid_file)
   w.start_if do |start|
     start.condition(:process_running) do |c|
