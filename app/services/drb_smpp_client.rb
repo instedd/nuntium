@@ -22,6 +22,8 @@ ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
 require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
 require(File.join(RAILS_ROOT, 'config', 'environment'))
 
+Smpp::Base.logger = RAILS_DEFAULT_LOGGER
+
 class SmppGateway
   @is_running = false
   
