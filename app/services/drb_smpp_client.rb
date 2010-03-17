@@ -1,19 +1,14 @@
 #!/usr/bin/env ruby
 
 # required if using ruby-smpp gem
-#gem 'ruby-smpp'
-#require 'smpp'
+require 'rubygems'
+require 'smpp'
 
 require 'rubygems'
 require 'drb'
 require 'iconv'
 require 'eventmachine'
 require 'cache'
-
-# use this one if running from Eclipse debugger
-#require 'lib/ruby-smpp/smpp'
-# use this one if running from DOS console
-require (File.join(File.dirname(__FILE__), '..', '..', 'lib', 'ruby-smpp', 'smpp'))
 
 # DEBUG = true goes to the console, = false to log file
 DEBUG = $0 == __FILE__
@@ -101,11 +96,11 @@ class SmppGateway
   end    
   
   # ruby-smpp delegate methods 
-  def mo_received(transceiver, source_addr, destination_addr, short_message, data_coding)
+  def mo_received(transceiver, pdu)
     
-    cache_value = source_addr + destination_addr + short_message
+    cache_value = pdu.source_addr + pdu.destination_addr + pdu.short_message
     if @mo_cache[cache_value.hash] == cache_value
-      RAILS_DEFAULT_LOGGER.info "Ignoring duplicate message from #{source_addr} to #{destination_addr}: #{short_message}"
+      RAILS_DEFAULT_LOGGER.info "Ignoring duplicate message from #{pdu.source_addr} to #{pdu.destination_addr}: #{pdu.short_message}"
       return true
     end
     @mo_cache[cache_value.hash] = cache_value
@@ -124,30 +119,30 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
 =end
     
     # check if it is a CSMS
-    first_octect = short_message[0]
-    second_octect = short_message[1]
+    first_octect = pdu.short_message[0]
+    second_octect = pdu.short_message[1]
     if (first_octect == 5 && second_octect == 0)
       # split UDH and SMS
-      udh = short_message[0,6]
-      sms = short_message[6..short_message.length-1]
+      udh = pdu.short_message[0,6]
+      sms = pdu.short_message[6..pdu.short_message.length-1]
       # data_coding == 0 means 'SMSC default alphabet' and == 8 means 'UCS-2'
-      if (data_coding == 8)
+      if (pdu.data_coding == 8)
         sms = convertEncoding('UCS-2', 'UTF-8', sms)
       end
       
-      handleCSMS(source_addr, destination_addr, udh, sms)
+      handleCSMS(pdu.source_addr, pdu.destination_addr, udh, sms)
     else
       # single part SMS, just create and ATMessage
-      sms = short_message
+      sms = pdu.short_message
       
       # data_coding == 0 means 'SMSC default alphabet' and == 8 means 'UCS-2'
-      if (data_coding == 8)
+      if (pdu.data_coding == 8)
         sms = convertEncoding('UCS-2', 'UTF-8', sms)
       end
       
-      createATMessage(@@application_id, source_addr, destination_addr, sms)
+      createATMessage(@@application_id, pdu.source_addr, pdu.destination_addr, sms)
     end
-    RAILS_DEFAULT_LOGGER.info "Delegate: mo_received: from #{source_addr} to #{destination_addr}: #{sms}"
+    RAILS_DEFAULT_LOGGER.info "Delegate: mo_received: from #{pdu.source_addr} to #{pdu.destination_addr}: #{sms}"
   rescue Exception => e
     RAILS_DEFAULT_LOGGER.error "Error in mo_received: #{e.class} #{e.to_s}"
     begin
@@ -157,18 +152,18 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
     end
   end
 
-  def delivery_report_received(transceiver, msg_reference, stat, pdu)
-    cache_value = msg_reference.to_s + stat
+  def delivery_report_received(transceiver, pdu)
+    cache_value = pdu.msg_reference.to_s + pdu.stat
     if @delivery_report_cache[cache_value.hash] == cache_value
-      RAILS_DEFAULT_LOGGER.info "Ignoring duplicate delivery report ref #{msg_reference} stat #{stat} pdu #{pdu.to_yaml}"
+      RAILS_DEFAULT_LOGGER.info "Ignoring duplicate delivery report ref #{pdu.msg_reference} stat #{pdu.stat}"
       return true
     end
     @delivery_report_cache[cache_value.hash] = cache_value
     
-    RAILS_DEFAULT_LOGGER.info "Delegate: delivery_report_received: ref #{msg_reference} stat #{stat} pdu #{pdu.to_yaml}"
+    RAILS_DEFAULT_LOGGER.info "Delegate: delivery_report_received: ref #{pdu.msg_reference} stat #{pdu.stat}"
     
     # Find message with channel_relative_id
-    msg_reference = msg_reference.to_i
+    msg_reference = pdu.msg_reference.to_i
     msg = AOMessage.first(:conditions => ['channel_id = ? AND channel_relative_id = ?', @@channel.id, msg_reference])
     if msg.nil?
       RAILS_DEFAULT_LOGGER.info "AOMessage with channel_relative_id #{msg_reference} not found"
@@ -176,10 +171,10 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
     end
     
     # Reflect in message state
-    msg.state = stat == 'DELIVRD' ? 'confirmed' : 'failed'
+    msg.state = pdu.stat == 'DELIVRD' ? 'confirmed' : 'failed'
     msg.save!
     
-    @@application.logger.ao_message_status_receieved msg, stat
+    @@application.logger.ao_message_status_receieved msg, pdu.stat
   rescue Exception => e
     RAILS_DEFAULT_LOGGER.error "Error in delivery_report_received: #{e.class} #{e.to_s}"
     begin
@@ -189,18 +184,18 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
     end
   end
 
-  def message_accepted(transceiver, mt_message_id, smsc_message_id)
-    RAILS_DEFAULT_LOGGER.info "Delegate: message_sent: id #{mt_message_id} smsc ref id: #{smsc_message_id}"
+  def message_accepted(transceiver, mt_message_id, pdu)
+    RAILS_DEFAULT_LOGGER.info "Delegate: message_sent: id #{mt_message_id} smsc ref id: #{pdu.message_id}"
     
     # Find message with mt_message_id
     msg = AOMessage.find_by_id mt_message_id
     if msg.nil?
-      RAILS_DEFAULT_LOGGER.info "AOMessage with id #{mt_message_id} not found (ref id: #{smsc_message_id})"
+      RAILS_DEFAULT_LOGGER.info "AOMessage with id #{mt_message_id} not found (ref id: #{pdu.message_id})"
       return
     end
     
     # smsc_message_id comes in hexadecimal
-    reference_id = smsc_message_id.to_i(16).to_s
+    reference_id = pdu.message_id.to_i(16).to_s
     
     # Blank all messages with that reference id in case the reference id is already used
     AOMessage.update_all(['channel_relative_id = ?', nil], ['channel_id = ? AND channel_relative_id = ?', @@channel.id, reference_id])
@@ -220,17 +215,17 @@ USER DATA HEADER for Concatenated SMS (http://en.wikipedia.org/wiki/Concatenated
     end
   end
   
-  def message_accepted_with_error(transceiver, mt_message_id, pdu_command_status)
-    RAILS_DEFAULT_LOGGER.info "Delegate: message_sent_with_error: id #{mt_message_id} pdu_command_status: #{pdu_command_status}"
+  def message_rejected(transceiver, mt_message_id, pdu)
+    RAILS_DEFAULT_LOGGER.info "Delegate: message_sent_with_error: id #{mt_message_id} pdu_command_status: #{pdu.command_status}"
     
     # Find message with mt_message_id
     msg = AOMessage.find_by_id mt_message_id
     if msg.nil?
-      RAILS_DEFAULT_LOGGER.info "AOMessage with id #{mt_message_id} not found (pdu_command_status: #{pdu_command_status})"
+      RAILS_DEFAULT_LOGGER.info "AOMessage with id #{mt_message_id} not found (pdu_command_status: #{pdu.command_status})"
       return
     end
     
-    @@application.logger.ao_message_status_warning msg, "Command Status '#{pdu_command_status}'"
+    @@application.logger.ao_message_status_warning msg, "Command Status '#{pdu.command_status}'"
   rescue Exception => e
     RAILS_DEFAULT_LOGGER.error "Error in message_accepted_with_error: #{e.class} #{e.to_s}"
     begin
