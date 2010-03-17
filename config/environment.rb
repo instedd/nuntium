@@ -50,17 +50,16 @@ Rails::Initializer.run do |config|
   # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
   # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}')]
   # config.i18n.default_locale = :de
-  
-  #config.after_initialize do
-  #  ATMessage.send(:before_save, Proc.new { |m| puts msg.to = 'LALALALALALALALLALLALALALALALAL' })
-  #end
+    
+  $log_path = "#{RAILS_ROOT}/log/#{ENV['RAILS_ENV']}.log" if $log_path.nil?
   
   if RUBY_PLATFORM.include?('mswin')
     require 'nuntium_logger'
-    $log_path = "#{RAILS_ROOT}/log/#{ENV['RAILS_ENV']}.log" if $log_path.nil?
     config.logger = NuntiumLogger.new $log_path, 'rails'
   else
-    config.log_path = $log_path unless $log_path.nil?
+    config.log_path = $log_path
+    config.logger = Logger.new($log_path)
+    config.logger.formatter = Logger::Formatter.new
   end
   
 end
