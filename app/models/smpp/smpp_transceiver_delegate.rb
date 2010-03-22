@@ -30,7 +30,7 @@ class SmppTransceiverDelegate
     msg = ATMessage.new
     msg.from = pdu.source_addr.with_protocol 'sms'
     msg.to = pdu.destination_addr.with_protocol 'sms'
-    if @channel.configuration[:accept_mo_hex_string] and is_hex(pdu.short_message) 
+    if @channel.configuration[:accept_mo_hex_string] == '1' and is_hex(pdu.short_message) 
       bytes = hex_to_bytes pdu.short_message
       iconv = Iconv.new('utf-8', ucs2_endianized)
       msg.subject = iconv.iconv bytes
@@ -51,7 +51,6 @@ class SmppTransceiverDelegate
     end
     
     @channel.accept msg
-    
   end
   
   private
@@ -61,7 +60,7 @@ class SmppTransceiverDelegate
   end
   
   def ucs2_endianized
-    @channel.configuration[:endianness] == :little ? 'ucs-2le' : 'ucs-2be'
+    @channel.configuration[:endianness] == 'little' ? 'ucs-2le' : 'ucs-2be'
   end
   
   def is_hex(msg)

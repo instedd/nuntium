@@ -7,90 +7,25 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
   def initialize_objects
     @app = Application.create(:name => 'app', :password => 'foo')
     @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'smpp', :protocol => 'smpp')
+    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :system_type => 'smpp', :mt_encodings => ['ascii'] }
   end
   
-  test "should not save if host is blank" do
-    @chan.configuration = {:port => 3200, :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
-    assert !@chan.save
-  end
-  
-  test "should not save if port is blank" do
-    @chan.configuration = {:host => 'host', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
+  def assert_validates_presence_of(field)
+    @chan.configuration.delete field
     assert !@chan.save
   end
   
-  test "should not save if ton is blank" do
-    @chan.configuration = {:host => 'host', :npi => 0, :port => 3200, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
-    assert !@chan.save
-  end  
-
-  test "should not save if npi ien lugar de  usar enqueue_with_channels blank" do
-    @chan.configuration = {:host => 'host', :ton => 0, :port => 3200, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
-    assert !@chan.save
+  [:host, :port, :source_ton, :source_npi, :destination_ton, :destination_npi, :user, :password, :system_type].each do |field|
+    test "should validate_presence_of #{field}" do
+      assert_validates_presence_of field
+    end
   end
   
-  test "should not save if user is blank" do
-    @chan.configuration = {:host => 'host', :port => 3200, :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
-    assert !@chan.save
-  end
-  
-  test "should not save if password is blank" do
-    @chan.configuration = {:host => 'host', :port => 3200, :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :encoding => 'utf16le', :system_type => 'smpp' }
-    assert !@chan.save
-  end
-  
-  test "should not save if encoding is blank" do
-    @chan.configuration = {:host => 'host', :port => 3200, :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password' }
-    assert !@chan.save
-  end
-  
-  test "should not save if port is not a number" do
-    @chan.configuration = {:host => 'host', :port => 'foo', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
-    assert !@chan.save
-  end
-  
-  test "should not save if port is negative" do
-    @chan.configuration = {:host => 'host', :port => -3200, :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
-    assert !@chan.save
-  end
-
-  test "should not save if ton is not a number" do
-    @chan.configuration = {:host => 'host', :port => 'foo', :ton => 'bar', :npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
-    assert !@chan.save
-  end
-
-  test "should not save if npi is not a number" do
-    @chan.configuration = {:host => 'host', :port => 'foo', :ton => 0, :npi => 'bar', :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
-    assert !@chan.save
-  end
-
-  test "should not save if ton is less than 0" do
-    @chan.configuration = {:host => 'host', :port => 'foo', :ton => -1, :npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
-    assert !@chan.save
-  end
-
-  test "should not save if ton is greater than 7" do
-    @chan.configuration = {:host => 'host', :port => 'foo', :ton => 8, :npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
-    assert !@chan.save
-  end
-
-  test "should not save if npi is less than 0" do
-    @chan.configuration = {:host => 'host', :port => 'foo', :ton => 0, :npi => -1, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
-    assert !@chan.save
-  end
-
-  test "should not save if npi is greater than 7" do
-    @chan.configuration = {:host => 'host', :port => 'foo', :ton => 0, :npi => 8, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
-    assert !@chan.save
-  end
-    
   test "should save" do
-    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
     assert @chan.save
   end
   
   test "sould create delayed job if channel throttle is nil" do
-    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
     msg = AOMessage.new(:application_id => @app.id)
     @chan.handler.handle(msg)
     
@@ -103,7 +38,6 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
   
   test "sould create throttled job if channel throttle is not nil" do
     @chan.throttle = 20
-    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
     msg = AOMessage.new(:application_id => @app.id)
     @chan.handler.handle(msg)
     
@@ -116,7 +50,6 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
   end
   
   test "on enable creates managed process" do
-    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
     @chan.save!
     
     procs = ManagedProcess.all
@@ -131,7 +64,6 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
   end
   
   test "on destroy deletes managed process" do
-    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
     @chan.save!
     @chan.destroy
     
@@ -139,7 +71,6 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
   end
   
   test "on change touches managed process" do
-    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
     @chan.save!
     
     proc = ManagedProcess.first

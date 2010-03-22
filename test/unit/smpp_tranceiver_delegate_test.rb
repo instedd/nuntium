@@ -8,13 +8,14 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   def setup
     @application = Application.create!(:name => "testapp", :password => "testpass")
     @chan = Channel.new(:application_id => @application.id, :name => 'chan', :kind => 'smpp', :protocol => 'sms')
-    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :encoding => 'utf16le', :system_type => 'smpp' }
+    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :system_type => 'smpp' }
     @transceiver = mock('Smpp::Transceiver')
   end
 
   def send_message(encodings, input, output, output_coding, endianness = :big)
     @chan.configuration[:mt_encodings] = encodings
-    @chan.configuration[:endianness] = endianness
+    @chan.configuration[:endianness] = endianness.to_s
+     @chan.configuration[:default_mo_encoding] = 'ascii'
     @chan.save!
     
     @transceiver.expects(:send_mt).with(123, '8888', '4444', output, { :data_coding => output_coding })
@@ -24,10 +25,10 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   end
   
   def receive_message(input, input_coding, output, endianness = :big, default_mo_encoding = 'ascii', accept_mo_hex_string = false)
-    @chan.configuration[:mt_encodings] = []
-    @chan.configuration[:endianness] = endianness
+    @chan.configuration[:mt_encodings] = ['ascii']
+    @chan.configuration[:endianness] = endianness.to_s
     @chan.configuration[:default_mo_encoding] = default_mo_encoding
-    @chan.configuration[:accept_mo_hex_string] = accept_mo_hex_string
+    @chan.configuration[:accept_mo_hex_string] = accept_mo_hex_string ? '1' : '0'
     @chan.save!
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
     
@@ -102,10 +103,10 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     pdubin = '0000003d000000050000000000002a6f00000038353632303232313032383900000032343838000000000000000000000c306538313065383230653834'
     pdu = Smpp::Pdu::Base.create(pdubin.scan(/../).map{|x| x.to_i(16).chr}.join)
     
-    @chan.configuration[:mt_encodings] = []
+    @chan.configuration[:mt_encodings] = ['ascii']
     @chan.configuration[:endianness] = :big
     @chan.configuration[:default_mo_encoding] = 'ascii'
-    @chan.configuration[:accept_mo_hex_string] = true
+    @chan.configuration[:accept_mo_hex_string] = '1'
     @chan.save!
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
     
