@@ -154,6 +154,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     receive_message "\005\000\003\123\003\001uno", 0, 'uno', :part => true, :esm_class => 64, :reference_number => 0123, :part_count => 3, :part_number => 1
     receive_message "\005\000\003\123\003\002dos", 0, 'dos', :part => true, :esm_class => 64, :reference_number => 0123, :part_count => 3, :part_number => 2
     receive_message "\005\000\003\123\003\003tres", 0, 'unodostres', :esm_class => 64
+    assert_equal 0, SmppMessagePart.count
   end
   
   test "receive sms with udh" do
