@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100305141257) do
+ActiveRecord::Schema.define(:version => 20100323190345) do
 
   create_table "address_sources", :force => true do |t|
     t.integer  "application_id"
@@ -187,7 +187,10 @@ ActiveRecord::Schema.define(:version => 20100305141257) do
     t.string   "text"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "channel_id"
   end
+
+  add_index "smpp_message_parts", ["channel_id", "reference_number"], :name => "index_smpp_message_parts_on_channel_id_and_reference_number"
 
   create_table "throttled_jobs", :force => true do |t|
     t.integer  "channel_id"

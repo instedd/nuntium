@@ -11,7 +11,6 @@ class SmppTransceiverDelegate
   end
   
   def send_message(id, from, to, text)
-    
     msg_text = nil
     msg_coding = nil
     
@@ -27,15 +26,29 @@ class SmppTransceiverDelegate
   end
   
   def mo_received(transceiver, pdu)
+    text = pdu.short_message
+  
+    if pdu.esm_class & 64 != 0
+      udh = Udh.new(pdu.short_message)
+      text = udh.skip text
+      if udh[0]
+        return part_received(pdu.source_addr, pdu.destination_addr, pdu.data_coding, text, udh)
+      end
+    end
+  
+    create_at_message pdu.source_addr, pdu.destination_addr, pdu.data_coding, text
+  end
+  
+  def create_at_message(source, destination, data_coding, text)
     msg = ATMessage.new
-    msg.from = pdu.source_addr.with_protocol 'sms'
-    msg.to = pdu.destination_addr.with_protocol 'sms'
-    if @channel.configuration[:accept_mo_hex_string] == '1' and is_hex(pdu.short_message) 
-      bytes = hex_to_bytes pdu.short_message
+    msg.from = source.with_protocol 'sms'
+    msg.to = destination.with_protocol 'sms'
+    if @channel.configuration[:accept_mo_hex_string] == '1' and is_hex(text) 
+      bytes = hex_to_bytes text
       iconv = Iconv.new('utf-8', ucs2_endianized)
       msg.subject = iconv.iconv bytes
     else
-      source_encoding = case pdu.data_coding
+      source_encoding = case data_coding
         when 0: encoding_endianized(@channel.configuration[:default_mo_encoding])
         when 1: 'ascii'
         when 3: 'latin1'
@@ -44,13 +57,45 @@ class SmppTransceiverDelegate
       
       if source_encoding
         iconv = Iconv.new('utf-8', source_encoding)
-        msg.subject = iconv.iconv pdu.short_message
+        msg.subject = iconv.iconv text
       else
-        msg.subject = pdu.short_message
+        msg.subject = text
       end
     end
     
     @channel.accept msg
+  end
+  
+  def part_received(source, destination, data_coding, text, udh)
+    ref = udh[0][:reference_number]
+    total = udh[0][:part_count]
+    partn = udh[0][:part_number]
+    
+    conditions = ['channel_id = ? AND reference_number = ?', @channel.id, ref]
+    parts = SmppMessagePart.all(:conditions => conditions)
+    
+    # If all other parts are here
+    if parts.length == total-1
+      # Add this new part, sort and get text
+      parts.push SmppMessagePart.new(:part_number => partn, :text => text)
+      parts.sort! { |x,y| x.part_number <=> y.part_number }
+      text = parts.collect { |x| x.text }.to_s
+      
+      # Create message from the resulting text
+      create_at_message source, destination, data_coding, text
+
+      # Delete stored information
+      SmppMessagePart.delete_all conditions
+    else
+      # Just save the part
+      SmppMessagePart.create(
+      :channel_id => @channel.id,
+      :reference_number => ref,
+      :part_count => total,
+      :part_number => partn,
+      :text => text
+      )
+    end
   end
   
   private

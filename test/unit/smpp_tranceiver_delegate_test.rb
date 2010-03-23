@@ -24,23 +24,37 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     @delegate.send_message(123, '8888', '4444', input)
   end
   
-  def receive_message(input, input_coding, output, endianness = :big, default_mo_encoding = 'ascii', accept_mo_hex_string = false)
+  def receive_message(input, input_coding, output, options = {})
     @chan.configuration[:mt_encodings] = ['ascii']
-    @chan.configuration[:endianness] = endianness.to_s
-    @chan.configuration[:default_mo_encoding] = default_mo_encoding
-    @chan.configuration[:accept_mo_hex_string] = accept_mo_hex_string ? '1' : '0'
+    @chan.configuration[:endianness] = options.fetch(:endianness, :big).to_s
+    @chan.configuration[:default_mo_encoding] = options.fetch(:default_mo_encoding, 'ascii')
+    @chan.configuration[:accept_mo_hex_string] = options.fetch(:accept_mo_hex_string, false) ? '1' : '0'
     @chan.save!
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
     
-    pdu = Smpp::Pdu::DeliverSm.new '4444', '8888', input, :data_coding => input_coding
+    pdu_options = {:data_coding => input_coding}
+    pdu_options[:esm_class] = options[:esm_class] if options.include? :esm_class 
+    
+    pdu = Smpp::Pdu::DeliverSm.new '4444', '8888', input, pdu_options
     @delegate.mo_received @transceiver, pdu
-    msgs = ATMessage.all
-    assert_equal 1, msgs.length
-    msg = msgs[0]
-    assert_equal 'sms://4444', msg.from
-    assert_equal 'sms://8888', msg.to
-    assert_equal output, msg.subject
-    assert_equal @chan.id, msg.channel_id
+    
+    if options.fetch(:part, false)
+      part = SmppMessagePart.last
+      assert_not_nil part
+      assert_equal @chan.id, part.channel_id
+      assert_equal options[:reference_number], part.reference_number
+      assert_equal options[:part_count], part.part_count
+      assert_equal options[:part_number], part.part_number
+      assert_equal output, part.text
+    else
+      msgs = ATMessage.all
+      assert_equal 1, msgs.length
+      msg = msgs[0]
+      assert_equal 'sms://4444', msg.from
+      assert_equal 'sms://8888', msg.to
+      assert_equal output, msg.subject
+      assert_equal @chan.id, msg.channel_id
+    end
   end
 
   test "send ascii message" do
@@ -84,19 +98,19 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   end
   
   test "receive usc2-le message" do
-    receive_message "h\000o\000l\000a\000", 8, 'hola', :little
+    receive_message "h\000o\000l\000a\000", 8, 'hola', :endianness => :little
   end
   
   test "receive default encoding message" do
-    receive_message "h\000o\000l\000a\000", 0, 'hola', :little, 'ucs-2'
+    receive_message "h\000o\000l\000a\000", 0, 'hola', :endianness => :little, :default_mo_encoding => 'ucs-2'
   end
   
   test "receive hex string" do
-    receive_message "006100620063", 0, 'abc', :big, 'ascii', true
+    receive_message "006100620063", 0, 'abc', :accept_mo_hex_string => true
   end
   
   test "receive hex string not hex" do
-    receive_message "h\000o\000l\000a\000", 8, 'hola', :little, 'ascii', true
+    receive_message "h\000o\000l\000a\000", 8, 'hola', :endianness => :little, :accept_mo_hex_string => true
   end
   
   test "receive lao message" do
@@ -122,6 +136,20 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   
   test "receive unkonwn encoding" do
     receive_message "h\000o\000l\000a\000", 7, "h\000o\000l\000a\000"
+  end
+  
+  test "receive concatenated sms with udh creates part" do
+    receive_message "\005\000\003\123\003\001hola", 0, 'hola', :part => true, :esm_class => 64, :reference_number => 0123, :part_count => 3, :part_number => 1
+  end
+  
+  test "receive concatenated sms with udh creates message" do
+    receive_message "\005\000\003\123\003\001uno", 0, 'uno', :part => true, :esm_class => 64, :reference_number => 0123, :part_count => 3, :part_number => 1
+    receive_message "\005\000\003\123\003\002dos", 0, 'dos', :part => true, :esm_class => 64, :reference_number => 0123, :part_count => 3, :part_number => 2
+    receive_message "\005\000\003\123\003\003tres", 0, 'unodostres', :esm_class => 64
+  end
+  
+  test "receive sms with udh" do
+    receive_message "\005\001\003\123\003\001hola", 0, 'hola', :part => false, :esm_class => 64
   end
   
 end
