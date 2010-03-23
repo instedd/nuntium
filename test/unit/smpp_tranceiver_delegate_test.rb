@@ -169,6 +169,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     receive_message "uno", 0, 'uno', :part => true, :optional_parameters => { 0x020c => "\x00\x3d", 0x020e =>  "\x03", 0x020f => "\x01"}, :reference_number => 0x3d, :part_count => 3, :part_number => 1
     receive_message "dos", 0, 'dos', :part => true, :optional_parameters => { 0x020c => "\x00\x3d", 0x020e =>  "\x03", 0x020f => "\x02"}, :reference_number => 0x3d, :part_count => 3, :part_number => 2
     receive_message "tres", 0, 'unodostres', :optional_parameters => { 0x020c => "\x00\x3d", 0x020e =>  "\x03", 0x020f => "\x03"}
+    assert_equal 0, SmppMessagePart.count
   end
   
   test "receive message from payload" do
