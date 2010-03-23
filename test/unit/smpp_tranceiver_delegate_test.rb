@@ -12,13 +12,21 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     @transceiver = mock('Smpp::Transceiver')
   end
 
-  def send_message(encodings, input, output, output_coding, endianness = :big)
+  def send_message(encodings, input, output, output_coding, options = {})
     @chan.configuration[:mt_encodings] = encodings
-    @chan.configuration[:endianness] = endianness.to_s
-     @chan.configuration[:default_mo_encoding] = 'ascii'
+    @chan.configuration[:endianness] = options.fetch(:endianness, :big).to_s
+    @chan.configuration[:default_mo_encoding] = 'ascii'
+    @chan.configuration[:mt_csms_method] = options.fetch(:mt_csms_method, 'udh')
+    @chan.configuration[:mt_max_length] = options.fetch(:mt_max_length, 254)
     @chan.save!
     
-    @transceiver.expects(:send_mt).with(123, '8888', '4444', output, { :data_coding => output_coding })
+    if output.is_a? Array
+      output.each do |o|
+        @transceiver.expects(:send_mt).with(123, '8888', '4444', o[:text], { :data_coding => output_coding, :udh => o[:udh], :esm_class => 64 })
+      end
+    else
+      @transceiver.expects(:send_mt).with(123, '8888', '4444', output, { :data_coding => output_coding })
+    end
     
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
     @delegate.send_message(123, '8888', '4444', input)
@@ -90,7 +98,17 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   end
   
   test "send ucs2 little endian" do
-    send_message ['ucs-2'], 'hola', "h\000o\000l\000a\000", 8, :little
+    send_message ['ucs-2'], 'hola', "h\000o\000l\000a\000", 8, :endianness => :little
+  end
+  
+  test "send large message using udh" do
+    output = [
+      {:udh => "\x05\x00\x03\x7B\x04\x01", :text => 'uno'}, 
+      {:udh => "\x05\x00\x03\x7B\x04\x02", :text => 'dos'},
+      {:udh => "\x05\x00\x03\x7B\x04\x03", :text => 'tre'},
+      {:udh => "\x05\x00\x03\x7B\x04\x04", :text => 's'}
+      ]
+    send_message ['ascii'], 'unodostres', output, 1, :mt_csms_method => 'udh', :mt_max_length => 9
   end
   
   test "receive ascii message" do

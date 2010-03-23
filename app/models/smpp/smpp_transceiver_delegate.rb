@@ -8,6 +8,7 @@ class SmppTransceiverDelegate
     @transceiver = transceiver
     @channel = channel
     @encodings = @channel.configuration[:mt_encodings].map { |x| encoding_endianized x }
+    @mt_max_length = @channel.configuration[:mt_max_length].to_i
   end
   
   def send_message(id, from, to, text)
@@ -22,7 +23,30 @@ class SmppTransceiverDelegate
       break
     end
     
-    @transceiver.send_mt(id, from, to, msg_text, {:data_coding => msg_coding})
+    if msg_text.length > @mt_max_length
+      parts = []
+      while msg_text.length > 0 do
+        parts << msg_text.slice!(0...@mt_max_length-6)
+      end
+      
+      0.upto(parts.size-1) do |i|
+        udh = sprintf("%c", 5)            # UDH is 5 bytes.
+        udh << sprintf("%c%c", 0, 3)      # This is a concatenated message 
+        udh << sprintf("%c", id & 0xFF)          # The ID for the entire concatenated message
+        udh << sprintf("%c", parts.size)  # How many parts this message consists of
+        udh << sprintf("%c", i+1)         # This is part i+1
+        
+        options = {
+          :esm_class => 64,               # This message contains a UDH header.
+          :udh => udh,
+          :data_coding => msg_coding
+        }
+        
+        @transceiver.send_mt(id, from, to, parts[i], options)
+      end
+    else
+      @transceiver.send_mt(id, from, to, msg_text, {:data_coding => msg_coding})
+    end
   end
   
   def mo_received(transceiver, pdu)
