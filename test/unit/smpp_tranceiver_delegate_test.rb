@@ -33,7 +33,15 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
     
     pdu_options = {:data_coding => input_coding}
-    pdu_options[:esm_class] = options[:esm_class] if options.include? :esm_class 
+    pdu_options[:esm_class] = options[:esm_class] if options.include? :esm_class
+    if options.include? :optional_parameters
+      optionals = {}
+      options[:optional_parameters].each do |x, y|
+        optionals[x] = Smpp::OptionalParameter.new(x, y)
+      end
+      pdu_options[:optional_parameters] = optionals
+    end
+    
     
     pdu = Smpp::Pdu::DeliverSm.new '4444', '8888', input, pdu_options
     @delegate.mo_received @transceiver, pdu
@@ -150,6 +158,20 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   
   test "receive sms with udh" do
     receive_message "\005\001\003\123\003\001hola", 0, 'hola', :part => false, :esm_class => 64
+  end
+  
+  test "receive concatenated sms with optional parameters" do
+    receive_message "hola", 0, 'hola', :part => true, :optional_parameters => { 0x020c => "\x00\x3d", 0x020e =>  "\x03", 0x020f => "\x01"}, :reference_number => 0x3d, :part_count => 3, :part_number => 1
+  end
+  
+  test "reassemble concatenated sms with optional parameters" do
+    receive_message "uno", 0, 'uno', :part => true, :optional_parameters => { 0x020c => "\x00\x3d", 0x020e =>  "\x03", 0x020f => "\x01"}, :reference_number => 0x3d, :part_count => 3, :part_number => 1
+    receive_message "dos", 0, 'dos', :part => true, :optional_parameters => { 0x020c => "\x00\x3d", 0x020e =>  "\x03", 0x020f => "\x02"}, :reference_number => 0x3d, :part_count => 3, :part_number => 2
+    receive_message "tres", 0, 'unodostres', :optional_parameters => { 0x020c => "\x00\x3d", 0x020e =>  "\x03", 0x020f => "\x03"}
+  end
+  
+  test "receive message from payload" do
+    receive_message '', 0, 'hola mundo', :optional_parameters => { 0x0424 => "hola mundo"}
   end
   
 end

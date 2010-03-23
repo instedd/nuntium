@@ -27,13 +27,30 @@ class SmppTransceiverDelegate
   
   def mo_received(transceiver, pdu)
     text = pdu.short_message
-  
+    
+    # Use the message_payload optional parameter if present
+    if text.length == 0 && pdu.optional_parameters && pdu.optional_parameters[0x0424]
+      text = pdu.optional_parameters[0x0424].value
+    end
+    
+    # Parse concatenated SMS from UDH
     if pdu.esm_class & 64 != 0
-      udh = Udh.new(pdu.short_message)
+      udh = Udh.new(text)
       text = udh.skip text
       if udh[0]
-        return part_received(pdu.source_addr, pdu.destination_addr, pdu.data_coding, text, udh)
+        ref = udh[0][:reference_number]
+        total = udh[0][:part_count]
+        partn = udh[0][:part_number]
+        return part_received(pdu.source_addr, pdu.destination_addr, pdu.data_coding, text, ref, total, partn)
       end
+    end
+    
+    # Parse concatenated SMS from optional parameters (sar_*)
+    if pdu.optional_parameters && pdu.optional_parameters[0x020c] && pdu.optional_parameters[0x020e] && pdu.optional_parameters[0x020f]
+      ref = bytes_to_int pdu.optional_parameters[0x020c].value
+      total = bytes_to_int pdu.optional_parameters[0x020e].value
+      partn = bytes_to_int pdu.optional_parameters[0x020f].value
+      return part_received(pdu.source_addr, pdu.destination_addr, pdu.data_coding, text, ref, total, partn)
     end
   
     create_at_message pdu.source_addr, pdu.destination_addr, pdu.data_coding, text
@@ -66,10 +83,8 @@ class SmppTransceiverDelegate
     @channel.accept msg
   end
   
-  def part_received(source, destination, data_coding, text, udh)
-    ref = udh[0][:reference_number]
-    total = udh[0][:part_count]
-    partn = udh[0][:part_number]
+  def part_received(source, destination, data_coding, text, ref, total, partn)
+    
     
     conditions = ['channel_id = ? AND reference_number = ?', @channel.id, ref]
     parts = SmppMessagePart.all(:conditions => conditions)
@@ -114,6 +129,14 @@ class SmppTransceiverDelegate
   
   def hex_to_bytes(msg)
     msg.scan(/../).map{|x| x.to_i(16).chr}.join
+  end
+  
+  def bytes_to_int(bytes)
+    value = 0
+    bytes.bytes.each do |x|
+      value = (value << 8) + x
+    end
+    return value
   end
   
 end
