@@ -68,6 +68,10 @@
 		<% end %>
 		</p>
 		<p>
+		<%= c.label 'MT max length:' %><br/>
+		<%= c.select :mt_max_length, ['140', '160', '254'] %>
+		</p>
+		<p>
 		<%= c.label 'MT CSMS method:' %><br/>
 		<%= c.select :mt_csms_method, [['UDH', 'udh'], ['Optional parameters', 'optional_parameters'], ['Message payload', 'message_paylod']] %>
 		</p>

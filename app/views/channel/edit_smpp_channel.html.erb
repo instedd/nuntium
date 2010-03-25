@@ -63,6 +63,10 @@
 		<% end %>
 		</p>
 		<p>
+		<%= c.label 'MT max length:' %><br/>
+		<%= c.select :mt_max_length, options_for_select(['140', '160', '254'], @channel.configuration[:mt_max_length]) %>
+		</p>
+		<p>
 		<%= c.label 'MT CSMS method:' %><br/>
 		<%= c.select :mt_csms_method, options_for_select([['UDH', 'udh'], ['Optional parameters', 'optional_parameters'], ['Message payload', 'message_paylod']], @channel.configuration[:mt_csms_method]) %>
 		</p>
