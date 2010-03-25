@@ -136,6 +136,23 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     send_message ['ascii'], 'unodostres', output, 1, :mt_csms_method => 'message_payload', :mt_max_length => 3
   end
   
+  test "send duplicate message is ignored" do
+    @chan.configuration[:mt_encodings] = ['ascii'] 
+    @chan.configuration[:endianness] = 'big'
+    @chan.configuration[:default_mo_encoding] = 'ascii'
+    @chan.configuration[:mt_csms_method] = 'udh'
+    @chan.configuration[:mt_max_length] = 254
+    @chan.save!
+    
+    pdu = Smpp::Pdu::DeliverSm.new '4444', '8888', 'hola'
+    
+    @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
+    @delegate.mo_received @transceiver, pdu
+    @delegate.mo_received @transceiver, pdu
+    
+    assert_equal 1, ATMessage.count
+  end
+  
   test "receive ascii message" do
     receive_message 'hello', 1, 'hello'
   end
@@ -221,7 +238,6 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   end
   
 end
-
 
 class Smpp::OptionalParameter
   def ==(other)

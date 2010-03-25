@@ -1,4 +1,5 @@
 require 'iconv'
+require 'cache'
 
 class SmppTransceiverDelegate
   
@@ -10,8 +11,9 @@ class SmppTransceiverDelegate
     @encodings = @channel.configuration[:mt_encodings].map { |x| encoding_endianized x }
     @mt_max_length = @channel.configuration[:mt_max_length].to_i
     @mt_csms_method = @channel.configuration[:mt_csms_method]
+    @mo_cache = Cache.new(nil, nil, 100, 86400)
   end
-  
+    
   def send_message(id, from, to, text)
     msg_text = nil
     msg_coding = nil
@@ -22,6 +24,11 @@ class SmppTransceiverDelegate
       msg_text = iconv.iconv(text) rescue next
       msg_coding = EncodingCode[encoding]
       break
+    end
+    
+    if msg_text.nil?
+      logger.warning "Could not find suitable encoding for AOMessage with id #{id}" 
+      return "Could not find suitable encoding"
     end
     
     if msg_text.length > @mt_max_length
@@ -36,6 +43,10 @@ class SmppTransceiverDelegate
     else
       @transceiver.send_mt(id, from, to, msg_text, {:data_coding => msg_coding})
     end
+    
+    return nil
+  rescue Exception => e
+    return "#{e.class} #{e.message}"
   end
   
   def send_csms_using_udh(id, from, to, msg_coding, msg_text)
@@ -94,6 +105,8 @@ class SmppTransceiverDelegate
   end
   
   def mo_received(transceiver, pdu)
+    return if duplicated? pdu
+  
     text = pdu.short_message
     
     # Use the message_payload optional parameter if present
@@ -183,6 +196,16 @@ class SmppTransceiverDelegate
   
   private
   
+  def duplicated?(pdu)
+    cache_value = pdu.source_addr + pdu.destination_addr + pdu.short_message
+    if @mo_cache[cache_value.hash] == cache_value
+      logger.info "Ignoring duplicate message from #{pdu.source_addr} to #{pdu.destination_addr}: #{pdu.short_message}"
+      return true
+    end
+    @mo_cache[cache_value.hash] = cache_value
+    return false
+  end
+  
   def encoding_endianized(encoding)
     encoding == 'ucs-2' ? ucs2_endianized : encoding
   end
@@ -214,6 +237,10 @@ class SmppTransceiverDelegate
       int = (int >> 8)
     end
     bytes.reverse.pack('c*')
+  end
+  
+  def logger
+    Rails.logger
   end
   
 end
