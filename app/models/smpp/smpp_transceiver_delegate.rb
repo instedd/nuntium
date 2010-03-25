@@ -30,6 +30,8 @@ class SmppTransceiverDelegate
         send_csms_using_udh id, from, to, msg_coding, msg_text
       when 'optional_parameters'
         send_csms_using_optional_parameters id, from, to, msg_coding, msg_text
+      when 'message_payload'
+        send_csms_using_message_payload id, from, to, msg_coding, msg_text
       end
     else
       @transceiver.send_mt(id, from, to, msg_text, {:data_coding => msg_coding})
@@ -67,6 +69,17 @@ class SmppTransceiverDelegate
       
       @transceiver.send_mt(id, from, to, part, options)
     end
+  end
+  
+  def send_csms_using_message_payload(id, from, to, msg_coding, msg_text)
+    options = {
+      :data_coding => msg_coding,
+      :optional_parameters => {
+        0x0424 => Smpp::OptionalParameter.new(0x0424, msg_text)
+      }
+    }
+    
+    @transceiver.send_mt(id, from, to, '', options)
   end
   
   def send_csms_using_block(msg_text, max_length)

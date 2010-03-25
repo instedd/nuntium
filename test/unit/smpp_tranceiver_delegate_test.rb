@@ -131,6 +131,11 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     send_message ['ascii'], 'unodostres', output, 1, :mt_csms_method => 'optional_parameters', :mt_max_length => 3
   end
   
+  test "send large message using message payload" do
+    output = [{:text => '', :optional_parameters => { 0x0424 => 'unodostres' }}]  
+    send_message ['ascii'], 'unodostres', output, 1, :mt_csms_method => 'message_payload', :mt_max_length => 3
+  end
+  
   test "receive ascii message" do
     receive_message 'hello', 1, 'hello'
   end
