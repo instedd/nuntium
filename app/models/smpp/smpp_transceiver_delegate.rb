@@ -41,7 +41,7 @@ class SmppTransceiverDelegate
         send_csms_using_message_payload id, from, to, msg_coding, msg_text
       end
     else
-      @transceiver.send_mt(id, from, to, msg_text, {:data_coding => msg_coding})
+      send_mt(id, from, to, msg_text, {:data_coding => msg_coding})
     end
     
     return nil
@@ -63,7 +63,7 @@ class SmppTransceiverDelegate
         :data_coding => msg_coding
       }
     
-      @transceiver.send_mt(id, from, to, part, options)
+      send_mt(id, from, to, part, options)
     end
   end
   
@@ -78,7 +78,7 @@ class SmppTransceiverDelegate
         }
       }
       
-      @transceiver.send_mt(id, from, to, part, options)
+      send_mt(id, from, to, part, options)
     end
   end
   
@@ -90,7 +90,7 @@ class SmppTransceiverDelegate
       }
     }
     
-    @transceiver.send_mt(id, from, to, '', options)
+    send_mt(id, from, to, '', options)
   end
   
   def send_csms_using_block(msg_text, max_length)
@@ -105,6 +105,7 @@ class SmppTransceiverDelegate
   end
   
   def mo_received(transceiver, pdu)
+    logger.info "Message received from: #{pdu.source_addr}, to: #{pdu.destination_addr}, short_message: #{pdu.short_message.inspect}, optional_parameters: #{pdu.optional_parameters.inspect}"
     return if duplicated? pdu
   
     text = pdu.short_message
@@ -165,8 +166,6 @@ class SmppTransceiverDelegate
   end
   
   def part_received(source, destination, data_coding, text, ref, total, partn)
-    
-    
     conditions = ['channel_id = ? AND reference_number = ?', @channel.id, ref]
     parts = SmppMessagePart.all(:conditions => conditions)
     
@@ -206,6 +205,11 @@ class SmppTransceiverDelegate
     return false
   end
   
+  def send_mt(id, from, to, text, options = {})
+    logger.info "Sending id: '#{id}', from: '#{from}', to: '#{to}', text: '#{text.inspect}', options: '#{options.inspect}'"
+    @transceiver.send_mt(id, from, to, text, options)
+  end
+  
   def encoding_endianized(encoding)
     encoding == 'ucs-2' ? ucs2_endianized : encoding
   end
@@ -243,4 +247,17 @@ class SmppTransceiverDelegate
     Rails.logger
   end
   
+end
+class Smpp::OptionalParameter
+  def ==(other)
+    self.tag == other.tag && self.value == other.value
+  end
+  
+  def to_s
+    "[Tag: #{tag.inspect}, Value: #{value.inspect}]"
+  end
+  
+  def inspect
+    to_s
+  end
 end

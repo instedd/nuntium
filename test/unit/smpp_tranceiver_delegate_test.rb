@@ -239,16 +239,3 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   
 end
 
-class Smpp::OptionalParameter
-  def ==(other)
-    self.tag == other.tag && self.value == other.value
-  end
-  
-  def to_s
-    "[Tag: #{tag.inspect}, Value: #{value.inspect}]"
-  end
-  
-  def inspect
-    to_s
-  end
-end
