@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100323190345) do
+ActiveRecord::Schema.define(:version => 20100325143657) do
 
   create_table "address_sources", :force => true do |t|
     t.integer  "application_id"
