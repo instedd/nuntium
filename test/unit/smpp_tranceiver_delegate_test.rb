@@ -82,6 +82,15 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
       assert_equal @chan.id, msg.channel_id
     end
   end
+  
+  def save_channel_with_default_config
+    @chan.configuration[:mt_encodings] = ['ascii'] 
+    @chan.configuration[:endianness] = 'big'
+    @chan.configuration[:default_mo_encoding] = 'ascii'
+    @chan.configuration[:mt_csms_method] = 'udh'
+    @chan.configuration[:mt_max_length] = 254
+    @chan.save!
+  end
 
   test "send ascii message" do
     send_message ['ascii'], 'Hello', 'Hello', 1
@@ -137,12 +146,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   end
   
   test "send duplicate message is ignored" do
-    @chan.configuration[:mt_encodings] = ['ascii'] 
-    @chan.configuration[:endianness] = 'big'
-    @chan.configuration[:default_mo_encoding] = 'ascii'
-    @chan.configuration[:mt_csms_method] = 'udh'
-    @chan.configuration[:mt_max_length] = 254
-    @chan.save!
+    save_channel_with_default_config
     
     pdu = Smpp::Pdu::DeliverSm.new '4444', '8888', 'hola'
     
@@ -235,6 +239,72 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   
   test "receive message from payload" do
     receive_message '', 0, 'hola mundo', :optional_parameters => { 0x0424 => "hola mundo"}
+  end
+  
+  test "delivery report received DELIVRD" do
+    save_channel_with_default_config
+    
+    msg = AOMessage.create!(:application_id => @application.id, :channel_id => @chan.id, :channel_relative_id => '123') 
+    pdu = Smpp::Pdu::DeliverSm.new '4444', '8888', 'hola', {:msg_reference => 123, :stat => 'DELIVRD'}
+    
+    @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
+    @delegate.delivery_report_received @transceiver, pdu
+    
+    msg = AOMessage.find_by_id msg.id
+    assert_equal 'confirmed', msg.state
+  end
+
+  test "delivery report received failed" do
+    save_channel_with_default_config
+    
+    msg = AOMessage.create!(:application_id => @application.id, :channel_id => @chan.id, :channel_relative_id => '123') 
+    pdu = Smpp::Pdu::DeliverSm.new '4444', '8888', 'hola', {:msg_reference => 123, :stat => 'REJECTED'}
+    
+    @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
+    @delegate.delivery_report_received @transceiver, pdu
+    
+    msg = AOMessage.find_by_id msg.id
+    assert_equal 'failed', msg.state
+  end
+  
+  test "delivery report received ignore duplicate" do
+    save_channel_with_default_config
+    
+    msg = AOMessage.create!(:application_id => @application.id, :channel_id => @chan.id, :channel_relative_id => '123') 
+    pdu = Smpp::Pdu::DeliverSm.new '4444', '8888', 'hola', {:msg_reference => 123, :stat => 'REJECTED'}
+    
+    @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
+    @delegate.delivery_report_received @transceiver, pdu
+    
+    count = ApplicationLog.count
+    @delegate.delivery_report_received @transceiver, pdu
+    assert_equal count, ApplicationLog.count
+  end
+  
+  test "message accepted" do
+    save_channel_with_default_config
+    
+    msg = AOMessage.create!(:application_id => @application.id, :channel_id => @chan.id) 
+    pdu = Smpp::Pdu::SubmitSmResponse.new 456, 0, '7B'
+    
+    @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
+    @delegate.message_accepted @transceiver, msg.id, pdu
+    
+    msg = AOMessage.find_by_id msg.id
+    assert_equal '123', msg.channel_relative_id
+  end
+  
+  test "message rejected" do
+    save_channel_with_default_config
+    
+    msg = AOMessage.create!(:application_id => @application.id, :channel_id => @chan.id) 
+    pdu = Smpp::Pdu::SubmitSmResponse.new 456, 0, '7B'
+    
+    @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
+    @delegate.message_rejected @transceiver, msg.id, pdu
+    
+    msg = AOMessage.find_by_id msg.id
+    assert_equal 'failed', msg.state
   end
   
 end

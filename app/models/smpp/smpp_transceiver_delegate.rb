@@ -12,6 +12,7 @@ class SmppTransceiverDelegate
     @mt_max_length = @channel.configuration[:mt_max_length].to_i
     @mt_csms_method = @channel.configuration[:mt_csms_method]
     @mo_cache = Cache.new(nil, nil, 100, 86400)
+    @delivery_report_cache = Cache.new(nil, nil, 100, 86400)
   end
     
   def send_message(id, from, to, text)
@@ -106,7 +107,7 @@ class SmppTransceiverDelegate
   
   def mo_received(transceiver, pdu)
     logger.info "Message received from: #{pdu.source_addr}, to: #{pdu.destination_addr}, short_message: #{pdu.short_message.inspect}, optional_parameters: #{pdu.optional_parameters.inspect}"
-    return if duplicated? pdu
+    return if duplicated_mo? pdu
   
     text = pdu.short_message
     
@@ -136,6 +137,69 @@ class SmppTransceiverDelegate
     end
   
     create_at_message pdu.source_addr, pdu.destination_addr, pdu.data_coding, text
+  rescue Exception => e
+    logger.error "Error in mo_received: #{e.class} #{e.to_s}"
+    @channel.application.logger.exception_in_channel @channel, e
+  end
+  
+  def delivery_report_received(transceiver, pdu)
+    return if duplicated_receipt? pdu
+    
+    logger.info "Delegate: delivery_report_received: ref #{pdu.msg_reference} stat #{pdu.stat}"
+    
+    # Find message with channel_relative_id
+    msg_reference = pdu.msg_reference.to_i
+    msg = AOMessage.first(:conditions => ['channel_id = ? AND channel_relative_id = ?', @channel.id, msg_reference])
+    return logger.info "AOMessage with channel_relative_id #{msg_reference} not found" if msg.nil?
+    
+    # Reflect in message state
+    msg.state = pdu.stat == 'DELIVRD' ? 'confirmed' : 'failed'
+    msg.save!
+    
+    @channel.application.logger.ao_message_status_receieved msg, pdu.stat
+  rescue Exception => e
+    logger.error "Error in delivery_report_received: #{e.class} #{e.to_s}"
+    @channel.application.logger.exception_in_channel @channel, e
+  end
+  
+  def message_accepted(transceiver, mt_message_id, pdu)
+    logger.info "Delegate: message_accepted: id #{mt_message_id} smsc ref id: #{pdu.message_id}"
+    
+    # Find message with mt_message_id
+    msg = AOMessage.find_by_id mt_message_id
+    return logger.info "AOMessage with id #{mt_message_id} not found (ref id: #{pdu.message_id})" if msg.nil? 
+    
+    # smsc_message_id comes in hexadecimal
+    reference_id = pdu.message_id.to_i(16).to_s
+    
+    # Blank all messages with that reference id in case the reference id is already used
+    AOMessage.update_all(['channel_relative_id = ?', nil], ['channel_id = ? AND channel_relative_id = ?', @channel.id, reference_id])
+    
+    # And set this message's channel relative id to later look it up
+    # in the delivery_report_received method
+    msg.channel_relative_id = reference_id
+    msg.save!
+    
+    @channel.application.logger.ao_message_status_receieved msg, 'ACK'
+  rescue Exception => e
+    logger.error "Error in message_accepted: #{e.class} #{e.to_s}"
+    @channel.application.logger.exception_in_channel @channel, e
+  end
+  
+  def message_rejected(transceiver, mt_message_id, pdu)
+    logger.info "Delegate: message_sent_with_error: id #{mt_message_id} pdu_command_status: #{pdu.command_status}"
+    
+    # Find message with mt_message_id
+    msg = AOMessage.find_by_id mt_message_id
+    return logger.info "AOMessage with id #{mt_message_id} not found (pdu_command_status: #{pdu.command_status})" if msg.nil?
+    
+    msg.state = 'failed'
+    msg.save!
+    
+    @channel.application.logger.ao_message_status_warning msg, "Command Status '#{pdu.command_status}'"
+  rescue Exception => e
+    logger.error "Error in message_rejected: #{e.class} #{e.to_s}"
+    @channel.application.logger.exception_in_channel @channel, e
   end
   
   def create_at_message(source, destination, data_coding, text)
@@ -195,13 +259,23 @@ class SmppTransceiverDelegate
   
   private
   
-  def duplicated?(pdu)
+  def duplicated_mo?(pdu)
     cache_value = pdu.source_addr + pdu.destination_addr + pdu.short_message
     if @mo_cache[cache_value.hash] == cache_value
       logger.info "Ignoring duplicate message from #{pdu.source_addr} to #{pdu.destination_addr}: #{pdu.short_message}"
       return true
     end
     @mo_cache[cache_value.hash] = cache_value
+    return false
+  end
+  
+  def duplicated_receipt?(pdu)
+    cache_value = pdu.msg_reference.to_s + pdu.stat
+    if @delivery_report_cache[cache_value.hash] == cache_value
+      logger.info "Ignoring duplicate delivery report ref #{pdu.msg_reference} stat #{pdu.stat}"
+      return true
+    end
+    @delivery_report_cache[cache_value.hash] = cache_value
     return false
   end
   
