@@ -62,6 +62,10 @@
 		  <input id="channel_configuration_mt_encodings" name="channel[configuration][mt_encodings][]" type="checkbox" value="<%= encoding[1] %>" <%= 'checked="checked"' if @channel.configuration[:mt_encodings].include? encoding[1].to_s %> /> <%= encoding[0] %><br/>
 		<% end %>
 		</p>
+		<p>
+		<%= c.label 'MT CSMS method:' %><br/>
+		<%= c.select :mt_csms_method, options_for_select([['UDH', 'udh'], ['sar_*', 'sar'], ['Message payload', 'message_paylod']], @channel.configuration[:mt_csms_method]) %>
+		</p>
   <% end %>
   <%= submit_tag 'Update channel' %>
 <% end %>

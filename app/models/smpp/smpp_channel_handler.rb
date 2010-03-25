@@ -67,7 +67,7 @@ class SmppChannelHandler < ChannelHandler
       end
     end
   
-    check_config_not_blank :user, :password, :default_mo_encoding, :mt_encodings
+    check_config_not_blank :user, :password, :default_mo_encoding, :mt_encodings, :mt_csms_method
   end
   
   def check_valid_in_ui

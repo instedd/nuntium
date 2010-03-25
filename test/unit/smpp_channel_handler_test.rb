@@ -7,7 +7,7 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
   def initialize_objects
     @app = Application.create(:name => 'app', :password => 'foo')
     @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'smpp', :protocol => 'smpp')
-    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :system_type => 'smpp', :mt_encodings => ['ascii'] }
+    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :system_type => 'smpp', :mt_encodings => ['ascii'], :default_mo_encoding => 'ascii', :mt_csms_method => 'udh' }
   end
   
   def assert_validates_presence_of(field)
@@ -15,7 +15,7 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
     assert !@chan.save
   end
   
-  [:host, :port, :source_ton, :source_npi, :destination_ton, :destination_npi, :user, :password, :system_type].each do |field|
+  [:host, :port, :source_ton, :source_npi, :destination_ton, :destination_npi, :user, :password, :system_type, :mt_csms_method].each do |field|
     test "should validate_presence_of #{field}" do
       assert_validates_presence_of field
     end

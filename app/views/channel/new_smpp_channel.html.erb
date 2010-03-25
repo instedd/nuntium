@@ -67,6 +67,10 @@
 		  <input id="channel_configuration_mt_encodings" name="channel[configuration][mt_encodings][]" type="checkbox" value="<%= encoding[1] %>" /> <%= encoding[0] %><br/>
 		<% end %>
 		</p>
+		<p>
+		<%= c.label 'MT CSMS method:' %><br/>
+		<%= c.select :mt_csms_method, [['UDH', 'udh'], ['sar_*', 'sar'], ['Message payload', 'message_paylod']] %>
+		</p>
 	<% end %>
 	<%= submit_tag 'Create Channel' %>
 <% end %>

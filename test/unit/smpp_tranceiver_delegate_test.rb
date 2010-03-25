@@ -36,6 +36,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     @chan.configuration[:mt_encodings] = ['ascii']
     @chan.configuration[:endianness] = options.fetch(:endianness, :big).to_s
     @chan.configuration[:default_mo_encoding] = options.fetch(:default_mo_encoding, 'ascii')
+    @chan.configuration[:mt_csms_method] = 'udh'
     @chan.configuration[:accept_mo_hex_string] = options.fetch(:accept_mo_hex_string, false) ? '1' : '0'
     @chan.save!
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
@@ -146,6 +147,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     @chan.configuration[:mt_encodings] = ['ascii']
     @chan.configuration[:endianness] = :big
     @chan.configuration[:default_mo_encoding] = 'ascii'
+    @chan.configuration[:mt_csms_method] = 'udh'
     @chan.configuration[:accept_mo_hex_string] = '1'
     @chan.save!
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
