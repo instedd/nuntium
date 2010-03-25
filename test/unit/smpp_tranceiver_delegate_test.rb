@@ -12,6 +12,14 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     @transceiver = mock('Smpp::Transceiver')
   end
 
+  def convert_optional_parameters(optional_parameters)
+    optionals = {}
+    optional_parameters.each do |x, y|
+      optionals[x] = Smpp::OptionalParameter.new(x, y)
+    end
+    optionals
+  end
+
   def send_message(encodings, input, output, output_coding, options = {})
     @chan.configuration[:mt_encodings] = encodings
     @chan.configuration[:endianness] = options.fetch(:endianness, :big).to_s
@@ -22,7 +30,11 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     
     if output.is_a? Array
       output.each do |o|
-        @transceiver.expects(:send_mt).with(123, '8888', '4444', o[:text], { :data_coding => output_coding, :udh => o[:udh], :esm_class => 64 })
+        if o.include? :udh
+          @transceiver.expects(:send_mt).with(123, '8888', '4444', o[:text], { :data_coding => output_coding, :udh => o[:udh], :esm_class => 64 })
+        elsif o.include? :optional_parameters
+          @transceiver.expects(:send_mt).with(123, '8888', '4444', o[:text], { :data_coding => output_coding, :optional_parameters => convert_optional_parameters(o[:optional_parameters])})
+        end
       end
     else
       @transceiver.expects(:send_mt).with(123, '8888', '4444', output, { :data_coding => output_coding })
@@ -44,10 +56,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     pdu_options = {:data_coding => input_coding}
     pdu_options[:esm_class] = options[:esm_class] if options.include? :esm_class
     if options.include? :optional_parameters
-      optionals = {}
-      options[:optional_parameters].each do |x, y|
-        optionals[x] = Smpp::OptionalParameter.new(x, y)
-      end
+      optionals = convert_optional_parameters options[:optional_parameters]
       pdu_options[:optional_parameters] = optionals
     end
     
@@ -110,6 +119,16 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
       {:udh => "\x05\x00\x03\x7B\x04\x04", :text => 's'}
       ]
     send_message ['ascii'], 'unodostres', output, 1, :mt_csms_method => 'udh', :mt_max_length => 9
+  end
+  
+  test "send large message using SAR optional parameters" do
+    output = [
+      {:optional_parameters => { 0x020c => "\x00\x7b", 0x020e =>  "\x04", 0x020f => "\x01"}, :text => 'uno'},
+      {:optional_parameters => { 0x020c => "\x00\x7b", 0x020e =>  "\x04", 0x020f => "\x02"}, :text => 'dos'},
+      {:optional_parameters => { 0x020c => "\x00\x7b", 0x020e =>  "\x04", 0x020f => "\x03"}, :text => 'tre'},
+      {:optional_parameters => { 0x020c => "\x00\x7b", 0x020e =>  "\x04", 0x020f => "\x04"}, :text => 's'}
+      ]
+    send_message ['ascii'], 'unodostres', output, 1, :mt_csms_method => 'optional_parameters', :mt_max_length => 3
   end
   
   test "receive ascii message" do
@@ -196,4 +215,19 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     receive_message '', 0, 'hola mundo', :optional_parameters => { 0x0424 => "hola mundo"}
   end
   
+end
+
+
+class Smpp::OptionalParameter
+  def ==(other)
+    self.tag == other.tag && self.value == other.value
+  end
+  
+  def to_s
+    "[Tag: #{tag.inspect}, Value: #{value.inspect}]"
+  end
+  
+  def inspect
+    to_s
+  end
 end

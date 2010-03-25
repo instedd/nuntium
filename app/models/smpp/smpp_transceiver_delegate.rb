@@ -9,6 +9,7 @@ class SmppTransceiverDelegate
     @channel = channel
     @encodings = @channel.configuration[:mt_encodings].map { |x| encoding_endianized x }
     @mt_max_length = @channel.configuration[:mt_max_length].to_i
+    @mt_csms_method = @channel.configuration[:mt_csms_method]
   end
   
   def send_message(id, from, to, text)
@@ -24,28 +25,58 @@ class SmppTransceiverDelegate
     end
     
     if msg_text.length > @mt_max_length
-      parts = []
-      while msg_text.length > 0 do
-        parts << msg_text.slice!(0...@mt_max_length-6)
-      end
-      
-      0.upto(parts.size-1) do |i|
-        udh = sprintf("%c", 5)            # UDH is 5 bytes.
-        udh << sprintf("%c%c", 0, 3)      # This is a concatenated message 
-        udh << sprintf("%c", id & 0xFF)          # The ID for the entire concatenated message
-        udh << sprintf("%c", parts.size)  # How many parts this message consists of
-        udh << sprintf("%c", i+1)         # This is part i+1
-        
-        options = {
-          :esm_class => 64,               # This message contains a UDH header.
-          :udh => udh,
-          :data_coding => msg_coding
-        }
-        
-        @transceiver.send_mt(id, from, to, parts[i], options)
+      case @mt_csms_method
+      when 'udh'
+        send_csms_using_udh id, from, to, msg_coding, msg_text
+      when 'optional_parameters'
+        send_csms_using_optional_parameters id, from, to, msg_coding, msg_text
       end
     else
       @transceiver.send_mt(id, from, to, msg_text, {:data_coding => msg_coding})
+    end
+  end
+  
+  def send_csms_using_udh(id, from, to, msg_coding, msg_text)
+    send_csms_using_block msg_text, @mt_max_length - 6 do |i, total, part|
+      udh = sprintf("%c", 5)            # UDH is 5 bytes.
+      udh << sprintf("%c%c", 0, 3)      # This is a concatenated message 
+      udh << sprintf("%c", id & 0xFF)          # The ID for the entire concatenated message
+      udh << sprintf("%c", total)  # How many parts this message consists of
+      udh << sprintf("%c", i + 1)         # This is part i+1
+    
+      options = {
+        :esm_class => 64,               # This message contains a UDH header.
+        :udh => udh,
+        :data_coding => msg_coding
+      }
+    
+      @transceiver.send_mt(id, from, to, part, options)
+    end
+  end
+  
+  def send_csms_using_optional_parameters(id, from, to, msg_coding, msg_text)
+    send_csms_using_block msg_text, @mt_max_length do |i, total, part|
+      options = {
+        :data_coding => msg_coding,
+        :optional_parameters => {
+          0x020C => Smpp::OptionalParameter.new(0x020C, int_to_bytes_string(id, 2)),
+          0x020E => Smpp::OptionalParameter.new(0x020E, int_to_bytes_string(total, 1)),
+          0x020F => Smpp::OptionalParameter.new(0x020F, int_to_bytes_string(i + 1, 1))
+        }
+      }
+      
+      @transceiver.send_mt(id, from, to, part, options)
+    end
+  end
+  
+  def send_csms_using_block(msg_text, max_length)
+    parts = []
+    while msg_text.length > 0 do
+      parts << msg_text.slice!(0...max_length)
+    end
+  
+    0.upto(parts.size - 1) do |i|
+      yield i, parts.size, parts[i]
     end
   end
   
@@ -161,6 +192,15 @@ class SmppTransceiverDelegate
       value = (value << 8) + x
     end
     return value
+  end
+  
+  def int_to_bytes_string(int, size)
+    bytes = []
+    size.times do
+      bytes << (int & 0xff)
+      int = (int >> 8)
+    end
+    bytes.reverse.pack('c*')
   end
   
 end
