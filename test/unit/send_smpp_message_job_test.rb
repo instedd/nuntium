@@ -12,7 +12,7 @@ class SendSmppMessageJobTest < ActiveSupport::TestCase
     
     @app = Application.create!(:name => 'app', :password => 'pass')
     @chan = Channel.new(:application_id => @app.id, :name => 'chan', :protocol => 'smpp', :kind => 'smpp')
-    @chan.configuration = {:host => 'the_host', :port => 3200, :source_ton => 0, :source_npi => 1, :destination_ton => 0, :destination_npi => 1, :user => 'the_user', :password => 'the_password', :use_latin1 => '0', :encoding => 'utf-8', :system_type => 'smpp'}
+    @chan.configuration = {:host => 'the_host', :port => 3200, :source_ton => 0, :source_npi => 1, :destination_ton => 0, :destination_npi => 1, :user => 'the_user', :password => 'the_password', :use_latin1 => '0', :encoding => 'utf-8', :system_type => 'smpp', :mt_encodings => ['ascii'], :default_mo_encoding => 'ascii', :mt_csms_method => 'udh'}
     @chan.save!
     
     @msg = AOMessage.create!(:application_id => @app.id, :from => 'smpp://301', :to => 'smpp://856123456', :subject => 'some subject', :body => 'some body', :timestamp => @time, :guid => 'some guid', :state => 'pending')

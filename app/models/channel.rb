@@ -41,6 +41,10 @@ class Channel < ActiveRecord::Base
     self.handler.handle_now msg
   end
   
+  def accept(msg)
+    application.accept msg, self
+  end
+  
   def handler
     if kind.nil?
       nil
