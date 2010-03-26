@@ -16,7 +16,7 @@ class GsmDecoder
      c = str[i]
      i += 1
      if c != 0x1b
-       converted << @@base_charset[c] || '*'
+       converted << (@@base_charset[c] || '*')
      else
        converted << case str[i]
        when 0x14: '^'
