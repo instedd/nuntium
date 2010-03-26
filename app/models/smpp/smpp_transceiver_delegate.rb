@@ -150,13 +150,16 @@ class SmppTransceiverDelegate
     
     # Find message with channel_relative_id
     msg_reference = (pdu.receipted_message_id || pdu.msg_reference.to_i.to_s(16)).to_s.downcase
-    msg_state = (pdu.message_state || pdu.stat).to_s
     
     msg = AOMessage.first(:conditions => ['channel_id = ? AND channel_relative_id = ?', @channel.id, msg_reference])
     return logger.info "AOMessage with channel_relative_id #{msg_reference} not found" if msg.nil?
     
     # Reflect in message state
-    msg.state = msg_state == 'DELIVRD' ? 'confirmed' : 'failed'
+    if pdu.message_state
+      msg.state = pdu.message_state.to_s == '2' ? 'confirmed' : 'failed'
+    elsif pdu.stat
+      msg.state = pdu.stat.to_s == 'DELIVRD' ? 'confirmed' : 'failed'
+    end
     msg.save!
     
     @channel.application.logger.ao_message_status_receieved msg, pdu.stat
@@ -181,6 +184,7 @@ class SmppTransceiverDelegate
     # And set this message's channel relative id to later look it up
     # in the delivery_report_received method
     msg.channel_relative_id = reference_id
+    msg.state = 'delivered'
     msg.save!
     
     @channel.application.logger.ao_message_status_receieved msg, 'ACK'
@@ -277,7 +281,7 @@ class SmppTransceiverDelegate
   end
   
   def duplicated_receipt?(pdu)
-    cache_value = (pdu.receipted_message_id || pdu.msg_reference).to_s + (pdu.message_state || pdu.stat)
+    cache_value = (pdu.receipted_message_id || pdu.msg_reference).to_s + (pdu.message_state || pdu.stat).to_s
     if @delivery_report_cache[cache_value.hash] == cache_value
       logger.info "Ignoring duplicate delivery report ref #{pdu.msg_reference} stat #{pdu.stat}"
       return true
