@@ -13,6 +13,7 @@ class SmppTransceiverDelegate
     @mt_csms_method = @channel.configuration[:mt_csms_method]
     @mo_cache = Cache.new(nil, nil, 100, 86400)
     @delivery_report_cache = Cache.new(nil, nil, 100, 86400)
+    @default_mo_encoding = @channel.configuration[:default_mo_encoding]
   end
     
   def send_message(id, from, to, text)
@@ -139,7 +140,7 @@ class SmppTransceiverDelegate
     create_at_message pdu.source_addr, pdu.destination_addr, pdu.data_coding, text
   rescue Exception => e
     logger.error "Error in mo_received: #{e.class} #{e.to_s}"
-    @channel.application.logger.exception_in_channel @channel, e
+    ApplicationLogger.exception_in_channel @channel, e
   end
   
   def delivery_report_received(transceiver, pdu)
@@ -159,7 +160,7 @@ class SmppTransceiverDelegate
     @channel.application.logger.ao_message_status_receieved msg, pdu.stat
   rescue Exception => e
     logger.error "Error in delivery_report_received: #{e.class} #{e.to_s}"
-    @channel.application.logger.exception_in_channel @channel, e
+    ApplicationLogger.exception_in_channel @channel, e
   end
   
   def message_accepted(transceiver, mt_message_id, pdu)
@@ -183,7 +184,7 @@ class SmppTransceiverDelegate
     @channel.application.logger.ao_message_status_receieved msg, 'ACK'
   rescue Exception => e
     logger.error "Error in message_accepted: #{e.class} #{e.to_s}"
-    @channel.application.logger.exception_in_channel @channel, e
+    ApplicationLogger.exception_in_channel @channel, e
   end
   
   def message_rejected(transceiver, mt_message_id, pdu)
@@ -199,7 +200,7 @@ class SmppTransceiverDelegate
     @channel.application.logger.ao_message_status_warning msg, "Command Status '#{pdu.command_status}'"
   rescue Exception => e
     logger.error "Error in message_rejected: #{e.class} #{e.to_s}"
-    @channel.application.logger.exception_in_channel @channel, e
+    ApplicationLogger.exception_in_channel @channel, e
   end
   
   def create_at_message(source, destination, data_coding, text)
@@ -211,18 +212,22 @@ class SmppTransceiverDelegate
       iconv = Iconv.new('utf-8', ucs2_endianized)
       msg.subject = iconv.iconv bytes
     else
-      source_encoding = case data_coding
-        when 0: encoding_endianized(@channel.configuration[:default_mo_encoding])
-        when 1: 'ascii'
-        when 3: 'latin1'
-        when 8: ucs2_endianized
-      end
-      
-      if source_encoding
-        iconv = Iconv.new('utf-8', source_encoding)
-        msg.subject = iconv.iconv text
+      if data_coding == 0 and @default_mo_encoding == 'gsm'
+        msg.subject = GsmDecoder.decode text
       else
-        msg.subject = text
+        source_encoding = case data_coding
+          when 0: encoding_endianized(@default_mo_encoding)
+          when 1: 'ascii'
+          when 3: 'latin1'
+          when 8: ucs2_endianized
+        end
+        
+        if source_encoding
+          iconv = Iconv.new('utf-8', source_encoding)
+          msg.subject = iconv.iconv text
+        else
+          msg.subject = text
+        end
       end
     end
     

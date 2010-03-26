@@ -1,3 +1,5 @@
+require 'iconv'
+
 class GsmDecoder
  
  @@base_charset =  %W[@ £ $ ¥ è é ù ì ò Ç \x0a Ø ø \x0d Å å]

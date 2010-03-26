@@ -74,6 +74,9 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
       assert_equal output, part.text
     else
       msgs = ATMessage.all
+      if msgs.length == 0
+        puts ApplicationLog.all.map &:inspect
+      end
       assert_equal 1, msgs.length
       msg = msgs[0]
       assert_equal 'sms://4444', msg.from
@@ -177,6 +180,10 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     receive_message "h\000o\000l\000a\000", 0, 'hola', :endianness => :little, :default_mo_encoding => 'ucs-2'
   end
   
+  test "receive gsm message as default" do
+    receive_message "\x0", 0, '@', :default_mo_encoding => 'gsm'
+  end
+  
   test "receive hex string" do
     receive_message "006100620063", 0, 'abc', :accept_mo_hex_string => true
   end
@@ -205,7 +212,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     assert_equal 'sms://2488', msg.to
     assert_equal "ກຂຄ", msg.subject
     assert_equal @chan.id, msg.channel_id 
-  end
+  end  
   
   test "receive unkonwn encoding" do
     receive_message "h\000o\000l\000a\000", 7, "h\000o\000l\000a\000"

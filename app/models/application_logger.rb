@@ -143,7 +143,7 @@ class ApplicationLogger
     ApplicationLog.connection.execute insert
   end
   
-  def exception_msg(exception)
+  def self.exception_msg(exception)
     if exception.class == String || exception.class == RuntimeError
       exception
     else
