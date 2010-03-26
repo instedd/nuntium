@@ -51,7 +51,7 @@
 		<p>
 		<%= c.check_box :accept_mo_hex_string, :checked => @channel.configuration[:accept_mo_hex_string] == '1' %> <%= c.label 'Hex strings' %>
 		</p>
-		<% encodings = [['ASCII', 'ascii'], ['Latin1', 'latin1'], ['UCS-2', 'ucs-2']] %>
+		<% encodings = [['ASCII', 'ascii'], ['Latin1', 'latin1'], ['UCS-2', 'ucs-2'], ['GSM 03.38', 'gsm']] %>
 		<p>
 		<%= c.label 'Default MO encoding:' %><br/>
 		<%= c.select :default_mo_encoding, options_for_select(encodings, @channel.configuration[:default_mo_encoding]) %>
@@ -59,6 +59,7 @@
 		<p>
 		<%= c.label 'MT encodings:' %><br/>
 		<% encodings.each do |encoding| %>
+		  <% next if encoding[1] == 'gsm' %>
 		  <input id="channel_configuration_mt_encodings" name="channel[configuration][mt_encodings][]" type="checkbox" value="<%= encoding[1] %>" <%= 'checked="checked"' if @channel.configuration[:mt_encodings].include? encoding[1].to_s %> /> <%= encoding[0] %><br/>
 		<% end %>
 		</p>
