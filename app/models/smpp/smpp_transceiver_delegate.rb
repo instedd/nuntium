@@ -149,7 +149,7 @@ class SmppTransceiverDelegate
     logger.info "Delegate: delivery_report_received: ref #{pdu.msg_reference} stat #{pdu.stat}"
     
     # Find message with channel_relative_id
-    msg_reference = (pdu.receipted_message_id || pdu.msg_reference.to_i.to_s(16)).to_s.downcase
+    msg_reference = normalize(pdu.receipted_message_id || pdu.msg_reference.to_i.to_s(16))
     
     msg = AOMessage.first(:conditions => ['channel_id = ? AND channel_relative_id = ?', @channel.id, msg_reference])
     return logger.info "AOMessage with channel_relative_id #{msg_reference} not found" if msg.nil?
@@ -176,7 +176,7 @@ class SmppTransceiverDelegate
     return logger.info "AOMessage with id #{mt_message_id} not found (ref id: #{pdu.message_id})" if msg.nil? 
     
     # smsc_message_id comes in hexadecimal
-    reference_id = pdu.message_id.to_s.downcase
+    reference_id = normalize(pdu.message_id)
     
     # Blank all messages with that reference id in case the reference id is already used
     AOMessage.update_all(['channel_relative_id = ?', nil], ['channel_id = ? AND channel_relative_id = ?', @channel.id, reference_id])
@@ -269,6 +269,16 @@ class SmppTransceiverDelegate
   end
   
   private
+  
+  def normalize(string_with_number)
+    str = string_with_number.to_s
+    idx = 0
+    while idx < str.length and str[idx].chr == '0'
+      idx += 1
+    end
+    str = str[idx .. -1] if idx != 0
+    str.downcase
+  end
   
   def duplicated_mo?(pdu)
     cache_value = pdu.source_addr + pdu.destination_addr + pdu.short_message
