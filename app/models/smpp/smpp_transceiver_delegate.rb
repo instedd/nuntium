@@ -269,7 +269,8 @@ class SmppTransceiverDelegate
   end
   
   private
-  
+
+  # Remove leading zeros and downcase  
   def normalize(string_with_number)
     str = string_with_number.to_s
     idx = 0
