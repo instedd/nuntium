@@ -60,7 +60,6 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
       pdu_options[:optional_parameters] = optionals
     end
     
-    
     pdu = Smpp::Pdu::DeliverSm.new '4444', '8888', input, pdu_options
     @delegate.mo_received @transceiver, pdu
     
@@ -97,6 +96,23 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     
     msg = AOMessage.find_by_id msg.id
     assert_equal state, msg.state
+  end
+  
+  def assert_message_accepted_with_delivery_receipt(pdu_submit_sm_response_bin, pdu_deliver_sm_bin)
+    save_channel_with_default_config
+    
+    pdu_submit_sm_response = Smpp::Pdu::Base.create(pdu_submit_sm_response_bin.scan(/../).map{|x| x.to_i(16).chr}.join)
+    pdu_deliver_sm = Smpp::Pdu::Base.create(pdu_deliver_sm_bin.scan(/../).map{|x| x.to_i(16).chr}.join)
+    
+    msg = AOMessage.create!(:application_id => @application.id, :channel_id => @chan.id) 
+    
+    @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
+    
+    @delegate.message_accepted @transceiver, msg.id, pdu_submit_sm_response
+    assert_equal 'delivered', AOMessage.find_by_id(msg.id).state
+    
+    @delegate.delivery_report_received @transceiver, pdu_deliver_sm
+    assert_equal 'confirmed', AOMessage.find_by_id(msg.id).state
   end
   
   def save_channel_with_default_config
@@ -296,23 +312,9 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   end
   
   test "message accepted with delivery report digicel" do
-    save_channel_with_default_config
-    
     pdu_submit_sm_response_bin = '0000001880000004000000004babeef13133636335326100'
     pdu_deliver_sm_bin = '000000c50000000500000000000000d60001013530393337 3632 3932 3938 00000134 3633 3600 0400 0000 0000 0000 007a6964 3a30 3032 3037 3539 3835 3020 7375623a 3030 3120 646c 7672 643a 3030 31207375 626d 6974 2064 6174 653a 3130 30333236 3033 3234 2064 6f6e 6520 6461 74653a31 3030 3332 3630 3332 3420 7374 61743a44 454c 4956 5244 2065 7272 3a30 30302074 6578 743a 4d65 7373 6167 6520 73656e74 2073 7563 6365 7373 000e 0001 01000600 0101 001e 0008 3133 6363 3532 61000427 0001 02'.gsub(/\s/, '')
-    
-    pdu_submit_sm_response = Smpp::Pdu::Base.create(pdu_submit_sm_response_bin.scan(/../).map{|x| x.to_i(16).chr}.join)
-    pdu_deliver_sm = Smpp::Pdu::Base.create(pdu_deliver_sm_bin.scan(/../).map{|x| x.to_i(16).chr}.join)
-    
-    msg = AOMessage.create!(:application_id => @application.id, :channel_id => @chan.id) 
-    
-    @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
-    
-    @delegate.message_accepted @transceiver, msg.id, pdu_submit_sm_response
-    assert_equal 'delivered', AOMessage.find_by_id(msg.id).state
-    
-    @delegate.delivery_report_received @transceiver, pdu_deliver_sm
-    assert_equal 'confirmed', AOMessage.find_by_id(msg.id).state
+    assert_message_accepted_with_delivery_receipt pdu_submit_sm_response_bin, pdu_deliver_sm_bin
   end
   
   test "message accepted" do
