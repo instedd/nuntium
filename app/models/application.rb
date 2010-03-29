@@ -16,7 +16,7 @@ class Application < ActiveRecord::Base
   validates_uniqueness_of :name
   validates_confirmation_of :password
   validates_numericality_of :max_tries, :only_integer => true, :greater_than_or_equal_to => 0
-  validates_inclusion_of :interface, :in => ['rss', 'qst_client']
+  validates_inclusion_of :interface, :in => ['rss', 'qst_client', 'http_post_callback']
   validate :ao_routing_test_assertions
   validate :at_routing_test_assertions
   validate :alert_well_formed
@@ -137,6 +137,11 @@ class Application < ActiveRecord::Base
       end
     end
     
+    # Check if callback interface is configured
+    if self.interface == 'http_post_callback'
+      Delayed::Job.enqueue SendPostCallbackMessageJob.new(msg.application_id, msg.id)
+    end
+    
     if 'ui' == via_channel
       logger.at_message_created_via_ui msg
     else
@@ -176,6 +181,8 @@ class Application < ActiveRecord::Base
       return 'rss'
     when 'qst_client'
       return 'qst_client: ' << self.configuration[:url]
+    when 'http_post_callback'
+      return 'http_post_callback: ' << self.configuration[:url]
     end
   end
   
