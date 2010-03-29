@@ -49,14 +49,33 @@
 		<%= c.label :password %><br/>
 		<%= c.password_field :password %>
 		</p>
-	  <p>
-	  Check this field if you would like to encode AO messages in ISO-8859-1 when possible (the SMSC has to support it).<br/>
-		<%= c.label :use_latin1 %> <%= c.check_box :use_latin1, {} %>
+		<h5>Encoding</h5>
+		<p>
+		<%= c.check_box :endianness, {}, :little, :big %> <%= c.label 'Use little endian for ucs-2' %>
 		</p>
-  	<p>
-  	When AO messages cannot be encoded in one byte, which encoding would you like to use (the SMSC has to support it):<br/> 
-  	<%= c.label :encoding %> <%= c.select :encoding, options_for_select(['UTF-16LE', 'UTF-16BE', 'UCS-2']) %> 
-  	</p>
+		<p>
+		<%= c.check_box :accept_mo_hex_string %> <%= c.label 'Hex strings' %>
+		</p>
+		<% encodings = [['ASCII', 'ascii'], ['Latin1', 'latin1'], ['UCS-2', 'ucs-2'], ['GSM 03.38', 'gsm']] %>
+		<p>
+		<%= c.label 'Default MO encoding:' %><br/>
+		<%= c.select :default_mo_encoding, encodings %>
+		</p>
+		<p>
+		<%= c.label 'MT encodings:' %><br/>
+		<% encodings.each do |encoding| %>
+		  <% next if encoding[1] == 'gsm' %>
+		  <input id="channel_configuration_mt_encodings" name="channel[configuration][mt_encodings][]" type="checkbox" value="<%= encoding[1] %>" /> <%= encoding[0] %><br/>
+		<% end %>
+		</p>
+		<p>
+		<%= c.label 'MT max length:' %><br/>
+		<%= c.select :mt_max_length, ['140', '160', '254'] %>
+		</p>
+		<p>
+		<%= c.label 'MT CSMS method:' %><br/>
+		<%= c.select :mt_csms_method, [['UDH', 'udh'], ['Optional parameters', 'optional_parameters'], ['Message payload', 'message_paylod']] %>
+		</p>
 	<% end %>
 	<%= submit_tag 'Create Channel' %>
 <% end %>

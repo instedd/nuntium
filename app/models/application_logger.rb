@@ -119,7 +119,7 @@ class ApplicationLogger
   
   def self.exception_in_channel(channel, exception)
     logger = ApplicationLogger.new(channel.application_id)
-    logger.error(:channel_id => channel.id, :message => "#{exception_msg(exception)}")
+    logger.error(:channel_id => channel.id, :message => "#{logger.exception_msg(exception)}")
   end
   
   def exception_in_channel_and_ao_message(channel, ao_msg, exception)
