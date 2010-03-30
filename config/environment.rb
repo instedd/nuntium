@@ -31,6 +31,7 @@ Rails::Initializer.run do |config|
   config.gem "guid"
   config.gem 'twitter', :version => '0.6.15'  
   config.gem 'ruby-smpp', :lib => 'smpp', :version => '0.2.1'
+  config.gem "eventmachine"
   config.gem 'amqp'
 
   # Only load the plugins named here, in the order given (default is alphabetical).
@@ -61,6 +62,14 @@ Rails::Initializer.run do |config|
     config.log_path = $log_path
     config.logger = Logger.new($log_path)
     config.logger.formatter = Logger::Formatter.new
+  end
+  
+  # Start AMQP after rails loads:
+  config.after_initialize { Qusion.start }
+  if ENV['RAILS_ENV'] == 'test'
+    require 'amqp'
+    Thread.new { EM.run {} }
+    AMQP.start
   end
   
 end

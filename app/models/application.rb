@@ -386,7 +386,7 @@ class MessageRouter
   
   def push_message_into(channel)
     # Save the message
-    @msg.channel_id = channel.id
+    @msg.channel = channel
     @msg.state = 'queued'
     @msg.save!
     

@@ -1,14 +1,10 @@
 class SmppChannelHandler < ChannelHandler
   def handle(msg)
-    if @channel.throttle.nil?
-      Delayed::Job.enqueue create_job(msg)
-    else
-      ThrottledJob.enqueue @channel.id, create_job(msg)
-    end
+    Queues.publish_ao msg, create_job(msg)
   end
   
-  def handle_now
-    create_job(msg).perform
+  def handle_now(msg)
+    handle msg
   end
   
   def create_job(msg)
@@ -24,6 +20,7 @@ class SmppChannelHandler < ChannelHandler
       :pid_file => "drb_smpp_daemon.#{@channel.id}.pid",
       :log_file => "drb_smpp_daemon_#{@channel.id}.log"
     )
+    Queues.bind_ao @channel
   end
   
   def on_disable

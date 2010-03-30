@@ -38,20 +38,6 @@ God.watch do |w|
 end
 
 God.watch do |w|
-  w.name = "nuntium-throttling"
-  w.interval = 5.seconds
-  w.start = "ruby #{RAILS_ROOT}/lib/services/unix/throttled_job_daemon_ctl.rb start -- production"
-  w.stop = "ruby #{RAILS_ROOT}/lib/services/unix/throttled_job_daemon_ctl.rb stop"
-  w.pid_file = File.join(RAILS_ROOT, "tmp/pids/throttled_job_daemon.pid")
-  w.behavior(:clean_pid_file)
-  w.start_if do |start|
-    start.condition(:process_running) do |c|
-      c.running = false
-    end
-  end
-end
-
-God.watch do |w|
   w.name = "nuntium-alert-service"
   w.interval = 5.seconds
   w.start = "ruby #{RAILS_ROOT}/lib/services/unix/alert_service_daemon_ctl.rb start -- production"

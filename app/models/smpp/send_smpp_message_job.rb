@@ -9,7 +9,7 @@ class SendSmppMessageJob
     @message_id = message_id
   end
   
-  def perform  
+  def perform
     # fetch process associated with this channel
     @d_rb_process = DRbProcess.find_by_channel_id @channel_id
     if @d_rb_process.nil?

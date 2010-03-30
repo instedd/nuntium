@@ -1,6 +1,9 @@
 require 'test_helper'
+require 'mq'
+require 'mocha'
 
 class SmppChannelHandlerTest < ActiveSupport::TestCase
+  include Mocha::API
   
   setup :initialize_objects
 
@@ -25,28 +28,19 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
     assert @chan.save
   end
   
-  test "sould create delayed job if channel throttle is nil" do
-    msg = AOMessage.new(:application_id => @app.id)
+  test "should enqueue when handling" do
+    @chan.save!
+    
+    jobs = []
+    Queues.subscribe_ao(@chan) { |job| jobs << job }
+    
+    msg = AOMessage.new(:application_id => @app.id, :channel_id => @chan.id)
     @chan.handler.handle(msg)
     
-    jobs = Delayed::Job.all
+    sleep 1
+    
     assert_equal 1, jobs.length
-    assert_equal 0, ThrottledJob.all.length
-    
-    assert_equal SendSmppMessageJob, jobs[0].payload_object.class
-  end
-  
-  test "sould create throttled job if channel throttle is not nil" do
-    @chan.throttle = 20
-    msg = AOMessage.new(:application_id => @app.id)
-    @chan.handler.handle(msg)
-    
-    jobs = ThrottledJob.all
-    assert_equal 0, Delayed::Job.all.length
-    assert_equal 1, jobs.length
-    
-    assert_equal @chan.id, jobs[0].channel_id
-    assert_equal SendSmppMessageJob, jobs[0].payload_object.class
+    assert_equal SendSmppMessageJob, jobs[0].class
   end
   
   test "on enable creates managed process" do
@@ -61,6 +55,12 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
     assert_equal "drb_smpp_daemon_ctl.rb stop -- test #{@chan.id}", proc.stop_command
     assert_equal "drb_smpp_daemon.#{@chan.id}.pid", proc.pid_file
     assert_equal "drb_smpp_daemon_#{@chan.id}.log", proc.log_file
+  end
+  
+  test "on enable binds queue" do
+    Queues.expects(:bind_ao).with(@chan)
+  
+    @chan.save!
   end
   
   test "on destroy deletes managed process" do
