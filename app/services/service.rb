@@ -2,16 +2,15 @@ class Service
 
   def initialize(controller = nil)
     @controller = controller
+    @is_running = true
     
     if @controller.nil?
-      ["INT", "EXIT", "TERM", "KILL"].each do |signal|
-        trap(signal) { stop; exit }
-      end
+      trap("TERM") { stop }
     end
   end
   
   def running?
-    return true if @controller.nil?
+    return @is_running if @controller.nil?
     @controller.running?
   end
   
@@ -27,6 +26,7 @@ class Service
   end
   
   def stop
+    @is_running = false
   end
   
   # Defines a start method that executes the given block and sleeps

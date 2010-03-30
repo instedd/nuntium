@@ -23,6 +23,7 @@ class ManagedProcessesService < Service
   
   def stop
     @controllers.each_key{|proc| stop_process proc}
+    super
   end
   
   def start_process(proc)

@@ -66,11 +66,13 @@ Rails::Initializer.run do |config|
   
   # Start AMQP after rails loads:
   config.after_initialize { Qusion.start }
-  if ENV['RAILS_ENV'] == 'test'
-    require 'amqp'
-    Thread.new { EM.run {} }
-    AMQP.start
-  end
+  config.after_initialize { Thread.new { EM.run {} } }
+  config.after_initialize { 
+    if ENV['RAILS_ENV'] == 'test'
+      require 'amqp'
+      AMQP.start
+    end
+  }
   
 end
 
