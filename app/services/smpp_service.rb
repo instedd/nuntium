@@ -87,7 +87,7 @@ class SmppGateway < SmppTransceiverDelegate
         Rails.logger.error "Error when performing job. Body was: '#{body}'. Exception: #{e.class} #{e}"
       end
       
-      sleep sleep_time
+      sleep_time
     end
   end
 
@@ -106,7 +106,9 @@ class SmppGateway < SmppTransceiverDelegate
   private
   
   def sleep_time
-    1
+    if @channel.throttle and @channel.throttle > 0
+      sleep(60.0 / @channel.throttle)
+    end
   end
   
 end
