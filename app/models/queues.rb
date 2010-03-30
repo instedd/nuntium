@@ -12,7 +12,11 @@ module Queues
     end
     
     def subscribe_ao(channel)
-      bind_ao(channel).subscribe{|job| yield deserialize job}
+      bind_ao(channel).subscribe(:ack => true){|header, job| yield header, deserialize(job)}
+    end
+    
+    def unsubscribe_ao(channel)
+      bind_ao(channel).unsubscribe
     end
     
     def deserialize(source)

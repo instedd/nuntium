@@ -32,7 +32,7 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
     @chan.save!
     
     jobs = []
-    Queues.subscribe_ao(@chan) { |job| jobs << job }
+    Queues.subscribe_ao(@chan) { |header, job| jobs << job }
     
     msg = AOMessage.new(:application_id => @app.id, :channel_id => @chan.id)
     @chan.handler.handle(msg)

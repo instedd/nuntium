@@ -48,7 +48,6 @@ class SmppGateway < SmppTransceiverDelegate
       :enquire_link_delay_secs => 10
     }
     @is_running = false
-    @queue = Queues.bind_ao(channel)
   end
   
   def start
@@ -78,24 +77,24 @@ class SmppGateway < SmppTransceiverDelegate
   def bound(transceiver)
     Rails.logger.info "Delegate: transceiver bound"
     
-    @queue.pop do |header, body|
-      next unless body
-    
+    Queues.subscribe_ao(@channel) do |header, job|
+      Rails.logger.info "RECEIVED: #{job}"
+      
       begin
-        job = Queues.deserialize body
         job.perform self
+        header.ack
       rescue Exception => e
-        Rails.logger.error "Error when deserializing/performing job. Body was: '#{body}'. Exception: #{e.class} #{e}"
+        Rails.logger.error "Error when performing job. Body was: '#{body}'. Exception: #{e.class} #{e}"
       end
+      
+      sleep sleep_time
     end
-    
-    @queue_timer = EM.add_periodic_timer(timer_period) { @queue.pop }
   end
 
   def unbound(transceiver)
     Rails.logger.info "Delegate: transceiver unbound"
     
-    @queue_timer.cancel if @queue_timer
+    Queues.unsubscribe_ao @channel
     
     if @is_running
       Rails.logger.warn "Disconnected. Reconnecting in 5 seconds..."
@@ -106,7 +105,7 @@ class SmppGateway < SmppTransceiverDelegate
   
   private
   
-  def timer_period
+  def sleep_time
     1
   end
   
