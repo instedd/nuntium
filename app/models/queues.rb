@@ -15,16 +15,6 @@ module Queues
       bind_ao(channel).subscribe{|job| yield deserialize job}
     end
     
-    private
-    
-    def ao_queue_for(channel)
-      MQ.queue("ao_queue.#{channel.application_id}.#{channel.kind}.#{channel.id}")
-    end
-    
-    def ao_routing_key_for(channel)
-      "ao.#{channel.application_id}.#{channel.kind}.#{channel.id}"
-    end
-    
     def deserialize(source)
       handler = YAML.load(source) rescue nil
 
@@ -43,6 +33,16 @@ module Queues
     rescue TypeError, LoadError, NameError => e
       raise DeserializationError,
         "Job failed to load: #{e.message}. Try to manually require the required file."
+    end
+    
+    private
+    
+    def ao_queue_for(channel)
+      MQ.queue("ao_queue.#{channel.application_id}.#{channel.kind}.#{channel.id}")
+    end
+    
+    def ao_routing_key_for(channel)
+      "ao.#{channel.application_id}.#{channel.kind}.#{channel.id}"
     end
 
     # Constantize the object so that ActiveSupport can attempt

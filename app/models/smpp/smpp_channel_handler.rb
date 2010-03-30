@@ -15,10 +15,10 @@ class SmppChannelHandler < ChannelHandler
     ManagedProcess.create!(
       :application_id => @channel.application.id,
       :name => managed_process_name,
-      :start_command => "drb_smpp_daemon_ctl.rb start -- #{ENV["RAILS_ENV"]} #{@channel.id}",
-      :stop_command => "drb_smpp_daemon_ctl.rb stop -- #{ENV["RAILS_ENV"]} #{@channel.id}",
-      :pid_file => "drb_smpp_daemon.#{@channel.id}.pid",
-      :log_file => "drb_smpp_daemon_#{@channel.id}.log"
+      :start_command => "smpp_daemon_ctl.rb start -- #{ENV["RAILS_ENV"]} #{@channel.id}",
+      :stop_command => "smpp_daemon_ctl.rb stop -- #{ENV["RAILS_ENV"]} #{@channel.id}",
+      :pid_file => "smpp_daemon.#{@channel.id}.pid",
+      :log_file => "smpp_daemon_#{@channel.id}.log"
     )
     Queues.bind_ao @channel
   end

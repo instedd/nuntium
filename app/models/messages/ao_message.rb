@@ -1,9 +1,4 @@
-require 'drb'
-
-class AOMessage < ActiveRecord::Base
-  # need to include this to share an AOMessage across different DRb services
-  include DRbUndumped
-  
+class AOMessage < ActiveRecord::Base  
   belongs_to :application
   belongs_to :channel
   validates_presence_of :application

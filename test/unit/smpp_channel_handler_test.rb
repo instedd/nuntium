@@ -51,10 +51,10 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
     proc = procs[0]
     assert_equal @chan.application.id, proc.application_id
     assert_equal "SMPP #{@chan.name}", proc.name
-    assert_equal "drb_smpp_daemon_ctl.rb start -- test #{@chan.id}", proc.start_command
-    assert_equal "drb_smpp_daemon_ctl.rb stop -- test #{@chan.id}", proc.stop_command
-    assert_equal "drb_smpp_daemon.#{@chan.id}.pid", proc.pid_file
-    assert_equal "drb_smpp_daemon_#{@chan.id}.log", proc.log_file
+    assert_equal "smpp_daemon_ctl.rb start -- test #{@chan.id}", proc.start_command
+    assert_equal "smpp_daemon_ctl.rb stop -- test #{@chan.id}", proc.stop_command
+    assert_equal "smpp_daemon.#{@chan.id}.pid", proc.pid_file
+    assert_equal "smpp_daemon_#{@chan.id}.log", proc.log_file
   end
   
   test "on enable binds queue" do
