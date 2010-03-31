@@ -1,8 +1,14 @@
 development:
-  vhost: nuntium.development
+  vhost: /nuntium/development
+  user: nuntium.development
+  pass: nuntium.development
 
 test:
-  vhost: nuntium.test
+  vhost: /nuntium/test
+  user: nuntium.test
+  pass: nuntium.test
 
 production:
-  vhost: nuntium
+  vhost: /nuntium
+  user: nuntium
+  pass: nuntium
