@@ -1,0 +1,8 @@
+development:
+  vhost: nuntium.development
+
+test:
+  vhost: nuntium.test
+
+production:
+  vhost: nuntium
