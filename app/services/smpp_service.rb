@@ -47,6 +47,7 @@ class SmppGateway < SmppTransceiverDelegate
       :destination_address_range => '',
       :enquire_link_delay_secs => 10
     }
+    @pending_headers = {}
     @is_running = false
   end
   
@@ -58,13 +59,7 @@ class SmppGateway < SmppTransceiverDelegate
   def connect
     Rails.logger.info "Connecting to SMSC"
   
-    @transceiver = EM.connect(
-      @config[:host],
-      @config[:port],
-      MyTransceiver, 
-      @config, 
-      self    # delegate that will receive callbacks on MOs and DRs and other events
-    )
+    @transceiver = EM.connect(@config[:host], @config[:port], MyTransceiver, @config, self)
   end
   
   def stop
@@ -73,21 +68,31 @@ class SmppGateway < SmppTransceiverDelegate
     @is_running = false
     @transceiver.close_connection
   end
-
+  
   def bound(transceiver)
     Rails.logger.info "Delegate: transceiver bound"
     
     Queues.subscribe_ao(@channel) do |header, job|
-      Rails.logger.info "RECEIVED: #{job}"
-      
+      Rails.logger.info "JOB: #{job}"
+    
       begin
         job.perform self
-        header.ack
+        @pending_headers[job.message_id] = header
       rescue Exception => e
         Rails.logger.error "Error when performing job. Body was: '#{body}'. Exception: #{e.class} #{e}"
       end
       
       sleep_time
+    end
+  end
+  
+  def message_accepted(transceiver, mt_message_id, pdu)
+    super
+    header = @pending_headers.delete(mt_message_id)
+    if header
+      header.ack
+    else
+      Rails.logger.error "Pending header not found for message id: #{mt_message_id}"
     end
   end
 
