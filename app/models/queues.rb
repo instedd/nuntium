@@ -2,17 +2,20 @@ module Queues
   class << self
   
     def publish_ao(msg, job)
-      exchange = MQ.topic('ao_messages')
-      exchange.publish(job.to_yaml, :routing_key => ao_routing_key_for(msg.channel))
+      ao_exchange.publish(job.to_yaml, 
+        :routing_key => ao_routing_key_for(msg.channel), 
+        :persistent => true)
     end
     
     def bind_ao(channel)
-      exchange = MQ.topic('ao_messages')
-      ao_queue_for(channel).bind(exchange, :routing_key => ao_routing_key_for(channel))
+      ao_queue_for(channel).bind(ao_exchange, 
+        :routing_key => ao_routing_key_for(channel))
     end
     
     def subscribe_ao(channel)
-      bind_ao(channel).subscribe(:ack => true){|header, job| yield header, deserialize(job)}
+      bind_ao(channel).subscribe(:ack => true) do |header, job| 
+        yield header, deserialize(job)
+      end
     end
     
     def unsubscribe_ao(channel)
@@ -41,8 +44,16 @@ module Queues
     
     private
     
+    def ao_exchange
+      MQ.topic('ao_messages', :durable => true)
+    end
+    
     def ao_queue_for(channel)
-      MQ.queue("ao_queue.#{channel.application_id}.#{channel.kind}.#{channel.id}")
+      MQ.queue(ao_queue_name_for(channel), :durable => true)
+    end
+    
+    def ao_queue_name_for(channel)
+      "ao_queue.#{channel.application_id}.#{channel.kind}.#{channel.id}"
     end
     
     def ao_routing_key_for(channel)
