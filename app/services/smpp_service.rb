@@ -72,9 +72,45 @@ class SmppGateway < SmppTransceiverDelegate
   def bound(transceiver)
     Rails.logger.info "Delegate: transceiver bound"
     
-    Queues.subscribe_ao(@channel) do |header, job|
-      Rails.logger.info "JOB: #{job}"
+    subscribe_queue
+  end
+  
+  def message_accepted(transceiver, mt_message_id, pdu)
+    super
+    send_ack mt_message_id
+  end
+
+  # When Message Queue is full, stop sending messages for a while  
+  def message_rejected(transceiver, mt_message_id, pdu)
+    if pdu.command_status == Smpp::Pdu::Base::ESME_RMSGQFUL
+      Rails.logger.info "Received ESME_RMSGQFUL (Message Queue Full)"  
+      
+      unsubscribe_queue
+      EM.add_timer(5) { subscribe_queue; MQ.recover(true) }
+    else
+      super
+      send_ack mt_message_id
+    end
+  end
+
+  def unbound(transceiver)
+    Rails.logger.info "Delegate: transceiver unbound"
     
+    unsubscribe_queue
+    
+    if @is_running
+      Rails.logger.warn "Disconnected. Reconnecting in 5 seconds..."
+      sleep 5
+      connect if @is_running
+    end
+  end
+  
+  private
+  
+  def subscribe_queue
+    Rails.logger.info "Subscribing to message queue"
+    
+    Queues.subscribe_ao(@channel) do |header, job|
       begin
         job.perform self
         @pending_headers[job.message_id] = header
@@ -86,29 +122,20 @@ class SmppGateway < SmppTransceiverDelegate
     end
   end
   
-  def message_accepted(transceiver, mt_message_id, pdu)
-    super
-    header = @pending_headers.delete(mt_message_id)
+  def unsubscribe_queue
+    Rails.logger.info "Unsubscribing from message queue"
+  
+    Queues.unsubscribe_ao @channel
+  end
+  
+  def send_ack(message_id)
+    header = @pending_headers.delete(message_id)
     if header
       header.ack
     else
       Rails.logger.error "Pending header not found for message id: #{mt_message_id}"
     end
   end
-
-  def unbound(transceiver)
-    Rails.logger.info "Delegate: transceiver unbound"
-    
-    Queues.unsubscribe_ao @channel
-    
-    if @is_running
-      Rails.logger.warn "Disconnected. Reconnecting in 5 seconds..."
-      sleep 5
-      connect if @is_running
-    end
-  end
-  
-  private
   
   def sleep_time
     if @channel.throttle and @channel.throttle > 0
