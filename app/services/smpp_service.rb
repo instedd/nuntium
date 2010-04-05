@@ -67,6 +67,7 @@ class SmppGateway < SmppTransceiverDelegate
   
     @is_running = false
     @transceiver.close_connection
+    unsubscribe_queue
   end
   
   def bound(transceiver)
@@ -80,16 +81,35 @@ class SmppGateway < SmppTransceiverDelegate
     send_ack mt_message_id
   end
 
-  # When Message Queue is full, stop sending messages for a while  
   def message_rejected(transceiver, mt_message_id, pdu)
-    if pdu.command_status == Smpp::Pdu::Base::ESME_RMSGQFUL
-      Rails.logger.info "Received ESME_RMSGQFUL (Message Queue Full)"  
-      
+    case pdu.command_status
+    
+    # Queue full
+    when Smpp::Pdu::Base::ESME_RMSGQFUL,
+         Smpp::Pdu::Base::ESME_RTHROTTLED
+      Rails.logger.info "Received ESME_RMSGQFUL or ESME_RHTORTTLED (#{pdu.command_status})"  
+
+      # Stop sending messages for a while      
       unsubscribe_queue
       EM.add_timer(5) { subscribe_queue; MQ.recover(true) }
-    else
+      
+    # Message source or address not valid
+    when Smpp::Pdu::Base::ESME_RINVSRCADR,
+         Smpp::Pdu::Base::ESME_RINVDSTADR
       super
       send_ack mt_message_id
+      
+    # Disable channel and alert
+    else
+      alert_msg = "Received #{pdu.command_status} in smpp channel #{@channel.name} (#{@channel.id})"
+    
+      Rails.logger.warning alert_msg 
+      @channel.application.alert alert_msg
+    
+      @channel.enabled = false
+      @channel.save!
+      
+      stop
     end
   end
 

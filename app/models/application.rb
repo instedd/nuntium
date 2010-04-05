@@ -144,6 +144,11 @@ class Application < ActiveRecord::Base
     end
   end
   
+  def alert(message)
+    # TODO send an email somehow...
+    Rails.logger.info "Received alert for application #{self.name}: #{message}"
+  end
+  
   def logger
     if @logger.nil?
       @logger = ApplicationLogger.new(self.id)
