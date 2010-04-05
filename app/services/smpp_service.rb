@@ -101,9 +101,9 @@ class SmppGateway < SmppTransceiverDelegate
       
     # Disable channel and alert
     else
-      alert_msg = "Received #{pdu.command_status} in smpp channel #{@channel.name} (#{@channel.id})"
+      alert_msg = "Received command status #{pdu.command_status} in smpp channel #{@channel.name} (#{@channel.id})"
     
-      Rails.logger.warning alert_msg 
+      Rails.logger.warn alert_msg 
       @channel.application.alert alert_msg
     
       @channel.enabled = false
