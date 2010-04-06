@@ -278,6 +278,7 @@ class SmppTransceiverDelegate
       idx += 1
     end
     str = str[idx .. -1] if idx != 0
+    str = '0' if str.length == 0
     str.downcase
   end
   

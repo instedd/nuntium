@@ -30,6 +30,8 @@ end
 
 class SmppGateway < SmppTransceiverDelegate
 
+  PrefetchCount = 5
+
   def initialize(channel)
     super nil, channel
     @config = {
@@ -49,6 +51,11 @@ class SmppGateway < SmppTransceiverDelegate
     }
     @pending_headers = {}
     @is_running = false
+    @subscribed = false
+    @mq = MQ.new
+    @mq.prefetch PrefetchCount
+    
+    MQ.error { |err| Rails.logger.error err }
   end
   
   def start
@@ -89,9 +96,11 @@ class SmppGateway < SmppTransceiverDelegate
          Smpp::Pdu::Base::ESME_RTHROTTLED
       Rails.logger.info "Received ESME_RMSGQFUL or ESME_RHTORTTLED (#{pdu.command_status})"  
 
-      # Stop sending messages for a while      
-      unsubscribe_queue
-      EM.add_timer(5) { subscribe_queue; MQ.recover(true) }
+      # Stop sending messages for a while
+      if @subscribed
+        unsubscribe_queue
+        EM.add_timer(5) { subscribe_queue; MQ.recover(true) }
+      end
       
     # Message source or address not valid
     when Smpp::Pdu::Base::ESME_RINVSRCADR,
@@ -130,22 +139,27 @@ class SmppGateway < SmppTransceiverDelegate
   def subscribe_queue
     Rails.logger.info "Subscribing to message queue"
     
-    Queues.subscribe_ao(@channel) do |header, job|
+    Queues.subscribe_ao(@channel, @mq) do |header, job|
       begin
         job.perform self
         @pending_headers[job.message_id] = header
       rescue Exception => e
-        Rails.logger.error "Error when performing job. Body was: '#{body}'. Exception: #{e.class} #{e}"
+        Rails.logger.error "Error when performing job. Exception: #{e.class} #{e}"
       end
       
       sleep_time
     end
+    
+    @subscribed = true
   end
   
   def unsubscribe_queue
     Rails.logger.info "Unsubscribing from message queue"
-  
-    Queues.unsubscribe_ao @channel
+    
+    @mq = Queues.reconnect(@mq)
+    @mq.prefetch PrefetchCount
+    
+    @subscribed = false
   end
   
   def send_ack(message_id)

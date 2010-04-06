@@ -7,19 +7,25 @@ module Queues
         :persistent => true)
     end
     
-    def bind_ao(channel)
-      ao_queue_for(channel).bind(ao_exchange, 
+    def bind_ao(channel, mq = MQ)
+      ao_queue_for(channel, mq).bind(ao_exchange(mq), 
         :routing_key => ao_routing_key_for(channel))
     end
     
-    def subscribe_ao(channel)
-      bind_ao(channel).subscribe(:ack => true) do |header, job| 
+    def subscribe_ao(channel, mq = MQ)
+      bind_ao(channel, mq).subscribe(:ack => true) do |header, job| 
         yield header, deserialize(job)
       end
     end
     
-    def unsubscribe_ao(channel)
-      bind_ao(channel).unsubscribe
+    def unsubscribe_ao(channel, mq = MQ)
+      bind_ao(channel, mq).unsubscribe
+    end
+    
+    def reconnect(mq)
+      new_mq = MQ.new
+      mq.close
+      new_mq
     end
     
     def deserialize(source)
@@ -44,12 +50,12 @@ module Queues
     
     private
     
-    def ao_exchange
-      MQ.topic('ao_messages', :durable => true)
+    def ao_exchange(mq = MQ)
+      mq.topic('ao_messages', :durable => true)
     end
     
-    def ao_queue_for(channel)
-      MQ.queue(ao_queue_name_for(channel), :durable => true)
+    def ao_queue_for(channel, mq = MQ)
+      mq.queue(ao_queue_name_for(channel), :durable => true)
     end
     
     def ao_queue_name_for(channel)

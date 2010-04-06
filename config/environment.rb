@@ -72,9 +72,7 @@ Rails::Initializer.run do |config|
     amqp_yaml = YAML.load_file("#{RAILS_ROOT}/config/amqp.yml")
     $amqp_config = amqp_yaml[ENV['RAILS_ENV']]
     $amqp_config.symbolize_keys!
-    AMQP.start($amqp_config) do
-      EM.next_tick { MQ.prefetch 100 }
-    end
+    AMQP.start($amqp_config)
   }
   
 end
