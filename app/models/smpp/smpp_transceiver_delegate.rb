@@ -185,6 +185,7 @@ class SmppTransceiverDelegate
     # in the delivery_report_received method
     msg.channel_relative_id = reference_id
     msg.state = 'delivered'
+    msg.tries += 1
     msg.save!
     
     @channel.application.logger.ao_message_status_receieved msg, 'ACK'
@@ -201,6 +202,7 @@ class SmppTransceiverDelegate
     return logger.info "AOMessage with id #{mt_message_id} not found (pdu_command_status: #{pdu.command_status})" if msg.nil?
     
     msg.state = 'failed'
+    msg.tries += 1
     msg.save!
     
     @channel.application.logger.ao_message_status_warning msg, "Command Status '#{pdu.command_status}'"

@@ -21,9 +21,7 @@ class SendSmppMessageJob
     rescue => e
       msg.send_failed app, channel, e
     else
-      if error_or_nil.nil?
-        msg.send_succeeed app, channel
-      else
+      if !error_or_nil.nil?
         msg.send_failed app, channel, error_or_nil
       end
     end
