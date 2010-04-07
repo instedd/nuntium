@@ -59,6 +59,7 @@ Rails::Initializer.run do |config|
   else
     config.log_path = $log_path
     config.logger = Logger.new($log_path)
+    config.logger.level = Logger.const_get(config.log_level.to_s.upcase)
     config.logger.formatter = Logger::Formatter.new
   end
   
