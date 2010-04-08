@@ -15,6 +15,10 @@ class DtacChannelHandler < ChannelHandler
     check_config_not_blank :user, :password, :sno
   end
   
+  def on_enable
+    Queues.bind_ao @channel
+  end
+  
   def info
     "#{@channel.configuration[:user]} / #{@channel.configuration[:sno]}"
   end

@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class ClickatellChannelHandlerTest < ActiveSupport::TestCase
+  include Mocha::API
+  
   def setup
     @app = Application.create(:name => 'app', :password => 'foo')
     @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'sms')
@@ -19,5 +21,10 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
   
   test "should enqueue" do
     assert_handler_should_enqueue_ao_job @chan, SendClickatellMessageJob
+  end
+  
+  test "on enable binds queue" do
+    Queues.expects(:bind_ao).with(@chan)
+    @chan.save!
   end
 end

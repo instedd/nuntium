@@ -42,6 +42,10 @@ class SmtpChannelHandler < ChannelHandler
     end
   end
   
+  def on_enable
+    Queues.bind_ao @channel
+  end
+  
   def info
     c = @channel.configuration
     "#{c[:user]}@#{c[:host]}:#{c[:port]}"

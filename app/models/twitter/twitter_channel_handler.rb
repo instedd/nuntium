@@ -44,6 +44,8 @@ class TwitterChannelHandler < ChannelHandler
   def on_enable
     @channel.create_task 'twitter-receive', TWITTER_RECEIVE_INTERVAL, 
       ReceiveTwitterMessageJob.new(@channel.application_id, @channel.id)
+    
+    Queues.bind_ao @channel
   end
   
   def on_disable
