@@ -35,4 +35,14 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
       
     @chan.save!
   end
+  
+  test "on disable publish notification" do
+    test_on_enable_publish_notification
+    Queues.expects(:publish_notification).with do |job|
+      job.kind_of?(ChannelDisabledJob) and job.channel_id == @chan.id
+    end
+    
+    @chan.enabled = false
+    @chan.save!
+  end
 end

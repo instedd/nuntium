@@ -18,6 +18,10 @@ class GenericChannelHandler < ChannelHandler
     Queues.publish_notification ChannelEnabledJob.new(@channel)
   end
   
+  def on_disable
+    Queues.publish_notification ChannelDisabledJob.new(@channel)
+  end
+  
   def job_class
     raise 'The job_class method must be defined for #{self.class}'
   end
