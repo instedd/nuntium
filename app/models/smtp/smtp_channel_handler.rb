@@ -44,6 +44,7 @@ class SmtpChannelHandler < ChannelHandler
   
   def on_enable
     Queues.bind_ao @channel
+    Queues.publish_notification ChannelEnabledJob.new(@channel)
   end
   
   def info

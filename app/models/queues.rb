@@ -22,6 +22,16 @@ module Queues
       bind_ao(channel, mq).unsubscribe
     end
     
+    def publish_notification(job)
+      notifications_exchange.publish(job.to_yaml)
+    end
+        
+    def subscribe_notifications(mq = MQ)
+      bind_notifications(mq).subscribe do |header, job|
+        yield header, deserialize(job)
+      end
+    end
+    
     def reconnect(mq)
       new_mq = MQ.new
       mq.close
@@ -64,6 +74,18 @@ module Queues
     
     def ao_routing_key_for(channel)
       "ao.#{channel.application_id}.#{channel.kind}.#{channel.id}"
+    end
+    
+    def notifications_exchange(mq = MQ)
+      mq.fanout('notifications_messages')
+    end
+    
+    def notifications_queue(mq = MQ)
+      mq.queue('notifications_queue')
+    end
+    
+    def bind_notifications(mq = MQ)
+      notifications_queue(mq).bind(notifications_exchange(mq))
     end
 
     # Constantize the object so that ActiveSupport can attempt

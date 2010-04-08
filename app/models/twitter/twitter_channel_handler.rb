@@ -46,6 +46,7 @@ class TwitterChannelHandler < ChannelHandler
       ReceiveTwitterMessageJob.new(@channel.application_id, @channel.id)
     
     Queues.bind_ao @channel
+    Queues.publish_notification ChannelEnabledJob.new(@channel)
   end
   
   def on_disable

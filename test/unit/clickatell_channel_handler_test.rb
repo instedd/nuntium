@@ -27,4 +27,12 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
     Queues.expects(:bind_ao).with(@chan)
     @chan.save!
   end
+  
+  test "on enable publish notification" do
+    Queues.expects(:publish_notification).with do |job|
+      job.kind_of?(ChannelEnabledJob) and job.channel_id == @chan.id
+    end
+      
+    @chan.save!
+  end
 end
