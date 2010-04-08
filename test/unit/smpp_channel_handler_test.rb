@@ -5,22 +5,15 @@ require 'mocha'
 class SmppChannelHandlerTest < ActiveSupport::TestCase
   include Mocha::API
   
-  setup :initialize_objects
-
-  def initialize_objects
+  def setup
     @app = Application.create(:name => 'app', :password => 'foo')
     @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'smpp', :protocol => 'smpp')
     @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :system_type => 'smpp', :mt_encodings => ['ascii'], :default_mo_encoding => 'ascii', :mt_csms_method => 'udh' }
   end
   
-  def assert_validates_presence_of(field)
-    @chan.configuration.delete field
-    assert !@chan.save
-  end
-  
   [:host, :port, :source_ton, :source_npi, :destination_ton, :destination_npi, :user, :password, :system_type, :mt_csms_method].each do |field|
-    test "should validate_presence_of #{field}" do
-      assert_validates_presence_of field
+    test "should validate configuration presence of #{field}" do
+      assert_validates_configuration_presence_of @chan, field
     end
   end
   
@@ -29,18 +22,7 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
   end
   
   test "should enqueue when handling" do
-    @chan.save!
-    
-    jobs = []
-    Queues.subscribe_ao(@chan) { |header, job| jobs << job }
-    
-    msg = AOMessage.new(:application_id => @app.id, :channel_id => @chan.id)
-    @chan.handler.handle(msg)
-    
-    sleep 1
-    
-    assert_equal 1, jobs.length
-    assert_equal SendSmppMessageJob, jobs[0].class
+    assert_handler_should_enqueue_ao_job @chan, SendSmppMessageJob
   end
   
   test "on enable creates managed process" do

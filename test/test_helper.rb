@@ -269,4 +269,31 @@ class ActiveSupport::TestCase
     chan.save!
     chan
   end
+  
+  def assert_validates_configuration_presence_of(chan, field)
+    chan.configuration.delete field
+    assert !chan.save
+  end
+  
+  def assert_validates_configuration_ok(chan)
+    assert chan.save
+  end
+  
+  def assert_handler_should_enqueue_ao_job(chan, job_class)
+    chan.save!
+    
+    jobs = []
+    Queues.subscribe_ao(chan) { |header, job| jobs << job }
+    
+    msg = AOMessage.new(:application_id => chan.application_id, :channel_id => chan.id)
+    chan.handler.handle(msg)
+    
+    sleep 1
+    
+    assert_equal 1, jobs.length
+    assert_equal job_class, jobs[0].class
+    assert_equal msg.id, jobs[0].message_id
+    assert_equal chan.id, jobs[0].channel_id
+    assert_equal chan.application_id, jobs[0].application_id
+  end
 end

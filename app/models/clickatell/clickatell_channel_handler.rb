@@ -4,7 +4,7 @@ require 'net/https'
 
 class ClickatellChannelHandler < ChannelHandler
   def handle(msg)
-    Delayed::Job.enqueue create_job(msg)
+    Queues.publish_ao msg, create_job(msg)
   end
   
   def handle_now(msg)
