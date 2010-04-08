@@ -65,27 +65,27 @@ class ReceiveTwitterMessageJob
     return if not has_quota?
     
     # Get followers
-    query = {:page => 1}
+    query = {:cursor => -1}
     begin
-      followers = @client.followers(query)
-      followers.each do |follower|
-        all_followers.push(follower.screen_name)
+      follower_ids_result = @client.follower_ids(query)
+      follower_ids_result['ids'].each do |follower_id|
+        all_followers.push(follower_id)
       end
       
-      query[:page] += 1
-    end until followers.empty? or not has_quota?
+      query[:cursor] = follower_ids_result['next_cursor']
+    end until query[:cursor] == 0 or not has_quota?
     return if not has_quota?
     
     # Get friends
-    query[:page] = 1
+    query = {:cursor => -1}
     begin
-      friends = @client.friends(query)
-      friends.each do |friend|
-        all_friends.push(friend.screen_name)
+      friend_ids_result = @client.friend_ids(query)
+      friend_ids_result['ids'].each do |friend_id|
+        all_friends.push(friend_id)
       end
       
-      query[:page] += 1
-    end until friends.empty? or not has_quota?
+      query[:cursor] = friend_ids_result['next_cursor']
+    end until query[:cursor] == 0 or not has_quota?
     return if not has_quota?
     
     # The new followers are:
