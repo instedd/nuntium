@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class ClickatellChannelHandlerTest < ActiveSupport::TestCase
-
   def setup
     @app = Application.create(:name => 'app', :password => 'foo')
     @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'sms')
