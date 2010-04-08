@@ -53,7 +53,7 @@ Rails::Initializer.run do |config|
   # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}')]
   # config.i18n.default_locale = :de
     
-  $log_path = "#{RAILS_ROOT}/log/#{ENV['RAILS_ENV']}.log" if $log_path.nil?
+  $log_path = "#{RAILS_ROOT}/log/#{ENV['RAILS_ENV'] || 'development'}.log" if $log_path.nil?
   
   if RUBY_PLATFORM.include?('mswin')
     require 'nuntium_logger'
