@@ -2,17 +2,10 @@ require 'uri'
 require 'net/http'
 require 'net/https'
 
-class ClickatellChannelHandler < ChannelHandler
-  def handle(msg)
-    Queues.publish_ao msg, create_job(msg)
-  end
-  
-  def handle_now(msg)
-    create_job(msg).perform
-  end
-  
-  def create_job(msg)
-    SendClickatellMessageJob.new(@channel.application_id, @channel.id, msg.id)
+class ClickatellChannelHandler < GenericChannelHandler
+
+  def job_class
+    SendClickatellMessageJob
   end
   
   def check_valid
@@ -25,11 +18,6 @@ class ClickatellChannelHandler < ChannelHandler
     if (@channel.direction & Channel::Outgoing) != 0
       check_config_not_blank :user, :password, :from
     end
-  end
-  
-  def on_enable
-    Queues.bind_ao @channel
-    Queues.publish_notification ChannelEnabledJob.new(@channel)
   end
   
   def info

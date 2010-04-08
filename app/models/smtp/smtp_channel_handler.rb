@@ -1,16 +1,9 @@
 require 'net/smtp'
 
-class SmtpChannelHandler < ChannelHandler
-  def handle(msg)
-    Queues.publish_ao msg, create_job(msg)
-  end
-  
-  def handle_now(msg)
-    create_job(msg).perform
-  end
-  
-  def create_job(msg)
-    SendSmtpMessageJob.new(@channel.application_id, @channel.id, msg.id)
+class SmtpChannelHandler < GenericChannelHandler
+
+  def job_class
+    SendSmtpMessageJob
   end
   
   def check_valid
@@ -40,11 +33,6 @@ class SmtpChannelHandler < ChannelHandler
     rescue => e
       @channel.errors.add_to_base(e.message)
     end
-  end
-  
-  def on_enable
-    Queues.bind_ao @channel
-    Queues.publish_notification ChannelEnabledJob.new(@channel)
   end
   
   def info
