@@ -13,8 +13,12 @@ module Queues
     end
     
     def subscribe_ao(channel, mq = MQ)
-      bind_ao(channel, mq).subscribe(:ack => true) do |header, job| 
+      bind_ao(channel, mq).subscribe(:ack => true) do |header, job|
+        begin
         yield header, deserialize(job)
+        rescue Exception => ex
+          puts "#{ex}"
+        end
       end
     end
     
