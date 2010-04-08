@@ -45,4 +45,8 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
     @chan.enabled = false
     @chan.save!
   end
+  
+  test "publishes to ao queue" do
+    assert @chan.handler.publishes_to_ao_queue?
+  end
 end
