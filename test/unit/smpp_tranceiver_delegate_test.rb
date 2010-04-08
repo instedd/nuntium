@@ -280,6 +280,10 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   test "delivery report received DELIVRD" do
     assert_delivery_report '7b', 'confirmed', :msg_reference => '123', :stat => 'DELIVRD'
   end
+  
+  test "delivery report received DELIVRD with alphanumeric message id" do
+    assert_delivery_report 's123', 'confirmed', :msg_reference => 's123', :stat => 'DELIVRD'
+  end
 
   test "delivery report received DELIVRD using optional parameters receipted_message_id" do
     assert_delivery_report '7b', 'confirmed', :receipted_message_id => '7B', :stat => 'DELIVRD'
