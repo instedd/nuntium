@@ -283,12 +283,12 @@ class ActiveSupport::TestCase
     chan.save!
     
     jobs = []
-    Queues.subscribe_ao(chan) { |header, job| jobs << job }
+    Queues.subscribe_ao(chan) { |header, job| jobs << job; header.ack; sleep 0.3 }
     
     msg = AOMessage.new(:application_id => chan.application_id, :channel_id => chan.id)
     chan.handler.handle(msg)
     
-    sleep 1
+    sleep 0.3
     
     assert_equal 1, jobs.length
     assert_equal job_class, jobs[0].class
