@@ -22,10 +22,6 @@ class GenericChannelHandler < ChannelHandler
     Queues.publish_notification ChannelDisabledJob.new(@channel)
   end
   
-  def publishes_to_ao_queue?
-    true
-  end
-  
   def job_class
     raise 'The job_class method must be defined for #{self.class}'
   end
