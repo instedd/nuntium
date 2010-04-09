@@ -6,6 +6,8 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
   self.use_transactional_fixtures = false
 
   include Mocha::API
+  
+  teardown :clean_database
 
   def setup
     @app = Application.create(:name => 'app', :password => 'foo')
@@ -16,10 +18,6 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     @chan.save!
     
     StubJob.value_after_perform = nil
-  end
-  
-  def teardown
-    [Application, ApplicationLog, Channel, AOMessage].each(&:delete_all)
   end
 
   test "should subscribe to enabled channels" do
@@ -85,6 +83,9 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     assert_equal 2, jobs.size
   end
   
+  def clean_database
+    [Application, ApplicationLog, Channel, AOMessage].each(&:delete_all)
+  end
   
 end
 

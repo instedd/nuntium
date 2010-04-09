@@ -20,13 +20,14 @@ class GenericWorkerService < Service
       Queues.subscribe_ao chan, mq do |header, job|
         begin
           job.perform
+          header.ack
         rescue PermanentException => ex
           chan.enabled = false
           chan.save!
         rescue TemporaryException => ex
-          Queues.publish_notification ChannelUnsubscriptionJob.new(chan), @notifications_session
+          Queues.publish_notification ChannelUnsubscriptionJob.new(chan.id), @notifications_session
           EM.add_timer(@suspension_time) do 
-            Queues.publish_notification ChannelSubscriptionJob.new(chan), @notifications_session            
+            Queues.publish_notification ChannelSubscriptionJob.new(chan.id), @notifications_session            
           end
         end
       end
@@ -36,6 +37,12 @@ class GenericWorkerService < Service
     Queues.subscribe_notifications @notifications_session do |header, job|
       job.perform self
     end
+  end
+  
+  def subscribe_to_channel(channel_id)
+  end
+  
+  def unsubscribe_from_channel(channel_id)
   end
   
   def stop
