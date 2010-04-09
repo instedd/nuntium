@@ -37,6 +37,19 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     
     assert_equal 10, StubJob.value_after_perform
   end
+  
+  test "should stand to disable channel on permanent_exception" do
+    @service.start
+        
+    msg = AOMessage.create!(:application => @app, :channel => @chan)
+    
+    Queues.publish_ao msg, FailingJob.new(PermanentException.new(Exception.new('lorem')))
+    sleep 3
+    p "3. Channel size: #{Channel.all.size}"
+    p "3. Application size: #{Application.all.size}"
+    @chan.reload
+    assert_false @chan.enabled  
+  end
 end
 
 class StubJob
@@ -49,4 +62,14 @@ class StubJob
     StubJob.value_after_perform = 10
   end
 
+end
+
+class FailingJob
+  def initialize(ex)
+    @ex = ex
+  end
+  
+  def perform
+    raise @ex
+  end
 end
