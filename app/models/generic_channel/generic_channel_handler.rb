@@ -23,6 +23,6 @@ class GenericChannelHandler < ChannelHandler
   end
   
   def job_class
-    raise 'The job_class method must be defined for #{self.class}'
+    raise "The job_class method must be defined for #{self.class}"
   end
 end

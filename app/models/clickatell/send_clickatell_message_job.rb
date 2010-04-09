@@ -3,38 +3,25 @@ require 'net/http'
 require 'net/https'
 include ActiveSupport::Multibyte
 
-class SendClickatellMessageJob
-  attr_accessor :application_id, :channel_id, :message_id
-
-  def initialize(application_id, channel_id, message_id)
-    @application_id = application_id
-    @channel_id = channel_id
-    @message_id = message_id
-  end
-
-  def perform
-    app = Application.find_by_id @application_id
-    channel = Channel.find @channel_id
-    msg = AOMessage.find @message_id
-    config = channel.configuration
-    
+class SendClickatellMessageJob < SendMessageJob
+  def managed_perform
     uri = "/http/sendmsg"
-    uri = append uri, 'api_id', config[:api_id], true
-    uri = append uri, 'user', config[:user]
-    uri = append uri, 'password', config[:password]
-    unless config[:from].blank?
-      uri = append uri, 'from', config[:from]
+    uri = append uri, 'api_id', @config[:api_id], true
+    uri = append uri, 'user', @config[:user]
+    uri = append uri, 'password', @config[:password]
+    unless @config[:from].blank?
+      uri = append uri, 'from', @config[:from]
       uri = append uri, 'mo', '1'
     end
-    uri = append uri, 'to', msg.to.without_protocol
-    if is_low_ascii(msg.subject_and_body)
-      uri = append uri, 'text', msg.subject_and_body
+    uri = append uri, 'to', @msg.to.without_protocol
+    if is_low_ascii(@msg.subject_and_body)
+      uri = append uri, 'text', @msg.subject_and_body
     else
-      uri = append uri, 'text', to_unicode_raw_string(msg.subject_and_body)
+      uri = append uri, 'text', to_unicode_raw_string(@msg.subject_and_body)
       uri = append uri, 'unicode', '1'
     end
-    unless config[:concat].blank?
-      uri = append uri, 'concat', config[:concat]
+    unless @config[:concat].blank?
+      uri = append uri, 'concat', @config[:concat]
     end
     
     host = URI::parse('https://api.clickatell.com')
@@ -47,16 +34,16 @@ class SendClickatellMessageJob
     begin
       response = request.get(uri)
       if response.body[0..2] == "ID:"
-         msg.channel_relative_id = response.body[4..-1]
+         @msg.channel_relative_id = response.body[4..-1]
       elsif response.body[0..3] == "ERR:"
         raise response.body[5..-1]
       else
         raise response.body
       end
     rescue => e
-      msg.send_failed app, channel, e
+      @msg.send_failed @app, @channel, e
     else
-      msg.send_succeeed app, channel
+      @msg.send_succeeed @app, @channel
     end
   end
   
