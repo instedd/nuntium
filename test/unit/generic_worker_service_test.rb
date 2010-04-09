@@ -21,7 +21,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     @service.start
   end
   
-   test "should subscribe to notifications" do
+  test "should subscribe to notifications" do
     Queues.expects(:subscribe_notifications).with(kind_of(MQ))
     
     @service.start

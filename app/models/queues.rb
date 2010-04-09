@@ -1,4 +1,5 @@
 module Queues
+
   class << self
   
     def publish_ao(msg, job)
@@ -14,11 +15,7 @@ module Queues
     
     def subscribe_ao(channel, mq = MQ)
       bind_ao(channel, mq).subscribe(:ack => true) do |header, job|
-        begin
         yield header, deserialize(job)
-        rescue Exception => ex
-          puts "#{ex}"
-        end
       end
     end
     
@@ -45,15 +42,15 @@ module Queues
     def deserialize(source)
       handler = YAML.load(source) rescue nil
 
-      unless handler.respond_to?(:perform)
-        if handler.nil? && source =~ ParseObjectFromYaml
+      if handler.nil?
+        if source =~ ParseObjectFromYaml
           handler_class = $1
         end
         attempt_to_load(handler_class || handler.class)
         handler = YAML.load(source)
       end
 
-      return handler if handler.respond_to?(:perform)
+      return handler if handler
 
       raise DeserializationError,
         'Job failed to load: Unknown handler. Try to manually require the appropriate file.'
@@ -97,6 +94,9 @@ module Queues
     def attempt_to_load(klass)
        klass.constantize
     end
+    
+    ParseObjectFromYaml = /\!ruby\/\w+\:([^\s]+)/
 
   end
+  
 end
