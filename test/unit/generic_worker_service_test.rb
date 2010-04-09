@@ -2,6 +2,9 @@ require 'test_helper'
 require 'mocha'
 
 class GenericWorkerServiceTest < ActiveSupport::TestCase
+
+  self.use_transactional_fixtures = false
+
   include Mocha::API
 
   def setup
@@ -13,6 +16,10 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     @chan.save!
     
     StubJob.value_after_perform = nil
+  end
+  
+  def teardown
+    [Application, ApplicationLog, Channel, AOMessage].each(&:delete_all)
   end
 
   test "should subscribe to enabled channels" do
@@ -44,9 +51,8 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     msg = AOMessage.create!(:application => @app, :channel => @chan)
     
     Queues.publish_ao msg, FailingJob.new(PermanentException.new(Exception.new('lorem')))
-    sleep 3
-    p "3. Channel size: #{Channel.all.size}"
-    p "3. Application size: #{Application.all.size}"
+    sleep 0.3
+    
     @chan.reload
     assert_false @chan.enabled  
   end
