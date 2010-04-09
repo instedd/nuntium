@@ -15,11 +15,11 @@ class GenericChannelHandler < ChannelHandler
   
   def on_enable
     Queues.bind_ao @channel
-    Queues.publish_notification ChannelEnabledJob.new(@channel)
+    Queues.publish_notification ChannelSubscriptionJob.new(@channel)
   end
   
   def on_disable
-    Queues.publish_notification ChannelDisabledJob.new(@channel)
+    Queues.publish_notification ChannelUnsubscriptionJob.new(@channel)
   end
   
   def job_class

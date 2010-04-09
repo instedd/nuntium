@@ -1,4 +1,4 @@
-class ChannelEnabledJob
+class ChannelUnsubscriptionJob
   attr_reader :channel_id
   
   def initialize(channel)

@@ -30,7 +30,7 @@ class DtacChannelHandlerTest < ActiveSupport::TestCase
   
   test "on enable publish notification" do
     Queues.expects(:publish_notification).with do |job|
-      job.kind_of?(ChannelEnabledJob) and job.channel_id == @chan.id
+      job.kind_of?(ChannelSubscriptionJob) and job.channel_id == @chan.id
     end
       
     @chan.save!
@@ -39,7 +39,7 @@ class DtacChannelHandlerTest < ActiveSupport::TestCase
   test "on disable publish notification" do
     test_on_enable_publish_notification
     Queues.expects(:publish_notification).with do |job|
-      job.kind_of?(ChannelDisabledJob) and job.channel_id == @chan.id
+      job.kind_of?(ChannelUnsubscriptionJob) and job.channel_id == @chan.id
     end
     
     @chan.enabled = false
