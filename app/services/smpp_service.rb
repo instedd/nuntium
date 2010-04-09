@@ -99,7 +99,7 @@ class SmppGateway < SmppTransceiverDelegate
       # Stop sending messages for a while
       if @subscribed
         unsubscribe_queue
-        EM.add_timer(5) { subscribe_queue; MQ.recover(true) }
+        EM.add_timer(5) { subscribe_queue }
       end
       
     # Message source or address not valid
