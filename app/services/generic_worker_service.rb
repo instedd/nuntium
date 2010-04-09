@@ -34,6 +34,7 @@ class GenericWorkerService < Service
     
     @notifications_session = MQ.new
     Queues.subscribe_notifications @notifications_session do |header, job|
+      job.perform self
     end
   end
   

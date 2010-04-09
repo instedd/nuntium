@@ -45,6 +45,16 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     assert_equal 10, StubJob.value_after_perform
   end
   
+  test "should execute job notification when enqueued" do
+    @service.start
+    
+    Queues.publish_notification StubJob.new
+    sleep 0.3
+    
+    assert_equal 10, StubJob.value_after_perform
+    assert_equal @service, StubJob.arguments[0]
+  end
+  
   test "should stand to disable channel on permanent exception" do
     @service.start
         
@@ -82,10 +92,12 @@ class StubJob
 
   class << self
     attr_accessor :value_after_perform
+    attr_accessor :arguments
   end
   
-  def perform
+  def perform(*args)
     StubJob.value_after_perform = 10
+    StubJob.arguments = args
   end
 
 end
