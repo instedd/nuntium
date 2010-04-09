@@ -1,4 +1,9 @@
 class GenericWorkerService < Service
+  
+  def initialize(controller = nil, suspension_time = 5 * 60)
+    super(controller)
+    @suspension_time = suspension_time
+  end
 
   def start
     @sessions = {}
@@ -16,11 +21,12 @@ class GenericWorkerService < Service
         begin
           job.perform
         rescue PermanentException => ex
-          begin
-            chan.enabled = false
-            chan.save!
-          rescue Exception => ex
-            puts ex
+          chan.enabled = false
+          chan.save!
+        rescue TemporaryException => ex
+          Queues.publish_notification ChannelUnsubscriptionJob.new(chan), @notifications_session
+          EM.add_timer(@suspension_time) do 
+            Queues.publish_notification ChannelSubscriptionJob.new(chan), @notifications_session            
           end
         end
       end

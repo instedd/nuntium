@@ -9,7 +9,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 
   def setup
     @app = Application.create(:name => 'app', :password => 'foo')
-    @service = GenericWorkerService.new
+    @service = GenericWorkerService.new(nil, 0.1)
     
     @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'sms', :direction => Channel::Outgoing)
     @chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :from => 'something', :incoming_password => 'incoming_pass' }
@@ -45,7 +45,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     assert_equal 10, StubJob.value_after_perform
   end
   
-  test "should stand to disable channel on permanent_exception" do
+  test "should stand to disable channel on permanent exception" do
     @service.start
         
     msg = AOMessage.create!(:application => @app, :channel => @chan)
@@ -56,6 +56,26 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     @chan.reload
     assert_false @chan.enabled  
   end
+  
+  test "should stand to unsubscribe channel temporarily on temporary exception" do
+    @service.start
+    jobs = []
+    
+    Queues.expects(:publish_notification).times(2).with do |job,mq|
+      jobs << job
+      job.channel_id == @chan.id
+    end
+        
+    msg = AOMessage.create!(:application => @app, :channel => @chan)
+    
+    Queues.publish_ao msg, FailingJob.new(TemporaryException.new(Exception.new('lorem')))  
+    sleep 0.3
+    assert_kind_of ChannelUnsubscriptionJob, jobs[0]
+    assert_kind_of ChannelSubscriptionJob, jobs[1]    
+    assert_equal 2, jobs.size
+  end
+  
+  
 end
 
 class StubJob

@@ -23,8 +23,8 @@ module Queues
       bind_ao(channel, mq).unsubscribe
     end
     
-    def publish_notification(job)
-      notifications_exchange.publish(job.to_yaml)
+    def publish_notification(job, mq = MQ)
+      notifications_exchange(mq).publish(job.to_yaml)
     end
         
     def subscribe_notifications(mq = MQ)
