@@ -22,7 +22,6 @@ Rails::Initializer.run do |config|
   # config.gem "hpricot", :version => '0.6', :source => "http://code.whytheluckystiff.net"
   # config.gem "aws-s3", :lib => "aws/s3"
   config.gem "mocha"
-  config.gem "sqlite3-ruby", :lib => "sqlite3"
   config.gem 'collectiveidea-delayed_job', :lib => 'delayed_job', :source => 'http://gems.github.com'
   config.gem 'test-unit', :lib => 'test/unit'
   config.gem "thoughtbot-shoulda", :lib => "shoulda", :source => "http://gems.github.com"
