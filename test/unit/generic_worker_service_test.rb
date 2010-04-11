@@ -7,18 +7,25 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 
   include Mocha::API
   
-  teardown :clean_database
-
   def setup
+		clean_database
+
     @app = Application.create(:name => 'app', :password => 'foo')
     @service = GenericWorkerService.new(nil, 0.1)
     
     @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'sms', :direction => Channel::Outgoing)
     @chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :from => 'something', :incoming_password => 'incoming_pass' }
     @chan.save!
+
+		clean_queues
     
     StubJob.value_after_perform = nil
   end
+
+	def teardown
+		clean_database
+		clean_queues
+	end
 
   test "should subscribe to enabled channels" do
     Queues.expects(:subscribe_ao).with(@chan, kind_of(MQ))
@@ -86,6 +93,12 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
   def clean_database
     [Application, ApplicationLog, Channel, AOMessage].each(&:delete_all)
   end
+
+	def clean_queues
+		Channel.all.each {|c| Queues.purge_ao c}
+		Queues.purge_notifications
+		sleep 0.3
+	end
   
 end
 

@@ -32,6 +32,14 @@ module Queues
         yield header, deserialize(job)
       end
     end
+
+		def purge_ao(channel, mq = MQ)
+			bind_ao(channel, mq).purge
+		end
+
+		def purge_notifications(mq = MQ)
+			bind_notifications(mq).purge
+		end
     
     def reconnect(mq)
       new_mq = MQ.new
