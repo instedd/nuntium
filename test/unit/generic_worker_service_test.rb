@@ -86,23 +86,26 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     
     assert_nil StubJob.value_after_perform
   end
-  test "should stand to unsubscribe channel temporarily on temporary exception" do
-    @service.start
-    jobs = []
-    
-    Queues.expects(:publish_notification).times(2).with do |job,mq|
-      jobs << job
-      job.channel_id == @chan.id
+
+  {'temporary' => TemporaryException.new(Exception.new('lorem')), 'unknown' => Exception.new('lorem')}.each do |kind, exception|
+    test "should stand to unsubscribe channel temporarily on #{kind} exception" do
+      @service.start
+      jobs = []
+      
+      Queues.expects(:publish_notification).times(2).with do |job,mq|
+        jobs << job
+        job.channel_id == @chan.id
+      end
+          
+      msg = AOMessage.create!(:application => @app, :channel => @chan)
+      
+      Queues.publish_ao msg, FailingJob.new(exception)  
+      sleep 0.3
+      
+      assert_equal 2, jobs.size
+      assert_kind_of ChannelUnsubscriptionJob, jobs[0]
+      assert_kind_of ChannelSubscriptionJob, jobs[1]
     end
-        
-    msg = AOMessage.create!(:application => @app, :channel => @chan)
-    
-    Queues.publish_ao msg, FailingJob.new(TemporaryException.new(Exception.new('lorem')))  
-    sleep 0.3
-    
-    assert_equal 2, jobs.size
-    assert_kind_of ChannelUnsubscriptionJob, jobs[0]
-    assert_kind_of ChannelSubscriptionJob, jobs[1]
   end
   
   test "should subscribe when told so" do
