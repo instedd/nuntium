@@ -12,8 +12,9 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
   def setup
 		clean_database
 
+    @id = 123
     @app = Application.create(:name => 'app', :password => 'foo')
-    @service = GenericWorkerService.new(nil, 0.1)
+    @service = GenericWorkerService.new(nil, @id, 0.1)
     
     @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'sms', :direction => Channel::Outgoing)
     @chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :from => 'something', :incoming_password => 'incoming_pass' }
@@ -37,7 +38,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
   end
   
   test "should subscribe to notifications" do
-    Queues.expects(:subscribe_notifications).with(kind_of(MQ))
+    Queues.expects(:subscribe_notifications).with(@id, kind_of(MQ))
     
     @service.start
   end
@@ -147,7 +148,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 
 	def clean_queues
 		Channel.all.each {|c| Queues.purge_ao c}
-		Queues.purge_notifications
+		Queues.purge_notifications @id
 		sleep 0.3
 	end
   

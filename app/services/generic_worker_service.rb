@@ -2,8 +2,9 @@ class GenericWorkerService < Service
 
   PrefetchCount = 5
   
-  def initialize(controller = nil, suspension_time = 5 * 60)
+  def initialize(controller = nil, id = Process.pid, suspension_time = 5 * 60)
     super(controller)
+    @id = id
     @suspension_time = suspension_time
   end
 
@@ -23,7 +24,7 @@ class GenericWorkerService < Service
     end
     
     @notifications_session = MQ.new
-    Queues.subscribe_notifications @notifications_session do |header, job|
+    Queues.subscribe_notifications(@id, @notifications_session) do |header, job|
       job.perform self
     end
   end

@@ -27,8 +27,8 @@ module Queues
       notifications_exchange(mq).publish(job.to_yaml)
     end
         
-    def subscribe_notifications(mq = MQ)
-      bind_notifications(mq).subscribe do |header, job|
+    def subscribe_notifications(id, mq = MQ)
+      bind_notifications(id, mq).subscribe do |header, job|
         yield header, deserialize(job)
       end
     end
@@ -37,8 +37,8 @@ module Queues
 			bind_ao(channel, mq).purge
 		end
 
-		def purge_notifications(mq = MQ)
-			bind_notifications(mq).purge
+		def purge_notifications(id, mq = MQ)
+			bind_notifications(id, mq).purge
 		end
     
     def reconnect(mq)
@@ -89,12 +89,12 @@ module Queues
       mq.fanout('notifications_messages')
     end
     
-    def notifications_queue(mq = MQ)
-      mq.queue('notifications_queue')
+    def notifications_queue(id, mq = MQ)
+      mq.queue("notifications_queue_#{id}", :auto_delete => true)
     end
     
-    def bind_notifications(mq = MQ)
-      notifications_queue(mq).bind(notifications_exchange(mq))
+    def bind_notifications(id, mq = MQ)
+      notifications_queue(id, mq).bind(notifications_exchange(mq))
     end
 
     # Constantize the object so that ActiveSupport can attempt
