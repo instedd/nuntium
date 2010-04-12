@@ -24,7 +24,6 @@ class AOMessage < ActiveRecord::Base
     self.save!
     
     app.logger.exception_in_channel_and_ao_message channel, self, exception
-    raise exception
   end
 
 end
