@@ -22,14 +22,11 @@ END_OF_MESSAGE
     
     begin
       smtp.start('localhost.localdomain', @config[:user], @config[:password])
-    rescue => e
-      @msg.send_failed @app, @channel, e
+    rescue Net::SMTPAuthenticationError => ex
+      raise PermanentException.new(ex)
     else
       begin
         smtp.send_message msgstr, @msg.from.without_protocol, @msg.to.without_protocol
-      rescue => e
-        @msg.send_failed @app, @channel, e
-      else
         @msg.send_succeeed @app, @channel, channel_relative_id
       ensure
         smtp.finish
