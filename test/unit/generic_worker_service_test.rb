@@ -3,6 +3,8 @@ require 'mocha'
 
 class GenericWorkerServiceTest < ActiveSupport::TestCase
 
+  EM.error_handler { |e| puts e }
+
   self.use_transactional_fixtures = false
 
   include Mocha::API
@@ -20,6 +22,8 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 		clean_queues
     
     StubJob.value_after_perform = nil
+    
+    puts "#{@chan.id} #{name}"
   end
 
 	def teardown
@@ -85,9 +89,23 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     
     Queues.publish_ao msg, FailingJob.new(TemporaryException.new(Exception.new('lorem')))  
     sleep 0.3
-    assert_kind_of ChannelUnsubscriptionJob, jobs[0]
-    assert_kind_of ChannelSubscriptionJob, jobs[1]    
+    
     assert_equal 2, jobs.size
+    assert_kind_of ChannelUnsubscriptionJob, jobs[0]
+    assert_kind_of ChannelSubscriptionJob, jobs[1]
+  end
+  
+  test "should unsubscribe when told so" do
+    @service.start
+    @service.unsubscribe_from_channel @chan.id
+    sleep 0.3
+    
+    msg = AOMessage.create!(:application => @app, :channel => @chan)
+    
+    Queues.publish_ao msg, StubJob.new
+    sleep 0.3
+    
+    assert_nil StubJob.value_after_perform
   end
   
   def clean_database
@@ -97,7 +115,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 	def clean_queues
 		Channel.all.each {|c| Queues.purge_ao c}
 		Queues.purge_notifications
-		sleep 0.3
+		sleep 1
 	end
   
 end

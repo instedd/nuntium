@@ -24,6 +24,7 @@ module Queues
     end
     
     def publish_notification(job, mq = MQ)
+      puts "publish #{job}"
       notifications_exchange(mq).publish(job.to_yaml)
     end
         

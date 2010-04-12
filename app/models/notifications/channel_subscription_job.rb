@@ -8,4 +8,12 @@ class ChannelSubscriptionJob
   def perform(generic_worker)
     generic_worker.subscribe_to_channel @channel_id
   end
+  
+  def to_s
+    "Subscribe to #{@channel_id}"
+  end
+  
+  def inspect
+    to_s
+  end
 end

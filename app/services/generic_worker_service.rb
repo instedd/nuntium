@@ -1,4 +1,6 @@
 class GenericWorkerService < Service
+
+  PrefetchCount = 5
   
   def initialize(controller = nil, suspension_time = 5 * 60)
     super(controller)
@@ -15,7 +17,10 @@ class GenericWorkerService < Service
       next unless chan.handler.class < GenericChannelHandler
       
       mq = MQ.new
+      mq.prefetch PrefetchCount
       @sessions[chan.id] = mq
+      
+      puts "start: #{@sessions.keys.inspect}"
 
       Queues.subscribe_ao chan, mq do |header, job|
         begin
@@ -35,6 +40,7 @@ class GenericWorkerService < Service
     
     @notifications_session = MQ.new
     Queues.subscribe_notifications @notifications_session do |header, job|
+      puts "consuming #{job}"
       job.perform self
     end
   end
@@ -43,6 +49,8 @@ class GenericWorkerService < Service
   end
   
   def unsubscribe_from_channel(channel_id)
+    puts "uns: #{@sessions.keys}"
+    @sessions.delete(channel_id).close
   end
   
   def stop

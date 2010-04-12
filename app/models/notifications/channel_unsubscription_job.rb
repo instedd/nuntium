@@ -8,4 +8,12 @@ class ChannelUnsubscriptionJob
   def perform(generic_worker)
     generic_worker.unsubscribe_from_channel @channel_id
   end
+  
+  def to_s
+    "Unsubscribe from #{@channel_id}"
+  end
+  
+  def inspect
+    to_s
+  end
 end
