@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-$log_path = File.join(File.dirname(__FILE__), '..', '..', '..', 'log', "generic_worker_daemon_#{Process.pid}.log")
+$log_path = File.join(File.dirname(__FILE__), '..', '..', '..', 'log', "generic_worker_daemon_#{ARGV[1]}.log")
 ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
 
 begin
