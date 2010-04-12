@@ -7,7 +7,7 @@ class SendDtacMessageJob < SendMessageJob
     encoded = ActiveSupport::Multibyte::Chars.u_unpack(str).map { |i| i.to_s(16).rjust(4, '0') }
     
     File.open(File.join(RAILS_ROOT, 'log', 'dtac.log'), 'a') { 
-      |fh|  
+      |fh|
       fh.puts "Sending new AO message #{@msg.subject_and_body} #{encoded.to_s}"
     }
   
@@ -38,10 +38,10 @@ class SendDtacMessageJob < SendMessageJob
       if ( status == 0 )
         @msg.send_succeeed @app, @channel
       else
-         raise response.message
+         raise response.body
       end
     else
-      raise response.message
+      raise response.body
     end
     :success
   end
