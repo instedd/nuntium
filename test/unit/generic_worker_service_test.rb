@@ -22,11 +22,10 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 		clean_queues
     
     StubJob.value_after_perform = nil
-    
-    puts "#{@chan.id} #{name}"
   end
 
 	def teardown
+	  @service.stop
 		clean_database
 		clean_queues
 	end
@@ -75,7 +74,18 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     @chan.reload
     assert_false @chan.enabled  
   end
-  
+  test "should unsubscribe when told so" do
+    @service.start
+    @service.unsubscribe_from_channel @chan.id
+    sleep 0.3
+    
+    msg = AOMessage.create!(:application => @app, :channel => @chan)
+    
+    Queues.publish_ao msg, StubJob.new
+    sleep 0.3
+    
+    assert_nil StubJob.value_after_perform
+  end
   test "should stand to unsubscribe channel temporarily on temporary exception" do
     @service.start
     jobs = []
@@ -95,15 +105,37 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     assert_kind_of ChannelSubscriptionJob, jobs[1]
   end
   
-  test "should unsubscribe when told so" do
+  test "should subscribe when told so" do
     @service.start
     @service.unsubscribe_from_channel @chan.id
+    sleep 0.3
+    
+    @service.subscribe_to_channel @chan.id
     sleep 0.3
     
     msg = AOMessage.create!(:application => @app, :channel => @chan)
     
     Queues.publish_ao msg, StubJob.new
     sleep 0.3
+    
+    assert_equal 10, StubJob.value_after_perform
+  end
+  
+   test "should not subscribe when told so if channel is disabled" do
+    @service.start
+    @service.unsubscribe_from_channel @chan.id
+    sleep 0.3
+    
+    @chan.enabled = false
+    @chan.save!
+    
+    @service.subscribe_to_channel @chan.id
+    sleep 2
+    
+    msg = AOMessage.create!(:application => @app, :channel => @chan)
+    
+    Queues.publish_ao msg, StubJob.new
+    sleep 2
     
     assert_nil StubJob.value_after_perform
   end
@@ -115,7 +147,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 	def clean_queues
 		Channel.all.each {|c| Queues.purge_ao c}
 		Queues.purge_notifications
-		sleep 1
+		sleep 0.3
 	end
   
 end

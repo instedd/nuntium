@@ -15,45 +15,51 @@ class GenericWorkerService < Service
         true, 
         Channel::Outgoing, Channel::Both]) do |chan|
       next unless chan.handler.class < GenericChannelHandler
-      
-      mq = MQ.new
-      mq.prefetch PrefetchCount
-      @sessions[chan.id] = mq
-      
-      puts "start: #{@sessions.keys.inspect}"
 
-      Queues.subscribe_ao chan, mq do |header, job|
-        begin
-          job.perform
-          header.ack
-        rescue PermanentException => ex
-          chan.enabled = false
-          chan.save!
-        rescue TemporaryException => ex
-          Queues.publish_notification ChannelUnsubscriptionJob.new(chan.id), @notifications_session
-          EM.add_timer(@suspension_time) do 
-            Queues.publish_notification ChannelSubscriptionJob.new(chan.id), @notifications_session            
-          end
-        end
-      end
+      subscribe_to_channel chan
     end
     
     @notifications_session = MQ.new
     Queues.subscribe_notifications @notifications_session do |header, job|
-      puts "consuming #{job}"
       job.perform self
     end
   end
   
-  def subscribe_to_channel(channel_id)
+  def subscribe_to_channel(channel)
+    channel = Channel.find_by_id channel unless channel.kind_of? Channel
+    return unless channel.enabled
+    return if @sessions.include? channel.id
+    
+    mq = MQ.new
+    mq.prefetch PrefetchCount
+    @sessions[channel.id] = mq
+    
+    Queues.subscribe_ao channel, mq do |header, job|
+      begin
+        job.perform
+        header.ack
+      rescue PermanentException => ex
+        channel.enabled = false
+        channel.save!
+      rescue TemporaryException => ex
+        Queues.publish_notification ChannelUnsubscriptionJob.new(channel.id), @notifications_session
+        EM.add_timer(@suspension_time) do 
+          Queues.publish_notification ChannelSubscriptionJob.new(channel.id), @notifications_session            
+        end
+      end
+    end
   end
   
   def unsubscribe_from_channel(channel_id)
-    puts "uns: #{@sessions.keys}"
-    @sessions.delete(channel_id).close
+    mq = @sessions.delete(channel_id)
+    mq.close if mq
   end
   
   def stop
+    super
+    
+    @sessions.keys.each { |k| unsubscribe_from_channel k }
+    @notifications_session.close
   end
 
 end
