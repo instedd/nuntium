@@ -44,12 +44,18 @@ class GenericWorkerService < Service
         job.perform
         header.ack
       rescue PermanentException => ex
-        Rails.logger.info "Permanent exception executing #{job}: #{ex.class} #{ex} #{ex.backtrace}"
+        alert_msg = "Permanent exception executing #{job}: #{ex.class} #{ex} #{ex.backtrace}"
+      
+        Rails.logger.warn alert_msg
+        channel.application.alert alert_msg
       
         channel.enabled = false
         channel.save!
       rescue Exception => ex # Temporary or unknown exception
-        Rails.logger.info "Temporary exception executing #{job}: #{ex.class} #{ex} #{ex.backtrace}"
+        alert_msg = "Temporary exception executing #{job}: #{ex.class} #{ex} #{ex.backtrace}"
+        
+        Rails.logger.warn alert_msg
+        channel.application.alert alert_msg
       
         Queues.publish_notification ChannelUnsubscriptionJob.new(channel.id), @notifications_session
         EM.add_timer(@suspension_time) do 
