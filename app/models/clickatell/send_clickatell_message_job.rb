@@ -31,20 +31,22 @@ class SendClickatellMessageJob < SendMessageJob
     request.verify_mode = OpenSSL::SSL::VERIFY_NONE
     
     result = ''
-    begin
-      response = request.get(uri)
-      if response.body[0..2] == "ID:"
-         @msg.channel_relative_id = response.body[4..-1]
-      elsif response.body[0..3] == "ERR:"
-        raise response.body[5..-1]
-      else
-        raise response.body
-      end
-    rescue => e
-      @msg.send_failed @app, @channel, e
-    else
+    response = request.get(uri)
+    if response.body[0..2] == "ID:"
+      @msg.channel_relative_id = response.body[4..-1]
       @msg.send_succeeed @app, @channel
-    end
+    elsif response.body[0..3] == "ERR:"
+      code_with_description = response.body[5..-1]
+      code = code_with_description.to_i
+      error = ClickatellChannelHandler::CLICKATELL_ERRORS[code]
+      
+      raise code_with_description if error.nil?
+      raise PermanentException.new(Exception.new(code_with_description)) if error[:kind] == :fatal
+      raise MessageException.new(Exception.new(code_with_description)) if error[:kind] == :message
+      raise code_with_description
+    else
+      raise response.body
+    end   
   end
   
   def append(str, name, value, first = false)

@@ -1,4 +1,4 @@
-class PermanentException < Exception
+class PermanentException < StandardError
 
   attr_reader :inner
 

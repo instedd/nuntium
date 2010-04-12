@@ -1,4 +1,4 @@
-class MessageException < Exception
+class MessageException < StandardError
 
   attr_reader :inner
 

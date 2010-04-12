@@ -99,7 +99,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     msg = AOMessage.create!(:application => @app, :channel => @chan)
     
     Queues.publish_ao msg, FailingJob.new(Exception.new('lorem'))  
-    sleep 0.3
+    sleep 0.6
     
     assert_equal 2, jobs.size
     assert_kind_of ChannelUnsubscriptionJob, jobs[0]

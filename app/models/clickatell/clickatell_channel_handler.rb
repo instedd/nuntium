@@ -84,4 +84,42 @@ class ClickatellChannelHandler < GenericChannelHandler
     '012' => ['Out of credit', 'The message cannot be delivered due to a lack of funds in your account. Please re-purchase credits.'],
     '00C' => ['Out of credit', 'The message cannot be delivered due to a lack of funds in your account. Please re-purchase credits.']
     }
+  
+=begin
+  Clickatell errors are mapped as fatal, temporary, message or unexpected.
+  These categories are used to trap exceptions for SendMessageJob.
+=end  
+  CLICKATELL_ERRORS = {
+    1 => { :kind => :fatal, :description => 'Authentication failed'},
+    2 => { :kind => :fatal, :description => 'Unknown username or password'},
+    3 => { :kind => :unexpected, :description => 'Session ID expired'},
+    4 => { :kind => :fatal, :description => 'Account frozen'},
+    5 => { :kind => :unexpected, :description => 'Missing session ID'},
+    7 => { :kind => :fatal, :description => 'IP Lockdown violation'},
+    101 => { :kind => :message, :description => 'Invalid or missing parameters'},
+    102 => { :kind => :message, :description => 'Invalid user data header'},
+    103 => { :kind => :message, :description => 'Unknown API message ID'},
+    104 => { :kind => :message, :description => 'Unknown client message ID'},
+    105 => { :kind => :message, :description => 'Invalid destination address'},
+    106 => { :kind => :message, :description => 'Invalid source address'},
+    107 => { :kind => :message, :description => 'Empty message'},
+    108 => { :kind => :fatal, :description => 'Invalid or missing API ID'},
+    109 => { :kind => :fatal, :description => 'Missing message ID'},
+    110 => { :kind => :unexpected, :description => 'Error with email message'},
+    111 => { :kind => :unexpected, :description => 'Invalid protocol'},
+    112 => { :kind => :message, :description => 'Invalid message type'},
+    113 => { :kind => :message, :description => 'Maximum message parts exceeded'},
+    114 => { :kind => :message, :description => 'Cannot route message'},
+    115 => { :kind => :message, :description => 'Message expired'},
+    116 => { :kind => :message, :description => 'Invalid Unicode data'},
+    120 => { :kind => :message, :description => 'Invalid delivery time'},
+    121 => { :kind => :message, :description => 'Destination mobile number'},
+    122 => { :kind => :message, :description => 'Destination mobile opted out'},
+    123 => { :kind => :fatal, :description => 'Invalid Sender ID'},
+    128 => { :kind => :message, :description => 'Number delisted'},
+    201 => { :kind => :unexpected, :description => 'Invalid batch ID'},
+    202 => { :kind => :unexpected, :description => 'No batch template'},
+    301 => { :kind => :fatal, :description => 'No credit left'},
+    302 => { :kind => :message, :description => 'Max allowed credit'}
+  }
 end
