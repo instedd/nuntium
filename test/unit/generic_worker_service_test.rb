@@ -25,7 +25,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
   end
 
 	def teardown
-	  @service.stop
+	  @service.stop false # do not stop event machine
 		clean_database
 		clean_queues
 	end

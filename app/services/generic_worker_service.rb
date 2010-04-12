@@ -8,6 +8,9 @@ class GenericWorkerService < Service
   end
 
   def start
+    Rails.logger.info "Starting"
+    MQ.error { |err| Rails.logger.error err }
+  
     @sessions = {}
     
     Channel.find_each(
@@ -30,6 +33,8 @@ class GenericWorkerService < Service
     return unless channel.enabled
     return if @sessions.include? channel.id
     
+    Rails.logger.info "Subscribing to channel #{channel.name} (#{channel.id})"
+    
     mq = MQ.new
     mq.prefetch PrefetchCount
     @sessions[channel.id] = mq
@@ -51,15 +56,20 @@ class GenericWorkerService < Service
   end
   
   def unsubscribe_from_channel(channel_id)
+    Rails.logger.info "Unsubscribing from channel #{channel_id}"
+  
     mq = @sessions.delete(channel_id)
     mq.close if mq
   end
   
-  def stop
-    super
+  def stop(stop_event_machine = true)
+    Rails.logger.info "Stopping"
+  
+    super()
     
     @sessions.keys.each { |k| unsubscribe_from_channel k }
     @notifications_session.close
+    EM.stop_event_loop if stop_event_machine
   end
 
 end

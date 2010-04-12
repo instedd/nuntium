@@ -50,15 +50,15 @@ module Queues
     def deserialize(source)
       handler = YAML.load(source) rescue nil
 
-      if handler.nil?
-        if source =~ ParseObjectFromYaml
+      unless handler.respond_to?(:perform)
+        if handler.nil? && source =~ ParseObjectFromYaml
           handler_class = $1
         end
         attempt_to_load(handler_class || handler.class)
         handler = YAML.load(source)
       end
 
-      return handler if handler
+      return handler if handler.respond_to?(:perform)
 
       raise DeserializationError,
         'Job failed to load: Unknown handler. Try to manually require the appropriate file.'
