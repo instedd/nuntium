@@ -38,10 +38,10 @@ class SendDtacMessageJob < SendMessageJob
       if ( status == 0 )
         @msg.send_succeeed @app, @channel
       else
-        @msg.send_failed @app, @channel, values['Message']
+         raise response.message
       end
     else
-      @msg.send_failed @app, @channel, response.message
+      raise response.message
     end
     :success
   end
