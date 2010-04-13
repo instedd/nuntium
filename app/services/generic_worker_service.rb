@@ -48,7 +48,7 @@ class GenericWorkerService < Service
         alert_msg = "Permanent exception executing #{job}: #{ex.class} #{ex} #{ex.backtrace}"
       
         Rails.logger.warn alert_msg
-        channel.application.alert alert_msg
+        channel.alert alert_msg
       
         channel.enabled = false
         channel.save!
@@ -56,7 +56,7 @@ class GenericWorkerService < Service
         alert_msg = "Temporary exception executing #{job}: #{ex.class} #{ex} #{ex.backtrace}"
         
         Rails.logger.warn alert_msg
-        channel.application.alert alert_msg
+        channel.alert alert_msg
       
         Queues.publish_notification ChannelUnsubscriptionJob.new(channel.id), @notifications_session
         EM.add_timer(@suspension_time) do 

@@ -34,6 +34,12 @@ class PullQstChannelMessageJob
     elsif response.code == "304" # not modified
       RAILS_DEFAULT_LOGGER.info "Pull QST in channel #{@channel_id}: no new messages"
       return :success
+    elsif response.code == "401" # Unauthorized
+      channel.alert "Unauthorized: invalid credentials"
+    
+      channel.enabled = false
+      channel.save!
+      return
     elsif response.code[0,1] != "2" # not success
       app.logger.error_pulling_msgs response.message
       return :error_pulling_messages

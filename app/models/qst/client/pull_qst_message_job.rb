@@ -32,6 +32,12 @@ class PullQstMessageJob
     elsif response.code == "304" # not modified
       RAILS_DEFAULT_LOGGER.info "Pull QST in application #{app.name}: no new messages"
       return :success
+    elsif response.code == "401" # Unauthorized
+      app.alert "Pulling QST received unauthorized: invalid credentials"
+    
+      app.interface = 'rss'
+      app.save!
+      return
     elsif response.code[0,1] != "2" # not success
       app.logger.error_pulling_msgs response.message
       return :error_pulling_messages

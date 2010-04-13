@@ -4,7 +4,11 @@ class CronWorkerService < Service
     
     @session = MQ.new
     Queues.subscribe_cron_tasks @session do |header, task|
-      task.perform
+      begin
+        task.perform
+      rescue Exception => ex
+        Rails.logger.error "Error executing task #{task}: #{ex}"
+      end
     end
         
   end

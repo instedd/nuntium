@@ -147,6 +147,7 @@ class Application < ActiveRecord::Base
   def alert(message)
     # TODO send an email somehow...
     Rails.logger.info "Received alert for application #{self.name}: #{message}"
+    logger.error message.to_s
   end
   
   def logger
