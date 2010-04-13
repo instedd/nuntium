@@ -26,8 +26,8 @@ end
 God.watch do |w|
   w.name = "nuntium-cron"
   w.interval = 5.seconds
-  w.start = "ruby #{RAILS_ROOT}/lib/services/unix/cron_daemon_ctrl.rb start -- production"
-  w.stop = "ruby #{RAILS_ROOT}/lib/services/unix/cron_daemon_ctrl.rb stop"
+  w.start = "ruby #{RAILS_ROOT}/lib/services/cron_daemon_ctrl.rb start -- production"
+  w.stop = "ruby #{RAILS_ROOT}/lib/services/cron_daemon_ctrl.rb stop"
   w.pid_file = File.join(RAILS_ROOT, "tmp/pids/cron_daemon.pid")
   w.behavior(:clean_pid_file)
   w.start_if do |start|
@@ -40,8 +40,8 @@ end
 God.watch do |w|
   w.name = "nuntium-alert-service"
   w.interval = 5.seconds
-  w.start = "ruby #{RAILS_ROOT}/lib/services/unix/alert_service_daemon_ctl.rb start -- production"
-  w.stop = "ruby #{RAILS_ROOT}/lib/services/unix/alert_service_daemon_ctl.rb stop"
+  w.start = "ruby #{RAILS_ROOT}/lib/services/alert_service_daemon_ctl.rb start -- production"
+  w.stop = "ruby #{RAILS_ROOT}/lib/services/alert_service_daemon_ctl.rb stop"
   w.pid_file = File.join(RAILS_ROOT, "tmp/pids/alert_service_daemon.pid")
   w.behavior(:clean_pid_file)
   w.start_if do |start|
