@@ -21,7 +21,7 @@ class ReceivePop3MessageJob
     
     begin
       pop.start(config[:user], config[:password])
-    rescue Net::SMTPAuthenticationError => ex
+    rescue Net::POPAuthenticationError => ex
       @channel.alert "#{ex}"
     
       @channel.enabled = false
