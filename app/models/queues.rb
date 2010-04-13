@@ -40,6 +40,16 @@ module Queues
 		def purge_notifications(id, mq = MQ)
 			bind_notifications(id, mq).purge
 		end
+		
+		def publish_cron_task(task, mq = MQ)
+		  cron_tasks_exchange(mq).publish(task.to_yaml, :persistent => true)
+    end
+    
+    def subscribe_cron_tasks(mq = MQ)
+      bind_cron_tasks(mq).subscribe do |header, task|
+        yield header, deserialize(task)
+      end
+    end
     
     def reconnect(mq)
       new_mq = MQ.new
@@ -95,6 +105,18 @@ module Queues
     
     def bind_notifications(id, mq = MQ)
       notifications_queue(id, mq).bind(notifications_exchange(mq))
+    end
+    
+    def cron_tasks_queue(mq = MQ)
+      mq.queue("cron_tasks_queue")
+    end
+    
+    def cron_tasks_exchange(mq = MQ)
+      mq.direct("cron_tasks")
+    end
+    
+    def bind_cron_tasks(mq = MQ)
+      cron_tasks_queue(mq).bind(cron_tasks_exchange(mq))
     end
 
     # Constantize the object so that ActiveSupport can attempt

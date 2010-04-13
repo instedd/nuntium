@@ -14,7 +14,7 @@ module CronDaemonRun
 
   # Enqueue a descriptor for the specified task
   def enqueue(task)
-    Delayed::Job.enqueue CronTaskDescriptor.new(task.id)
+    Queues.publish_cron_task CronTaskDescriptor.new(task.id)
     RAILS_DEFAULT_LOGGER.debug "Enqueued job for task '#{task.id}'"
   end
 
