@@ -3,23 +3,24 @@ require 'mocha'
 
 class GenericWorkerServiceTest < ActiveSupport::TestCase
 
-  EM.error_handler { |e| puts e }
-
   self.use_transactional_fixtures = false
 
   include Mocha::API
   
+  @@id = 0
+  
   def setup
 		clean_database
 
-    @id = 123
+    @@id = @@id + 1
     @app = Application.create(:name => 'app', :password => 'foo')
-    @service = GenericWorkerService.new(nil, @id, 0.1)
+    @service = GenericWorkerService.new(nil, @@id, 0.1)
     
     @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'sms', :direction => Channel::Outgoing)
     @chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :from => 'something', :incoming_password => 'incoming_pass' }
     @chan.save!
 
+    Queues.purge_notifications @@id
 		clean_queues
     
     StubJob.value_after_perform = nil
@@ -38,7 +39,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
   end
   
   test "should subscribe to notifications" do
-    Queues.expects(:subscribe_notifications).with(@id, kind_of(MQ))
+    Queues.expects(:subscribe_notifications).with(@@id, kind_of(MQ))
     
     @service.start
   end
@@ -148,7 +149,6 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 
 	def clean_queues
 		Channel.all.each {|c| Queues.purge_ao c}
-		Queues.purge_notifications @id
 		sleep 0.3
 	end
   
