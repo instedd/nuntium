@@ -53,14 +53,9 @@ Rails::Initializer.run do |config|
     
   $log_path = "#{RAILS_ROOT}/log/#{ENV['RAILS_ENV'] || 'development'}.log" if $log_path.nil?
   
-  if RUBY_PLATFORM.include?('mswin')
-    require 'nuntium_logger'
-    config.logger = NuntiumLogger.new $log_path, 'rails'
-  else
-    config.log_path = $log_path
-    config.logger = Logger.new($log_path)
-    config.logger.formatter = Logger::Formatter.new
-  end
+  config.log_path = $log_path
+  config.logger = Logger.new($log_path)
+  config.logger.formatter = Logger::Formatter.new
   
   # Start AMQP after rails loads:
   config.after_initialize {
