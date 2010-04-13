@@ -1,4 +1,4 @@
-# Descriptor of a cron task to be executed by delayed job
+# Descriptor of a cron task to be executed by a cron task executor
 class CronTaskDescriptor
   attr_accessor :task_id
   cattr_accessor :logger

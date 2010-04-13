@@ -1,0 +1,288 @@
+# Logfile created on Tue Apr 13 14:59:30 -0300 2010 by logger.rb/22285
+D, [2010-04-13T15:00:11.642784 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mSET SQL_AUTO_IS_NULL=0[0m
+D, [2010-04-13T15:00:11.644311 #21858] DEBUG -- :   [4;35;1mCronTask Columns (0.7ms)[0m   [0mSHOW FIELDS FROM `cron_tasks`[0m
+D, [2010-04-13T15:00:11.687688 #21858] DEBUG -- :   [4;36;1mCronTask Load (0.4ms)[0m   [0;1mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 3) LIMIT 1[0m
+D, [2010-04-13T15:00:11.788024 #21858] DEBUG -- :   [4;35;1mSQL (0.1ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:00:11.810875 #21858] DEBUG -- :   [4;36;1mCronTask Update (0.3ms)[0m   [0;1mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:00:11', `locked_tag` = '21858', `last_run` = '2010-04-13 18:00:11' WHERE `id` = 3[0m
+D, [2010-04-13T15:00:11.857420 #21858] DEBUG -- :   [4;35;1mSQL (45.9ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:00:11.942085 #21858] DEBUG -- :   [4;36;1mApplication Columns (0.7ms)[0m   [0;1mSHOW FIELDS FROM `applications`[0m
+D, [2010-04-13T15:00:11.943055 #21858] DEBUG -- :   [4;35;1mApplication Load (0.1ms)[0m   [0mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) [0m
+D, [2010-04-13T15:00:11.967058 #21858] DEBUG -- :   [4;36;1mChannel Columns (0.8ms)[0m   [0;1mSHOW FIELDS FROM `channels`[0m
+D, [2010-04-13T15:00:11.968024 #21858] DEBUG -- :   [4;35;1mChannel Load (0.1ms)[0m   [0mSELECT * FROM `channels` WHERE (`channels`.`id` = 10) [0m
+D, [2010-04-13T15:00:14.438064 #21858] DEBUG -- :   [4;36;1mApplication Load (0.2ms)[0m   [0;1mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) [0m
+I, [2010-04-13T15:00:14.442378 #21858]  INFO -- : Received alert for channel gmail in application a: -ERR [AUTH] Username and password not accepted.
+D, [2010-04-13T15:00:14.562256 #21858] DEBUG -- :   [4;35;1mSQL (38.4ms)[0m   [0mINSERT INTO application_logs (application_id, channel_id, ao_message_id, at_message_id, message, severity, created_at, updated_at) VALUES (1,10,NULL,NULL,'-ERR [AUTH] Username and password not accepted.',3,'2010-04-13 18:00:14','2010-04-13 18:00:14')[0m
+D, [2010-04-13T15:00:14.564126 #21858] DEBUG -- :   [4;36;1mSQL (0.4ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:00:14.569745 #21858] DEBUG -- :   [4;35;1mChannel Load (0.9ms)[0m   [0mSELECT `channels`.id FROM `channels` WHERE (`channels`.`name` = BINARY 'gmail' AND `channels`.application_id = 1 AND `channels`.id <> 10) LIMIT 1[0m
+D, [2010-04-13T15:00:14.606774 #21858] DEBUG -- :   [4;36;1mChannel Update (0.3ms)[0m   [0;1mUPDATE `channels` SET `enabled` = 0, `updated_at` = '2010-04-13 18:00:14', `configuration` = '--- !map:HashWithIndifferentAccess \nport: \"995\"\nhost: pop.gmail.com\nuser: pepe.cadorna@gmail.com\npassword: Manas.03\nuse_ssl: \"1\"\n' WHERE `id` = 10[0m
+D, [2010-04-13T15:00:14.608767 #21858] DEBUG -- :   [4;35;1mCronTask Load (0.3ms)[0m   [0mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`name` = 'pop3-receive') AND (`cron_tasks`.parent_id = 10 AND `cron_tasks`.parent_type = 'Channel') LIMIT 1[0m
+D, [2010-04-13T15:00:14.609931 #21858] DEBUG -- :   [4;36;1mCronTask Destroy (0.6ms)[0m   [0;1mDELETE FROM `cron_tasks` WHERE `id` = 3[0m
+D, [2010-04-13T15:00:14.611963 #21858] DEBUG -- :   [4;35;1mApplication Load (0.3ms)[0m   [0mSELECT `applications`.id FROM `applications` WHERE (`applications`.`name` = BINARY 'a' AND `applications`.id <> 1) LIMIT 1[0m
+D, [2010-04-13T15:00:14.613857 #21858] DEBUG -- :   [4;36;1mApplication Update (0.2ms)[0m   [0;1mUPDATE `applications` SET `updated_at` = '2010-04-13 18:00:14', `configuration` = '--- {}\n\n' WHERE `id` = 1[0m
+D, [2010-04-13T15:00:14.651305 #21858] DEBUG -- :   [4;35;1mSQL (36.6ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:00:14.651997 #21858] DEBUG -- : Task '3' executed successfully
+D, [2010-04-13T15:00:14.653029 #21858] DEBUG -- :   [4;36;1mSQL (0.2ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:00:14.657257 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.8ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:00:14', `locked_tag` = NULL WHERE `id` = 3[0m
+D, [2010-04-13T15:00:14.659418 #21858] DEBUG -- :   [4;36;1mSQL (1.0ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:04:11.941631 #21858] DEBUG -- :   [4;35;1mCronTask Load (1.8ms)[0m   [0mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 4) LIMIT 1[0m
+D, [2010-04-13T15:04:11.943525 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:04:11.950006 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.6ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:04:11', `locked_tag` = '21858', `last_run` = '2010-04-13 18:04:11' WHERE `id` = 4[0m
+D, [2010-04-13T15:04:11.990330 #21858] DEBUG -- :   [4;36;1mSQL (39.3ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:04:12.011007 #21858] DEBUG -- :   [4;35;1mApplication Load (0.2ms)[0m   [0mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) [0m
+D, [2010-04-13T15:04:12.012057 #21858] DEBUG -- :   [4;36;1mChannel Load (0.1ms)[0m   [0;1mSELECT * FROM `channels` WHERE (`channels`.`id` = 11) [0m
+D, [2010-04-13T15:04:12.024557 #21858] DEBUG -- :   [4;35;1mTwitterChannelStatus Load (1.5ms)[0m   [0mSELECT * FROM `twitter_channel_statuses` WHERE (`twitter_channel_statuses`.`channel_id` = 11) LIMIT 1[0m
+D, [2010-04-13T15:04:14.079648 #21858] DEBUG -- :   [4;36;1mTwitterChannelStatus Columns (1.5ms)[0m   [0;1mSHOW FIELDS FROM `twitter_channel_statuses`[0m
+D, [2010-04-13T15:04:50.492615 #21858] DEBUG -- :   [4;35;1mApplication Load (0.2ms)[0m   [0mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) [0m
+I, [2010-04-13T15:04:50.495433 #21858]  INFO -- : Received alert for channel nuntium_app in application a: (401): Unauthorized - This method requires authentication.
+D, [2010-04-13T15:04:50.575021 #21858] DEBUG -- :   [4;36;1mSQL (78.7ms)[0m   [0;1mINSERT INTO application_logs (application_id, channel_id, ao_message_id, at_message_id, message, severity, created_at, updated_at) VALUES (1,11,NULL,NULL,'(401): Unauthorized - This method requires authentication.',3,'2010-04-13 18:04:50','2010-04-13 18:04:50')[0m
+D, [2010-04-13T15:04:50.576334 #21858] DEBUG -- :   [4;35;1mSQL (0.1ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:04:50.580683 #21858] DEBUG -- :   [4;36;1mChannel Load (0.7ms)[0m   [0;1mSELECT `channels`.id FROM `channels` WHERE (`channels`.`name` = BINARY 'nuntium_app' AND `channels`.application_id = 1 AND `channels`.id <> 11) LIMIT 1[0m
+D, [2010-04-13T15:04:50.586191 #21858] DEBUG -- :   [4;35;1mChannel Update (0.6ms)[0m   [0mUPDATE `channels` SET `enabled` = 0, `updated_at` = '2010-04-13 18:04:50', `configuration` = '--- \n:secret: Mr3SnfZuNpZv54hgPlD883LaC6MM7Uqz2706YTG7I\n:welcome_message: \"\"\n:token: 89710833-btSUTXRIJDkm5hUgdQntcz1gEPTugbfZ58Ma6Xq8T\n:screen_name: nuntium_app\n' WHERE `id` = 11[0m
+D, [2010-04-13T15:04:50.620892 #21858] DEBUG -- :   [4;36;1mCronTask Load (0.4ms)[0m   [0;1mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`name` = 'twitter-receive') AND (`cron_tasks`.parent_id = 11 AND `cron_tasks`.parent_type = 'Channel') LIMIT 1[0m
+D, [2010-04-13T15:04:50.621741 #21858] DEBUG -- :   [4;35;1mCronTask Destroy (0.2ms)[0m   [0mDELETE FROM `cron_tasks` WHERE `id` = 4[0m
+D, [2010-04-13T15:04:50.623627 #21858] DEBUG -- :   [4;36;1mApplication Load (0.3ms)[0m   [0;1mSELECT `applications`.id FROM `applications` WHERE (`applications`.`name` = BINARY 'a' AND `applications`.id <> 1) LIMIT 1[0m
+D, [2010-04-13T15:04:50.625461 #21858] DEBUG -- :   [4;35;1mApplication Update (0.2ms)[0m   [0mUPDATE `applications` SET `updated_at` = '2010-04-13 18:04:50', `configuration` = '--- {}\n\n' WHERE `id` = 1[0m
+D, [2010-04-13T15:04:50.664349 #21858] DEBUG -- :   [4;36;1mSQL (38.0ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:04:50.665813 #21858] DEBUG -- :   [4;35;1mSQL (0.2ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:04:50.668902 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:04:50.669327 #21858] DEBUG -- : Task '4' executed successfully
+D, [2010-04-13T15:04:50.670259 #21858] DEBUG -- :   [4;35;1mSQL (0.1ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:04:50.673981 #21858] DEBUG -- :   [4;36;1mCronTask Update (0.4ms)[0m   [0;1mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:04:50', `locked_tag` = NULL WHERE `id` = 4[0m
+D, [2010-04-13T15:04:50.675177 #21858] DEBUG -- :   [4;35;1mSQL (0.1ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:07:32.270748 #21858] DEBUG -- :   [4;36;1mCronTask Load (0.3ms)[0m   [0;1mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 5) LIMIT 1[0m
+D, [2010-04-13T15:07:32.271562 #21858] DEBUG -- :   [4;35;1mSQL (0.1ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:07:32.273196 #21858] DEBUG -- :   [4;36;1mCronTask Update (0.3ms)[0m   [0;1mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:07:32', `locked_tag` = '21858', `last_run` = '2010-04-13 18:07:32' WHERE `id` = 5[0m
+D, [2010-04-13T15:07:32.315403 #21858] DEBUG -- :   [4;35;1mSQL (41.7ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:07:32.317883 #21858] DEBUG -- :   [4;36;1mApplication Load (0.4ms)[0m   [0;1mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) [0m
+D, [2010-04-13T15:07:32.319356 #21858] DEBUG -- :   [4;35;1mChannel Load (0.1ms)[0m   [0mSELECT * FROM `channels` WHERE (`channels`.`id` = 11) [0m
+D, [2010-04-13T15:07:32.321045 #21858] DEBUG -- :   [4;36;1mTwitterChannelStatus Load (0.1ms)[0m   [0;1mSELECT * FROM `twitter_channel_statuses` WHERE (`twitter_channel_statuses`.`channel_id` = 11) LIMIT 1[0m
+D, [2010-04-13T15:08:44.048424 #21858] DEBUG -- :   [4;35;1mSQL (0.1ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:08:44.060349 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:08:44.104466 #21858] DEBUG -- :   [4;35;1mSQL (43.5ms)[0m   [0mINSERT INTO application_logs (application_id, channel_id, ao_message_id, at_message_id, message, severity, created_at, updated_at) VALUES (1,11,NULL,NULL,'Errno::ECONNRESET - Connection reset by peer',3,'2010-04-13 18:08:44','2010-04-13 18:08:44')[0m
+D, [2010-04-13T15:08:44.104881 #21858] DEBUG -- : Task '5' executed successfully
+D, [2010-04-13T15:08:44.106051 #21858] DEBUG -- :   [4;36;1mSQL (0.7ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:08:44.109588 #21858] DEBUG -- :   [4;35;1mCronTask Update (1.7ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:08:44', `locked_tag` = NULL WHERE `id` = 5[0m
+D, [2010-04-13T15:08:44.148945 #21858] DEBUG -- :   [4;36;1mSQL (38.7ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:11:32.631487 #21858] DEBUG -- :   [4;35;1mCronTask Load (0.6ms)[0m   [0mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 5) LIMIT 1[0m
+D, [2010-04-13T15:11:32.633191 #21858] DEBUG -- :   [4;36;1mSQL (0.4ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:11:32.637103 #21858] DEBUG -- :   [4;35;1mCronTask Update (1.0ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:11:32', `locked_tag` = '21858', `last_run` = '2010-04-13 18:11:32' WHERE `id` = 5[0m
+D, [2010-04-13T15:11:32.707070 #21858] DEBUG -- :   [4;36;1mSQL (68.9ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:11:32.708474 #21858] DEBUG -- :   [4;35;1mApplication Load (0.3ms)[0m   [0mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) [0m
+D, [2010-04-13T15:11:32.709233 #21858] DEBUG -- :   [4;36;1mChannel Load (0.2ms)[0m   [0;1mSELECT * FROM `channels` WHERE (`channels`.`id` = 11) [0m
+D, [2010-04-13T15:11:32.710112 #21858] DEBUG -- :   [4;35;1mTwitterChannelStatus Load (0.1ms)[0m   [0mSELECT * FROM `twitter_channel_statuses` WHERE (`twitter_channel_statuses`.`channel_id` = 11) LIMIT 1[0m
+D, [2010-04-13T15:12:32.799791 #21858] DEBUG -- :   [4;36;1mSQL (0.2ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:12:32.802701 #21858] DEBUG -- :   [4;35;1mSQL (0.1ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:12:32.803172 #21858] DEBUG -- : Task '5' executed successfully
+D, [2010-04-13T15:12:32.804115 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:12:32.808250 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.6ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:12:32', `locked_tag` = NULL WHERE `id` = 5[0m
+D, [2010-04-13T15:12:32.866278 #21858] DEBUG -- :   [4;36;1mSQL (57.0ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:14:32.979078 #21858] DEBUG -- :   [4;35;1mCronTask Load (3.9ms)[0m   [0mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 6) LIMIT 1[0m
+D, [2010-04-13T15:14:32.980476 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:14:32.985145 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.6ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:14:32', `locked_tag` = '21858', `last_run` = '2010-04-13 18:14:32' WHERE `id` = 6[0m
+D, [2010-04-13T15:14:33.059175 #21858] DEBUG -- :   [4;36;1mSQL (73.0ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:14:33.278413 #21858] DEBUG -- :   [4;35;1mApplication Load (8.8ms)[0m   [0mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:14:33.300285 #21858] DEBUG -- :   [4;36;1mChannel Load (20.5ms)[0m   [0;1mSELECT * FROM `channels` WHERE (`channels`.`id` = 13) LIMIT 1[0m
+D, [2010-04-13T15:14:33.954139 #21858] DEBUG -- :   [4;35;1mAOMessage Columns (0.8ms)[0m   [0mSHOW FIELDS FROM `ao_messages`[0m
+D, [2010-04-13T15:14:33.955833 #21858] DEBUG -- :   [4;36;1mAOMessage Load (0.3ms)[0m   [0;1mSELECT * FROM `ao_messages` WHERE (`ao_messages`.`guid` = 'd91dde6a-aa24-483b-db63-6cf70e362fab') LIMIT 1[0m
+D, [2010-04-13T15:14:33.956695 #21858] DEBUG -- :   [4;35;1mApplication Load (0.2ms)[0m   [0mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) [0m
+D, [2010-04-13T15:14:34.005536 #21858] DEBUG -- :   [4;36;1mSQL (48.3ms)[0m   [0;1mINSERT INTO application_logs (application_id, channel_id, ao_message_id, at_message_id, message, severity, created_at, updated_at) VALUES (1,NULL,NULL,NULL,'Error obtaining last id from server in QST operation: ''Invalid guid d91dde6a-aa24-483b-db63-6cf70e362fab''',3,'2010-04-13 18:14:33','2010-04-13 18:14:33')[0m
+D, [2010-04-13T15:14:34.008155 #21858] DEBUG -- :   [4;35;1mAOMessage Load (1.0ms)[0m   [0mSELECT * FROM `ao_messages` WHERE (state IN ('delivered', 'queued') AND channel_id = 13) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:14:34.008670 #21858]  INFO -- : Push QST in channel 13: no new messages
+D, [2010-04-13T15:14:34.009391 #21858] DEBUG -- : Task '6' executed successfully
+D, [2010-04-13T15:14:34.010496 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:14:34.014415 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.5ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:14:34', `locked_tag` = NULL WHERE `id` = 6[0m
+D, [2010-04-13T15:14:34.061592 #21858] DEBUG -- :   [4;36;1mSQL (46.2ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:14:53.091307 #21858] DEBUG -- :   [4;35;1mCronTask Load (0.6ms)[0m   [0mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 6) LIMIT 1[0m
+D, [2010-04-13T15:14:53.093934 #21858] DEBUG -- :   [4;36;1mSQL (0.9ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:14:53.097891 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.3ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:14:53', `locked_tag` = '21858', `last_run` = '2010-04-13 18:14:53' WHERE `id` = 6[0m
+D, [2010-04-13T15:14:53.181776 #21858] DEBUG -- :   [4;36;1mSQL (83.3ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:14:53.231078 #21858] DEBUG -- :   [4;35;1mApplication Load (0.1ms)[0m   [0mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:14:53.232340 #21858] DEBUG -- :   [4;36;1mChannel Load (0.1ms)[0m   [0;1mSELECT * FROM `channels` WHERE (`channels`.`id` = 13) LIMIT 1[0m
+D, [2010-04-13T15:14:53.473139 #21858] DEBUG -- :   [4;35;1mAOMessage Load (0.1ms)[0m   [0mSELECT * FROM `ao_messages` WHERE (`ao_messages`.`guid` = 'd91dde6a-aa24-483b-db63-6cf70e362fab') LIMIT 1[0m
+D, [2010-04-13T15:14:53.474008 #21858] DEBUG -- :   [4;36;1mApplication Load (0.1ms)[0m   [0;1mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) [0m
+D, [2010-04-13T15:14:53.525410 #21858] DEBUG -- :   [4;35;1mSQL (50.8ms)[0m   [0mINSERT INTO application_logs (application_id, channel_id, ao_message_id, at_message_id, message, severity, created_at, updated_at) VALUES (1,NULL,NULL,NULL,'Error obtaining last id from server in QST operation: ''Invalid guid d91dde6a-aa24-483b-db63-6cf70e362fab''',3,'2010-04-13 18:14:53','2010-04-13 18:14:53')[0m
+D, [2010-04-13T15:14:53.527159 #21858] DEBUG -- :   [4;36;1mAOMessage Load (0.4ms)[0m   [0;1mSELECT * FROM `ao_messages` WHERE (state IN ('delivered', 'queued') AND channel_id = 13) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:14:53.527593 #21858]  INFO -- : Push QST in channel 13: no new messages
+D, [2010-04-13T15:14:53.527773 #21858] DEBUG -- : Task '6' executed successfully
+D, [2010-04-13T15:14:53.528294 #21858] DEBUG -- :   [4;35;1mSQL (0.1ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:14:53.530256 #21858] DEBUG -- :   [4;36;1mCronTask Update (0.4ms)[0m   [0;1mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:14:53', `locked_tag` = NULL WHERE `id` = 6[0m
+D, [2010-04-13T15:14:53.593432 #21858] DEBUG -- :   [4;35;1mSQL (62.6ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:15:13.233944 #21858] DEBUG -- :   [4;36;1mCronTask Load (0.2ms)[0m   [0;1mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 6) LIMIT 1[0m
+D, [2010-04-13T15:15:13.237951 #21858] DEBUG -- :   [4;35;1mSQL (1.7ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:15:13.242892 #21858] DEBUG -- :   [4;36;1mCronTask Update (0.5ms)[0m   [0;1mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:15:13', `locked_tag` = '21858', `last_run` = '2010-04-13 18:15:13' WHERE `id` = 6[0m
+D, [2010-04-13T15:15:13.338784 #21858] DEBUG -- :   [4;35;1mSQL (94.4ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:15:13.386872 #21858] DEBUG -- :   [4;36;1mApplication Load (8.8ms)[0m   [0;1mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:15:13.389696 #21858] DEBUG -- :   [4;35;1mChannel Load (1.9ms)[0m   [0mSELECT * FROM `channels` WHERE (`channels`.`id` = 13) LIMIT 1[0m
+D, [2010-04-13T15:15:14.320939 #21858] DEBUG -- :   [4;36;1mAOMessage Load (0.4ms)[0m   [0;1mSELECT * FROM `ao_messages` WHERE (`ao_messages`.`guid` = 'cdf6ca94-11f3-ffcb-5457-eb4c90f0f9d1') LIMIT 1[0m
+D, [2010-04-13T15:15:14.323796 #21858] DEBUG -- :   [4;35;1mAOMessage Update (0.3ms)[0m   [0mUPDATE `ao_messages` SET state = 'confirmed' WHERE (state IN ('delivered', 'queued') AND timestamp <= '2010-04-13 18:15:02' AND channel_id = 13) [0m
+D, [2010-04-13T15:15:14.324545 #21858] DEBUG -- :   [4;36;1mAOMessage Load (0.2ms)[0m   [0;1mSELECT * FROM `ao_messages` WHERE (state IN ('delivered', 'queued') AND timestamp > '2010-04-13 18:15:02' AND channel_id = 13) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:15:14.324695 #21858]  INFO -- : Push QST in channel 13: no new messages
+D, [2010-04-13T15:15:14.324987 #21858] DEBUG -- :   [4;35;1mSQL (0.0ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:15:14.326097 #21858] DEBUG -- :   [4;36;1mApplication Load (0.2ms)[0m   [0;1mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) [0m
+D, [2010-04-13T15:15:14.327092 #21858] DEBUG -- :   [4;35;1mChannel Load (0.2ms)[0m   [0mSELECT `channels`.id FROM `channels` WHERE (`channels`.`name` = BINARY 'qst_client' AND `channels`.application_id = 1 AND `channels`.id <> 13) LIMIT 1[0m
+D, [2010-04-13T15:15:14.351991 #21858] DEBUG -- :   [4;36;1mChannel Update (0.3ms)[0m   [0;1mUPDATE `channels` SET `configuration` = '--- !map:HashWithIndifferentAccess \nurl: http://localhost:3000/qst/a\nlast_ao_guid: cdf6ca94-11f3-ffcb-5457-eb4c90f0f9d1\nuser: qst\npassword: uno\n' WHERE `id` = 13[0m
+D, [2010-04-13T15:15:14.354393 #21858] DEBUG -- :   [4;35;1mApplication Load (0.3ms)[0m   [0mSELECT `applications`.id FROM `applications` WHERE (`applications`.`name` = BINARY 'a' AND `applications`.id <> 1) LIMIT 1[0m
+D, [2010-04-13T15:15:14.356143 #21858] DEBUG -- :   [4;36;1mApplication Update (0.2ms)[0m   [0;1mUPDATE `applications` SET `updated_at` = '2010-04-13 18:15:14', `configuration` = '--- {}\n\n' WHERE `id` = 1[0m
+D, [2010-04-13T15:15:14.416703 #21858] DEBUG -- :   [4;35;1mSQL (59.7ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:15:14.417774 #21858] DEBUG -- : Task '6' executed successfully
+D, [2010-04-13T15:15:14.418843 #21858] DEBUG -- :   [4;36;1mSQL (0.2ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:15:14.422538 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.5ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:15:14', `locked_tag` = NULL WHERE `id` = 6[0m
+D, [2010-04-13T15:15:14.472345 #21858] DEBUG -- :   [4;36;1mSQL (48.9ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:15:33.396926 #21858] DEBUG -- :   [4;35;1mCronTask Load (1.4ms)[0m   [0mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 6) LIMIT 1[0m
+D, [2010-04-13T15:15:33.402087 #21858] DEBUG -- :   [4;36;1mSQL (2.6ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:15:33.404400 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.9ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:15:33', `locked_tag` = '21858', `last_run` = '2010-04-13 18:15:33' WHERE `id` = 6[0m
+D, [2010-04-13T15:15:33.506295 #21858] DEBUG -- :   [4;36;1mSQL (101.4ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:15:33.558850 #21858] DEBUG -- :   [4;35;1mApplication Load (0.1ms)[0m   [0mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:15:33.560065 #21858] DEBUG -- :   [4;36;1mChannel Load (0.1ms)[0m   [0;1mSELECT * FROM `channels` WHERE (`channels`.`id` = 13) LIMIT 1[0m
+D, [2010-04-13T15:15:33.562148 #21858] DEBUG -- :   [4;35;1mAOMessage Load (0.7ms)[0m   [0mSELECT * FROM `ao_messages` WHERE (state IN ('delivered', 'queued') AND channel_id = 13) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:15:33.562357 #21858]  INFO -- : Push QST in channel 13: no new messages
+D, [2010-04-13T15:15:33.562495 #21858] DEBUG -- : Task '6' executed successfully
+D, [2010-04-13T15:15:33.562944 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:15:33.565233 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.9ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:15:33', `locked_tag` = NULL WHERE `id` = 6[0m
+D, [2010-04-13T15:15:33.606357 #21858] DEBUG -- :   [4;36;1mSQL (40.6ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:15:53.649731 #21858] DEBUG -- :   [4;35;1mCronTask Load (1.1ms)[0m   [0mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 6) LIMIT 1[0m
+D, [2010-04-13T15:15:53.651312 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:15:53.658233 #21858] DEBUG -- :   [4;35;1mCronTask Update (3.4ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:15:53', `locked_tag` = '21858', `last_run` = '2010-04-13 18:15:53' WHERE `id` = 6[0m
+D, [2010-04-13T15:15:53.747784 #21858] DEBUG -- :   [4;36;1mSQL (87.5ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:15:53.815567 #21858] DEBUG -- :   [4;35;1mApplication Load (3.1ms)[0m   [0mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:15:53.816573 #21858] DEBUG -- :   [4;36;1mChannel Load (0.1ms)[0m   [0;1mSELECT * FROM `channels` WHERE (`channels`.`id` = 13) LIMIT 1[0m
+D, [2010-04-13T15:15:53.820580 #21858] DEBUG -- :   [4;35;1mAOMessage Load (0.5ms)[0m   [0mSELECT * FROM `ao_messages` WHERE (state IN ('delivered', 'queued') AND channel_id = 13) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:15:53.820881 #21858]  INFO -- : Push QST in channel 13: no new messages
+D, [2010-04-13T15:15:53.821026 #21858] DEBUG -- : Task '6' executed successfully
+D, [2010-04-13T15:15:53.824930 #21858] DEBUG -- :   [4;36;1mSQL (3.5ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:15:53.829576 #21858] DEBUG -- :   [4;35;1mCronTask Update (3.0ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:15:53', `locked_tag` = NULL WHERE `id` = 6[0m
+D, [2010-04-13T15:15:53.873349 #21858] DEBUG -- :   [4;36;1mSQL (43.2ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:16:33.752599 #21858] DEBUG -- :   [4;35;1mCronTask Load (0.7ms)[0m   [0mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 8) LIMIT 1[0m
+D, [2010-04-13T15:16:33.754048 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:16:33.812233 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.3ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:16:33', `locked_tag` = '21858', `last_run` = '2010-04-13 18:16:33' WHERE `id` = 8[0m
+D, [2010-04-13T15:16:34.039188 #21858] DEBUG -- :   [4;36;1mSQL (226.3ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:16:34.101849 #21858] DEBUG -- :   [4;35;1mApplication Load (0.1ms)[0m   [0mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:16:34.950923 #21858] DEBUG -- :   [4;36;1mATMessage Columns (0.8ms)[0m   [0;1mSHOW FIELDS FROM `at_messages`[0m
+D, [2010-04-13T15:16:34.952902 #21858] DEBUG -- :   [4;35;1mATMessage Load (0.5ms)[0m   [0mSELECT * FROM `at_messages` WHERE (`at_messages`.`guid` = 'cdf6ca94-11f3-ffcb-5457-eb4c90f0f9d1') LIMIT 1[0m
+D, [2010-04-13T15:16:35.009370 #21858] DEBUG -- :   [4;36;1mATMessage Update (53.7ms)[0m   [0;1mUPDATE `at_messages` SET state = 'confirmed' WHERE (state IN ('delivered', 'queued') AND timestamp <= '2010-04-13 18:15:02' AND application_id = 1) [0m
+D, [2010-04-13T15:16:35.013910 #21858] DEBUG -- :   [4;35;1mATMessage Load (2.8ms)[0m   [0mSELECT * FROM `at_messages` WHERE (state IN ('delivered', 'queued') AND timestamp > '2010-04-13 18:15:02' AND application_id = 1) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:16:35.014443 #21858]  INFO -- : Push QST in application a: no new messages
+D, [2010-04-13T15:16:35.015525 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:16:35.019120 #21858] DEBUG -- :   [4;35;1mApplication Load (0.4ms)[0m   [0mSELECT `applications`.id FROM `applications` WHERE (`applications`.`name` = BINARY 'a' AND `applications`.id <> 1) LIMIT 1[0m
+D, [2010-04-13T15:16:35.022190 #21858] DEBUG -- :   [4;36;1mApplication Update (1.1ms)[0m   [0;1mUPDATE `applications` SET `configuration` = '--- \n:cred_pass: dos\n:last_at_guid: cdf6ca94-11f3-ffcb-5457-eb4c90f0f9d1\n:url: http://localhost:3000/qst/a\n:cred_user: qst\n' WHERE `id` = 1[0m
+D, [2010-04-13T15:16:35.064069 #21858] DEBUG -- :   [4;35;1mSQL (41.0ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:16:35.064717 #21858] DEBUG -- : Task '8' executed successfully
+D, [2010-04-13T15:16:35.065912 #21858] DEBUG -- :   [4;36;1mSQL (0.3ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:16:35.070664 #21858] DEBUG -- :   [4;35;1mCronTask Update (1.2ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:16:35', `locked_tag` = NULL WHERE `id` = 8[0m
+D, [2010-04-13T15:16:35.119971 #21858] DEBUG -- :   [4;36;1mSQL (48.1ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:16:54.083394 #21858] DEBUG -- :   [4;35;1mCronTask Load (0.3ms)[0m   [0mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 8) LIMIT 1[0m
+D, [2010-04-13T15:16:54.085031 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:16:54.088271 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.3ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:16:54', `locked_tag` = '21858', `last_run` = '2010-04-13 18:16:54' WHERE `id` = 8[0m
+D, [2010-04-13T15:16:54.202743 #21858] DEBUG -- :   [4;36;1mSQL (113.6ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:16:54.230264 #21858] DEBUG -- :   [4;35;1mApplication Load (0.1ms)[0m   [0mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:16:54.233943 #21858] DEBUG -- :   [4;36;1mATMessage Load (0.7ms)[0m   [0;1mSELECT * FROM `at_messages` WHERE (state IN ('delivered', 'queued') AND application_id = 1) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:16:54.234211 #21858]  INFO -- : Push QST in application a: no new messages
+D, [2010-04-13T15:16:54.234417 #21858] DEBUG -- : Task '8' executed successfully
+D, [2010-04-13T15:16:54.234817 #21858] DEBUG -- :   [4;35;1mSQL (0.1ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:16:54.236529 #21858] DEBUG -- :   [4;36;1mCronTask Update (0.2ms)[0m   [0;1mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:16:54', `locked_tag` = NULL WHERE `id` = 8[0m
+D, [2010-04-13T15:16:54.281447 #21858] DEBUG -- :   [4;35;1mSQL (44.1ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:17:14.324484 #21858] DEBUG -- :   [4;36;1mCronTask Load (0.6ms)[0m   [0;1mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 8) LIMIT 1[0m
+D, [2010-04-13T15:17:14.328596 #21858] DEBUG -- :   [4;35;1mSQL (2.4ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:17:14.330933 #21858] DEBUG -- :   [4;36;1mCronTask Update (0.6ms)[0m   [0;1mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:17:14', `locked_tag` = '21858', `last_run` = '2010-04-13 18:17:14' WHERE `id` = 8[0m
+D, [2010-04-13T15:17:14.427565 #21858] DEBUG -- :   [4;35;1mSQL (96.0ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:17:14.474055 #21858] DEBUG -- :   [4;36;1mApplication Load (0.1ms)[0m   [0;1mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:17:14.476024 #21858] DEBUG -- :   [4;35;1mATMessage Load (0.1ms)[0m   [0mSELECT * FROM `at_messages` WHERE (state IN ('delivered', 'queued') AND application_id = 1) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:17:14.478522 #21858]  INFO -- : Push QST in application a: no new messages
+D, [2010-04-13T15:17:14.478801 #21858] DEBUG -- : Task '8' executed successfully
+D, [2010-04-13T15:17:14.479243 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:17:14.480794 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.3ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:17:14', `locked_tag` = NULL WHERE `id` = 8[0m
+D, [2010-04-13T15:17:14.539121 #21858] DEBUG -- :   [4;36;1mSQL (57.9ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:17:34.458178 #21858] DEBUG -- :   [4;35;1mCronTask Load (0.6ms)[0m   [0mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 8) LIMIT 1[0m
+D, [2010-04-13T15:17:34.470328 #21858] DEBUG -- :   [4;36;1mSQL (10.6ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:17:34.472280 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.3ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:17:34', `locked_tag` = '21858', `last_run` = '2010-04-13 18:17:34' WHERE `id` = 8[0m
+D, [2010-04-13T15:17:34.561275 #21858] DEBUG -- :   [4;36;1mSQL (88.5ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:17:34.590542 #21858] DEBUG -- :   [4;35;1mApplication Load (0.1ms)[0m   [0mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:17:34.601661 #21858] DEBUG -- :   [4;36;1mATMessage Load (10.2ms)[0m   [0;1mSELECT * FROM `at_messages` WHERE (state IN ('delivered', 'queued') AND application_id = 1) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:17:34.601889 #21858]  INFO -- : Push QST in application a: no new messages
+D, [2010-04-13T15:17:34.602032 #21858] DEBUG -- : Task '8' executed successfully
+D, [2010-04-13T15:17:34.602766 #21858] DEBUG -- :   [4;35;1mSQL (0.4ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:17:34.604436 #21858] DEBUG -- :   [4;36;1mCronTask Update (0.4ms)[0m   [0;1mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:17:34', `locked_tag` = NULL WHERE `id` = 8[0m
+D, [2010-04-13T15:17:34.661133 #21858] DEBUG -- :   [4;35;1mSQL (56.2ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:17:54.599340 #21858] DEBUG -- :   [4;36;1mCronTask Load (1.7ms)[0m   [0;1mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 8) LIMIT 1[0m
+D, [2010-04-13T15:17:54.600658 #21858] DEBUG -- :   [4;35;1mSQL (0.6ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:17:54.603962 #21858] DEBUG -- :   [4;36;1mCronTask Update (0.2ms)[0m   [0;1mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:17:54', `locked_tag` = '21858', `last_run` = '2010-04-13 18:17:54' WHERE `id` = 8[0m
+D, [2010-04-13T15:17:54.676563 #21858] DEBUG -- :   [4;35;1mSQL (71.9ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:17:54.702269 #21858] DEBUG -- :   [4;36;1mApplication Load (0.1ms)[0m   [0;1mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:17:54.703833 #21858] DEBUG -- :   [4;35;1mATMessage Load (0.1ms)[0m   [0mSELECT * FROM `at_messages` WHERE (state IN ('delivered', 'queued') AND application_id = 1) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:17:54.704265 #21858]  INFO -- : Push QST in application a: no new messages
+D, [2010-04-13T15:17:54.704440 #21858] DEBUG -- : Task '8' executed successfully
+D, [2010-04-13T15:17:54.705641 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:17:54.707346 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.2ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:17:54', `locked_tag` = NULL WHERE `id` = 8[0m
+D, [2010-04-13T15:17:54.754598 #21858] DEBUG -- :   [4;36;1mSQL (46.3ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:18:14.718663 #21858] DEBUG -- :   [4;35;1mCronTask Load (3.2ms)[0m   [0mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 8) LIMIT 1[0m
+D, [2010-04-13T15:18:14.722656 #21858] DEBUG -- :   [4;36;1mSQL (1.2ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:18:14.727401 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.6ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:18:14', `locked_tag` = '21858', `last_run` = '2010-04-13 18:18:14' WHERE `id` = 8[0m
+D, [2010-04-13T15:18:14.798509 #21858] DEBUG -- :   [4;36;1mSQL (70.0ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:18:14.826767 #21858] DEBUG -- :   [4;35;1mApplication Load (0.3ms)[0m   [0mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:18:14.845673 #21858] DEBUG -- :   [4;36;1mATMessage Load (0.1ms)[0m   [0;1mSELECT * FROM `at_messages` WHERE (state IN ('delivered', 'queued') AND application_id = 1) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:18:14.845904 #21858]  INFO -- : Push QST in application a: no new messages
+D, [2010-04-13T15:18:14.846050 #21858] DEBUG -- : Task '8' executed successfully
+D, [2010-04-13T15:18:14.866634 #21858] DEBUG -- :   [4;35;1mSQL (20.2ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:18:14.870524 #21858] DEBUG -- :   [4;36;1mCronTask Update (0.4ms)[0m   [0;1mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:18:14', `locked_tag` = NULL WHERE `id` = 8[0m
+D, [2010-04-13T15:18:14.909711 #21858] DEBUG -- :   [4;35;1mSQL (38.7ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:18:34.894122 #21858] DEBUG -- :   [4;36;1mCronTask Load (0.5ms)[0m   [0;1mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 8) LIMIT 1[0m
+D, [2010-04-13T15:18:34.899945 #21858] DEBUG -- :   [4;35;1mSQL (4.3ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:18:34.912632 #21858] DEBUG -- :   [4;36;1mCronTask Update (11.2ms)[0m   [0;1mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:18:34', `locked_tag` = '21858', `last_run` = '2010-04-13 18:18:34' WHERE `id` = 8[0m
+D, [2010-04-13T15:18:35.011337 #21858] DEBUG -- :   [4;35;1mSQL (98.3ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:18:35.039717 #21858] DEBUG -- :   [4;36;1mApplication Load (0.1ms)[0m   [0;1mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:18:35.041185 #21858] DEBUG -- :   [4;35;1mATMessage Load (0.5ms)[0m   [0mSELECT * FROM `at_messages` WHERE (state IN ('delivered', 'queued') AND application_id = 1) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:18:35.772396 #21858]  INFO -- : Push QST in application a: posted '1' messages to server up to id 'a0e706b3-5a70-c712-2075-eea02dfd21d6'
+D, [2010-04-13T15:18:35.839020 #21858] DEBUG -- :   [4;36;1mATMessage Update (65.9ms)[0m   [0;1mUPDATE `at_messages` SET state = 'confirmed', tries = tries + 1 WHERE (id IN (120)) [0m
+D, [2010-04-13T15:18:35.887745 #21858] DEBUG -- :   [4;35;1mSQL (48.2ms)[0m   [0mINSERT INTO application_logs (application_id, channel_id, ao_message_id, at_message_id, message, severity, created_at, updated_at) VALUES (1,NULL,NULL,120,'Try #0 for delivering message through interface qst_client succeeded',1,'2010-04-13 18:18:35','2010-04-13 18:18:35')[0m
+D, [2010-04-13T15:18:35.888404 #21858] DEBUG -- :   [4;36;1mSQL (0.2ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:18:35.889853 #21858] DEBUG -- :   [4;35;1mApplication Load (0.3ms)[0m   [0mSELECT `applications`.id FROM `applications` WHERE (`applications`.`name` = BINARY 'a' AND `applications`.id <> 1) LIMIT 1[0m
+D, [2010-04-13T15:18:35.891886 #21858] DEBUG -- :   [4;36;1mApplication Update (0.2ms)[0m   [0;1mUPDATE `applications` SET `configuration` = '--- \n:cred_pass: dos\n:last_at_guid: a0e706b3-5a70-c712-2075-eea02dfd21d6\n:url: http://localhost:3000/qst/a\n:last_ao_guid: 309a4dcf-736c-1ed6-6dde-15cdf4bc5d29\n:cred_user: qst\n' WHERE `id` = 1[0m
+D, [2010-04-13T15:18:35.940708 #21858] DEBUG -- :   [4;35;1mSQL (48.2ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:18:35.940975 #21858] DEBUG -- : Task '8' executed successfully
+D, [2010-04-13T15:18:35.941508 #21858] DEBUG -- :   [4;36;1mSQL (0.2ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:18:35.942943 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.2ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:18:35', `locked_tag` = NULL WHERE `id` = 8[0m
+D, [2010-04-13T15:18:35.987661 #21858] DEBUG -- :   [4;36;1mSQL (44.4ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:18:55.042906 #21858] DEBUG -- :   [4;35;1mCronTask Load (0.6ms)[0m   [0mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 8) LIMIT 1[0m
+D, [2010-04-13T15:18:55.050748 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:18:55.055473 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.3ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:18:55', `locked_tag` = '21858', `last_run` = '2010-04-13 18:18:55' WHERE `id` = 8[0m
+D, [2010-04-13T15:18:55.144946 #21858] DEBUG -- :   [4;36;1mSQL (88.5ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:18:55.207803 #21858] DEBUG -- :   [4;35;1mApplication Load (0.1ms)[0m   [0mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:18:55.209746 #21858] DEBUG -- :   [4;36;1mATMessage Load (0.8ms)[0m   [0;1mSELECT * FROM `at_messages` WHERE (state IN ('delivered', 'queued') AND application_id = 1) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:18:55.210015 #21858]  INFO -- : Push QST in application a: no new messages
+D, [2010-04-13T15:18:55.210223 #21858] DEBUG -- : Task '8' executed successfully
+D, [2010-04-13T15:18:55.210641 #21858] DEBUG -- :   [4;35;1mSQL (0.1ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:18:55.212127 #21858] DEBUG -- :   [4;36;1mCronTask Update (0.2ms)[0m   [0;1mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:18:55', `locked_tag` = NULL WHERE `id` = 8[0m
+D, [2010-04-13T15:18:55.267890 #21858] DEBUG -- :   [4;35;1mSQL (55.3ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:19:15.239294 #21858] DEBUG -- :   [4;36;1mCronTask Load (29.8ms)[0m   [0;1mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 8) LIMIT 1[0m
+D, [2010-04-13T15:19:15.243174 #21858] DEBUG -- :   [4;35;1mSQL (0.1ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:19:15.247460 #21858] DEBUG -- :   [4;36;1mCronTask Update (0.4ms)[0m   [0;1mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:19:15', `locked_tag` = '21858', `last_run` = '2010-04-13 18:19:15' WHERE `id` = 8[0m
+D, [2010-04-13T15:19:15.413157 #21858] DEBUG -- :   [4;35;1mSQL (165.0ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:19:15.457197 #21858] DEBUG -- :   [4;36;1mApplication Load (0.1ms)[0m   [0;1mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:19:15.458353 #21858] DEBUG -- :   [4;35;1mATMessage Load (0.1ms)[0m   [0mSELECT * FROM `at_messages` WHERE (state IN ('delivered', 'queued') AND application_id = 1) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:19:15.458574 #21858]  INFO -- : Push QST in application a: no new messages
+D, [2010-04-13T15:19:15.458710 #21858] DEBUG -- : Task '8' executed successfully
+D, [2010-04-13T15:19:15.459122 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:19:15.461215 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.7ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:19:15', `locked_tag` = NULL WHERE `id` = 8[0m
+D, [2010-04-13T15:19:15.572577 #21858] DEBUG -- :   [4;36;1mSQL (110.8ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:19:35.428252 #21858] DEBUG -- :   [4;35;1mCronTask Load (1.0ms)[0m   [0mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 8) LIMIT 1[0m
+D, [2010-04-13T15:19:35.429865 #21858] DEBUG -- :   [4;36;1mSQL (0.7ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:19:35.432749 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.9ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:19:35', `locked_tag` = '21858', `last_run` = '2010-04-13 18:19:35' WHERE `id` = 8[0m
+D, [2010-04-13T15:19:35.528302 #21858] DEBUG -- :   [4;36;1mSQL (95.0ms)[0m   [0;1mCOMMIT[0m
+D, [2010-04-13T15:19:35.588068 #21858] DEBUG -- :   [4;35;1mApplication Load (0.1ms)[0m   [0mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:19:35.609679 #21858] DEBUG -- :   [4;36;1mATMessage Load (0.9ms)[0m   [0;1mSELECT * FROM `at_messages` WHERE (state IN ('delivered', 'queued') AND application_id = 1) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:19:35.610022 #21858]  INFO -- : Push QST in application a: no new messages
+D, [2010-04-13T15:19:35.610188 #21858] DEBUG -- : Task '8' executed successfully
+D, [2010-04-13T15:19:35.610631 #21858] DEBUG -- :   [4;35;1mSQL (0.1ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:19:35.612420 #21858] DEBUG -- :   [4;36;1mCronTask Update (0.4ms)[0m   [0;1mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:19:35', `locked_tag` = NULL WHERE `id` = 8[0m
+D, [2010-04-13T15:19:35.661476 #21858] DEBUG -- :   [4;35;1mSQL (48.4ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:19:55.585148 #21858] DEBUG -- :   [4;36;1mCronTask Load (1.6ms)[0m   [0;1mSELECT * FROM `cron_tasks` WHERE (`cron_tasks`.`id` = 8) LIMIT 1[0m
+D, [2010-04-13T15:19:55.587692 #21858] DEBUG -- :   [4;35;1mSQL (0.1ms)[0m   [0mBEGIN[0m
+D, [2010-04-13T15:19:55.591890 #21858] DEBUG -- :   [4;36;1mCronTask Update (0.3ms)[0m   [0;1mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:19:55', `locked_tag` = '21858', `last_run` = '2010-04-13 18:19:55' WHERE `id` = 8[0m
+D, [2010-04-13T15:19:55.672114 #21858] DEBUG -- :   [4;35;1mSQL (79.7ms)[0m   [0mCOMMIT[0m
+D, [2010-04-13T15:19:55.725034 #21858] DEBUG -- :   [4;36;1mApplication Load (0.1ms)[0m   [0;1mSELECT * FROM `applications` WHERE (`applications`.`id` = 1) LIMIT 1[0m
+D, [2010-04-13T15:19:55.748031 #21858] DEBUG -- :   [4;35;1mATMessage Load (22.0ms)[0m   [0mSELECT * FROM `at_messages` WHERE (state IN ('delivered', 'queued') AND application_id = 1) ORDER BY timestamp ASC LIMIT 10[0m
+I, [2010-04-13T15:19:55.748350 #21858]  INFO -- : Push QST in application a: no new messages
+D, [2010-04-13T15:19:55.748501 #21858] DEBUG -- : Task '8' executed successfully
+D, [2010-04-13T15:19:55.748891 #21858] DEBUG -- :   [4;36;1mSQL (0.1ms)[0m   [0;1mBEGIN[0m
+D, [2010-04-13T15:19:55.750541 #21858] DEBUG -- :   [4;35;1mCronTask Update (0.4ms)[0m   [0mUPDATE `cron_tasks` SET `updated_at` = '2010-04-13 18:19:55', `locked_tag` = NULL WHERE `id` = 8[0m
+D, [2010-04-13T15:19:55.794758 #21858] DEBUG -- :   [4;36;1mSQL (43.8ms)[0m   [0;1mCOMMIT[0m

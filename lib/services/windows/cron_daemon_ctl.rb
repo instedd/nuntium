@@ -1,6 +1,6 @@
 require 'daemon_ctl'
 
-class DelayedJobDaemonController
+class CronDaemonController
 
   extend DaemonController
 
@@ -12,4 +12,4 @@ class DelayedJobDaemonController
   
 end
 
-DelayedJobDaemonController.run ARGV[0]
+CronDaemonController.run ARGV[0]
