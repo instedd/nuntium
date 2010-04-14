@@ -90,7 +90,7 @@ end
 service 'alert_service'
 service 'cron'
 
-1.times do |i|
+4.times do |i|
   service 'cron_worker', i do |w|
     manage_gracefuly w
   end
