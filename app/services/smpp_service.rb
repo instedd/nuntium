@@ -1,7 +1,6 @@
 class SmppService < Service
 
   def initialize(channel)
-    super nil
     @channel = channel
   end
 

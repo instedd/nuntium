@@ -13,8 +13,8 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 		clean_database
 
     @@id = @@id + 1
-    @app = Application.create(:name => 'app', :password => 'foo')
-    @service = GenericWorkerService.new(nil, @@id, 0.1)
+    @app = Application.create!(:name => 'app', :password => 'foo')
+    @service = GenericWorkerService.new(@@id, 0.1)
     
     @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'sms', :direction => Channel::Outgoing)
     @chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :from => 'something', :incoming_password => 'incoming_pass' }

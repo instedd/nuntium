@@ -13,9 +13,9 @@ class CronWorkerService < Service
     end
   end
   
-  def stop
-    super
+  def stop(stop_event_machine = true)
+    super()
     @session.close
-    EM.stop_event_loop
+    EM.stop_event_loop if stop_event_machine
   end
 end

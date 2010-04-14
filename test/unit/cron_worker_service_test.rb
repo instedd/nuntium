@@ -5,8 +5,8 @@ class CronWorkerServiceTest < ActiveSupport::TestCase
   include Mocha::API
   
   def setup
-    @app = Application.create(:name => 'app', :password => 'foo')
-    @service = CronWorkerService.new(nil)
+    @app = Application.create!(:name => 'app', :password => 'foo')
+    @service = CronWorkerService.new
     
     @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'sms', :direction => Channel::Outgoing)
     @chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :from => 'something', :incoming_password => 'incoming_pass' }
@@ -16,7 +16,7 @@ class CronWorkerServiceTest < ActiveSupport::TestCase
   end
   
   def teardown
-	  @service.stop
+	  @service.stop false # do not stop event machine
 	end
   
   test "should subscribe to cron tasks" do

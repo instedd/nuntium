@@ -2,8 +2,7 @@ class GenericWorkerService < Service
 
   PrefetchCount = 5
   
-  def initialize(controller = nil, id = Process.pid, suspension_time = 5 * 60)
-    super(controller)
+  def initialize(id = Process.pid, suspension_time = 5 * 60)
     @id = id
     @suspension_time = suspension_time
   end
