@@ -1,29 +1,24 @@
 Instructions to set up the application for the first time
 ---------------------------------------------------------
 
-1. Ensure you have Ruby and SQLite3 installed.
+1. Ensure you have Ruby and MySQL installed.
 
 2. Install the right version of rails:
 
 gem install -v=2.3.4 rails
 
-3. Run set up scripts:
+3. Install god
+
+gem install god
+
+4. Run set up scripts:
 
 rake gems:install
+rake db:create
 rake db:migrate
-rake db:reset
-rake db:seed
 
-4. Run the web server:
+5. Run everything
 
-ruby script/server
+god ./config/nuntium.god
 
-5. Run the delayed jobs worker:
-(rake gems:install should add the "delayed_job" and "daemons" gems but, just in case, ensure you have them)
-
-Unix: ruby script/delayed_job start
-
-Windows: ruby script\console
-and once in the console: Delayed::Worker.new.start
-
-For more info about delayed_job check http://github.com/collectiveidea/delayed_job.
+6. Point your browser to localhost:3000
