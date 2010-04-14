@@ -55,6 +55,7 @@ Rails::Initializer.run do |config|
   
   config.log_path = $log_path
   config.logger = Logger.new($log_path)
+  config.logger.level = Logger.const_get(config.log_level.to_s.upcase)
   config.logger.formatter = Logger::Formatter.new
   
   # Start AMQP after rails loads:

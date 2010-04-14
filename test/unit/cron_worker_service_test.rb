@@ -29,7 +29,7 @@ class CronWorkerServiceTest < ActiveSupport::TestCase
     @service.start
     
     Queues.publish_cron_task StubJob.new
-    sleep 0.3
+    sleep 0.5
     
     assert_equal 10, StubJob.value_after_perform
   end

@@ -150,6 +150,9 @@ class SmppTransceiverDelegate
     
     # Find message with channel_relative_id
     msg_reference = normalize(pdu.receipted_message_id || pdu.msg_reference.to_i.to_s(16))
+    if msg_reference.length == 0
+      msg_reference = (pdu.receipted_message_id || pdu.msg_reference)
+    end
     
     msg = AOMessage.first(:conditions => ['channel_id = ? AND channel_relative_id = ?', @channel.id, msg_reference])
     return logger.info "AOMessage with channel_relative_id #{msg_reference} not found" if msg.nil?
@@ -280,7 +283,6 @@ class SmppTransceiverDelegate
       idx += 1
     end
     str = str[idx .. -1] if idx != 0
-    str = '0' if str.length == 0
     str.downcase
   end
   

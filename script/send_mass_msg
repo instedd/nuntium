@@ -1,0 +1,93 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'builder'
+require 'optparse'
+require 'csv'
+require 'net/http'
+require 'uri'
+require 'rss/2.0'
+
+options = {}
+opts = OptionParser.new do |opts|
+  opts.banner = "Usage: send-mass-msg.rb [options]"  
+  
+  opts.on('-t', '--targets FILE', 'One column csv file without headers. i.e: one sms://NUMBER per row.') do |file|
+    options[:targets] = file
+  end
+
+  opts.on('-s', '--subject TEXT', '') do |s|
+    options[:subject] = s
+  end
+  
+  opts.on('-b', '--body TEXT', '') do |b|
+    options[:body] = b
+  end
+  
+  opts.on('-f', '--from FROM') do |from|
+    options[:from] = from
+  end
+  
+  opts.on('-h', '--host HOST', 'Nuntium host') do |host|
+    options[:host] = host
+  end
+
+  opts.on('-u', '--user LOGIN') do |user|
+    options[:user] = user
+  end
+
+  opts.on('-p', '--password PASSWORD') do |password|
+    options[:password] = password
+  end
+  
+  opts.on_tail("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+end
+
+opts.parse!(ARGV.clone)
+
+timestamp = Time.now.utc.rfc822
+
+xml = Builder::XmlMarkup.new(:indent => 1)
+
+xml.instruct!
+xml.rss "version" => "2.0" do
+  xml.channel do
+    xml.title "Send Mass Messages"
+    xml.lastBuildDate timestamp
+    CSV.open(options[:targets], 'r', ',') do |row|
+      # trim spaces
+      row.map! { |x| x.nil? ? x : x.strip }
+      
+      # build
+      target = row[0]
+      subject = options[:subject]
+      body =  options[:body]
+      
+      xml.item do
+        xml.title subject
+        xml.description body
+        
+        xml.author options[:from]
+        xml.to target
+        xml.pubDate timestamp
+      end
+    end
+  end
+end
+
+url = URI.parse("#{options[:host]}/rss")
+req = Net::HTTP::Post.new(url.path)
+req.basic_auth options[:user], options[:password]
+req.content_type = "text/xml; charset=utf-8"
+
+res = Net::HTTP.new(url.host, url.port).start {|http| http.request(req, xml.target!) }
+case res
+  when Net::HTTPSuccess, Net::HTTPRedirection
+      puts "Success"
+  else
+      puts "Failed"
+      res.error!
+end
