@@ -33,7 +33,7 @@ class PushQstChannelMessageJob
     
     # If there are no newer messages, finish
     if new_msgs.length == 0
-      RAILS_DEFAULT_LOGGER.info "Push QST in channel #{@channel_id}: no new messages"
+      Rails.logger.info "Push QST in channel #{@channel_id}: no new messages"
       cfg.set_last_ao_guid(last_msg.guid) unless last_msg.nil?
       return :success
     end
@@ -132,9 +132,9 @@ class PushQstChannelMessageJob
   else
     etag = response['etag']
     if etag.nil?
-      RAILS_DEFAULT_LOGGER.info "Push QST in application #{app.name} channel #{channel.name}: posted '#{msgs.length}' messages to server"
+      Rails.logger.info "Push QST in application #{app.name} channel #{channel.name}: posted '#{msgs.length}' messages to server"
     else
-      RAILS_DEFAULT_LOGGER.info "Push QST in application #{app.name} channel #{channel.name}: posted '#{msgs.length}' messages to server up to id '#{etag}'"
+      Rails.logger.info "Push QST in application #{app.name} channel #{channel.name}: posted '#{msgs.length}' messages to server up to id '#{etag}'"
     end
     return etag
   end

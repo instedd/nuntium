@@ -22,7 +22,7 @@ class Service
   end
   
   def logger
-    RAILS_DEFAULT_LOGGER
+    Rails.logger
   end
   
   def stop
