@@ -5,7 +5,10 @@ class Service
     @is_running = true
     
     if @controller.nil?
-      trap("TERM") { stop }
+      @previous_trap = trap("TERM") do
+        stop
+        @previous_trap.call if @previous_trap 
+      end
     end
   end
   

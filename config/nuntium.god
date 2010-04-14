@@ -49,9 +49,9 @@ def service(name, i = nil)
     args = "production" + (i ? " #{i}" : "")
     w.start = "ruby #{RAILS_ROOT}/lib/services/#{name}_daemon_ctl.rb start -- #{args}"
     w.stop = "ruby #{RAILS_ROOT}/lib/services/#{name}_daemon_ctl.rb stop -- #{args}"
-    pid_file_suffix = i ? "_#{i}" : ""
+    pid_file_suffix = i ? ".#{i}" : ""
     w.pid_file = File.join(RAILS_ROOT, "tmp/pids/#{name}_daemon#{pid_file_suffix}.pid")
-    w.behavior(:clean_pid_file)
+    #w.behavior(:clean_pid_file)
     w.start_if do |start|
       start.condition(:process_running) do |c|
         c.running = false
@@ -62,35 +62,35 @@ end
 
 # == Services start here ==
 
-#%w{3000 3001 3002 3003}.each do |port|
-#  God.watch do |w|
-#    w.name = "nuntium-mongrel-#{port}"
-#    w.interval = 30.seconds
-#    w.start = "mongrel_rails start -c #{RAILS_ROOT} -p #{port} -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid -d -e production"
-#    w.stop = "mongrel_rails stop -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid"
-#    w.restart = "mongrels_rails restart -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid"
-#    w.start_grace = 10.seconds
-#    w.restart_grace = 10.seconds
-#    w.pid_file = File.join(RAILS_ROOT, "tmp/pids/mongrel.#{port}.pid")
-#    w.group = 'mongrel'
-#    
-#    w.behavior(:clean_pid_file)
-#    
-#    w.start_if do |start|
-#      start.condition(:process_running) do |c|
-#        c.interval = 5.seconds
-#        c.running = false
-#      end
-#    end
-#    
-#    yield w if block_given?
-#  end
-#end
+%w{3000 3001 3002 3003}.each do |port|
+  God.watch do |w|
+    w.name = "nuntium-mongrel-#{port}"
+    w.interval = 30.seconds
+    w.start = "mongrel_rails start -c #{RAILS_ROOT} -p #{port} -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid -d -e production"
+    w.stop = "mongrel_rails stop -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid"
+    w.restart = "mongrels_rails restart -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid"
+    w.start_grace = 10.seconds
+    w.restart_grace = 10.seconds
+    w.pid_file = File.join(RAILS_ROOT, "tmp/pids/mongrel.#{port}.pid")
+    w.group = 'mongrel'
+    
+    w.behavior(:clean_pid_file)
+    
+    w.start_if do |start|
+      start.condition(:process_running) do |c|
+        c.interval = 5.seconds
+        c.running = false
+      end
+    end
+    
+    yield w if block_given?
+  end
+end
 
 service 'alert_service'
 service 'cron'
 
-4.times do |i|
+1.times do |i|
   service 'cron_worker', i do |w|
     manage_gracefuly w
   end
