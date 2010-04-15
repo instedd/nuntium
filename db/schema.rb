@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100413183006) do
+ActiveRecord::Schema.define(:version => 20100415185749) do
 
   create_table "address_sources", :force => true do |t|
     t.integer  "application_id"
@@ -173,6 +173,15 @@ ActiveRecord::Schema.define(:version => 20100413183006) do
   create_table "twitter_channel_statuses", :force => true do |t|
     t.integer  "channel_id"
     t.integer  "last_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "worker_queues", :force => true do |t|
+    t.string   "queue_name"
+    t.string   "working_group"
+    t.boolean  "ack"
+    t.boolean  "enabled",       :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
   end
