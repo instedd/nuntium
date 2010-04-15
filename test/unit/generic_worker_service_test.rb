@@ -7,7 +7,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 
   include Mocha::API
   
-  @@id = 0
+  @@id = 10000000
   
   def setup
 		clean_database
@@ -23,7 +23,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     Queues.purge_notifications @@id
 		clean_queues
     
-    StubJob.value_after_perform = nil
+    StubGenericJob.value_after_perform = nil
   end
 
 	def teardown
@@ -49,20 +49,20 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     
     msg = AOMessage.create!(:application => @app, :channel => @chan)
     
-    Queues.publish_ao msg, StubJob.new
+    Queues.publish_ao msg, StubGenericJob.new
     sleep 0.3
     
-    assert_equal 10, StubJob.value_after_perform
+    assert_equal 10, StubGenericJob.value_after_perform
   end
   
   test "should execute job notification when enqueued" do
     @service.start
     
-    Queues.publish_notification StubJob.new
-    sleep 0.3
+    Queues.publish_notification StubGenericJob.new
+    sleep 0.5
     
-    assert_equal 10, StubJob.value_after_perform
-    assert_equal @service, StubJob.arguments[0]
+    assert_equal 10, StubGenericJob.value_after_perform
+    assert_equal @service, StubGenericJob.arguments[0]
   end
   
   test "should stand to disable channel on permanent exception" do
@@ -70,7 +70,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
         
     msg = AOMessage.create!(:application => @app, :channel => @chan)
     
-    Queues.publish_ao msg, FailingJob.new(PermanentException.new(Exception.new('lorem')))
+    Queues.publish_ao msg, FailingGenericJob.new(PermanentException.new(Exception.new('lorem')))
     sleep 0.3
     
     @chan.reload
@@ -83,10 +83,10 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     
     msg = AOMessage.create!(:application => @app, :channel => @chan)
     
-    Queues.publish_ao msg, StubJob.new
+    Queues.publish_ao msg, StubGenericJob.new
     sleep 0.3
     
-    assert_nil StubJob.value_after_perform
+    assert_nil StubGenericJob.value_after_perform
   end
 
   test "should stand to unsubscribe channel temporarily on unknown exception" do
@@ -100,7 +100,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
         
     msg = AOMessage.create!(:application => @app, :channel => @chan)
     
-    Queues.publish_ao msg, FailingJob.new(Exception.new('lorem'))  
+    Queues.publish_ao msg, FailingGenericJob.new(Exception.new('lorem'))  
     sleep 0.6
     
     assert_equal 2, jobs.size
@@ -118,10 +118,10 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     
     msg = AOMessage.create!(:application => @app, :channel => @chan)
     
-    Queues.publish_ao msg, StubJob.new
+    Queues.publish_ao msg, StubGenericJob.new
     sleep 0.3
     
-    assert_equal 10, StubJob.value_after_perform
+    assert_equal 10, StubGenericJob.value_after_perform
   end
   
    test "should not subscribe when told so if channel is disabled" do
@@ -137,10 +137,10 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     
     msg = AOMessage.create!(:application => @app, :channel => @chan)
     
-    Queues.publish_ao msg, StubJob.new
+    Queues.publish_ao msg, StubGenericJob.new
     sleep 2
     
-    assert_nil StubJob.value_after_perform
+    assert_nil StubGenericJob.value_after_perform
   end
   
   def clean_database
@@ -154,7 +154,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
   
 end
 
-class StubJob
+class StubGenericJob
 
   class << self
     attr_accessor :value_after_perform
@@ -162,13 +162,14 @@ class StubJob
   end
   
   def perform(*args)
-    StubJob.value_after_perform = 10
-    StubJob.arguments = args
+    puts "EXECUTING #{self}"
+    StubGenericJob.value_after_perform = 10
+    StubGenericJob.arguments = args
   end
 
 end
 
-class FailingJob
+class FailingGenericJob
   def initialize(ex)
     @ex = ex
   end

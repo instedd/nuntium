@@ -12,7 +12,7 @@ class CronWorkerServiceTest < ActiveSupport::TestCase
     @chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :from => 'something', :incoming_password => 'incoming_pass' }
     @chan.save!
     
-    StubJob.value_after_perform = nil
+    StubCronJob.value_after_perform = nil
   end
   
   def teardown
@@ -28,21 +28,21 @@ class CronWorkerServiceTest < ActiveSupport::TestCase
   test "should execute cron task" do
     @service.start
     
-    Queues.publish_cron_task StubJob.new
+    Queues.publish_cron_task StubCronJob.new
     sleep 0.5
     
-    assert_equal 10, StubJob.value_after_perform
+    assert_equal 10, StubCronJob.value_after_perform
   end
 end
 
-class StubJob
+class StubCronJob
   
   class << self
     attr_accessor :value_after_perform
   end
   
   def perform
-    StubJob.value_after_perform = 10
+    StubCronJob.value_after_perform = 10
   end
   
 end
