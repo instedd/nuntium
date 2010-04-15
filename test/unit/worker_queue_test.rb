@@ -5,7 +5,7 @@ class WorkerQueueTest < ActiveSupport::TestCase
   test "publish notification after create" do
     tasks = []
   
-    Queues.subscribe_notifications_2 '1', 'wk' do |header, task|
+    Queues.subscribe_notifications '1', 'wk' do |header, task|
       tasks << task
     end
   
@@ -23,7 +23,7 @@ class WorkerQueueTest < ActiveSupport::TestCase
   
     tasks = []
   
-    Queues.subscribe_notifications_2 '2', 'wk' do |header, task|
+    Queues.subscribe_notifications '2', 'wk' do |header, task|
       tasks << task
     end
   

@@ -23,18 +23,8 @@ module Queues
       bind_ao(channel, mq).unsubscribe
     end
     
-    def publish_notification(job, mq = MQ)
-      notifications_exchange(mq).publish(job.to_yaml)
-    end
-    
-    def publish_notification_2(job, routing_key, mq = MQ)
-      notifications_exchange_2(mq).publish(job.to_yaml, :routing_key => routing_key)
-    end
-        
-    def subscribe_notifications(id, mq = MQ)
-      bind_notifications(id, mq).subscribe do |header, job|
-        yield header, deserialize(job)
-      end
+    def publish_notification(job, routing_key, mq = MQ)
+      notifications_exchange(mq).publish(job.to_yaml, :routing_key => routing_key)
     end
 
 		def purge_ao(channel, mq = MQ)
@@ -55,8 +45,8 @@ module Queues
       end
     end
     
-    def subscribe_notifications_2(id, routing_key, mq = MQ)
-      bind_notifications_2(id, routing_key, mq).subscribe do |header, task|
+    def subscribe_notifications(id, routing_key, mq = MQ)
+      bind_notifications(id, routing_key, mq).subscribe do |header, task|
         yield header, deserialize(task)
       end
     end
@@ -109,7 +99,7 @@ module Queues
       mq.fanout('notifications_messages')
     end
     
-    def notifications_exchange_2(mq = MQ)
+    def notifications_exchange(mq = MQ)
       mq.fanout('notifications')
     end
     
@@ -117,16 +107,10 @@ module Queues
       mq.queue("notifications_queue_#{id}", :auto_delete => true)
     end
     
-    def notifications_queue_2(id, mq = MQ)
-      mq.queue("notifications_queue_2_#{id}", :auto_delete => true)
-    end
-    
-    def bind_notifications(id, mq = MQ)
-      notifications_queue(id, mq).bind(notifications_exchange(mq))
-    end
-    
-    def bind_notifications_2(id, routing_key, mq = MQ)
-      notifications_queue_2(id, mq).bind(notifications_exchange_2(mq), :routing_key => routing_key)
+    def bind_notifications(id, routing_key, mq = MQ)
+      notifications_queue(id, mq).bind(
+        notifications_exchange(mq), 
+        :routing_key => routing_key)
     end
     
     def cron_tasks_queue(mq = MQ)
