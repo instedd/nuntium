@@ -2,9 +2,9 @@ class GenericWorkerService < Service
 
   PrefetchCount = 5
   
-  def initialize(id = Process.pid, suspension_time = 5 * 60)
+  def initialize(id, working_group)
     @id = id
-    @suspension_time = suspension_time
+    @working_group = working_group
   end
 
   def start
@@ -13,62 +13,46 @@ class GenericWorkerService < Service
   
     @sessions = {}
     
-    Channel.find_each(
-      :conditions => ['enabled = ? AND (direction = ? OR direction = ?)', 
-        true, 
-        Channel::Outgoing, Channel::Both]) do |chan|
-      next unless chan.handler.class < GenericChannelHandler
-
-      subscribe_to_channel chan
+    WorkerQueue.find_each(:conditions => ['enabled = ?', true]) do |wq|
+      subscribe_to_queue wq
     end
     
     @notifications_session = MQ.new
-    Queues.subscribe_notifications(@id, @notifications_session) do |header, job|
+    Queues.subscribe_notifications(@id, @working_group, @notifications_session) do |header, job|
       job.perform self
     end
   end
   
-  def subscribe_to_channel(channel)
-    channel = Channel.find_by_id channel unless channel.kind_of? Channel
-    return unless channel.enabled
-    return if @sessions.include? channel.id
+  def subscribe_to_queue(wq)
+    wq = WorkerQueue.find_by_queue_name wq unless wq.kind_of? WorkerQueue
+    return unless wq and wq.enabled
+    return if @sessions.include? wq.queue_name
     
-    Rails.logger.info "Subscribing to channel #{channel.name} (#{channel.id})"
-    
+    Rails.logger.info "Subscribing to queue #{wq.queue_name} with ack #{wq.ack}"
+  
     mq = MQ.new
-    mq.prefetch PrefetchCount
-    @sessions[channel.id] = mq
-    
-    Queues.subscribe_ao channel, mq do |header, job|
+    mq.prefetch PrefetchCount    
+    @sessions[wq.queue_name] = mq
+  
+    Queues.subscribe(wq.queue_name, wq.ack, mq) do |header, job|
       begin
-        job.perform
-        header.ack
-      rescue PermanentException => ex
-        alert_msg = "Permanent exception executing #{job}: #{ex.class} #{ex} #{ex.backtrace}"
+        success = job.perform
+        header.ack if success == true and wq.ack
+      rescue Exception => ex
+        Rails.logger.info "Temporary exception executing #{job}: #{ex.class} #{ex} #{ex.backtrace}"
       
-        Rails.logger.warn alert_msg
-        channel.alert alert_msg
-      
-        channel.enabled = false
-        channel.save!
-      rescue Exception => ex # Temporary or unknown exception
-        alert_msg = "Temporary exception executing #{job}: #{ex.class} #{ex} #{ex.backtrace}"
-        
-        Rails.logger.warn alert_msg
-        channel.alert alert_msg
-      
-        Queues.publish_notification ChannelUnsubscriptionJob.new(channel.id), @notifications_session
-        EM.add_timer(@suspension_time) do 
-          Queues.publish_notification ChannelSubscriptionJob.new(channel.id), @notifications_session            
+        Queues.publish_notification UnsubscribeFromQueueJob.new(wq.queue_name), @working_group, @notifications_session
+        EM.add_timer(@suspension_time) do
+          Queues.publish_notification SubscribeToQueueJob.new(wq.queue_name), @working_group, @notifications_session            
         end
       end
     end
   end
   
-  def unsubscribe_from_channel(channel_id)
-    Rails.logger.info "Unsubscribing from channel #{channel_id}"
+  def unsubscribe_from_queue(wq)
+    Rails.logger.info "Unsubscribing from queue #{wq}"
   
-    mq = @sessions.delete(channel_id)
+    mq = @sessions.delete(wq)
     mq.close if mq
   end
   
@@ -77,7 +61,7 @@ class GenericWorkerService < Service
   
     super()
     
-    @sessions.keys.each { |k| unsubscribe_from_channel k }
+    @sessions.keys.each { |k| unsubscribe_from_queue k }
     @notifications_session.close
     EM.stop_event_loop if stop_event_machine
   end

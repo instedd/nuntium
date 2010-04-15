@@ -17,21 +17,23 @@ class TwitterChannelHandlerTest < ActiveSupport::TestCase
     @chan.save!
   end
   
-  test "on enable publish notification" do
-    Queues.expects(:publish_notification).with do |job|
-      job.kind_of?(ChannelSubscriptionJob) and job.channel_id == @chan.id
-    end
-      
+  test "on enable creates worker queue" do
     @chan.save!
+    
+    wqs = WorkerQueue.all
+    assert_equal 1, wqs.length
+    assert_equal Queues.ao_queue_name_for(@chan), wqs[0].queue_name
+    assert_equal 'channels', wqs[0].working_group
+    assert_true wqs[0].ack
+    assert_true wqs[0].enabled
   end
   
-  test "on disable publish notification" do
-    test_on_enable_publish_notification
-    Queues.expects(:publish_notification).with do |job|
-      job.kind_of?(ChannelUnsubscriptionJob) and job.channel_id == @chan.id
-    end
+  test "on disable destroys worker queue" do
+    @chan.save!
     
     @chan.enabled = false
     @chan.save!
+    
+    assert_equal 0, WorkerQueue.count
   end
 end

@@ -15,11 +15,12 @@ class GenericChannelHandler < ChannelHandler
   
   def on_enable
     Queues.bind_ao @channel
-    Queues.publish_notification ChannelSubscriptionJob.new(@channel.id)
+    WorkerQueue.create!(:queue_name => Queues.ao_queue_name_for(@channel), :working_group => 'channels', :ack => true)
   end
   
   def on_disable
-    Queues.publish_notification ChannelUnsubscriptionJob.new(@channel.id)
+    wq = WorkerQueue.find_by_queue_name Queues.ao_queue_name_for(@channel)
+    wq.destroy if wq
   end
   
   def job_class

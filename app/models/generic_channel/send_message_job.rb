@@ -20,6 +20,21 @@ class SendMessageJob
       managed_perform
     rescue MessageException => ex
       @msg.send_failed @app, @channel, ex.inner
+      true
+    rescue PermanentException => ex
+      alert_msg = "Permanent exception executing #{self}: #{ex.class} #{ex} #{ex.backtrace}"
+    
+      Rails.logger.warn alert_msg
+      @channel.alert alert_msg
+    
+      @channel.enabled = false
+      @channel.save!
+      
+      false
+    rescue Exception => ex
+      @channel.alert "Temporary exception executing #{self}: #{ex.class} #{ex} #{ex.backtrace}"
+      
+      raise ex
     end
   end
   

@@ -6,7 +6,8 @@ class SubscribeToQueueJob
     @queue_name = queue_name
   end
   
-  def perform
+  def perform(worker)
+    worker.subscribe_to_queue @queue_name
   end
 
 end

@@ -6,7 +6,8 @@ class UnsubscribeFromQueueJob
     @queue_name = queue_name
   end
   
-  def perform
+  def perform(worker)
+    worker.unsubscribe_from_queue @queue_name
   end
 
 end

@@ -31,8 +31,8 @@ module Queues
 			bind_ao(channel, mq).purge
 		end
 
-		def purge_notifications(id, mq = MQ)
-			bind_notifications(id, mq).purge
+		def purge_notifications(id, routing_key, mq = MQ)
+			bind_notifications(id, routing_key, mq).purge
 		end
 		
 		def publish_cron_task(task, mq = MQ)
@@ -48,6 +48,12 @@ module Queues
     def subscribe_notifications(id, routing_key, mq = MQ)
       bind_notifications(id, routing_key, mq).subscribe do |header, task|
         yield header, deserialize(task)
+      end
+    end
+    
+    def subscribe(queue_name, ack, mq = MQ)
+      mq.queue(queue_name).subscribe(:ack => ack) do |header, job|
+        yield header, deserialize(job)
       end
     end
     
@@ -76,8 +82,6 @@ module Queues
       raise DeserializationError,
         "Job failed to load: #{e.message}. Try to manually require the required file."
     end
-    
-    private
     
     def ao_exchange(mq = MQ)
       mq.topic('ao_messages', :durable => true)
