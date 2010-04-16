@@ -13,7 +13,7 @@ class GenericWorkerService < Service
   
     @sessions = {}
     
-    WorkerQueue.find_each(:conditions => ['enabled = ?', true]) do |wq|
+    WorkerQueue.find_each(:conditions => ['working_group = ? AND enabled = ?', @working_group, true]) do |wq|
       subscribe_to_queue wq
     end
     

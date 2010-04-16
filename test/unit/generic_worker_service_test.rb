@@ -40,6 +40,13 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     @service.start
   end
   
+  test "should not subscribe if another working group" do
+    Queues.expects(:subscribe).times(0)
+  
+    @service = GenericWorkerService.new(@@id, 'other')
+    @service.start
+  end
+  
   test "should subscribe to notifications" do
     Queues.expects(:subscribe_notifications).with(@@id, @@working_group, kind_of(MQ))
     
