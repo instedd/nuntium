@@ -5,7 +5,10 @@ class Service
     
     @previous_trap = trap("TERM") do
       stop
-      @previous_trap.call if @previous_trap 
+      Thread.new do
+        Thread.main.join(5)
+        @previous_trap.call if @previous_trap
+      end
     end
   end
   
