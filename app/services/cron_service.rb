@@ -7,7 +7,7 @@ module CronDaemonRun
     rescue => err
       Rails.logger.error "Error running scheduler: #{err}"
     else
-      Rails.logger.debug "Scheduler executed successfully enqueuing #{to_run.size} task(s)."
+      Rails.logger.info "Scheduler executed successfully enqueuing #{to_run.size} task(s)."
     ensure
       CronTask.set_next_run(to_run) unless to_run.nil?
   end
@@ -15,7 +15,7 @@ module CronDaemonRun
   # Enqueue a descriptor for the specified task
   def enqueue(task)
     Queues.publish_cron_task CronTaskDescriptor.new(task.id)
-    Rails.logger.debug "Enqueued job for task '#{task.id}'"
+    Rails.logger.info "Enqueued job for task '#{task.id}'"
   end
 
 end
@@ -23,6 +23,11 @@ end
 class CronService < Service
 
   include CronDaemonRun
+  
+  def initialize
+    super
+    Queues.bind_cron_tasks
+  end
   
   loop_with_sleep(20) do
     cron_run

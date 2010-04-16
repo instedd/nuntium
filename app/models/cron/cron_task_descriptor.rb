@@ -13,4 +13,8 @@ class CronTaskDescriptor
     task = CronTask.find_by_id @task_id
     if not task.nil? then task.perform else logger.warn "Cannot execute descriptor for missing task with id '#{@task_id}'" end
   end
+  
+  def to_s
+    "<CronTaskDescriptor:#{@task_id}>"
+  end
 end

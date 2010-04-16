@@ -13,7 +13,7 @@ class GenericWorkerService < Service
   
     @sessions = {}
     
-    WorkerQueue.find_each(:conditions => ['enabled = ?', true]) do |wq|
+    WorkerQueue.find_each(:conditions => ['working_group = ? AND enabled = ?', @working_group, true]) do |wq|
       subscribe_to_queue wq
     end
     
@@ -41,9 +41,11 @@ class GenericWorkerService < Service
       rescue Exception => ex
         Rails.logger.info "Temporary exception executing #{job}: #{ex.class} #{ex} #{ex.backtrace}"
       
-        Queues.publish_notification UnsubscribeFromQueueJob.new(wq.queue_name), @working_group, @notifications_session
-        EM.add_timer(@suspension_time) do
-          Queues.publish_notification SubscribeToQueueJob.new(wq.queue_name), @working_group, @notifications_session            
+        if wq.ack
+          Queues.publish_notification UnsubscribeFromQueueJob.new(wq.queue_name), @working_group, @notifications_session
+          EM.add_timer(@suspension_time) do
+            Queues.publish_notification SubscribeToQueueJob.new(wq.queue_name), @working_group, @notifications_session            
+          end
         end
       end
     end

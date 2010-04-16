@@ -23,6 +23,8 @@ class Application < ActiveRecord::Base
   
   before_save :hash_password 
   after_save :handle_tasks
+  after_save :create_worker_queue
+  after_save :bind_queue
   
   include(CronTask::CronTaskOwner)
   
@@ -139,7 +141,7 @@ class Application < ActiveRecord::Base
     
     # Check if callback interface is configured
     if self.interface == 'http_post_callback'
-      Delayed::Job.enqueue SendPostCallbackMessageJob.new(msg.application_id, msg.id)
+      Queues.publish_application self, SendPostCallbackMessageJob.new(msg.application_id, msg.id)
     end
     
     if 'ui' == via_channel
@@ -215,6 +217,14 @@ class Application < ActiveRecord::Base
         drop_task('qst-pull')
       end
     end
+  end
+  
+  def create_worker_queue
+    WorkerQueue.create!(:queue_name => Queues.application_queue_name_for(self), :working_group => 'fast', :ack => true)
+  end
+  
+  def bind_queue
+    Queues.bind_application self
   end
   
   private

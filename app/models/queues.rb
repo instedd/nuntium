@@ -2,6 +2,17 @@ module Queues
 
   class << self
   
+    def publish_application(app, job)
+      application_exchange.publish(job.to_yaml, 
+        :routing_key => application_routing_key_for(app), 
+        :persistent => true)
+    end
+    
+    def bind_application(app, mq = MQ)
+      application_queue_for(app, mq).bind(application_exchange(mq), 
+        :routing_key => application_routing_key_for(app))
+    end
+  
     def publish_ao(msg, job)
       ao_exchange.publish(job.to_yaml, 
         :routing_key => ao_routing_key_for(msg.channel), 
@@ -37,12 +48,6 @@ module Queues
 		
 		def publish_cron_task(task, mq = MQ)
 		  cron_tasks_exchange(mq).publish(task.to_yaml, :persistent => true)
-    end
-    
-    def subscribe_cron_tasks(mq = MQ)
-      bind_cron_tasks(mq).subscribe do |header, task|
-        yield header, deserialize(task)
-      end
     end
     
     def subscribe_notifications(id, routing_key, mq = MQ)
@@ -81,6 +86,22 @@ module Queues
     rescue TypeError, LoadError, NameError => e
       raise DeserializationError,
         "Job failed to load: #{e.message}. Try to manually require the required file."
+    end
+    
+    def application_exchange(mq = MQ)
+      mq.topic('applications', :durable => true)
+    end
+    
+    def application_queue_for(app, mq = MQ)
+      mq.queue(application_queue_name_for(app), :durable => true)
+    end
+    
+    def application_queue_name_for(app)
+      "application_queue.#{app.id}"
+    end
+    
+    def application_routing_key_for(app)
+      "application.#{app.id}"
     end
     
     def ao_exchange(mq = MQ)

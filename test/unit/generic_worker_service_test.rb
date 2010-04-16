@@ -8,7 +8,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
   include Mocha::API
   
   @@id = 10000000
-  @@working_group = 'channels'
+  @@working_group = 'fast'
   
   def setup
 		clean_database
@@ -33,9 +33,17 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 		clean_queues
 	end
 
-  test "should subscribe to enabled channels" do
+  test "should subscribe to enabled channels and applications" do
+    Queues.expects(:subscribe).with(Queues.application_queue_name_for(@app), true, kind_of(MQ))
     Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, kind_of(MQ))
     
+    @service.start
+  end
+  
+  test "should not subscribe if another working group" do
+    Queues.expects(:subscribe).times(0)
+  
+    @service = GenericWorkerService.new(@@id, 'other')
     @service.start
   end
   
@@ -59,7 +67,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
   test "should execute job notification when enqueued" do
     @service.start
     
-    Queues.publish_notification StubGenericJob.new, 'channels'
+    Queues.publish_notification StubGenericJob.new, @@working_group
     sleep 0.5
     
     assert_equal 10, StubGenericJob.value_after_perform

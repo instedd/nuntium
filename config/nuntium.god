@@ -41,15 +41,15 @@ def manage_gracefuly(w)
   end
 end
 
-def service(name, i = nil)
+def service(name, *args)
   God.watch do |w|
-    name_suffix = i ? "-#{i}" : ""
+    name_suffix = args.length == 0 ? "" : args.join('-')
     w.name = "nuntium-#{name.gsub('_', '-')}#{name_suffix}"
     w.interval = 5.seconds
-    args = "production" + (i ? " #{i}" : "")
-    w.start = "ruby #{RAILS_ROOT}/lib/services/#{name}_daemon_ctl.rb start -- #{args}"
-    w.stop = "ruby #{RAILS_ROOT}/lib/services/#{name}_daemon_ctl.rb stop -- #{args}"
-    pid_file_suffix = i ? ".#{i}" : ""
+    service_args = "production" + (args.length == 0 ? "" : " #{args.join(' ')}")
+    w.start = "ruby #{RAILS_ROOT}/lib/services/#{name}_daemon_ctl.rb start -- #{service_args}"
+    w.stop = "ruby #{RAILS_ROOT}/lib/services/#{name}_daemon_ctl.rb stop -- #{service_args}"
+    pid_file_suffix = args.length == 0 ? "" : ".#{args.join('.')}"
     w.pid_file = File.join(RAILS_ROOT, "tmp/pids/#{name}_daemon#{pid_file_suffix}.pid")
     #w.behavior(:clean_pid_file)
     w.start_if do |start|
@@ -90,15 +90,11 @@ end
 service 'alert_service'
 service 'cron'
 
-4.times do |i|
-  service 'cron_worker', i do |w|
-    manage_gracefuly w
-  end
-end
-
-4.times do |i|
-  service 'generic_worker', i do |w|
-    manage_gracefuly w
+['slow', 'fast'].each do |working_group|
+  4.times do |i|
+    service 'generic_worker', working_group, i do |w|
+      manage_gracefuly w
+    end
   end
 end
 

@@ -128,15 +128,13 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     msg = AOMessage.create(:application_id => app.id, :from => 'sms://1234', :to => 'sms://5678', :body => 'text me', :state => 'queued')
     
     job = SendClickatellMessageJob.new(app.id, chan.id, msg.id)
-    begin
-      result = job.perform
-      assert_true false
-    rescue => ex
-      p ex
-    end
+    job.perform
     
     msg = AOMessage.first
     assert_equal 0, msg.tries
     assert_equal 'queued', msg.state
+    
+    chan.reload
+    assert_false chan.enabled
   end
 end
