@@ -121,11 +121,7 @@ module Queues
     end
     
     def notifications_exchange(mq = MQ)
-      mq.fanout('notifications_messages')
-    end
-    
-    def notifications_exchange(mq = MQ)
-      mq.fanout('notifications')
+      mq.topic('notifications')
     end
     
     def notifications_queue(id, mq = MQ)

@@ -18,14 +18,15 @@ class SmppChannelHandler < ChannelHandler
       :start_command => "smpp_daemon_ctl.rb start -- #{ENV["RAILS_ENV"]} #{@channel.id}",
       :stop_command => "smpp_daemon_ctl.rb stop -- #{ENV["RAILS_ENV"]} #{@channel.id}",
       :pid_file => "smpp_daemon.#{@channel.id}.pid",
-      :log_file => "smpp_daemon_#{@channel.id}.log"
+      :log_file => "smpp_daemon_#{@channel.id}.log",
+      :enabled => true
     )
     Queues.bind_ao @channel
   end
   
   def on_disable
     proc = ManagedProcess.find_by_application_id_and_name @channel.application.id, managed_process_name
-    proc.delete if proc
+    proc.destroy if proc
   end
   
   def on_changed

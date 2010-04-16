@@ -9,5 +9,9 @@ class SubscribeToQueueJob
   def perform(worker)
     worker.subscribe_to_queue @queue_name
   end
+  
+  def to_s
+    "<SubscribeToQueue:#{queue_name}>"
+  end
 
 end

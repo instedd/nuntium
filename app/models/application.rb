@@ -23,7 +23,7 @@ class Application < ActiveRecord::Base
   
   before_save :hash_password 
   after_save :handle_tasks
-  after_save :create_worker_queue
+  after_create :create_worker_queue
   after_save :bind_queue
   
   include(CronTask::CronTaskOwner)

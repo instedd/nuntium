@@ -9,5 +9,9 @@ class UnsubscribeFromQueueJob
   def perform(worker)
     worker.unsubscribe_from_queue @queue_name
   end
+  
+  def to_s
+    "<UnsubscribeFromQueue:#{queue_name}>"
+  end
 
 end
