@@ -24,6 +24,11 @@ class CronService < Service
 
   include CronDaemonRun
   
+  def initialize
+    super
+    Queues.bind_cron_tasks
+  end
+  
   loop_with_sleep(20) do
     cron_run
   end

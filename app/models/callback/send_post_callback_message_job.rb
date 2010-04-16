@@ -9,16 +9,11 @@ class SendPostCallbackMessageJob
   def initialize(application_id, message_id)
     @application_id = application_id
     @message_id = message_id
-    
-    app = Application.find_by_id @application_id
-    app.logger.info :at_message_id => @message_id, :message => "HTTP POST callback enqueded"
   end
 
   def perform
     app = Application.find_by_id @application_id
     msg = ATMessage.get_message @message_id
-    
-    app.logger.info :at_message_id => @message_id, :message => "HTTP POST callback processed"
     
     url = URI.parse(app.configuration[:url])
     req = Net::HTTP::Post.new(url.path)
@@ -39,6 +34,12 @@ class SendPostCallbackMessageJob
       when Net::HTTPSuccess, Net::HTTPRedirection
         ATMessage.update_tries([msg.id],'delivered')
         ATMessage.log_delivery([msg], app, 'http_post_callback')
+      when Net::HTTPUnauthorized
+        app.alert "Sending HTTP POST callback received unauthorized: invalid credentials"
+    
+        app.interface = 'rss'
+        app.save!
+        return
       else
         ATMessage.update_tries([msg.id],'failed')
         app.logger.error :at_message_id => @message_id, :message => "HTTP POST callback failed #{res.error!}"

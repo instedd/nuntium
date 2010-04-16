@@ -15,7 +15,7 @@ class GenericChannelHandler < ChannelHandler
   
   def on_enable
     Queues.bind_ao @channel
-    WorkerQueue.create!(:queue_name => Queues.ao_queue_name_for(@channel), :working_group => 'channels', :ack => true)
+    WorkerQueue.create!(:queue_name => Queues.ao_queue_name_for(@channel), :working_group => 'fast', :ack => true)
   end
   
   def on_disable

@@ -41,9 +41,11 @@ class GenericWorkerService < Service
       rescue Exception => ex
         Rails.logger.info "Temporary exception executing #{job}: #{ex.class} #{ex} #{ex.backtrace}"
       
-        Queues.publish_notification UnsubscribeFromQueueJob.new(wq.queue_name), @working_group, @notifications_session
-        EM.add_timer(@suspension_time) do
-          Queues.publish_notification SubscribeToQueueJob.new(wq.queue_name), @working_group, @notifications_session            
+        if wq.ack
+          Queues.publish_notification UnsubscribeFromQueueJob.new(wq.queue_name), @working_group, @notifications_session
+          EM.add_timer(@suspension_time) do
+            Queues.publish_notification SubscribeToQueueJob.new(wq.queue_name), @working_group, @notifications_session            
+          end
         end
       end
     end

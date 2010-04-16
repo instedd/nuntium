@@ -31,10 +31,9 @@ class DtacChannelHandlerTest < ActiveSupport::TestCase
   test "on enable creates worker queue" do
     @chan.save!
     
-    wqs = WorkerQueue.all
+    wqs = WorkerQueue.all(:conditions => ['queue_name = ?', Queues.ao_queue_name_for(@chan)])
     assert_equal 1, wqs.length
-    assert_equal Queues.ao_queue_name_for(@chan), wqs[0].queue_name
-    assert_equal 'channels', wqs[0].working_group
+    assert_equal 'fast', wqs[0].working_group
     assert_true wqs[0].ack
     assert_true wqs[0].enabled
   end
@@ -45,6 +44,6 @@ class DtacChannelHandlerTest < ActiveSupport::TestCase
     @chan.enabled = false
     @chan.save!
     
-    assert_equal 0, WorkerQueue.count
+    assert_equal 0, WorkerQueue.count(:conditions => ['queue_name = ?', Queues.ao_queue_name_for(@chan)])
   end
 end
