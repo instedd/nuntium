@@ -1,0 +1,38 @@
+<h4>Edit channel <%= @channel.name %></h4>
+
+<% form_for :channel, :url => { :controller => 'channel', :action => :update_channel } do |f| %>
+  <%= f.error_messages %>
+  <p>
+  <%= f.label :protocol %><br/>
+  <%= f.text_field :protocol, :value => 'xmpp' %>
+  </p>
+  <% f.fields_for :configuration do |c| %>
+    <p>
+    <%= c.label :user %><br/>
+    <%= c.text_field :user, :value => @channel[:configuration][:user] %>
+    </p>
+    <p>
+    <%= c.label :domain %><br/>
+    <%= c.text_field :domain, :value => @channel[:configuration][:domain] %>
+    </p>
+    <p>
+    <%= c.label :password %><br/>
+    <%= c.password_field :password, :value => @channel[:configuration][:password] %>
+    </p>
+    <p>
+    <%= c.label :server %><br/>
+    <%= c.text_field :server, :value => @channel[:configuration][:server] %>
+    </p>
+    <p>
+    <%= c.label :port %><br/>
+    <%= c.text_field :port, :value => @channel[:configuration][:port] %>
+    </p>
+    <p>
+    <%= c.label :resource %><br/>
+    <%= c.text_field :resource, :value => @channel[:configuration][:resource] %>
+    </p>
+  <% end %>
+  <%= submit_tag 'Update channel' %>
+<% end %>
+
+<%= link_to 'Go back', :controller => :home, :action => :home %>
