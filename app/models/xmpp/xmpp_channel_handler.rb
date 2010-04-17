@@ -81,7 +81,8 @@ class XmppChannelHandler < ChannelHandler
   
   def info
     c = @channel.configuration
-    "#{c[:user]}@#{c[:domain]}:#{c[:port]}/#{c[:resource]}"
+    port_part = c[:port].to_i == 5222 ? '' : ":#{c[:port]}"
+    "#{c[:user]}@#{c[:domain]}#{port_part}/#{c[:resource]}"
   end
 
 end
