@@ -69,12 +69,8 @@ class XmppChannelHandler < ChannelHandler
     
     begin
       client = Client::new(jid)
-    
-      if @channel.configuration[:server].blank?
-        client.connect
-      else
-        client.connect @channel.configuration[:server]
-      end
+      server = @channel.configuration[:server].blank? ? nil : @channel.configuration[:server]  
+      client.connect server, @channel.configuration[:port]
       client.auth @channel.configuration[:password]
     rescue => e
       @channel.errors.add_to_base(e.message)

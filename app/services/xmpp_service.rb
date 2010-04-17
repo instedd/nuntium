@@ -12,21 +12,18 @@ class XmppService < Service
     
     jid_str = "#{c[:user]}@#{c[:domain]}"
     jid_str << "/#{c[:resource]}" unless c[:resource].blank?
-    @jid = JID::new(jid_str)
+    @jid = JID.new(jid_str)
     
     @mq = MQ.new
     @mq.prefetch PrefetchCount 
   end
 
   def start
-    @client = Client::new(@jid)
+    @client = Client.new(@jid)
     
     begin
-      if @channel.configuration[:server].blank?
-        @client.connect
-      else
-        @client.connect @channel.configuration[:server]
-      end
+      server = @channel.configuration[:server].blank? ? nil : @channel.configuration[:server]
+      @client.connect server, @channel.configuration[:port]
       @client.auth @channel.configuration[:password]
     rescue => ex
       alert_msg = ex.to_s
@@ -49,7 +46,7 @@ class XmppService < Service
   def send_message(id, from, to, subject, body)
     Rails.logger.debug "Sending message with id: '#{id}', from: '#{from}', to: '#{to}', subject: '#{subject}', body: '#{body}'"
      
-    msg = Message::new
+    msg = Message.new
     msg.id = id
     #msg.from = from
     msg.to = to
@@ -60,12 +57,13 @@ class XmppService < Service
       msg.body = body
     end
     msg.type = :chat
-    
+
     @client.send msg
   end
   
   def stop
     @client.close
+    @mq.close
     EM.stop_event_loop
   end
   
@@ -78,7 +76,8 @@ class XmppService < Service
         if ao
           ao.state = 'failed'
           ao.save!
-          @channel.application.logger.exception_in_channel_and_ao_message @channel, ao, msg.error.to_s
+          
+          @channel.application.logger.exception_in_channel_and_ao_message @channel, ao, "Code #{msg.error.code} - #{msg.error.text}"
         else
           Rails.logger.debug "Received error message: #{msg}"
         end
