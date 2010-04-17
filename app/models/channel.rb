@@ -118,8 +118,9 @@ class Channel < ActiveRecord::Base
       else
         self.handler.on_disable
       end
+    else
+      self.handler.on_changed
     end
-    self.handler.on_changed
     true
   end
 
