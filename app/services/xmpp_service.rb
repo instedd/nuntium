@@ -38,6 +38,7 @@ class XmppService < Service
       return
     end
     
+    handle_exceptions
     receive_messages
     subscribe_queue
     keep_me_alive
@@ -103,6 +104,13 @@ class XmppService < Service
       rescue Exception => e
         Rails.logger.error "Error when performing job. Exception: #{e.class} #{e}"
       end
+    end
+  end
+  
+  def handle_exceptions
+    @client.on_exception do |ex|
+      # TODO do something else...
+      Rails.logger.error "#{ex}"
     end
   end
   
