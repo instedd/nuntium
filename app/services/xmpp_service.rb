@@ -21,10 +21,22 @@ class XmppService < Service
   def start
     @client = Client.new(@jid)
     
+    if !connect
+      return stop
+    end
+    
+    handle_exceptions
+    receive_messages
+    subscribe_queue
+    keep_me_alive
+  end
+  
+  def connect
     begin
       server = @channel.configuration[:server].blank? ? nil : @channel.configuration[:server]
       @client.connect server, @channel.configuration[:port]
       @client.auth @channel.configuration[:password]
+      true
     rescue => ex
       alert_msg = ex.to_s
       
@@ -33,15 +45,9 @@ class XmppService < Service
     
       @channel.enabled = false
       @channel.save!
-      
-      EM.stop_event_loop
-      return
+            
+      false
     end
-    
-    handle_exceptions
-    receive_messages
-    subscribe_queue
-    keep_me_alive
   end
   
   def send_message(id, from, to, subject, body)
@@ -111,6 +117,11 @@ class XmppService < Service
     @client.on_exception do |ex|
       # TODO do something else...
       Rails.logger.error "#{ex}"
+      if @client.is_disconnected?
+        if !connect
+          stop
+        end
+      end
     end
   end
   
