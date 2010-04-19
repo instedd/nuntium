@@ -9,26 +9,26 @@
   </p>
   <p>
   <%= f.label :protocol %><br/>
-  <%= f.text_field :protocol, :value => 'sms' %>
+  <%= f.text_field :protocol %>
   </p>
   <% f.fields_for :configuration do |c| %>
     <p>
     <%= c.label :user %><br/>
-    <%= c.text_field :user, :autocomplete => :off %>
+    <%= c.text_field :user, :autocomplete => :off, :value => @channel[:configuration][:user] %>
     </p>
     <p>
     <%= c.label :password %><br/>
-    <%= c.password_field :password, :autocomplete => :off %>
+    <%= c.password_field :password, :autocomplete => :off, :value => @channel[:configuration][:password] %>
     </p>
     <p>
     <%= c.label :sno %><br/>
-    <%= c.text_field :sno %>
+    <%= c.text_field :sno, :value => @channel[:configuration][:sno] %>
     </p>
-	<p>
-	Callback urls for incoming messages:<br/>
-  <code>/dtac/<%= @application.name %>/incoming</code><br/>
-  <code>/dtac/<%= @application.id %>/incoming</code>
-	</p>
+    <p>
+    Callback urls for incoming messages:<br/>
+    <code>/dtac/<%= @application.name %>/incoming</code><br/>
+    <code>/dtac/<%= @application.id %>/incoming</code>
+    </p>
   <% end %>
   <%= submit_tag 'Create channel' %>
 <% end %>

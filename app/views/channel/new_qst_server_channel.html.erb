@@ -13,19 +13,19 @@
   <p>
   Direction:</br>
   <select id="channel_direction" name="channel[direction]">
-    <option value="<%= Channel::Incoming %>">Incoming</option>
-    <option value="<%= Channel::Outgoing %>">Outgoing</option>
-    <option value="<%= Channel::Both %>">Bi-directional</option>
+    <option value="<%= Channel::Incoming %>" <%= @channel.direction == Channel::Incoming ? 'selected="selected"' : "" %>>Incoming</option>
+    <option value="<%= Channel::Outgoing %>" <%= @channel.direction == Channel::Outgoing ? 'selected="selected"' : "" %>>Outgoing</option>
+    <option value="<%= Channel::Both %>" <%= @channel.direction == Channel::Both ? 'selected="selected"' : "" %>>Bi-directional</option>
   </select>
   </p>
   <% f.fields_for :configuration do |c| %>
     <p>
     <%= c.label :password %><br/>
-    <%= c.password_field :password %>
+    <%= c.password_field :password, :value => @channel[:configuration][:password] %>
     </p>
     <p>
     <%= c.label :password_confirmation %><br/>
-    <%= c.password_field :password_confirmation %>
+    <%= c.password_field :password_confirmation, :value => @channel[:configuration][:password_confirmation] %>
     </p>
   <% end %>
   <%= submit_tag 'Create Channel' %>

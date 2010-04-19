@@ -28,9 +28,7 @@ class Channel < ActiveRecord::Base
   include(CronTask::CronTaskOwner)
     
   def clear_password
-    if self.handler.respond_to?(:clear_password)
-      self.handler.clear_password
-    end
+    self.handler.clear_password if self.handler.respond_to?(:clear_password)
   end
   
   def handle(msg)
@@ -54,9 +52,7 @@ class Channel < ActiveRecord::Base
   end
   
   def info
-    if self.handler.respond_to?(:info)
-      return self.handler.info
-    end
+    return self.handler.info if self.handler.respond_to?(:info)
     return ''
   end
   
@@ -82,13 +78,9 @@ class Channel < ActiveRecord::Base
   private
   
   def handler_check_valid
-    if self.handler.respond_to?(:check_valid)
-      self.handler.check_valid
-    end
+    self.handler.check_valid if self.handler.respond_to?(:check_valid)
     if !@check_valid_in_ui.nil? and @check_valid_in_ui
-      if self.handler.respond_to?(:check_valid_in_ui)
-        self.handler.check_valid_in_ui
-      end
+      self.handler.check_valid_in_ui if self.handler.respond_to?(:check_valid_in_ui)
     end
   end
   
@@ -99,9 +91,9 @@ class Channel < ActiveRecord::Base
   
   def handler_after_create
     if self.enabled
-        self.handler.on_enable
-      else
-        self.handler.on_disable
+      self.handler.on_enable
+    else
+      self.handler.on_disable
     end
   end
   
