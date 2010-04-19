@@ -32,7 +32,11 @@ class ChannelController < AuthenticatedController
   end
   
   def edit_channel
-    render "edit_#{@channel.kind}_channel"
+    if File.exists? "#{view_paths}/channel/edit_#{@channel.kind}_channel.html.erb"
+      render "edit_#{@channel.kind}_channel"
+    else
+      render "new_#{@channel.kind}_channel"
+    end
   end
   
   def update_channel

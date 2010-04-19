@@ -1,38 +1,12 @@
-<h4>Create new SMTP channel</h4>
+<%= edit_channel_header %>
 
-<% form_for :channel, :url => { :controller => 'channel', :action => :create_channel, :kind => params[:kind] } do |f| %>
+<% form_for_channel do |f| %>
   <%= f.error_messages %>
   <%= f.hidden_field :direction, :value => Channel::Outgoing %>
-  <p>
-  <%= f.label :name %><br/>
-  <%= f.text_field :name %>
-  </p>
-  <p>
-  <%= f.label :protocol %><br/>
-  <%= f.text_field :protocol, :value => 'mailto' %>
-  </p>
-  <% f.fields_for :configuration do |c| %>
-    <p>
-    <%= c.label :host %><br/>
-    <%= c.text_field :host, :value => @channel[:configuration][:host] %>
-    </p>
-    <p>
-    <%= c.label :port %><br/>
-    <%= c.text_field :port, :value => @channel[:configuration][:port] %>
-    </p>
-    <p>
-    <%= c.label :user %><br/>
-    <%= c.text_field :user, :value => @channel[:configuration][:user] %>
-    </p>
-    <p>
-    <%= c.label :password %><br/>
-    <%= c.password_field :password, :value => @channel[:configuration][:user] %>
-    </p>
-    <p>
-    <%= c.label :use_ssl %> <%= c.check_box :use_ssl, {:checked => @channel[:configuration][:use_ssl] == '1'} %>
-    </p>
-  <% end %>
-  <%= submit_tag 'Create Channel' %>
+  <%= edit_channel_name f %>
+  <%= edit_channel_protocol f, 'mailto' %>
+  <%= render :partial => 'edit_mail_configuration', :locals => {:f => f} %>
+  <%= channel_submit_tag %>
 <% end %>
 
 <%= link_to 'Go back', :controller => :home, :action => :home %>

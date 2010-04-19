@@ -1,24 +1,11 @@
-<h4>Create new Clickatell channel</h4>
+<%= edit_channel_header %>
 
-<% form_for :channel, :url => { :controller => 'channel', :action => :create_channel, :kind => params[:kind] } do |f| %>
+<% form_for_channel do |f| %>
   <%= f.error_messages %>
   <%= f.hidden_field :direction, :value => Channel::Both %>
-  <p>
-  <%= f.label :name %><br/>
-  <%= f.text_field :name %>
-  </p>
-  <p>
-  <%= f.label :protocol %><br/>
-  <%= f.text_field :protocol, :value => @channel[:protocol] || 'sms' %>
-  </p>
-  <p>
-  Direction:</br>
-  <select id="channel_direction" name="channel[direction]" onchange="clickatell_channel_direction_changed()">
-    <option value="<%= Channel::Incoming %>" <%= @channel.direction == Channel::Incoming ? 'selected="selected"' : "" %>>Incoming</option>
-    <option value="<%= Channel::Outgoing %>" <%= @channel.direction == Channel::Outgoing ? 'selected="selected"' : "" %>>Outgoing</option>
-    <option value="<%= Channel::Both %>" <%= @channel.direction == Channel::Both ? 'selected="selected"' : "" %>>Bi-directional</option>
-  </select>
-  </p>
+  <%= edit_channel_name f %>
+  <%= edit_channel_protocol f, 'sms' %>
+  <%= render :partial => 'edit_direction', :locals => {:channel => @channel, :on_change => "clickatell_channel_direction_changed()"} %>
   <% f.fields_for :configuration do |c| %>
     <p id="user_container">
     <%= c.label :user %><br/>
@@ -50,7 +37,7 @@
     <code>/clickatell/<%= @application.id %>/incoming</code>
     </p>
   <% end %>
-  <%= submit_tag 'Create Channel' %>
+  <%= channel_submit_tag %>
 <% end %>
 
 <%= link_to 'Go back', :controller => :home, :action => :home %>

@@ -1,16 +1,10 @@
-<h4>Create new SMPP channel</h4>
+<%= edit_channel_header %>
 
-<% form_for :channel, :url => { :controller => 'channel', :action => :create_channel, :kind => params[:kind] } do |f| %>
+<% form_for_channel do |f| %>
 	<%= f.error_messages %>
 	<%= f.hidden_field :direction, :value => Channel::Both %>
-	<p>
-	<%= f.label :name %><br/>
-	<%= f.text_field :name %>
-	</p>
-	<p>
-	<%= f.label :protocol %><br/>
-	<%= f.text_field :protocol, :value => @channel.protocol || 'sms' %>
-	</p>
+	<%= edit_channel_name f %>
+  <%= edit_channel_protocol f, 'sms' %>
 	<%= render :partial => 'throttle', :locals => {:f => f} %>
 	<% f.fields_for :configuration do |c| %>
 		<p>
@@ -78,7 +72,7 @@
 		<%= c.select :mt_csms_method, options_for_select([['UDH', 'udh'], ['Optional parameters', 'optional_parameters'], ['Message payload', 'message_paylod']], @channel.configuration[:mt_csms_method]) %>
 		</p>
 	<% end %>
-	<%= submit_tag 'Create Channel' %>
+	<%= channel_submit_tag %>
 <% end %>
 
 <%= link_to 'Go back', :controller => :home, :action => :home %>
