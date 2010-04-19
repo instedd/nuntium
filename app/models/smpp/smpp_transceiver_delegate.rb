@@ -159,9 +159,9 @@ class SmppTransceiverDelegate
     
     # Reflect in message state
     if pdu.message_state
-      msg.state = pdu.message_state.to_s == '2' ? 'confirmed' : 'failed'
+      msg.state = (pdu.message_state.to_s == '2' || pdu.message_state.to_s == '6') ? 'confirmed' : 'failed'
     elsif pdu.stat
-      msg.state = pdu.stat.to_s == 'DELIVRD' ? 'confirmed' : 'failed'
+      msg.state = (pdu.stat.to_s == 'DELIVRD' || pdu.stat.to_s == 'ACCEPTD') ? 'confirmed' : 'failed'
     end
     msg.save!
     
@@ -188,6 +188,7 @@ class SmppTransceiverDelegate
     # in the delivery_report_received method
     msg.channel_relative_id = reference_id
     msg.state = 'delivered'
+    msg.tries += 1
     msg.save!
     
     @channel.application.logger.ao_message_status_receieved msg, 'ACK'
@@ -204,6 +205,7 @@ class SmppTransceiverDelegate
     return logger.info "AOMessage with id #{mt_message_id} not found (pdu_command_status: #{pdu.command_status})" if msg.nil?
     
     msg.state = 'failed'
+    msg.tries += 1
     msg.save!
     
     @channel.application.logger.ao_message_status_warning msg, "Command Status '#{pdu.command_status}'"

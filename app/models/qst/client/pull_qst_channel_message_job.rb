@@ -32,8 +32,14 @@ class PullQstChannelMessageJob
     if response.nil?
       return :error_pulling_messages
     elsif response.code == "304" # not modified
-      RAILS_DEFAULT_LOGGER.info "Pull QST in channel #{@channel_id}: no new messages"
+      Rails.logger.info "Pull QST in channel #{@channel_id}: no new messages"
       return :success
+    elsif response.code == "401" # Unauthorized
+      channel.alert "Unauthorized: invalid credentials"
+    
+      channel.enabled = false
+      channel.save!
+      return
     elsif response.code[0,1] != "2" # not success
       app.logger.error_pulling_msgs response.message
       return :error_pulling_messages
@@ -60,9 +66,9 @@ class PullQstChannelMessageJob
     else
       # On success, update last id and return success or pending
       if last_new_id.nil?
-        RAILS_DEFAULT_LOGGER.info "Pull QST in channel #{@channel_id}: pulled '#{size}' messages from server"
+        Rails.logger.info "Pull QST in channel #{@channel_id}: pulled '#{size}' messages from server"
       else
-        RAILS_DEFAULT_LOGGER.info "Pull QST in channel #{@channel_id}: pulled '#{size}' messages from server up to id '#{last_new_id}'"
+        Rails.logger.info "Pull QST in channel #{@channel_id}: pulled '#{size}' messages from server up to id '#{last_new_id}'"
       end
       cfg.set_last_at_guid(last_new_id) unless last_new_id.nil?
       return size < BATCH_SIZE ? :success : :success_pending 

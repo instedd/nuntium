@@ -73,9 +73,6 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
       assert_equal output, part.text
     else
       msgs = ATMessage.all
-      if msgs.length == 0
-        puts ApplicationLog.all.map &:inspect
-      end
       assert_equal 1, msgs.length
       msg = msgs[0]
       assert_equal 'sms://4444', msg.from

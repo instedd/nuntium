@@ -43,6 +43,12 @@ class Channel < ActiveRecord::Base
     application.accept msg, self
   end
   
+  def alert(message)
+    # TODO send an email somehow...
+    Rails.logger.info "Received alert for channel #{self.name} in application #{self.application.name}: #{message}"
+    ApplicationLogger.exception_in_channel self, message
+  end
+  
   def handler
     if kind.nil?
       nil

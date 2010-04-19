@@ -1,16 +1,9 @@
 require 'net/smtp'
 
-class SmtpChannelHandler < ChannelHandler
-  def handle(msg)
-    Delayed::Job.enqueue create_job(msg) 
-  end
-  
-  def handle_now(msg)
-    create_job(msg).perform
-  end
-  
-  def create_job(msg)
-    SendSmtpMessageJob.new(@channel.application_id, @channel.id, msg.id)
+class SmtpChannelHandler < GenericChannelHandler
+
+  def job_class
+    SendSmtpMessageJob
   end
   
   def check_valid

@@ -1,6 +1,9 @@
 require 'test_helper'
+require 'mocha'
 
 class ApplicationTest < ActiveSupport::TestCase
+
+  include Mocha::API
 
   test "should not save if name is blank" do
     app = Application.new(:password => 'foo')
@@ -541,6 +544,41 @@ class ApplicationTest < ActiveSupport::TestCase
     app.route(msg, 'test')
     
     assert_equal chan1.id, msg.channel_id
+  end
+  
+  test "should create worker queue on create" do
+    app = Application.create!(:name => 'app1', :password => 'foo')
+    
+    wqs = WorkerQueue.all
+    assert_equal 1, wqs.length
+    assert_equal "application_queue.#{app.id}", wqs[0].queue_name
+    assert_equal "fast", wqs[0].working_group
+    assert_true wqs[0].ack
+    assert_true wqs[0].enabled
+  end
+  
+  test "should bind queue on create" do
+    binded = nil
+  
+    Queues.expects(:bind_application).with do |a|
+      binded = a
+      true
+    end
+  
+    app = Application.create!(:name => 'app1', :password => 'foo')
+    
+    assert_same app, binded
+  end
+  
+  test "should enqueue http post callback" do
+    app = Application.create!(:name => 'app1', :password => 'foo', :interface => 'http_post_callback')
+    msg = ATMessage.create!(:application => app, :subject => 'foo')
+    
+    Queues.expects(:publish_application) do |a, j|
+      a.id == app.id and j.kind_of?(SendPostCallbackMessageJob) and j.application_id == app.id and j.message_id == msg.id 
+    end
+    
+    app.accept msg, 'ui'
   end
   
 end

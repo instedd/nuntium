@@ -13,20 +13,21 @@ class ReceivePop3MessageJob
   
   def perform
     application = Application.find @application_id
-    channel = Channel.find @channel_id
-    config = channel.configuration
+    @channel = Channel.find @channel_id
+    config = @channel.configuration
     
     pop = Net::POP3.new(config[:host], config[:port].to_i)
     pop.enable_ssl(OpenSSL::SSL::VERIFY_NONE) if config[:use_ssl] == '1'
     
     begin
       pop.start(config[:user], config[:password])
-    rescue => e
-      ApplicationLogger.exception_in_channel channel, e
-      raise
-    end
+    rescue Net::POPAuthenticationError => ex
+      @channel.alert "#{ex}"
     
-    logger = ApplicationLogger.new(@application_id)
+      @channel.enabled = false
+      @channel.save!
+      return
+    end
     
     pop.each_mail do |mail|
       tmail = TMail::Mail.parse(mail.pop)
@@ -41,7 +42,7 @@ class ReceivePop3MessageJob
         msg.channel_relative_id = tmail.message_id
         msg.timestamp = tmail.date
         
-        application.accept msg, channel
+        application.accept msg, @channel
       end
       
       mail.delete
@@ -49,7 +50,8 @@ class ReceivePop3MessageJob
     end
     
     pop.finish
-
+  rescue => ex
+    ApplicationLogger.exception_in_channel @channel, ex if @channel
   end
   
   def get_body(tmail)

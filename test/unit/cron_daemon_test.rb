@@ -16,9 +16,9 @@ class CronDaemonTest < ActiveSupport::TestCase
     
     set_current_time(base_time + 30) 
     
-    Delayed::Job.expects(:enqueue).with(responds_with(:task_id, t1.id))
-    Delayed::Job.expects(:enqueue).with(responds_with(:task_id, t2.id))
-    Delayed::Job.expects(:enqueue).with(responds_with(:task_id, t3.id))
+    Queues.expects(:publish_cron_task).with(responds_with(:task_id, t1.id))
+    Queues.expects(:publish_cron_task).with(responds_with(:task_id, t2.id))
+    Queues.expects(:publish_cron_task).with(responds_with(:task_id, t3.id))
 
     cron_run
 

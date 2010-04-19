@@ -196,7 +196,7 @@ class CronTaskTest < ActiveSupport::TestCase
   end
   
   def clean_database
-    [Application, ApplicationLog, Channel, CronTask, Delayed::Job].each(&:delete_all)
+    [Application, ApplicationLog, Channel, CronTask, WorkerQueue].each(&:delete_all)
   end
   
   class Handler

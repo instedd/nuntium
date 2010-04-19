@@ -1,0 +1,641 @@
+<SimpleDiagram>
+  <diagram version="1.0.28" createdAt="Invalid Date" updatedAt="Fri Apr 16 14:47:54 GMT-0300 2010" styleName="null" width="2000" height="1600" baseBackgroundColor="16777215">
+    <name/>
+    <description>null</description>
+  </diagram>
+  <sdObjects>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Square" x="537" y="215" height="213" width="20" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>left</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="DashBox" x="566" y="319" height="1" width="40" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>left</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Square" x="615" y="213" height="213" width="20" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>left</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDTextArea x="559" y="171.5" height="50" width="90" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>AO Queues 
+per Channel</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>center</textAlign>
+    </SDTextArea>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="CircleWithTwoDiagonalBars" x="556" y="97.5" height="35" width="34" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="CircleWithTwoDiagonalBars" x="440.65" y="804" height="30" width="30" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDTextArea x="467.65" y="803.5" height="29" width="77" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>Exchange</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>left</textAlign>
+    </SDTextArea>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Square" x="553.65" y="802" height="38" width="9" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>left</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDTextArea x="564.65" y="805" height="34" width="64" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>Queue</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>left</textAlign>
+    </SDTextArea>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Square" x="923" y="209" height="213" width="20" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>left</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Square" x="676" y="211" height="213" width="20" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>left</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Square" x="709" y="210" height="213" width="20" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>left</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="DashBox" x="738" y="314" height="1" width="40" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>left</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Square" x="788" y="210" height="213" width="20" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>left</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDTextArea x="718.6" y="167.4" height="49.99999999999997" width="120.00000000000011" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>Queues per Application</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>center</textAlign>
+    </SDTextArea>
+    <SDTextArea x="902.3500000000001" y="167.3" height="50" width="80" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>Cron Tasks
+Queue</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>center</textAlign>
+    </SDTextArea>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.biz" symbolName="Clock" x="1029" y="96" height="28" width="30" rotation="0" zIndex="0" color="39168" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDLine x="989" y="84" height="93" width="11" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>-43</startX>
+      <startY>39</startY>
+      <endX>-53</endX>
+      <endY>81</endY>
+      <bendX>-57</bendX>
+      <bendY>62</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDTextArea x="1000.7" y="69.3" height="34" width="88" rotation="0" zIndex="0" color="39168" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>Cron Service</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>center</textAlign>
+    </SDTextArea>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="CircleWithTwoDiagonalBars" x="1125.65" y="502.85" height="38" width="39" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Square" x="570.75" y="578" height="90" width="13" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Frame" x="621.75" y="664" height="50" width="124" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text>Generic Worker</text>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>middle</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDLine x="578.75" y="669" height="22" width="66" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>0</startX>
+      <startY>0</startY>
+      <endX>39</endX>
+      <endY>14</endY>
+      <bendX>2</bendX>
+      <bendY>20</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Square" x="837" y="580" height="90" width="13" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Frame" x="888" y="666" height="50" width="124" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text>Generic Worker</text>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>middle</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDLine x="845" y="671" height="22" width="66" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>0</startX>
+      <startY>0</startY>
+      <endX>39</endX>
+      <endY>14</endY>
+      <bendX>2</bendX>
+      <bendY>20</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDLine x="610.95" y="434.1" height="250" width="70" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>-32</startX>
+      <startY>0</startY>
+      <endX>50</endX>
+      <endY>223</endY>
+      <bendX>-2</bendX>
+      <bendY>173</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDLine x="695" y="441" height="188" width="66" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>54</startX>
+      <startY>-3</startY>
+      <endX>-4</endX>
+      <endY>213</endY>
+      <bendX>56</bendX>
+      <bendY>92</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDLine x="935" y="425" height="260" width="40" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>0</startX>
+      <startY>0</startY>
+      <endX>30</endX>
+      <endY>235.65</endY>
+      <bendX>-1</bendX>
+      <bendY>90</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="ProcessStep" x="454" y="91" height="50" width="60" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text>Routing</text>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>middle</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDLine x="537" y="129" height="95" width="23" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>30</startX>
+      <startY>9</startY>
+      <endX>11</endX>
+      <endY>75</endY>
+      <bendX>13</bendX>
+      <bendY>37</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="DashBox" x="658" y="83" height="366" width="1" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Circle" x="370" y="108" height="19" width="21" rotation="0" zIndex="0" color="39168" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDTextArea x="319.45" y="80.2" height="29" width="120" rotation="0" zIndex="0" color="39168" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>publish AO</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>center</textAlign>
+    </SDTextArea>
+    <SDLine x="393" y="118" height="20" width="77" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>0</startX>
+      <startY>0</startY>
+      <endX>57</endX>
+      <endY>0</endY>
+      <bendX>29</bendX>
+      <bendY>0</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDLine x="517" y="117" height="50" width="50" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>0</startX>
+      <startY>0</startY>
+      <endX>31</endX>
+      <endY>0</endY>
+      <bendX>16</bendX>
+      <bendY>0</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Circle" x="1176.5999999999997" y="584.65" height="19" width="21" rotation="0" zIndex="0" color="39168" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDTextArea x="1124.9" y="603.95" height="57" width="120" rotation="0" zIndex="0" color="39168" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>publish notifications to workers</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>center</textAlign>
+    </SDTextArea>
+    <SDLine x="1207.8" y="493.6" height="62" width="26" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>-25.7</startX>
+      <startY>86.55</startY>
+      <endX>-52.15</endX>
+      <endY>52.15</endY>
+      <bendX>-30.6</bendX>
+      <bendY>69.6</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDLine x="439.25" y="520" height="78" width="148" rotation="0" zIndex="0" color="10066329" colorizable="true">
+      <startX>674.85</startX>
+      <startY>-9.4</startY>
+      <endX>142.35</endX>
+      <endY>47.65</endY>
+      <bendX>219.2</bendX>
+      <bendY>-6.7</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDLine x="439.25" y="511" height="73" width="426" rotation="0" zIndex="0" color="10066329" colorizable="true">
+      <startX>673.2</startX>
+      <startY>10.65</startY>
+      <endX>407.35</endX>
+      <endY>58.75</endY>
+      <bendX>440.05</bendX>
+      <bendY>8</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDTextArea x="1006.5999999999999" y="520.65" height="75" width="119.99999999999994" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>notifications are published with 'working group' as routing key</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>center</textAlign>
+    </SDTextArea>
+    <SDTextArea x="1166.6999999999998" y="486.65" height="70.80000000000007" width="69" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>topic
+volatile
+no-ack</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>center</textAlign>
+    </SDTextArea>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="OpenSquare" x="1016" y="308" height="85" width="157" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text>queues are grouped in 'working groups'.
+Per 'working group' many generic workers could be started.</text>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="DashBox" x="863" y="80" height="366" width="1" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDTextArea x="580.2" y="88.6" height="55" width="76" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>topic
+persistent
+ack</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>center</textAlign>
+    </SDTextArea>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Circle" x="685" y="105.5" height="19" width="21" rotation="0" zIndex="0" color="39168" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDTextArea x="776.2" y="84.6" height="55" width="76" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>topic
+persistent
+ack</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>center</textAlign>
+    </SDTextArea>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="CircleWithTwoDiagonalBars" x="745.2" y="97.6" height="35" width="34" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDTextArea x="633.65" y="62.2" height="50" width="120" rotation="0" zIndex="0" color="39168" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>publish 
+App job</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>center</textAlign>
+    </SDTextArea>
+    <SDLine x="709" y="116" height="20" width="52" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>0</startX>
+      <startY>0</startY>
+      <endX>32</endX>
+      <endY>0</endY>
+      <bendX>16</bendX>
+      <bendY>0</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDLine x="748" y="134" height="87" width="10" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>0</startX>
+      <startY>0</startY>
+      <endX>-28</endX>
+      <endY>67</endY>
+      <bendX>-28</bendX>
+      <bendY>19</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Circle" x="353.65" y="808" height="19" width="21" rotation="0" zIndex="0" color="39168" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDTextArea x="363.34999999999997" y="793.6" height="50" width="66" rotation="0" zIndex="0" color="39168" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>Entry
+point</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>center</textAlign>
+    </SDTextArea>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="DashBox" x="337.65" y="782" height="74" width="304" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="CircleWithTwoDiagonalBars" x="948" y="93" height="35" width="34" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDTextArea x="872.2" y="83.6" height="55" width="76" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>direct
+volatile
+no-ack</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>center</textAlign>
+    </SDTextArea>
+    <SDLine x="1025" y="111" height="13" width="10" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>0</startX>
+      <startY>1</startY>
+      <endX>-38</endX>
+      <endY>2</endY>
+      <bendX>-19</bendX>
+      <bendY>1</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="OpenSquare" x="1238.65" y="530.65" height="68" width="148.6500000000001" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text>notifications tells workers to subscribe/unsubscribe channels according to their status.</text>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Square" x="509.75" y="214.25" height="213" width="20" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>left</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Square" x="440" y="213" height="213" width="20" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>left</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Square" x="469" y="213" height="213" width="20" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>left</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDLine x="560" y="137" height="82" width="10" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>0</startX>
+      <startY>0</startY>
+      <endX>-88</endX>
+      <endY>64</endY>
+      <bendX>-66</bendX>
+      <bendY>23</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="DashBox" x="498" y="307.1" height="134" width="1" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="OpenSquare" x="320" y="351" height="81" width="102" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text>smpp channels are handled by specific workers. One worker per channel</text>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDTextArea x="331.6" y="205.6" height="50" width="120" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <styleName>noBackground</styleName>
+      <text>AO Queues per smpp channel</text>
+      <fontWeight>normal</fontWeight>
+      <fontSize>12</fontSize>
+      <textAlign>center</textAlign>
+    </SDTextArea>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Frame" x="380" y="658" height="55" width="65" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text>Smpp Worker</text>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>middle</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Frame" x="465" y="659" height="55" width="64" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text>Smpp Worker</text>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>middle</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDLine x="482" y="430" height="245" width="32" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>0</startX>
+      <startY>0</startY>
+      <endX>22</endX>
+      <endY>221</endY>
+      <bendX>3</bendX>
+      <bendY>111</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDLine x="451" y="432" height="238" width="10" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>0</startX>
+      <startY>0</startY>
+      <endX>-37</endX>
+      <endY>218</endY>
+      <bendX>-4</bendX>
+      <bendY>110</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Frame" x="214" y="637" height="60" width="96" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text>Managed
+processes</text>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>middle</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.biz" symbolName="Pain" x="316.8793045989573" y="698.7765434126113" height="50" width="42" rotation="-88.69804732742112" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="DashBox" x="367.05" y="629.05" height="101" width="183" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="OpenSquare" x="164" y="708" height="73" width="87" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text>Managed processes start/stop the smpp worker</text>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDSymbol libraryName="com.simplediagrams.shapelibrary.basic" symbolName="Square" x="165" y="566" height="90" width="13" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <text/>
+      <textAlign>center</textAlign>
+      <fontWeight>normal</fontWeight>
+      <textPosition>top</textPosition>
+      <fontSize>12</fontSize>
+    </SDSymbol>
+    <SDLine x="168" y="663" height="22" width="66" rotation="0" zIndex="0" color="16777215" colorizable="true">
+      <startX>0</startX>
+      <startY>0</startY>
+      <endX>39</endX>
+      <endY>14</endY>
+      <bendX>2</bendX>
+      <bendY>20</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+    <SDLine x="1113" y="500" height="71" width="10" rotation="0" zIndex="0" color="10066329" colorizable="true">
+      <startX>0</startX>
+      <startY>0</startY>
+      <endX>-939</endX>
+      <endY>56</endY>
+      <bendX>-895</bendX>
+      <bendY>8</bendY>
+      <lineWeight>1</lineWeight>
+      <startLineStyle>0</startLineStyle>
+      <endLineStyle>2</endLineStyle>
+    </SDLine>
+  </sdObjects>
+</SimpleDiagram>

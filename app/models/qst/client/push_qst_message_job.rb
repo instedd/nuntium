@@ -13,9 +13,9 @@ class PushQstMessageJob
     require 'net/http'
     require 'builder'
 
-    app = Application.find_by_id(@application_id)
-    cfg = ClientQstConfiguration.new app
-    err = validate_app(app)
+    @app = Application.find_by_id(@application_id)
+    cfg = ClientQstConfiguration.new @app
+    err = validate_app(@app)
     return err unless err.nil?
 
     # Create http requestor and uri
@@ -31,22 +31,22 @@ class PushQstMessageJob
     
     # If there are no newer messages, finish
     if new_msgs.length == 0
-      RAILS_DEFAULT_LOGGER.info "Push QST in application #{app.name}: no new messages"
+      RAILS_DEFAULT_LOGGER.info "Push QST in application #{@app.name}: no new messages"
       cfg.set_last_at_guid(last_msg.guid) unless last_msg.nil?
       return :success
     end
 
     # Push the new messages to the endpoint
-    last_id = post_msgs app, cfg, http, path, new_msgs
+    last_id = post_msgs @app, cfg, http, path, new_msgs
     
     # Mark new status for messages based on post result increasing retries
-    ATMessage.update_msgs_status new_msgs, app.max_tries, last_id
+    ATMessage.update_msgs_status new_msgs, @app.max_tries, last_id
     
     # Logging: say that valid messages were returned and invalid no
-    ATMessage.log_delivery(new_msgs, app, 'qst_client')
+    ATMessage.log_delivery(new_msgs, @app, 'qst_client')
     
     # Save changes to the app
-    app.set_last_at_guid last_id
+    @app.set_last_at_guid last_id
     
     # Return value depending success and whether must continue or not
     if last_id.nil?
@@ -71,7 +71,13 @@ class PushQstMessageJob
         request = Net::HTTP::Head.new path
         request.basic_auth(user, pass) unless user.nil? or pass.nil?
         response = http.request request
-        if not response.code[0,1] == '2'
+        if response.code == "401"
+          @app.alert "Pushing QST received unauthorized: invalid credentials"
+    
+          @app.interface = 'rss'
+          @app.save!
+          return :error_obtaining_last_id
+        elsif not response.code[0,1] == '2'
           cfg.logger.error_obtaining_last_id response.message
           return :error_obtaining_last_id
         else
@@ -109,7 +115,13 @@ class PushQstMessageJob
     request['Content-Type'] = 'text/xml'
     response = http.request request, xml
     # Handle response
-    if not response.code[0,1] == '2'
+    if response.code == "401"
+      @app.alert "Pushing QST received unauthorized: invalid credentials"
+
+      @app.interface = 'rss'
+      @app.save!
+      return nil
+    elsif not response.code[0,1] == '2'
       cfg.logger.error_posting_msgs response.message
       return nil
     end

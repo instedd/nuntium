@@ -64,52 +64,6 @@ class RssControllerTest < ActionController::TestCase
     assert_equal chan2.id, unread[0].channel_id
   end
   
-  test "should create clickatell job" do
-    app = Application.create(:name => 'app', :password => 'app_pass')
-    chan = Channel.new(:application_id => app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Both)
-    chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :incoming_password => 'incoming', :from => 'from'}
-    chan.save!
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
-    @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')
-    post :create
-    
-    msg = AOMessage.first
-    
-    jobs = Delayed::Job.all
-    assert_equal 1, jobs.length
-    
-    job = jobs[0]
-    job = YAML::load job.handler
-    assert_equal 'SendClickatellMessageJob', job.class.to_s
-    assert_equal app.id, job.application_id
-    assert_equal chan.id, job.channel_id
-    assert_equal msg.id, job.message_id
-  end
-  
-  test "should create smtp job" do
-    app = Application.create(:name => 'app', :password => 'app_pass')
-    chan = Channel.new(:application_id => app.id, :name => 'chan', :kind => 'smtp', :protocol => 'protocol', :direction => Channel::Both)
-    chan.configuration = {:host => 'host', :port => 430, :user => 'user', :password => 'password' }
-    chan.save!
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
-    @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')
-    post :create
-    
-    msg = AOMessage.first
-    
-    jobs = Delayed::Job.all
-    assert_equal 1, jobs.length
-    
-    job = jobs[0]
-    job = YAML::load job.handler
-    assert_equal 'SendSmtpMessageJob', job.class.to_s
-    assert_equal app.id, job.application_id
-    assert_equal chan.id, job.channel_id
-    assert_equal msg.id, job.message_id
-  end
-  
   test "qst server no protocol in message" do
     app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
   

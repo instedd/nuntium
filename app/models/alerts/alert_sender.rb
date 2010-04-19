@@ -21,7 +21,7 @@ class AlertSender
         alert.sent_at = Time.now.utc
         alert.save!
       rescue Exception => e
-        RAILS_DEFAULT_LOGGER.error "#{e.class} #{e.message}"
+        Rails.logger.error "#{e.class} #{e.message}"
       end
     end
   end
