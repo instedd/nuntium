@@ -2,7 +2,7 @@
 
 <% form_for_channel do |f| %>
   <%= f.error_messages %>
-  <%= f.hidden_field :direction, :value => Channel::Both %>
+  <%= f.hidden_field :direction, :value => Channel::Bidirectional %>
   <%= edit_channel_name f %>
   <%= edit_channel_protocol f, 'sms' %>
   <%= render :partial => 'edit_direction', :locals => {:channel => @channel, :on_change => "clickatell_channel_direction_changed()"} %>

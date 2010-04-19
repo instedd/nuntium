@@ -2,7 +2,7 @@
 
 <% form_for_channel do |f| %>
   <%= f.error_messages %>
-  <%= f.hidden_field :direction, :value => Channel::Both %>
+  <%= f.hidden_field :direction, :value => Channel::Bidirectional %>
   <%= edit_channel_name f %>
   <%= edit_channel_protocol f, 'xmpp' %>
   <% f.fields_for :configuration do |c| %>

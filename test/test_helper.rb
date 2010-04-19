@@ -127,7 +127,7 @@ class ActiveSupport::TestCase
     channel.protocol = protocol
     channel.configuration = { :password => pass }
     channel.kind = kind
-    channel.direction = Channel::Both
+    channel.direction = Channel::Bidirectional
     channel.save!
     
     channel
@@ -264,7 +264,7 @@ class ActiveSupport::TestCase
   end
   
   def new_channel(app, name)
-    chan = Channel.new(:application_id => app.id, :name => name, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Both);
+    chan = Channel.new(:application_id => app.id, :name => name, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional);
     chan.configuration = {:url => 'a', :user => 'b', :password => 'c'};
     chan.save!
     chan

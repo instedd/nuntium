@@ -159,7 +159,7 @@ class HomeController < AuthenticatedController
   end
   
   def setup_application_alerts
-    @channels = Channel.all(:conditions => ['application_id = ? and (direction = ? or direction = ?)', @application.id, Channel::Outgoing, Channel::Both])
+    @channels = Channel.all(:conditions => ['application_id = ? and (direction = ? or direction = ?)', @application.id, Channel::Outgoing, Channel::Bidirectional])
     @alert_configurations = AlertConfiguration.find_all_by_application_id @application.id
   end
   

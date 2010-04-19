@@ -3,6 +3,6 @@ Direction:</br>
 <select id="channel_direction" name="channel[direction]" <%= "onchange=\"clickatell_channel_direction_changed()\"" if defined? on_change  %>>
   <option value="<%= Channel::Incoming %>" <%= channel.direction == Channel::Incoming ? 'selected="selected"' : "" %>>Incoming</option>
   <option value="<%= Channel::Outgoing %>" <%= channel.direction == Channel::Outgoing ? 'selected="selected"' : "" %>>Outgoing</option>
-  <option value="<%= Channel::Both %>" <%= channel.direction == Channel::Both ? 'selected="selected"' : "" %>>Bi-directional</option>
+  <option value="<%= Channel::Bidirectional %>" <%= channel.direction == Channel::Bidirectional ? 'selected="selected"' : "" %>>Bi-directional</option>
 </select>
 </p>

@@ -25,7 +25,7 @@ class ChannelControllerTest < ActionController::TestCase
   
   test "edit channel change password succeeds" do
     app = Application.create({:name => 'app', :password => 'app_pass'})
-    chan = Channel.new({:application_id => app.id, :name => 'chan', :protocol => 'sms', :direction => Channel::Both, :kind => 'qst_server'})
+    chan = Channel.new({:application_id => app.id, :name => 'chan', :protocol => 'sms', :direction => Channel::Bidirectional, :kind => 'qst_server'})
     chan.configuration = {:password => 'chan_pass'}
     chan.save
     

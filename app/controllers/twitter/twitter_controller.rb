@@ -53,7 +53,7 @@ class TwitterController < AuthenticatedController
       @channel.name = session['twitter_channel_name']      
       @channel.kind = 'twitter'
       @channel.protocol = 'twitter'
-      @channel.direction = Channel::Both  
+      @channel.direction = Channel::Bidirectional  
     else
       @update = true
       @channel = Channel.find session['twitter_channel_id']
