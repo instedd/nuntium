@@ -1,34 +1,21 @@
-<h4>Create new QST server channel</h4>
+<%= edit_channel_header %>
 
-<% form_for :channel, :url => { :controller => 'channel', :action => :create_channel, :kind => params[:kind] } do |f| %>
+<% form_for_channel do |f| %>
   <%= f.error_messages %>
-  <p>
-  <%= f.label :name %><br/>
-  <%= f.text_field :name %>
-  </p>
-  <p>
-  <%= f.label :protocol %><br/>
-  <%= f.text_field :protocol %>
-  </p>
-  <p>
-  Direction:</br>
-  <select id="channel_direction" name="channel[direction]">
-    <option value="<%= Channel::Incoming %>">Incoming</option>
-    <option value="<%= Channel::Outgoing %>">Outgoing</option>
-    <option value="<%= Channel::Both %>">Bi-directional</option>
-  </select>
-  </p>
+  <%= edit_channel_name f %>
+  <%= edit_channel_protocol f %>
+  <%= render :partial => 'edit_direction', :locals => {:channel => @channel} %>
   <% f.fields_for :configuration do |c| %>
     <p>
     <%= c.label :password %><br/>
-    <%= c.password_field :password %>
+    <%= c.password_field :password, :value => @channel[:configuration][:password] %>
     </p>
     <p>
     <%= c.label :password_confirmation %><br/>
-    <%= c.password_field :password_confirmation %>
+    <%= c.password_field :password_confirmation, :value => @channel[:configuration][:password_confirmation] %>
     </p>
   <% end %>
-  <%= submit_tag 'Create Channel' %>
+  <%= channel_submit_tag %>
 <% end %>
 
 <%= link_to 'Go back', :controller => :home, :action => :home %>

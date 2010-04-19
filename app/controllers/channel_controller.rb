@@ -5,7 +5,7 @@ class ChannelController < AuthenticatedController
   after_filter :compress, :only => [:new_channel, :edit_channel]
   
   def new_channel
-    @channel = flash[:channel] if not flash[:channel].nil? 
+    @channel = Channel.new :configuration => {} unless @channel
     kind = params[:kind]
     render "new_#{kind}_channel"
   end
@@ -32,7 +32,11 @@ class ChannelController < AuthenticatedController
   end
   
   def edit_channel
-    render "edit_#{@channel.kind}_channel"
+    if File.exists? "#{view_paths}/channel/edit_#{@channel.kind}_channel.html.erb"
+      render "edit_#{@channel.kind}_channel"
+    else
+      render "new_#{@channel.kind}_channel"
+    end
   end
   
   def update_channel

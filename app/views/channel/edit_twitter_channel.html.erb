@@ -1,4 +1,4 @@
-<h4>Edit channel <%= @channel.name %></h4>
+<%= edit_channel_header %>
 
 <% if TwitterConsumerConfig.nil? %>
   <%= render :partial => 'twitter_configuration_missing' %>
