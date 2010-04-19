@@ -117,7 +117,7 @@ class MessageControllerTest < ActionController::TestCase
   end
   
   def new_channel(app, name)
-    chan = Channel.new(:application_id => app.id, :name => name, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Both);
+    chan = Channel.new(:application_id => app.id, :name => name, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional);
     chan.configuration = {:url => 'a', :user => 'b', :password => 'c'};
     chan.save!
     chan

@@ -23,7 +23,7 @@ class Channel < ActiveRecord::Base
   # Channel directions
   Incoming = 1
   Outgoing = 2
-  Both = Incoming + Outgoing
+  Bidirectional = Incoming + Outgoing
 
   include(CronTask::CronTaskOwner)
     
@@ -68,7 +68,7 @@ class Channel < ActiveRecord::Base
       'incoming'
     when Outgoing
       'outgoing'
-    when Both
+    when Bidirectional
       'bi-directional'
     end
   end

@@ -44,7 +44,7 @@ class Application < ActiveRecord::Base
     check_modified
   
     if @outgoing_channels.nil?
-      @outgoing_channels = self.channels.all(:conditions => ['enabled = ? AND (direction = ? OR direction = ?)', true, Channel::Outgoing, Channel::Both])
+      @outgoing_channels = self.channels.all(:conditions => ['enabled = ? AND (direction = ? OR direction = ?)', true, Channel::Outgoing, Channel::Bidirectional])
     end
     
     if msg.new_record?
