@@ -16,13 +16,6 @@ class Service
     @is_running
   end
   
-  def daydream(seconds)
-    start = Time.now.to_i
-    while running? && (Time.now.to_i - start) < seconds
-      sleep 1
-    end
-  end
-  
   def logger
     Rails.logger
   end
@@ -42,7 +35,7 @@ class Service
         rescue Exception => err
           logger.error "Daemon failure: #{err} #{err.backtrace}"
         end
-        daydream sleep_seconds
+        sleep sleep_seconds
       end
     end
   end
