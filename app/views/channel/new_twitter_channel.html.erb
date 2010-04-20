@@ -7,14 +7,8 @@
 <% form_for :channel, :url => { :controller => 'twitter', :action => :create_twitter_channel } do |f| %>
   <%= f.error_messages %>
   <%= f.hidden_field :direction, :value => Channel::Bidirectional %>
-  <p>
-  <%= f.label :name %><br/>
-  <%= f.text_field :name %>
-  </p>
-  <p>
-  <%= f.label :protocol %><br/>
-  <%= f.text_field :protocol, :value => @channel.protocol || 'twitter' %>
-  </p>
+  <%= edit_channel_name f %>
+  <%= edit_channel_protocol f, 'twitter' %>
   <% f.fields_for :configuration do |c| %>
     <p>
     Welcome message for new followers (leave blank if not desired)<br/>
