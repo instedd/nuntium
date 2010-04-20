@@ -34,7 +34,7 @@ class SendClickatellMessageJob < SendMessageJob
     response = request.get(uri)
     if response.body[0..2] == "ID:"
       @msg.channel_relative_id = response.body[4..-1]
-      @msg.send_succeeed @app, @channel
+      @msg.send_succeeed @account, @channel
     elsif response.body[0..3] == "ERR:"
       code_with_description = response.body[5..-1]
       code = code_with_description.to_i

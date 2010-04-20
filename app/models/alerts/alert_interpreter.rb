@@ -1,11 +1,11 @@
 class AlertInterpreter
 
-  def interpret_for(app)
-    return if app.configuration[:alert].nil?
+  def interpret_for(account)
+    return if account.configuration[:alert].nil?
   
-    trigger = AlertTrigger.new app
+    trigger = AlertTrigger.new account
     begin
-      eval app.configuration[:alert]
+      eval account.configuration[:alert]
     rescue Exception => e
       trigger.alert "system_internal_#{Time.now.to_i}", fix_error("You have an error in your alert code: #{e.message}")
     end

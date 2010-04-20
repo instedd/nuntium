@@ -17,7 +17,7 @@ class ChannelController < AuthenticatedController
     throttle_opt = chan.delete :throttle_opt
     
     @channel = Channel.new(chan)
-    @channel.application_id = @application.id
+    @channel.account_id = @account.id
     @channel.kind = params[:kind]
     @channel.direction = chan[:direction]
     @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
@@ -78,13 +78,13 @@ class ChannelController < AuthenticatedController
     # queued messages in those channels.
     requeued_messages_count = 0;
     
-    other_channels = @application.channels.all(:conditions => ['enabled = ? AND protocol = ? AND (direction = ? OR direction = ?)', true, @channel.protocol, Channel::Outgoing, Channel::Bidirectional])
+    other_channels = @account.channels.all(:conditions => ['enabled = ? AND protocol = ? AND (direction = ? OR direction = ?)', true, @channel.protocol, Channel::Outgoing, Channel::Bidirectional])
     
     if !other_channels.empty?
       queued_messages = AOMessage.all(:conditions => ['channel_id = ? AND state = ?', @channel.id, 'queued'])
       requeued_messages_count = queued_messages.length
       queued_messages.each do |msg|
-        @application.route(msg, 'user')
+        @account.route(msg, 'user')
       end
     end
     
@@ -102,7 +102,7 @@ class ChannelController < AuthenticatedController
   
   def check_channel
     @channel = Channel.find_by_id params[:id]
-    redirect_to_home if @channel.nil? || @channel.application_id != @application.id
+    redirect_to_home if @channel.nil? || @channel.account_id != @account.id
   end
 
 end

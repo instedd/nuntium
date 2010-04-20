@@ -8,12 +8,12 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
   should "perform no ssl" do
     time = Time.now
     
-    app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'smtp')
+    account = Account.create(:name => 'account', :password => 'pass')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'smtp')
     chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '0'}
     chan.save
     
-    msg = AOMessage.create(:application_id => app.id, :from => 'mailto://from@mail.com', :to => 'mailto://to@mail.com', :subject => 'some subject', :body => 'some body', :timestamp => time, :guid => 'some guid', :state => 'pending')
+    msg = AOMessage.create(:account_id => account.id, :from => 'mailto://from@mail.com', :to => 'mailto://to@mail.com', :subject => 'some subject', :body => 'some body', :timestamp => time, :guid => 'some guid', :state => 'pending')
 
 msgstr = <<-END_OF_MESSAGE
 From: from@mail.com
@@ -33,7 +33,7 @@ msgstr.strip!
     smtp.expects(:send_message).with(msgstr, 'from@mail.com', 'to@mail.com')
     smtp.expects(:finish)
     
-    job = SendSmtpMessageJob.new(app.id, chan.id, msg.id)
+    job = SendSmtpMessageJob.new(account.id, chan.id, msg.id)
     job.perform
     
     msg = AOMessage.first
@@ -44,12 +44,12 @@ msgstr.strip!
   should "perform ssl" do
     time = Time.now
     
-    app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'smtp')
+    account = Account.create(:name => 'account', :password => 'pass')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'smtp')
     chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'}
     chan.save
     
-    msg = AOMessage.create(:application_id => app.id, :from => 'mailto://from@mail.com', :to => 'mailto://to@mail.com', :subject => 'some subject', :body => 'some body', :timestamp => time, :guid => 'some guid', :state => 'pending')
+    msg = AOMessage.create(:account_id => account.id, :from => 'mailto://from@mail.com', :to => 'mailto://to@mail.com', :subject => 'some subject', :body => 'some body', :timestamp => time, :guid => 'some guid', :state => 'pending')
 
 msgstr = <<-END_OF_MESSAGE
 From: from@mail.com
@@ -70,7 +70,7 @@ msgstr.strip!
     smtp.expects(:send_message).with(msgstr, 'from@mail.com', 'to@mail.com')
     smtp.expects(:finish)
     
-    job = SendSmtpMessageJob.new(app.id, chan.id, msg.id)
+    job = SendSmtpMessageJob.new(account.id, chan.id, msg.id)
     job.perform
     
     msg = AOMessage.first

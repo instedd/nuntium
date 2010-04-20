@@ -5,7 +5,7 @@ When an alert is triggered a message with the given <i>from</i> and <i>to</i> wi
 You can specify many <i>to</i> receipients by separating them with a comma. It's not necessary to specify a protocol in the <i>from</i> and <i>to</i> fields.
 </p>
 
-<% form_for :application, :url => { :controller => 'home', :action => :update_application_alerts } do |f| %>
+<% form_for :account, :url => { :controller => 'home', :action => :update_account_alerts } do |f| %>
   <%= f.error_messages %>
   <table class="table">
     <tr>
@@ -34,7 +34,7 @@ You can specify many <i>to</i> receipients by separating them with a comma. It's
       <td colspan="2">Fire alerts using this logic:</td>
     </tr>
     <tr valign="top">
-      <td><%= c.text_area :alert, :rows => 13, :cols => 60, :wrap => 'off', :value => @application.configuration[:alert] %></td>
+      <td><%= c.text_area :alert, :rows => 13, :cols => 60, :wrap => 'off', :value => @account.configuration[:alert] %></td>
       <td>
         <div style="width:600px; height:226px; overflow:auto; background-color: #E5ECF9; padding:0px 8px 0px 8px;">
           This code will be executed every five minutes. You have the given function available:
@@ -45,7 +45,7 @@ You can specify many <i>to</i> receipients by separating them with a comma. It's
             been sent, it won't be sent again for an hour.
           <pre class="example">trigger.alert 'ErrorsInLastHour', 'There have been 5 errors in the last hour'</pre>
           </p>
-          <p>A variable named <b><code>app</code></b> is defined with the current <code>Application</code></p>          
+          <p>A variable named <b><code>app</code></b> is defined with the current <code>Account</code></p>          
         </div>
       </td>
     </tr>

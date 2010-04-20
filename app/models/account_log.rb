@@ -1,5 +1,5 @@
-class ApplicationLog < ActiveRecord::Base
-  belongs_to :application
+class AccountLog < ActiveRecord::Base
+  belongs_to :account
   belongs_to :channel
   belongs_to :ao_message
   belongs_to :at_message

@@ -9,65 +9,65 @@ include Mocha::API
 include Net
   
   def test_perform_first_run
-    app = setup_app
-    msgs = new_at_message app, (0..2)
-    setup_http app, 
+    account = setup_account
+    msgs = new_at_message account, (0..2)
+    setup_http account, 
       :msgs_posted => (0..2), 
       :post_etag => msgs[2].guid,
       :head_etag => nil
     
-    result = job app
+    result = job account
     
     assert_equal :success, result
-    assert_last_id app, msgs[2].guid
+    assert_last_id account, msgs[2].guid
     assert_msgs_states(msgs, 'confirmed', 1)
     
   end
   
   def test_perform_run_with_last_id
-    app = setup_app
-    msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
-    msgs += new_at_message app, (3..5), 'protocol', 'queued'
-    app.set_last_at_guid(msgs[2].guid)
+    account = setup_account
+    msgs =  new_at_message account, (0..2), 'protocol', 'confirmed', 1
+    msgs += new_at_message account, (3..5), 'protocol', 'queued'
+    account.set_last_at_guid(msgs[2].guid)
     
-    setup_http app, :msgs_posted => (3..5), 
+    setup_http account, :msgs_posted => (3..5), 
       :expects_head => false, 
       :post_etag => msgs[5].guid
 
-    result = job app
+    result = job account
         
     assert_equal :success, result
-    assert_last_id app, msgs[5].guid
+    assert_last_id account, msgs[5].guid
     assert_msgs_states(msgs, 'confirmed', 1)
   end
   
   def test_perform_run_with_last_id_complex_uri
-    app = setup_app :url => 'http://example.com:9099/foobar/'
-    msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
-    msgs += new_at_message app, (3..5), 'protocol', 'queued'
-    app.set_last_at_guid(msgs[2].guid)
+    account = setup_account :url => 'http://example.com:9099/foobar/'
+    msgs =  new_at_message account, (0..2), 'protocol', 'confirmed', 1
+    msgs += new_at_message account, (3..5), 'protocol', 'queued'
+    account.set_last_at_guid(msgs[2].guid)
     
-    setup_http app, :msgs_posted => (3..5), 
+    setup_http account, :msgs_posted => (3..5), 
       :expects_head => false, 
       :post_etag => msgs[5].guid,
       :url_port => 9099,
       :url_host => 'example.com',
       :url_path => '/foobar/incoming'
 
-    result = job app
+    result = job account
         
     assert_equal :success, result
-    assert_last_id app, msgs[5].guid
+    assert_last_id account, msgs[5].guid
     assert_msgs_states(msgs, 'confirmed', 1)
   end
   
   def test_perform_run_with_last_id_complex_ssl_uri
-    app = setup_app :url => 'https://geochat-stg.instedd.org/gateway/gateway.svc'
-    msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
-    msgs += new_at_message app, (3..5), 'protocol', 'queued'
-    app.set_last_at_guid(msgs[2].guid)
+    account = setup_account :url => 'https://geochat-stg.instedd.org/gateway/gateway.svc'
+    msgs =  new_at_message account, (0..2), 'protocol', 'confirmed', 1
+    msgs += new_at_message account, (3..5), 'protocol', 'queued'
+    account.set_last_at_guid(msgs[2].guid)
     
-    setup_http app, :msgs_posted => (3..5), 
+    setup_http account, :msgs_posted => (3..5), 
       :expects_head => false, 
       :post_etag => msgs[5].guid,
       :url_port => 443,
@@ -75,85 +75,85 @@ include Net
       :url_path => '/gateway/gateway.svc/incoming',
       :use_ssl => true
 
-    result = job app
+    result = job account
         
     assert_equal :success, result
-    assert_last_id app, msgs[5].guid
+    assert_last_id account, msgs[5].guid
     assert_msgs_states(msgs, 'confirmed', 1)
   end
   
   def test_perform_run_with_last_id_on_ssl
-    app = setup_app :url => 'https://example.com'
-    msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
-    msgs += new_at_message app, (3..5), 'protocol', 'queued'
-    app.set_last_at_guid(msgs[2].guid)
+    account = setup_account :url => 'https://example.com'
+    msgs =  new_at_message account, (0..2), 'protocol', 'confirmed', 1
+    msgs += new_at_message account, (3..5), 'protocol', 'queued'
+    account.set_last_at_guid(msgs[2].guid)
     
-    setup_http app, :msgs_posted => (3..5), 
+    setup_http account, :msgs_posted => (3..5), 
       :expects_head => false, 
       :post_etag => msgs[5].guid,
       :url_host => 'example.com',
       :use_ssl => true,
       :url_port => 443
 
-    result = job app
+    result = job account
         
     assert_equal :success, result
-    assert_last_id app, msgs[5].guid
+    assert_last_id account, msgs[5].guid
     assert_msgs_states(msgs, 'confirmed', 1)
   end
 
   def test_perform_run_with_last_id_unauth
-    app = setup_app_unauth 
-    msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
-    msgs += new_at_message app, (3..5), 'protocol', 'queued'
-    app.set_last_at_guid(msgs[2].guid)
+    account = setup_account_unauth 
+    msgs =  new_at_message account, (0..2), 'protocol', 'confirmed', 1
+    msgs += new_at_message account, (3..5), 'protocol', 'queued'
+    account.set_last_at_guid(msgs[2].guid)
     
-    setup_http app, :msgs_posted => (3..5), 
+    setup_http account, :msgs_posted => (3..5), 
       :expects_head => false, 
       :post_etag => msgs[5].guid,
       :auth => false
 
-    result = job app
+    result = job account
         
     assert_equal :success, result
-    assert_last_id app, msgs[5].guid
+    assert_last_id account, msgs[5].guid
     assert_msgs_states(msgs, 'confirmed', 1)
   end
 
   
   def test_perform_run_with_last_id_not_confirming_all_messages
-    app = setup_app
-    msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
-    msgs += new_at_message app, (3..5), 'protocol', 'queued'
-    app.set_last_at_guid(msgs[2].guid)
+    account = setup_account
+    msgs =  new_at_message account, (0..2), 'protocol', 'confirmed', 1
+    msgs += new_at_message account, (3..5), 'protocol', 'queued'
+    account.set_last_at_guid(msgs[2].guid)
     
-    setup_http app, :msgs_posted => (3..5), 
+    setup_http account, :msgs_posted => (3..5), 
       :expects_head => false, 
       :post_etag => msgs[4].guid
 
-    result = job app
+    result = job account
         
     assert_equal :success, result
-    assert_last_id app, msgs[4].guid
+    assert_last_id account, msgs[4].guid
     assert_msgs_states(msgs[0..4], 'confirmed', 1)
     assert_msgs_states(msgs[5..5], 'delivered', 1)
   end
 
   def test_perform_run_with_last_id_after_partial_post
-    app = setup_app
-    msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
-    msgs += new_at_message app, (3..5), 'protocol', 'delivered', 1
-    msgs += new_at_message app, (6..7), 'protocol', 'queued', 0
-    app.set_last_at_guid msgs[2].guid
+    account = setup_account
+    msgs =  new_at_message account, (0..2), 'protocol', 'confirmed', 1
+    msgs += new_at_message account, (3..5), 'protocol', 'delivered', 1
+    msgs += new_at_message account, (6..7), 'protocol', 'queued', 0
+    account.set_last_at_guid msgs[2].guid
     
-    setup_http app, :msgs_posted => (3..7), 
+    setup_http account, :msgs_posted => (3..7), 
       :expects_head => false,
       :post_etag => msgs[7].guid
       
-    result = job app
+    result = job account
         
     assert_equal :success, result
-    assert_last_id app, msgs[7].guid
+    assert_last_id account, msgs[7].guid
     assert_msgs_states(msgs[0..2], 'confirmed', 1)
     assert_msgs_states(msgs[3..5], 'confirmed', 2)
     assert_msgs_states(msgs[0..2], 'confirmed', 1)
@@ -161,134 +161,134 @@ include Net
 
   
   def test_perform_run_requesting_last_id_after_failure
-    app = setup_app
-    msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
-    msgs += new_at_message app, (3..5), 'protocol', 'delivered', 1
-    msgs += new_at_message app, (6..7), 'protocol', 'queued', 0
-    app.set_last_at_guid nil
+    account = setup_account
+    msgs =  new_at_message account, (0..2), 'protocol', 'confirmed', 1
+    msgs += new_at_message account, (3..5), 'protocol', 'delivered', 1
+    msgs += new_at_message account, (6..7), 'protocol', 'queued', 0
+    account.set_last_at_guid nil
     
-    setup_http app, :msgs_posted => (3..7), 
+    setup_http account, :msgs_posted => (3..7), 
       :head_etag => msgs[2].guid,
       :post_etag => msgs[7].guid
       
-    result = job app
+    result = job account
         
     assert_equal :success, result
-    assert_last_id app, msgs[7].guid
+    assert_last_id account, msgs[7].guid
     assert_msgs_states(msgs[0..2], 'confirmed', 1)
     assert_msgs_states(msgs[3..5], 'confirmed', 2)
     assert_msgs_states(msgs[0..2], 'confirmed', 1)
   end
 
   def test_perform_run_requesting_greater_last_id_after_failure
-    app = setup_app
-    msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
-    msgs += new_at_message app, (3..5), 'protocol', 'delivered', 1
-    msgs += new_at_message app, (6..7), 'protocol', 'queued', 0
-    app.set_last_at_guid nil
+    account = setup_account
+    msgs =  new_at_message account, (0..2), 'protocol', 'confirmed', 1
+    msgs += new_at_message account, (3..5), 'protocol', 'delivered', 1
+    msgs += new_at_message account, (6..7), 'protocol', 'queued', 0
+    account.set_last_at_guid nil
     
-    setup_http app, :msgs_posted => (5..7), 
+    setup_http account, :msgs_posted => (5..7), 
       :head_etag => msgs[4].guid,
       :post_etag => msgs[7].guid
 
-    result = job app
+    result = job account
         
     assert_equal :success, result
-    assert_last_id app, msgs[7].guid
+    assert_last_id account, msgs[7].guid
     assert_msgs_states(msgs[0..4], 'confirmed', 1)
     assert_msgs_states(msgs[5..5], 'confirmed', 2)
     assert_msgs_states(msgs[6..7], 'confirmed', 1)
   end
   
   def test_failed_post_clears_last_id_and_increases_tries
-    app = setup_app :max_tries => 5
-    msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
-    msgs += new_at_message app, (3..5), 'protocol', 'queued', 4
-    msgs += new_at_message app, (6..7), 'protocol', 'queued', 0
-    app.set_last_at_guid(msgs[2].guid)
+    account = setup_account :max_tries => 5
+    msgs =  new_at_message account, (0..2), 'protocol', 'confirmed', 1
+    msgs += new_at_message account, (3..5), 'protocol', 'queued', 4
+    msgs += new_at_message account, (6..7), 'protocol', 'queued', 0
+    account.set_last_at_guid(msgs[2].guid)
     
-    setup_http app, :msgs_posted => (3..7), 
+    setup_http account, :msgs_posted => (3..7), 
       :expects_head => false, 
       :post_response => mock_http_failure
 
-    result = job app
+    result = job account
         
     assert_equal :failed, result
-    assert_last_id app, nil
+    assert_last_id account, nil
     assert_msgs_states msgs[0..2], 'confirmed', 1 
     assert_msgs_states msgs[3..5], 'failed', 5
     assert_msgs_states msgs[6..7], 'queued', 1
   end
   
   def test_failed_when_no_url
-    app = create_app_with_interface('myapp', 'mypass', 'qst_client', {})
-    msgs = sample_messages(app)
-    setup_null_http app
+    account = create_account_with_interface('myaccount', 'mypass', 'qst_client', {})
+    msgs = sample_messages(account)
+    setup_null_http account
     
-    result = job app
+    result = job account
     assert_equal :error_no_url_in_configuration, result
-    assert_last_id app, nil
+    assert_last_id account, nil
     assert_sample_messages_states msgs
   end
   
   def test_failed_when_wrong_interface
-    app = create_app_with_interface('myapp', 'mypass', 'rss', { :url => 'http://example.com' })
-    msgs = sample_messages(app)
-    setup_null_http app
+    account = create_account_with_interface('myaccount', 'mypass', 'rss', { :url => 'http://example.com' })
+    msgs = sample_messages(account)
+    setup_null_http account
     
-    result = job app
+    result = job account
     assert_equal :error_wrong_interface, result
-    assert_last_id app, nil
+    assert_last_id account, nil
     assert_sample_messages_states msgs
   end
   
   def test_failed_when_obtaining_last_guid
-    app = setup_app
-    msgs = sample_messages(app)
-    setup_http app, 
+    account = setup_account
+    msgs = sample_messages(account)
+    setup_http account, 
       :expects_post => false,
       :head_response => mock_http_failure
     
-    result = job app
+    result = job account
     
     assert_equal :error_obtaining_last_id, result
-    assert_last_id app, nil
+    assert_last_id account, nil
     assert_sample_messages_states msgs
   end
   
   def test_batch_returns_success_pending
-    app = setup_app :max_tries => 5
-    msgs =  new_at_message app, (0..20), 'protocol', 'confirmed', 1
-    msgs += new_at_message app, (21..100), 'protocol', 'queued', 0
-    app.set_last_at_guid(msgs[20].guid)
+    account = setup_account :max_tries => 5
+    msgs =  new_at_message account, (0..20), 'protocol', 'confirmed', 1
+    msgs += new_at_message account, (21..100), 'protocol', 'queued', 0
+    account.set_last_at_guid(msgs[20].guid)
     
-    setup_http app, :msgs_posted => (21..30), 
+    setup_http account, :msgs_posted => (21..30), 
       :expects_head => false, 
       :post_etag => msgs[30].guid
 
-    result = batch app
+    result = batch account
         
     assert_equal :success_pending, result
-    assert_last_id app, msgs[30].guid
+    assert_last_id account, msgs[30].guid
     assert_msgs_states msgs[0..30], 'confirmed', 1 
     assert_msgs_states msgs[31..100], 'queued', 0
   end
   
   def test_perform_runs_until_no_more_messages_with_last_batch_full
-    app = setup_app :max_tries => 5
-    msgs =  new_at_message app, (0...20), 'protocol', 'confirmed', 1
-    msgs += new_at_message app, (20...100), 'protocol', 'queued', 0
-    app.set_last_at_guid(msgs[19].guid)
+    account = setup_account :max_tries => 5
+    msgs =  new_at_message account, (0...20), 'protocol', 'confirmed', 1
+    msgs += new_at_message account, (20...100), 'protocol', 'queued', 0
+    account.set_last_at_guid(msgs[19].guid)
     
     current = 20
-    result = job_with_callback(app) do
+    result = job_with_callback(account) do
       assert current < 101
       if current == 100
-        setup_http app, 
+        setup_http account, 
           :expects_post => false, 
           :expects_head => false
       else
-        setup_http app, 
+        setup_http account, 
           :msgs_posted => (current...current+10), 
           :expects_head => false, 
           :post_etag => msgs[current+9].guid
@@ -297,20 +297,20 @@ include Net
     end
         
     assert_equal :success, result
-    assert_last_id app, msgs[99].guid
+    assert_last_id account, msgs[99].guid
     assert_msgs_states msgs[0...100], 'confirmed', 1 
   end
   
   def test_perform_runs_until_no_more_messages_with_last_batch_partial
-    app = setup_app :max_tries => 5
-    msgs =  new_at_message app, (0...20), 'protocol', 'confirmed', 1
-    msgs += new_at_message app, (20...105), 'protocol', 'queued', 0
-    app.set_last_at_guid(msgs[19].guid)
+    account = setup_account :max_tries => 5
+    msgs =  new_at_message account, (0...20), 'protocol', 'confirmed', 1
+    msgs += new_at_message account, (20...105), 'protocol', 'queued', 0
+    account.set_last_at_guid(msgs[19].guid)
     
     current = 20
-    result = job_with_callback(app) do
+    result = job_with_callback(account) do
       max = if current == 100 then 104 else current + 9 end
-      setup_http app, 
+      setup_http account, 
         :msgs_posted => (current..max), 
         :expects_head => false, 
         :post_etag => msgs[max].guid
@@ -318,29 +318,29 @@ include Net
     end
         
     assert_equal :success, result
-    assert_last_id app, msgs[104].guid
+    assert_last_id account, msgs[104].guid
     assert_msgs_states msgs[0...105], 'confirmed', 1 
   end
   
   def test_perform_runs_until_quota_exceeded
-    app = setup_app :max_tries => 5
-    msgs =  new_at_message app, (0...20), 'protocol', 'confirmed', 1
-    msgs += new_at_message app, (20...100), 'protocol', 'queued', 0
-    app.set_last_at_guid(msgs[19].guid)
+    account = setup_account :max_tries => 5
+    msgs =  new_at_message account, (0...20), 'protocol', 'confirmed', 1
+    msgs += new_at_message account, (20...100), 'protocol', 'queued', 0
+    account.set_last_at_guid(msgs[19].guid)
     
     set_current_time
     
     current = 20
     lapse = 0
     
-    job = create_job_with_callback(app) do
+    job = create_job_with_callback(account) do
       assert current < 101
       if current == 50
-        setup_http app,
+        setup_http account,
           :expects_post => false, 
           :expects_head => false
       else
-        setup_http app, 
+        setup_http account, 
           :msgs_posted => (current...current+10), 
           :expects_head => false, 
           :post_etag => msgs[current+9].guid
@@ -355,7 +355,7 @@ include Net
     job.quota = 25
     
     assert_equal :success_pending, job.perform
-    assert_last_id app, msgs[49].guid
+    assert_last_id account, msgs[49].guid
     assert_msgs_states msgs[0...50], 'confirmed', 1 
     assert_msgs_states msgs[50...100], 'queued', 0
     
@@ -363,27 +363,27 @@ include Net
   
   private
   
-  def assert_last_id(app, last_id)
-    afterapp = Application.find_by_id app.id
-    assert_equal last_id, afterapp.configuration[:last_at_guid]
+  def assert_last_id(account, last_id)
+    afteraccount = Account.find_by_id account.id
+    assert_equal last_id, afteraccount.configuration[:last_at_guid]
   end
   
-  def setup_app(cfg = {})
-    create_app_with_interface('app', 'pass', 'qst_client', { :last_at_guid => nil, :url => 'http://example.com', :cred_user => 'theuser', :cred_pass => 'thepass' }.merge(cfg))
+  def setup_account(cfg = {})
+    create_account_with_interface('account', 'pass', 'qst_client', { :last_at_guid => nil, :url => 'http://example.com', :cred_user => 'theuser', :cred_pass => 'thepass' }.merge(cfg))
   end
   
-  def setup_app_unauth(cfg = {})
-    create_app_with_interface('app', 'pass', 'qst_client', { :last_at_guid => nil, :url => 'http://example.com'}.merge(cfg))
+  def setup_account_unauth(cfg = {})
+    create_account_with_interface('account', 'pass', 'qst_client', { :last_at_guid => nil, :url => 'http://example.com'}.merge(cfg))
   end
   
-  def setup_null_http(app)
-    setup_http app, :auth => false, 
+  def setup_null_http(account)
+    setup_http account, :auth => false, 
       :expects_head => false,
       :expects_post => false,
       :expects_init => false
   end
   
-  def setup_http(app, opts)
+  def setup_http(account, opts)
     cfg = { 
       :auth => true, 
       :expects_head => true,  
@@ -421,11 +421,11 @@ include Net
     http
   end
   
-  def sample_messages app
-    msgs =  new_at_message app, (0..2), 'protocol', 'confirmed', 1
-    msgs += new_at_message app, (3..5), 'protocol', 'delivered', 3
-    msgs += new_at_message app, (6..7), 'protocol', 'failed', 5
-    msgs += new_at_message app, (8..10), 'protocol', 'queued', 0
+  def sample_messages account
+    msgs =  new_at_message account, (0..2), 'protocol', 'confirmed', 1
+    msgs += new_at_message account, (3..5), 'protocol', 'delivered', 3
+    msgs += new_at_message account, (6..7), 'protocol', 'failed', 5
+    msgs += new_at_message account, (8..10), 'protocol', 'queued', 0
     msgs
   end
   
@@ -437,8 +437,8 @@ include Net
   end
   
   class CallbackJob < PushQstMessageJob
-    def initialize(app_id, block)
-      super app_id
+    def initialize(account_id, block)
+      super account_id
       @block = block
     end
     def perform_batch
@@ -447,22 +447,22 @@ include Net
     end
   end
   
-  def create_job_with_callback(app, &block)
-    CallbackJob.new app.id, block
+  def create_job_with_callback(account, &block)
+    CallbackJob.new account.id, block
   end
   
-  def job_with_callback(app, &block)
-    j = CallbackJob.new app.id, block
+  def job_with_callback(account, &block)
+    j = CallbackJob.new account.id, block
     j.perform
   end
   
-  def job(app)
-    j = PushQstMessageJob.new app.id
+  def job(account)
+    j = PushQstMessageJob.new account.id
     j.perform
   end
   
-  def batch(app)
-    j = PushQstMessageJob.new app.id
+  def batch(account)
+    j = PushQstMessageJob.new account.id
     j.perform_batch
   end
   

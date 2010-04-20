@@ -140,7 +140,7 @@ class SmppTransceiverDelegate
     create_at_message pdu.source_addr, pdu.destination_addr, pdu.data_coding, text
   rescue Exception => e
     logger.error "Error in mo_received: #{e.class} #{e.to_s}"
-    ApplicationLogger.exception_in_channel @channel, e
+    AccountLogger.exception_in_channel @channel, e
   end
   
   def delivery_report_received(transceiver, pdu)
@@ -165,10 +165,10 @@ class SmppTransceiverDelegate
     end
     msg.save!
     
-    @channel.application.logger.ao_message_status_receieved msg, pdu.stat
+    @channel.account.logger.ao_message_status_receieved msg, pdu.stat
   rescue Exception => e
     logger.error "Error in delivery_report_received: #{e.class} #{e.to_s}"
-    ApplicationLogger.exception_in_channel @channel, e
+    AccountLogger.exception_in_channel @channel, e
   end
   
   def message_accepted(transceiver, mt_message_id, pdu)
@@ -191,10 +191,10 @@ class SmppTransceiverDelegate
     msg.tries += 1
     msg.save!
     
-    @channel.application.logger.ao_message_status_receieved msg, 'ACK'
+    @channel.account.logger.ao_message_status_receieved msg, 'ACK'
   rescue Exception => e
     logger.error "Error in message_accepted: #{e.class} #{e.to_s}"
-    ApplicationLogger.exception_in_channel @channel, e
+    AccountLogger.exception_in_channel @channel, e
   end
   
   def message_rejected(transceiver, mt_message_id, pdu)
@@ -208,10 +208,10 @@ class SmppTransceiverDelegate
     msg.tries += 1
     msg.save!
     
-    @channel.application.logger.ao_message_status_warning msg, "Command Status '#{pdu.command_status}'"
+    @channel.account.logger.ao_message_status_warning msg, "Command Status '#{pdu.command_status}'"
   rescue Exception => e
     logger.error "Error in message_rejected: #{e.class} #{e.to_s}"
-    ApplicationLogger.exception_in_channel @channel, e
+    AccountLogger.exception_in_channel @channel, e
   end
   
   def create_at_message(source, destination, data_coding, text)

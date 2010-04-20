@@ -39,10 +39,10 @@ class ClientQstConfiguration
   end
   
   def logger
-    if @parent.instance_of? Application
+    if @parent.instance_of? Account
       @parent.logger
     elsif @parent.instance_of? Channel
-      @parent.application.logger
+      @parent.account.logger
     end
   end
   

@@ -6,8 +6,8 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
   include Mocha::API
   
   def setup
-    @app = Application.create(:name => 'app', :password => 'foo')
-    @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'smpp', :protocol => 'smpp')
+    @account = Account.create(:name => 'account', :password => 'foo')
+    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'smpp', :protocol => 'smpp')
     @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :system_type => 'smpp', :mt_encodings => ['ascii'], :default_mo_encoding => 'ascii', :mt_csms_method => 'udh' }
   end
   
@@ -31,7 +31,7 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
     procs = ManagedProcess.all
     assert_equal 1, procs.length
     proc = procs[0]
-    assert_equal @chan.application.id, proc.application_id
+    assert_equal @chan.account.id, proc.account_id
     assert_equal "SMPP #{@chan.name}", proc.name
     assert_equal "smpp_daemon_ctl.rb start -- test #{@chan.id}", proc.start_command
     assert_equal "smpp_daemon_ctl.rb stop -- test #{@chan.id}", proc.stop_command

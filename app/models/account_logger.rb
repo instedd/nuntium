@@ -1,6 +1,6 @@
-class ApplicationLogger
-  def initialize(application_id)
-    @application_id = application_id
+class AccountLogger
+  def initialize(account_id)
+    @account_id = account_id
   end
   
   def protocol_not_found_for_ao_message(ao_msg)
@@ -28,8 +28,8 @@ class ApplicationLogger
   end
   
   def ao_message_received(msg, interface)
-    if interface.class == Hash and interface[:application].class == Application
-      info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message received from application '#{interface[:application].name}'")
+    if interface.class == Hash and interface[:account].class == Account
+      info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message received from account '#{interface[:account].name}'")
     elsif interface == 're-route'
       info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message was re-routed")
     else
@@ -41,8 +41,8 @@ class ApplicationLogger
     info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message handled by #{channel.kind} channel '#{channel.name}'")
   end
   
-  def ao_message_routed_to_application(msg, app)
-    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message routed to application '#{app.name}'")
+  def ao_message_routed_to_account(msg, account)
+    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message routed to account '#{account.name}'")
   end
   
   def ao_message_created_as_alert(msg)
@@ -106,19 +106,19 @@ class ApplicationLogger
   end
   
   def info(hash_or_message)
-    create(hash_or_message, ApplicationLog::Info)
+    create(hash_or_message, AccountLog::Info)
   end
   
   def warning(hash_or_message)
-    create(hash_or_message, ApplicationLog::Warning)
+    create(hash_or_message, AccountLog::Warning)
   end
   
   def error(hash_or_message)
-    create(hash_or_message, ApplicationLog::Error)
+    create(hash_or_message, AccountLog::Error)
   end
   
   def self.exception_in_channel(channel, exception)
-    logger = ApplicationLogger.new(channel.application_id)
+    logger = AccountLogger.new(channel.account_id)
     logger.error(:channel_id => channel.id, :message => "#{logger.exception_msg(exception)}")
   end
   
@@ -138,9 +138,9 @@ class ApplicationLogger
     now = Time.now.utc.to_s(:db)
     message = hash_or_message[:message].gsub("'", "''")
     
-    insert = "INSERT INTO application_logs (application_id, channel_id, ao_message_id, at_message_id, message, severity, created_at, updated_at) VALUES (#{@application_id},#{hash_or_message[:channel_id] || "NULL"},#{hash_or_message[:ao_message_id] || "NULL"},#{hash_or_message[:at_message_id] || "NULL"},'#{message}',#{severity},'#{now}','#{now}')"
+    insert = "INSERT INTO account_logs (account_id, channel_id, ao_message_id, at_message_id, message, severity, created_at, updated_at) VALUES (#{@account_id},#{hash_or_message[:channel_id] || "NULL"},#{hash_or_message[:ao_message_id] || "NULL"},#{hash_or_message[:at_message_id] || "NULL"},'#{message}',#{severity},'#{now}','#{now}')"
     
-    ApplicationLog.connection.execute insert
+    AccountLog.connection.execute insert
   end
   
   def exception_msg(exception)

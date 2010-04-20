@@ -7,8 +7,8 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
   include Mocha::API
 
   should "perform no ssl" do
-    app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
+    account = Account.create(:name => 'account', :password => 'pass')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
     chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '0'}
     chan.save
       
@@ -33,14 +33,14 @@ END_OF_MESSAGE
     mail.expects(:delete)
     pop.expects(:finish)
       
-    job = ReceivePop3MessageJob.new(app.id, chan.id)
+    job = ReceivePop3MessageJob.new(account.id, chan.id)
     job.perform
     
     msgs = ATMessage.all
     assert_equal 1, msgs.length
     
     msg = msgs[0]
-    assert_equal app.id, msg.application_id
+    assert_equal account.id, msg.account_id
     assert_equal 'mailto://from@mail.com', msg.from
     assert_equal 'mailto://to@mail.com', msg.to
     assert_equal 'some subject', msg.subject
@@ -51,8 +51,8 @@ END_OF_MESSAGE
   end
   
   should "perform ssl" do
-    app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
+    account = Account.create(:name => 'account', :password => 'pass')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
     chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'}
     chan.save
       
@@ -78,14 +78,14 @@ END_OF_MESSAGE
     mail.expects(:delete)
     pop.expects(:finish)
       
-    job = ReceivePop3MessageJob.new(app.id, chan.id)
+    job = ReceivePop3MessageJob.new(account.id, chan.id)
     job.perform
     
     msgs = ATMessage.all
     assert_equal 1, msgs.length
     
     msg = msgs[0]
-    assert_equal app.id, msg.application_id
+    assert_equal account.id, msg.account_id
     assert_equal 'mailto://from@mail.com', msg.from
     assert_equal 'mailto://to@mail.com', msg.to
     assert_equal 'some subject', msg.subject
@@ -96,8 +96,8 @@ END_OF_MESSAGE
   end
   
   should "perform no message id" do
-    app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
+    account = Account.create(:name => 'account', :password => 'pass')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
     chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '0'}
     chan.save
       
@@ -121,14 +121,14 @@ END_OF_MESSAGE
     mail.expects(:delete)
     pop.expects(:finish)
       
-    job = ReceivePop3MessageJob.new(app.id, chan.id)
+    job = ReceivePop3MessageJob.new(account.id, chan.id)
     job.perform
     
     msgs = ATMessage.all
     assert_equal 1, msgs.length
     
     msg = msgs[0]
-    assert_equal app.id, msg.application_id
+    assert_equal account.id, msg.account_id
     assert_equal 'mailto://from@mail.com', msg.from
     assert_equal 'mailto://to@mail.com', msg.to
     assert_equal 'some subject', msg.subject

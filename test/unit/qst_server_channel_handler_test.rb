@@ -2,8 +2,8 @@ require 'test_helper'
 
 class QstServerChannelHandlerTest < ActiveSupport::TestCase
   def setup
-    @app = Application.create(:name => 'app', :password => 'foo')
-    @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'qst_server', :protocol => 'sms')
+    @account = Account.create(:name => 'account', :password => 'foo')
+    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'qst_server', :protocol => 'sms')
     @chan.configuration = {:password => 'foo', :password_confirmation => 'foo'}
   end
   

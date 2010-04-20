@@ -1,11 +1,11 @@
 <h4>Edit AO Messages routing</h4>
 
-<% form_for :application, :url => { :controller => 'home', :action => :update_application_ao_routing } do |f| %>
+<% form_for :account, :url => { :controller => 'home', :action => :update_account_ao_routing } do |f| %>
   <%= f.error_messages %>
 	<% f.fields_for :configuration do |c| %>
   <table>
     <tr valign="top">
-      <td><%= c.text_area :ao_routing, :rows => 13, :cols => 60, :wrap => 'off', :value => @application.configuration[:ao_routing] %></td>
+      <td><%= c.text_area :ao_routing, :rows => 13, :cols => 60, :wrap => 'off', :value => @account.configuration[:ao_routing] %></td>
       <td>
         <div style="width:600px; height:226px; overflow:auto; background-color: #E5ECF9; padding:0px 8px 0px 8px;">
           <p>You can apply custom logic to incoming AO Messages by defining <b>the contents</b> of a function
@@ -16,11 +16,11 @@
   
   def route_to_channel(channel_name)
   def route_to_any_channel(*channel_names)
-  def route_to_application(application_name)
+  def route_to_account(account_name)
   def copy
 end</pre>
           <p>You can query and modify any of <code>Message</code>'s accessors.</p>
-          <p>The <code>preferred_channel</code> is the name of the channel that will be used in case this application
+          <p>The <code>preferred_channel</code> is the name of the channel that will be used in case this account
           routes via the last AT channel used, or <code>nil</code> if there's no such channel. This allows you to do, for
           example, <code>msg.route_to_channel preferred_channel</code></p>
           <p>Available routing actions:</p>
@@ -33,8 +33,8 @@ end</pre>
               <pre class="example">msg.route_to_any_channel 'SomeChannel1', 'SomeChannel2'</pre>
               Note that if there is a <code>preferred_channel</code> and no channel name is given, this will route the message to it.
             </li>
-            <li><code><b>route_to_application</b></code>: routes the message to the application identified by the given name.
-              <pre class="example">msg.route_to_application 'OtherApp'</pre>
+            <li><code><b>route_to_account</b></code>: routes the message to the account identified by the given name.
+              <pre class="example">msg.route_to_account 'OtherAccount'</pre>
             </li>
             <li><code><b>copy</b></code>: receives a block with a fresh new copy of the Message and allows execution of actions on it.
                 Useful for broadcasting to many channels, optionally applying a transform to each copy.
@@ -61,7 +61,7 @@ end</pre>
       <td colspan="2">Test</td>
     </tr>
     <tr valign="top">
-      <td><%= c.text_area :ao_routing_test, :rows => 10, :cols => 60, :wrap => 'off', :value => @application.configuration[:ao_routing_test] %></td>
+      <td><%= c.text_area :ao_routing_test, :rows => 10, :cols => 60, :wrap => 'off', :value => @account.configuration[:ao_routing_test] %></td>
       <td>
         <div style="width:600px; height:180px; overflow:auto; background-color: #E5ECF9; padding:0px 8px 0px 8px;">
           <h3>Test your routing!</h3>
@@ -84,11 +84,11 @@ end</pre>
               The second hash can be ommited to not check the transformation but just focus on the channel.</br>
               The channel names can be ommited to check that the message was routed in one of all the available channels for the message's protocol.
             </li>
-            <li><code><b>assert.routed_to_application</b>(original, expected, application_name)</code>: asserts that the
-              original message was transformed to the expected one and it was routed to the application
+            <li><code><b>assert.routed_to_account</b>(original, expected, account_name)</code>: asserts that the
+              original message was transformed to the expected one and it was routed to the account
               identified by the given name.
-              <pre class="example">assert_routed_to_application({:from => 'in'}, {:from => 'out'}, 'AppName')</pre>
-              The second hash can be ommited to not check the transformation but just focus on the application.
+              <pre class="example">assert_routed_to_account({:from => 'in'}, {:from => 'out'}, 'AccountName')</pre>
+              The second hash can be ommited to not check the transformation but just focus on the account.
             </li>
           </ul>
       </td>

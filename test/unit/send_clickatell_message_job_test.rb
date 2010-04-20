@@ -33,14 +33,14 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     request.expects('verify_mode=').with(OpenSSL::SSL::VERIFY_NONE)
     request.expects(:get).with(uri).returns(response)
     
-    app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell')
+    account = Account.create(:name => 'account', :password => 'pass')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell')
     chan.configuration = {:api_id => 'api1', :user => 'user1', :password => 'pass1', :from => 'someone', :incoming_password => 'pass2'}
     assert_true chan.save!
     
-    msg = AOMessage.create(:application_id => app.id, :from => 'sms://1234', :to => 'sms://5678', :body => 'text me', :state => 'pending')
+    msg = AOMessage.create(:account_id => account.id, :from => 'sms://1234', :to => 'sms://5678', :body => 'text me', :state => 'pending')
       
-    job = SendClickatellMessageJob.new(app.id, chan.id, msg.id)
+    job = SendClickatellMessageJob.new(account.id, chan.id, msg.id)
     result = job.perform
     
     msg = AOMessage.first
@@ -75,21 +75,21 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     request.expects('verify_mode=').with(OpenSSL::SSL::VERIFY_NONE)
     request.expects(:get).with(uri).returns(response)
     
-    app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell')
+    account = Account.create(:name => 'account', :password => 'pass')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell')
     chan.configuration = {:api_id => 'api1', :user => 'user1', :password => 'pass1', :from => 'someone', :incoming_password => 'pass2'}
     assert_true chan.save!
     
-    msg = AOMessage.create(:application_id => app.id, :from => 'sms://1234', :to => 'sms://5678', :body => 'text me', :state => 'queued')
+    msg = AOMessage.create(:account_id => account.id, :from => 'sms://1234', :to => 'sms://5678', :body => 'text me', :state => 'queued')
     
-    job = SendClickatellMessageJob.new(app.id, chan.id, msg.id)
+    job = SendClickatellMessageJob.new(account.id, chan.id, msg.id)
     result = job.perform
     
     msg = AOMessage.first
     assert_equal 1, msg.tries
     assert_equal 'queued', msg.state
     
-    logs = ApplicationLog.all
+    logs = AccountLog.all
     assert_equal 1, logs.length
     assert_true logs[0].message.include?('105, Invalid destination address')
   end
@@ -120,14 +120,14 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     request.expects('verify_mode=').with(OpenSSL::SSL::VERIFY_NONE)
     request.expects(:get).with(uri).returns(response)
     
-    app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell')
+    account = Account.create(:name => 'account', :password => 'pass')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell')
     chan.configuration = {:api_id => 'api1', :user => 'user1', :password => 'pass1', :from => 'someone', :incoming_password => 'pass2'}
     assert_true chan.save!
     
-    msg = AOMessage.create(:application_id => app.id, :from => 'sms://1234', :to => 'sms://5678', :body => 'text me', :state => 'queued')
+    msg = AOMessage.create(:account_id => account.id, :from => 'sms://1234', :to => 'sms://5678', :body => 'text me', :state => 'queued')
     
-    job = SendClickatellMessageJob.new(app.id, chan.id, msg.id)
+    job = SendClickatellMessageJob.new(account.id, chan.id, msg.id)
     job.perform
     
     msg = AOMessage.first

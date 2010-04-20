@@ -2,15 +2,15 @@ module Queues
 
   class << self
   
-    def publish_application(app, job)
-      application_exchange.publish(job.to_yaml, 
-        :routing_key => application_routing_key_for(app), 
+    def publish_account(account, job)
+      account_exchange.publish(job.to_yaml, 
+        :routing_key => account_routing_key_for(account), 
         :persistent => true)
     end
     
-    def bind_application(app, mq = MQ)
-      application_queue_for(app, mq).bind(application_exchange(mq), 
-        :routing_key => application_routing_key_for(app))
+    def bind_account(account, mq = MQ)
+      account_queue_for(account, mq).bind(account_exchange(mq), 
+        :routing_key => account_routing_key_for(account))
     end
   
     def publish_ao(msg, job)
@@ -88,20 +88,20 @@ module Queues
         "Job failed to load: #{e.message}. Try to manually require the required file."
     end
     
-    def application_exchange(mq = MQ)
-      mq.topic('applications', :durable => true)
+    def account_exchange(mq = MQ)
+      mq.topic('accounts', :durable => true)
     end
     
-    def application_queue_for(app, mq = MQ)
-      mq.queue(application_queue_name_for(app), :durable => true)
+    def account_queue_for(account, mq = MQ)
+      mq.queue(account_queue_name_for(account), :durable => true)
     end
     
-    def application_queue_name_for(app)
-      "application_queue.#{app.id}"
+    def account_queue_name_for(account)
+      "account_queue.#{account.id}"
     end
     
-    def application_routing_key_for(app)
-      "application.#{app.id}"
+    def account_routing_key_for(account)
+      "account.#{account.id}"
     end
     
     def ao_exchange(mq = MQ)
@@ -113,11 +113,11 @@ module Queues
     end
     
     def ao_queue_name_for(channel)
-      "ao_queue.#{channel.application_id}.#{channel.kind}.#{channel.id}"
+      "ao_queue.#{channel.account_id}.#{channel.kind}.#{channel.id}"
     end
     
     def ao_routing_key_for(channel)
-      "ao.#{channel.application_id}.#{channel.kind}.#{channel.id}"
+      "ao.#{channel.account_id}.#{channel.kind}.#{channel.id}"
     end
     
     def notifications_exchange(mq = MQ)

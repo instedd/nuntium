@@ -3,9 +3,9 @@ require 'test_helper'
 class SendAoControllerTest < ActionController::TestCase
 
   test "send ao" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server', 'sms')
+    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server', 'sms')
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account', 'account_pass')
     get :create, {:from => 'sms://1234', :to => 'sms://5678', :subject => 's', :body => 'b', :guid => 'g'}
     
     messages = AOMessage.all
@@ -15,7 +15,7 @@ class SendAoControllerTest < ActionController::TestCase
     
     assert_equal 'id: ' + msg.id.to_s, @response.body
     
-    assert_equal app.id, msg.application_id
+    assert_equal account.id, msg.account_id
     assert_equal "s", msg.subject
     assert_equal "b", msg.body
     assert_equal "sms://1234", msg.from
@@ -27,9 +27,9 @@ class SendAoControllerTest < ActionController::TestCase
   end
   
   test "send ao error" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server', 'sms')
+    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server', 'sms')
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account', 'account_pass')
     get :create, {:from => 'sms://1234', :to => 'PROT://5678', :subject => 's', :body => 'b', :guid => 'g'}
     
     messages = AOMessage.all
@@ -39,7 +39,7 @@ class SendAoControllerTest < ActionController::TestCase
     
     assert_equal 'error: ' + msg.id.to_s, @response.body
     
-    assert_equal app.id, msg.application_id
+    assert_equal account.id, msg.account_id
     assert_equal "s", msg.subject
     assert_equal "b", msg.body
     assert_equal "sms://1234", msg.from
@@ -51,9 +51,9 @@ class SendAoControllerTest < ActionController::TestCase
   end
   
   test "send ao error without to" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server', 'sms')
+    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server', 'sms')
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account', 'account_pass')
     get :create, {:from => 'sms://1234', :subject => 's', :body => 'b', :guid => 'g'}
     
     messages = AOMessage.all
@@ -63,7 +63,7 @@ class SendAoControllerTest < ActionController::TestCase
     
     assert_equal 'error: ' + msg.id.to_s, @response.body
     
-    assert_equal app.id, msg.application_id
+    assert_equal account.id, msg.account_id
     assert_equal "s", msg.subject
     assert_equal "b", msg.body
     assert_equal "sms://1234", msg.from
@@ -75,9 +75,9 @@ class SendAoControllerTest < ActionController::TestCase
   end
   
   test "send ao fails not authorized" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server', 'sms')
+    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server', 'sms')
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'wrong_pass')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account', 'wrong_pass')
     get :create, {:from => 'sms://1234', :to => 'sms://5678', :subject => 's', :body => 'b', :guid => 'g'}
     
     assert_response 401

@@ -1,6 +1,6 @@
-<h3>Login to your application:</h3>
+<h3>Login to your account:</h3>
 
-<% form_for :application, :url => { :controller => 'home', :action => :login } do |f| %>
+<% form_for :account, :url => { :controller => 'home', :action => :login } do |f| %>
   <p>
   <%= f.label :name %><br/>
   <%= f.text_field :name %>
@@ -13,11 +13,11 @@
   <%= submit_tag 'Login' %>
 <% end %>
 
-<% unless ApplicationCreationDisabled %>
+<% unless AccountCreationDisabled %>
 
 <h3>Or create a new one:</h3>
 
-<% form_for :new_application, :url => { :controller => 'home', :action => :create_application } do |f| %>
+<% form_for :new_account, :url => { :controller => 'home', :action => :create_account } do |f| %>
   <%= f.error_messages %>
   <p>
   <%= f.label :name %><br/>
@@ -31,7 +31,7 @@
   <%= f.label :password_confirmation %><br/>
   <%= f.password_field :password_confirmation, :autocomplete => :off  %>
   </p>
-  <%= submit_tag 'Create Application' %>
+  <%= submit_tag 'Create Account' %>
 <% end %>
 
 <% end %>

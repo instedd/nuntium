@@ -6,7 +6,7 @@ class ClickatellController < AuthenticatedController
 
   @@clickatell_timezone = ActiveSupport::TimeZone.new 2.hours
 
-  # GET /clickatell/:application_id/incoming
+  # GET /clickatell/:account_id/incoming
   def index
     udh = ClickatellUdh.from_string params[:udh]
     if udh
@@ -60,7 +60,7 @@ class ClickatellController < AuthenticatedController
     msg.subject = Iconv.new('UTF-8', params[:charset]).iconv(text)
     msg.channel_relative_id = params[:moMsgId]
     msg.timestamp = get_timestamp
-    @application.accept msg, @channel
+    @account.accept msg, @channel
   end
   
   def get_timestamp
@@ -70,7 +70,7 @@ class ClickatellController < AuthenticatedController
   def view_credit
     id = params[:id]
     @channel = Channel.find_by_id id
-    if @channel.nil? || @channel.application_id != @application.id || @channel.kind != 'clickatell'
+    if @channel.nil? || @channel.account_id != @account.id || @channel.kind != 'clickatell'
       return redirect_to_home
     end
     
@@ -79,9 +79,9 @@ class ClickatellController < AuthenticatedController
   
   def authenticate
     authenticate_or_request_with_http_basic do |username, password|
-      @application = Application.find_by_id_or_name(params[:application_id])
-      if !@application.nil?
-        channels = @application.channels.find_all_by_kind 'clickatell'
+      @account = Account.find_by_id_or_name(params[:account_id])
+      if !@account.nil?
+        channels = @account.channels.find_all_by_kind 'clickatell'
         channels = channels.select { |c| 
           c.name == username && 
           c.configuration[:incoming_password] == password &&

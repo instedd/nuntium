@@ -1,13 +1,13 @@
 class AlertTrigger
 
-  def initialize(application)
-    @application = application
-    @alert_configurations = @application.alert_configurations
+  def initialize(account)
+    @account = account
+    @alert_configurations = @account.alert_configurations
   end
 
   def alert(kind, msg)
     now = Time.now.utc
-    alerts_for_kind = Alert.all(:conditions => ['application_id = ? and kind = ?', @application.id, kind], :include => :ao_message)
+    alerts_for_kind = Alert.all(:conditions => ['account_id = ? and kind = ?', @account.id, kind], :include => :ao_message)
     pending_alerts = alerts_for_kind.select {|a| a.sent_at.nil? || (now - a.sent_at) < 1.hour.to_i}
     return unless pending_alerts.empty?
     
@@ -16,10 +16,10 @@ class AlertTrigger
       
       tos.each do |to|
         alert = alerts_for_kind.select{|a| a.channel_id = cfg.channel_id && a.ao_message.to == to}.first
-        ao_msg = AOMessage.create!(:application_id => @application.id, :channel_id => cfg.channel_id, :from => cfg.from, :to => to, :subject => "Nuntium alert for #{@application.name}", :body => msg, :state => 'pending', :timestamp => Time.now.utc)
-        @application.logger.ao_message_created_as_alert ao_msg
+        ao_msg = AOMessage.create!(:account_id => @account.id, :channel_id => cfg.channel_id, :from => cfg.from, :to => to, :subject => "Nuntium alert for #{@account.name}", :body => msg, :state => 'pending', :timestamp => Time.now.utc)
+        @account.logger.ao_message_created_as_alert ao_msg
         if alert.nil?
-          Alert.create!(:application_id => @application.id, :channel_id => cfg.channel_id, :kind => kind, :ao_message_id => ao_msg.id)
+          Alert.create!(:account_id => @account.id, :channel_id => cfg.channel_id, :kind => kind, :ao_message_id => ao_msg.id)
         else
           alert.ao_message_id = ao_msg.id
           alert.channel_id = cfg.channel_id

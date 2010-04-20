@@ -27,7 +27,7 @@ END_OF_MESSAGE
     else
       begin
         smtp.send_message msgstr, @msg.from.without_protocol, @msg.to.without_protocol
-        @msg.send_succeeed @app, @channel, channel_relative_id
+        @msg.send_succeeed @account, @channel, channel_relative_id
       ensure
         smtp.finish
       end

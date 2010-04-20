@@ -2,11 +2,11 @@ require 'test_helper'
 
 class AlertSenderTest < ActiveSupport::TestCase
   test "alert" do
-    app = Application.create!(:name => 'app', :password => 'pass')
-    chan = new_channel(app, 'one')
-    cfg = AlertConfiguration.create!(:application_id => app.id, :channel_id => chan.id, :from => 'f', :to => 't')
-    msg = AOMessage.create!(:application_id => app.id, :from => 'f', :to => 't', :subject => 's', :state => 'pending')
-    alert = Alert.create!(:application_id => app.id, :channel_id => chan.id, :ao_message_id => msg.id)
+    account = Account.create!(:name => 'account', :password => 'pass')
+    chan = new_channel(account, 'one')
+    cfg = AlertConfiguration.create!(:account_id => account.id, :channel_id => chan.id, :from => 'f', :to => 't')
+    msg = AOMessage.create!(:account_id => account.id, :from => 'f', :to => 't', :subject => 's', :state => 'pending')
+    alert = Alert.create!(:account_id => account.id, :channel_id => chan.id, :ao_message_id => msg.id)
     
     sender = AlertSender.new
     sender.perform
@@ -20,11 +20,11 @@ class AlertSenderTest < ActiveSupport::TestCase
   end
   
   test "alert remove when tries exceeded" do
-    app = Application.create!(:name => 'app', :password => 'pass')
-    chan = new_channel(app, 'one')
-    cfg = AlertConfiguration.create!(:application_id => app.id, :channel_id => chan.id, :from => 'f', :to => 't')
-    msg = AOMessage.create!(:application_id => app.id, :from => 'f', :to => 't', :subject => 's', :state => 'pending', :tries => 3)
-    alert = Alert.create!(:application_id => app.id, :channel_id => chan.id, :ao_message_id => msg.id)
+    account = Account.create!(:name => 'account', :password => 'pass')
+    chan = new_channel(account, 'one')
+    cfg = AlertConfiguration.create!(:account_id => account.id, :channel_id => chan.id, :from => 'f', :to => 't')
+    msg = AOMessage.create!(:account_id => account.id, :from => 'f', :to => 't', :subject => 's', :state => 'pending', :tries => 3)
+    alert = Alert.create!(:account_id => account.id, :channel_id => chan.id, :ao_message_id => msg.id)
     
     sender = AlertSender.new
     sender.perform

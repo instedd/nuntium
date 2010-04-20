@@ -13,7 +13,7 @@ class ManagedProcessTest < ActiveSupport::TestCase
     end
   
     mp = ManagedProcess.create!(
-      :application_id => 1,
+      :account_id => 1,
       :name => 'name',
       :start_command => 'start',
       :stop_command => 'stop',
@@ -28,7 +28,7 @@ class ManagedProcessTest < ActiveSupport::TestCase
   
   test "publish stop notification on destroy" do
     mp = ManagedProcess.create!(
-      :application_id => 1,
+      :account_id => 1,
       :name => 'name',
       :start_command => 'start',
       :stop_command => 'stop',
@@ -52,7 +52,7 @@ class ManagedProcessTest < ActiveSupport::TestCase
   
   test "publish restart notification on update" do
     mp = ManagedProcess.create!(
-      :application_id => 1,
+      :account_id => 1,
       :name => 'name',
       :start_command => 'start',
       :stop_command => 'stop',

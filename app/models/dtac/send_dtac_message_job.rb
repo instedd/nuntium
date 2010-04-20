@@ -36,7 +36,7 @@ class SendDtacMessageJob < SendMessageJob
     
       status = values["Status"].to_i
       if ( status == 0 )
-        @msg.send_succeeed @app, @channel
+        @msg.send_succeeed @account, @channel
       else
          raise response.body
       end

@@ -3,11 +3,11 @@ require 'test_helper'
 class ChannelControllerTest < ActionController::TestCase
 
   test "create qst server channel succeeds" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
+    account = Account.create!({:name => 'account', :password => 'account_pass'})
     
-    get :create_channel, {:kind => 'qst_server', :channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application_id => app.id}
+    get :create_channel, {:kind => 'qst_server', :channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:account_id => account.id}
     
-    # Go to app home page
+    # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
     assert_equal 'Channel was created', flash[:notice]
     
@@ -16,7 +16,7 @@ class ChannelControllerTest < ActionController::TestCase
     assert_equal 1, chans.length
     
     chan = chans[0]
-    assert_equal app.id, chan.application_id
+    assert_equal account.id, chan.account_id
     assert_equal 'chan', chan.name
     assert_equal 'sms', chan.protocol
     assert_equal 'qst_server', chan.kind
@@ -24,14 +24,14 @@ class ChannelControllerTest < ActionController::TestCase
   end
   
   test "edit channel change password succeeds" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
-    chan = Channel.new({:application_id => app.id, :name => 'chan', :protocol => 'sms', :direction => Channel::Bidirectional, :kind => 'qst_server'})
+    account = Account.create!({:name => 'account', :password => 'account_pass'})
+    chan = Channel.new({:account_id => account.id, :name => 'chan', :protocol => 'sms', :direction => Channel::Bidirectional, :kind => 'qst_server'})
     chan.configuration = {:password => 'chan_pass'}
     chan.save
     
-    get :update_channel, {:id => chan.id, :channel => {:protocol => 'sms', :configuration => {:password => 'new_pass', :password_confirmation => 'new_pass'}}}, {:application_id => app.id}
+    get :update_channel, {:id => chan.id, :channel => {:protocol => 'sms', :configuration => {:password => 'new_pass', :password_confirmation => 'new_pass'}}}, {:account_id => account.id}
     
-    # Go to app home page
+    # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
     assert_equal 'Channel was updated', flash[:notice]
     
@@ -44,14 +44,14 @@ class ChannelControllerTest < ActionController::TestCase
   end
   
   test "edit qst server channel succeeds" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
-    chan = Channel.new({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst_server'})
+    account = Account.create!({:name => 'account', :password => 'account_pass'})
+    chan = Channel.new({:account_id => account.id, :name => 'chan', :protocol => 'sms', :kind => 'qst_server'})
     chan.configuration = {:password => 'chan_pass'}
     chan.save
     
-    get :update_channel, {:id => chan.id, :channel => {:protocol => 'mail', :configuration => {:password => '', :password_confirmation => ''}}}, {:application_id => app.id}
+    get :update_channel, {:id => chan.id, :channel => {:protocol => 'mail', :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => account.id}
     
-    # Go to app home page
+    # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
     assert_equal 'Channel was updated', flash[:notice]
     
@@ -66,14 +66,14 @@ class ChannelControllerTest < ActionController::TestCase
   end
   
   test "delete channel" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
-    chan = Channel.new({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst_server'})
+    account = Account.create!({:name => 'account', :password => 'account_pass'})
+    chan = Channel.new({:account_id => account.id, :name => 'chan', :protocol => 'sms', :kind => 'qst_server'})
     chan.configuration = {:password => 'chan_pass'}
     chan.save
     
-    get :delete_channel, {:id => chan.id}, {:application_id => app.id}
+    get :delete_channel, {:id => chan.id}, {:account_id => account.id}
     
-    # Go to app home page
+    # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
     assert_equal 'Channel was deleted', flash[:notice]
     
@@ -87,22 +87,22 @@ class ChannelControllerTest < ActionController::TestCase
   # ------------------------ #
   
   test "edit channel fails protocol empty" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
-    chan = Channel.new({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst_server'})
+    account = Account.create!({:name => 'account', :password => 'account_pass'})
+    chan = Channel.new({:account_id => account.id, :name => 'chan', :protocol => 'sms', :kind => 'qst_server'})
     chan.configuration = {:password => 'chan_pass'}
     chan.save
     
-    get :update_channel, {:id => chan.id, :channel => {:protocol => '', :configuration => {:password => '', :password_confirmation => ''}}}, {:application_id => app.id}
+    get :update_channel, {:id => chan.id, :channel => {:protocol => '', :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => account.id}
     assert_template 'edit_qst_server_channel'
   end
 
   test "create chan fails name already exists" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
-    chan = Channel.new({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst_server'})
+    account = Account.create!({:name => 'account', :password => 'account_pass'})
+    chan = Channel.new({:account_id => account.id, :name => 'chan', :protocol => 'sms', :kind => 'qst_server'})
     chan.configuration = {:password => 'chan_pass'}
     chan.save
     
-    get :create_channel, {:kind => 'qst_server', :channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application_id => app.id}
+    get :create_channel, {:kind => 'qst_server', :channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:account_id => account.id}
     assert_template 'new_qst_server_channel'
   end
   

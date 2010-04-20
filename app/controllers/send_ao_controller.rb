@@ -4,14 +4,14 @@ class SendAoController < ApplicationController
   
   def create
     msg = AOMessage.new(
-      :application_id => @application.id,
+      :account_id => @account.id,
       :from => params[:from],
       :to => params[:to],
       :subject => params[:subject],
       :body => params[:body],
       :guid => params[:guid]
       )
-    @application.route msg, 'http'
+    @account.route msg, 'http'
     
     if msg.state == 'error'
       render :text => "error: #{msg.id}"
@@ -22,8 +22,8 @@ class SendAoController < ApplicationController
 
   def authenticate
     authenticate_or_request_with_http_basic do |username, password|
-      @application = Application.find_by_name username
-      !@application.nil? && @application.authenticate(password)
+      @account = Account.find_by_name username
+      !@account.nil? && @account.authenticate(password)
     end
   end
 

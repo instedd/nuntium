@@ -9,60 +9,10 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100415185749) do
+ActiveRecord::Schema.define(:version => 20100420160809) do
 
-  create_table "address_sources", :force => true do |t|
-    t.integer  "application_id"
-    t.string   "address"
-    t.integer  "channel_id"
-    t.datetime "timestamp"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "address_sources", ["application_id", "address"], :name => "index_address_sources_on_application_id_and_address", :unique => true
-
-  create_table "alert_configurations", :force => true do |t|
-    t.integer  "application_id"
-    t.integer  "channel_id"
-    t.string   "from"
-    t.string   "to"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "alerts", :force => true do |t|
-    t.integer  "application_id"
-    t.integer  "channel_id"
-    t.string   "kind"
-    t.integer  "ao_message_id"
-    t.datetime "sent_at"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.boolean  "failed",         :default => false
-  end
-
-  create_table "ao_messages", :force => true do |t|
-    t.string   "from"
-    t.string   "to"
-    t.text     "body"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "guid"
-    t.datetime "timestamp"
-    t.integer  "application_id"
-    t.integer  "tries",               :default => 0,         :null => false
-    t.string   "subject"
-    t.string   "state",               :default => "pending", :null => false
-    t.string   "channel_relative_id"
-    t.integer  "channel_id"
-  end
-
-  add_index "ao_messages", ["channel_id", "channel_relative_id"], :name => "index_ao_messages_on_channel_id_and_channel_relative_id"
-  add_index "ao_messages", ["guid"], :name => "index_ao_messages_on_guid"
-
-  create_table "application_logs", :force => true do |t|
-    t.integer  "application_id"
+  create_table "account_logs", :force => true do |t|
+    t.integer  "account_id"
     t.integer  "channel_id"
     t.integer  "ao_message_id"
     t.integer  "at_message_id"
@@ -72,7 +22,7 @@ ActiveRecord::Schema.define(:version => 20100415185749) do
     t.integer  "severity"
   end
 
-  create_table "applications", :force => true do |t|
+  create_table "accounts", :force => true do |t|
     t.string   "name"
     t.string   "password"
     t.datetime "created_at"
@@ -83,6 +33,56 @@ ActiveRecord::Schema.define(:version => 20100415185749) do
     t.text     "configuration"
   end
 
+  create_table "address_sources", :force => true do |t|
+    t.integer  "account_id"
+    t.string   "address"
+    t.integer  "channel_id"
+    t.datetime "timestamp"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "address_sources", ["account_id", "address"], :name => "index_address_sources_on_application_id_and_address", :unique => true
+
+  create_table "alert_configurations", :force => true do |t|
+    t.integer  "account_id"
+    t.integer  "channel_id"
+    t.string   "from"
+    t.string   "to"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "alerts", :force => true do |t|
+    t.integer  "account_id"
+    t.integer  "channel_id"
+    t.string   "kind"
+    t.integer  "ao_message_id"
+    t.datetime "sent_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.boolean  "failed",        :default => false
+  end
+
+  create_table "ao_messages", :force => true do |t|
+    t.string   "from"
+    t.string   "to"
+    t.text     "body"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "guid"
+    t.datetime "timestamp"
+    t.integer  "account_id"
+    t.integer  "tries",               :default => 0,         :null => false
+    t.string   "subject"
+    t.string   "state",               :default => "pending", :null => false
+    t.string   "channel_relative_id"
+    t.integer  "channel_id"
+  end
+
+  add_index "ao_messages", ["channel_id", "channel_relative_id"], :name => "index_ao_messages_on_channel_id_and_channel_relative_id"
+  add_index "ao_messages", ["guid"], :name => "index_ao_messages_on_guid"
+
   create_table "at_messages", :force => true do |t|
     t.string   "from"
     t.string   "to"
@@ -91,7 +91,7 @@ ActiveRecord::Schema.define(:version => 20100415185749) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.datetime "timestamp"
-    t.integer  "application_id"
+    t.integer  "account_id"
     t.integer  "tries",               :default => 0,         :null => false
     t.string   "subject"
     t.string   "state",               :default => "pending", :null => false
@@ -102,14 +102,14 @@ ActiveRecord::Schema.define(:version => 20100415185749) do
   create_table "channels", :force => true do |t|
     t.string   "name"
     t.string   "kind"
-    t.integer  "application_id"
+    t.integer  "account_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "configuration"
     t.string   "protocol"
     t.integer  "direction"
-    t.boolean  "enabled",        :default => true
-    t.integer  "metric",         :default => 100
+    t.boolean  "enabled",       :default => true
+    t.integer  "metric",        :default => 100
     t.integer  "throttle"
   end
 
@@ -138,7 +138,7 @@ ActiveRecord::Schema.define(:version => 20100415185749) do
   end
 
   create_table "managed_processes", :force => true do |t|
-    t.integer  "application_id"
+    t.integer  "account_id"
     t.string   "name"
     t.string   "start_command"
     t.string   "stop_command"

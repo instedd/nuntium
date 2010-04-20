@@ -98,31 +98,31 @@ class ActiveSupport::TestCase
     http
   end
 
-  # Creates an app with a specific interface and configuration
-  def create_app_with_interface(app_name, app_pass, interface, cfg)
-    app = Application.create!(:name => app_name, :password => app_pass, :interface => interface)
-    app.configuration = {}
-    cfg.each_pair do |k,v| app.configuration[k] = v end
-    app.save!
-    app
+  # Creates an account with a specific interface and configuration
+  def create_account_with_interface(account_name, account_pass, interface, cfg)
+    account = Account.create!(:name => account_name, :password => account_pass, :interface => interface)
+    account.configuration = {}
+    cfg.each_pair do |k,v| account.configuration[k] = v end
+    account.save!
+    account
   end
   
-  # Creates an app and a qst channel with the given values.
-  # Returns the tupple [application, channel]
-  def create_app_and_channel(app_name, app_pass, chan_name, chan_pass, kind, protocol = 'protocol')
-    app = Application.new
-    app.name = app_name
-    app.password = app_pass
-    app.save!
+  # Creates an account and a qst channel with the given values.
+  # Returns the tupple [account, channel]
+  def create_account_and_channel(account_name, account_pass, chan_name, chan_pass, kind, protocol = 'protocol')
+    account = Account.new
+    account.name = account_name
+    account.password = account_pass
+    account.save!
     
-    channel = create_channel app, chan_name, chan_pass, kind, protocol
+    channel = create_channel account, chan_name, chan_pass, kind, protocol
     
-    [app, channel]
+    [account, channel]
   end
   
-  def create_channel(app, name, pass, kind, protocol = 'protocol')
+  def create_channel(account, name, pass, kind, protocol = 'protocol')
     channel = Channel.new
-    channel.application_id = app.id
+    channel.account_id = account.id
     channel.name = name
     channel.protocol = protocol
     channel.configuration = { :password => pass }
@@ -134,32 +134,32 @@ class ActiveSupport::TestCase
   end
   
   # Creates a new message of the specified kind with values according to i
-  def new_message(app, i, kind, protocol = 'protocol', state = 'queued', tries = 0)
+  def new_message(account, i, kind, protocol = 'protocol', state = 'queued', tries = 0)
     if i.respond_to? :each
       msgs = []
-      i.each { |j| msgs << new_message(app, j, kind, protocol, state, tries) } 
+      i.each { |j| msgs << new_message(account, j, kind, protocol, state, tries) } 
       return msgs
     else
       msg = kind.new
-      fill_msg msg, app, i, protocol, state, tries
+      fill_msg msg, account, i, protocol, state, tries
       msg.save!
       return msg
     end
   end
   
-  # Creates an ATMessage that belongs to app and has values according to i
-  def new_at_message(app, i, protocol = 'protocol', state = 'queued', tries = 0)
-    new_message app, i, ATMessage, protocol, state, tries
+  # Creates an ATMessage that belongs to account and has values according to i
+  def new_at_message(account, i, protocol = 'protocol', state = 'queued', tries = 0)
+    new_message account, i, ATMessage, protocol, state, tries
   end
   
-  # Creates an AOMessage that belongs to app and has values according to i
-  def new_ao_message(app, i, protocol = 'protocol', state = 'queued', tries = 0)
-    new_message app, i, AOMessage, protocol, state, tries
+  # Creates an AOMessage that belongs to account and has values according to i
+  def new_ao_message(account, i, protocol = 'protocol', state = 'queued', tries = 0)
+    new_message account, i, AOMessage, protocol, state, tries
   end
   
   # Fills the values of an existing message
-  def fill_msg(msg, app, i, protocol = 'protocol', state = 'queued', tries = 0)
-    msg.application_id = app.id
+  def fill_msg(msg, account, i, protocol = 'protocol', state = 'queued', tries = 0)
+    msg.account_id = account.id
     msg.subject = "Subject of the message #{i}"
     msg.body = "Body of the message #{i}"
     msg.from = "Someone #{i}"
@@ -200,8 +200,8 @@ class ActiveSupport::TestCase
   end
   
   # Asserts all values for a message constructed with new or fill
-  def assert_msg(msg, app, i, protocol = 'protocol')
-    assert_equal app.id, msg.application_id, 'message application id'
+  def assert_msg(msg, account, i, protocol = 'protocol')
+    assert_equal account.id, msg.account_id, 'message account id'
     assert_equal "Subject of the message #{i}", msg.subject, 'message subject'
     assert_equal "Body of the message #{i}", msg.body, 'message body'
     assert_equal "Someone #{i}", msg.from, 'message from'
@@ -212,7 +212,7 @@ class ActiveSupport::TestCase
   end
   
   # Asserts all values for a message constructed with new or fill that was deserialized
-  def assert_deserialized_msg(msg, app, i, protocol = 'protocol')
+  def assert_deserialized_msg(msg, account, i, protocol = 'protocol')
     assert_equal "Subject of the message #{i} - Body of the message #{i}", msg.subject_and_body, 'message subject and body'
     assert_equal "Someone #{i}", msg.from, 'message from'
     assert_equal protocol + "://Someone else #{i}", msg.to, 'message to' 
@@ -221,14 +221,14 @@ class ActiveSupport::TestCase
   end
   
   # Given an xml document string, asserts all values for a message constructed with new or fill
-  def assert_xml_msgs(xml_txt, app, rng, protocol = 'protocol')
+  def assert_xml_msgs(xml_txt, account, rng, protocol = 'protocol')
     rng = (rng...rng) if not rng.respond_to? :each
     msgs = ATMessage.parse_xml(xml_txt)
     assert_equal rng.to_a.size, msgs.size, 'messages count does not match range' 
     base = rng.to_a[0]
     rng.each do |i|
       msg = msgs[i-base]
-      assert_deserialized_msg(msg, app, i, protocol)
+      assert_deserialized_msg(msg, account, i, protocol)
     end
   end
   
@@ -263,8 +263,8 @@ class ActiveSupport::TestCase
     assert_select "item pubDate", msg.timestamp.rfc822
   end
   
-  def new_channel(app, name)
-    chan = Channel.new(:application_id => app.id, :name => name, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional);
+  def new_channel(account, name)
+    chan = Channel.new(:account_id => account.id, :name => name, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional);
     chan.configuration = {:url => 'a', :user => 'b', :password => 'c'};
     chan.save!
     chan
@@ -285,7 +285,7 @@ class ActiveSupport::TestCase
     jobs = []
     Queues.subscribe_ao(chan) { |header, job| jobs << job; header.ack; sleep 0.3 }
     
-    msg = AOMessage.new(:application_id => chan.application_id, :channel_id => chan.id)
+    msg = AOMessage.new(:account_id => chan.account_id, :channel_id => chan.id)
     chan.handler.handle(msg)
     
     sleep 0.3
@@ -294,6 +294,6 @@ class ActiveSupport::TestCase
     assert_equal job_class, jobs[0].class
     assert_equal msg.id, jobs[0].message_id
     assert_equal chan.id, jobs[0].channel_id
-    assert_equal chan.application_id, jobs[0].application_id
+    assert_equal chan.account_id, jobs[0].account_id
   end
 end

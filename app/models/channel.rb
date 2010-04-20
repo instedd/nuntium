@@ -1,7 +1,7 @@
 require 'digest/sha2'
 
 class Channel < ActiveRecord::Base
-  belongs_to :application, :touch => :updated_at
+  belongs_to :account, :touch => :updated_at
   
   has_many :qst_outgoing_messages
   has_many :address_sources
@@ -10,8 +10,8 @@ class Channel < ActiveRecord::Base
   
   serialize :configuration, Hash
   
-  validates_presence_of :name, :protocol, :kind, :application
-  validates_uniqueness_of :name, :scope => :application_id, :message => 'Name has already been used by another channel in the application'
+  validates_presence_of :name, :protocol, :kind, :account
+  validates_uniqueness_of :name, :scope => :account_id, :message => 'Name has already been used by another channel in the account'
   validates_numericality_of :throttle, :allow_nil => true, :only_integer => true, :greater_than_or_equal_to => 0
   
   validate :handler_check_valid
@@ -40,13 +40,13 @@ class Channel < ActiveRecord::Base
   end
   
   def accept(msg)
-    application.accept msg, self
+    account.accept msg, self
   end
   
   def alert(message)
     # TODO send an email somehow...
-    Rails.logger.info "Received alert for channel #{self.name} in application #{self.application.name}: #{message}"
-    ApplicationLogger.exception_in_channel self, message
+    Rails.logger.info "Received alert for channel #{self.name} in account #{self.account.name}: #{message}"
+    AccountLogger.exception_in_channel self, message
   end
   
   def handler

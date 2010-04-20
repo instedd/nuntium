@@ -6,7 +6,7 @@ class AlertService < Service
     
     # Run alert logic
     begin
-      Application.all.each { |app| @interpreter.interpret_for app }
+      Account.all.each { |account| @interpreter.interpret_for account }
     rescue Exception => err
       logger.error "Daemon failure when running scripts: #{err} #{err.backtrace}"
     end

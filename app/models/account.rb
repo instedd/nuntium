@@ -1,6 +1,6 @@
 require 'digest/sha2'
 
-class Application < ActiveRecord::Base
+class Account < ActiveRecord::Base
   
   has_many :channels
   has_many :ao_messages
@@ -29,9 +29,9 @@ class Application < ActiveRecord::Base
   include(CronTask::CronTaskOwner)
   
   def self.find_by_id_or_name(id_or_name)
-    app = self.find_by_id(id_or_name) if id_or_name =~ /\A\d+\Z/ or id_or_name.kind_of? Integer
-    app = self.find_by_name(id_or_name) if app.nil?
-    app
+    account = self.find_by_id(id_or_name) if id_or_name =~ /\A\d+\Z/ or id_or_name.kind_of? Integer
+    account = self.find_by_name(id_or_name) if account.nil?
+    account
   end
   
   def authenticate(password)
@@ -49,7 +49,7 @@ class Application < ActiveRecord::Base
     
     if msg.new_record?
       # Fill msg missing fields
-      msg.application_id ||= self.id
+      msg.account_id ||= self.id
       msg.timestamp ||= Time.now.utc
     end
     
@@ -74,8 +74,8 @@ class Application < ActiveRecord::Base
     if !self.configuration[:ao_routing].nil? && self.configuration[:ao_routing].strip.length != 0
       # Create ao_routing function is not yet defined
       if !respond_to?(:ao_routing_function)
-        instance_eval "def ao_routing_function(app, msg, channels, preferred_channel, via_interface, logger);\n" <<
-          "msg = MessageRouter.new(app, msg, channels, preferred_channel, via_interface, logger);\n" <<
+        instance_eval "def ao_routing_function(account, msg, channels, preferred_channel, via_interface, logger);\n" <<
+          "msg = MessageRouter.new(account, msg, channels, preferred_channel, via_interface, logger);\n" <<
           self.configuration[:ao_routing] << ";\n" +
           "msg.executed_action;\n" <<
         "end;"
@@ -106,7 +106,7 @@ class Application < ActiveRecord::Base
     return if duplicated? msg
     check_modified
   
-    msg.application_id = self.id
+    msg.account_id = self.id
     msg.timestamp ||= Time.now.utc
     if !via_channel.nil? && via_channel.class == Channel
       msg.channel = via_channel
@@ -128,11 +128,11 @@ class Application < ActiveRecord::Base
     
     msg.save!
     
-    # Update AddressSource if the app uses it
+    # Update AddressSource if the account uses it
     if !self.configuration[:use_address_source].nil? && !via_channel.nil? && via_channel.class == Channel
-      as = AddressSource.find_by_application_id_and_address self.id, msg.from
+      as = AddressSource.find_by_account_id_and_address self.id, msg.from
       if as.nil?
-        AddressSource.create!(:application_id => self.id, :address => msg.from, :channel_id => via_channel.id) 
+        AddressSource.create!(:account_id => self.id, :address => msg.from, :channel_id => via_channel.id) 
       else
         as.channel_id = via_channel.id
         as.save!
@@ -141,7 +141,7 @@ class Application < ActiveRecord::Base
     
     # Check if callback interface is configured
     if self.interface == 'http_post_callback'
-      Queues.publish_application self, SendPostCallbackMessageJob.new(msg.application_id, msg.id)
+      Queues.publish_account self, SendPostCallbackMessageJob.new(msg.account_id, msg.id)
     end
     
     if 'ui' == via_channel
@@ -153,13 +153,13 @@ class Application < ActiveRecord::Base
   
   def alert(message)
     # TODO send an email somehow...
-    Rails.logger.info "Received alert for application #{self.name}: #{message}"
+    Rails.logger.info "Received alert for account #{self.name}: #{message}"
     logger.error message.to_s
   end
   
   def logger
     if @logger.nil?
-      @logger = ApplicationLogger.new(self.id)
+      @logger = AccountLogger.new(self.id)
     end
     @logger
   end
@@ -205,7 +205,7 @@ class Application < ActiveRecord::Base
 
   protected
   
-  # Ensures tasks for this application are correct
+  # Ensures tasks for this account are correct
   def handle_tasks(force = false)
     if self.interface_changed? || force
       case self.interface
@@ -220,11 +220,11 @@ class Application < ActiveRecord::Base
   end
   
   def create_worker_queue
-    WorkerQueue.create!(:queue_name => Queues.application_queue_name_for(self), :working_group => 'fast', :ack => true)
+    WorkerQueue.create!(:queue_name => Queues.account_queue_name_for(self), :working_group => 'fast', :ack => true)
   end
   
   def bind_queue
-    Queues.bind_application self
+    Queues.bind_account self
   end
   
   private
@@ -240,14 +240,14 @@ class Application < ActiveRecord::Base
   
   def duplicated?(msg)
     return false if !msg.new_record? || msg.guid.nil?
-    msg.class.exists?(['application_id = ? and guid = ?', self.id, msg.guid])
+    msg.class.exists?(['account_id = ? and guid = ?', self.id, msg.guid])
   end
   
   def check_modified
-    # Check whether the date of the application in the database is greater
+    # Check whether the date of the account in the database is greater
     # than our date. If so, empty cached values.
-    app = Application.find_by_id(self.id, :select => :updated_at)
-    if !app.nil? && app.updated_at > self.updated_at
+    account = Account.find_by_id(self.id, :select => :updated_at)
+    if !account.nil? && account.updated_at > self.updated_at
       @outgoing_channels = nil
       undef :ao_routing_function if self.respond_to? :ao_routing_function
       undef :at_routing_function if self.respond_to? :at_routing_function
@@ -257,7 +257,7 @@ class Application < ActiveRecord::Base
   # Returns the Channel's name or nil
   def get_preferred_channel_name_for(address, outgoing_channels)
     return nil if self.configuration[:use_address_source].nil?
-    as = AddressSource.first(:conditions => ['application_id = ? AND address = ?', self.id, address])
+    as = AddressSource.first(:conditions => ['account_id = ? AND address = ?', self.id, address])
     return nil if as.nil?
     candidates = outgoing_channels.select{|x| x.id == as.channel_id}
     return nil if candidates.empty?
@@ -323,8 +323,8 @@ class MessageRouter
   attr_reader :executed_action
   attr_reader :msg
 
-  def initialize(application, msg, channels, preferred_channel, via_interface, logger)
-    @application = application
+  def initialize(account, msg, channels, preferred_channel, via_interface, logger)
+    @account = account
     @msg = msg
     @channels = channels
     @preferred_channel = preferred_channel
@@ -395,16 +395,16 @@ class MessageRouter
     push_message_into channel
   end
   
-  def route_to_application(name)
+  def route_to_account(name)
     @executed_action = true
     
-    @msg.application = Application.find_by_name name
+    @msg.account = Account.find_by_name name
     @msg.state = 'pending'
     @msg.save!
 
     @logger.ao_message_received @msg, @via_interface
-    @logger.ao_message_routed_to_application @msg, @msg.application
-    @msg.application.route @msg, {:application => @application}
+    @logger.ao_message_routed_to_account @msg, @msg.account
+    @msg.account.route @msg, {:account => @account}
   end
   
   def push_message_into(channel)
@@ -427,7 +427,7 @@ class MessageRouter
   	msg_clone.guid = nil
   	msg_clone.state = 'pending'
   	msg_clone.tries = 0
-    other = MessageRouter.new(@application, msg_clone, @channels, @preferred_channel, @via_interface, @logger)
+    other = MessageRouter.new(@account, msg_clone, @channels, @preferred_channel, @via_interface, @logger)
     yield other
   end
 end
@@ -435,12 +435,12 @@ end
 class MessageRouterAsserter
 
   attr_reader :events
-  attr_reader :application
+  attr_reader :account
 
-  def initialize(application)
-    @application = application
+  def initialize(account)
+    @account = account
     instance_eval "def ao_routing_function(assert, msg, preferred_channel);\n" <<
-      application.configuration[:ao_routing] << ";\n" << 
+      account.configuration[:ao_routing] << ";\n" << 
     "end;"
     @events = []
   end
@@ -474,11 +474,11 @@ class MessageRouterAsserter
     postlude 'assert.routed_to_any_channel', args, es
   end
   
-  def routed_to_application(*args)
+  def routed_to_account(*args)
     simulate args
     name = args.length == 2 ? args[1] : args[2]
-    es = @events.select{|x| x[:kind] == :route_to_application && x[:args] == name}
-    postlude 'assert.routed_to_application', args, es
+    es = @events.select{|x| x[:kind] == :route_to_account && x[:args] == name}
+    postlude 'assert.routed_to_account', args, es
   end
   
   def simulate(args)
@@ -520,7 +520,7 @@ class MessageRouterAsserter
   end
   
   def assertion_failed(name, args, message)
-    @application.errors.add(:ao_routing_test, fix_error("failed in #{format_func(name, args)}: #{message}"))
+    @account.errors.add(:ao_routing_test, fix_error("failed in #{format_func(name, args)}: #{message}"))
   end
   
   def format_func(name, args)
@@ -565,29 +565,29 @@ class MessageRouterTester
     @assert.events.push(:kind => :route_to_any_channel, :msg => @msg, :args => names)
   end
   
-  def route_to_application(name)
+  def route_to_account(name)
     check_already_routed
-    check_application_name(name)
-    @assert.events.push(:kind => :route_to_application, :msg => @msg, :args => name)
+    check_account_name(name)
+    @assert.events.push(:kind => :route_to_account, :msg => @msg, :args => name)
   end
   
   def check_channel_names(names)
     names.each do |name|
       if Channel.find_by_name(name).nil?
-        @assert.application.errors.add(:ao_routing, fix_error("failed: channel with name '#{name}' does not exist"))
+        @assert.account.errors.add(:ao_routing, fix_error("failed: channel with name '#{name}' does not exist"))
       end
     end
   end
   
-  def check_application_name(name)
-    if Application.find_by_name(name).nil?
-      @assert.application.errors.add(:ao_routing, fix_error("failed: application with name '#{name}' does not exist"))
+  def check_account_name(name)
+    if Account.find_by_name(name).nil?
+      @assert.account.errors.add(:ao_routing, fix_error("failed: account with name '#{name}' does not exist"))
     end
   end
   
   def check_already_routed
     @executed_action = true
-    @assert.application.errors.add(:ao_routing_test, fix_error('failed: same message routed more than once; use msg.copy')) if @routed
+    @assert.account.errors.add(:ao_routing_test, fix_error('failed: same message routed more than once; use msg.copy')) if @routed
     @routed = true
   end
   
@@ -603,10 +603,10 @@ end
 
 class MessageAccepterAsserter
 
-  def initialize(application)
-    @application = application
+  def initialize(account)
+    @account = account
     instance_eval "def at_routing_function(msg);\n" <<
-      application.configuration[:at_routing] << ";\n" << 
+      account.configuration[:at_routing] << ";\n" << 
     "end;"
   end
 
@@ -627,7 +627,7 @@ class MessageAccepterAsserter
     expected.each_pair do |key, value|
       actual = original.send(key)
       if actual != value
-        @application.errors.add(:ao_routing_test, fix_error("failed in assert.transform(#{original_hash.inspect}, #{expected.inspect}): '#{key}' expected to be '#{value}' but was '#{actual}'"))
+        @account.errors.add(:ao_routing_test, fix_error("failed in assert.transform(#{original_hash.inspect}, #{expected.inspect}): '#{key}' expected to be '#{value}' but was '#{actual}'"))
       end
     end
   end

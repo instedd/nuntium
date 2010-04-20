@@ -14,10 +14,10 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 		clean_database
 
     @@id = @@id + 1
-    @app = Application.create!(:name => 'app', :password => 'foo')
+    @account = Account.create!(:name => 'account', :password => 'foo')
     @service = GenericWorkerService.new(@@id, @@working_group)
     
-    @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'sms', :direction => Channel::Outgoing)
+    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'clickatell', :protocol => 'sms', :direction => Channel::Outgoing)
     @chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :from => 'something', :incoming_password => 'incoming_pass' }
     @chan.save!
 
@@ -33,8 +33,8 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 		clean_queues
 	end
 
-  test "should subscribe to enabled channels and applications" do
-    Queues.expects(:subscribe).with(Queues.application_queue_name_for(@app), true, kind_of(MQ))
+  test "should subscribe to enabled channels and accounts" do
+    Queues.expects(:subscribe).with(Queues.account_queue_name_for(@account), true, kind_of(MQ))
     Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, kind_of(MQ))
     
     @service.start
@@ -56,7 +56,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
   test "should execute job when enqueued" do
     @service.start
     
-    msg = AOMessage.create!(:application => @app, :channel => @chan)
+    msg = AOMessage.create!(:account => @account, :channel => @chan)
     
     Queues.publish_ao msg, StubGenericJob.new
     sleep 0.3
@@ -83,7 +83,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
       working_group == @@working_group and job.queue_name == Queues.ao_queue_name_for(@chan)
     end
         
-    msg = AOMessage.create!(:application => @app, :channel => @chan)
+    msg = AOMessage.create!(:account => @account, :channel => @chan)
     
     Queues.publish_ao msg, FailingGenericJob.new(Exception.new('lorem'))  
     sleep 0.6
@@ -98,7 +98,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     @service.unsubscribe_from_queue Queues.ao_queue_name_for(@chan)
     sleep 0.3
     
-    msg = AOMessage.create!(:application => @app, :channel => @chan)
+    msg = AOMessage.create!(:account => @account, :channel => @chan)
     
     Queues.publish_ao msg, StubGenericJob.new
     sleep 0.3
@@ -114,7 +114,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     @service.subscribe_to_queue Queues.ao_queue_name_for(@chan)
     sleep 0.3
     
-    msg = AOMessage.create!(:application => @app, :channel => @chan)
+    msg = AOMessage.create!(:account => @account, :channel => @chan)
     
     Queues.publish_ao msg, StubGenericJob.new
     sleep 0.3
@@ -133,7 +133,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     @service.subscribe_to_queue Queues.ao_queue_name_for(@chan)
     sleep 2
     
-    msg = AOMessage.create!(:application => @app, :channel => @chan)
+    msg = AOMessage.create!(:account => @account, :channel => @chan)
     
     Queues.publish_ao msg, StubGenericJob.new
     sleep 2
@@ -142,7 +142,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
   end
   
   def clean_database
-    [Application, ApplicationLog, Channel, AOMessage, WorkerQueue].each(&:delete_all)
+    [Account, AccountLog, Channel, AOMessage, WorkerQueue].each(&:delete_all)
   end
 
 	def clean_queues

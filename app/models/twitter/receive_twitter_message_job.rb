@@ -2,17 +2,17 @@ require 'twitter'
 require 'guid'
 
 class ReceiveTwitterMessageJob
-  attr_accessor :application_id, :channel_id
+  attr_accessor :account_id, :channel_id
   
   include CronTask::QuotedTask
 
-  def initialize(application_id, channel_id)
-    @application_id = application_id
+  def initialize(account_id, channel_id)
+    @account_id = account_id
     @channel_id = channel_id
   end
   
   def perform
-    @application = Application.find @application_id
+    @account = Account.find @account_id
     @channel = Channel.find @channel_id
     @config = @channel.configuration
     @status = TwitterChannelStatus.first(:conditions => { :channel_id => @channel_id })
@@ -31,7 +31,7 @@ class ReceiveTwitterMessageJob
       @status.save unless @status.nil?
     end
   rescue => ex
-    ApplicationLogger.exception_in_channel @channel, ex if @channel
+    AccountLogger.exception_in_channel @channel, ex if @channel
   end
   
   def download_new_messages
@@ -57,7 +57,7 @@ class ReceiveTwitterMessageJob
         msg.timestamp = Time.parse(twit.created_at)
         msg.channel_relative_id = twit.id
         
-        @application.accept msg, @channel
+        @account.accept msg, @channel
       end
       
       query[:page] += 1

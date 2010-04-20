@@ -4,45 +4,45 @@ class HomeController < AuthenticatedController
 
   include MessageFilters
 
-  before_filter :check_login, :except => [:index, :login, :create_application]
-  after_filter :compress, :only => [:index, :login, :home, :edit_application, :edit_application_ao_routing, :edit_application_at_routing]
+  before_filter :check_login, :except => [:index, :login, :create_account]
+  after_filter :compress, :only => [:index, :login, :home, :edit_account, :edit_account_ao_routing, :edit_account_at_routing]
 
   def index
-    if !session[:application_id].nil?
+    if !session[:account_id].nil?
       redirect_to_home
       return
     end
   end
   
   def login
-    app = params[:application]
-    return redirect_to_home if app.nil?
+    account = params[:account]
+    return redirect_to_home if account.nil?
     
-    @application = Application.find_by_name app[:name]
-    if @application.nil? || !@application.authenticate(app[:password])
-      @application.clear_password unless @application.nil?
+    @account = Account.find_by_name account[:name]
+    if @account.nil? || !@account.authenticate(account[:password])
+      @account.clear_password unless @account.nil?
       flash[:notice] = 'Invalid name/password'
       return render :index
     end
     
     flash[:notice] = nil
-    session[:application_id] = @application.id
+    session[:account_id] = @account.id
     redirect_to_home
   end
   
-  def create_application
-    return render :text => 'This funcionality has been disabled, contact the system administrator' if ApplicationCreationDisabled
+  def create_account
+    return render :text => 'This funcionality has been disabled, contact the system administrator' if AccountCreationDisabled
   
-    app = params[:new_application]
-    return redirect_to_home if app.nil?
+    account = params[:new_account]
+    return redirect_to_home if account.nil?
     
-    @new_application = Application.new(app)
-    if !@new_application.save
-      @new_application.clear_password
+    @new_account = Account.new(account)
+    if !@new_account.save
+      @new_account.clear_password
       return render :index
     end
     
-    session[:application_id] = @new_application.id
+    session[:account_id] = @new_account.id
     redirect_to_home
   end
   
@@ -69,148 +69,148 @@ class HomeController < AuthenticatedController
       
     build_logs_filter
       
-    @logs = ApplicationLog.paginate(
+    @logs = AccountLog.paginate(
       :conditions => @log_conditions,
       :order => 'id DESC',
       :page => params[:logs_page],
       :per_page => @results_per_page
       )
       
-    @channels = Channel.all(:conditions => ['application_id = ?', @application.id])
+    @channels = Channel.all(:conditions => ['account_id = ?', @account.id])
     @channels_queued_count = Hash.new 0
     
     AOMessage.connection.select_all(
       "select count(*) as count, m.channel_id " <<
       "from ao_messages m, channels c " <<
-      "where m.channel_id = c.id and m.application_id = #{@application.id} AND m.state = 'queued' " <<
+      "where m.channel_id = c.id and m.account_id = #{@account.id} AND m.state = 'queued' " <<
       "group by channel_id").each do |r|
       @channels_queued_count[r['channel_id'].to_i] = r['count'].to_i
     end
     
-    @failed_alerts = Alert.all(:conditions => ['application_id = ? and failed = ?', @application.id, true])
+    @failed_alerts = Alert.all(:conditions => ['account_id = ? and failed = ?', @account.id, true])
   end
   
-  def edit_application
+  def edit_account
   end
   
-  def update_application
-    app = params[:application]
-    return redirect_to_home if app.nil?
+  def update_account
+    account = params[:account]
+    return redirect_to_home if account.nil?
     
-    @application.max_tries = app[:max_tries]
-    @application.interface = app[:interface]
+    @account.max_tries = account[:max_tries]
+    @account.interface = account[:interface]
     
-    if not app[:configuration].nil?
-      cfg = app[:configuration]
+    if not account[:configuration].nil?
+      cfg = account[:configuration]
       
       if cfg[:use_address_source] == '1'
-        @application.configuration[:use_address_source] = 1
+        @account.configuration[:use_address_source] = 1
       else
-        @application.configuration.delete :use_address_source
+        @account.configuration.delete :use_address_source
       end
       
-      @application.configuration.update({:url => cfg[:url]}) 
-      @application.configuration.update({:cred_user => cfg[:cred_user]}) 
-      @application.configuration.update({:cred_pass => cfg[:cred_pass]}) unless (cfg[:cred_pass].nil? or cfg[:cred_pass].blank?) and not (cfg[:cred_user].nil? or cfg[:cred_user].blank?)  
+      @account.configuration.update({:url => cfg[:url]}) 
+      @account.configuration.update({:cred_user => cfg[:cred_user]}) 
+      @account.configuration.update({:cred_pass => cfg[:cred_pass]}) unless (cfg[:cred_pass].nil? or cfg[:cred_pass].blank?) and not (cfg[:cred_user].nil? or cfg[:cred_user].blank?)  
     end
       
-    if !app[:password].blank?
-      @application.salt = nil
-      @application.password = app[:password]
-      @application.password_confirmation = app[:password_confirmation]
+    if !account[:password].blank?
+      @account.salt = nil
+      @account.password = account[:password]
+      @account.password_confirmation = account[:password_confirmation]
     end
     
-    if !@application.save
-      @application.clear_password
-      render :edit_application
+    if !@account.save
+      @account.clear_password
+      render :edit_account
     else
-      redirect_to_home 'Application was changed'
+      redirect_to_home 'Account was changed'
     end
   end
   
-  def edit_application_ao_routing
+  def edit_account_ao_routing
   end
   
-  def update_application_ao_routing
-    app = params[:application]
-    cfg = app[:configuration]
-    @application.configuration[:ao_routing] = cfg[:ao_routing]
-    @application.configuration[:ao_routing_test] = cfg[:ao_routing_test]
-    if !@application.save
-      render :edit_application_ao_routing
+  def update_account_ao_routing
+    account = params[:account]
+    cfg = account[:configuration]
+    @account.configuration[:ao_routing] = cfg[:ao_routing]
+    @account.configuration[:ao_routing_test] = cfg[:ao_routing_test]
+    if !@account.save
+      render :edit_account_ao_routing
     else
       redirect_to_home 'AO messages routing was changed'
     end
   end
   
-  def edit_application_at_routing
+  def edit_account_at_routing
   end
   
-  def update_application_at_routing
-    app = params[:application]
-    cfg = app[:configuration]
-    @application.configuration[:at_routing] = cfg[:at_routing]
-    @application.configuration[:at_routing_test] = cfg[:at_routing_test]
-    if !@application.save
-      render :edit_application_at_routing
+  def update_account_at_routing
+    account = params[:account]
+    cfg = account[:configuration]
+    @account.configuration[:at_routing] = cfg[:at_routing]
+    @account.configuration[:at_routing_test] = cfg[:at_routing_test]
+    if !@account.save
+      render :edit_account_at_routing
     else
       redirect_to_home 'AT messages routing was changed'
     end
   end
   
-  def setup_application_alerts
-    @channels = Channel.all(:conditions => ['application_id = ? and (direction = ? or direction = ?)', @application.id, Channel::Outgoing, Channel::Bidirectional])
-    @alert_configurations = AlertConfiguration.find_all_by_application_id @application.id
+  def setup_account_alerts
+    @channels = Channel.all(:conditions => ['account_id = ? and (direction = ? or direction = ?)', @account.id, Channel::Outgoing, Channel::Bidirectional])
+    @alert_configurations = AlertConfiguration.find_all_by_account_id @account.id
   end
   
-  def edit_application_alerts
-    setup_application_alerts
+  def edit_account_alerts
+    setup_account_alerts
   end
   
-  def update_application_alerts
+  def update_account_alerts
     # Validation
     params[:channel].each do |chan|
       next if !chan[1][:activated]
       
       if chan[1][:from].blank? || chan[1][:to].blank?
-        @application.errors.add(:alert_configuration, 'You left a <i>from</i> or <i>to</i> field blank for an alert-activated channel') 
-        setup_application_alerts
-        return render :edit_application_alerts
+        @account.errors.add(:alert_configuration, 'You left a <i>from</i> or <i>to</i> field blank for an alert-activated channel') 
+        setup_account_alerts
+        return render :edit_account_alerts
       end
     end
     
     # Alert logic validation
-    app = params[:application]
-    cfg = app[:configuration]
-    @application.configuration[:alert] = cfg[:alert]
+    account = params[:account]
+    cfg = account[:configuration]
+    @account.configuration[:alert] = cfg[:alert]
     
-    if !@application.save
-      setup_application_alerts
-      return render :edit_application_alerts
+    if !@account.save
+      setup_account_alerts
+      return render :edit_account_alerts
     end
   
-    AlertConfiguration.delete_all(['application_id = ?', @application.id])
+    AlertConfiguration.delete_all(['account_id = ?', @account.id])
     
     params[:channel].each do |chan|
       next if !chan[1][:activated]
-      AlertConfiguration.create!(:application_id => @application.id, :channel_id => chan[0].to_i, :from => chan[1][:from], :to => chan[1][:to]) 
+      AlertConfiguration.create!(:account_id => @account.id, :channel_id => chan[0].to_i, :from => chan[1][:from], :to => chan[1][:to]) 
     end
     
     redirect_to_home 'Alerts were changed'
   end
   
   def find_address_source
-    chan = Channel.first(:joins => :address_sources, :conditions => ['address_sources.application_id = ? AND address_sources.address = ?', @application.id, params[:address]]);
+    chan = Channel.first(:joins => :address_sources, :conditions => ['address_sources.account_id = ? AND address_sources.address = ?', @account.id, params[:address]]);
     render :text => chan.nil? ? '' : chan.name
   end
   
   def delete_failed_alerts
-    Alert.delete_all(['application_id = ? and failed = ?', @application.id, true])
+    Alert.delete_all(['account_id = ? and failed = ?', @account.id, true])
     redirect_to_home
   end
   
   def logoff
-    session[:application_id] = nil
+    session[:account_id] = nil
     redirect_to :action => :index
   end
 

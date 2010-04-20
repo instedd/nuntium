@@ -8,12 +8,12 @@ class SmppChannelHandler < ChannelHandler
   end
   
   def create_job(msg)
-    SendSmppMessageJob.new(@channel.application_id, @channel.id, msg.id)
+    SendSmppMessageJob.new(@channel.account_id, @channel.id, msg.id)
   end
   
   def on_enable
     ManagedProcess.create!(
-      :application_id => @channel.application.id,
+      :account_id => @channel.account.id,
       :name => managed_process_name,
       :start_command => "smpp_daemon_ctl.rb start -- #{ENV["RAILS_ENV"]} #{@channel.id}",
       :stop_command => "smpp_daemon_ctl.rb stop -- #{ENV["RAILS_ENV"]} #{@channel.id}",
@@ -25,12 +25,12 @@ class SmppChannelHandler < ChannelHandler
   end
   
   def on_disable
-    proc = ManagedProcess.find_by_application_id_and_name @channel.application.id, managed_process_name
+    proc = ManagedProcess.find_by_account_id_and_name @channel.account.id, managed_process_name
     proc.destroy if proc
   end
   
   def on_changed
-    proc = ManagedProcess.find_by_application_id_and_name @channel.application.id, managed_process_name
+    proc = ManagedProcess.find_by_account_id_and_name @channel.account.id, managed_process_name
     proc.touch if proc
   end
   

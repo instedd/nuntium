@@ -1,4 +1,4 @@
 class AddressSource < ActiveRecord::Base
-  belongs_to :application
+  belongs_to :account
   belongs_to :channel
 end

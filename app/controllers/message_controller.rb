@@ -18,7 +18,7 @@ class MessageController < AuthenticatedController
   def create_ao_message
     msg = create_message AOMessage
     
-    @application.route msg, 'user'
+    @account.route msg, 'user'
     
     redirect_to_home "AO Message was created with id <a href=\"/message/ao/#{msg.id}\" onclick=\"window.open(this.href,'log','width=640,height=480,scrollbars=yes');return false;\">#{msg.id}</a>"
   end
@@ -26,7 +26,7 @@ class MessageController < AuthenticatedController
   def create_at_message
     msg = create_message ATMessage
     msg.timestamp = Time.new.utc
-    @application.accept msg, 'ui'
+    @account.accept msg, 'ui'
     
     redirect_to_home "AT Message was created with id <a href=\"/message/at/#{msg.id}\" onclick=\"window.open(this.href,'log','width=640,height=480,scrollbars=yes');return false;\">#{msg.id}</a>"
   end
@@ -35,7 +35,7 @@ class MessageController < AuthenticatedController
     m = params[:message]
   
     msg = kind.new
-    msg.application_id = @application.id
+    msg.account_id = @account.id
     msg.from = m[:from]
     msg.to = m[:to]
     msg.subject = m[:subject]
@@ -88,7 +88,7 @@ class MessageController < AuthenticatedController
     end
     
     msgs.each do |msg|
-      @application.reroute msg
+      @account.reroute msg
     end
     
     flash[:notice] = "#{msgs.length} Application Originated messages #{msgs.length == 1 ? 'was' : 'were'} re-routed"
@@ -101,9 +101,9 @@ class MessageController < AuthenticatedController
   def view_ao_message
     @id = params[:id]
     @msg = AOMessage.find_by_id @id
-    redirect_to_home if @msg.nil? || @msg.application_id != @application.id
+    redirect_to_home if @msg.nil? || @msg.account_id != @account.id
     @hide_title = true
-    @logs = ApplicationLog.find_all_by_ao_message_id(@id, :order => :created_at)
+    @logs = AccountLog.find_all_by_ao_message_id(@id, :order => :created_at)
     @kind = 'ao'
     render "message.html.erb"
   end
@@ -111,9 +111,9 @@ class MessageController < AuthenticatedController
   def view_at_message
     @id = params[:id]
     @msg = ATMessage.find_by_id @id
-    redirect_to_home if @msg.nil? || @msg.application_id != @application.id
+    redirect_to_home if @msg.nil? || @msg.account_id != @account.id
     @hide_title = true
-    @logs = ApplicationLog.find_all_by_at_message_id(@id, :order => :created_at)
+    @logs = AccountLog.find_all_by_at_message_id(@id, :order => :created_at)
     @kind = 'at'
     render "message.html.erb"
   end

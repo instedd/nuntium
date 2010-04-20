@@ -4,8 +4,8 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
   include Mocha::API
   
   def setup
-    @app = Application.create(:name => 'app', :password => 'foo')
-    @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'clickatell', :protocol => 'sms')
+    @account = Account.create(:name => 'account', :password => 'foo')
+    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'clickatell', :protocol => 'sms')
     @chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :from => 'something', :incoming_password => 'incoming_pass' }
   end
   

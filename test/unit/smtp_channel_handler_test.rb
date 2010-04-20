@@ -4,8 +4,8 @@ class SmtpChannelHandlerTest < ActiveSupport::TestCase
   include Mocha::API
   
   def setup
-    @app = Application.create(:name => 'app', :password => 'foo')
-    @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'smtp', :protocol => 'sms')
+    @account = Account.create(:name => 'account', :password => 'foo')
+    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'smtp', :protocol => 'sms')
     @chan.configuration = {:host => 'host', :port => '430', :user => 'user', :password => 'password' }
   end
   

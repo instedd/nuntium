@@ -2,26 +2,26 @@ require 'test_helper'
 
 class AlertTriggerTest < ActiveSupport::TestCase
   test "alert" do
-    app = Application.create!(:name => 'app', :password => 'pass')
-    chan = new_channel(app, 'one')
-    cfg = AlertConfiguration.create!(:application_id => app.id, :channel_id => chan.id, :from => 'f', :to => 't')
+    account = Account.create!(:name => 'account', :password => 'pass')
+    chan = new_channel(account, 'one')
+    cfg = AlertConfiguration.create!(:account_id => account.id, :channel_id => chan.id, :from => 'f', :to => 't')
     
-    trigger = AlertTrigger.new(app)
+    trigger = AlertTrigger.new(account)
     trigger.alert('k1', 'something')
     
     msgs = AOMessage.all
     assert_equal 1, msgs.length
-    assert_equal app.id, msgs[0].application_id
+    assert_equal account.id, msgs[0].account_id
     assert_equal 'f', msgs[0].from
     assert_equal 't', msgs[0].to
-    assert_equal 'Nuntium alert for app', msgs[0].subject
+    assert_equal 'Nuntium alert for account', msgs[0].subject
     assert_equal 'something', msgs[0].body
     assert_equal 'pending', msgs[0].state
     assert_not_nil msgs[0].timestamp
     
     alerts = Alert.all
     assert_equal 1, alerts.length
-    assert_equal app.id, alerts[0].application_id
+    assert_equal account.id, alerts[0].account_id
     assert_equal chan.id, alerts[0].channel_id
     assert_equal msgs[0].id, alerts[0].ao_message_id
     
@@ -47,29 +47,29 @@ class AlertTriggerTest < ActiveSupport::TestCase
   end
   
   test "alert many to" do
-    app = Application.create!(:name => 'app', :password => 'pass')
-    chan = new_channel(app, 'one')
-    cfg = AlertConfiguration.create!(:application_id => app.id, :channel_id => chan.id, :from => 'f', :to => 't, u')
+    account = Account.create!(:name => 'account', :password => 'pass')
+    chan = new_channel(account, 'one')
+    cfg = AlertConfiguration.create!(:account_id => account.id, :channel_id => chan.id, :from => 'f', :to => 't, u')
     
-    trigger = AlertTrigger.new(app)
+    trigger = AlertTrigger.new(account)
     trigger.alert('k1', 'something')
     
     msgs = AOMessage.all
     assert_equal 2, msgs.length
-    assert_equal app.id, msgs[0].application_id
+    assert_equal account.id, msgs[0].account_id
     assert_equal 'f', msgs[0].from
     assert_equal 't', msgs[0].to
     assert_equal chan.id, msgs[0].channel_id
-    assert_equal app.id, msgs[1].application_id
+    assert_equal account.id, msgs[1].account_id
     assert_equal 'f', msgs[1].from
     assert_equal 'u', msgs[1].to
     
     alerts = Alert.all
     assert_equal 2, alerts.length
-    assert_equal app.id, alerts[0].application_id
+    assert_equal account.id, alerts[0].account_id
     assert_equal chan.id, alerts[0].channel_id
     assert_equal msgs[0].id, alerts[0].ao_message_id
-    assert_equal app.id, alerts[1].application_id
+    assert_equal account.id, alerts[1].account_id
     assert_equal chan.id, alerts[1].channel_id
     assert_equal msgs[1].id, alerts[1].ao_message_id
     

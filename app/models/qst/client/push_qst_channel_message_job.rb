@@ -4,8 +4,8 @@ class PushQstChannelMessageJob
   
   include ClientQstJob
   
-  def initialize(app_id, channel_id)
-    @application_id = app_id
+  def initialize(account_id, channel_id)
+    @account_id = account_id
     @channel_id = channel_id
   end
   
@@ -14,7 +14,7 @@ class PushQstChannelMessageJob
     require 'net/http'
     require 'builder'
     
-    app = Application.find_by_id(@application_id)
+    account = Account.find_by_id(@account_id)
     @channel = Channel.find_by_id(@channel_id)
     cfg = ClientQstConfiguration.new @channel
     err = validate_channel(@channel)
@@ -39,15 +39,15 @@ class PushQstChannelMessageJob
     end
 
     # Push the new messages to the endpoint
-    last_id = post_msgs app, @channel, cfg, http, path, new_msgs
+    last_id = post_msgs account, @channel, cfg, http, path, new_msgs
     
     # Mark new status for messages based on post result increasing retries
     AOMessage.update_msgs_status new_msgs, cfg.max_tries, last_id
     
     # Logging: say that valid messages were returned and invalid no
-    # TODO: AOMessage.log_delivery(new_msgs, app, 'qst_client')
+    # TODO: AOMessage.log_delivery(new_msgs, account, 'qst_client')
     
-    # Save changes to the app
+    # Save changes to the account
     cfg.set_last_ao_guid last_id
     
     # Return value depending success and whether must continue or not
@@ -105,7 +105,7 @@ class PushQstChannelMessageJob
   
 
   # Post all specified messages to the server as xml
-  def post_msgs(app, channel, cfg, http, path, msgs)
+  def post_msgs(account, channel, cfg, http, path, msgs)
     # Obtain data
     xml = AOMessage.write_xml msgs
     user = cfg.user
@@ -132,9 +132,9 @@ class PushQstChannelMessageJob
   else
     etag = response['etag']
     if etag.nil?
-      Rails.logger.info "Push QST in application #{app.name} channel #{channel.name}: posted '#{msgs.length}' messages to server"
+      Rails.logger.info "Push QST in account #{account.name} channel #{channel.name}: posted '#{msgs.length}' messages to server"
     else
-      Rails.logger.info "Push QST in application #{app.name} channel #{channel.name}: posted '#{msgs.length}' messages to server up to id '#{etag}'"
+      Rails.logger.info "Push QST in account #{account.name} channel #{channel.name}: posted '#{msgs.length}' messages to server up to id '#{etag}'"
     end
     return etag
   end

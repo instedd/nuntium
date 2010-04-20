@@ -1,15 +1,15 @@
 class AuthenticatedController < ApplicationController
 
   def check_login
-    if session[:application_id].nil?
+    if session[:account_id].nil?
       redirect_to :controller => :home, :action => :index
       return
     end
     
-    @application_id = session[:application_id]
-    @application = Application.find_by_id @application_id
-    if @application.nil?
-      session.delete :application_id
+    @account_id = session[:account_id]
+    @account = Account.find_by_id @account_id
+    if @account.nil?
+      session.delete :account_id
       redirect_to :controller => :home, :action => :index
       return
     end

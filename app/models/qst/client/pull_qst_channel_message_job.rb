@@ -4,8 +4,8 @@ class PullQstChannelMessageJob
   
   include ClientQstJob
   
-  def initialize(app_id, channel_id)
-    @application_id = app_id
+  def initialize(account_id, channel_id)
+    @account_id = account_id
     @channel_id = channel_id
   end
   
@@ -14,7 +14,7 @@ class PullQstChannelMessageJob
     require 'net/http'
     require 'builder'
 
-    app = Application.find_by_id(@application_id)
+    account = Account.find_by_id(@account_id)
     channel = Channel.find_by_id(@channel_id)
     err = validate_channel(channel)
     cfg = ClientQstConfiguration.new(channel)
@@ -26,7 +26,7 @@ class PullQstChannelMessageJob
     path << "?max=#{BATCH_SIZE}"  
     
     # Get messages from server
-    response = request_messages(app, channel, cfg, http, path) 
+    response = request_messages(account, channel, cfg, http, path) 
     
     # Handle different responses
     if response.nil?
@@ -41,7 +41,7 @@ class PullQstChannelMessageJob
       channel.save!
       return
     elsif response.code[0,1] != "2" # not success
-      app.logger.error_pulling_msgs response.message
+      account.logger.error_pulling_msgs response.message
       return :error_pulling_messages
     end
     
@@ -52,15 +52,15 @@ class PullQstChannelMessageJob
     begin
       # Process successfully downloaded messages
       ATMessage.parse_xml response.body do |msg|
-        msg.application_id = @application_id
-        app.accept msg, channel
+        msg.account_id = @account_id
+        account.accept msg, channel
         
         last_new_id = msg.guid
         size += 1
       end
     rescue => e
       # On error, save last processed ok and quit
-      app.logger.error_processing_msgs e.to_s
+      account.logger.error_processing_msgs e.to_s
       cfg.set_last_at_guid(last_new_id) unless last_new_id.nil?
       return :error_processing_messages
     else
@@ -77,7 +77,7 @@ class PullQstChannelMessageJob
   end
   
   # Creates a get request with proper authentication
-  def request_messages app, channel, cfg, http, path
+  def request_messages account, channel, cfg, http, path
     last_id = cfg.last_at_guid
     user = cfg.user
     pass = cfg.pass

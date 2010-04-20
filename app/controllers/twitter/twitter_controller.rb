@@ -49,7 +49,7 @@ class TwitterController < AuthenticatedController
     if session['twitter_channel_id'].nil?
       @update = false
       @channel = Channel.new
-      @channel.application_id = @application.id
+      @channel.account_id = @account.id
       @channel.name = session['twitter_channel_name']      
       @channel.kind = 'twitter'
       @channel.protocol = 'twitter'
@@ -83,7 +83,7 @@ class TwitterController < AuthenticatedController
   def view_rate_limit_status
     id = params[:id]
     @channel = Channel.find_by_id id
-    if @channel.nil? || @channel.application_id != @application.id || @channel.kind != 'twitter'
+    if @channel.nil? || @channel.account_id != @account.id || @channel.kind != 'twitter'
       return redirect_to_home
     end
     

@@ -6,8 +6,8 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   include Mocha::API
   
   def setup
-    @application = Application.create!(:name => "testapp", :password => "testpass")
-    @chan = Channel.new(:application_id => @application.id, :name => 'chan', :kind => 'smpp', :protocol => 'sms')
+    @account = Account.create!(:name => "testaccount", :password => "testpass")
+    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'smpp', :protocol => 'sms')
     @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :system_type => 'smpp' }
     @transceiver = mock('Smpp::Transceiver')
   end
@@ -85,7 +85,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   def assert_delivery_report(channel_relative_id, state, optional_parameters = {})
     save_channel_with_default_config
     
-    msg = AOMessage.create!(:application_id => @application.id, :channel_id => @chan.id, :channel_relative_id => "#{channel_relative_id}") 
+    msg = AOMessage.create!(:account_id => @account.id, :channel_id => @chan.id, :channel_relative_id => "#{channel_relative_id}") 
     pdu = Smpp::Pdu::DeliverSm.new '4444', '8888', 'hola', optional_parameters
     
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
@@ -101,7 +101,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     pdu_submit_sm_response = Smpp::Pdu::Base.create(pdu_submit_sm_response_bin.scan(/../).map{|x| x.to_i(16).chr}.join)
     pdu_deliver_sm = Smpp::Pdu::Base.create(pdu_deliver_sm_bin.scan(/../).map{|x| x.to_i(16).chr}.join)
     
-    msg = AOMessage.create!(:application_id => @application.id, :channel_id => @chan.id) 
+    msg = AOMessage.create!(:account_id => @account.id, :channel_id => @chan.id) 
     
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
     
@@ -301,15 +301,15 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   test "delivery report received ignore duplicate" do
     save_channel_with_default_config
     
-    msg = AOMessage.create!(:application_id => @application.id, :channel_id => @chan.id, :channel_relative_id => '123') 
+    msg = AOMessage.create!(:account_id => @account.id, :channel_id => @chan.id, :channel_relative_id => '123') 
     pdu = Smpp::Pdu::DeliverSm.new '4444', '8888', 'hola', {:msg_reference => 123, :stat => 'REJECTED'}
     
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
     @delegate.delivery_report_received @transceiver, pdu
     
-    count = ApplicationLog.count
+    count = AccountLog.count
     @delegate.delivery_report_received @transceiver, pdu
-    assert_equal count, ApplicationLog.count
+    assert_equal count, AccountLog.count
   end
   
   test "message accepted with delivery report digicel" do
@@ -333,7 +333,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   test "message accepted" do
     save_channel_with_default_config
     
-    msg = AOMessage.create!(:application_id => @application.id, :channel_id => @chan.id) 
+    msg = AOMessage.create!(:account_id => @account.id, :channel_id => @chan.id) 
     pdu = Smpp::Pdu::SubmitSmResponse.new 456, 0, '7B'
     
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
@@ -347,7 +347,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   test "message rejected" do
     save_channel_with_default_config
     
-    msg = AOMessage.create!(:application_id => @application.id, :channel_id => @chan.id) 
+    msg = AOMessage.create!(:account_id => @account.id, :channel_id => @chan.id) 
     pdu = Smpp::Pdu::SubmitSmResponse.new 456, 0, '7b'
     
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)

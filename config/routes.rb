@@ -1,28 +1,28 @@
 ActionController::Routing::Routes.draw do |map|
   map.resources :rss, :only => [:index, :create]
-  map.resources :incoming, :path_prefix => '/qst/:application_id', :only => [:index, :create]
-  map.resources :outgoing, :path_prefix => '/qst/:application_id', :only => [:index]
+  map.resources :incoming, :path_prefix => '/qst/:account_id', :only => [:index, :create]
+  map.resources :outgoing, :path_prefix => '/qst/:account_id', :only => [:index]
   
   map.clickatel_credit '/clickatell/view_credit', :controller => 'clickatell', :action => :view_credit
-  map.clickatel '/clickatell/:application_id/incoming', :controller => 'clickatell', :action => :index
-  map.dtac '/dtac/:application_id/incoming', :controller => 'dtac', :action => :index
+  map.clickatel '/clickatell/:account_id/incoming', :controller => 'clickatell', :action => :index
+  map.dtac '/dtac/:account_id/incoming', :controller => 'dtac', :action => :index
   
   map.root :controller => 'home'
   
-  map.create_application '/create_application', :controller => 'home', :action => :create_application
+  map.create_account '/create_account', :controller => 'home', :action => :create_account
   map.login '/login', :controller => 'home', :action => :login
   map.logoff '/logoff', :controller => 'home', :action => :logoff
   map.home '/home', :controller => 'home', :action => :home
-  map.edit_application '/application/edit', :controller => 'home', :action => :edit_application
-  map.update_application '/application/update', :controller => 'home', :action => :update_application
-  map.update_application '/application/find_address_source', :controller => 'home', :action => :find_address_source
-  map.update_application '/application/failed_alerts/delete', :controller => 'home', :action => :delete_failed_alerts
-  map.edit_application_ao_routing '/application/ao_routing/edit', :controller => 'home', :action => :edit_application_ao_routing
-  map.update_application_ao_routing '/application/ao_routing/update', :controller => 'home', :action => :update_application_ao_routing
-  map.edit_application_at_routing '/application/at_routing/edit', :controller => 'home', :action => :edit_application_at_routing
-  map.update_application_at_routing '/application/at_routing/update', :controller => 'home', :action => :update_application_at_routing
-  map.edit_application_alerts '/application/alerts/edit', :controller => 'home', :action => :edit_application_alerts
-  map.update_application_alerts '/application/alerts/update', :controller => 'home', :action => :update_application_alerts
+  map.edit_account '/account/edit', :controller => 'home', :action => :edit_account
+  map.update_account '/account/update', :controller => 'home', :action => :update_account
+  map.update_account '/account/find_address_source', :controller => 'home', :action => :find_address_source
+  map.update_account '/account/failed_alerts/delete', :controller => 'home', :action => :delete_failed_alerts
+  map.edit_account_ao_routing '/account/ao_routing/edit', :controller => 'home', :action => :edit_account_ao_routing
+  map.update_account_ao_routing '/account/ao_routing/update', :controller => 'home', :action => :update_account_ao_routing
+  map.edit_account_at_routing '/account/at_routing/edit', :controller => 'home', :action => :edit_account_at_routing
+  map.update_account_at_routing '/account/at_routing/update', :controller => 'home', :action => :update_account_at_routing
+  map.edit_account_alerts '/account/alerts/edit', :controller => 'home', :action => :edit_account_alerts
+  map.update_account_alerts '/account/alerts/update', :controller => 'home', :action => :update_account_alerts
 
   # Twitter mappings must come before generic channel mapping
   map.create_twitter_channel '/channel/create/twitter', :controller => 'twitter', :action => :create_twitter_channel, :kind => 'twitter'

@@ -36,7 +36,7 @@ module MessageFilters
     end
   
     search = Search.new(search)
-    conds = ['application_id = :application_id', { :application_id => @application.id }]
+    conds = ['account_id = :account_id', { :account_id => @account.id }]
     if !search.search.nil?
       conds[0] << ' AND ('
       # Add id condition only if searching a number
@@ -106,12 +106,12 @@ module MessageFilters
   
   def build_log_filter(search)
     search = Search.new(search)
-    conds = ['application_id = :application_id', { :application_id => @application.id }]
+    conds = ['account_id = :account_id', { :account_id => @account.id }]
     if !search.search.nil?
       conds[0] << ' AND ('
       conds[0] << 'message LIKE :search'
       
-      severity = ApplicationLog.severity_from_text search.search
+      severity = AccountLog.severity_from_text search.search
       if severity != 0
         conds[0] << ' OR severity = :search_severity'
         conds[1][:search_severity] = severity
@@ -123,7 +123,7 @@ module MessageFilters
     if !search[:severity].nil?
       op, val = get_op_and_val search[:severity]
       conds[0] << " AND severity #{op} :severity"
-      conds[1][:severity] = ApplicationLog.severity_from_text val
+      conds[1][:severity] = AccountLog.severity_from_text val
     end
     [:ao, :ao_message_id, :ao_message].each do |sym|
       if !search[sym].nil?

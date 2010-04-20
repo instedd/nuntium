@@ -10,9 +10,9 @@ class RssController < ApplicationController
     last_modified = request.env['HTTP_IF_MODIFIED_SINCE']
     etag = request.env['HTTP_IF_NONE_MATCH']
     
-    # Filter by application
-    query = 'application_id = ? AND (state = ? OR state = ?)'
-    params = [@application.id, 'queued', 'delivered']
+    # Filter by account
+    query = 'account_id = ? AND (state = ? OR state = ?)'
+    params = [@account.id, 'queued', 'delivered']
     
     # Filter by date if requested
     if !last_modified.nil?
@@ -49,7 +49,7 @@ class RssController < ApplicationController
     
     # Separate messages into ones that have their tries
     # over max_tries and those still valid.
-    valid_messages, invalid_messages = filter_tries_exceeded_and_not_exceeded @at_messages, @application
+    valid_messages, invalid_messages = filter_tries_exceeded_and_not_exceeded @at_messages, @account
     
     # Mark as failed messages that have their tries over max_tries
     if !invalid_messages.empty?
@@ -57,7 +57,7 @@ class RssController < ApplicationController
     end
     
     # Logging: say that valid messages were returned and invalid no
-    ATMessage.log_delivery(@at_messages, @application, 'rss')
+    ATMessage.log_delivery(@at_messages, @account, 'rss')
     
     @at_messages = valid_messages
     return head :not_modified if @at_messages.empty?
@@ -77,7 +77,7 @@ class RssController < ApplicationController
       items.each do |item|
         # Create AO message
         msg = AOMessage.new
-        msg.application_id = @application.id
+        msg.account_id = @account.id
         msg.from = item[:author]
         msg.to = item[:to]
         msg.subject = item[:title]
@@ -85,8 +85,8 @@ class RssController < ApplicationController
         msg.guid = item[:guid] unless item[:guid].nil?
         msg.timestamp = item[:pubDate].to_datetime
         
-        # And let the application handle it
-        @application.route msg, 'rss'
+        # And let the account handle it
+        @account.route msg, 'rss'
       end
     end
      
@@ -95,9 +95,9 @@ class RssController < ApplicationController
   
   def authenticate
     authenticate_or_request_with_http_basic do |username, password|
-      @application = Application.find_by_id_or_name(username)
-      if !@application.nil? and @application.interface == 'rss'
-        @application.authenticate password
+      @account = Account.find_by_id_or_name(username)
+      if !@account.nil? and @account.interface == 'rss'
+        @account.authenticate password
       else
         false
       end

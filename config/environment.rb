@@ -78,8 +78,8 @@ else
   TwitterConsumerConfig = nil
 end
 
-# Disable application creation from UI
-ApplicationCreationDisabled = false
+# Disable account creation from UI
+AccountCreationDisabled = false
 
 # Include extensions
 require 'string'

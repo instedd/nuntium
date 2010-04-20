@@ -206,7 +206,7 @@ $(function() {
     $('#address_source_result').html('Searching...');
     $.ajax({
       type: "GET",
-      url: '/application/find_address_source', 
+      url: '/account/find_address_source', 
       data: {address: $('#address_source').val()},
       success: function(name) {
         if (name) {

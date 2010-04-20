@@ -2,17 +2,17 @@ require 'net/pop'
 require 'tmail'
 
 class ReceivePop3MessageJob
-  attr_accessor :application_id, :channel_id
+  attr_accessor :account_id, :channel_id
 
   include CronTask::QuotedTask
 
-  def initialize(application_id, channel_id)
-    @application_id = application_id
+  def initialize(account_id, channel_id)
+    @account_id = account_id
     @channel_id = channel_id
   end
   
   def perform
-    application = Application.find @application_id
+    account = Account.find @account_id
     @channel = Channel.find @channel_id
     config = @channel.configuration
     
@@ -42,7 +42,7 @@ class ReceivePop3MessageJob
         msg.channel_relative_id = tmail.message_id
         msg.timestamp = tmail.date
         
-        application.accept msg, @channel
+        account.accept msg, @channel
       end
       
       mail.delete
@@ -51,7 +51,7 @@ class ReceivePop3MessageJob
     
     pop.finish
   rescue => ex
-    ApplicationLogger.exception_in_channel @channel, ex if @channel
+    AccountLogger.exception_in_channel @channel, ex if @channel
   end
   
   def get_body(tmail)
