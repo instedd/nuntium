@@ -2,18 +2,34 @@ require 'test_helper'
 
 class CountryControllerTest < ActionController::TestCase
 
-  test "index" do
-    c = Country.create!({:name => 'Argentina', :iso2 => 'ar', :iso3 =>'arg', :phone_prefix => '54'})
-    
+  def setup
+    @attributes = {:name => 'Argentina', :iso2 => 'ar', :iso3 =>'arg', :phone_prefix => '54'}
+    Country.create!(@attributes)
+  end
+
+  test "index xml" do
     get :index, :format => 'xml'
     assert_response :ok
     
     assert_select 'countries' do
-      assert_select "country[name=?]", c.name
-      assert_select "country[iso2=?]", c.iso2
-      assert_select "country[iso3=?]", c.iso3
-      assert_select "country[phonePrefix=?]", c.phone_prefix
+      @attributes.each do |key, value|
+        assert_select "country[#{key}=?]", value
+      end
     end
+  end
+  
+  test "index json" do
+    get :index, :format => 'json'
+    assert_response :ok
+    
+    countries = JSON.parse @response.body
+    assert_equal 1, countries.length
+    @attributes.each do |key, value|
+      assert_equal value, countries[0][key.to_s]
+    end
+    assert_false countries[0].has_key? 'id'
+    assert_false countries[0].has_key? 'created_at'
+    assert_false countries[0].has_key? 'updated_at'
   end
 
 end
