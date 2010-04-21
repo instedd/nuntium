@@ -50,6 +50,7 @@ ActionController::Routing::Routes.draw do |map|
   # API
   
   map.countries '/api/countries.:format', :controller => 'country', :action => :index
+  map.countries '/api/carriers.:format', :controller => 'carrier', :action => :index
 
   # The priority is based upon order of creation: first created -> highest priority.
 
