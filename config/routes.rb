@@ -17,10 +17,6 @@ ActionController::Routing::Routes.draw do |map|
   map.update_account '/account/update', :controller => 'home', :action => :update_account
   map.update_account '/account/find_address_source', :controller => 'home', :action => :find_address_source
   map.update_account '/account/failed_alerts/delete', :controller => 'home', :action => :delete_failed_alerts
-  map.edit_account_ao_routing '/account/ao_routing/edit', :controller => 'home', :action => :edit_account_ao_routing
-  map.update_account_ao_routing '/account/ao_routing/update', :controller => 'home', :action => :update_account_ao_routing
-  map.edit_account_at_routing '/account/at_routing/edit', :controller => 'home', :action => :edit_account_at_routing
-  map.update_account_at_routing '/account/at_routing/update', :controller => 'home', :action => :update_account_at_routing
   map.edit_account_alerts '/account/alerts/edit', :controller => 'home', :action => :edit_account_alerts
   map.update_account_alerts '/account/alerts/update', :controller => 'home', :action => :update_account_alerts
 

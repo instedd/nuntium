@@ -92,8 +92,6 @@
 <ul>
   <li><%= link_to "Edit Settings / Change password", :controller => :home, :action => :edit_account %></li>
   <li><%= link_to "Edit Alerts", :controller => :home, :action => :edit_account_alerts %></li>
-  <li><%= link_to "Edit AO Messages routing", :controller => :home, :action => :edit_account_ao_routing %></li>
-  <li><%= link_to "Edit AT Messages routing", :controller => :home, :action => :edit_account_at_routing %></li>
   <% unless @account.configuration[:use_address_source].nil? %>
     <li>Find last AT channel used for address: <input id="address_source" name="address" type="text" /> <button id="address_source_button">Find</button> <span id="address_source_result"></span></li>
   <% end %>

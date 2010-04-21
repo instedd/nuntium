@@ -12,9 +12,6 @@ class RoutesTest < ActionController::TestCase
     end
     ["edit", "update"].each do |op|
       assert_routing({:path => "/account/#{op}"}, { :controller => "home", :action => "#{op}_account"})
-      ["ao", "at"].each do |kind|
-        assert_routing({:path => "/account/#{kind}_routing/#{op}"}, { :controller => "home", :action => "#{op}_account_#{kind}_routing"})
-      end
     end
     assert_routing({:path => "/account/alerts/edit"}, { :controller => "home", :action => "edit_account_alerts"})
     assert_routing({:path => "/account/alerts/update"}, { :controller => "home", :action => "update_account_alerts"})

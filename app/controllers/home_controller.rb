@@ -5,7 +5,7 @@ class HomeController < AuthenticatedController
   include MessageFilters
 
   before_filter :check_login, :except => [:index, :login, :create_account]
-  after_filter :compress, :only => [:index, :login, :home, :edit_account, :edit_account_ao_routing, :edit_account_at_routing]
+  after_filter :compress, :only => [:index, :login, :home, :edit_account]
 
   def index
     if !session[:account_id].nil?
@@ -125,36 +125,6 @@ class HomeController < AuthenticatedController
       render :edit_account
     else
       redirect_to_home 'Account was changed'
-    end
-  end
-  
-  def edit_account_ao_routing
-  end
-  
-  def update_account_ao_routing
-    account = params[:account]
-    cfg = account[:configuration]
-    @account.configuration[:ao_routing] = cfg[:ao_routing]
-    @account.configuration[:ao_routing_test] = cfg[:ao_routing_test]
-    if !@account.save
-      render :edit_account_ao_routing
-    else
-      redirect_to_home 'AO messages routing was changed'
-    end
-  end
-  
-  def edit_account_at_routing
-  end
-  
-  def update_account_at_routing
-    account = params[:account]
-    cfg = account[:configuration]
-    @account.configuration[:at_routing] = cfg[:at_routing]
-    @account.configuration[:at_routing_test] = cfg[:at_routing_test]
-    if !@account.save
-      render :edit_account_at_routing
-    else
-      redirect_to_home 'AT messages routing was changed'
     end
   end
   
