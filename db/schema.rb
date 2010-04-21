@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100420160809) do
+ActiveRecord::Schema.define(:version => 20100421190617) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -99,6 +99,16 @@ ActiveRecord::Schema.define(:version => 20100420160809) do
     t.integer  "channel_id"
   end
 
+  create_table "carriers", :force => true do |t|
+    t.integer  "country_id"
+    t.string   "name"
+    t.string   "clickatell_name"
+    t.string   "guid"
+    t.string   "prefixes"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "channels", :force => true do |t|
     t.string   "name"
     t.string   "kind"
@@ -120,6 +130,15 @@ ActiveRecord::Schema.define(:version => 20100420160809) do
     t.integer  "part_count"
     t.integer  "part_number"
     t.string   "text"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "countries", :force => true do |t|
+    t.string   "name"
+    t.string   "iso2",         :limit => 2
+    t.string   "iso3",         :limit => 3
+    t.string   "phone_prefix"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
