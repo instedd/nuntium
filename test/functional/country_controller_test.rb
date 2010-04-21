@@ -27,9 +27,9 @@ class CountryControllerTest < ActionController::TestCase
     @attributes.each do |key, value|
       assert_equal value, countries[0][key.to_s]
     end
-    assert_false countries[0].has_key? 'id'
-    assert_false countries[0].has_key? 'created_at'
-    assert_false countries[0].has_key? 'updated_at'
+    ['id', 'created_at', 'updated_at'].each do |excluded|
+      assert_false countries[0].has_key? excluded
+    end
   end
 
 end

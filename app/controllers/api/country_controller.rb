@@ -5,7 +5,7 @@ class CountryController < ApplicationController
     when 'xml'
       render :xml => countries.to_xml
     when 'json'
-      render :json => countries.to_json(:except => [:id, :created_at, :updated_at])
+      render :json => countries.to_json(:only => [:name, :iso2, :iso3, :phone_prefix])
     else
       head :bad_request
     end
