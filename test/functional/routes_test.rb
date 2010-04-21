@@ -36,4 +36,8 @@ class RoutesTest < ActionController::TestCase
     assert_routing({:path => "/message/ao/reroute"}, { :controller => "message", :action => "reroute_ao_messages" })
     assert_routing({:path => "/send_ao"}, { :controller => "send_ao", :action => "create" })
   end
+  
+  test "api" do
+    assert_routing({:path => "/api/countries.xml"}, { :controller => "country", :action => "index", :format => "xml" })
+  end
 end

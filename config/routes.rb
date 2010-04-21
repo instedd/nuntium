@@ -46,6 +46,10 @@ ActionController::Routing::Routes.draw do |map|
   map.view_at_message '/message/at/:id', :controller => 'message', :action => :view_at_message
   
   map.send_ao '/send_ao', :controller => 'send_ao', :action => :create
+  
+  # API
+  
+  map.countries '/api/countries.:format', :controller => 'country', :action => :index
 
   # The priority is based upon order of creation: first created -> highest priority.
 
