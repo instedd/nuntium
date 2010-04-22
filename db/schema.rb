@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100421190617) do
+ActiveRecord::Schema.define(:version => 20100422131740) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -78,6 +78,7 @@ ActiveRecord::Schema.define(:version => 20100421190617) do
     t.string   "state",               :default => "pending", :null => false
     t.string   "channel_relative_id"
     t.integer  "channel_id"
+    t.text     "custom_attributes"
   end
 
   add_index "ao_messages", ["channel_id", "channel_relative_id"], :name => "index_ao_messages_on_channel_id_and_channel_relative_id"
@@ -97,6 +98,7 @@ ActiveRecord::Schema.define(:version => 20100421190617) do
     t.string   "state",               :default => "pending", :null => false
     t.string   "channel_relative_id"
     t.integer  "channel_id"
+    t.text     "custom_attributes"
   end
 
   create_table "carriers", :force => true do |t|
@@ -164,6 +166,14 @@ ActiveRecord::Schema.define(:version => 20100421190617) do
     t.string   "pid_file"
     t.string   "log_file"
     t.boolean  "enabled"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "mobile_numbers", :force => true do |t|
+    t.string   "number"
+    t.integer  "country_id"
+    t.integer  "carrier_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
