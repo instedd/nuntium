@@ -2,6 +2,7 @@ require 'digest/sha2'
 
 class Account < ActiveRecord::Base
   
+  has_many :applications
   has_many :channels
   has_many :ao_messages
   has_many :at_messages
@@ -19,7 +20,7 @@ class Account < ActiveRecord::Base
   validates_inclusion_of :interface, :in => ['rss', 'qst_client', 'http_post_callback']
   validate :alert_well_formed
   
-  before_save :hash_password 
+  before_save :hash_password
   after_save :handle_tasks
   after_create :create_worker_queue
   after_save :bind_queue

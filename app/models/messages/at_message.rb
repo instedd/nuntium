@@ -1,5 +1,6 @@
 class ATMessage < ActiveRecord::Base
   belongs_to :account
+  belongs_to :application
   belongs_to :channel
   validates_presence_of :account
   serialize :custom_attributes, Hash
