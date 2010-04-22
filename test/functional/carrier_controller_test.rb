@@ -5,9 +5,12 @@ class CarrierControllerTest < ActionController::TestCase
   def setup
     country = Country.create!(:name => 'Argentina', :iso2 => 'ar', :iso3 =>'arg', :phone_prefix => '54')
     carrier = Carrier.create!(:country => country, :name => 'Personal', :guid => "Some'Guid", :prefixes => '1, 2, 3')
+    
+    country2 = Country.create!(:name => 'Brazil', :iso2 => 'br', :iso3 =>'brz', :phone_prefix => '??')
+    carrier2 = Carrier.create!(:country => country2, :name => 'Personal2', :guid => "Some'Guid2", :prefixes => '1, 2, 3')
   end
 
-  [nil, 'ar', 'arg'].each do |country_code|
+  ['ar', 'arg'].each do |country_code|
     test "index xml for country code #{country_code}" do
       get :index, :format => 'xml', :country_id => country_code
       assert_response :ok
@@ -20,7 +23,7 @@ class CarrierControllerTest < ActionController::TestCase
     end
     
     test "index json for country code #{country_code}" do
-      get :index, :format => 'json'
+      get :index, :format => 'json', :country_id => country_code
       assert_response :ok
       
       carriers = JSON.parse @response.body
@@ -42,5 +45,13 @@ class CarrierControllerTest < ActionController::TestCase
     end
   end
   
+  test "index xml no country" do
+    get :index, :format => 'xml'
+    assert_response :ok
+    
+    assert_select 'carriers' do
+      assert_select "carrier", :count => 2
+    end
+  end
 
 end
