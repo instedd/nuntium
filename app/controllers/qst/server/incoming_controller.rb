@@ -12,18 +12,29 @@ class IncomingController < QSTServerController
   
   # POST /qst/:account_id/incoming
   def create
-    xml_data = request.env['RAW_POST_DATA']
-    doc = REXML::Document.new(xml_data)
+    tree = request.POST.present? ? request.POST : Hash.from_xml(request.raw_post).with_indifferent_access
     
     last_id = nil
     
-    doc.elements.each 'messages/message' do |elem|
+    messages = tree[:messages][:message]
+    messages = [messages] if messages.class <= Hash 
+    
+    messages.each do |elem|
       msg = ATMessage.new
-      msg.from = elem.attributes['from']
-      msg.to = elem.attributes['to']
-      msg.body = elem.elements['text'].text
-      msg.guid = elem.attributes['id']
-      msg.timestamp = Time.parse(elem.attributes['when'])
+      msg.from = elem[:from]
+      msg.to = elem[:to]
+      msg.body = elem[:text]
+      msg.guid = elem[:id]
+      msg.timestamp = Time.parse(elem[:when])
+      
+      properties = elem[:property]
+      if properties.present?
+        properties = [properties] if properties.class <= Hash      
+        properties.each do |prop|
+          msg.custom_attributes[prop[:name]] = prop[:value]
+        end
+      end
+      
       @account.accept msg, @channel
       
       last_id = msg.guid

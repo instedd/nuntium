@@ -28,12 +28,20 @@ module MessageCommon
       end
     end
   end
+  
+  def custom_attributes
+    self[:custom_attributes] = {} if self[:custom_attributes].nil?
+    self[:custom_attributes]
+  end
 
   # Given an xml builder writes itself unto it
   def write_xml(xml)
     require 'builder'
     xml.message(:id => self.guid, :from => self.from, :to => self.to, :when => self.timestamp.xmlschema) do
       xml.text self.subject_and_body
+      custom_attributes.each do |name, value|
+        xml.property :name => name, :value => value
+      end
     end
   end
 

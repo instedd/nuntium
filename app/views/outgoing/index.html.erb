@@ -7,9 +7,7 @@ xml = Builder::XmlMarkup.new(:indent => 1)
 xml.instruct!
 xml.messages do
   @ao_messages.each do |msg|
-    xml.message(:id => msg.guid, :from => msg.from, :to => msg.to, :when => msg.timestamp.xmlschema) do
-      xml.text msg.subject_and_body
-    end
+    msg.write_xml xml
   end
 end
 %><%= xml.target! %>

@@ -39,6 +39,23 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_select "message", {:count => 0}
   end
   
+  test "get one with custom properties" do
+    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
+    
+    msg = new_ao_message(account, 0)
+    msg.custom_attributes['foo1'] = 'bar1'
+    msg.custom_attributes['foo2'] = 'bar2'
+    msg.save!
+    
+    new_qst_outgoing_message(chan, msg.id)
+    
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')    
+    get 'index', :account_id => 'account'
+    
+    assert_select "message", {:count => 1}
+    assert_shows_message msg
+  end
+  
   test "get one not unread" do
     account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
     new_ao_message(account, 0)

@@ -70,6 +70,33 @@ class IncomingControllerTest < ActionController::TestCase
     assert_equal Time.parse("2008-09-24T17:12:57-03:00"), msg.timestamp
   end
   
+  test "push message with custom attributes" do
+    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
+  
+    @request.env['RAW_POST_DATA'] = <<-eos
+      <?xml version="1.0" encoding="utf-8"?>
+      <messages>
+        <message id="someguid" from="Someone" to="Someone else" when="2008-09-24T17:12:57-03:00">
+          <text>Hello!</text>
+          <property name="foo1" value="bar1" />
+          <property name="foo2" value="bar2" />
+        </message>
+      </messages>
+    eos
+    
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
+    post 'create', :account_id => 'account'
+    
+    messages = ATMessage.all
+    assert_equal 1, messages.length
+    
+    msg = messages[0]
+    
+    assert_response :ok
+    assert_equal "bar1", msg.custom_attributes['foo1']
+    assert_equal "bar2", msg.custom_attributes['foo2']
+  end
+  
   test "get last message id not authorized" do
     account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
 

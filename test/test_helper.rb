@@ -246,6 +246,10 @@ class ActiveSupport::TestCase
     assert_select "message[to=?]", msg.to
     assert_select "message[when=?]", msg.timestamp.iso8601
     assert_select "message text", msg.subject.nil? ? msg.body : msg.subject + " - " + msg.body
+    
+    msg.custom_attributes.each do |name, value|
+      assert_select "message property[name=?][value=?]", name, value, :count => 1
+    end
   end
   
   def assert_shows_message_as_rss_item(msg)
