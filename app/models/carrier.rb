@@ -1,5 +1,6 @@
 class Carrier < ActiveRecord::Base
   belongs_to :country
+  has_many :mobile_numbers
   
   def to_xml(options = {})
     options[:indent] ||= 2
