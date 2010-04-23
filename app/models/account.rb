@@ -99,6 +99,14 @@ class Account < ActiveRecord::Base
     msg.state = 'queued'
     msg.save!
     
+    # Apply AT Rules
+    unless msg.channel.nil?
+      at_routing_res = RulesEngine.apply(msg.rules_context, msg.channel.at_rules)
+      msg.merge at_routing_res
+    end
+    
+    # TODO save country/carrier if present as extension if is an sms message
+    
     # Update AddressSource if the account uses it
     if !self.configuration[:use_address_source].nil? && !via_channel.nil? && via_channel.class == Channel
       as = AddressSource.find_by_account_id_and_address self.id, msg.from

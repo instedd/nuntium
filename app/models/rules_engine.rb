@@ -1,4 +1,5 @@
 module RulesEngine
+  extend self
   
   def rule(matchings, actions)
     return :matchings => matchings, :actions => actions
@@ -68,4 +69,5 @@ module RulesEngine
         return false
     end  
   end
+  
 end

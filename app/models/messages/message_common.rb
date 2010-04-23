@@ -44,7 +44,32 @@ module MessageCommon
       end
     end
   end
-
+  
+  # Rule Engine related methods
+  
+  # Builds Context for AT Rules execution
+  def rules_context
+    return {
+      :from => self.from,
+      :to => self.to,
+      :subject => self.subject,
+      :body => self.body,
+      :subject_and_body => self.subject_and_body }.merge(self.custom_attributes)
+  end
+  
+  # merge attributes to current instance.
+  # wellknown attributes are persisted in properties. Others as extensions
+  def merge(attributes)
+    attributes = attributes || {}
+    
+    self.from = attributes[:from] if attributes.has_key?(:from)
+    self.to = attributes[:to] if attributes.has_key?(:to)
+    self.subject = attributes[:subject] if attributes.has_key?(:subject)
+    self.body = attributes[:body] if attributes.has_key?(:body)
+    
+    other_attributes = attributes.reject { |k,v| [:from,:to,:subject,:body].include?(k) }
+    self[:custom_attributes] = self.custom_attributes.merge(other_attributes)    
+  end
 
   module ClassMethods
     # Given a collection of messages serializes them to a single document
