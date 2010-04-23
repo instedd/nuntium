@@ -127,5 +127,18 @@ class RulesEngineTest < ActiveSupport::TestCase
     assert_nil apply({:propB => 'foo'}, rules)
   end
   
+  test "if context has many values for same property match if any" do
+    rules = [
+      rule([
+        matching(:propA, OP_EQUALS, 'foo')
+      ],[
+        action(:prop, 'a')
+      ])
+    ]
+
+    assert_not_nil apply({:propA => ['bar','foo']}, rules)
+    assert_nil apply({:propA => ['bar','baz']}, rules)
+  end
+  
   # TODO should be case insensitive ?
 end

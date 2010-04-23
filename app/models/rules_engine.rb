@@ -45,7 +45,19 @@ module RulesEngine
     at_context = context[matching[:property]]
     at_matching = matching[:value]
 
-    case matching[:operator]
+    if at_context.class <= Array then
+      # multiple values
+      return at_context.any? do |v| 
+        matches_value(v, matching[:operator], at_matching)
+      end
+    else
+      # single value
+      return matches_value(at_context, matching[:operator], at_matching)
+    end
+  end
+  
+  def matches_value(at_context, op, at_matching)
+    case op
       when OP_EQUALS then
         return at_context == at_matching
       when OP_STARTS_WITH then
@@ -56,5 +68,4 @@ module RulesEngine
         return false
     end  
   end
-  
 end
