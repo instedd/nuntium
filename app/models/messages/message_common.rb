@@ -61,21 +61,30 @@ module MessageCommon
     end
   
     # Given an xml document string extracts all messages from it and yields them
-    def parse_xml(xml_txt)
-      require 'rexml/document'
-  
-      msgs = []
-      doc = REXML::Document.new(xml_txt)
-      doc.elements.each 'messages/message' do |elem|
+    def parse_xml(txt_or_hash)
+      tree = txt_or_hash.kind_of?(Hash) ? txt_or_hash : Hash.from_xml(txt_or_hash).with_indifferent_access
+      
+      messages = tree[:messages][:message]
+      messages = [messages] if messages.class <= Hash 
+      
+      messages.each do |elem|
         msg = self.new
-        msg.from = elem.attributes['from']
-        msg.to = elem.attributes['to']
-        msg.body = elem.elements['text'].text
-        msg.guid = elem.attributes['id']
-        msg.timestamp = Time.parse(elem.attributes['when'])
-        if block_given? then yield msg else msgs << msg end  
+        msg.from = elem[:from]
+        msg.to = elem[:to]
+        msg.body = elem[:text]
+        msg.guid = elem[:id]
+        msg.timestamp = Time.parse(elem[:when])
+        
+        properties = elem[:property]
+        if properties.present?
+          properties = [properties] if properties.class <= Hash      
+          properties.each do |prop|
+            msg.custom_attributes[prop[:name]] = prop[:value]
+          end
+        end
+        
+        yield msg
       end
-      msgs
     end
     
   end

@@ -223,7 +223,8 @@ class ActiveSupport::TestCase
   # Given an xml document string, asserts all values for a message constructed with new or fill
   def assert_xml_msgs(xml_txt, account, rng, protocol = 'protocol')
     rng = (rng...rng) if not rng.respond_to? :each
-    msgs = ATMessage.parse_xml(xml_txt)
+    msgs = []
+    ATMessage.parse_xml(xml_txt) {|msg| msgs << msg}
     assert_equal rng.to_a.size, msgs.size, 'messages count does not match range' 
     base = rng.to_a[0]
     rng.each do |i|

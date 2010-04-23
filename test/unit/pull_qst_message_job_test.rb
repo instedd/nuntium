@@ -5,8 +5,8 @@ require 'net/https'
 require 'mocha'
 
 class PullQstMessageJobTest < ActiveSupport::TestCase
-include Mocha::API
-include Net
+  include Mocha::API
+  include Net
   
   def test_perform_first_run
     account = setup_account
