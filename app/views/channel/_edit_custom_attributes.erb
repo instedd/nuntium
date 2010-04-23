@@ -1,0 +1,109 @@
+<h5>Custom attributes</h5>
+
+<%
+# Write the applications in javascript so we can fill the combobox without
+# going to the server...
+applications = @account.applications.all(:select => 'name', :order => 'name')
+if applications.length > 0
+%>
+  <script type="text/javascript">
+  var applications = <%= applications.to_json :only => [:name] %>; 
+  </script>
+<%
+end
+%>
+
+<div>
+<%
+if @channel.custom_attributes.empty?
+  %>
+  <div id="no_custom_attributes">No custom attributes.</div>
+  <%
+end
+%>
+<ul id="custom_attributes">
+  <%
+  countries = Country.all
+  carriers = Carrier.all_with_countries
+  
+  def write_custom_attribute(applications, countries, carriers, name, values)
+    values = [values] unless values.kind_of? Array
+    values.each do |value|
+      is_custom = name != "" && name != "application" && name != "country" && name != "carrier"
+      %>
+      <li>
+        <select name="<%= is_custom ? 'doesnt_matter' : 'custom_attribute_name[]'%>" onchange="channel_custom_attribute_changed(this)">
+          <option value="" <%= 'selected="selected"' if name == "" %>>Add an attribute...</option>
+          <% if applications.length > 0 %>
+            <option value="application" <%= 'selected="selected"' if name == "application" %>>Application</option>
+          <% end %>
+          <option value="country" <%= 'selected="selected"' if name == "country" %>>Country</option>
+          <option value="carrier" <%= 'selected="selected"' if name == "carrier" %>>Carrier</option>
+          <option value="custom" <%= 'selected="selected"' if is_custom %>>Custom</option>
+        </select>
+        <span class="value">
+        <%
+        case name
+        when 'application'
+          %>
+          =
+          <select name="custom_attribute_value[]">
+            <% applications.each do |app| %>
+              <option><%= app.name %></option>
+            <% end %>
+          </select>
+          <%
+        when 'country'
+          %>
+          =
+          <select name="custom_attribute_value[]">
+            <% countries.each do |country| %>
+              <option value="<%= country.iso2 %>" <%= 'selected="selected"' if country.iso2 == value %>><%= country.name %></option>
+            <% end %>
+          </select>
+          <%
+        when 'carrier'
+          selected_carrier = carriers.select{|x| x.guid == value}.first
+          %>
+          =
+          <select name="doesnt_matter" onchange="channel_custom_attribute_country_changed(this)">
+            <% countries.each do |country| %>
+              <option value="<%= country.iso2 %>" <%= 'selected="selected"' if selected_carrier.country.id == country.id %>><%= country.name %></option>
+            <% end %>
+          </select>
+          <span class="value2">
+            <select name="custom_attribute_value[]">
+              <% carriers.select{|x| x.country.iso2 == selected_carrier.country.iso2}.each do |carrier| %>
+                <option value="<%= carrier.guid %>" <%= 'selected="selected"' if selected_carrier.guid == value %>><%= carrier.name %></option>
+              <% end %>
+            </select>
+          </span>
+          <%
+        when ''
+          nil # Nothing
+        else
+          %>
+          Name: <input type="text" name="custom_attribute_name[]" value="<%= h name %>"> Value: <input type="text" name="custom_attribute_value[]" value="<%= h value %>">
+          <%
+        end
+        
+        if name != ''
+          %>
+          &nbsp; <a href="javascript:void(0)" onclick="remove_custom_attribute(this)">Remove</a>
+          <%
+        end
+        %>
+        </span>
+       </li>
+      <%
+    end
+  end
+  
+  @channel.custom_attributes.each do |name, values|
+    write_custom_attribute applications, countries, carriers, name, values
+  end
+  write_custom_attribute applications, countries, carriers, '', ''
+  %>
+</ul>
+</div>
+<br/>

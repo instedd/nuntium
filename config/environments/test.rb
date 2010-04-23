@@ -34,3 +34,6 @@ config.log_level = :debug
 
 # Use a different logger for distributed setups
 #config.logger = Logger.new(STDOUT)
+
+# Use memcached
+config.cache_store = :mem_cache_store

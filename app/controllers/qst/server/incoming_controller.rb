@@ -13,30 +13,10 @@ class IncomingController < QSTServerController
   # POST /qst/:account_id/incoming
   def create
     tree = request.POST.present? ? request.POST : Hash.from_xml(request.raw_post).with_indifferent_access
-    
+
     last_id = nil
-    
-    messages = tree[:messages][:message]
-    messages = [messages] if messages.class <= Hash 
-    
-    messages.each do |elem|
-      msg = ATMessage.new
-      msg.from = elem[:from]
-      msg.to = elem[:to]
-      msg.body = elem[:text]
-      msg.guid = elem[:id]
-      msg.timestamp = Time.parse(elem[:when])
-      
-      properties = elem[:property]
-      if properties.present?
-        properties = [properties] if properties.class <= Hash      
-        properties.each do |prop|
-          msg.custom_attributes[prop[:name]] = prop[:value]
-        end
-      end
-      
+    ATMessage.parse_xml(tree) do |msg|
       @account.accept msg, @channel
-      
       last_id = msg.guid
     end
     

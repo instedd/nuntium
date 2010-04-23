@@ -4,7 +4,7 @@
   <%= f.error_messages %>
   <%= edit_channel_name f %>
   <%= edit_channel_protocol f %>
-  <%= render :partial => 'edit_direction', :locals => {:channel => @channel} %>
+  <%= render :partial => 'edit_direction' %>
   <% f.fields_for :configuration do |c| %>
     <p>
     <%= c.label :password %><br/>
@@ -15,6 +15,7 @@
     <%= c.password_field :password_confirmation, :value => @channel[:configuration][:password_confirmation] %>
     </p>
   <% end %>
+  <%= render :partial => 'edit_custom_attributes', :locals => {:f => f} %>
   <%= channel_submit_tag %>
 <% end %>
 

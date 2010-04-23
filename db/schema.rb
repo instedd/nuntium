@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100422140328) do
+ActiveRecord::Schema.define(:version => 20100422150225) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -85,6 +85,15 @@ ActiveRecord::Schema.define(:version => 20100422140328) do
   add_index "ao_messages", ["channel_id", "channel_relative_id"], :name => "index_ao_messages_on_channel_id_and_channel_relative_id"
   add_index "ao_messages", ["guid"], :name => "index_ao_messages_on_guid"
 
+  create_table "applications", :force => true do |t|
+    t.string   "name"
+    t.integer  "account_id"
+    t.string   "interface"
+    t.text     "configuration"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "at_messages", :force => true do |t|
     t.string   "from"
     t.string   "to"
@@ -122,9 +131,10 @@ ActiveRecord::Schema.define(:version => 20100422140328) do
     t.text     "configuration"
     t.string   "protocol"
     t.integer  "direction"
-    t.boolean  "enabled",       :default => true
-    t.integer  "metric",        :default => 100
+    t.boolean  "enabled",           :default => true
+    t.integer  "metric",            :default => 100
     t.integer  "throttle"
+    t.text     "custom_attributes"
   end
 
   create_table "clickatell_message_parts", :force => true do |t|

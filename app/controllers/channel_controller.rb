@@ -1,5 +1,7 @@
 class ChannelController < AuthenticatedController
 
+  include ChannelControllerCommon
+
   before_filter :check_login
   before_filter :check_channel, :except => [:new_channel, :create_channel]
   after_filter :compress, :only => [:new_channel, :edit_channel]
@@ -21,6 +23,7 @@ class ChannelController < AuthenticatedController
     @channel.kind = params[:kind]
     @channel.direction = chan[:direction]
     @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
+    @channel.custom_attributes = get_custom_attributes
     
     @channel.check_valid_in_ui
     if !@channel.save
@@ -47,11 +50,12 @@ class ChannelController < AuthenticatedController
     
     @channel.handler.update(chan)
     @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
+    @channel.custom_attributes = get_custom_attributes
     
     @channel.check_valid_in_ui
     if !@channel.save
       @channel.clear_password
-      return render "edit_#{@channel.kind}_channel"
+      return edit_channel
     end
     
     redirect_to_home 'Channel was updated'

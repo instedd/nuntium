@@ -3,6 +3,8 @@ require 'test_helper'
 class CountryControllerTest < ActionController::TestCase
 
   def setup
+    Rails.cache.clear
+  
     @attributes = {:name => 'Argentina', :iso2 => 'ar', :iso3 =>'arg', :phone_prefix => '54'}
     Country.create!(@attributes)
   end

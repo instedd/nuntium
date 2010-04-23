@@ -73,7 +73,7 @@ function select_all_at_messages() {
   select_all('at_messages[]');
   if (total_at_messages > current_at_messages) {
     var e = $('#all_at_messages_text');
-    e.show();
+    e.show();// === address source ===
     e.html('' + current_at_messages + ' messages are selected. <a href="javascript:void(0)" onclick="select_all_pages_at_messages()">Select all ' + total_at_messages + ' messages</a>.');
   }
 }
@@ -154,6 +154,8 @@ function create_channel(select) {
   select.value = '';
 }
 
+// === clickatell ===
+
 function clickatell_channel_direction_changed() {
   var dir = $('#channel_direction :selected').val();
   
@@ -186,6 +188,8 @@ function clickatell_view_credit(id) {
   });
 }
 
+// === twitter ===
+
 function twitter_view_rate_limit_status(id) {
   $.ajax({
     type: "GET",
@@ -200,7 +204,8 @@ function twitter_view_rate_limit_status(id) {
   });
 }
 
-// Find address source 
+// === address source ===
+ 
 $(function() {
   var find_address_source = function() {
     $('#address_source_result').html('Searching...');
@@ -231,3 +236,159 @@ $(function() {
   });
   $('#address_source_button').click(find_address_source);
 });
+
+// === channel custom attributes ===
+
+function channel_custom_attribute_changed(select) {
+  select = $(select);
+  li = select.parent();
+  first_select = $(li.children()[0]);
+  first_select.attr('name', 'custom_attribute_name[]'); 
+  
+  li_value = li.children('.value');
+  
+  cloned_li = li.clone();
+  $(cloned_li.children()[0]).val('');
+  
+  value = select.val();
+  switch(value) {
+  case '':
+    li_value.html('');
+    break;
+  case 'application':
+    var html = ' = ';
+    html += applications_select();
+    html += ' &nbsp; ' + remove_custom_attribute_link();
+    li_value.html(html);
+    break;
+  case 'country':
+    get_countries({
+      success: function(countries) {
+        var html = ' = ';
+        html += countries_select(countries, 'custom_attribute_value[]');
+        html += ' &nbsp; ' + remove_custom_attribute_link();
+        li_value.html(html);
+      },
+      error: function() {
+        li_value.html('An error happened :-(');
+      }
+    });
+    break;
+  case 'carrier':
+    get_countries({
+      success: function(countries) {
+        var html = ' = ';
+        html += countries_select(countries, 'countries', 'channel_custom_attribute_country_changed(this)');
+        html += '<span class="value2"></span>';
+        html += ' &nbsp; ' + remove_custom_attribute_link();
+        li_value.html(html);
+      },
+      error: function() {
+        li_value.html('An error happened :-(');
+      }
+    });
+    break;
+  case 'custom':
+    first_select.attr('name', 'doesnt_matter');
+    
+    var html = 'Name: <input type="text" name="custom_attribute_name[]"> Value: <input type="text" name="custom_attribute_value[]">';
+    html += ' &nbsp; ' + remove_custom_attribute_link();
+    li_value.html(html);
+    break;
+  }
+  
+  ul = li.parent();
+  lis = ul.children();
+  last_li = lis[lis.length - 1];
+  
+  if ($($(last_li).children()[0]).val()) {
+    $("#custom_attributes").append(cloned_li);
+  }
+}
+
+function channel_custom_attribute_country_changed(select) {
+  select = $(select);
+  country = select.val();
+  li = select.parent();
+  li_value2 = li.children('.value2');
+  
+  if (!country) {
+    li_value2.html('');
+    return;
+  }
+  
+  get_carriers(country, {
+    success: function(carriers) {
+      li_value2.html(carriers_select(carriers));
+    },
+    error: function() {
+      li_value2.html('An error happened :-(');
+    }
+  });
+}
+
+function remove_custom_attribute(a) {
+  $(a).parent().parent().remove();
+}
+
+function remove_custom_attribute_link() {
+  return '<a href="javascript:void(0)" onclick="remove_custom_attribute(this)">Remove</a>';
+}
+
+// === Utility functions ===
+function get_countries(map) {
+  $.ajax({
+    type: "GET",
+    url: '/api/countries.json',
+    dataType: 'json', 
+    success: map.success,
+    error: map.error,
+  });
+}
+
+function get_carriers(country_id, map) {
+  $.ajax({
+    type: "GET",
+    url: '/api/carriers.json?country_id=' + country_id,
+    dataType: 'json', 
+    success: map.success,
+    error: map.error,
+  });
+}
+
+function applications_select() {
+  var html = '';
+  html += '<select name="custom_attribute_value[]">';
+  html += '<option value="">Select an applicaiton...</option>';
+  for(var i = 0; i < applications.length; i++) {
+    html += '<option>' + applications[i].name + '</option>';
+  }
+  html += '</select>';
+  return html;
+}
+
+function countries_select(countries, name, onchange) {
+  var html = '';
+  html += '<select name="' + name + '"';
+  if (onchange) {
+    html += 'onchange="' + onchange + '"';
+  }
+  html += '>';
+  html += '<option value="">Select a country...</option>';
+  for(var i = 0; i < countries.length; i++) {
+    html += '<option value="' + countries[i].iso2 + '">' + countries[i].name + '</option>';
+  }
+  html += '</select>';
+  return html;
+}
+
+function carriers_select(carriers) {
+  var html = '';
+  html += '<select name="custom_attribute_value[]">';
+  html += '<option value="">Select a carrier...</option>';
+  for(var i = 0; i < carriers.length; i++) {
+    html += '<option value="' + carriers[i].guid + '">' + carriers[i].name + '</option>';
+  }
+  html += '</select>';
+  return html;
+}

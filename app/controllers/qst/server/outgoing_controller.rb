@@ -72,6 +72,7 @@ class OutgoingController < QSTServerController
     end 
     
     response.headers['ETag'] = @ao_messages.last.id.to_s if !@ao_messages.empty?
-	  render :layout => false
+    response.headers["Content-Type"] = "application/xml; charset=utf-8"
+	  render :text => AOMessage.write_xml(@ao_messages)
   end
 end

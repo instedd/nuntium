@@ -7,10 +7,10 @@ class CarrierController < ApplicationController
     if country_id.nil?
       # Nothing
     elsif country_id.length == 2
-      country = Country.first :conditions => ['iso2 = ?', country_id]
+      country = Country.find_by_iso2 country_id
       return head :bad_request unless country
     elsif country_id.length == 3
-      country = Country.first :conditions => ['iso3 = ?', country_id]
+      country = Country.find_by_iso3 country_id
       return head :bad_request unless country
     else
       return head :bad_request
@@ -30,9 +30,9 @@ class CarrierController < ApplicationController
   
   def carriers_for(country)
     if country.nil?
-      Carrier.all(:include => :country)
+      Carrier.all_with_countries
     else
-      carriers = Carrier.all(:conditions => ['country_id = ?', country.id])
+      carriers = Carrier.find_by_country_id country.id
       carriers.each {|x| x.country = country}
       carriers
     end
