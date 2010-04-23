@@ -16,6 +16,7 @@
     <%= c.password_field :password_confirmation %>
     </p>
   <% end %>
+  <%= render :partial => 'edit_custom_attributes', :locals => {:f => f} %>
   <%= channel_submit_tag %>
 <% end %>
 

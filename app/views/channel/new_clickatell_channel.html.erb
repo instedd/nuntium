@@ -37,7 +37,7 @@
     <code>/clickatell/<%= @account.id %>/incoming</code>
     </p>
   <% end %>
-  <%= render :partial => 'edit_custom_attributes', :locals => {:f => f, :channel => @channel} %>
+  <%= render :partial => 'edit_custom_attributes', :locals => {:f => f} %>
   <%= channel_submit_tag %>
 <% end %>
 
