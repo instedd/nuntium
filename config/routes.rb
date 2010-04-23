@@ -32,7 +32,13 @@ ActionController::Routing::Routes.draw do |map|
   map.update_channel '/channel/update/:id', :controller => 'channel', :action => :update_channel
   map.delete_channel '/channel/delete/:id', :controller => 'channel', :action => :delete_channel  
   map.enable_channel '/channel/enable/:id', :controller => 'channel', :action => :enable_channel  
-  map.disable_channel '/channel/disable/:id', :controller => 'channel', :action => :disable_channel  
+  map.disable_channel '/channel/disable/:id', :controller => 'channel', :action => :disable_channel
+  
+  map.new_application '/application/new', :controller => 'home', :action => :new_application  
+  map.create_application '/application/create', :controller => 'home', :action => :create_application
+  map.edit_application '/application/edit/:id', :controller => 'home', :action => :edit_application
+  map.update_application '/application/update/:id', :controller => 'home', :action => :update_application
+  map.delete_application '/application/delete/:id', :controller => 'home', :action => :delete_application
   
   map.new_ao_message '/message/ao/new', :controller => 'message', :action => :new_ao_message
   map.create_ao_message '/message/ao/create', :controller => 'message', :action => :create_ao_message

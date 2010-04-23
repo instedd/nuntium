@@ -1,0 +1,51 @@
+<% content_for :head do%>
+	<script type="text/javascript" charset="utf-8">
+	function disableConfig(value) {
+		document.getElementById('application_configuration_url').disabled=value;
+		document.getElementById('application_configuration_cred_user').disabled=value;
+		document.getElementById('application_configuration_cred_pass').disabled=value;
+	} 
+	</script>
+<% end%>
+
+<% if @application.new_record? %>
+  <h4>New Application</h4>
+<% else %>
+  <h4>Edit <%= @application.name %> Application</h4>
+<% end %>
+
+<% form_for :application, :url => { :controller => 'home', :action => @application.new_record? ? :create_application : :update_application} do |f| %>
+  <%= f.error_messages %>
+  
+  <p>
+  <%= f.label :name %><br/>
+  <%= f.text_field :name %>
+  </p>
+  
+  <p>
+  <%= f.label :interface %><br/>
+  <%= f.radio_button :interface, 'rss', :onclick => "disableConfig(true);" %> <%= f.label :interface, 'Rss', :value => 'rss' %><br/>
+  <%= f.radio_button :interface, 'qst_client', :onclick => "disableConfig(false);"%> <%= f.label :interface, 'QST client', :value => 'qst_client' %><br/>
+  <%= f.radio_button :interface, 'http_post_callback', :onclick => "disableConfig(false);"%> <%= f.label :interface, 'HTTP POST callack', :value => 'http_post_callback' %><br/>
+  
+  <% f.fields_for :configuration do |c| %>
+    <div>
+      <h5>Configuration:</h5>
+	    <p>
+      <%= c.label :url %><br/>
+      <%= c.text_field :url, :value => @application.configuration[:url], :disabled => @application.interface != 'qst_client' && @application.interface != 'http_post_callback', :class => 'configurl' %>
+      </p>
+      <p>
+      <%= c.label :cred_user %><br/>
+      <%= c.text_field :cred_user, :value => @application.configuration[:cred_user], :disabled => @application.interface != 'qst_client' && @application.interface != 'http_post_callback', :class => 'configurl' %>
+      </p>
+      <p>
+      <%= c.label :cred_pass %><br/>
+      <%= c.password_field :cred_pass, :value => @application.configuration[:cred_pass], :disabled => @application.interface != 'qst_client' && @application.interface != 'http_post_callback', :autocomplete => :off, :class => 'configurl' %>
+      </p>
+    </div>
+  <% end %>
+  </p>
+  
+  <%= submit_tag (@application.new_record? ? 'Create Application' : 'Update Application') %>
+<% end %>

@@ -88,7 +88,7 @@ ActiveRecord::Schema.define(:version => 20100422150225) do
   create_table "applications", :force => true do |t|
     t.string   "name"
     t.integer  "account_id"
-    t.string   "interface"
+    t.string   "interface",     :default => "rss"
     t.text     "configuration"
     t.datetime "created_at"
     t.datetime "updated_at"

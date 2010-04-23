@@ -6,6 +6,8 @@ class HomeController < AuthenticatedController
 
   before_filter :check_login, :except => [:index, :login, :create_account]
   after_filter :compress, :only => [:index, :login, :home, :edit_account]
+  
+  before_filter :check_application, :only => [:edit_application, :update_application, :delete_application]
 
   def index
     if !session[:account_id].nil?
@@ -86,6 +88,8 @@ class HomeController < AuthenticatedController
       "group by channel_id").each do |r|
       @channels_queued_count[r['channel_id'].to_i] = r['count'].to_i
     end
+    
+    @applications = Application.all(:conditions => ['account_id = ?', @account.id])
     
     @failed_alerts = Alert.all(:conditions => ['account_id = ? and failed = ?', @account.id, true])
   end
@@ -169,6 +173,45 @@ class HomeController < AuthenticatedController
     redirect_to_home 'Alerts were changed'
   end
   
+  def new_application
+    @application = Application.new unless @application
+  end
+  
+  def create_application
+    app = params[:application]
+    return redirect_to_home if app.nil?
+    
+    @application = Application.new(app)
+    @application.account_id = @account.id
+    if !@application.save
+      return render :new_application
+    end
+    
+    redirect_to_home 'Application was created'
+  end
+  
+  def edit_application
+    render :new_application
+  end
+  
+  def update_application
+    app = params[:application]
+    return redirect_to_home if app.nil?
+    
+    @application.attributes = app
+    if !@application.save
+      return render :new_application
+    end
+    
+    redirect_to_home "Application #{@application.name} was changed"
+  end
+  
+  def delete_application
+    @application.destroy
+    
+    redirect_to_home 'Application was deleted'
+  end
+  
   def find_address_source
     chan = Channel.first(:joins => :address_sources, :conditions => ['address_sources.account_id = ? AND address_sources.address = ?', @account.id, params[:address]]);
     render :text => chan.nil? ? '' : chan.name
@@ -177,6 +220,11 @@ class HomeController < AuthenticatedController
   def delete_failed_alerts
     Alert.delete_all(['account_id = ? and failed = ?', @account.id, true])
     redirect_to_home
+  end
+  
+  def check_application
+    @application = Application.find_by_id params[:id]
+    redirect_to_home if @application.nil? || @application.account_id != @account.id
   end
   
   def logoff

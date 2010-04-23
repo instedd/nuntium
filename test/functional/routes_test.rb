@@ -35,6 +35,14 @@ class RoutesTest < ActionController::TestCase
     end
     assert_routing({:path => "/message/ao/reroute"}, { :controller => "message", :action => "reroute_ao_messages" })
     assert_routing({:path => "/send_ao"}, { :controller => "send_ao", :action => "create" })
+    
+    ['new', 'create'].each do |action|
+      assert_routing({:path => "/application/#{action}"}, { :controller => "home", :action => "#{action}_application" })
+    end
+    
+    ['edit', 'update', 'delete'].each do |action|
+      assert_routing({:path => "/application/#{action}/10"}, { :controller => "home", :action => "#{action}_application", :id => '10' })
+    end
   end
   
   test "api" do

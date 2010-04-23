@@ -169,6 +169,37 @@ channel_kinds[1..-1].map!{|x| x[0] << ' channel'}
 <%= select_tag('new_channel', options_for_select(channel_kinds), :onchange => 'create_channel(this)') %>
 </div>
 
+<h4><%= link_to_function 'Applications', "toggle('applications')" %></h4>
+
+<div id="applications">
+
+<% if @applications.empty? %>
+  No applications.
+<% else %>
+  <table class="table" cellspacing="4">
+    <tr>
+      <th>Name</th>
+      <th>Interface</th>
+      <th></th>
+    </tr>
+    <% @applications.each do |app| %>
+      <tr>
+        <td><%= app.name %></td>
+        <td><%= app.interface_description %></td>
+        <td>
+          <%= link_to "edit", :controller => :home, :action => :edit_application, :id => app.id %>
+          <%= link_to "delete", {:controller => :home, :action => :delete_application, :id => app.id}, :confirm => "Are you sure you want to delete the application #{app.name}?" %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>
+<br/>
+
+<%= link_to 'Create new Application', :controller => :home, :action => :new_application %>
+
+</div>
+
 <h4><%= link_to_function 'Last Application Originated Messages', "toggle('last_ao_messages')", :name => 'ao' %></h4>
 
 <div id="last_ao_messages">
