@@ -4,7 +4,7 @@
   <%= f.error_messages %>
   <%= edit_channel_name f %>
   <%= edit_channel_protocol f %>
-  <%= render :partial => 'edit_direction', :locals => {:channel => @channel} %>
+  <%= render :partial => 'edit_direction' %>
   <% f.fields_for :configuration do |c| %>
     <p>
     <b>Leave blank if you don't want to change the password</b><br/>

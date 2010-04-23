@@ -22,6 +22,8 @@ class ChannelController < AuthenticatedController
     @channel.direction = chan[:direction]
     @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
     
+    save_custom_attributes
+    
     @channel.check_valid_in_ui
     if !@channel.save
       @channel.clear_password
@@ -48,10 +50,12 @@ class ChannelController < AuthenticatedController
     @channel.handler.update(chan)
     @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
     
+    save_custom_attributes
+    
     @channel.check_valid_in_ui
     if !@channel.save
       @channel.clear_password
-      return render "edit_#{@channel.kind}_channel"
+      return edit_channel
     end
     
     redirect_to_home 'Channel was updated'
@@ -103,6 +107,31 @@ class ChannelController < AuthenticatedController
   def check_channel
     @channel = Channel.find_by_id params[:id]
     redirect_to_home if @channel.nil? || @channel.account_id != @account.id
+  end
+  
+  def save_custom_attributes
+    custom_attribute_names = params[:custom_attribute_name] || []
+    custom_attribute_values = params[:custom_attribute_value] || [] 
+    
+    @channel.custom_attributes = ActiveSupport::OrderedHash.new
+    
+    return unless custom_attribute_names
+
+    0.upto(custom_attribute_names.length).each do |i|
+      name = custom_attribute_names[i]
+      value = custom_attribute_values[i]
+      next unless name and value 
+      old = @channel.custom_attributes[name]
+      if old
+        if old.kind_of? Array
+          old << value
+        else
+          @channel.custom_attributes[name] = [old, value]
+        end
+      else
+        @channel.custom_attributes[name] = value
+      end
+    end
   end
 
 end

@@ -1,9 +1,9 @@
 class Application < ActiveRecord::Base
-  belongs_to :application
+  belongs_to :account
   has_many :ao_messages
   has_many :at_messages
   
-  validates_presence_of :application_id
+  validates_presence_of :account_id
   validates_presence_of :name, :interface
   validates_uniqueness_of :name, :scope => :account_id, :message => 'Name has already been used by another application in the account'
   

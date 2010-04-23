@@ -24,6 +24,7 @@
     <code>/dtac/<%= @account.id %>/incoming</code>
     </p>
   <% end %>
+  <%= render :partial => 'edit_custom_attributes', :locals => {:f => f, :channel => @channel} %>
   <%= channel_submit_tag %>
 <% end %>
 

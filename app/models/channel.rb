@@ -9,6 +9,7 @@ class Channel < ActiveRecord::Base
   has_one :alert_configuration
   
   serialize :configuration, Hash
+  serialize :custom_attributes
   
   validates_presence_of :name, :protocol, :kind, :account
   validates_uniqueness_of :name, :scope => :account_id, :message => 'Name has already been used by another channel in the account'
@@ -26,6 +27,16 @@ class Channel < ActiveRecord::Base
   Bidirectional = Incoming + Outgoing
 
   include(CronTask::CronTaskOwner)
+  
+  def configuration
+    self[:configuration] = {} if self[:configuration].nil?
+    self[:configuration]
+  end
+  
+  def custom_attributes
+    self[:custom_attributes] = ActiveSupport::OrderedHash.new if self[:custom_attributes].nil?
+    self[:custom_attributes]
+  end
     
   def clear_password
     self.handler.clear_password if self.handler.respond_to?(:clear_password)
