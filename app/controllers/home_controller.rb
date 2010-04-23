@@ -183,6 +183,14 @@ class HomeController < AuthenticatedController
     
     @application = Application.new(app)
     @application.account_id = @account.id
+    
+    cfg = app[:configuration]
+    if cfg[:use_address_source] == '1'
+      @application.configuration[:use_address_source] = 1
+    else
+      @application.configuration.delete :use_address_source
+    end
+    
     if !@application.save
       return render :new_application
     end
@@ -199,6 +207,14 @@ class HomeController < AuthenticatedController
     return redirect_to_home if app.nil?
     
     @application.attributes = app
+    
+    cfg = app[:configuration]
+    if cfg[:use_address_source] == '1'
+      @application.configuration[:use_address_source] = 1
+    else
+      @application.configuration.delete :use_address_source
+    end
+    
     if !@application.save
       return render :new_application
     end
