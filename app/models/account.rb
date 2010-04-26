@@ -30,7 +30,8 @@ class Account < ActiveRecord::Base
   # Accepts an ATMessage via a channel
   def accept(msg, via_channel)
     return if duplicated? msg
-  
+    check_modified
+    
     msg.account_id = self.id
     msg.timestamp ||= Time.now.utc
     if !via_channel.nil? && via_channel.class == Channel
@@ -38,8 +39,11 @@ class Account < ActiveRecord::Base
       msg.channel_id = via_channel.id
     end
     msg.state = 'queued'
-    
-    applications.first.accept msg, via_channel
+
+    if @applications.nil?
+      @applications = Application.all :conditions => ['account_id = ?', self.id]
+    end    
+    @applications.first.accept msg, via_channel
   end
   
   def alert(message)
@@ -77,6 +81,15 @@ class Account < ActiveRecord::Base
   def duplicated?(msg)
     return false if !msg.new_record? || msg.guid.nil?
     msg.class.exists?(['account_id = ? and guid = ?', self.id, msg.guid])
+  end
+  
+  def check_modified
+    # Check whether the date of the account in the database is greater
+    # than our date. If so, empty cached values.
+    acc = Account.find_by_id(self.id, :select => :updated_at)
+    if !acc.nil? && acc.updated_at > self.updated_at
+      @applications = nil
+    end
   end
     
 end

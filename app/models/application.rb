@@ -180,7 +180,7 @@ class Application < ActiveRecord::Base
     # Check whether the date of the account in the database is greater
     # than our date. If so, empty cached values.
     acc = Account.find_by_id(account.id, :select => :updated_at)
-    if !acc.nil? && acc.updated_at > self.updated_at
+    if !acc.nil? && acc.updated_at > self.account.updated_at
       @outgoing_channels = nil
     end
   end
