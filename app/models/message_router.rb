@@ -28,8 +28,8 @@ class MessageRouter
       return
     end
     
-    # Select channels with less or equal metric than the other channels
-    channels = channels.select{|c| channels.all?{|x| c.metric <= x.metric }}
+    # Select channels with less or equal priority than the other channels
+    channels = channels.select{|c| channels.all?{|x| c.priority <= x.priority }}
     
     # Select a random channel to handle the message
     channel = channels[rand(channels.length)]

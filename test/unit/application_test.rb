@@ -14,7 +14,7 @@ class ApplicationTest < ActiveSupport::TestCase
     
     chan1 = new_channel application.account, 'Uno'
     chan2 = new_channel application.account, 'Dos'
-    chan2.metric = chan1.metric - 10
+    chan2.priority = chan1.priority - 10
     chan2.save!
     
     msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://1239', :subject => 'foo', :body => 'bar')
@@ -24,7 +24,7 @@ class ApplicationTest < ActiveSupport::TestCase
     
     sleep 2
     
-    chan2.metric = chan1.metric + 10
+    chan2.priority = chan1.priority + 10
     chan2.save!
     
     msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://1239', :subject => 'foo', :body => 'bar')
