@@ -33,4 +33,21 @@ class ChannelTest < ActiveSupport::TestCase
     @chan.save
     assert @chan.enabled
   end
+  
+  test "should serialize/deserialize at_rules" do  
+    @chan.at_rules = [
+      RulesEngine.rule([
+        RulesEngine.matching(:from, RulesEngine::OP_EQUALS, 'sms://1')
+      ],[
+        RulesEngine.action(:ca1,'whitness')
+      ])
+    ]
+    
+    @chan.save
+    
+    chan_stored = Channel.find_by_id(@chan.id)
+    
+    res = RulesEngine.apply({:from => 'sms://1'}, chan_stored.at_rules)
+    assert_equal 'whitness', res[:ca1]
+  end
 end

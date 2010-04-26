@@ -9,6 +9,7 @@ class Channel < ActiveRecord::Base
   
   serialize :configuration, Hash
   serialize :custom_attributes
+  serialize :at_rules
   
   validates_presence_of :name, :protocol, :kind, :account
   validates_uniqueness_of :name, :scope => :account_id, :message => 'Name has already been used by another channel in the account'
