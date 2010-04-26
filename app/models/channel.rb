@@ -6,7 +6,6 @@ class Channel < ActiveRecord::Base
   has_many :qst_outgoing_messages
   has_many :address_sources
   has_many :cron_tasks, :as => :parent, :dependent => :destroy # TODO: Tasks are not being destroyed
-  has_one :alert_configuration
   
   serialize :configuration, Hash
   serialize :custom_attributes

@@ -7,6 +7,8 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   
   def setup
     @account = Account.create!(:name => "testaccount", :password => "testpass")
+    @application = create_app @account
+    
     @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'smpp', :protocol => 'sms')
     @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :system_type => 'smpp' }
     @transceiver = mock('Smpp::Transceiver')

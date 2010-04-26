@@ -90,8 +90,6 @@ class HomeController < AuthenticatedController
     end
     
     @applications = Application.all(:conditions => ['account_id = ?', @account.id])
-    
-    @failed_alerts = Alert.all(:conditions => ['account_id = ? and failed = ?', @account.id, true])
   end
   
   def edit_account
@@ -102,21 +100,6 @@ class HomeController < AuthenticatedController
     return redirect_to_home if account.nil?
     
     @account.max_tries = account[:max_tries]
-    @account.interface = account[:interface]
-    
-    if not account[:configuration].nil?
-      cfg = account[:configuration]
-      
-      if cfg[:use_address_source] == '1'
-        @account.configuration[:use_address_source] = 1
-      else
-        @account.configuration.delete :use_address_source
-      end
-      
-      @account.configuration.update({:url => cfg[:url]}) 
-      @account.configuration.update({:cred_user => cfg[:cred_user]}) 
-      @account.configuration.update({:cred_pass => cfg[:cred_pass]}) unless (cfg[:cred_pass].nil? or cfg[:cred_pass].blank?) and not (cfg[:cred_user].nil? or cfg[:cred_user].blank?)  
-    end
       
     if !account[:password].blank?
       @account.salt = nil
@@ -130,47 +113,6 @@ class HomeController < AuthenticatedController
     else
       redirect_to_home 'Account was changed'
     end
-  end
-  
-  def setup_account_alerts
-    @channels = Channel.all(:conditions => ['account_id = ? and (direction = ? or direction = ?)', @account.id, Channel::Outgoing, Channel::Bidirectional])
-    @alert_configurations = AlertConfiguration.find_all_by_account_id @account.id
-  end
-  
-  def edit_account_alerts
-    setup_account_alerts
-  end
-  
-  def update_account_alerts
-    # Validation
-    params[:channel].each do |chan|
-      next if !chan[1][:activated]
-      
-      if chan[1][:from].blank? || chan[1][:to].blank?
-        @account.errors.add(:alert_configuration, 'You left a <i>from</i> or <i>to</i> field blank for an alert-activated channel') 
-        setup_account_alerts
-        return render :edit_account_alerts
-      end
-    end
-    
-    # Alert logic validation
-    account = params[:account]
-    cfg = account[:configuration]
-    @account.configuration[:alert] = cfg[:alert]
-    
-    if !@account.save
-      setup_account_alerts
-      return render :edit_account_alerts
-    end
-  
-    AlertConfiguration.delete_all(['account_id = ?', @account.id])
-    
-    params[:channel].each do |chan|
-      next if !chan[1][:activated]
-      AlertConfiguration.create!(:account_id => @account.id, :channel_id => chan[0].to_i, :from => chan[1][:from], :to => chan[1][:to]) 
-    end
-    
-    redirect_to_home 'Alerts were changed'
   end
   
   def new_application
@@ -206,14 +148,18 @@ class HomeController < AuthenticatedController
     app = params[:application]
     return redirect_to_home if app.nil?
     
-    @application.attributes = app
+    @application.interface = app[:interface]
     
-    cfg = app[:configuration]
-    if cfg[:use_address_source] == '1'
-      @application.configuration[:use_address_source] = 1
-    else
-      @application.configuration.delete :use_address_source
+    @application.configuration = app[:configuration]
+    @application.configuration.delete :use_address_source unless @application.configuration[:use_address_source] == '1' 
+    
+    if app[:password].present?
+      @application.salt = nil
+      @application.password = app[:password]
+      @application.password_confirmation = app[:password_confirmation]
     end
+    
+    puts @application.inspect
     
     if !@application.save
       return render :new_application
@@ -226,16 +172,6 @@ class HomeController < AuthenticatedController
     @application.destroy
     
     redirect_to_home 'Application was deleted'
-  end
-  
-  def find_address_source
-    chan = Channel.first(:joins => :address_sources, :conditions => ['address_sources.account_id = ? AND address_sources.address = ?', @account.id, params[:address]]);
-    render :text => chan.nil? ? '' : chan.name
-  end
-  
-  def delete_failed_alerts
-    Alert.delete_all(['account_id = ? and failed = ?', @account.id, true])
-    redirect_to_home
   end
   
   def check_application

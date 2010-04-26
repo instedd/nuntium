@@ -1,5 +1,5 @@
 ActionController::Routing::Routes.draw do |map|
-  map.resources :rss, :only => [:index, :create]
+  map.resources :rss, :path_prefix => '/:account_name', :only => [:index, :create]
   map.resources :incoming, :path_prefix => '/qst/:account_id', :only => [:index, :create]
   map.resources :outgoing, :path_prefix => '/qst/:account_id', :only => [:index]
   
@@ -15,10 +15,6 @@ ActionController::Routing::Routes.draw do |map|
   map.home '/home', :controller => 'home', :action => :home
   map.edit_account '/account/edit', :controller => 'home', :action => :edit_account
   map.update_account '/account/update', :controller => 'home', :action => :update_account
-  map.update_account '/account/find_address_source', :controller => 'home', :action => :find_address_source
-  map.update_account '/account/failed_alerts/delete', :controller => 'home', :action => :delete_failed_alerts
-  map.edit_account_alerts '/account/alerts/edit', :controller => 'home', :action => :edit_account_alerts
-  map.update_account_alerts '/account/alerts/update', :controller => 'home', :action => :update_account_alerts
 
   # Twitter mappings must come before generic channel mapping
   map.create_twitter_channel '/channel/create/twitter', :controller => 'twitter', :action => :create_twitter_channel, :kind => 'twitter'
@@ -51,7 +47,7 @@ ActionController::Routing::Routes.draw do |map|
   map.mark_at_messages_as_cancelled '/message/at/mark_as_cancelled', :controller => 'message', :action => :mark_at_messages_as_cancelled
   map.view_at_message '/message/at/:id', :controller => 'message', :action => :view_at_message
   
-  map.send_ao '/send_ao', :controller => 'send_ao', :action => :create
+  map.send_ao '/send_ao/:account_name', :controller => 'send_ao', :action => :create
   
   # API
   

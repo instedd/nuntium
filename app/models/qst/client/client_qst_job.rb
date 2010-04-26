@@ -36,16 +36,16 @@ module ClientQstJob
     end
   end
 
-  # Validates account for QST
-  def validate_account(account)
-    if account.nil?
-      Rails.logger.warn 'Validate account for QST: account not found'
-      return :error_no_account
-    elsif account.configuration.nil? or account.configuration[:url].nil?
-      Rails.logger.warn "Validate account for QST: no url found in account configuration for pushing/pulling messages in account #{account.name}"
+  # Validates application for QST
+  def validate_application(application)
+    if application.nil?
+      Rails.logger.warn 'Validate application for QST: application not found'
+      return :error_no_application
+    elsif application.configuration.nil? or application.configuration[:url].nil?
+      Rails.logger.warn "Validate application for QST: no url found in application configuration for pushing/pulling messages in application #{application.name}"
       return :error_no_url_in_configuration
-    elsif not account.interface == 'qst_client'
-      Rails.logger.warn "Validate account for QST: found interface #{account.interface} when expecting qst in account #{account.name}"
+    elsif not application.interface == 'qst_client'
+      Rails.logger.warn "Validate application for QST: found interface #{application.interface} when expecting qst in application #{application.name}"
       return :error_wrong_interface
     end
     nil

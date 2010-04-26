@@ -1,10 +1,18 @@
 <% content_for :head do%>
 	<script type="text/javascript" charset="utf-8">
-	function disableConfig(value) {
-		document.getElementById('application_configuration_url').disabled=value;
-		document.getElementById('application_configuration_cred_user').disabled=value;
-		document.getElementById('application_configuration_cred_pass').disabled=value;
-	} 
+	function interface_rss() {
+	  $('#config').hide();
+	}
+	function interface_qst_client() {
+	  $('#config').show();
+	}
+	function interface_http_post_callback() {
+	  $('#config').show();
+	}
+	
+	$(function() {
+	  interface_<%= @application.interface || 'rss' %>();
+	});
 	</script>
 <% end%>
 
@@ -17,16 +25,30 @@
 <% form_for :application, :url => { :controller => 'home', :action => @application.new_record? ? :create_application : :update_application} do |f| %>
   <%= f.error_messages %>
   
+  <% if @application.new_record? %>
+    <p>
+    <%= f.label :name %><br/>
+    <%= f.text_field :name %>
+    </p>
+  <% end %>
+  
   <p>
-  <%= f.label :name %><br/>
-  <%= f.text_field :name %>
+  <% if !@application.new_record? and @application.interface == 'rss' %>
+    <b>Leave blank if you don't want to change the password</b><br/>
+  <% end %>
+  <%= f.label :password %><br/>
+  <%= f.password_field :password, :value => '', :autocomplete => :off %>
+  </p>
+  <p>
+  <%= f.label :password_confirmation %><br/>
+  <%= f.password_field :password_confirmation, :value => '', :autocomplete => :off %>
   </p>
   
   <p>
   <%= f.label :interface %><br/>
-  <%= f.radio_button :interface, 'rss', :onclick => "disableConfig(true);" %> <%= f.label :interface, 'Rss', :value => 'rss' %><br/>
-  <%= f.radio_button :interface, 'qst_client', :onclick => "disableConfig(false);"%> <%= f.label :interface, 'QST client', :value => 'qst_client' %><br/>
-  <%= f.radio_button :interface, 'http_post_callback', :onclick => "disableConfig(false);"%> <%= f.label :interface, 'HTTP POST callack', :value => 'http_post_callback' %><br/>
+  <%= f.radio_button :interface, 'rss', :onclick => "interface_rss();" %> <%= f.label :interface, 'Rss', :value => 'rss' %><br/>
+  <%= f.radio_button :interface, 'qst_client', :onclick => "interface_qst_client();"%> <%= f.label :interface, 'QST client', :value => 'qst_client' %><br/>
+  <%= f.radio_button :interface, 'http_post_callback', :onclick => "interface_http_post_callback();"%> <%= f.label :interface, 'HTTP POST callack', :value => 'http_post_callback' %><br/>
   
   <% f.fields_for :configuration do |c| %>
   
@@ -36,19 +58,19 @@
     <%= c.radio_button :use_address_source, 1, :checked => !@application.configuration[:use_address_source].nil? %> <%= c.label :use_address_source, 'Yes', :value => 1 %>
     </p>
   
-    <div>
-      <h5>Configuration:</h5>
+    <div id="config">
+      <h5>Interface configuration:</h5>
 	    <p>
       <%= c.label :url %><br/>
-      <%= c.text_field :url, :value => @application.configuration[:url], :disabled => @application.interface != 'qst_client' && @application.interface != 'http_post_callback', :class => 'configurl' %>
+      <%= c.text_field :url, :value => @application.configuration[:url], :class => 'configurl' %>
       </p>
       <p>
-      <%= c.label :cred_user %><br/>
-      <%= c.text_field :cred_user, :value => @application.configuration[:cred_user], :disabled => @application.interface != 'qst_client' && @application.interface != 'http_post_callback', :class => 'configurl' %>
+      <%= c.label :user %><br/>
+      <%= c.text_field :user, :value => @application.configuration[:user], :class => 'configurl' %>
       </p>
       <p>
-      <%= c.label :cred_pass %><br/>
-      <%= c.password_field :cred_pass, :value => @application.configuration[:cred_pass], :disabled => @application.interface != 'qst_client' && @application.interface != 'http_post_callback', :autocomplete => :off, :class => 'configurl' %>
+      <%= c.label :password %><br/>
+      <%= c.password_field :password, :value => @application.configuration[:password], :autocomplete => :off, :class => 'configurl' %>
       </p>
     </div>
   <% end %>

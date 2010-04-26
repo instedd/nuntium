@@ -150,16 +150,3 @@ acronym {
   font-weight:bold;
   margin-top:8px;
 }
-
-#alerts {
-  border:2px solid black;
-  background:red;
-  padding:4px;
-  font-weight:bold;
-  color:white;
-  margin-top:8px;
-}
-
-#alerts a {
-  color: white
-}

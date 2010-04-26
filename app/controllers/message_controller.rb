@@ -6,6 +6,8 @@ class MessageController < AuthenticatedController
   after_filter :compress, :only => [:view_ao_message, :view_at_message]
 
   def new_ao_message
+    return redirect_to_home if @account.applications.empty?
+  
     @kind = 'ao'
     render "new_message.html.erb"
   end
@@ -18,7 +20,10 @@ class MessageController < AuthenticatedController
   def create_ao_message
     msg = create_message AOMessage
     
-    @account.route msg, 'user'
+    application = Application.find_by_account_id_and_id @account.id, params[:message][:application_id]
+    return redirect_to_home unless application
+    
+    application.route msg, 'user'
     
     redirect_to_home "AO Message was created with id <a href=\"/message/ao/#{msg.id}\" onclick=\"window.open(this.href,'log','width=640,height=480,scrollbars=yes');return false;\">#{msg.id}</a>"
   end
@@ -87,8 +92,11 @@ class MessageController < AuthenticatedController
       msgs = AOMessage.all(:conditions => ['id IN (?)', ids])
     end
     
+    applications = Application.all :conditions => ['account_id = ?', @account.id]
+    
     msgs.each do |msg|
-      @account.reroute msg
+      application = applications.select{|x| x.id == msg.application_id}.first
+      application.reroute msg if application
     end
     
     flash[:notice] = "#{msgs.length} Application Originated messages #{msgs.length == 1 ? 'was' : 'were'} re-routed"

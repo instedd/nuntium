@@ -87,7 +87,6 @@ end
   end
 end
 
-service 'alert_service'
 service 'cron'
 
 ['slow', 'fast'].each do |working_group|

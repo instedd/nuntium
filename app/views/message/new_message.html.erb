@@ -11,6 +11,12 @@
   <%= f.label :body %><br/>
   <%= f.text_area :body, :rows => 5, :cols => 50 %>
   </p>
+  <% if @kind == 'ao' %>
+    <p>
+    <%= f.label :application %><br/>
+    <%= f.select :application_id, @account.applications.map{|x| [x.name, x.id]} %>
+    </p>
+  <% end %>
   <%= submit_tag 'Create Message' %>
 <% end %>
 

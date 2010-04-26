@@ -72,9 +72,11 @@ class MessageControllerTest < ActionController::TestCase
   
   test "re-route ao messages" do
     account = Account.create!({:name => 'account', :password => 'account_pass'})
-    msg1 = AOMessage.create!(:account_id => account.id, :state => 'pending', :to => 'sms://1234', :tries => 3)
-    msg2 = AOMessage.create!(:account_id => account.id, :state => 'pending', :to => 'sms://1234', :tries => 3)
-    msg3 = AOMessage.create!(:account_id => account.id, :state => 'pending', :to => 'sms://1234', :tries => 3)
+    application = create_app account
+    
+    msg1 = AOMessage.create!(:account_id => account.id, :application_id => application.id, :state => 'pending', :to => 'sms://1234', :tries => 3)
+    msg2 = AOMessage.create!(:account_id => account.id, :application_id => application.id, :state => 'pending', :to => 'sms://1234', :tries => 3)
+    msg3 = AOMessage.create!(:account_id => account.id, :application_id => application.id, :state => 'pending', :to => 'sms://1234', :tries => 3)
     
     new_channel account, 'foo'
     
@@ -95,9 +97,11 @@ class MessageControllerTest < ActionController::TestCase
   
   test "re-route ao messages using search" do
     account = Account.create!({:name => 'account', :password => 'account_pass'})
-    msg1 = AOMessage.create!(:account_id => account.id, :state => 'pending', :body => 'one', :to => 'sms://1234', :tries => 3)
-    msg2 = AOMessage.create!(:account_id => account.id, :state => 'pending', :body => 'one', :to => 'sms://1234', :tries => 3)
-    msg3 = AOMessage.create!(:account_id => account.id, :state => 'pending', :body => 'two', :to => 'sms://1234', :tries => 3)
+    application = create_app account
+    
+    msg1 = AOMessage.create!(:account_id => account.id, :application_id => application.id, :state => 'pending', :body => 'one', :to => 'sms://1234', :tries => 3)
+    msg2 = AOMessage.create!(:account_id => account.id, :application_id => application.id, :state => 'pending', :body => 'one', :to => 'sms://1234', :tries => 3)
+    msg3 = AOMessage.create!(:account_id => account.id, :application_id => application.id, :state => 'pending', :body => 'two', :to => 'sms://1234', :tries => 3)
     
     new_channel account, 'foo'
     

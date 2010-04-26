@@ -2,14 +2,6 @@
 <div id="notice"><%= flash[:notice] %></div>
 <% end %>
 
-<% if !@failed_alerts.empty? %>
-  <div id="alerts">
-  Some alerts could not be sent, please check the log of the following messages:
-  <%= @failed_alerts.map { |alert| link_to alert.ao_message_id.to_s, {:controller => :message, :action => :view_ao_message, :id => alert.ao_message_id}, :popup => ['log', 'width=640,height=480,scrollbars=yes'] }.join(', ') %>
-  (<%= link_to 'clear this message', :controller => 'home', :action => 'delete_failed_alerts' %>)
-  </div>
-<% end %>
-
 <h4><%= link_to_function 'Interactions', "toggle('interactions')" %></h4>
 
 <div id="interactions" style="display:none">
@@ -85,16 +77,11 @@
 
 <div id="settings" style="display:none">
 <ul>
-  <li>Interface: <%= @account.interface_description %></li>
   <li>Max tries: <%= @account.max_tries %></li>
 </ul>
 
 <ul>
   <li><%= link_to "Edit Settings / Change password", :controller => :home, :action => :edit_account %></li>
-  <li><%= link_to "Edit Alerts", :controller => :home, :action => :edit_account_alerts %></li>
-  <% unless @account.configuration[:use_address_source].nil? %>
-    <li>Find last AT channel used for address: <input id="address_source" name="address" type="text" /> <button id="address_source_button">Find</button> <span id="address_source_result"></span></li>
-  <% end %>
 </ul>
 </div>
 
@@ -210,7 +197,11 @@ channel_kinds[1..-1].map!{|x| x[0] << ' channel'}
 <input type="hidden" name="at_search" value="<%= @at_search %>" />
 <input type="hidden" id="ao_all" name="ao_all" value="0" />
 
-<%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AO Message">Create new AO Message', :controller => :message, :action => :new_ao_message %> &nbsp; &nbsp;
+<% if @applications.empty? %>
+  <%= link_to 'Create an Application', :controller => :home, :action => :new_application %> to create AO Messages.
+<% else %>
+  <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AO Message">Create new AO Message', :controller => :message, :action => :new_ao_message %> &nbsp; &nbsp;
+<% end %>
 Search: <input type="text" name="ao_search" value="<%= h @ao_search %>" size="50" /> <a href="http://code.google.com/p/nuntium/wiki/AdvancedSearch" target="_blank" title="You can filter by field like 'id:5', 'before:&quot;20 minutes ago&quot;', 'state:queued', etc.">?</a> &nbsp; &nbsp;
 Select: <%= link_to_function 'all', 'select_all_ao_messages()' %>, <%= link_to_function 'none', 'select_none_ao_messages()' %> &nbsp; &nbsp;
 Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelled()' %>, <%= link_to_function 're-route', 'reroute_ao_messages()' %>

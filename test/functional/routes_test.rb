@@ -2,8 +2,8 @@ require 'test_helper'
 
 class RoutesTest < ActionController::TestCase
   test "routes" do
-    assert_routing({:path => "/rss", :method => :get }, { :controller => "rss", :action => "index" })
-    assert_routing({:path => "/rss", :method => :post }, { :controller => "rss", :action => "create" })
+    assert_routing({:path => "/account/rss", :method => :get }, { :controller => "rss", :action => "index", :account_name => 'account' })
+    assert_routing({:path => "/account/rss", :method => :post }, { :controller => "rss", :action => "create", :account_name => 'account' })
     assert_routing({:path => "/qst/some_account/incoming", :method => :head }, { :controller => "incoming", :action => "index", :account_id => "some_account" })
     assert_routing({:path => "/qst/some_account/incoming", :method => :post }, { :controller => "incoming", :action => "create", :account_id => "some_account" })
     assert_routing({:path => "/qst/some_account/outgoing", :method => :get }, { :controller => "outgoing", :action => "index", :account_id => "some_account" })
@@ -13,10 +13,6 @@ class RoutesTest < ActionController::TestCase
     ["edit", "update"].each do |op|
       assert_routing({:path => "/account/#{op}"}, { :controller => "home", :action => "#{op}_account"})
     end
-    assert_routing({:path => "/account/alerts/edit"}, { :controller => "home", :action => "edit_account_alerts"})
-    assert_routing({:path => "/account/alerts/update"}, { :controller => "home", :action => "update_account_alerts"})
-    assert_routing({:path => "/account/find_address_source"}, { :controller => "home", :action => "find_address_source"})
-    assert_routing({:path => "/account/failed_alerts/delete"}, { :controller => "home", :action => "delete_failed_alerts"})
     assert_routing({:path => "/channel/create/twitter"}, { :controller => "twitter", :action => "create_twitter_channel", :kind => "twitter" })
     assert_routing({:path => "/channel/update/twitter"}, { :controller => "twitter", :action => "update_twitter_channel" })
     assert_routing({:path => "/twitter_callback"}, { :controller => "twitter", :action => "twitter_callback" })
@@ -34,7 +30,7 @@ class RoutesTest < ActionController::TestCase
       assert_routing({:path => "/message/#{kind}/10"}, { :controller => "message", :action => "view_#{kind}_message", :id => '10' })
     end
     assert_routing({:path => "/message/ao/reroute"}, { :controller => "message", :action => "reroute_ao_messages" })
-    assert_routing({:path => "/send_ao"}, { :controller => "send_ao", :action => "create" })
+    assert_routing({:path => "/send_ao/account"}, { :controller => "send_ao", :action => "create", :account_name => 'account' })
     
     ['new', 'create'].each do |action|
       assert_routing({:path => "/application/#{action}"}, { :controller => "home", :action => "#{action}_application" })

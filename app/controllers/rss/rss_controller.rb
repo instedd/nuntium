@@ -5,14 +5,14 @@ require 'nokogiri'
 class RssController < ApplicationController
   before_filter :authenticate
 
-  # GET /rss
+  # GET /:account_name/rss
   def index
     last_modified = request.env['HTTP_IF_MODIFIED_SINCE']
     etag = request.env['HTTP_IF_NONE_MATCH']
     
-    # Filter by account
-    query = 'account_id = ? AND (state = ? OR state = ?)'
-    params = [@account.id, 'queued', 'delivered']
+    # Filter by account and application
+    query = 'account_id = ? AND application_id = ? AND (state = ? OR state = ?)'
+    params = [@account.id, @application.id, 'queued', 'delivered']
     
     # Filter by date if requested
     if !last_modified.nil?
@@ -67,7 +67,7 @@ class RssController < ApplicationController
     render :layout => false
   end
   
-  # POST /rss
+  # POST /:account_name/rss
   def create
     tree = request.POST.present? ? request.POST : Hash.from_xml(request.raw_post).with_indifferent_access
     
@@ -77,7 +77,6 @@ class RssController < ApplicationController
       items.each do |item|
         # Create AO message
         msg = AOMessage.new
-        msg.account_id = @account.id
         msg.from = item[:author]
         msg.to = item[:to]
         msg.subject = item[:title]
@@ -86,18 +85,24 @@ class RssController < ApplicationController
         msg.timestamp = item[:pubDate].to_datetime
         
         # And let the account handle it
-        @account.route msg, 'rss'
+        @application.route msg, 'rss'
       end
     end
-     
+    
     head :ok
   end
   
   def authenticate
     authenticate_or_request_with_http_basic do |username, password|
-      @account = Account.find_by_id_or_name(username)
-      if !@account.nil? and @account.interface == 'rss'
-        @account.authenticate password
+      @account = Account.find_by_id_or_name(params[:account_name])
+      if @account
+        @application = Application.first :conditions => ['account_id = ? AND name = ?', @account.id, username]
+        if @application and @application.authenticate password
+          @application.account = @account
+          true
+        else
+          false
+        end
       else
         false
       end
