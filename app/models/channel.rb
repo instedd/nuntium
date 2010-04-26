@@ -12,7 +12,7 @@ class Channel < ActiveRecord::Base
   serialize :at_rules
   
   validates_presence_of :name, :protocol, :kind, :account
-  validates_uniqueness_of :name, :scope => :account_id, :message => 'Name has already been used by another channel in the account'
+  validates_uniqueness_of :name, :scope => :account_id, :message => 'has already been used by another channel in the account'
   validates_numericality_of :throttle, :allow_nil => true, :only_integer => true, :greater_than_or_equal_to => 0
   
   validate :handler_check_valid

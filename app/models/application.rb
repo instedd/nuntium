@@ -12,7 +12,7 @@ class Application < ActiveRecord::Base
   validates_presence_of :account_id
   validates_presence_of :name, :password, :interface
   validates_confirmation_of :password
-  validates_uniqueness_of :name, :scope => :account_id, :message => 'Name has already been used by another application in the account'
+  validates_uniqueness_of :name, :scope => :account_id, :message => 'has already been used by another application in the account'
   validates_inclusion_of :interface, :in => ['rss', 'qst_client', 'http_post_callback']
   validates_presence_of :configuration_url, :unless => :is_rss
   
