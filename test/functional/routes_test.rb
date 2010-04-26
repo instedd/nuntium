@@ -4,9 +4,9 @@ class RoutesTest < ActionController::TestCase
   test "routes" do
     assert_routing({:path => "/account/rss", :method => :get }, { :controller => "rss", :action => "index", :account_name => 'account' })
     assert_routing({:path => "/account/rss", :method => :post }, { :controller => "rss", :action => "create", :account_name => 'account' })
-    assert_routing({:path => "/qst/some_account/incoming", :method => :head }, { :controller => "incoming", :action => "index", :account_id => "some_account" })
-    assert_routing({:path => "/qst/some_account/incoming", :method => :post }, { :controller => "incoming", :action => "create", :account_id => "some_account" })
-    assert_routing({:path => "/qst/some_account/outgoing", :method => :get }, { :controller => "outgoing", :action => "index", :account_id => "some_account" })
+    assert_routing({:path => "/some_account/qst/incoming", :method => :head }, { :controller => "incoming", :action => "index", :account_id => "some_account" })
+    assert_routing({:path => "/some_account/qst/incoming", :method => :post }, { :controller => "incoming", :action => "create", :account_id => "some_account" })
+    assert_routing({:path => "/some_account/qst/outgoing", :method => :get }, { :controller => "outgoing", :action => "index", :account_id => "some_account" })
     ["create_account", "login", "logoff"].each do |path|
       assert_routing({:path => "/" + path}, { :controller => "home", :action => path })
     end
@@ -30,7 +30,7 @@ class RoutesTest < ActionController::TestCase
       assert_routing({:path => "/message/#{kind}/10"}, { :controller => "message", :action => "view_#{kind}_message", :id => '10' })
     end
     assert_routing({:path => "/message/ao/reroute"}, { :controller => "message", :action => "reroute_ao_messages" })
-    assert_routing({:path => "/send_ao/account"}, { :controller => "send_ao", :action => "create", :account_name => 'account' })
+    assert_routing({:path => "/account/send_ao"}, { :controller => "send_ao", :action => "create", :account_name => 'account' })
     
     ['new', 'create'].each do |action|
       assert_routing({:path => "/application/#{action}"}, { :controller => "home", :action => "#{action}_application" })

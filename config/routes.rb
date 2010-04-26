@@ -1,11 +1,11 @@
 ActionController::Routing::Routes.draw do |map|
   map.resources :rss, :path_prefix => '/:account_name', :only => [:index, :create]
-  map.resources :incoming, :path_prefix => '/qst/:account_id', :only => [:index, :create]
-  map.resources :outgoing, :path_prefix => '/qst/:account_id', :only => [:index]
+  map.resources :incoming, :path_prefix => '/:account_id/qst', :only => [:index, :create]
+  map.resources :outgoing, :path_prefix => '/:account_id/qst', :only => [:index]
   
   map.clickatel_credit '/clickatell/view_credit', :controller => 'clickatell', :action => :view_credit
-  map.clickatel '/clickatell/:account_id/incoming', :controller => 'clickatell', :action => :index
-  map.dtac '/dtac/:account_id/incoming', :controller => 'dtac', :action => :index
+  map.clickatel '/:account_id/clickatell/incoming', :controller => 'clickatell', :action => :index
+  map.dtac '/:account_id/dtac/incoming', :controller => 'dtac', :action => :index
   
   map.root :controller => 'home'
   
@@ -47,7 +47,7 @@ ActionController::Routing::Routes.draw do |map|
   map.mark_at_messages_as_cancelled '/message/at/mark_as_cancelled', :controller => 'message', :action => :mark_at_messages_as_cancelled
   map.view_at_message '/message/at/:id', :controller => 'message', :action => :view_at_message
   
-  map.send_ao '/send_ao/:account_name', :controller => 'send_ao', :action => :create
+  map.send_ao '/:account_name/send_ao', :controller => 'send_ao', :action => :create
   
   # API
   
