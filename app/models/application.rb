@@ -120,24 +120,12 @@ class Application < ActiveRecord::Base
     self.password == Digest::SHA2.hexdigest(self.salt + password)
   end
   
-  def confidef hash_password
-    return if self.salt.present?
-    
-    self.salt = ActiveSupport::SecureRandom.base64(8)
-    self.password = Digest::SHA2.hexdigest(self.salt + self.password)
-  endguration
-    self[:configuration] = {} if self[:configuration].nil?
-    self[:configuration]
-  end
-  
   def set_last_at_guid(value)
-    self.configuration ||= {}
     self.configuration[:last_at_guid] = value
     self.save
   end
   
   def set_last_ao_guid(value)
-    self.configuration ||= {}
     self.configuration[:last_ao_guid] = value
     self.save
   end
