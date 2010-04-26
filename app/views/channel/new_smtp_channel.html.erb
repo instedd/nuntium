@@ -5,6 +5,7 @@
   <%= f.hidden_field :direction, :value => Channel::Outgoing %>
   <%= render :partial => 'edit_name', :locals => {:f => f} %>
   <%= render :partial => 'edit_protocol', :locals => {:f => f, :default => 'mailto'} %>
+  <%= render :partial => 'edit_priority', :locals => {:f => f} %>
   <%= render :partial => 'edit_mail_configuration', :locals => {:f => f} %>
   <%= render :partial => 'edit_custom_attributes', :locals => {:f => f} %>
   <%= channel_submit_tag %>

@@ -25,6 +25,7 @@ class TwitterController < AccountAuthenticatedController
     session['twitter_token'] = request_token.token
     session['twitter_secret'] = request_token.secret
     session['twitter_channel_name'] = @channel.name
+    session['twitter_channel_priority'] = @channel.priority
     session['twitter_channel_welcome_message'] = @channel.configuration[:welcome_message]
     session['twitter_channel_custom_attributes'] = get_custom_attributes
     
@@ -39,6 +40,7 @@ class TwitterController < AccountAuthenticatedController
     session['twitter_token'] = request_token.token
     session['twitter_secret'] = request_token.secret
     session['twitter_channel_id'] = params[:id]
+    session['twitter_channel_priority'] = params[:channel][:priority]
     session['twitter_channel_welcome_message'] = params[:channel][:configuration][:welcome_message]
     session['twitter_channel_custom_attributes'] = get_custom_attributes
     
@@ -70,12 +72,14 @@ class TwitterController < AccountAuthenticatedController
       :token => access_token.token,
       :secret => access_token.secret
       }
+    @channel.priority = session['twitter_channel_priority']
     @channel.custom_attributes = session['twitter_channel_custom_attributes']
     
     session['twitter_token']  = nil
     session['twitter_secret'] = nil
     session['twitter_channel_id'] = nil
     session['twitter_channel_name'] = nil
+    session['twitter_channel_priority'] = nil
     session['twitter_channel_welcome_message'] = nil
     session['twitter_channel_custom_attributes'] = nil
 

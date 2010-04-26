@@ -8,6 +8,7 @@
   <%= f.error_messages %>
   <%= render :partial => 'edit_name', :locals => {:f => f} %>
   <%= render :partial => 'edit_protocol', :locals => {:f => f} %>
+  <%= render :partial => 'edit_priority', :locals => {:f => f} %>
   <% f.fields_for :configuration do |c| %>
     <p>
     <%= c.label :screen_name %><br/>
