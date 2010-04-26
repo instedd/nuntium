@@ -1,10 +1,10 @@
-<%= edit_channel_header %>
+<%= render :partial => 'edit_channel_header' %>
 
 <% form_for_channel do |f| %>
 	<%= f.error_messages %>
 	<%= f.hidden_field :direction, :value => Channel::Bidirectional %>
-	<%= edit_channel_name f %>
-  <%= edit_channel_protocol f, 'sms' %>
+	<%= render :partial => 'edit_name', :locals => {:f => f} %>
+  <%= render :partial => 'edit_protocol', :locals => {:f => f, :default => 'sms'} %>
 	<%= render :partial => 'throttle', :locals => {:f => f} %>
 	<% f.fields_for :configuration do |c| %>
 		<p>
