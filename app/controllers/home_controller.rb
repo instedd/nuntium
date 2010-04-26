@@ -1,6 +1,6 @@
 require 'will_paginate'
 
-class HomeController < AuthenticatedController
+class HomeController < AccountAuthenticatedController
 
   include MessageFilters
 

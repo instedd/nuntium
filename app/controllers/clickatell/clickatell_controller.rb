@@ -1,6 +1,6 @@
 require 'iconv'
 
-class ClickatellController < AuthenticatedController
+class ClickatellController < AccountAuthenticatedController
   before_filter :authenticate, :only => :index
   before_filter :check_login, :only => :view_credit
 

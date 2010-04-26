@@ -1,6 +1,6 @@
 require 'twitter'
 
-class TwitterController < AuthenticatedController
+class TwitterController < AccountAuthenticatedController
 
   include ChannelControllerCommon
 

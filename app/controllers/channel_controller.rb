@@ -1,4 +1,4 @@
-class ChannelController < AuthenticatedController
+class ChannelController < AccountAuthenticatedController
 
   include ChannelControllerCommon
 

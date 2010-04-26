@@ -116,6 +116,7 @@ ActiveRecord::Schema.define(:version => 20100426160000) do
     t.integer  "metric",            :default => 100
     t.integer  "throttle"
     t.text     "custom_attributes"
+    t.string   "at_rules"
   end
 
   create_table "clickatell_message_parts", :force => true do |t|

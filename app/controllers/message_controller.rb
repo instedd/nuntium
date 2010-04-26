@@ -1,4 +1,4 @@
-class MessageController < AuthenticatedController
+class MessageController < AccountAuthenticatedController
 
   include MessageFilters
 
