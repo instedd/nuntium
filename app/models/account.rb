@@ -39,11 +39,19 @@ class Account < ActiveRecord::Base
       msg.channel_id = via_channel.id
     end
     msg.state = 'queued'
+    
+    # Save mobile number information
+    MobileNumber.update msg.from.mobile_number, msg.country, msg.carrier if msg.from.protocol == 'sms'
 
     if @applications.nil?
       @applications = Application.all :conditions => ['account_id = ?', self.id]
-    end    
-    @applications.first.accept msg, via_channel
+    end
+    
+    if @applications.empty?
+      Rails.logger.error "No application to accept messages"  
+    else
+      @applications.first.accept msg, via_channel
+    end
   end
   
   def alert(message)
