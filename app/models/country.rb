@@ -20,6 +20,10 @@ class Country < ActiveRecord::Base
     all.select{|c| c.iso3 == iso3}.first
   end
   
+  def self.find_by_iso2_or_iso3(iso)
+    all.select{|c| c.iso2 == iso || c.iso3 == iso}.first
+  end
+  
   def to_xml(options = {})
     options[:indent] ||= 2
     xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])

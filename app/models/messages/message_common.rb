@@ -33,6 +33,22 @@ module MessageCommon
     self[:custom_attributes] = {} if self[:custom_attributes].nil?
     self[:custom_attributes]
   end
+  
+  def country
+    custom_attributes['country']
+  end
+  
+  def country=(value)
+    custom_attributes['country'] = value
+  end
+  
+  def carrier
+    custom_attributes['carrier']
+  end
+  
+  def carrier=(value)
+    custom_attributes['carrier'] = value
+  end
 
   # Given an xml builder writes itself unto it
   def write_xml(xml)

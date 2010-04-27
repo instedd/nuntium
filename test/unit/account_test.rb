@@ -31,12 +31,6 @@ class AccountTest < ActiveSupport::TestCase
     assert account.save
   end
   
-  test "should find by name" do
-    account1 = Account.create!(:name => 'account', :password => 'foo')
-    account2 = Account.find_by_name 'account'
-    assert_equal account1.id, account2.id
-  end
-  
   test "should authenticate" do
     account1 = Account.create!(:name => 'account', :password => 'foo')
     assert account1.authenticate('foo')

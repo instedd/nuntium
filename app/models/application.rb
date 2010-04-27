@@ -52,6 +52,9 @@ class Application < ActiveRecord::Base
       return true
     end
     
+    # Save mobile number information
+    MobileNumber.update msg.to.mobile_number, msg.country, msg.carrier if protocol == 'sms'
+    
     # Find channel that handles that protocol
     channels = @outgoing_channels.select {|x| x.protocol == protocol}
     

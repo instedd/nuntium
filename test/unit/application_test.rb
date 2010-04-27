@@ -6,7 +6,11 @@ class ApplicationTest < ActiveSupport::TestCase
   include Mocha::API
   
   def setup
+    Rails.cache.clear
+    
     @account = Account.create!({:name => 'foo', :password => 'pass'})
+    @country = Country.create!(:name => 'Argentina', :iso2 => 'ar', :iso3 =>'arg', :phone_prefix => '54')
+    @carrier = Carrier.create!(:country => @country, :name => 'Personal', :guid => "ABC123", :prefixes => '1, 2, 3')
   end
 
   test "check modified" do
@@ -69,6 +73,40 @@ class ApplicationTest < ActiveSupport::TestCase
     end
     
     application.accept msg, nil
+  end
+  
+  test "ao routing saves mobile numbers" do
+    app = create_app @account
+    
+    msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5678', :subject => 'foo', :body => 'bar'
+    msg.custom_attributes['country'] = 'ar'
+    msg.custom_attributes['carrier'] = 'ABC123'
+    
+    app.route msg, 'test'
+    
+    nums = MobileNumber.all
+    assert_equal 1, nums.length
+    assert_equal '5678', nums[0].number
+    assert_equal @country.id, nums[0].country_id
+    assert_equal @carrier.id, nums[0].carrier_id
+  end
+  
+  test "ao routing updates mobile numbers" do
+    app = create_app @account
+    
+    MobileNumber.create!(:number => '5678', :country_id => 2)
+    
+    msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5678', :subject => 'foo', :body => 'bar'
+    msg.custom_attributes['country'] = 'ar'
+    msg.custom_attributes['carrier'] = 'ABC123'
+    
+    app.route msg, 'test'
+    
+    nums = MobileNumber.all
+    assert_equal 1, nums.length
+    assert_equal '5678', nums[0].number
+    assert_equal @country.id, nums[0].country_id
+    assert_equal @carrier.id, nums[0].carrier_id
   end
   
 end
