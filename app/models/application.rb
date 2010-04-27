@@ -40,7 +40,7 @@ class Application < ActiveRecord::Base
     # Fill some fields
     if msg.new_record?
       msg.account_id ||= self.account.id
-      msg.application_id = self.id
+      msg.application_id ||= self.id
       msg.timestamp ||= Time.now.utc
     end
     
@@ -83,7 +83,6 @@ class Application < ActiveRecord::Base
     
     # Select a random channel to handle the message
     channel = channels[rand(channels.length)]
-    
     channel.route_ao msg, via_interface
     true
   rescue => e
