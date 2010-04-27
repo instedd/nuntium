@@ -49,6 +49,14 @@ module MessageCommon
   def carrier=(value)
     custom_attributes['carrier'] = value
   end
+  
+  def strategy
+    custom_attributes['strategy']
+  end
+  
+  def suggested_channel
+    custom_attributes['suggested_channel']
+  end
 
   # Given an xml builder writes itself unto it
   def write_xml(xml)
