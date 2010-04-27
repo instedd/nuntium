@@ -42,6 +42,21 @@ class Channel < ActiveRecord::Base
     handle msg
   end
   
+  def accepts?(msg)
+    # Check that each custom attribute is present in this channel's
+    # custom attributes
+    msg.custom_attributes.each do |key, values|
+      values = [values] unless values.kind_of? Array
+    
+      channel_values = custom_attributes[key]
+      next unless channel_values.present?
+      
+      channel_values = [channel_values] unless channel_values.kind_of? Array
+      
+      return false unless values.any?{|v| channel_values.include? v}
+    end
+  end
+  
   def configuration
     self[:configuration] = {} if self[:configuration].nil?
     self[:configuration]

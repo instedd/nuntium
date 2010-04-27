@@ -89,7 +89,8 @@ class IncomingControllerTest < ActionController::TestCase
         <message id="someguid" from="Someone" to="Someone else" when="2008-09-24T17:12:57-03:00">
           <text>Hello!</text>
           <property name="foo1" value="bar1" />
-          <property name="foo2" value="bar2" />
+          <property name="foo1" value="bar2" />
+          <property name="foo2" value="bar3" />
         </message>
       </messages>
     eos
@@ -103,8 +104,8 @@ class IncomingControllerTest < ActionController::TestCase
     msg = messages[0]
     
     assert_response :ok
-    assert_equal "bar1", msg.custom_attributes['foo1']
-    assert_equal "bar2", msg.custom_attributes['foo2']
+    assert_equal ["bar1", "bar2"], msg.custom_attributes['foo1']
+    assert_equal "bar3", msg.custom_attributes['foo2']
   end
   
   test "get last message id not authorized" do

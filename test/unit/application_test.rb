@@ -109,4 +109,34 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal @carrier.id, nums[0].carrier_id
   end
   
+  test "ao routing filter channel because of country" do
+    app = create_app @account
+    
+    msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5678', :subject => 'foo', :body => 'bar'
+    msg.custom_attributes['country'] = 'br'
+    
+    chan1 = create_channel @account, 'chan1', 'pass1', 'twitter', 'sms'
+    chan1.custom_attributes['country'] = 'ar'  
+    chan1.save! 
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal 'error', msg.state
+  end
+  
+  test "ao routing filter channel because of country 2" do
+    app = create_app @account
+    
+    msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5678', :subject => 'foo', :body => 'bar'
+    msg.custom_attributes['country'] = ['br', 'bz']
+    
+    chan1 = create_channel @account, 'chan1', 'pass1', 'twitter', 'sms'
+    chan1.custom_attributes['country'] = ['ar', 'br']
+    chan1.save!
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal 'queued', msg.state
+  end
+  
 end

@@ -30,12 +30,6 @@ class Application < ActiveRecord::Base
   def route_ao(msg, via_interface)
     return if duplicated? msg
     check_modified
-  
-    # Get all outgoing enabled channels
-    if @outgoing_channels.nil?
-      @outgoing_channels = self.account.channels.all(:conditions => ['enabled = ? AND (direction = ? OR direction = ?)', true, Channel::Outgoing, Channel::Bidirectional])
-      @outgoing_channels.each{|c| c.account = self.account}
-    end
     
     # Fill some fields
     if msg.new_record?
@@ -57,12 +51,21 @@ class Application < ActiveRecord::Base
     # Save mobile number information
     MobileNumber.update msg.to.mobile_number, msg.country, msg.carrier if protocol == 'sms'
     
+    # Get all outgoing enabled channels
+    if @outgoing_channels.nil?
+      @outgoing_channels = self.account.channels.all(:conditions => ['enabled = ? AND (direction = ? OR direction = ?)', true, Channel::Outgoing, Channel::Bidirectional])
+      @outgoing_channels.each{|c| c.account = self.account}
+    end
+    
     # Find channels that handle that protocol
     channels = @outgoing_channels.select {|x| x.protocol == protocol}
     
+    # Filter them according to custom attributes
+    channels = channels.select{|x| x.accepts? msg}
+    
     # Find the preffered channel to route this message, if any,
     # based on the last channel used to receive an AT for the given address
-    preferred_channel = get_preferred_channel msg.to, @outgoing_channels
+    preferred_channel = get_preferred_channel msg.to, channels
     if preferred_channel
       preferred_channel.route_ao msg, via_interface
       return true

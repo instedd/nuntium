@@ -29,6 +29,7 @@ module MessageCommon
     end
   end
   
+  # A Hash where each value can be a string or an Array of strings
   def custom_attributes
     self[:custom_attributes] = {} if self[:custom_attributes].nil?
     self[:custom_attributes]
@@ -128,7 +129,13 @@ module MessageCommon
         if properties.present?
           properties = [properties] if properties.class <= Hash      
           properties.each do |prop|
-            msg.custom_attributes[prop[:name]] = prop[:value]
+            if msg.custom_attributes[prop[:name]].kind_of? Array
+              msg.custom_attributes[prop[:name]] << prop[:value]
+            elsif msg.custom_attributes[prop[:name]]
+              msg.custom_attributes[prop[:name]] = [msg.custom_attributes[prop[:name]], prop[:value]]
+            else
+              msg.custom_attributes[prop[:name]] = prop[:value]
+            end
           end
         end
         
