@@ -31,12 +31,14 @@ class Application < ActiveRecord::Base
     return if duplicated? msg
     check_modified
   
+    # Get all outgoing enabled channels
     if @outgoing_channels.nil?
       @outgoing_channels = self.account.channels.all(:conditions => ['enabled = ? AND (direction = ? OR direction = ?)', true, Channel::Outgoing, Channel::Bidirectional])
+      @outgoing_channels.each{|c| c.account = self.account}
     end
     
+    # Fill some fields
     if msg.new_record?
-      # Fill msg missing fields
       msg.account_id ||= self.account.id
       msg.application_id = self.id
       msg.timestamp ||= Time.now.utc
@@ -47,28 +49,46 @@ class Application < ActiveRecord::Base
     if protocol == ''
       msg.state = 'error'
       msg.save!
-      account.logger.ao_message_received msg, via_interface
-      account.logger.protocol_not_found_for_ao_message msg
+      logger.ao_message_received msg, via_interface
+      logger.protocol_not_found_for_ao_message msg
       return true
     end
     
     # Save mobile number information
     MobileNumber.update msg.to.mobile_number, msg.country, msg.carrier if protocol == 'sms'
     
-    # Find channel that handles that protocol
+    # Find channels that handle that protocol
     channels = @outgoing_channels.select {|x| x.protocol == protocol}
     
     # Find the preffered channel to route this message, if any,
-    # based on the AcceptSource model
-    preferred_channel = get_preferred_channel_name_for msg.to, @outgoing_channels
+    # based on the last channel used to receive an AT for the given address
+    preferred_channel = get_preferred_channel msg.to, @outgoing_channels
+    if preferred_channel
+      preferred_channel.route_ao msg, via_interface
+      return true
+    end
     
-    # If no action triggered, or no custom logic, route to any channel
-    router = MessageRouter.new(self, msg, channels, preferred_channel, via_interface, account.logger)
-    router.route_to_any_channel
+    # Exit if no candidate channel 
+    if channels.empty?
+      msg.state = 'error'
+      msg.save!
+      
+      logger.ao_message_received msg, via_interface
+      logger.no_channel_found_for_ao_message protocol, msg
+      return true
+    end
+    
+    # Select channels with less or equal priority than the other channels
+    channels = channels.select{|c| channels.all?{|x| c.priority <= x.priority }}
+    
+    # Select a random channel to handle the message
+    channel = channels[rand(channels.length)]
+    
+    channel.route_ao msg, via_interface
     true
   rescue => e
     # Log any errors and return false
-    account.logger.error_routing_msg msg, e
+    logger.error_routing_msg msg, e
     return false
   end
   
@@ -81,8 +101,8 @@ class Application < ActiveRecord::Base
   def route_at(msg, via_channel)
     msg.application_id = self.id
   
-    # Update AddressSource if the account uses it
-    if !self.configuration[:use_address_source].nil? && !via_channel.nil? && via_channel.class == Channel
+    # Update AddressSource if desireda and if it the channel is bidirectional
+    if use_address_source? and via_channel and via_channel.class == Channel and via_channel.direction == Channel::Bidirectional
       as = AddressSource.find_by_application_id_and_address self.id, msg.from
       if as.nil?
         AddressSource.create!(:account_id => account.id, :application_id => self.id, :address => msg.from, :channel_id => via_channel.id) 
@@ -100,9 +120,9 @@ class Application < ActiveRecord::Base
     msg.save!
     
     if 'ui' == via_channel
-      account.logger.at_message_created_via_ui msg
+      logger.at_message_created_via_ui msg
     else
-      account.logger.at_message_received_via_channel msg, via_channel if !via_channel.nil?
+      logger.at_message_received_via_channel msg, via_channel if !via_channel.nil?
     end
   end
   
@@ -181,6 +201,10 @@ class Application < ActiveRecord::Base
     account.alert alert_msg
   end
   
+  def logger
+    account.logger
+  end
+  
   protected
   
   # Ensures tasks for this account are correct
@@ -221,14 +245,13 @@ class Application < ActiveRecord::Base
     end
   end
   
-  # Returns the Channel's name or nil
-  def get_preferred_channel_name_for(address, outgoing_channels)
-    return nil if self.configuration[:use_address_source].nil?
+  def get_preferred_channel(address, outgoing_channels)
+    return nil unless use_address_source?
     as = AddressSource.first(:conditions => ['application_id = ? AND address = ?', self.id, address])
     return nil if as.nil?
     candidates = outgoing_channels.select{|x| x.id == as.channel_id}
     return nil if candidates.empty?
-    return candidates[0].name
+    return candidates[0]
   end
   
   def hash_password

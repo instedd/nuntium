@@ -28,6 +28,20 @@ class Channel < ActiveRecord::Base
 
   include(CronTask::CronTaskOwner)
   
+  def route_ao(msg, via_interface)
+    # Save the message
+    msg.channel = self
+    msg.state = 'queued'
+    msg.save!
+    
+    # Do some logging
+    logger.ao_message_received msg, via_interface
+    logger.ao_message_handled_by_channel msg, self
+    
+    # Handle the message
+    handle msg
+  end
+  
   def configuration
     self[:configuration] = {} if self[:configuration].nil?
     self[:configuration]
@@ -90,6 +104,10 @@ class Channel < ActiveRecord::Base
   
   def throttle_opt
     self.throttle.nil? ? 'off' : 'on'
+  end
+  
+  def logger
+    account.logger
   end
     
   private
