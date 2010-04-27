@@ -169,11 +169,11 @@ class Application < ActiveRecord::Base
   def interface_description
     case interface
     when 'rss'
-      return 'rss'
+      return 'Rss'
     when 'qst_client'
-      return 'qst_client: ' << self.configuration[:url]
+      return 'QST client: ' << self.configuration[:url]
     when 'http_post_callback'
-      return 'http_post_callback: ' << self.configuration[:url]
+      return 'HTTP POST callback: ' << self.configuration[:url]
     end
   end
   
