@@ -22,7 +22,7 @@ class ApplicationTest < ActiveSupport::TestCase
     chan2.save!
     
     msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://1239', :subject => 'foo', :body => 'bar')
-    application.route(msg, 'test')
+    application.route_ao msg, 'test'
     
     assert_equal chan2.id, msg.channel_id
     
@@ -32,7 +32,7 @@ class ApplicationTest < ActiveSupport::TestCase
     chan2.save!
     
     msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://1239', :subject => 'foo', :body => 'bar')
-    application.route(msg, 'test')
+    application.route_ao msg, 'test'
     
     assert_equal chan1.id, msg.channel_id
   end
@@ -72,7 +72,7 @@ class ApplicationTest < ActiveSupport::TestCase
       a.id == account.id and j.kind_of?(SendPostCallbackMessageJob) and j.account_id == application.account.id and j.message_id == msg.id 
     end
     
-    application.accept msg, nil
+    application.route_at msg, nil
   end
   
   test "ao routing saves mobile numbers" do
@@ -82,7 +82,7 @@ class ApplicationTest < ActiveSupport::TestCase
     msg.custom_attributes['country'] = 'ar'
     msg.custom_attributes['carrier'] = 'ABC123'
     
-    app.route msg, 'test'
+    app.route_ao msg, 'test'
     
     nums = MobileNumber.all
     assert_equal 1, nums.length
@@ -100,7 +100,7 @@ class ApplicationTest < ActiveSupport::TestCase
     msg.custom_attributes['country'] = 'ar'
     msg.custom_attributes['carrier'] = 'ABC123'
     
-    app.route msg, 'test'
+    app.route_ao msg, 'test'
     
     nums = MobileNumber.all
     assert_equal 1, nums.length

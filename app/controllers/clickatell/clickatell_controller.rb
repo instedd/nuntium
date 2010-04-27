@@ -60,7 +60,7 @@ class ClickatellController < AccountAuthenticatedController
     msg.subject = Iconv.new('UTF-8', params[:charset]).iconv(text)
     msg.channel_relative_id = params[:moMsgId]
     msg.timestamp = get_timestamp
-    @account.accept msg, @channel
+    @account.route_at msg, @channel
   end
   
   def get_timestamp

@@ -242,7 +242,7 @@ class SmppTransceiverDelegate
       end
     end
     
-    @channel.accept msg
+    @channel.route_at msg
   end
   
   def part_received(source, destination, data_coding, text, ref, total, partn)

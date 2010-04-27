@@ -89,7 +89,7 @@ class ChannelController < AccountAuthenticatedController
       queued_messages = AOMessage.all(:conditions => ['channel_id = ? AND state = ?', @channel.id, 'queued'])
       requeued_messages_count = queued_messages.length
       queued_messages.each do |msg|
-        @account.route(msg, 'user')
+        @account.route_ao msg, 'user'
       end
     end
     

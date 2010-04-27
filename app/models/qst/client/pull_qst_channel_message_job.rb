@@ -53,7 +53,7 @@ class PullQstChannelMessageJob
       # Process successfully downloaded messages
       ATMessage.parse_xml response.body do |msg|
         msg.account_id = @account_id
-        account.accept msg, channel
+        account.route_at msg, channel
         
         last_new_id = msg.guid
         size += 1

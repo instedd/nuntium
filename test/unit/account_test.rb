@@ -63,7 +63,7 @@ class AccountTest < ActiveSupport::TestCase
     msg.custom_attributes['country'] = 'ar'
     msg.custom_attributes['carrier'] = 'ABC123'
     
-    account.accept msg, nil
+    account.route_at msg, nil
     
     nums = MobileNumber.all
     assert_equal 1, nums.length

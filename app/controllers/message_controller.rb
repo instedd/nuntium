@@ -23,7 +23,7 @@ class MessageController < AccountAuthenticatedController
     application = Application.find_by_account_id_and_id @account.id, params[:message][:application_id]
     return redirect_to_home unless application
     
-    application.route msg, 'user'
+    application.route_ao msg, 'user'
     
     redirect_to_home "AO Message was created with id <a href=\"/message/ao/#{msg.id}\" onclick=\"window.open(this.href,'log','width=640,height=480,scrollbars=yes');return false;\">#{msg.id}</a>"
   end
@@ -31,7 +31,7 @@ class MessageController < AccountAuthenticatedController
   def create_at_message
     msg = create_message ATMessage
     msg.timestamp = Time.new.utc
-    @account.accept msg, 'ui'
+    @account.route_at msg, 'ui'
     
     redirect_to_home "AT Message was created with id <a href=\"/message/at/#{msg.id}\" onclick=\"window.open(this.href,'log','width=640,height=480,scrollbars=yes');return false;\">#{msg.id}</a>"
   end
@@ -96,7 +96,7 @@ class MessageController < AccountAuthenticatedController
     
     msgs.each do |msg|
       application = applications.select{|x| x.id == msg.application_id}.first
-      application.reroute msg if application
+      application.reroute_ao msg if application
     end
     
     flash[:notice] = "#{msgs.length} Application Originated messages #{msgs.length == 1 ? 'was' : 'were'} re-routed"

@@ -57,7 +57,7 @@ class ReceiveTwitterMessageJob
         msg.timestamp = Time.parse(twit.created_at)
         msg.channel_relative_id = twit.id
         
-        @account.accept msg, @channel
+        @account.route_at msg, @channel
       end
       
       query[:page] += 1

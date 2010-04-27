@@ -84,7 +84,7 @@ class RssController < ApplicationAuthenticatedController
         msg.timestamp = item[:pubDate].to_datetime
         
         # And let the account handle it
-        @application.route msg, 'rss'
+        @application.route_ao msg, 'rss'
       end
     end
     

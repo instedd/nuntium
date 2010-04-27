@@ -42,7 +42,7 @@ class ReceivePop3MessageJob
         msg.channel_relative_id = tmail.message_id
         msg.timestamp = tmail.date
         
-        account.accept msg, @channel
+        account.route_at msg, @channel
       end
       
       mail.delete

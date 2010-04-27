@@ -27,7 +27,7 @@ class Application < ActiveRecord::Base
   include(CronTask::CronTaskOwner)
   
   # Route an AOMessage
-  def route(msg, via_interface)
+  def route_ao(msg, via_interface)
     return if duplicated? msg
     check_modified
   
@@ -72,13 +72,13 @@ class Application < ActiveRecord::Base
     return false
   end
   
-  def reroute(msg)
+  def reroute_ao(msg)
     msg.tries = 0
     msg.state = 'pending'
-    self.route msg, 're-route'
+    self.route_ao msg, 're-route'
   end
   
-  def accept(msg, via_channel)
+  def route_at(msg, via_channel)
     msg.application_id = self.id
   
     # Update AddressSource if the account uses it

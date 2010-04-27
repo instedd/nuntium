@@ -27,8 +27,8 @@ class Account < ActiveRecord::Base
     self.password == Digest::SHA2.hexdigest(self.salt + password)
   end
   
-  # Accepts an ATMessage via a channel
-  def accept(msg, via_channel)
+  # Routes an ATMessage via a channel
+  def route_at(msg, via_channel)
     return if duplicated? msg
     check_modified
     
@@ -48,9 +48,9 @@ class Account < ActiveRecord::Base
     end
     
     if @applications.empty?
-      Rails.logger.error "No application to accept messages"  
+      Rails.logger.error "No application to route AT messages"  
     else
-      @applications.first.accept msg, via_channel
+      @applications.first.route_at msg, via_channel
     end
   end
   

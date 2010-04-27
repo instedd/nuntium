@@ -50,8 +50,8 @@ class Channel < ActiveRecord::Base
     self.handler.handle_now msg
   end
   
-  def accept(msg)
-    account.accept msg, self
+  def route_at(msg)
+    account.route_at msg, self
   end
   
   def alert(message)
