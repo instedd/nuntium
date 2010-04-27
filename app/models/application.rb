@@ -133,6 +133,39 @@ class Application < ActiveRecord::Base
     self.save
   end
   
+  def use_address_source?
+    configuration[:use_address_source] == '1'
+  end
+  
+  def use_address_source=(value)
+    if value
+      configuration[:use_address_source] = value == '1'
+    else
+      configuration.delete :use_address_source
+    end
+  end
+  
+  def strategy
+    configuration[:strategy] || 'broadcast'
+  end
+  
+  def strategy=(value)
+    configuration[:strategy] = value
+  end
+  
+  def strategy_description
+    Application.strategy_description(strategy)
+  end
+  
+  def self.strategy_description(strategy)
+    case strategy
+    when 'broadcast'
+      'Boradcast'
+    when 'single_priority'
+      'Single (priority)'
+    end
+  end
+  
   def interface_description
     case interface
     when 'rss'

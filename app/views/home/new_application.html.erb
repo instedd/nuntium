@@ -52,12 +52,6 @@
   
   <% f.fields_for :configuration do |c| %>
   
-    <p>
-    Route via last AT channel used <acronym title="When an AO message needs to be routed, if it's 'to' field matches the 'from' field of the last AT message received, the channel used to receieve that AT message will be used.">?</acronym><br/>
-    <%= c.radio_button :use_address_source, 0, :checked => @application.configuration[:use_address_source].nil? %> <%= c.label :use_address_source, 'No', :value => 0 %><br/>
-    <%= c.radio_button :use_address_source, 1, :checked => !@application.configuration[:use_address_source].nil? %> <%= c.label :use_address_source, 'Yes', :value => 1 %>
-    </p>
-  
     <div id="config">
       <h5>Interface configuration:</h5>
 	    <p>
@@ -73,6 +67,22 @@
       <%= c.password_field :password, :value => @application.configuration[:password], :autocomplete => :off, :class => 'configurl' %>
       </p>
     </div>
+    
+    <h5>Routing configuration:</h5>
+  
+    <p>
+    Route via last AT channel used <acronym title="When an AO message needs to be routed, if it's 'to' field matches the 'from' field of the last AT message received, the channel used to receieve that AT message will be used.">?</acronym><br/>
+    <%= c.radio_button :use_address_source, 0, :checked => !@application.use_address_source? %> <%= c.label :use_address_source, 'No', :value => 0 %><br/>
+    <%= c.radio_button :use_address_source, 1, :checked => @application.use_address_source? %> <%= c.label :use_address_source, 'Yes', :value => 1 %>
+    </p>
+    
+    <p>
+    Strategy:<br/>
+    <% ['broadcast', 'single_priority'].each do |strategy| %>
+      <%= c.radio_button :strategy, strategy, :checked => @application.strategy == strategy %> <%= f.label :strategy, Application.strategy_description(strategy), :value => strategy %><br/>
+    <% end %>
+    </p>
+    
   <% end %>
   </p>
   

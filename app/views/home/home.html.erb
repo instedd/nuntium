@@ -177,12 +177,16 @@ channel_kinds[1..-1].map!{|x| x[0] << ' channel'}
     <tr>
       <th>Name</th>
       <th>Interface</th>
+      <th>Route via last channel?</th>
+      <th>Strategy</th>
       <th></th>
     </tr>
     <% @applications.each do |app| %>
       <tr>
         <td><%= app.name %></td>
         <td><%= app.interface_description %></td>
+        <td><%= app.use_address_source? ? 'Yes' : 'No' %></td>
+        <td><%= app.strategy_description %></td>
         <td>
           <%= link_to "edit", :controller => :home, :action => :edit_application, :id => app.id %>
           <%= link_to "delete", {:controller => :home, :action => :delete_application, :id => app.id}, :confirm => "Are you sure you want to delete the application #{app.name}?" %>

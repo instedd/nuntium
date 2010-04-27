@@ -127,11 +127,8 @@ class HomeController < AccountAuthenticatedController
     @application.account_id = @account.id
     
     cfg = app[:configuration]
-    if cfg[:use_address_source] == '1'
-      @application.configuration[:use_address_source] = 1
-    else
-      @application.configuration.delete :use_address_source
-    end
+    @application.use_address_source = cfg[:use_address_source] == '1'
+    @application.strategy = cfg[:strategy]
     
     if !@application.save
       return render :new_application
@@ -151,15 +148,13 @@ class HomeController < AccountAuthenticatedController
     @application.interface = app[:interface]
     
     @application.configuration = app[:configuration]
-    @application.configuration.delete :use_address_source unless @application.configuration[:use_address_source] == '1' 
+    @application.use_address_source = false if @application.configuration[:use_address_source] != '1' 
     
     if app[:password].present?
       @application.salt = nil
       @application.password = app[:password]
       @application.password_confirmation = app[:password_confirmation]
     end
-    
-    puts @application.inspect
     
     if !@application.save
       return render :new_application
