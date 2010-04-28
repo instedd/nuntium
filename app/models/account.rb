@@ -8,6 +8,8 @@ class Account < ActiveRecord::Base
   has_many :ao_messages
   has_many :at_messages
   
+  serialize :app_routing_rules
+  
   attr_accessor :password_confirmation
   
   validates_presence_of :name, :password
