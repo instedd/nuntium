@@ -57,7 +57,7 @@ class Account < ActiveRecord::Base
     msg.state = 'queued'
     
     # Apply AT Rules
-    unless via_channel.nil?
+    if !via_channel.nil? && via_channel.class == Channel
       at_routing_res = RulesEngine.apply(msg.rules_context, via_channel.at_rules)
       msg.merge at_routing_res
     end
@@ -65,10 +65,26 @@ class Account < ActiveRecord::Base
     # Save mobile number information
     MobileNumber.update msg.from.mobile_number, msg.country, msg.carrier if msg.from.protocol == 'sms'
 
+    # App Routing logic
     if applications.empty?
-      Rails.logger.error "No application to route AT messages"  
-    else
+      msg.save!
+      logger.error :at_message_id => msg.id, :message =>"No application to route AT messages"  
+    elsif applications.length == 1
       applications.first.route_at msg, via_channel
+    else
+      app_routing_rules_res = RulesEngine.apply(msg.rules_context, self.app_routing_rules)
+      if app_routing_rules_res.has_key?('application')
+        application = find_application app_routing_rules_res['application']
+        unless application.nil?
+          application.route_at msg, via_channel
+        else
+          msg.save!
+          logger.error :at_message_id => msg.id, :message => "Application named #{app_routing_rules_res['application']} was not found"
+        end
+      else
+        msg.save!
+        logger.error :at_message_id => msg.id, :message => "No application was determined. Check App routing rules in account settings"
+      end
     end
   end
   
