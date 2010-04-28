@@ -51,7 +51,7 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
   end
   
   def test_perform_with_etag_on_ssl
-    application = setup_application :url => 'https://example.com'
+    application = setup_application :interface_url => 'https://example.com'
     msgs = sample_messages application, (5..8)
     application.set_last_ao_guid 'lastetag'
     
@@ -183,15 +183,15 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
   def setup_application(cfg = {})
     create_application_with_interface 'application', 'pass', 'qst_client', 
       { :last_ao_guid => nil, 
-        :url => 'http://example.com', 
-        :user => 'theuser', 
-        :password => 'thepass' }.merge(cfg)
+        :interface_url => 'http://example.com', 
+        :interface_user => 'theuser', 
+        :interface_password => 'thepass' }.merge(cfg)
   end
   
   def setup_application_unauth(cfg = {})
     create_application_with_interface  'application', 'pass', 'qst_client', 
       { :last_ao_guid => nil, 
-        :url => 'http://example.com' }.merge(cfg)
+        :interface_url => 'http://example.com' }.merge(cfg)
   end
   
   def setup_null_http(application)

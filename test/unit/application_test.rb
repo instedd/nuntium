@@ -61,7 +61,7 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "should enqueue http post callback" do
     application = Application.new(:account_id => @account.id, :name => 'application1', :interface => 'http_post_callback', :password => 'foo')
-    application.configuration = {:url => 'foo', :user => 'bar', :password => 'baz'}
+    application.configuration = {:interface_url => 'foo', :interface_user => 'bar', :interface_password => 'baz'}
     application.save!
     
     msg = ATMessage.create!(:account => application.account, :subject => 'foo')

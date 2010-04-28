@@ -14,7 +14,8 @@ class Application < ActiveRecord::Base
   validates_confirmation_of :password
   validates_uniqueness_of :name, :scope => :account_id, :message => 'has already been used by another application in the account'
   validates_inclusion_of :interface, :in => ['rss', 'qst_client', 'http_post_callback']
-  validates_presence_of :configuration_url, :unless => :is_rss
+  validates_presence_of :interface_url, :unless => Proc.new {|app| app.interface == 'rss'}
+  validates_presence_of :delivery_ack_url, :unless => Proc.new {|app| app.delivery_ack_method == 'none'}
   
   serialize :configuration, Hash
   
@@ -141,10 +142,6 @@ class Application < ActiveRecord::Base
     self[:configuration]
   end
   
-  def configuration_url; configuration[:url]; end;
-  def configuration_user; configuration[:user]; end;
-  def configuration_password; configuration[:password]; end;
-  
   def is_rss
     self.interface == 'rss'
   end
@@ -161,6 +158,30 @@ class Application < ActiveRecord::Base
   def set_last_ao_guid(value)
     self.configuration[:last_ao_guid] = value
     self.save
+  end
+  
+  def interface_url
+    configuration[:interface_url]
+  end
+  
+  def interface_url=(value)
+    configuration[:interface_url] = value
+  end
+  
+  def interface_user
+    configuration[:interface_user]
+  end
+  
+  def interface_user=(value)
+    configuration[:interface_user] = value
+  end
+  
+  def interface_password
+    configuration[:interface_password]
+  end
+  
+  def interface_user=(value)
+    configuration[:interface_password] = value
   end
   
   def use_address_source?
@@ -183,6 +204,38 @@ class Application < ActiveRecord::Base
     configuration[:strategy] = value
   end
   
+  def delivery_ack_method
+    configuration[:delivery_ack_method] || 'none'
+  end
+  
+  def delivery_ack_method=(value)
+    configuration[:delivery_ack_method] = value
+  end
+  
+  def delivery_ack_url
+    configuration[:delivery_ack_url]
+  end
+  
+  def delivery_ack_url=(value)
+    configuration[:delivery_ack_url] = value
+  end
+  
+  def delivery_ack_user
+    configuration[:delivery_ack_user]
+  end
+  
+  def delivery_ack_user=(value)
+    configuration[:delivery_ack_user] = value
+  end
+  
+  def delivery_ack_password
+    configuration[:delivery_ack_password]
+  end
+  
+  def delivery_ack_password=(value)
+    configuration[:delivery_ack_password] = value
+  end
+  
   def strategy_description
     Application.strategy_description(strategy)
   end
@@ -196,14 +249,29 @@ class Application < ActiveRecord::Base
     end
   end
   
+  def delivery_ack_method_description
+    Application.delivery_ack_method_description(delivery_ack_method)
+  end
+  
+  def self.delivery_ack_method_description(method)
+    case method
+    when 'none'
+      'None'
+    when 'get'
+      'HTTP GET'
+    when 'post'
+      'HTTP POST'
+    end
+  end
+  
   def interface_description
     case interface
     when 'rss'
       return 'Rss'
     when 'qst_client'
-      return 'QST client: ' << self.configuration[:url]
+      return 'QST client: ' << self.interface_url
     when 'http_post_callback'
-      return 'HTTP POST callback: ' << self.configuration[:url]
+      return 'HTTP POST callback: ' << self.interface_url
     end
   end
   

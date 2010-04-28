@@ -21,7 +21,7 @@ class CronTaskTest < ActiveSupport::TestCase
     account = Account.create! :name => 'foo', :password => 'bar'
   
     application = Application.new :account_id => account.id, :name => 'application', :interface => 'qst_client', :password => 'x'
-    application.configuration = {:url => 'foo', :user => 'bar', :password => 'baz'}
+    application.configuration = {:interface_url => 'foo', :interface_user => 'bar', :interface_password => 'baz'}
     application.save!
     
     assert_equal 2, application.cron_tasks.size
@@ -65,7 +65,7 @@ class CronTaskTest < ActiveSupport::TestCase
     account = Account.create! :name => 'foo', :password => 'bar'
   
     application = Application.new :account_id => account.id, :name => 'account', :interface => 'qst_client', :password => 'x'
-    application.configuration = {:url => 'foo', :user => 'bar', :password => 'baz'}
+    application.configuration = {:interface_url => 'foo', :interface_user => 'bar', :interface_password => 'baz'}
     application.save!
     
     assert_equal 2, application.cron_tasks.size
