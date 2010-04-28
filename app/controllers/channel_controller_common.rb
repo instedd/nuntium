@@ -27,4 +27,21 @@ module ChannelControllerCommon
     custom_attributes
   end
 
+  def get_atrules
+    def safe_values(hash, key)
+      h = hash[key]
+      if h.nil?
+        []
+      else
+        h.values
+      end
+    end
+      
+    atrules_hash = params[:atrules] || {}
+    res = atrules_hash.values.map do |v| 
+      { :matching => safe_values(v,'matching'), :action => safe_values(v,'action') } 
+    end
+    
+    res
+  end
 end

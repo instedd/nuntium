@@ -7,6 +7,7 @@
   <%= edit_channel_protocol f, 'mailto' %>
   <%= render :partial => 'edit_mail_configuration', :locals => {:f => f} %>
   <%= render :partial => 'edit_custom_attributes', :locals => {:f => f} %>
+  <%= render :partial => 'edit_at_rules', :locals => {:f => f} %>
   <%= channel_submit_tag %>
 <% end %>
 
