@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100426194910) do
+ActiveRecord::Schema.define(:version => 20100428155541) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -67,7 +67,7 @@ ActiveRecord::Schema.define(:version => 20100426194910) do
   create_table "applications", :force => true do |t|
     t.string   "name"
     t.integer  "account_id"
-    t.string   "interface"
+    t.string   "interface",     :default => "rss"
     t.text     "configuration"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -116,7 +116,7 @@ ActiveRecord::Schema.define(:version => 20100426194910) do
     t.integer  "priority",          :default => 100
     t.integer  "throttle"
     t.text     "custom_attributes"
-    t.string   "at_rules"
+    t.text     "at_rules"
   end
 
   create_table "clickatell_message_parts", :force => true do |t|

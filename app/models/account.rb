@@ -51,7 +51,6 @@ class Account < ActiveRecord::Base
     msg.timestamp ||= Time.now.utc
     if !via_channel.nil? && via_channel.class == Channel
       msg.channel = via_channel
-      msg.channel_id = via_channel.id
     end
     msg.state = 'queued'
     
