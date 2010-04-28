@@ -3,6 +3,7 @@ require 'will_paginate'
 class HomeController < AccountAuthenticatedController
 
   include MessageFilters
+  include RulesControllerCommon
 
   before_filter :check_login, :except => [:index, :login, :create_account]
   after_filter :compress, :only => [:index, :login, :home, :edit_account]
@@ -106,6 +107,8 @@ class HomeController < AccountAuthenticatedController
       @account.password = account[:password]
       @account.password_confirmation = account[:password_confirmation]
     end
+    
+    @account.app_routing_rules = get_rules :apprules
     
     if !@account.save
       @account.clear_password

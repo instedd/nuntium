@@ -359,3 +359,97 @@ function carriers_select(carriers) {
   html += '</select>';
   return html;
 }
+
+// ======= rules engine ui ===========
+
+var rules_nextId = 0;
+function rules_newId() { rules_nextId++; return rules_nextId; }
+
+function add_rule_ui(ctx, prefix, rule) {
+	var table = jQuery('table', ctx);
+	
+	var rule_id = rules_newId();
+	var row = jQuery('<tr><td><a href="#" class="remove-rule">[x]</a></td><td><a href="#" class="add-matching">add matching</a></td><td><a href="#" class="add-action">add action</a></td></tr>');
+	table.append(row);
+	var add_matching = jQuery('.add-matching', row);
+	var add_action = jQuery('.add-action', row);
+	
+	jQuery('.remove-rule', row).click(function(){ row.remove(); return false; });
+	add_matching.click(function(){ add_matching_ui(rule_id, add_matching, prefix, null); return false; });
+	add_action.click(function(){ add_action_ui(rule_id, add_action, prefix, null); return false; });
+	
+	if (rule != null) {		
+		// load existing matchings
+		jQuery(rule.matching).each(function(_, matching){
+			add_matching_ui(rule_id, add_matching, prefix, matching);
+		});
+		// load existing actions
+		jQuery(rule.action).each(function(_, action){
+			add_action_ui(rule_id, add_action, prefix, action);
+		})
+	}
+}
+
+function add_matching_ui(rule_id, add_matching, prefix, matching) {
+	// add matching ui
+	var matching_id = rules_newId();
+	var matching_ui = jQuery('<div/>');
+	add_matching.before(matching_ui);
+	
+	// fill matching ui
+	var name_prefix = prefix + '[' + rule_id + '][matching][' + matching_id + ']';
+	matching_ui.append('<input type="text" name="' + name_prefix +'[property]"/>');
+	matching_ui.append('<select name="' + name_prefix +'[operator]"><option value="equals">=</option><option value="starts_with">starts with</option><option value="regex">regex</option></select>');
+	matching_ui.append('<input type="text" name="' + name_prefix +'[value]"/>');
+	matching_ui.append('<a href="#" class="remove-matching">[x]</a>');
+	
+	jQuery('.remove-matching', matching_ui).click(function(){ matching_ui.remove(); return false; });
+	
+	// fill matching values
+	if (matching != null) {
+		jQuery('input:first', matching_ui).val(matching.property);
+		jQuery('select', matching_ui).val(matching.operator);
+		jQuery('input:last', matching_ui).val(matching.value);
+	}
+}
+
+function add_action_ui(rule_id, add_action, prefix, action) {
+	// add action ui
+	var action_id = rules_newId();
+	var action_ui = jQuery('<div/>');
+	add_action.before(action_ui);
+	
+	// fill action ui
+	var name_prefix = prefix + '[' + rule_id + '][action][' + action_id + ']';
+	action_ui.append('<input type="text" name="' + name_prefix +'[property]"/>');
+	action_ui.append('<input type="text" name="' + name_prefix +'[value]"/>');
+	action_ui.append('<a href="#" class="remove-action">[x]</a>');
+	
+	jQuery('.remove-action', action_ui).click(function(){ action_ui.remove(); return false; });
+	
+	// fil action values
+	if (action != null) {
+		jQuery('input:first', action_ui).val(action.property);
+		jQuery('input:last', action_ui).val(action.value);
+	}
+}
+
+function init_rules(ctx, prefix, rules) {
+	// initial ui
+	ctx.append('<table class="table"><tr><th>&nbsp;</th><th>Matching</th><th>Action</th></tr></table>');
+	ctx.append('<div><a href="#" class="add-rule">add rule</a></div><br/>');
+		
+	jQuery('.add-rule', ctx).click(function(){
+		add_rule_ui(ctx, prefix, null);				
+		return false;
+	});
+	
+	// load existing rules
+	if (rules != null) {
+		jQuery(rules).each(function(_, rule){
+			add_rule_ui(ctx, prefix, rule);
+		});
+	}
+}
+
+

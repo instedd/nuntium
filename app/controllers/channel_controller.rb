@@ -1,6 +1,7 @@
 class ChannelController < AccountAuthenticatedController
 
   include ChannelControllerCommon
+  include RulesControllerCommon
 
   before_filter :check_login
   before_filter :check_channel, :except => [:new_channel, :create_channel]
@@ -25,7 +26,7 @@ class ChannelController < AccountAuthenticatedController
     @channel.priority = chan[:priority]
     @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
     @channel.custom_attributes = get_custom_attributes
-    @channel.at_rules = get_atrules
+    @channel.at_rules = get_rules :atrules
     
     @channel.check_valid_in_ui
     if !@channel.save
@@ -53,7 +54,7 @@ class ChannelController < AccountAuthenticatedController
     @channel.handler.update(chan)
     @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
     @channel.custom_attributes = get_custom_attributes
-    @channel.at_rules = get_atrules
+    @channel.at_rules = get_rules :atrules
     
     @channel.check_valid_in_ui
     if !@channel.save

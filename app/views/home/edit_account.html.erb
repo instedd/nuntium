@@ -17,6 +17,17 @@
   <%= f.password_field :password_confirmation, :value => '', :autocomplete => :off %>
   </p>
   <hr />
+  <p>
+	<h5>App Routing Rules</h5>
+
+	<div class="apprules"></div>
+
+	<script type="text/javascript">	
+	jQuery(function(){
+		init_rules(jQuery('.apprules'), 'apprules', <%= @account.app_routing_rules.to_json %>);
+	});
+	</script>
+  </p>
   <%= submit_tag 'Update' %>
 <% end %>
 
