@@ -24,6 +24,9 @@ class Application < ActiveRecord::Base
   after_create :create_worker_queue
   after_save :bind_queue
   
+  before_destroy :clear_cache 
+  after_save :clear_cache
+  
   include(CronTask::CronTaskOwner)
   
   # Route an AOMessage
@@ -122,6 +125,15 @@ class Application < ActiveRecord::Base
     else
       logger.at_message_received_via_channel msg, via_channel if !via_channel.nil?
     end
+  end
+  
+  def self.find_all_by_account_id(account_id)
+    apps = Rails.cache.read cache_key(account_id)
+    if not apps
+      apps = Application.all :conditions => ['account_id = ?', account_id]
+      Rails.cache.write cache_key(account_id), apps
+    end
+    apps
   end
   
   def configuration
@@ -225,6 +237,7 @@ class Application < ActiveRecord::Base
   
   def bind_queue
     Queues.bind_application self
+    true
   end
   
   private
@@ -248,5 +261,14 @@ class Application < ActiveRecord::Base
     
     self.salt = ActiveSupport::SecureRandom.base64(8)
     self.password = Digest::SHA2.hexdigest(self.salt + self.password)
+  end
+  
+  def clear_cache
+    Rails.cache.delete Application.cache_key(account_id)
+    true
+  end
+  
+  def self.cache_key(account_id)
+    "account_#{account_id}_applications"
   end
 end

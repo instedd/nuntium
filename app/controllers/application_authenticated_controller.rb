@@ -6,7 +6,7 @@ class ApplicationAuthenticatedController < ApplicationController
     authenticate_or_request_with_http_basic do |username, password|
       @account = Account.find_by_id_or_name params[:account_name]
       if @account
-        @application = Application.first :conditions => ['account_id = ? AND name = ?', @account.id, username]
+        @application = @account.find_application username
         if @application and @application.authenticate password
           @application.account = @account
           true
