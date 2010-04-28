@@ -380,11 +380,11 @@ function add_rule_ui(ctx, prefix, rule) {
 	
 	if (rule != null) {		
 		// load existing matchings
-		jQuery(rule.matching).each(function(_, matching){
+		jQuery(rule.matchings).each(function(_, matching){
 			add_matching_ui(rule_id, add_matching, prefix, matching);
 		});
 		// load existing actions
-		jQuery(rule.action).each(function(_, action){
+		jQuery(rule.actions).each(function(_, action){
 			add_action_ui(rule_id, add_action, prefix, action);
 		})
 	}
@@ -397,7 +397,7 @@ function add_matching_ui(rule_id, add_matching, prefix, matching) {
 	add_matching.before(matching_ui);
 	
 	// fill matching ui
-	var name_prefix = prefix + '[' + rule_id + '][matching][' + matching_id + ']';
+	var name_prefix = prefix + '[' + rule_id + '][matchings][' + matching_id + ']';
 	matching_ui.append('<input type="text" name="' + name_prefix +'[property]"/>');
 	matching_ui.append('<select name="' + name_prefix +'[operator]"><option value="equals">=</option><option value="starts_with">starts with</option><option value="regex">regex</option></select>');
 	matching_ui.append('<input type="text" name="' + name_prefix +'[value]"/>');
@@ -420,7 +420,7 @@ function add_action_ui(rule_id, add_action, prefix, action) {
 	add_action.before(action_ui);
 	
 	// fill action ui
-	var name_prefix = prefix + '[' + rule_id + '][action][' + action_id + ']';
+	var name_prefix = prefix + '[' + rule_id + '][actions][' + action_id + ']';
 	action_ui.append('<input type="text" name="' + name_prefix +'[property]"/>');
 	action_ui.append('<input type="text" name="' + name_prefix +'[value]"/>');
 	action_ui.append('<a href="#" class="remove-action">[x]</a>');

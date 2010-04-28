@@ -8,7 +8,7 @@ module RulesControllerCommon
       
     rules_hash = params[param_key] || {}
     res = rules_hash.values.map do |v| 
-      { :matching => safe_values(v,'matching'), :action => safe_values(v,'action') } 
+      { 'matchings' => safe_values(v,'matchings'), 'actions' => safe_values(v,'actions') } 
     end
     
     res

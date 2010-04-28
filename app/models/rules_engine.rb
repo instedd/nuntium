@@ -2,15 +2,15 @@ module RulesEngine
   extend self
   
   def rule(matchings, actions)
-    return :matchings => matchings, :actions => actions
+    return 'matchings' => matchings, 'actions' => actions
   end
    
   def matching(property, operator, value)
-    return :property => property, :operator => operator, :value => value
+    return 'property' => property, 'operator' => operator, 'value' => value
   end
   
   def action(property, value)
-    return :property => property, :value => value
+    return 'property' => property, 'value' => value
   end
   
   # matching operators supported
@@ -26,9 +26,9 @@ module RulesEngine
     
     (rules || []).each do |rule|
       if matches(context, rule)
-        (rule[:actions] || []).each do |action|
+        (rule['actions'] || []).each do |action|
           res = res || {}
-          res[action[:property]] = action[:value]
+          res[action['property']] = action['value']
         end
       end
     end
@@ -39,21 +39,21 @@ module RulesEngine
   private
   
   def matches(context, rule)
-    (rule[:matchings] || []).all? { |m| matches_matching(context, m) }
+    (rule['matchings'] || []).all? { |m| matches_matching(context, m) }
   end
   
-  def matches_matching(context, matching)
-    at_context = context[matching[:property]]
-    at_matching = matching[:value]
+  def matches_matching(context, matching)    
+    at_context = context[matching['property']]
+    at_matching = matching['value']
 
     if at_context.class <= Array then
       # multiple values
       return at_context.any? do |v| 
-        matches_value(v, matching[:operator], at_matching)
+        matches_value(v, matching['operator'], at_matching)
       end
     else
       # single value
-      return matches_value(at_context, matching[:operator], at_matching)
+      return matches_value(at_context, matching['operator'], at_matching)
     end
   end
   
