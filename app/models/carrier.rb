@@ -2,6 +2,9 @@ class Carrier < ActiveRecord::Base
   belongs_to :country
   has_many :mobile_numbers
   
+  before_destroy :clear_cache 
+  after_save :clear_cache
+  
   def self.all
     carriers = Rails.cache.read 'carriers'
     if not carriers
@@ -43,5 +46,9 @@ class Carrier < ActiveRecord::Base
   
   def escape(str)
     str.gsub('"', '\\\\"')
+  end
+  
+  def clear_cache
+    Rails.cache.delete 'carriers'
   end
 end

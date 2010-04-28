@@ -6,8 +6,6 @@ class AccountTest < ActiveSupport::TestCase
   include Mocha::API
   
   def setup
-    Rails.cache.clear
-  
     @country = Country.create!(:name => 'Argentina', :iso2 => 'ar', :iso3 =>'arg', :phone_prefix => '54')
     @carrier = Carrier.create!(:country => @country, :name => 'Personal', :guid => "ABC123", :prefixes => '1, 2, 3')
   end
