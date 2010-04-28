@@ -256,7 +256,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
     <% @ao_messages.each do |msg| %>
       <%
       chan = @channels.select{|x| msg.channel_id == x.id}.first
-      app = @applications.select{|x| msg.application_id = x.id}.first
+      app = @applications.select{|x| msg.application_id == x.id}.first
       %>
       <tr>
         <td><input type="checkbox" name="ao_messages[]" value="<%= msg.id %>" <%= 'checked="checked"' if !params[:ao_messages].nil? && params[:ao_messages].include?(msg.id.to_s) %>/></td>
@@ -326,7 +326,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelle
     <% @at_messages.each do |msg| %>
       <%
       chan = @channels.select{|x| msg.channel_id == x.id}.first
-      app = @applications.select{|x| msg.application_id = x.id}.first
+      app = @applications.select{|x| msg.application_id == x.id}.first
       %>
       <tr>
         <td><input type="checkbox" name="at_messages[]" value="<%= msg.id %>" <%= 'checked="checked"' if !params[:at_messages].nil? && params[:at_messages].include?(msg.id.to_s) %>/></td>
