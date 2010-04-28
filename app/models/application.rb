@@ -29,7 +29,6 @@ class Application < ActiveRecord::Base
   # Route an AOMessage
   def route_ao(msg, via_interface)
     return if duplicated? msg
-    check_modified
     
     # Fill some fields
     if msg.new_record?
@@ -52,13 +51,10 @@ class Application < ActiveRecord::Base
     MobileNumber.update msg.to.mobile_number, msg.country, msg.carrier if protocol == 'sms'
     
     # Get all outgoing enabled channels
-    if @outgoing_channels.nil?
-      @outgoing_channels = self.account.channels.all(:conditions => ['enabled = ? AND (direction = ? OR direction = ?)', true, Channel::Outgoing, Channel::Bidirectional])
-      @outgoing_channels.each{|c| c.account = self.account}
-    end
+    channels = account.channels.select{|c| c.enabled && c.is_outgoing?}
     
     # Find channels that handle that protocol
-    channels = @outgoing_channels.select {|x| x.protocol == protocol}
+    channels = channels.select {|x| x.protocol == protocol}
     
     # Filter them according to custom attributes
     channels = channels.select{|x| x.can_route_ao? msg}
@@ -236,15 +232,6 @@ class Application < ActiveRecord::Base
   def duplicated?(msg)
     return false if !msg.new_record? || msg.guid.nil?
     msg.class.exists?(['application_id = ? and guid = ?', self.id, msg.guid])
-  end
-  
-  def check_modified
-    # Check whether the date of the account in the database is greater
-    # than our date. If so, empty cached values.
-    acc = Account.find_by_id(account.id, :select => :updated_at)
-    if !acc.nil? && acc.updated_at > self.account.updated_at
-      @outgoing_channels = nil
-    end
   end
   
   def get_preferred_channel(address, outgoing_channels)

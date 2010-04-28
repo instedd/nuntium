@@ -78,7 +78,7 @@ class HomeController < AccountAuthenticatedController
       :per_page => @results_per_page
       )
       
-    @channels = Channel.all(:conditions => ['account_id = ?', @account.id])
+    @channels = Channel.find_all_by_account_id @account.id
     @channels_queued_count = Hash.new 0
     
     AOMessage.connection.select_all(

@@ -21,6 +21,9 @@ class Channel < ActiveRecord::Base
   after_update :handler_after_update
   before_destroy :handler_before_destroy
   
+  before_destroy :clear_cache 
+  after_save :clear_cache
+  
   # Channel directions
   Incoming = 1
   Outgoing = 2
@@ -55,6 +58,23 @@ class Channel < ActiveRecord::Base
       
       return false unless values.any?{|v| channel_values.include? v}
     end
+  end
+  
+  def self.find_all_by_account_id(account_id)
+    channels = Rails.cache.read cache_key(account_id)
+    if not channels
+      channels = Channel.all :conditions => ['account_id = ?', account_id]
+      Rails.cache.write cache_key(account_id), channels
+    end
+    channels
+  end
+  
+  def is_outgoing?
+    direction == Outgoing || direction == Bidirectional
+  end
+  
+  def is_incoming?
+    direction == Incoming || direction == Bidirectional
   end
   
   def configuration
@@ -124,7 +144,7 @@ class Channel < ActiveRecord::Base
   def logger
     account.logger
   end
-    
+  
   private
   
   def handler_check_valid
@@ -162,6 +182,15 @@ class Channel < ActiveRecord::Base
   def handler_before_destroy
     self.handler.on_destroy
     true
+  end
+  
+  def clear_cache
+    Rails.cache.delete Channel.cache_key(account_id)
+    true
+  end
+  
+  def self.cache_key(account_id)
+    "account_#{account_id}_channels"
   end
 
 end

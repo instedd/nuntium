@@ -23,6 +23,10 @@ class Account < ActiveRecord::Base
     account
   end
   
+  def channels
+    Channel.find_all_by_account_id id
+  end
+  
   def authenticate(password)
     self.password == Digest::SHA2.hexdigest(self.salt + password)
   end

@@ -81,17 +81,12 @@ class ClickatellController < AccountAuthenticatedController
     authenticate_or_request_with_http_basic do |username, password|
       @account = Account.find_by_id_or_name(params[:account_id])
       if !@account.nil?
-        channels = @account.channels.find_all_by_kind 'clickatell'
-        channels = channels.select { |c| 
+        @channel = @account.channels.select{|c| 
+          c.kind == 'clickatell' && 
           c.name == username && 
-          c.configuration[:incoming_password] == password &&
-          c.configuration[:api_id] == params[:api_id] }
-        if channels.empty?
-          false
-        else
-          @channel = channels[0]
-          true
-        end
+          c.configuration[:incoming_password] == password && 
+          c.configuration[:api_id] == params[:api_id]
+        }.first
       else
         false
       end
