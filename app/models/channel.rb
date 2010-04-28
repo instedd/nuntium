@@ -42,7 +42,7 @@ class Channel < ActiveRecord::Base
     handle msg
   end
   
-  def accepts?(msg)
+  def can_route_ao?(msg)
     # Check that each custom attribute is present in this channel's
     # custom attributes
     msg.custom_attributes.each do |key, values|

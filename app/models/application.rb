@@ -61,7 +61,7 @@ class Application < ActiveRecord::Base
     channels = @outgoing_channels.select {|x| x.protocol == protocol}
     
     # Filter them according to custom attributes
-    channels = channels.select{|x| x.accepts? msg}
+    channels = channels.select{|x| x.can_route_ao? msg}
     
     # Find the preffered channel to route this message, if any,
     # based on the last channel used to receive an AT for the given address
