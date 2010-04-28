@@ -56,6 +56,12 @@ class Account < ActiveRecord::Base
     end
     msg.state = 'queued'
     
+    # Apply AT Rules
+    unless via_channel.nil?
+      at_routing_res = RulesEngine.apply(msg.rules_context, via_channel.at_rules)
+      msg.merge at_routing_res
+    end
+    
     # Save mobile number information
     MobileNumber.update msg.from.mobile_number, msg.country, msg.carrier if msg.from.protocol == 'sms'
 
