@@ -79,7 +79,7 @@ class HomeController < AccountAuthenticatedController
       :per_page => @results_per_page
       )
       
-    @channels = Channel.find_all_by_account_id @account.id
+    @channels = @account.channels
     @channels_queued_count = Hash.new 0
     
     AOMessage.connection.select_all(
@@ -90,7 +90,7 @@ class HomeController < AccountAuthenticatedController
       @channels_queued_count[r['channel_id'].to_i] = r['count'].to_i
     end
     
-    @applications = Application.all(:conditions => ['account_id = ?', @account.id])
+    @applications = @account.applications
   end
   
   def edit_account
@@ -173,8 +173,8 @@ class HomeController < AccountAuthenticatedController
   end
   
   def check_application
-    @application = Application.find_by_id params[:id]
-    redirect_to_home if @application.nil? || @application.account_id != @account.id
+    @application = @account.find_application params[:id]
+    redirect_to_home if @application.nil?
   end
   
   def logoff

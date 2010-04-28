@@ -41,7 +41,7 @@ include Net
   end
   
   def test_perform_run_with_last_id_complex_uri
-    application = setup_application :url => 'http://example.com:9099/foobar/'
+    application = setup_application :interface_url => 'http://example.com:9099/foobar/'
     msgs =  new_at_message application, (0..2), 'protocol', 'confirmed', 1
     msgs += new_at_message application, (3..5), 'protocol', 'queued'
     application.set_last_at_guid(msgs[2].guid)
@@ -61,7 +61,7 @@ include Net
   end
   
   def test_perform_run_with_last_id_complex_ssl_uri
-    application = setup_application :url => 'https://geochat-stg.instedd.org/gateway/gateway.svc'
+    application = setup_application :interface_url => 'https://geochat-stg.instedd.org/gateway/gateway.svc'
     msgs =  new_at_message application, (0..2), 'protocol', 'confirmed', 1
     msgs += new_at_message application, (3..5), 'protocol', 'queued'
     application.set_last_at_guid(msgs[2].guid)
@@ -82,7 +82,7 @@ include Net
   end
   
   def test_perform_run_with_last_id_on_ssl
-    application = setup_application :url => 'https://example.com'
+    application = setup_application :interface_url => 'https://example.com'
     msgs =  new_at_message application, (0..2), 'protocol', 'confirmed', 1
     msgs += new_at_message application, (3..5), 'protocol', 'queued'
     application.set_last_at_guid(msgs[2].guid)
@@ -347,11 +347,11 @@ include Net
   end
   
   def setup_application(cfg = {})
-    create_application_with_interface('application', 'pass', 'qst_client', { :last_at_guid => nil, :url => 'http://example.com', :user => 'theuser', :password => 'thepass' }.merge(cfg))
+    create_application_with_interface('application', 'pass', 'qst_client', { :last_at_guid => nil, :interface_url => 'http://example.com', :interface_user => 'theuser', :interface_password => 'thepass' }.merge(cfg))
   end
   
   def setup_application_unauth(cfg = {})
-    create_application_with_interface('application', 'pass', 'qst_client', { :last_at_guid => nil, :url => 'http://example.com'}.merge(cfg))
+    create_application_with_interface('application', 'pass', 'qst_client', { :last_at_guid => nil, :interface_url => 'http://example.com'}.merge(cfg))
   end
   
   def setup_null_http(application)

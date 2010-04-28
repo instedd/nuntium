@@ -37,30 +37,32 @@ class Account < ActiveRecord::Base
     self.password == Digest::SHA2.hexdigest(self.salt + password)
   end
   
+  def applications
+    Application.find_all_by_account_id id
+  end
+  
+  def find_application(id_or_name)
+    applications.select{|c| c.id == id_or_name.to_i || c.name == id_or_name}.first
+  end
+  
   # Routes an ATMessage via a channel
   def route_at(msg, via_channel)
     return if duplicated? msg
-    check_modified
     
     msg.account_id = self.id
     msg.timestamp ||= Time.now.utc
     if !via_channel.nil? && via_channel.class == Channel
       msg.channel = via_channel
-      msg.channel_id = via_channel.id
     end
     msg.state = 'queued'
     
     # Save mobile number information
     MobileNumber.update msg.from.mobile_number, msg.country, msg.carrier if msg.from.protocol == 'sms'
 
-    if @applications.nil?
-      @applications = Application.all :conditions => ['account_id = ?', self.id]
-    end
-    
-    if @applications.empty?
+    if applications.empty?
       Rails.logger.error "No application to route AT messages"  
     else
-      @applications.first.route_at msg, via_channel
+      applications.first.route_at msg, via_channel
     end
   end
   
@@ -99,15 +101,6 @@ class Account < ActiveRecord::Base
   def duplicated?(msg)
     return false if !msg.new_record? || msg.guid.nil?
     msg.class.exists?(['account_id = ? and guid = ?', self.id, msg.guid])
-  end
-  
-  def check_modified
-    # Check whether the date of the account in the database is greater
-    # than our date. If so, empty cached values.
-    acc = Account.find_by_id(self.id, :select => :updated_at)
-    if !acc.nil? && acc.updated_at > self.updated_at
-      @applications = nil
-    end
   end
     
 end

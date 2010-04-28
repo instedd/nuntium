@@ -5,15 +5,15 @@ class ClientQstConfiguration
   end
 
   def user
-    configuration[:user]
+    configuration[:user] || configuration[:interface_user]
   end
 
   def pass
-    configuration[:password]
+    configuration[:password] || configuration[:interface_password]
   end
 
   def url
-    configuration[:url]
+    configuration[:url] || configuration[:interface_url]
   end
   
   def max_tries

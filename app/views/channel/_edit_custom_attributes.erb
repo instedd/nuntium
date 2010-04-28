@@ -3,7 +3,7 @@
 <%
 # Write the applications in javascript so we can fill the combobox without
 # going to the server...
-applications = @account.applications.all(:select => 'name', :order => 'name')
+applications = @account.applications.map{|a| a.name}.sort!
 if applications.length > 0
 %>
   <script type="text/javascript">
@@ -49,7 +49,7 @@ end
           =
           <select name="custom_attribute_value[]">
             <% applications.each do |app| %>
-              <option><%= app.name %></option>
+              <option><%= app %></option>
             <% end %>
           </select>
           <%

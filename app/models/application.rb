@@ -14,7 +14,8 @@ class Application < ActiveRecord::Base
   validates_confirmation_of :password
   validates_uniqueness_of :name, :scope => :account_id, :message => 'has already been used by another application in the account'
   validates_inclusion_of :interface, :in => ['rss', 'qst_client', 'http_post_callback']
-  validates_presence_of :configuration_url, :unless => :is_rss
+  validates_presence_of :interface_url, :unless => Proc.new {|app| app.interface == 'rss'}
+  validates_presence_of :delivery_ack_url, :unless => Proc.new {|app| app.delivery_ack_method == 'none'}
   
   serialize :configuration, Hash
   
@@ -24,6 +25,9 @@ class Application < ActiveRecord::Base
   after_create :create_worker_queue
   after_save :bind_queue
   
+  before_destroy :clear_cache 
+  after_save :clear_cache
+  
   include(CronTask::CronTaskOwner)
   
   # Route an AOMessage
@@ -32,8 +36,8 @@ class Application < ActiveRecord::Base
     
     # Fill some fields
     if msg.new_record?
-      msg.account_id ||= self.account.id
-      msg.application_id ||= self.id
+      msg.account ||= self.account
+      msg.application ||= self
       msg.timestamp ||= Time.now.utc
     end
     
@@ -124,14 +128,19 @@ class Application < ActiveRecord::Base
     end
   end
   
+  def self.find_all_by_account_id(account_id)
+    apps = Rails.cache.read cache_key(account_id)
+    if not apps
+      apps = Application.all :conditions => ['account_id = ?', account_id]
+      Rails.cache.write cache_key(account_id), apps
+    end
+    apps
+  end
+  
   def configuration
     self[:configuration] = {} if self[:configuration].nil?
     self[:configuration]
   end
-  
-  def configuration_url; configuration[:url]; end;
-  def configuration_user; configuration[:user]; end;
-  def configuration_password; configuration[:password]; end;
   
   def is_rss
     self.interface == 'rss'
@@ -151,6 +160,24 @@ class Application < ActiveRecord::Base
     self.save
   end
   
+  def self.configuration_accessor(name, default = nil)
+    define_method(name) do
+      configuration[name] || default
+    end
+    define_method("#{name}=") do |value|
+      configuration[name] = value
+    end
+  end
+  
+  configuration_accessor :interface_url
+  configuration_accessor :interface_user
+  configuration_accessor :interface_password
+  configuration_accessor :strategy, 'broadcast'
+  configuration_accessor :delivery_ack_method, 'none'
+  configuration_accessor :delivery_ack_url
+  configuration_accessor :delivery_ack_user
+  configuration_accessor :delivery_ack_password
+  
   def use_address_source?
     configuration[:use_address_source] == '1'
   end
@@ -161,14 +188,6 @@ class Application < ActiveRecord::Base
     else
       configuration.delete :use_address_source
     end
-  end
-  
-  def strategy
-    configuration[:strategy] || 'broadcast'
-  end
-  
-  def strategy=(value)
-    configuration[:strategy] = value
   end
   
   def strategy_description
@@ -184,14 +203,36 @@ class Application < ActiveRecord::Base
     end
   end
   
+  def delivery_ack_method_description
+    case delivery_ack_method
+    when 'none'
+      'None'
+    when 'get'
+      "HTTP GET #{delivery_ack_url}"
+    when 'post'
+      "HTTP POST #{delivery_ack_url}"
+    end
+  end
+  
+  def self.delivery_ack_method_description(method)
+    case method
+    when 'none'
+      'None'
+    when 'get'
+      "HTTP GET"
+    when 'post'
+      "HTTP POST"
+    end
+  end
+  
   def interface_description
     case interface
     when 'rss'
       return 'Rss'
     when 'qst_client'
-      return 'QST client: ' << self.configuration[:url]
+      return "QST client: #{interface_url}"
     when 'http_post_callback'
-      return 'HTTP POST callback: ' << self.configuration[:url]
+      return "HTTP POST callback: #{interface_url}"
     end
   end
   
@@ -225,6 +266,7 @@ class Application < ActiveRecord::Base
   
   def bind_queue
     Queues.bind_application self
+    true
   end
   
   private
@@ -248,5 +290,14 @@ class Application < ActiveRecord::Base
     
     self.salt = ActiveSupport::SecureRandom.base64(8)
     self.password = Digest::SHA2.hexdigest(self.salt + self.password)
+  end
+  
+  def clear_cache
+    Rails.cache.delete Application.cache_key(account_id)
+    true
+  end
+  
+  def self.cache_key(account_id)
+    "account_#{account_id}_applications"
   end
 end

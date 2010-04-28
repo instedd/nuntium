@@ -20,7 +20,7 @@ class MessageController < AccountAuthenticatedController
   def create_ao_message
     msg = create_message AOMessage
     
-    application = Application.find_by_account_id_and_id @account.id, params[:message][:application_id]
+    application = @account.find_application params[:message][:application_id]
     return redirect_to_home unless application
     
     application.route_ao msg, 'user'
@@ -92,7 +92,7 @@ class MessageController < AccountAuthenticatedController
       msgs = AOMessage.all(:conditions => ['id IN (?)', ids])
     end
     
-    applications = Application.all :conditions => ['account_id = ?', @account.id]
+    applications = @account.applications
     
     msgs.each do |msg|
       application = applications.select{|x| x.id == msg.application_id}.first

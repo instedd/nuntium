@@ -328,7 +328,7 @@ function applications_select() {
   html += '<select name="custom_attribute_value[]">';
   html += '<option value="">Select an application...</option>';
   for(var i = 0; i < applications.length; i++) {
-    html += '<option>' + applications[i].name + '</option>';
+    html += '<option>' + applications[i] + '</option>';
   }
   html += '</select>';
   return html;

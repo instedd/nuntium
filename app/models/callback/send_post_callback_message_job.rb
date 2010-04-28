@@ -15,10 +15,10 @@ class SendPostCallbackMessageJob
     account = Account.find_by_id @account_id
     msg = ATMessage.get_message @message_id
     
-    url = URI.parse(account.configuration[:url])
+    url = URI.parse(account.interface_url)
     req = Net::HTTP::Post.new(url.path)
-    if account.configuration[:user].present?
-      req.basic_auth account.configuration[:user], account.configuration[:password]
+    if account.interface_user.present?
+      req.basic_auth account.interface_user, account.interface_password
     end
     req.content_type = "application/x-www-form-urlencoded"
 
