@@ -1,0 +1,90 @@
+<% content_for :head do%>
+	<script type="text/javascript" charset="utf-8">
+	function interface_rss() {
+	  $('#config').hide();
+	}
+	function interface_qst_client() {
+	  $('#config').show();
+	}
+	function interface_http_post_callback() {
+	  $('#config').show();
+	}
+	
+	$(function() {
+	  interface_<%= @application.interface || 'rss' %>();
+	});
+	</script>
+<% end%>
+
+<% if @application.new_record? %>
+  <h4>New Application</h4>
+<% else %>
+  <h4>Edit <%= @application.name %> Application</h4>
+<% end %>
+
+<% form_for :application, :url => { :controller => 'home', :action => @application.new_record? ? :create_application : :update_application} do |f| %>
+  <%= f.error_messages %>
+  
+  <% if @application.new_record? %>
+    <p>
+    <%= f.label :name %><br/>
+    <%= f.text_field :name %>
+    </p>
+  <% end %>
+  
+  <p>
+  <% if !@application.new_record? and @application.interface == 'rss' %>
+    <b>Leave blank if you don't want to change the password</b><br/>
+  <% end %>
+  <%= f.label :password %><br/>
+  <%= f.password_field :password, :value => '', :autocomplete => :off %>
+  </p>
+  <p>
+  <%= f.label :password_confirmation %><br/>
+  <%= f.password_field :password_confirmation, :value => '', :autocomplete => :off %>
+  </p>
+  
+  <p>
+  <%= f.label :interface %><br/>
+  <%= f.radio_button :interface, 'rss', :onclick => "interface_rss();" %> <%= f.label :interface, 'Rss', :value => 'rss' %><br/>
+  <%= f.radio_button :interface, 'qst_client', :onclick => "interface_qst_client();"%> <%= f.label :interface, 'QST client', :value => 'qst_client' %><br/>
+  <%= f.radio_button :interface, 'http_post_callback', :onclick => "interface_http_post_callback();"%> <%= f.label :interface, 'HTTP POST callack', :value => 'http_post_callback' %><br/>
+  
+  <% f.fields_for :configuration do |c| %>
+  
+    <div id="config">
+      <h5>Interface configuration:</h5>
+	    <p>
+      <%= c.label :url %><br/>
+      <%= c.text_field :url, :value => @application.configuration[:url], :class => 'configurl' %>
+      </p>
+      <p>
+      <%= c.label :user %><br/>
+      <%= c.text_field :user, :value => @application.configuration[:user], :class => 'configurl' %>
+      </p>
+      <p>
+      <%= c.label :password %><br/>
+      <%= c.password_field :password, :value => @application.configuration[:password], :autocomplete => :off, :class => 'configurl' %>
+      </p>
+    </div>
+    
+    <h5>Routing configuration:</h5>
+  
+    <p>
+    Route via last AT channel used <acronym title="When an AO message needs to be routed, if it's 'to' field matches the 'from' field of the last AT message received, the channel used to receieve that AT message will be used.">?</acronym><br/>
+    <%= c.radio_button :use_address_source, 0, :checked => !@application.use_address_source? %> <%= c.label :use_address_source, 'No', :value => 0 %><br/>
+    <%= c.radio_button :use_address_source, 1, :checked => @application.use_address_source? %> <%= c.label :use_address_source, 'Yes', :value => 1 %>
+    </p>
+    
+    <p>
+    Strategy:<br/>
+    <% ['broadcast', 'single_priority'].each do |strategy| %>
+      <%= c.radio_button :strategy, strategy, :checked => @application.strategy == strategy %> <%= f.label :strategy, Application.strategy_description(strategy), :value => strategy %><br/>
+    <% end %>
+    </p>
+    
+  <% end %>
+  </p>
+  
+  <%= submit_tag (@application.new_record? ? 'Create Application' : 'Update Application') %>
+<% end %>

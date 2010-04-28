@@ -4,6 +4,11 @@ require 'mocha'
 class AccountTest < ActiveSupport::TestCase
 
   include Mocha::API
+  
+  def setup
+    @country = Country.create!(:name => 'Argentina', :iso2 => 'ar', :iso3 =>'arg', :phone_prefix => '54')
+    @carrier = Carrier.create!(:country => @country, :name => 'Personal', :guid => "ABC123", :prefixes => '1, 2, 3')
+  end
 
   test "should not save if name is blank" do
     account = Account.new(:password => 'foo')
@@ -31,12 +36,6 @@ class AccountTest < ActiveSupport::TestCase
     assert account.save
   end
   
-  test "should find by name" do
-    account1 = Account.create!(:name => 'account', :password => 'foo')
-    account2 = Account.find_by_name 'account'
-    assert_equal account1.id, account2.id
-  end
-  
   test "should authenticate" do
     account1 = Account.create!(:name => 'account', :password => 'foo')
     assert account1.authenticate('foo')
@@ -55,64 +54,20 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal account, found
   end
   
-  test "check modified" do
-    account = Account.new(:name => 'account1', :password => 'foo')
-    account.save!
+  test "at routing saves mobile number" do
+    account = Account.create!(:name => 'account', :password => 'foo')
     
-    chan1 = new_channel account, 'Uno'
-    chan2 = new_channel account, 'Dos'
-    chan2.metric = chan1.metric - 10
-    chan2.save!
+    msg = ATMessage.new :from => 'sms://+5678', :to => 'sms://1234', :subject => 'foo', :body => 'bar'
+    msg.custom_attributes['country'] = 'ar'
+    msg.custom_attributes['carrier'] = 'ABC123'
     
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://1239', :subject => 'foo', :body => 'bar')
-    account.route(msg, 'test')
+    account.route_at msg, nil
     
-    assert_equal chan2.id, msg.channel_id
-    
-    sleep 1
-    
-    chan2.metric = chan1.metric + 10
-    chan2.save!
-    
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://1239', :subject => 'foo', :body => 'bar')
-    account.route(msg, 'test')
-    
-    assert_equal chan1.id, msg.channel_id
-  end
-  
-  test "should create worker queue on create" do
-    account = Account.create!(:name => 'account1', :password => 'foo')
-    
-    wqs = WorkerQueue.all
-    assert_equal 1, wqs.length
-    assert_equal "account_queue.#{account.id}", wqs[0].queue_name
-    assert_equal "fast", wqs[0].working_group
-    assert_true wqs[0].ack
-    assert_true wqs[0].enabled
-  end
-  
-  test "should bind queue on create" do
-    binded = nil
-  
-    Queues.expects(:bind_account).with do |a|
-      binded = a
-      true
-    end
-  
-    account = Account.create!(:name => 'account1', :password => 'foo')
-    
-    assert_same account, binded
-  end
-  
-  test "should enqueue http post callback" do
-    account = Account.create!(:name => 'account1', :password => 'foo', :interface => 'http_post_callback')
-    msg = ATMessage.create!(:account => account, :subject => 'foo')
-    
-    Queues.expects(:publish_account) do |a, j|
-      a.id == account.id and j.kind_of?(SendPostCallbackMessageJob) and j.account_id == account.id and j.message_id == msg.id 
-    end
-    
-    account.accept msg, 'ui'
+    nums = MobileNumber.all
+    assert_equal 1, nums.length
+    assert_equal '5678', nums[0].number
+    assert_equal @country.id, nums[0].country_id
+    assert_equal @carrier.id, nums[0].carrier_id
   end
   
 end

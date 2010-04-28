@@ -1,4 +1,4 @@
-class AuthenticatedController < ApplicationController
+class AccountAuthenticatedController < ApplicationController
 
   def check_login
     if session[:account_id].nil?

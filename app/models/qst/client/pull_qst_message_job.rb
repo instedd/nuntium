@@ -4,8 +4,8 @@ class PullQstMessageJob
   
   include ClientQstJob
   
-  def initialize(account_id)
-    @account_id = account_id
+  def initialize(application_id)
+    @application_id = application_id
   end
   
   def perform_batch
@@ -13,9 +13,10 @@ class PullQstMessageJob
     require 'net/http'
     require 'builder'
 
-    account = Account.find_by_id(@account_id)
-    cfg = ClientQstConfiguration.new(account)
-    err = validate_account(account)
+    application = Application.find_by_id(@application_id)
+    account = application.account
+    cfg = ClientQstConfiguration.new(application)
+    err = validate_application(application)
     return err unless err.nil?
 
     # Create http requestor and uri
@@ -30,13 +31,13 @@ class PullQstMessageJob
     if response.nil?
       return :error_pulling_messages
     elsif response.code == "304" # not modified
-      RAILS_DEFAULT_LOGGER.info "Pull QST in account #{account.name}: no new messages"
+      RAILS_DEFAULT_LOGGER.info "Pull QST in application #{application.name}: no new messages"
       return :success
     elsif response.code == "401" # Unauthorized
-      account.alert "Pulling QST received unauthorized: invalid credentials"
+      application.alert "Pulling QST received unauthorized: invalid credentials"
     
-      account.interface = 'rss'
-      account.save!
+      application.interface = 'rss'
+      application.save!
       return
     elsif response.code[0,1] != "2" # not success
       account.logger.error_pulling_msgs response.message
@@ -50,14 +51,14 @@ class PullQstMessageJob
     begin
       # Process successfully downloaded messages
       AOMessage.parse_xml response.body do |msg|
-        account.route msg, 'qst_client'
+        application.route_ao msg, 'qst_client'
         last_new_id = msg.guid
         size += 1
       end
     rescue => e
       # On error, save last processed ok and quit
       account.logger.error_processing_msgs e.to_s
-      account.set_last_ao_guid(last_new_id) unless last_new_id.nil?
+      application.set_last_ao_guid(last_new_id) unless last_new_id.nil?
       return :error_processing_messages
     else
       # On success, update last id and return success or pending
@@ -66,7 +67,7 @@ class PullQstMessageJob
       else
         RAILS_DEFAULT_LOGGER.info "Pull QST in account #{account.name}: polled '#{size}' messages to server up to id '#{last_new_id}'"
       end
-      account.set_last_ao_guid(last_new_id) unless last_new_id.nil?
+      application.set_last_ao_guid(last_new_id) unless last_new_id.nil?
       return size < BATCH_SIZE ? :success : :success_pending 
     end
   

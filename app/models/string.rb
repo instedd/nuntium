@@ -32,4 +32,10 @@ class String
     Integer(self) rescue nil
   end
   
+  def mobile_number
+    num = self.without_protocol
+    num = num[1..-1] if num[0].chr == '+'
+    num 
+  end
+  
 end

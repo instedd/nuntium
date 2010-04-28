@@ -3,8 +3,6 @@ require 'test_helper'
 class CarrierControllerTest < ActionController::TestCase
 
   def setup
-    Rails.cache.clear
-  
     country = Country.create!(:name => 'Argentina', :iso2 => 'ar', :iso3 =>'arg', :phone_prefix => '54')
     carrier = Carrier.create!(:country => country, :name => 'Personal', :guid => "Some'Guid", :prefixes => '1, 2, 3')
     

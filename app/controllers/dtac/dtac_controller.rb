@@ -13,7 +13,7 @@ class DtacController < ApplicationController
     msg.channel_relative_id = params[:ID]
     msg.timestamp = Time.now.utc
     
-    @account.accept msg, nil
+    @account.route_at msg, nil
     
     head :ok
   end

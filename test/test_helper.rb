@@ -98,13 +98,14 @@ class ActiveSupport::TestCase
     http
   end
 
-  # Creates an account with a specific interface and configuration
-  def create_account_with_interface(account_name, account_pass, interface, cfg)
-    account = Account.create!(:name => account_name, :password => account_pass, :interface => interface)
-    account.configuration = {}
-    cfg.each_pair do |k,v| account.configuration[k] = v end
-    account.save!
-    account
+  # Creates an application with a specific interface and configuration
+  def create_application_with_interface(account_name, account_pass, interface, cfg)
+    account = Account.create!(:name => account_name, :password => account_pass)
+    application = Application.new(:account_id => account.id, :name => account_name, :interface => interface, :password => account_pass)
+    application.configuration = {}
+    cfg.each_pair do |k,v| application.configuration[k] = v end
+    application.save!
+    application
   end
   
   # Creates an account and a qst channel with the given values.
@@ -133,6 +134,10 @@ class ActiveSupport::TestCase
     channel
   end
   
+  def create_app(account, i = nil)
+    Application.create! :account_id => account.id, :name => (i.nil? ? 'application' : "application#{i}"), :interface => 'rss', :password => 'app_pass'
+  end
+  
   # Creates a new message of the specified kind with values according to i
   def new_message(account, i, kind, protocol = 'protocol', state = 'queued', tries = 0)
     if i.respond_to? :each
@@ -148,8 +153,15 @@ class ActiveSupport::TestCase
   end
   
   # Creates an ATMessage that belongs to account and has values according to i
-  def new_at_message(account, i, protocol = 'protocol', state = 'queued', tries = 0)
-    new_message account, i, ATMessage, protocol, state, tries
+  def new_at_message(application, i, protocol = 'protocol', state = 'queued', tries = 0)
+    msg = new_message application.account, i, ATMessage, protocol, state, tries
+    if msg.respond_to? :each
+      msg.each{|x| x.application_id = application.id, x.save!}   
+    else
+      msg.application_id = application.id
+      msg.save!
+    end
+    msg
   end
   
   # Creates an AOMessage that belongs to account and has values according to i
@@ -225,7 +237,7 @@ class ActiveSupport::TestCase
     rng = (rng...rng) if not rng.respond_to? :each
     msgs = []
     ATMessage.parse_xml(xml_txt) {|msg| msgs << msg}
-    assert_equal rng.to_a.size, msgs.size, 'messages count does not match range' 
+    assert_equal rng.to_a.size, msgs.size, 'messages count does not match range'
     base = rng.to_a[0]
     rng.each do |i|
       msg = msgs[i-base]

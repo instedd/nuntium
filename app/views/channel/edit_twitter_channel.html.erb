@@ -1,4 +1,4 @@
-<%= edit_channel_header %>
+<%= render :partial => 'edit_channel_header' %>
 
 <% if TwitterConsumerConfig.nil? %>
   <%= render :partial => 'twitter_configuration_missing' %>
@@ -6,8 +6,9 @@
 
 <% form_for :channel, :html => { :id => 'edit_twitter_channel_form' } do |f| %>
   <%= f.error_messages %>
-  <%= edit_channel_name f %>
-  <%= edit_channel_protocol f %>
+  <%= render :partial => 'edit_name', :locals => {:f => f} %>
+  <%= render :partial => 'edit_protocol', :locals => {:f => f} %>
+  <%= render :partial => 'edit_priority', :locals => {:f => f} %>
   <% f.fields_for :configuration do |c| %>
     <p>
     <%= c.label :screen_name %><br/>

@@ -4,7 +4,9 @@ class ClickatellControllerTest < ActionController::TestCase
   tests ClickatellController
 
   test "index" do
-    account = Account.create(:name => 'account', :password => 'account_pass')
+    account = Account.create!(:name => 'account', :password => 'account_pass')
+    application = create_app account
+    
     chan = Channel.new(:account_id => account.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Bidirectional)
     chan.configuration = {:user => 'user', :password => 'password', :api_id => '1034412', :incoming_password => 'incoming', :from => 'from' }
     chan.save!
@@ -33,7 +35,9 @@ class ClickatellControllerTest < ActionController::TestCase
   end
   
   test "two parts" do
-    account = Account.create(:name => 'account', :password => 'account_pass')
+    account = Account.create!(:name => 'account', :password => 'account_pass')
+    application = create_app account
+    
     chan = Channel.new(:account_id => account.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Bidirectional)
     chan.configuration = {:user => 'user', :password => 'password', :api_id => '1034412', :incoming_password => 'incoming', :from => 'from' }
     chan.save!
@@ -65,7 +69,9 @@ class ClickatellControllerTest < ActionController::TestCase
   end
   
   test "two parts other order" do
-    account = Account.create(:name => 'account', :password => 'account_pass')
+    account = Account.create!(:name => 'account', :password => 'account_pass')
+    application = create_app account
+    
     chan = Channel.new(:account_id => account.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Bidirectional)
     chan.configuration = {:user => 'user', :password => 'password', :api_id => '1034412', :incoming_password => 'incoming', :from => 'from' }
     chan.save!
@@ -97,7 +103,9 @@ class ClickatellControllerTest < ActionController::TestCase
   end
   
   test "ignore message headers" do
-    account = Account.create(:name => 'account', :password => 'account_pass')
+    account = Account.create!(:name => 'account', :password => 'account_pass')
+    application = create_app account
+    
     chan = Channel.new(:account_id => account.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Bidirectional)
     chan.configuration = {:user => 'user', :password => 'password', :api_id => '1034412', :incoming_password => 'incoming', :from => 'from' }
     chan.save!
@@ -119,7 +127,9 @@ class ClickatellControllerTest < ActionController::TestCase
   end
   
   test "fails authorization because of account" do
-    account = Account.create(:name => 'account', :password => 'account_pass')
+    account = Account.create!(:name => 'account', :password => 'account_pass')
+    application = create_app account
+    
     chan = Channel.new(:account_id => account.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Bidirectional)
     chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :incoming_password => 'incoming', :from => 'from' }
     chan.save!
@@ -134,7 +144,9 @@ class ClickatellControllerTest < ActionController::TestCase
   end
   
   test "fails authorization because of channel" do
-    account = Account.create(:name => 'account', :password => 'account_pass')
+    account = Account.create!(:name => 'account', :password => 'account_pass')
+    application = create_app account
+    
     chan = Channel.new(:account_id => account.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Bidirectional)
     chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :incoming_password => 'incoming', :from => 'from' }
     chan.save!

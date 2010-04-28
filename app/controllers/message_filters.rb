@@ -81,7 +81,7 @@ module MessageFilters
       end
     end
     if !search[:channel].nil?
-      channel = Channel.find_by_name search[:channel]
+      channel = @account.find_channel search[:channel]
       if !channel.nil?
         conds[0] << ' AND channel_id = :channel_id'
         conds[1][:channel_id] = channel.id
@@ -162,7 +162,7 @@ module MessageFilters
       end
     end
     if !search[:channel].nil?
-      channel = Channel.find_by_name search[:channel]
+      channel = @account.find_channel search[:channel]
       if !channel.nil?
         conds[0] << ' AND channel_id = :channel_id'
         conds[1][:channel_id] = channel.id

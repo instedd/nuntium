@@ -5,11 +5,11 @@ class ClientQstConfiguration
   end
 
   def user
-    configuration[:cred_user] || configuration[:user]
+    configuration[:user]
   end
 
   def pass
-    configuration[:cred_pass] || configuration[:pass] || configuration[:password]
+    configuration[:password]
   end
 
   def url
@@ -39,11 +39,7 @@ class ClientQstConfiguration
   end
   
   def logger
-    if @parent.instance_of? Account
-      @parent.logger
-    elsif @parent.instance_of? Channel
-      @parent.account.logger
-    end
+    @parent.account.logger
   end
   
   private

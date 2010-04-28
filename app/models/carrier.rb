@@ -2,6 +2,9 @@ class Carrier < ActiveRecord::Base
   belongs_to :country
   has_many :mobile_numbers
   
+  before_destroy :clear_cache 
+  after_save :clear_cache
+  
   def self.all
     carriers = Rails.cache.read 'carriers'
     if not carriers
@@ -24,6 +27,10 @@ class Carrier < ActiveRecord::Base
     all.select {|x| x.country_id == country_id}
   end
   
+  def self.find_by_guid(guid)
+    all.select {|x| x.guid == guid}.first
+  end
+  
   def to_xml(options = {})
     options[:indent] ||= 2
     xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
@@ -39,5 +46,9 @@ class Carrier < ActiveRecord::Base
   
   def escape(str)
     str.gsub('"', '\\\\"')
+  end
+  
+  def clear_cache
+    Rails.cache.delete 'carriers'
   end
 end

@@ -32,9 +32,9 @@ class HomeControllerTest < ActionController::TestCase
   end
   
   test "edit account succeeds" do
-    account = Account.create({:name => 'account', :password => 'account_pass', :interface => 'rss' })
+    account = Account.create({:name => 'account', :password => 'account_pass'})
     
-    get :update_account, {:account => {:max_tries => 1, :interface => 'qst_client', :configuration => { :url => 'myurl' }, :password => '', :password_confirmation => ''}}, {:account_id => account.id}
+    get :update_account, {:account => {:max_tries => 1, :password => '', :password_confirmation => ''}}, {:account_id => account.id}
     
     # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -50,9 +50,9 @@ class HomeControllerTest < ActionController::TestCase
   end
   
   test "edit account change password succeeds" do
-    account = Account.create({:name => 'account', :password => 'account_pass', :interface => 'rss'})
+    account = Account.create({:name => 'account', :password => 'account_pass'})
     
-    get :update_account, {:account => {:max_tries => 3, :interface => 'rss', :password => 'new_pass', :password_confirmation => 'new_pass'}}, {:account_id => account.id}
+    get :update_account, {:account => {:max_tries => 3, :password => 'new_pass', :password_confirmation => 'new_pass'}}, {:account_id => account.id}
     
     # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -79,12 +79,6 @@ class HomeControllerTest < ActionController::TestCase
   test "edit account fails with max tries" do
     account = Account.create({:name => 'account', :password => 'account_pass'})
     get :update_account, {:account => {:max_tries => 'foo', :password => '', :password_confirmation => ''}}, {:account_id => account.id}
-    assert_template 'edit_account'
-  end
-  
-  test "edit account fails with invalid interface" do
-    account = Account.create({:name => 'account', :password => 'account_pass', :interface => 'rss'})
-    get :update_account, {:account => {:max_tries => '1', :interface => 'invalid' , :password => '', :password_confirmation => ''}}, {:account_id => account.id}
     assert_template 'edit_account'
   end
   

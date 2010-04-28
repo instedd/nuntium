@@ -204,39 +204,6 @@ function twitter_view_rate_limit_status(id) {
   });
 }
 
-// === address source ===
- 
-$(function() {
-  var find_address_source = function() {
-    $('#address_source_result').html('Searching...');
-    $.ajax({
-      type: "GET",
-      url: '/account/find_address_source', 
-      data: {address: $('#address_source').val()},
-      success: function(name) {
-        if (name) {
-          $('#address_source_result').html(name);
-        } else {
-          $('#address_source_result').html('No channel found');
-        }
-      },
-      error: function() {
-        $('#address_source_result').html('An error happened :-(');
-      }
-    });
-  };
-  
-  $('#address_source').keydown(function(event) {
-    if (event.keyCode == 13) {
-      find_address_source();
-      return false;
-    } else if (event.keyCode != 37 && event.keyCode != 39) {
-      $('#address_source_result').html('');
-    }
-  });
-  $('#address_source_button').click(find_address_source);
-});
-
 // === channel custom attributes ===
 
 function channel_custom_attribute_changed(select) {
@@ -359,7 +326,7 @@ function get_carriers(country_id, map) {
 function applications_select() {
   var html = '';
   html += '<select name="custom_attribute_value[]">';
-  html += '<option value="">Select an applicaiton...</option>';
+  html += '<option value="">Select an application...</option>';
   for(var i = 0; i < applications.length; i++) {
     html += '<option>' + applications[i].name + '</option>';
   }

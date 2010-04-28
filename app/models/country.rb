@@ -2,6 +2,9 @@ class Country < ActiveRecord::Base
   has_many :carriers
   has_many :mobile_numbers
   
+  before_destroy :clear_cache 
+  after_save :clear_cache
+  
   def self.all
     countries = Rails.cache.read 'countries'
     if not countries
@@ -20,10 +23,20 @@ class Country < ActiveRecord::Base
     all.select{|c| c.iso3 == iso3}.first
   end
   
+  def self.find_by_iso2_or_iso3(iso)
+    all.select{|c| c.iso2 == iso || c.iso3 == iso}.first
+  end
+  
   def to_xml(options = {})
     options[:indent] ||= 2
     xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
     xml.instruct! unless options[:skip_instruct]
     xml.country :name => name, :iso2 => iso2, :iso3 => iso3, :phone_prefix => phone_prefix
+  end
+  
+  private
+  
+  def clear_cache
+    Rails.cache.delete 'countries'
   end
 end

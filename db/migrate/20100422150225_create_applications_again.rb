@@ -3,7 +3,7 @@ class CreateApplicationsAgain < ActiveRecord::Migration
     create_table :applications do |t|
       t.string :name
       t.integer :account_id
-      t.string :interface
+      t.string :interface, :default => 'rss'
       t.text :configuration
 
       t.timestamps

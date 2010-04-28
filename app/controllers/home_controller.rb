@@ -1,11 +1,13 @@
 require 'will_paginate'
 
-class HomeController < AuthenticatedController
+class HomeController < AccountAuthenticatedController
 
   include MessageFilters
 
   before_filter :check_login, :except => [:index, :login, :create_account]
   after_filter :compress, :only => [:index, :login, :home, :edit_account]
+  
+  before_filter :check_application, :only => [:edit_application, :update_application, :delete_application]
 
   def index
     if !session[:account_id].nil?
@@ -76,7 +78,7 @@ class HomeController < AuthenticatedController
       :per_page => @results_per_page
       )
       
-    @channels = Channel.all(:conditions => ['account_id = ?', @account.id])
+    @channels = Channel.find_all_by_account_id @account.id
     @channels_queued_count = Hash.new 0
     
     AOMessage.connection.select_all(
@@ -87,7 +89,7 @@ class HomeController < AuthenticatedController
       @channels_queued_count[r['channel_id'].to_i] = r['count'].to_i
     end
     
-    @failed_alerts = Alert.all(:conditions => ['account_id = ? and failed = ?', @account.id, true])
+    @applications = Application.all(:conditions => ['account_id = ?', @account.id])
   end
   
   def edit_account
@@ -98,21 +100,6 @@ class HomeController < AuthenticatedController
     return redirect_to_home if account.nil?
     
     @account.max_tries = account[:max_tries]
-    @account.interface = account[:interface]
-    
-    if not account[:configuration].nil?
-      cfg = account[:configuration]
-      
-      if cfg[:use_address_source] == '1'
-        @account.configuration[:use_address_source] = 1
-      else
-        @account.configuration.delete :use_address_source
-      end
-      
-      @account.configuration.update({:url => cfg[:url]}) 
-      @account.configuration.update({:cred_user => cfg[:cred_user]}) 
-      @account.configuration.update({:cred_pass => cfg[:cred_pass]}) unless (cfg[:cred_pass].nil? or cfg[:cred_pass].blank?) and not (cfg[:cred_user].nil? or cfg[:cred_user].blank?)  
-    end
       
     if !account[:password].blank?
       @account.salt = nil
@@ -128,55 +115,63 @@ class HomeController < AuthenticatedController
     end
   end
   
-  def setup_account_alerts
-    @channels = Channel.all(:conditions => ['account_id = ? and (direction = ? or direction = ?)', @account.id, Channel::Outgoing, Channel::Bidirectional])
-    @alert_configurations = AlertConfiguration.find_all_by_account_id @account.id
+  def new_application
+    @application = Application.new unless @application
   end
   
-  def edit_account_alerts
-    setup_account_alerts
-  end
-  
-  def update_account_alerts
-    # Validation
-    params[:channel].each do |chan|
-      next if !chan[1][:activated]
-      
-      if chan[1][:from].blank? || chan[1][:to].blank?
-        @account.errors.add(:alert_configuration, 'You left a <i>from</i> or <i>to</i> field blank for an alert-activated channel') 
-        setup_account_alerts
-        return render :edit_account_alerts
-      end
+  def create_application
+    app = params[:application]
+    return redirect_to_home if app.nil?
+    
+    @application = Application.new(app)
+    @application.account_id = @account.id
+    
+    cfg = app[:configuration]
+    @application.use_address_source = cfg[:use_address_source] == '1'
+    @application.strategy = cfg[:strategy]
+    
+    if !@application.save
+      return render :new_application
     end
     
-    # Alert logic validation
-    account = params[:account]
-    cfg = account[:configuration]
-    @account.configuration[:alert] = cfg[:alert]
-    
-    if !@account.save
-      setup_account_alerts
-      return render :edit_account_alerts
-    end
-  
-    AlertConfiguration.delete_all(['account_id = ?', @account.id])
-    
-    params[:channel].each do |chan|
-      next if !chan[1][:activated]
-      AlertConfiguration.create!(:account_id => @account.id, :channel_id => chan[0].to_i, :from => chan[1][:from], :to => chan[1][:to]) 
-    end
-    
-    redirect_to_home 'Alerts were changed'
+    redirect_to_home 'Application was created'
   end
   
-  def find_address_source
-    chan = Channel.first(:joins => :address_sources, :conditions => ['address_sources.account_id = ? AND address_sources.address = ?', @account.id, params[:address]]);
-    render :text => chan.nil? ? '' : chan.name
+  def edit_application
+    render :new_application
   end
   
-  def delete_failed_alerts
-    Alert.delete_all(['account_id = ? and failed = ?', @account.id, true])
-    redirect_to_home
+  def update_application
+    app = params[:application]
+    return redirect_to_home if app.nil?
+    
+    @application.interface = app[:interface]
+    
+    @application.configuration = app[:configuration]
+    @application.use_address_source = false if @application.configuration[:use_address_source] != '1' 
+    
+    if app[:password].present?
+      @application.salt = nil
+      @application.password = app[:password]
+      @application.password_confirmation = app[:password_confirmation]
+    end
+    
+    if !@application.save
+      return render :new_application
+    end
+    
+    redirect_to_home "Application #{@application.name} was changed"
+  end
+  
+  def delete_application
+    @application.destroy
+    
+    redirect_to_home 'Application was deleted'
+  end
+  
+  def check_application
+    @application = Application.find_by_id params[:id]
+    redirect_to_home if @application.nil? || @application.account_id != @account.id
   end
   
   def logoff

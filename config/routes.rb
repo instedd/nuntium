@@ -1,11 +1,11 @@
 ActionController::Routing::Routes.draw do |map|
-  map.resources :rss, :only => [:index, :create]
-  map.resources :incoming, :path_prefix => '/qst/:account_id', :only => [:index, :create]
-  map.resources :outgoing, :path_prefix => '/qst/:account_id', :only => [:index]
+  map.resources :rss, :path_prefix => '/:account_name', :only => [:index, :create]
+  map.resources :incoming, :path_prefix => '/:account_id/qst', :only => [:index, :create]
+  map.resources :outgoing, :path_prefix => '/:account_id/qst', :only => [:index]
   
   map.clickatel_credit '/clickatell/view_credit', :controller => 'clickatell', :action => :view_credit
-  map.clickatel '/clickatell/:account_id/incoming', :controller => 'clickatell', :action => :index
-  map.dtac '/dtac/:account_id/incoming', :controller => 'dtac', :action => :index
+  map.clickatel '/:account_id/clickatell/incoming', :controller => 'clickatell', :action => :index
+  map.dtac '/:account_id/dtac/incoming', :controller => 'dtac', :action => :index
   
   map.root :controller => 'home'
   
@@ -15,10 +15,6 @@ ActionController::Routing::Routes.draw do |map|
   map.home '/home', :controller => 'home', :action => :home
   map.edit_account '/account/edit', :controller => 'home', :action => :edit_account
   map.update_account '/account/update', :controller => 'home', :action => :update_account
-  map.update_account '/account/find_address_source', :controller => 'home', :action => :find_address_source
-  map.update_account '/account/failed_alerts/delete', :controller => 'home', :action => :delete_failed_alerts
-  map.edit_account_alerts '/account/alerts/edit', :controller => 'home', :action => :edit_account_alerts
-  map.update_account_alerts '/account/alerts/update', :controller => 'home', :action => :update_account_alerts
 
   # Twitter mappings must come before generic channel mapping
   map.create_twitter_channel '/channel/create/twitter', :controller => 'twitter', :action => :create_twitter_channel, :kind => 'twitter'
@@ -32,7 +28,13 @@ ActionController::Routing::Routes.draw do |map|
   map.update_channel '/channel/update/:id', :controller => 'channel', :action => :update_channel
   map.delete_channel '/channel/delete/:id', :controller => 'channel', :action => :delete_channel  
   map.enable_channel '/channel/enable/:id', :controller => 'channel', :action => :enable_channel  
-  map.disable_channel '/channel/disable/:id', :controller => 'channel', :action => :disable_channel  
+  map.disable_channel '/channel/disable/:id', :controller => 'channel', :action => :disable_channel
+  
+  map.new_application '/application/new', :controller => 'home', :action => :new_application  
+  map.create_application '/application/create', :controller => 'home', :action => :create_application
+  map.edit_application '/application/edit/:id', :controller => 'home', :action => :edit_application
+  map.update_application '/application/update/:id', :controller => 'home', :action => :update_application
+  map.delete_application '/application/delete/:id', :controller => 'home', :action => :delete_application
   
   map.new_ao_message '/message/ao/new', :controller => 'message', :action => :new_ao_message
   map.create_ao_message '/message/ao/create', :controller => 'message', :action => :create_ao_message
@@ -45,7 +47,7 @@ ActionController::Routing::Routes.draw do |map|
   map.mark_at_messages_as_cancelled '/message/at/mark_as_cancelled', :controller => 'message', :action => :mark_at_messages_as_cancelled
   map.view_at_message '/message/at/:id', :controller => 'message', :action => :view_at_message
   
-  map.send_ao '/send_ao', :controller => 'send_ao', :action => :create
+  map.send_ao '/:account_name/send_ao', :controller => 'send_ao', :action => :create
   
   # API
   

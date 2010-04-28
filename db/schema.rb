@@ -28,9 +28,7 @@ ActiveRecord::Schema.define(:version => 20100428155541) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "salt"
-    t.integer  "max_tries",     :default => 3,     :null => false
-    t.string   "interface",     :default => "rss"
-    t.text     "configuration"
+    t.integer  "max_tries",  :default => 3, :null => false
   end
 
   create_table "address_sources", :force => true do |t|
@@ -40,29 +38,10 @@ ActiveRecord::Schema.define(:version => 20100428155541) do
     t.datetime "timestamp"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "application_id"
   end
 
   add_index "address_sources", ["account_id", "address"], :name => "index_address_sources_on_application_id_and_address", :unique => true
-
-  create_table "alert_configurations", :force => true do |t|
-    t.integer  "account_id"
-    t.integer  "channel_id"
-    t.string   "from"
-    t.string   "to"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "alerts", :force => true do |t|
-    t.integer  "account_id"
-    t.integer  "channel_id"
-    t.string   "kind"
-    t.integer  "ao_message_id"
-    t.datetime "sent_at"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.boolean  "failed",        :default => false
-  end
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -92,6 +71,8 @@ ActiveRecord::Schema.define(:version => 20100428155541) do
     t.text     "configuration"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "password"
+    t.string   "salt"
   end
 
   create_table "at_messages", :force => true do |t|
@@ -132,7 +113,7 @@ ActiveRecord::Schema.define(:version => 20100428155541) do
     t.string   "protocol"
     t.integer  "direction"
     t.boolean  "enabled",           :default => true
-    t.integer  "metric",            :default => 100
+    t.integer  "priority",          :default => 100
     t.integer  "throttle"
     t.text     "custom_attributes"
     t.text     "at_rules"

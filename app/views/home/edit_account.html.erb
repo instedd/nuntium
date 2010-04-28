@@ -1,13 +1,3 @@
-<% content_for :head do%>
-	<script type="text/javascript" charset="utf-8">
-	function disableConfig(value) {
-		document.getElementById('account_configuration_url').disabled=value;
-		document.getElementById('account_configuration_cred_user').disabled=value;
-		document.getElementById('account_configuration_cred_pass').disabled=value;
-	} 
-	</script>
-<% end%>
-
 <h4>Edit settings / Change password</h4>
 
 <% form_for :account, :url => { :controller => 'home', :action => :update_account } do |f| %>
@@ -16,37 +6,6 @@
   <%= f.label :max_tries %><br/>
   <%= f.text_field :max_tries %>
   </p>
-  <p>
-  <%= f.label :interface %><br/>
-  <%= f.radio_button :interface, 'rss', :onclick => "disableConfig(true);" %> <%= f.label :interface, 'Rss', :value => 'rss' %><br/>
-  <%= f.radio_button :interface, 'qst_client', :onclick => "disableConfig(false);"%> <%= f.label :interface, 'QST client', :value => 'qst_client' %><br/>
-  <%= f.radio_button :interface, 'http_post_callback', :onclick => "disableConfig(false);"%> <%= f.label :interface, 'HTTP POST callack', :value => 'http_post_callback' %><br/>
-
-  <% f.fields_for :configuration do |c| %>
-  
-  <p>
-  Route via last AT channel used <acronym title="When an AO message needs to be routed, if it's 'to' field matches the 'from' field of the last AT message received, the channel used to receieve that AT message will be used.">?</acronym><br/>
-  <%= c.radio_button :use_address_source, 0, :checked => @account.configuration[:use_address_source].nil? %> <%= c.label :use_address_source, 'No', :value => 0 %><br/>
-  <%= c.radio_button :use_address_source, 1, :checked => !@account.configuration[:use_address_source].nil? %> <%= c.label :use_address_source, 'Yes', :value => 1 %>
-  </p>
-  
-  <div>
-    <h5>Configuration:</h5>
-	<p>
-    <%= c.label :url %><br/>
-    <%= c.text_field :url, :value => @account.configuration[:url], :disabled => @account.interface != 'qst_client' && @account.interface != 'http_post_callback', :class => 'configurl' %>
-    </p>
-    <p>
-    <%= c.label :cred_user %><br/>
-    <%= c.text_field :cred_user, :value => @account.configuration[:cred_user], :disabled => @account.interface != 'qst_client' && @account.interface != 'http_post_callback', :class => 'configurl' %>
-    </p>
-    <p>
-    <%= c.label :cred_pass %><br/>
-    <%= c.password_field :cred_pass, :value => @account.configuration[:cred_pass], :disabled => @account.interface != 'qst_client' && @account.interface != 'http_post_callback', :autocomplete => :off, :class => 'configurl' %>
-    </p>
-  <% end %>
-  </div>
-  </p>	
   <hr />
   <p>
   <b>Leave blank if you don't want to change the password</b><br/>

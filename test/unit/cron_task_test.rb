@@ -18,48 +18,61 @@ class CronTaskTest < ActiveSupport::TestCase
   end
   
   test "should create task when creating qst account and drop if changed" do
-    account = Account.create :name => 'account', :password => 'foo', :interface => 'qst_client'
+    account = Account.create! :name => 'foo', :password => 'bar'
+  
+    application = Application.new :account_id => account.id, :name => 'application', :interface => 'qst_client', :password => 'x'
+    application.configuration = {:url => 'foo', :user => 'bar', :password => 'baz'}
+    application.save!
     
-    assert_equal 2, account.cron_tasks.size
-    t1, t2 = account.cron_tasks.all
+    assert_equal 2, application.cron_tasks.size
+    t1, t2 = application.cron_tasks.all
     
     assert_equal PushQstMessageJob, t1.get_handler.class
-    assert_equal account.id, t1.parent_id
+    assert_equal application.id, t1.parent_id
     
     assert_equal PullQstMessageJob, t2.get_handler.class
-    assert_equal account.id, t2.parent_id
+    assert_equal application.id, t2.parent_id
     
-    account.update_attribute(:interface, 'rss')
-    assert_equal 0, account.cron_tasks.size
+    application.update_attribute(:interface, 'rss')
+    assert_equal 0, application.cron_tasks.size
     assert_equal 0, CronTask.all.size
   end
   
   test "should create task when changing account to qst" do
-    account = Account.create :name => 'account', :password => 'foo', :interface => 'rss'
-    assert_equal 0, account.cron_tasks.size
+    account = Account.create! :name => 'foo', :password => 'bar'
+  
+    application = Application.new :account_id => account.id, :name => 'application', :interface => 'rss', :password => 'x'
+    application.configuration = {:password => 'baz'}
+    application.save!
+    
+    assert_equal 0, application.cron_tasks.size
     assert_equal 0, CronTask.all.size
     
-    account.update_attribute(:interface, 'qst_client')
-    account.reload
-    assert_equal 2, account.cron_tasks.size
+    application.update_attribute(:interface, 'qst_client')
+    application.reload
+    assert_equal 2, application.cron_tasks.size
     
-    t1, t2 = account.cron_tasks.all
+    t1, t2 = application.cron_tasks.all
     
     assert_equal PushQstMessageJob, t1.get_handler.class
-    assert_equal account.id, t1.parent_id
+    assert_equal application.id, t1.parent_id
     
     assert_equal PullQstMessageJob, t2.get_handler.class
-    assert_equal account.id, t2.parent_id
+    assert_equal application.id, t2.parent_id
   end
   
   test "should drop task with account" do
-    account = Account.create :name => 'account', :password => 'foo', :interface => 'qst_client'
+    account = Account.create! :name => 'foo', :password => 'bar'
+  
+    application = Application.new :account_id => account.id, :name => 'account', :interface => 'qst_client', :password => 'x'
+    application.configuration = {:url => 'foo', :user => 'bar', :password => 'baz'}
+    application.save!
     
-    assert_equal 2, account.cron_tasks.size
-    assert_equal PushQstMessageJob, account.cron_tasks.first.get_handler.class
-    assert_equal PullQstMessageJob, account.cron_tasks.last.get_handler.class
+    assert_equal 2, application.cron_tasks.size
+    assert_equal PushQstMessageJob, application.cron_tasks.first.get_handler.class
+    assert_equal PullQstMessageJob, application.cron_tasks.last.get_handler.class
     
-    account.destroy
+    application.destroy
     assert_equal 0, CronTask.all.size
   end
   

@@ -29,9 +29,34 @@ module MessageCommon
     end
   end
   
+  # A Hash where each value can be a string or an Array of strings
   def custom_attributes
     self[:custom_attributes] = {} if self[:custom_attributes].nil?
     self[:custom_attributes]
+  end
+  
+  def country
+    custom_attributes['country']
+  end
+  
+  def country=(value)
+    custom_attributes['country'] = value
+  end
+  
+  def carrier
+    custom_attributes['carrier']
+  end
+  
+  def carrier=(value)
+    custom_attributes['carrier'] = value
+  end
+  
+  def strategy
+    custom_attributes['strategy']
+  end
+  
+  def suggested_channel
+    custom_attributes['suggested_channel']
   end
 
   # Given an xml builder writes itself unto it
@@ -104,7 +129,13 @@ module MessageCommon
         if properties.present?
           properties = [properties] if properties.class <= Hash      
           properties.each do |prop|
-            msg.custom_attributes[prop[:name]] = prop[:value]
+            if msg.custom_attributes[prop[:name]].kind_of? Array
+              msg.custom_attributes[prop[:name]] << prop[:value]
+            elsif msg.custom_attributes[prop[:name]]
+              msg.custom_attributes[prop[:name]] = [msg.custom_attributes[prop[:name]], prop[:value]]
+            else
+              msg.custom_attributes[prop[:name]] = prop[:value]
+            end
           end
         end
         

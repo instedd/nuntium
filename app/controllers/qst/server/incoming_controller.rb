@@ -16,7 +16,7 @@ class IncomingController < QSTServerController
 
     last_id = nil
     ATMessage.parse_xml(tree) do |msg|
-      @account.accept msg, @channel
+      @account.route_at msg, @channel
       last_id = msg.guid
     end
     

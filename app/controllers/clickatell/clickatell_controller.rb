@@ -1,6 +1,6 @@
 require 'iconv'
 
-class ClickatellController < AuthenticatedController
+class ClickatellController < AccountAuthenticatedController
   before_filter :authenticate, :only => :index
   before_filter :check_login, :only => :view_credit
 
@@ -60,7 +60,7 @@ class ClickatellController < AuthenticatedController
     msg.subject = Iconv.new('UTF-8', params[:charset]).iconv(text)
     msg.channel_relative_id = params[:moMsgId]
     msg.timestamp = get_timestamp
-    @account.accept msg, @channel
+    @account.route_at msg, @channel
   end
   
   def get_timestamp
@@ -69,10 +69,8 @@ class ClickatellController < AuthenticatedController
   
   def view_credit
     id = params[:id]
-    @channel = Channel.find_by_id id
-    if @channel.nil? || @channel.account_id != @account.id || @channel.kind != 'clickatell'
-      return redirect_to_home
-    end
+    @channel = @account.find_channel id
+    return redirect_to_home unless @channel && @channel.kind == 'clickatell'
     
     render :text => @channel.handler.get_credit
   end
@@ -81,17 +79,12 @@ class ClickatellController < AuthenticatedController
     authenticate_or_request_with_http_basic do |username, password|
       @account = Account.find_by_id_or_name(params[:account_id])
       if !@account.nil?
-        channels = @account.channels.find_all_by_kind 'clickatell'
-        channels = channels.select { |c| 
+        @channel = @account.channels.select{|c| 
+          c.kind == 'clickatell' && 
           c.name == username && 
-          c.configuration[:incoming_password] == password &&
-          c.configuration[:api_id] == params[:api_id] }
-        if channels.empty?
-          false
-        else
-          @channel = channels[0]
-          true
-        end
+          c.configuration[:incoming_password] == password && 
+          c.configuration[:api_id] == params[:api_id]
+        }.first
       else
         false
       end

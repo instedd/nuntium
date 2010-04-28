@@ -13,7 +13,7 @@ class ReceiveTwitterMessageJob
   
   def perform
     @account = Account.find @account_id
-    @channel = Channel.find @channel_id
+    @channel = @account.find_channel @channel_id
     @config = @channel.configuration
     @status = TwitterChannelStatus.first(:conditions => { :channel_id => @channel_id })
     
@@ -57,7 +57,7 @@ class ReceiveTwitterMessageJob
         msg.timestamp = Time.parse(twit.created_at)
         msg.channel_relative_id = twit.id
         
-        @account.accept msg, @channel
+        @account.route_at msg, @channel
       end
       
       query[:page] += 1

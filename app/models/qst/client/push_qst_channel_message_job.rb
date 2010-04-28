@@ -14,10 +14,10 @@ class PushQstChannelMessageJob
     require 'net/http'
     require 'builder'
     
-    account = Account.find_by_id(@account_id)
-    @channel = Channel.find_by_id(@channel_id)
+    account = Account.find_by_id @account_id
+    @channel = account.find_channel @channel_id
     cfg = ClientQstConfiguration.new @channel
-    err = validate_channel(@channel)
+    err = validate_channel @channel
     return err if not err.nil?
 
     # Create http requestor and uri

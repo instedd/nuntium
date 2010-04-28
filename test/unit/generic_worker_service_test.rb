@@ -33,8 +33,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 		clean_queues
 	end
 
-  test "should subscribe to enabled channels and accounts" do
-    Queues.expects(:subscribe).with(Queues.account_queue_name_for(@account), true, kind_of(MQ))
+  test "should subscribe to enabled channels" do
     Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, kind_of(MQ))
     
     @service.start

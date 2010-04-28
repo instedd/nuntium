@@ -8,6 +8,8 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
 
   should "perform no ssl" do
     account = Account.create(:name => 'account', :password => 'pass')
+    application = create_app account
+    
     chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
     chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '0'}
     chan.save
@@ -52,6 +54,8 @@ END_OF_MESSAGE
   
   should "perform ssl" do
     account = Account.create(:name => 'account', :password => 'pass')
+    application = create_app account
+    
     chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
     chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'}
     chan.save
@@ -97,6 +101,8 @@ END_OF_MESSAGE
   
   should "perform no message id" do
     account = Account.create(:name => 'account', :password => 'pass')
+    application = create_app account
+    
     chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
     chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '0'}
     chan.save

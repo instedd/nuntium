@@ -17,8 +17,8 @@ class SendPostCallbackMessageJob
     
     url = URI.parse(account.configuration[:url])
     req = Net::HTTP::Post.new(url.path)
-    if account.configuration[:cred_user].present?
-      req.basic_auth account.configuration[:cred_user], account.configuration[:cred_pass]
+    if account.configuration[:user].present?
+      req.basic_auth account.configuration[:user], account.configuration[:password]
     end
     req.content_type = "application/x-www-form-urlencoded"
 
