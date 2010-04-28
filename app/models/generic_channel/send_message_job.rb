@@ -13,7 +13,7 @@ class SendMessageJob
   def perform
     begin
       @account = Account.find_by_id @account_id
-      @channel = Channel.find @channel_id
+      @channel = @account.find_channel @channel_id
       @msg = AOMessage.find @message_id
       @config = @channel.configuration
     

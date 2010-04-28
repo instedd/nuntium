@@ -63,7 +63,7 @@ class TwitterController < AccountAuthenticatedController
       @channel.direction = Channel::Bidirectional
     else
       @update = true
-      @channel = Channel.find session['twitter_channel_id']
+      @channel = @account.find_channel session['twitter_channel_id']
     end
     
     @channel.configuration = {
@@ -93,7 +93,7 @@ class TwitterController < AccountAuthenticatedController
   
   def view_rate_limit_status
     id = params[:id]
-    @channel = Channel.find_by_id id
+    @channel = @account.find_channel id
     if @channel.nil? || @channel.account_id != @account.id || @channel.kind != 'twitter'
       return redirect_to_home
     end

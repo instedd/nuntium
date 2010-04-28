@@ -69,10 +69,8 @@ class ClickatellController < AccountAuthenticatedController
   
   def view_credit
     id = params[:id]
-    @channel = Channel.find_by_id id
-    if @channel.nil? || @channel.account_id != @account.id || @channel.kind != 'clickatell'
-      return redirect_to_home
-    end
+    @channel = @account.find_channel id
+    return redirect_to_home unless @channel && @channel.kind == 'clickatell'
     
     render :text => @channel.handler.get_credit
   end

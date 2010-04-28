@@ -13,7 +13,7 @@ class ReceiveTwitterMessageJob
   
   def perform
     @account = Account.find @account_id
-    @channel = Channel.find @channel_id
+    @channel = @account.find_channel @channel_id
     @config = @channel.configuration
     @status = TwitterChannelStatus.first(:conditions => { :channel_id => @channel_id })
     

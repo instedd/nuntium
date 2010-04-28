@@ -27,6 +27,10 @@ class Account < ActiveRecord::Base
     Channel.find_all_by_account_id id
   end
   
+  def find_channel(id_or_name)
+    channels.select{|c| c.id == id_or_name.to_i || c.name == id_or_name}.first
+  end
+  
   def authenticate(password)
     self.password == Digest::SHA2.hexdigest(self.salt + password)
   end

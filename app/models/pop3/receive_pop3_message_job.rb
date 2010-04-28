@@ -13,7 +13,7 @@ class ReceivePop3MessageJob
   
   def perform
     account = Account.find @account_id
-    @channel = Channel.find @channel_id
+    @channel = account.find_channel @channel_id
     config = @channel.configuration
     
     pop = Net::POP3.new(config[:host], config[:port].to_i)

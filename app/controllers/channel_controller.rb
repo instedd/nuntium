@@ -106,8 +106,8 @@ class ChannelController < AccountAuthenticatedController
   protected
   
   def check_channel
-    @channel = Channel.find_by_id params[:id]
-    redirect_to_home if @channel.nil? || @channel.account_id != @account.id
+    @channel = @account.find_channel params[:id]
+    redirect_to_home if @channel.nil?
   end
 
 end

@@ -14,10 +14,10 @@ class PullQstChannelMessageJob
     require 'net/http'
     require 'builder'
 
-    account = Account.find_by_id(@account_id)
-    channel = Channel.find_by_id(@channel_id)
-    err = validate_channel(channel)
-    cfg = ClientQstConfiguration.new(channel)
+    account = Account.find_by_id @account_id
+    channel = account.find_channel @channel_id
+    err = validate_channel channel
+    cfg = ClientQstConfiguration.new channel
     return err unless err.nil?
 
     # Create http requestor and uri
