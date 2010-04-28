@@ -160,29 +160,23 @@ class Application < ActiveRecord::Base
     self.save
   end
   
-  def interface_url
-    configuration[:interface_url]
+  def self.configuration_accessor(name, default = nil)
+    define_method(name) do
+      configuration[name] || default
+    end
+    define_method("#{name}=") do |value|
+      configuration[name] = value
+    end
   end
   
-  def interface_url=(value)
-    configuration[:interface_url] = value
-  end
-  
-  def interface_user
-    configuration[:interface_user]
-  end
-  
-  def interface_user=(value)
-    configuration[:interface_user] = value
-  end
-  
-  def interface_password
-    configuration[:interface_password]
-  end
-  
-  def interface_user=(value)
-    configuration[:interface_password] = value
-  end
+  configuration_accessor :interface_url
+  configuration_accessor :interface_user
+  configuration_accessor :interface_password
+  configuration_accessor :strategy, 'broadcast'
+  configuration_accessor :delivery_ack_method, 'none'
+  configuration_accessor :delivery_ack_url
+  configuration_accessor :delivery_ack_user
+  configuration_accessor :delivery_ack_password
   
   def use_address_source?
     configuration[:use_address_source] == '1'
@@ -194,46 +188,6 @@ class Application < ActiveRecord::Base
     else
       configuration.delete :use_address_source
     end
-  end
-  
-  def strategy
-    configuration[:strategy] || 'broadcast'
-  end
-  
-  def strategy=(value)
-    configuration[:strategy] = value
-  end
-  
-  def delivery_ack_method
-    configuration[:delivery_ack_method] || 'none'
-  end
-  
-  def delivery_ack_method=(value)
-    configuration[:delivery_ack_method] = value
-  end
-  
-  def delivery_ack_url
-    configuration[:delivery_ack_url]
-  end
-  
-  def delivery_ack_url=(value)
-    configuration[:delivery_ack_url] = value
-  end
-  
-  def delivery_ack_user
-    configuration[:delivery_ack_user]
-  end
-  
-  def delivery_ack_user=(value)
-    configuration[:delivery_ack_user] = value
-  end
-  
-  def delivery_ack_password
-    configuration[:delivery_ack_password]
-  end
-  
-  def delivery_ack_password=(value)
-    configuration[:delivery_ack_password] = value
   end
   
   def strategy_description
@@ -250,7 +204,14 @@ class Application < ActiveRecord::Base
   end
   
   def delivery_ack_method_description
-    Application.delivery_ack_method_description(delivery_ack_method)
+    case delivery_ack_method
+    when 'none'
+      'None'
+    when 'get'
+      "HTTP GET #{delivery_ack_url}"
+    when 'post'
+      "HTTP POST #{delivery_ack_url}"
+    end
   end
   
   def self.delivery_ack_method_description(method)
@@ -258,9 +219,9 @@ class Application < ActiveRecord::Base
     when 'none'
       'None'
     when 'get'
-      'HTTP GET'
+      "HTTP GET"
     when 'post'
-      'HTTP POST'
+      "HTTP POST"
     end
   end
   
@@ -269,9 +230,9 @@ class Application < ActiveRecord::Base
     when 'rss'
       return 'Rss'
     when 'qst_client'
-      return 'QST client: ' << self.interface_url
+      return "QST client: #{interface_url}"
     when 'http_post_callback'
-      return 'HTTP POST callback: ' << self.interface_url
+      return "HTTP POST callback: #{interface_url}"
     end
   end
   

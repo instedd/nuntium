@@ -30,7 +30,7 @@
       <li><span style="font-family:monospace">GET <%= url_for :controller => :dtac, :action => :index, :account_id => @account.id %></span>:
         create Application Terminated Messages</li>
     </ul>
-  <% end %>
+  <% end %><th>Strategy</th>
   
   <% if not @applications.empty? %>
     <div><b>Via HTTP GET</b></div>
@@ -179,6 +179,7 @@ channel_kinds[1..-1].map!{|x| x[0] << ' channel'}
       <th>Interface</th>
       <th>Route via last channel?</th>
       <th>Strategy</th>
+      <th>Delivery ACK</th>
       <th></th>
     </tr>
     <% @applications.each do |app| %>
@@ -187,6 +188,7 @@ channel_kinds[1..-1].map!{|x| x[0] << ' channel'}
         <td><%= app.interface_description %></td>
         <td><%= app.use_address_source? ? 'Yes' : 'No' %></td>
         <td><%= app.strategy_description %></td>
+        <td><%= app.delivery_ack_method_description %></td>
         <td>
           <%= link_to "edit", :controller => :home, :action => :edit_application, :id => app.id %>
           <%= link_to "delete", {:controller => :home, :action => :delete_application, :id => app.id}, :confirm => "Are you sure you want to delete the application #{app.name}?" %>
