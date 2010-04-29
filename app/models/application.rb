@@ -54,6 +54,10 @@ class Application < ActiveRecord::Base
     # Save mobile number information
     MobileNumber.update msg.to.mobile_number, msg.country, msg.carrier if protocol == 'sms'
     
+    # AO Rules
+    ao_rules_res = RulesEngine.apply(msg.rules_context, self.ao_rules)
+    msg.merge ao_rules_res
+    
     # Get all outgoing enabled channels
     channels = account.channels.select{|c| c.enabled && c.is_outgoing?}
     
