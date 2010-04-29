@@ -4,6 +4,7 @@ require 'mocha'
 class AccountTest < ActiveSupport::TestCase
 
   include Mocha::API
+  include RulesEngine
   
   def setup
     @country = Country.create!(:name => 'Argentina', :iso2 => 'ar', :iso3 =>'arg', :phone_prefix => '54')
@@ -54,7 +55,7 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal account, found
   end
   
-  test "at routing saves mobile number" do
+  test "route at saves mobile number" do
     account = Account.create!(:name => 'account', :password => 'foo')
     
     msg = ATMessage.new :from => 'sms://+5678', :to => 'sms://1234', :subject => 'foo', :body => 'bar'
@@ -68,6 +69,25 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal '5678', nums[0].number
     assert_equal @country.id, nums[0].country_id
     assert_equal @carrier.id, nums[0].carrier_id
+  end
+  
+  test "apply at routing" do
+    account = Account.create!(:name => 'account', :password => 'foo')
+    chan = new_channel account, 'chan'
+    chan.at_rules = [
+      rule([matching('subject', OP_EQUALS, 'one')], [action('subject', 'ONE')]) 
+    ]
+    chan.save!
+    
+    msg = ATMessage.new :from => 'sms://+5678', :to => 'sms://1234', :subject => 'one', :body => 'bar'
+    account.route_at msg, chan
+    
+    assert_equal 'ONE', msg.subject
+    
+    msg = ATMessage.new :from => 'sms://+5678', :to => 'sms://1234', :subject => 'two', :body => 'bar'
+    account.route_at msg, chan
+    
+    assert_equal 'two', msg.subject
   end
   
 end
