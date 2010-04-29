@@ -70,9 +70,17 @@ class Account < ActiveRecord::Base
     elsif applications.length == 1
       applications.first.route_at msg, via_channel
     else
-      app_routing_rules_res = RulesEngine.apply(msg.rules_context, self.app_routing_rules) || {}
-      if app_routing_rules_res.has_key?('application')
-        application = find_application app_routing_rules_res['application']
+      # if msg says which application to be used ...
+      dest_application_name = msg.custom_attributes['application']
+      
+      # if not, run the app_routing_rules
+      if dest_application_name.nil?
+        app_routing_rules_res = RulesEngine.apply(msg.rules_context, self.app_routing_rules) || {}
+        dest_application_name = app_routing_rules_res['application']
+      end
+      
+      if !dest_application_name.nil?  
+        application = find_application dest_application_name
         unless application.nil?
           application.route_at msg, via_channel
         else
