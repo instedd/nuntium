@@ -131,6 +131,7 @@ class HomeController < AccountAuthenticatedController
     
     cfg = app[:configuration]
     @application.use_address_source = cfg[:use_address_source] == '1'
+    @application.ao_rules = get_rules :aorules
     @application.strategy = cfg[:strategy]
     
     if !@application.save
@@ -152,6 +153,7 @@ class HomeController < AccountAuthenticatedController
     
     @application.configuration = app[:configuration]
     @application.use_address_source = false if @application.configuration[:use_address_source] != '1' 
+    @application.ao_rules = get_rules :aorules
     
     if app[:password].present?
       @application.salt = nil

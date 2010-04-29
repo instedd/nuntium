@@ -118,6 +118,15 @@
     </p>
     </div>
     
+	<h5>AO Rules</h5>
+	
+	<div class="aorules"></div>
+
+	<script type="text/javascript">	
+	jQuery(function(){
+		init_rules(jQuery('.aorules'), 'aorules', <%= @application.ao_rules.to_json %>);
+	});
+	</script>
     
   <% end %>
   </p>

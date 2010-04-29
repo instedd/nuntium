@@ -18,6 +18,7 @@ class Application < ActiveRecord::Base
   validates_presence_of :delivery_ack_url, :unless => Proc.new {|app| app.delivery_ack_method == 'none'}
   
   serialize :configuration, Hash
+  serialize :ao_rules
   
   before_save :hash_password
   
