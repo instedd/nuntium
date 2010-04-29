@@ -35,29 +35,19 @@ module MessageCommon
     self[:custom_attributes]
   end
   
-  def country
-    custom_attributes['country']
+  def self.custom_attributes_accessor(name, default = nil)
+    define_method(name) do
+      custom_attributes[name.to_s] || default
+    end
+    define_method("#{name}=") do |value|
+      custom_attributes[name.to_s] = value
+    end
   end
   
-  def country=(value)
-    custom_attributes['country'] = value
-  end
-  
-  def carrier
-    custom_attributes['carrier']
-  end
-  
-  def carrier=(value)
-    custom_attributes['carrier'] = value
-  end
-  
-  def strategy
-    custom_attributes['strategy']
-  end
-  
-  def suggested_channel
-    custom_attributes['suggested_channel']
-  end
+  custom_attributes_accessor :country
+  custom_attributes_accessor :carrier
+  custom_attributes_accessor :strategy
+  custom_attributes_accessor :suggested_channel
 
   # Given an xml builder writes itself unto it
   def write_xml(xml)
@@ -93,7 +83,7 @@ module MessageCommon
     self.body = attributes["body"] if attributes.has_key?("body")
     
     other_attributes = attributes.reject { |k,v| ["from","to","subject","body"].include?(k) }
-    self[:custom_attributes] = self.custom_attributes.merge(other_attributes)    
+    self[:custom_attributes] = self.custom_attributes.merge(other_attributes)
   end
 
   module ClassMethods
