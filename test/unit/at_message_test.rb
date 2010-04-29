@@ -28,4 +28,14 @@ class ATMessageTest < ActiveSupport::TestCase
     assert_equal 'e', msg.custom_attributes["ca1"]
     assert_equal 'f', msg.custom_attributes["ca2"]
   end
+  
+  test "infer attributes one country" do
+    Country.create! :name => 'Argentina', :iso2 => 'ar', :iso3 => 'arg', :phone_prefix => '12'
+  
+    msg = ATMessage.new(:from => 'sms://+1234')
+    msg.infer_custom_attributes
+    
+    assert_equal 'ar', msg.country
+    assert_nil msg.carrier
+  end
 end

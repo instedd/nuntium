@@ -61,7 +61,34 @@ module MessageCommon
       if countries.length == 1
         self.country = countries[0].iso2
       else
-        self.country = countries.map{|x| x.iso2}
+        self.country = countries.map &:iso2
+      end
+    end
+    
+    return unless self.country
+    return if self.carrier
+    
+    countries = self.country
+    countries = [countries] unless countries.kind_of? Array
+    countries = countries.map{|x| Country.find_by_iso2_or_iso3 x}
+    
+    carriers = []
+    
+    countries.each do |c|
+      next unless c
+      cs = Carrier.find_by_country_id c.id
+      cs.each do |carrier| 
+        next unless carrier.prefixes.present?
+        prefixes = carrier.prefixes.split ','
+        carriers << carrier if prefixes.any?{|p| number.start_with?(c.phone_prefix + p.strip)}
+      end
+    end
+    
+    unless carriers.empty?
+      if carriers.length == 1
+        self.carrier = carriers[0].guid
+      else
+        self.carrier = carriers.map &:guid
       end
     end
   end

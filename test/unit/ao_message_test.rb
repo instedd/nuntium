@@ -61,4 +61,41 @@ class AOMessageTest < ActiveSupport::TestCase
     assert_equal 'br', msg.country
     assert_nil msg.carrier
   end
+  
+  test "infer attributes one carrier" do
+    arg = Country.create! :name => 'Argentina', :iso2 => 'ar', :iso3 => 'arg', :phone_prefix => '12'
+    Carrier.create! :country_id => arg.id, :name => 'Personal', :prefixes => '34, 56', :guid => 'personal'  
+  
+    msg = AOMessage.new(:to => 'sms://+1234')
+    msg.infer_custom_attributes
+    
+    assert_equal 'ar', msg.country
+    assert_equal 'personal', msg.carrier
+  end
+
+  test "infer attributes two carriers" do
+    arg = Country.create! :name => 'Argentina', :iso2 => 'ar', :iso3 => 'arg', :phone_prefix => '12'
+    Carrier.create! :country_id => arg.id, :name => 'Personal', :prefixes => '34, 56', :guid => 'personal'  
+    Carrier.create! :country_id => arg.id, :name => 'Movistar', :prefixes => '3', :guid => 'movistar'
+    Carrier.create! :country_id => arg.id, :name => 'Claro', :prefixes => '4', :guid => 'claro'
+  
+    msg = AOMessage.new(:to => 'sms://+1234')
+    msg.infer_custom_attributes
+    
+    assert_equal 'ar', msg.country
+    assert_equal Set.new(['personal', 'movistar']), Set.new(msg.carrier)
+  end
+  
+  test "don't infer carrier if present" do
+    arg = Country.create! :name => 'Argentina', :iso2 => 'ar', :iso3 => 'arg', :phone_prefix => '12'
+    Carrier.create! :country_id => arg.id, :name => 'Personal', :prefixes => '34, 56', :guid => 'personal'  
+  
+    msg = AOMessage.new(:to => 'sms://+1234')
+    msg.country = 'ar'
+    msg.carrier = 'movistar'
+    msg.infer_custom_attributes
+    
+    assert_equal 'ar', msg.country
+    assert_equal 'movistar', msg.carrier
+  end
 end
