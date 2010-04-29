@@ -113,7 +113,7 @@ class ApplicationTest < ActiveSupport::TestCase
     msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5678', :subject => 'foo', :body => 'bar'
     msg.custom_attributes['country'] = 'br'
     
-    chan1 = create_channel @account, 'chan1', 'pass1', 'twitter', 'sms'
+    chan1 = new_channel @account, 'chan1'
     chan1.custom_attributes['country'] = 'ar'  
     chan1.save! 
     
@@ -128,13 +128,32 @@ class ApplicationTest < ActiveSupport::TestCase
     msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5678', :subject => 'foo', :body => 'bar'
     msg.custom_attributes['country'] = ['br', 'bz']
     
-    chan1 = create_channel @account, 'chan1', 'pass1', 'twitter', 'sms'
+    chan1 = new_channel @account, 'chan1'
     chan1.custom_attributes['country'] = ['ar', 'br']
     chan1.save!
     
     app.route_ao msg, 'test'
     
     assert_equal 'queued', msg.state
+  end
+  
+  test "ao routing use last channel" do
+    app = create_app @account
+    app.use_address_source = true
+    app.save!
+    
+    chan1 = new_channel @account, 'chan1'
+    chan2 = new_channel @account, 'chan2'
+    
+    chan1.priority = chan2.priority - 10
+    chan1.save!
+    
+    AddressSource.create! :account_id => @account.id, :application_id => app.id, :channel_id => chan2.id, :address => '5678' 
+    
+    msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5678', :subject => 'foo', :body => 'bar'
+    app.route_ao msg, 'test'
+    
+    assert_equal chan2.id, msg.channel_id
   end
   
 end

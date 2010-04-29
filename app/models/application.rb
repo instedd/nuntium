@@ -63,11 +63,10 @@ class Application < ActiveRecord::Base
     # Filter them according to custom attributes
     channels = channels.select{|x| x.can_route_ao? msg}
     
-    # Find the preffered channel to route this message, if any,
-    # based on the last channel used to receive an AT for the given address
-    preferred_channel = get_preferred_channel msg.to, channels
-    if preferred_channel
-      preferred_channel.route_ao msg, via_interface
+    # Find the last channel used to route an AT message with this address
+    last_channel = get_last_channel msg.to.mobile_number, channels
+    if last_channel
+      last_channel.route_ao msg, via_interface
       return true
     end
     
@@ -104,10 +103,10 @@ class Application < ActiveRecord::Base
     msg.application_id = self.id
   
     # Update AddressSource if desireda and if it the channel is bidirectional
-    if use_address_source? and via_channel and via_channel.class == Channel and via_channel.direction == Channel::Bidirectional
+    if use_address_source? and via_channel.kind_of? Channel and via_channel.direction == Channel::Bidirectional
       as = AddressSource.find_by_application_id_and_address self.id, msg.from
       if as.nil?
-        AddressSource.create!(:account_id => account.id, :application_id => self.id, :address => msg.from, :channel_id => via_channel.id) 
+        AddressSource.create!(:account_id => account.id, :application_id => self.id, :address => msg.from.mobile_number, :channel_id => via_channel.id) 
       else
         as.channel_id = via_channel.id
         as.save!
@@ -179,12 +178,12 @@ class Application < ActiveRecord::Base
   configuration_accessor :delivery_ack_password
   
   def use_address_source?
-    configuration[:use_address_source] == '1'
+    configuration[:use_address_source]
   end
   
   def use_address_source=(value)
     if value
-      configuration[:use_address_source] = value == '1'
+      configuration[:use_address_source] = true
     else
       configuration.delete :use_address_source
     end
@@ -276,7 +275,7 @@ class Application < ActiveRecord::Base
     msg.class.exists?(['application_id = ? and guid = ?', self.id, msg.guid])
   end
   
-  def get_preferred_channel(address, outgoing_channels)
+  def get_last_channel(address, outgoing_channels)
     return nil unless use_address_source?
     as = AddressSource.first(:conditions => ['application_id = ? AND address = ?', self.id, address])
     return nil if as.nil?
