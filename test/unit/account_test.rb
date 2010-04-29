@@ -79,15 +79,37 @@ class AccountTest < ActiveSupport::TestCase
     ]
     chan.save!
     
-    msg = ATMessage.new :from => 'sms://+5678', :to => 'sms://1234', :subject => 'one', :body => 'bar'
+    msg = ATMessage.new :subject => 'one', :from => 'sms://+5678', :to => 'sms://1234', :body => 'bar'
     account.route_at msg, chan
     
     assert_equal 'ONE', msg.subject
     
-    msg = ATMessage.new :from => 'sms://+5678', :to => 'sms://1234', :subject => 'two', :body => 'bar'
+    msg = ATMessage.new :subject => 'two', :from => 'sms://+5678', :to => 'sms://1234', :body => 'bar'
     account.route_at msg, chan
     
     assert_equal 'two', msg.subject
+  end
+  
+  test "apply app routing" do
+    account = Account.create!(:name => 'account', :password => 'foo')
+    chan = new_channel account, 'chan'
+    app1 = create_app account, 1
+    app2 = create_app account, 2
+    
+    account.app_routing_rules = [
+      rule([matching('subject', OP_EQUALS, 'one')], [action('application', 'application1')]),
+      rule([matching('subject', OP_EQUALS, 'two')], [action('application', 'application2')])
+    ]
+    
+    msg = ATMessage.new :subject => 'one', :from => 'sms://+5678', :to => 'sms://1234', :body => 'bar'
+    account.route_at msg, chan
+    
+    assert_equal app1.id, msg.application_id
+    
+    msg = ATMessage.new :subject => 'two', :from => 'sms://+5678', :to => 'sms://1234', :body => 'bar'
+    account.route_at msg, chan
+    
+    assert_equal app2.id, msg.application_id
   end
   
 end
