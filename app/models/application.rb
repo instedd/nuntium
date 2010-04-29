@@ -63,7 +63,16 @@ class Application < ActiveRecord::Base
     # Filter them according to custom attributes
     channels = channels.select{|x| x.can_route_ao? msg}
     
-    # Find the last channel used to route an AT message with this address
+    # See if the message includes a suggested channel
+    if msg.suggested_channel
+      suggested_channel = channels.select{|x| x.name == msg.suggested_channel}.first
+      if suggested_channel
+        suggested_channel.route_ao msg, via_interface
+        return true
+      end
+    end
+    
+    # See if there is a last channel used to route an AT message with this address
     last_channel = get_last_channel msg.to.mobile_number, channels
     if last_channel
       last_channel.route_ao msg, via_interface

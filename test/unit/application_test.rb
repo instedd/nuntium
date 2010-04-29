@@ -156,4 +156,19 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal chan2.id, msg.channel_id
   end
   
+  test "ao routing use suggested channel" do
+    app = create_app @account
+    chan1 = new_channel @account, 'chan1'
+    chan2 = new_channel @account, 'chan2'
+    
+    chan1.priority = chan2.priority - 10
+    chan1.save!
+    
+    msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5678', :subject => 'foo', :body => 'bar'
+    msg.suggested_channel = 'chan2'
+    app.route_ao msg, 'test'
+    
+    assert_equal chan2.id, msg.channel_id
+  end
+  
 end
