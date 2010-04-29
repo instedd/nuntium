@@ -66,7 +66,7 @@ class Account < ActiveRecord::Base
     # App Routing logic
     if applications.empty?
       msg.save!
-      logger.error :at_message_id => msg.id, :message =>"No application to route AT messages"  
+      logger.no_application_to_route msg
     elsif applications.length == 1
       applications.first.route_at msg, via_channel
     else
@@ -77,11 +77,11 @@ class Account < ActiveRecord::Base
           application.route_at msg, via_channel
         else
           msg.save!
-          logger.error :at_message_id => msg.id, :message => "Application named #{app_routing_rules_res['application']} was not found"
+          logger.application_not_found msg, app_routing_rules_res['application']
         end
       else
         msg.save!
-        logger.error :at_message_id => msg.id, :message => "No application was determined. Check App routing rules in account settings"
+        logger.no_application_was_determined msg
       end
     end
   end

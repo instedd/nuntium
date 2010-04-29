@@ -105,6 +105,18 @@ class AccountLogger
     warning(:ao_message_id => ao_msg.id, :message => "More than one channel found for protocol '#{protocol}'", :channel_id => ao_msg.channel_id)
   end
   
+  def no_application_to_route(at_msg)
+    error :at_message_id => at_msg.id, :message => "No application to route AT messages"  
+  end
+  
+  def application_not_found(at_msg, app)
+    error :at_message_id => at_msg.id, :message => "Application named #{app} was not found"
+  end
+  
+  def no_application_was_determined(at_msg)
+    error :at_message_id => at_msg.id, :message => "No application was determined. Check App routing rules in account settings"
+  end
+  
   def info(hash_or_message)
     create(hash_or_message, AccountLog::Info)
   end
