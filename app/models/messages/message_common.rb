@@ -48,6 +48,23 @@ module MessageCommon
   custom_attributes_accessor :carrier
   custom_attributes_accessor :strategy
   custom_attributes_accessor :suggested_channel
+  
+  def infer_custom_attributes
+    unless country
+      address = self.kind_of?(AOMessage) ? to : from
+      return if not address or address.protocol != 'sms'
+      
+      number = address.mobile_number
+      countries = Country.all.select{|x| number.start_with? x.phone_prefix}
+      return if countries.empty?
+      
+      if countries.length == 1
+        self.country = countries[0].iso2
+      else
+        self.country = countries.map{|x| x.iso2}
+      end
+    end
+  end
 
   # Given an xml builder writes itself unto it
   def write_xml(xml)
