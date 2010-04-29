@@ -51,13 +51,11 @@ class Account < ActiveRecord::Base
     
     msg.account_id = self.id
     msg.timestamp ||= Time.now.utc
-    if !via_channel.nil? && via_channel.class == Channel
-      msg.channel = via_channel
-    end
+    msg.channel = via_channel if via_channel.kind_of? Channel
     msg.state = 'queued'
     
     # Apply AT Rules
-    if !via_channel.nil? && via_channel.class == Channel
+    if via_channel.kind_of? Channel
       at_routing_res = RulesEngine.apply(msg.rules_context, via_channel.at_rules)
       msg.merge at_routing_res
     end
