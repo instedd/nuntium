@@ -96,11 +96,28 @@ class Application < ActiveRecord::Base
       return true
     end
     
-    # Select channels with less or equal priority than the other channels
-    channels = channels.select{|c| channels.all?{|x| c.priority <= x.priority }}
-    
-    # Select a random channel to handle the message
-    channels.rand.route_ao msg, via_interface
+    if strategy == 'broadcast'
+      msg.state = 'broadcasted'
+      msg.save!
+      
+      logger.ao_message_received msg, via_interface
+      logger.ao_message_broadcasted msg
+      
+      channels.each do |channel|
+        copy = msg.clone
+        copy.state = 'pending'
+        copy.guid = Guid.new
+        copy.parent_id = msg.id
+        
+        channel.route_ao copy, via_interface
+      end
+    else
+      # Select channels with less or equal priority than the other channels
+      channels = channels.select{|c| channels.all?{|x| c.priority <= x.priority }}
+      
+      # Select a random channel to handle the message
+      channels.rand.route_ao msg, via_interface
+    end
     true
   rescue => e
     # Log any errors and return false
@@ -186,7 +203,7 @@ class Application < ActiveRecord::Base
   configuration_accessor :interface_url
   configuration_accessor :interface_user
   configuration_accessor :interface_password
-  configuration_accessor :strategy, 'broadcast'
+  configuration_accessor :strategy, 'single_priority'
   configuration_accessor :delivery_ack_method, 'none'
   configuration_accessor :delivery_ack_url
   configuration_accessor :delivery_ack_user

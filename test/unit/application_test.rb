@@ -181,4 +181,28 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal 'ar', msg.country
   end
   
+  test "broadcast" do
+    app = create_app @account
+    app.strategy = 'broadcast'
+    app.save!
+    
+    chans = [new_channel(@account, 'chan1'), new_channel(@account, 'chan2')]
+    
+    msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5478', :subject => 'foo', :body => 'bar', :guid => 'SoemGuid'
+    app.route_ao msg, 'test'
+    
+    assert_nil msg.channel
+    assert_equal 'broadcasted', msg.state
+    
+    children = AOMessage.all :conditions => ['parent_id = ?', msg.id]
+    assert_equal 2, children.length
+    
+    [0, 1].each do |i|
+      assert_equal chans[i], children[i].channel
+      assert_equal msg.id, children[i].parent_id
+      assert_not_nil children[i].guid
+      assert_not_equal children[i].guid, msg.guid
+    end
+  end
+  
 end
