@@ -65,6 +65,28 @@ class RulesEngineTest < ActiveSupport::TestCase
     assert_nil res
   end
   
+  test "not equal matching matches" do
+    rules = [
+        rule([matching(:prop, OP_NOT_EQUALS, 'lorem')], [action(:prop, 'ipsum')])
+    ]
+    
+    ctx = { :prop => 'not lorem' }
+    res = apply(ctx, rules)
+    assert_equal 'not lorem', ctx[:prop]
+    assert_equal 'ipsum', res[:prop]
+  end
+  
+  test "not equal matching not matches" do
+    rules = [
+        rule([matching(:prop, OP_NOT_EQUALS, 'lorem')], [action(:prop, 'ipsum')])
+    ]
+    
+    ctx = { :prop => 'lorem' }
+    res = apply(ctx, rules)
+    assert_equal 'lorem', ctx[:prop]
+    assert_nil res
+  end
+  
   test "prefix matching matches" do
     rules = [
         rule([matching(:prop, OP_STARTS_WITH, 'lor')], [action(:prop, 'ipsum')])
