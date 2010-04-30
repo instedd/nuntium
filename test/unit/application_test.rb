@@ -205,4 +205,18 @@ class ApplicationTest < ActiveSupport::TestCase
     end
   end
   
+  test "broadcast override" do
+    app = create_app @account
+    app.strategy = 'single_priority'
+    app.save!
+    
+    chans = [new_channel(@account, 'chan1'), new_channel(@account, 'chan2')]
+    
+    msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5478', :subject => 'foo', :body => 'bar', :guid => 'SoemGuid'
+    msg.strategy = 'broadcast'
+    app.route_ao msg, 'test'
+    
+    assert_equal 'broadcasted', msg.state
+  end
+  
 end

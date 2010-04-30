@@ -96,7 +96,8 @@ class Application < ActiveRecord::Base
       return true
     end
     
-    if strategy == 'broadcast'
+    final_strategy = msg.strategy || strategy
+    if final_strategy == 'broadcast'
       msg.state = 'broadcasted'
       msg.save!
       
