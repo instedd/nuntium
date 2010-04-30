@@ -17,6 +17,7 @@ module RulesEngine
   OP_REGEX = 'regex'
   OP_STARTS_WITH = 'starts_with'
   OP_EQUALS = 'equals'
+  OP_NOT_EQUALS = 'not_equals'
   
   # context is a hash with properties as keys
   # rules is a list of elements built wih RulesEngine#rule
@@ -61,6 +62,8 @@ module RulesEngine
     case op
       when OP_EQUALS then
         return at_context == at_matching
+      when OP_NOT_EQUALS then
+        return at_context != at_matching
       when OP_STARTS_WITH then
         return at_context.starts_with?(at_matching)
       when OP_REGEX then
