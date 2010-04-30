@@ -115,7 +115,7 @@ class ApplicationTest < ActiveSupport::TestCase
     
     chan1 = new_channel @account, 'chan1'
     chan1.custom_attributes['country'] = 'ar'  
-    chan1.save! 
+    chan1.save!
     
     app.route_ao msg, 'test'
     
@@ -169,6 +169,16 @@ class ApplicationTest < ActiveSupport::TestCase
     app.route_ao msg, 'test'
     
     assert_equal chan2.id, msg.channel_id
+  end
+  
+  test "ao routing infer country" do
+    app = create_app @account
+    chan1 = new_channel @account, 'chan1'
+    
+    msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5478', :subject => 'foo', :body => 'bar'
+    app.route_ao msg, 'test'
+    
+    assert_equal 'ar', msg.country
   end
   
 end

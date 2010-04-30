@@ -162,4 +162,15 @@ class AccountTest < ActiveSupport::TestCase
 
     assert_equal app1.id, msg.application_id
   end
+  
+  test "at routing infer country" do
+    account = Account.create! :name => 'account', :password => 'foo'
+    chan = new_channel account, 'chan'
+    app1 = create_app account, 1
+    
+    msg = ATMessage.new :subject => 'one', :from => 'sms://5467', :to => 'sms://2', :body => 'bar'
+    account.route_at msg, chan
+    
+    assert_equal 'ar', msg.country
+  end
 end
