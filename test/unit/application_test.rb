@@ -66,8 +66,8 @@ class ApplicationTest < ActiveSupport::TestCase
     
     msg = ATMessage.create!(:account => application.account, :subject => 'foo')
     
-    Queues.expects(:publish_application) do |a, j|
-      a.id == account.id and j.kind_of?(SendPostCallbackMessageJob) and j.account_id == application.account.id and j.message_id == msg.id 
+    Queues.expects(:publish_application).with do |a, j|
+      a.id == application.id and j.kind_of?(SendPostCallbackMessageJob) and j.account_id == application.account.id and j.message_id == msg.id 
     end
     
     application.route_at msg, nil
