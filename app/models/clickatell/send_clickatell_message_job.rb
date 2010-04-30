@@ -5,25 +5,6 @@ include ActiveSupport::Multibyte
 
 class SendClickatellMessageJob < SendMessageJob
   def managed_perform
-    uri = "/http/sendmsg"
-    uri = append uri, 'api_id', @config[:api_id], true
-    uri = append uri, 'user', @config[:user]
-    uri = append uri, 'password', @config[:password]
-    unless @config[:from].blank?
-      uri = append uri, 'from', @config[:from]
-      uri = append uri, 'mo', '1'
-    end
-    uri = append uri, 'to', @msg.to.without_protocol
-    if is_low_ascii(@msg.subject_and_body)
-      uri = append uri, 'text', @msg.subject_and_body
-    else
-      uri = append uri, 'text', to_unicode_raw_string(@msg.subject_and_body)
-      uri = append uri, 'unicode', '1'
-    end
-    unless @config[:concat].blank?
-      uri = append uri, 'concat', @config[:concat]
-    end
-    
     host = URI::parse('https://api.clickatell.com')
     
     request = Net::HTTP::new(host.host, host.port)
@@ -49,12 +30,24 @@ class SendClickatellMessageJob < SendMessageJob
     end   
   end
   
-  def append(str, name, value, first = false)
-    str << (first ? '?' : '&')
-    str << name
-    str << '='
-    str << CGI::escape(value)
-    str
+  def uri
+    params = {}
+    params[:api_id] = @config[:api_id]
+    params[:user] = @config[:user]
+    params[:password] = @config[:password]
+    unless @config[:from].blank?
+      params[:from] = @config[:from]
+      params[:mo] = '1'
+    end
+    params[:to] = @msg.to.without_protocol
+    if is_low_ascii(@msg.subject_and_body)
+      params[:text] = @msg.subject_and_body
+    else
+      params[:text] = to_unicode_raw_string(@msg.subject_and_body)
+      params[:unicode] = '1'
+    end
+    params[:concat] = @config[:concat] unless @config[:concat].blank?
+    "/http/sendmsg?#{params.to_query}"
   end
   
   def is_low_ascii(str)
