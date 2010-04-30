@@ -93,6 +93,8 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
     @delegate.delivery_report_received @transceiver, pdu
     
+    puts AccountLog.all.map &:message
+    
     msg = AOMessage.find_by_id msg.id
     assert_equal state, msg.state
   end

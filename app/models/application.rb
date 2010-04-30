@@ -148,7 +148,7 @@ class Application < ActiveRecord::Base
     
     # Check if callback interface is configured
     if self.interface == 'http_post_callback'
-      Queues.publish_application self, SendPostCallbackMessageJob.new(msg.application_id, msg.id)
+      Queues.publish_application self, SendPostCallbackMessageJob.new(msg.account_id, msg.application_id, msg.id)
     end
     
     msg.save!

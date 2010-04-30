@@ -67,7 +67,11 @@ class ApplicationTest < ActiveSupport::TestCase
     msg = ATMessage.create!(:account => application.account, :subject => 'foo')
     
     Queues.expects(:publish_application).with do |a, j|
-      a.id == application.id and j.kind_of?(SendPostCallbackMessageJob) and j.account_id == application.account.id and j.message_id == msg.id 
+      a.id == application.id and 
+        j.kind_of?(SendPostCallbackMessageJob) and 
+        j.account_id == application.account.id and 
+        j.application_id == application.id and
+        j.message_id == msg.id 
     end
     
     application.route_at msg, nil
@@ -87,6 +91,18 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal '5678', nums[0].number
     assert_equal @country.id, nums[0].country_id
     assert_equal @carrier.id, nums[0].carrier_id
+  end
+  
+  test "ao routing does not save mobile numbers if more than one country and/or carrier" do
+    app = create_app @account
+    
+    msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5678', :subject => 'foo', :body => 'bar'
+    msg.custom_attributes['country'] = ['ar', 'br']
+    msg.custom_attributes['carrier'] = ['ABC123', 'XYZ']
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal 0, MobileNumber.count
   end
   
   test "ao routing updates mobile numbers" do

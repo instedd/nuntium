@@ -37,7 +37,7 @@ class AOMessage < ActiveRecord::Base
     return true unless channel_id
     
     app = self.application
-    return true if app.delivery_ack_method == 'none'
+    return true unless app and app.delivery_ack_method != 'none'
     
     Queues.publish_application app, SendDeliveryAckJob.new(account_id, application_id, id, state) 
     true
