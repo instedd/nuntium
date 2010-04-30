@@ -117,7 +117,7 @@ class Application < ActiveRecord::Base
   def route_at(msg, via_channel)
     msg.application_id = self.id
   
-    # Update AddressSource if desireda and if it the channel is bidirectional
+    # Update AddressSource if desired and if it the channel is bidirectional
     if use_address_source? and via_channel.kind_of? Channel and via_channel.direction == Channel::Bidirectional
       as = AddressSource.find_by_application_id_and_address self.id, msg.from
       if as.nil?
