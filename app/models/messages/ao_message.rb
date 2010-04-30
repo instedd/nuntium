@@ -34,6 +34,7 @@ class AOMessage < ActiveRecord::Base
   
   def send_delivery_ack
     return true unless state == 'failed' || state == 'delivered' || state == 'confirmed'
+    return true unless channel_id
     
     app = self.application
     return true if app.delivery_ack_method == 'none'

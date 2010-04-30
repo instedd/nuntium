@@ -160,4 +160,21 @@ class AOMessageTest < ActiveSupport::TestCase
     msg.state = 'failed'
     msg.save!
   end
+  
+  test "don't delivery ack when channel is not set" do
+    account = Account.create! :name => 'foo', :password => 'bar'
+    app = create_app account
+    app.delivery_ack_method = 'get'
+    app.delivery_ack_url = 'foo'
+    app.save!
+    chan = new_channel account, 'chan1'
+    
+    msg = AOMessage.new(:account_id => account.id, :application_id => app.id, :guid => 'SomeGuid', :state => 'pending')
+    msg.save!
+    
+    Queues.expects(:publish_application).times(0)
+    
+    msg.state = 'failed'
+    msg.save!
+  end
 end
