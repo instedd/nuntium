@@ -130,7 +130,7 @@ class ApplicationTest < ActiveSupport::TestCase
     msg.custom_attributes['country'] = 'br'
     
     chan1 = new_channel @account, 'chan1'
-    chan1.custom_attributes['country'] = 'ar'  
+    chan1.restrictions['country'] = 'ar'  
     chan1.save!
     
     app.route_ao msg, 'test'
@@ -145,7 +145,7 @@ class ApplicationTest < ActiveSupport::TestCase
     msg.custom_attributes['country'] = ['br', 'bz']
     
     chan1 = new_channel @account, 'chan1'
-    chan1.custom_attributes['country'] = ['ar', 'br']
+    chan1.restrictions['country'] = ['ar', 'br']
     chan1.save!
     
     app.route_ao msg, 'test'

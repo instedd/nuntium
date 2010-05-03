@@ -82,3 +82,36 @@
   %>
 </table>
 </div>
+
+<% unless @msg.custom_attributes.empty?
+  countries = Country.all
+  carriers = Carrier.all
+  %>
+  <h4><%= link_to_function 'Custom Attributes', "toggle('custom_attributes')" %></h4>
+
+  <div id="custom_attributes">
+  <table class="table">
+    <% @msg.custom_attributes.each do |key, values|
+      values = [values] unless values.kind_of? Array
+      values.map! do |value|
+        case key
+        when 'country'
+          result = countries.select{|x| x.iso2 == value}.first
+          result ? result.name : value 
+        when 'carrier'
+          result = carriers.select{|x| x.guid == value}.first
+          result ? result.name : value
+        else
+          value
+        end
+      end
+      values = values.join(', ')
+      %>
+      <tr valign="baseline">
+        <td><b><%= key %>:</b></td>
+        <td><%= values %></td>
+      </tr>
+    <% end %>
+  </table>
+  </div>
+<% end %>

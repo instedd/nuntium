@@ -20,7 +20,7 @@
     <%= c.password_field :password, :value => @channel[:configuration][:password] %>
     </p>
   <% end %>
-  <%= render :partial => 'edit_custom_attributes', :locals => {:f => f} %>
+  <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} %>
   <%= render :partial => 'edit_at_rules', :locals => {:f => f} %>
   <%= channel_submit_tag %>
 <% end %>

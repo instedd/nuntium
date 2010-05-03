@@ -2,7 +2,7 @@ require 'twitter'
 
 class TwitterController < AccountAuthenticatedController
 
-  include ChannelControllerCommon
+  include CustomAttributesControllerCommon
 
   before_filter :check_login
   before_filter :check_twitter_properly_configured
@@ -73,7 +73,7 @@ class TwitterController < AccountAuthenticatedController
       :secret => access_token.secret
       }
     @channel.priority = session['twitter_channel_priority']
-    @channel.custom_attributes = session['twitter_channel_custom_attributes']
+    @channel.restrictions = session['twitter_channel_custom_attributes']
     
     session['twitter_token']  = nil
     session['twitter_secret'] = nil
