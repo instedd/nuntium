@@ -80,7 +80,7 @@ class RssControllerTest < ActionController::TestCase
     
     messages = AOMessage.all
     assert_equal 1, messages.length
-    assert_equal 'error', messages[0].state
+    assert_equal 'failed', messages[0].state
     
     unread = QSTOutgoingMessage.all
     assert_equal 0, unread.length
@@ -104,7 +104,7 @@ class RssControllerTest < ActionController::TestCase
     
     messages = AOMessage.all
     assert_equal 1, messages.length
-    assert_equal 'error', messages[0].state
+    assert_equal 'failed', messages[0].state
     
     unread = QSTOutgoingMessage.all
     assert_equal 0, unread.length

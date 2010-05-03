@@ -12,7 +12,7 @@ class SendAoController < ApplicationAuthenticatedController
       )
     @application.route_ao msg, 'http'
     
-    if msg.state == 'error'
+    if msg.state == 'failed'
       render :text => "error: #{msg.id}"
     else
       render :text => "id: #{msg.id}"

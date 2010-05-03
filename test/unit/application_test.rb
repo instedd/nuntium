@@ -135,7 +135,7 @@ class ApplicationTest < ActiveSupport::TestCase
     
     app.route_ao msg, 'test'
     
-    assert_equal 'error', msg.state
+    assert_equal 'failed', msg.state
   end
   
   test "ao routing filter channel because of country 2" do

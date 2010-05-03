@@ -49,7 +49,7 @@ class SendAoControllerTest < ActionController::TestCase
     assert_equal "PROT://5678", msg.to
     assert_equal "g", msg.guid
     assert_not_nil msg.timestamp
-    assert_equal 'error', msg.state
+    assert_equal 'failed', msg.state
     assert_nil msg.channel_id
   end
   
@@ -74,7 +74,7 @@ class SendAoControllerTest < ActionController::TestCase
     assert_equal nil, msg.to
     assert_equal "g", msg.guid
     assert_not_nil msg.timestamp
-    assert_equal 'error', msg.state
+    assert_equal 'failed', msg.state
     assert_nil msg.channel_id
   end
   
