@@ -44,7 +44,7 @@ class Application < ActiveRecord::Base
     # Find protocol of message (based on "to" field)
     protocol = msg.to.nil? ? '' : msg.to.protocol
     if protocol == ''
-      msg.state = 'error'
+      msg.state = 'failed'
       msg.save!
       logger.ao_message_received msg, via_interface
       logger.protocol_not_found_for_ao_message msg
@@ -88,7 +88,7 @@ class Application < ActiveRecord::Base
     
     # Exit if no candidate channel 
     if channels.empty?
-      msg.state = 'error'
+      msg.state = 'failed'
       msg.save!
       
       logger.ao_message_received msg, via_interface
