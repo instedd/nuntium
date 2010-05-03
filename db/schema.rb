@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100430145522) do
+ActiveRecord::Schema.define(:version => 20100503143733) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -69,7 +69,7 @@ ActiveRecord::Schema.define(:version => 20100430145522) do
   create_table "applications", :force => true do |t|
     t.string   "name"
     t.integer  "account_id"
-    t.string   "interface",     :default => "rss"
+    t.string   "interface"
     t.text     "configuration"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -135,11 +135,12 @@ ActiveRecord::Schema.define(:version => 20100430145522) do
 
   create_table "countries", :force => true do |t|
     t.string   "name"
-    t.string   "iso2",         :limit => 2
-    t.string   "iso3",         :limit => 3
+    t.string   "iso2",            :limit => 2
+    t.string   "iso3",            :limit => 3
     t.string   "phone_prefix"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "clickatell_name"
   end
 
   create_table "cron_tasks", :force => true do |t|
