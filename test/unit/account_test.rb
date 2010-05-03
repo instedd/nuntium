@@ -71,6 +71,18 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal @carrier.id, nums[0].carrier_id
   end
   
+  test "route at does not save mobile number if more than one country and/or carrier" do
+    account = Account.create! :name => 'account', :password => 'foo'
+    
+    msg = ATMessage.new :from => 'sms://+5678', :to => 'sms://1234', :subject => 'foo', :body => 'bar'
+    msg.custom_attributes['country'] = ['ar', 'br']
+    msg.custom_attributes['carrier'] = ['ABC123', 'XYZ']
+    
+    account.route_at msg, nil
+    
+    assert_equal 0, MobileNumber.count
+  end
+  
   test "route at saves last channel" do
     account = Account.create! :name => 'account', :password => 'foo'
     app = create_app account
@@ -161,5 +173,16 @@ class AccountTest < ActiveSupport::TestCase
     account.route_at msg, chan
 
     assert_equal app1.id, msg.application_id
+  end
+  
+  test "at routing infer country" do
+    account = Account.create! :name => 'account', :password => 'foo'
+    chan = new_channel account, 'chan'
+    app1 = create_app account, 1
+    
+    msg = ATMessage.new :subject => 'one', :from => 'sms://5467', :to => 'sms://2', :body => 'bar'
+    account.route_at msg, chan
+    
+    assert_equal 'ar', msg.country
   end
 end

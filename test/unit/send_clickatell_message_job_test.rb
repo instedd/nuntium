@@ -18,15 +18,17 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :body => 'ID: msgid')
       
     host = URI::parse('https://api.clickatell.com')
-      
-    uri = '/http/sendmsg'
-    uri += '?api_id=api1'
-    uri += '&user=user1'
-    uri += '&password=pass1'
-    uri += '&from=someone'
-    uri += '&mo=1'
-    uri += '&to=5678'
-    uri += '&text=text+me'
+    
+    params = {
+      :api_id => 'api1',
+      :user => 'user1',
+      :password => 'pass1',
+      :from => 'someone',
+      :mo => '1',
+      :to => '5678',
+      :text => 'text me'
+    }
+    uri = "/http/sendmsg?#{params.to_query}"
     
     Net::HTTP.expects(:new).with(host.host, host.port).returns(request)
     request.expects('use_ssl=').with(true)
@@ -60,15 +62,17 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :body => 'ERR: 105, Invalid destination address')
       
     host = URI::parse('https://api.clickatell.com')
-      
-    uri = '/http/sendmsg'
-    uri += '?api_id=api1'
-    uri += '&user=user1'
-    uri += '&password=pass1'
-    uri += '&from=someone'
-    uri += '&mo=1'
-    uri += '&to=5678'
-    uri += '&text=text+me'
+    
+    params = {
+      :api_id => 'api1',
+      :user => 'user1',
+      :password => 'pass1',
+      :from => 'someone',
+      :mo => '1',
+      :to => '5678',
+      :text => 'text me'
+    }
+    uri = "/http/sendmsg?#{params.to_query}"
     
     Net::HTTP.expects(:new).with(host.host, host.port).returns(request)
     request.expects('use_ssl=').with(true)
@@ -105,15 +109,17 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :body => 'ERR: 002, Unknown username or password')
       
     host = URI::parse('https://api.clickatell.com')
-      
-    uri = '/http/sendmsg'
-    uri += '?api_id=api1'
-    uri += '&user=user1'
-    uri += '&password=pass1'
-    uri += '&from=someone'
-    uri += '&mo=1'
-    uri += '&to=5678'
-    uri += '&text=text+me'
+    
+    params = {
+      :api_id => 'api1',
+      :user => 'user1',
+      :password => 'pass1',
+      :from => 'someone',
+      :mo => '1',
+      :to => '5678',
+      :text => 'text me'
+    }
+    uri = "/http/sendmsg?#{params.to_query}"
     
     Net::HTTP.expects(:new).with(host.host, host.port).returns(request)
     request.expects('use_ssl=').with(true)

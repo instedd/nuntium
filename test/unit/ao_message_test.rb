@@ -1,6 +1,9 @@
 require 'test_helper'
+require 'mocha'
 
 class AOMessageTest < ActiveSupport::TestCase
+  include Mocha::API
+
   test "subject and body no subject nor body" do
     msg = AOMessage.new()
     assert_equal '', msg.subject_and_body
@@ -97,5 +100,81 @@ class AOMessageTest < ActiveSupport::TestCase
     
     assert_equal 'ar', msg.country
     assert_equal 'movistar', msg.carrier
+  end
+  
+  ['failed', 'confirmed', 'delivered'].each do |state|
+    test "delivery ack when #{state}" do
+      account = Account.create! :name => 'foo', :password => 'bar'
+      app = create_app account
+      app.delivery_ack_method = 'get'
+      app.delivery_ack_url = 'foo'
+      app.save!
+      chan = new_channel account, 'chan1'
+      
+      msg = AOMessage.new(:account_id => account.id, :application_id => app.id, :channel_id => chan.id, :guid => 'SomeGuid', :state => 'pending')
+      msg.save!
+      
+      Queues.expects(:publish_application).with do |a, j|
+        a.id == account.id and 
+          j.kind_of?(SendDeliveryAckJob) and 
+          j.account_id == account.id and 
+          j.application_id == app.id and 
+          j.message_id == msg.id and
+          j.state == state
+      end
+      
+      msg.state = state
+      msg.save!
+    end
+  end
+  
+  test "don't delivery ack when queued" do
+    account = Account.create! :name => 'foo', :password => 'bar'
+    app = create_app account
+    app.delivery_ack_method = 'get'
+    app.delivery_ack_url = 'foo'
+    app.save!
+    chan = new_channel account, 'chan1'
+    
+    msg = AOMessage.new(:account_id => account.id, :application_id => app.id, :channel_id => chan.id, :guid => 'SomeGuid', :state => 'pending')
+    msg.save!
+    
+    Queues.expects(:publish_application).times(0)
+    
+    msg.state = 'queued'
+    msg.save!
+  end
+  
+  test "don't delivery ack when method is none" do
+    account = Account.create! :name => 'foo', :password => 'bar'
+    app = create_app account
+    app.delivery_ack_method = 'none'
+    app.save!
+    chan = new_channel account, 'chan1'
+    
+    msg = AOMessage.new(:account_id => account.id, :application_id => app.id, :channel_id => chan.id, :guid => 'SomeGuid', :state => 'pending')
+    msg.save!
+    
+    Queues.expects(:publish_application).times(0)
+    
+    msg.state = 'failed'
+    msg.save!
+  end
+  
+  test "don't delivery ack when channel is not set" do
+    account = Account.create! :name => 'foo', :password => 'bar'
+    app = create_app account
+    app.delivery_ack_method = 'get'
+    app.delivery_ack_url = 'foo'
+    app.save!
+    chan = new_channel account, 'chan1'
+    
+    msg = AOMessage.new(:account_id => account.id, :application_id => app.id, :guid => 'SomeGuid', :state => 'pending')
+    msg.save!
+    
+    Queues.expects(:publish_application).times(0)
+    
+    msg.state = 'failed'
+    msg.save!
   end
 end

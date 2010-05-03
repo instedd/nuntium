@@ -54,6 +54,9 @@ class Application < ActiveRecord::Base
     # Save mobile number information
     MobileNumber.update msg.to.mobile_number, msg.country, msg.carrier if protocol == 'sms'
     
+    # Intef attributes
+    msg.infer_custom_attributes
+    
     # AO Rules
     ao_rules_res = RulesEngine.apply(msg.rules_context, self.ao_rules)
     msg.merge ao_rules_res
@@ -93,11 +96,29 @@ class Application < ActiveRecord::Base
       return true
     end
     
-    # Select channels with less or equal priority than the other channels
-    channels = channels.select{|c| channels.all?{|x| c.priority <= x.priority }}
-    
-    # Select a random channel to handle the message
-    channels.rand.route_ao msg, via_interface
+    final_strategy = msg.strategy || strategy
+    if final_strategy == 'broadcast'
+      msg.state = 'broadcasted'
+      msg.save!
+      
+      logger.ao_message_received msg, via_interface
+      logger.ao_message_broadcasted msg
+      
+      channels.each do |channel|
+        copy = msg.clone
+        copy.state = 'pending'
+        copy.guid = Guid.new
+        copy.parent_id = msg.id
+        
+        channel.route_ao copy, via_interface
+      end
+    else
+      # Select channels with less or equal priority than the other channels
+      channels = channels.select{|c| channels.all?{|x| c.priority <= x.priority }}
+      
+      # Select a random channel to handle the message
+      channels.rand.route_ao msg, via_interface
+    end
     true
   rescue => e
     # Log any errors and return false
@@ -114,7 +135,7 @@ class Application < ActiveRecord::Base
   def route_at(msg, via_channel)
     msg.application_id = self.id
   
-    # Update AddressSource if desireda and if it the channel is bidirectional
+    # Update AddressSource if desired and if it the channel is bidirectional
     if use_address_source? and via_channel.kind_of? Channel and via_channel.direction == Channel::Bidirectional
       as = AddressSource.find_by_application_id_and_address self.id, msg.from
       if as.nil?
@@ -127,7 +148,7 @@ class Application < ActiveRecord::Base
     
     # Check if callback interface is configured
     if self.interface == 'http_post_callback'
-      Queues.publish_application self, SendPostCallbackMessageJob.new(msg.application_id, msg.id)
+      Queues.publish_application self, SendPostCallbackMessageJob.new(msg.account_id, msg.application_id, msg.id)
     end
     
     msg.save!
@@ -183,7 +204,7 @@ class Application < ActiveRecord::Base
   configuration_accessor :interface_url
   configuration_accessor :interface_user
   configuration_accessor :interface_password
-  configuration_accessor :strategy, 'broadcast'
+  configuration_accessor :strategy, 'single_priority'
   configuration_accessor :delivery_ack_method, 'none'
   configuration_accessor :delivery_ack_url
   configuration_accessor :delivery_ack_user

@@ -37,6 +37,10 @@ class AccountLogger
     end
   end
   
+  def ao_message_broadcasted(msg)
+    info(:ao_message_id => msg.id, :message => "Message was broadcasted")
+  end
+  
   def ao_message_handled_by_channel(msg, channel)
     info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message handled by #{channel.kind} channel '#{channel.name}'")
   end

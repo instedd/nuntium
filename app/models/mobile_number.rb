@@ -3,8 +3,16 @@ class MobileNumber < ActiveRecord::Base
   belongs_to :carrier
   
   def self.update(number, country, carrier)
-    country = Country.find_by_iso2_or_iso3 country if country
-    carrier = Carrier.find_by_guid carrier if carrier
+    if country and not country.kind_of? Array
+      country = Country.find_by_iso2_or_iso3 country if country
+    else
+      country = nil
+    end
+    if carrier and not carrier.kind_of? Array
+      carrier = Carrier.find_by_guid carrier if carrier
+    else
+      carrier = nil
+    end
     if country or carrier
       mob = MobileNumber.find_by_number number
       mob = MobileNumber.new(:number => number) if mob.nil?

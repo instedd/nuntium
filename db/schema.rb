@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100429195334) do
+ActiveRecord::Schema.define(:version => 20100430145522) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -60,6 +60,7 @@ ActiveRecord::Schema.define(:version => 20100429195334) do
     t.integer  "channel_id"
     t.text     "custom_attributes"
     t.integer  "application_id"
+    t.integer  "parent_id"
   end
 
   add_index "ao_messages", ["channel_id", "channel_relative_id"], :name => "index_ao_messages_on_channel_id_and_channel_relative_id"
@@ -68,7 +69,7 @@ ActiveRecord::Schema.define(:version => 20100429195334) do
   create_table "applications", :force => true do |t|
     t.string   "name"
     t.integer  "account_id"
-    t.string   "interface"
+    t.string   "interface",     :default => "rss"
     t.text     "configuration"
     t.datetime "created_at"
     t.datetime "updated_at"
