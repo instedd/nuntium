@@ -162,5 +162,19 @@ class RulesEngineTest < ActiveSupport::TestCase
     assert_nil apply({:propA => ['bar','baz']}, rules)
   end
   
+  test "rules execute in order" do
+    rules = [
+      rule([],[action(:propC, 'c')], false),
+      rule([],[action(:propA, 'a')], true),
+      rule([],[action(:propB, 'b')], false)
+    ]
+    
+    res = apply({}, rules)
+    
+    assert res.has_key?(:propC)
+    assert res.has_key?(:propA)
+    assert !res.has_key?(:propB)
+  end
+  
   # TODO should be case insensitive ?
 end
