@@ -188,7 +188,7 @@ Carrier.create!(:country => Country.find_by_iso3('DMA'), :name => 'Cable and Wir
 Carrier.create!(:country => Country.find_by_iso3('DOM'), :name => 'CodeTel', :clickatell_name => 'CodeTel', :guid => '1e04c79b-c7e5-97c0-0669-7630b237c1c4')
 Carrier.create!(:country => Country.find_by_iso3('DOM'), :name => 'Orange (France Telecom Do.)', :clickatell_name => 'Orange (France Telecom Do.)', :guid => '77b6f75e-267c-1a79-9890-f73ec4562cab')
 
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Timor Telecom', :clickatell_name => 'Timor Telecom', :guid => 'b73a66fe-4998-8b77-d933-cdf518c52a7f')
+
 
 Carrier.create!(:country => Country.find_by_iso3('ECU'), :name => 'Conecel (Porta)', :clickatell_name => 'Conecel (Porta)', :guid => '5d049afc-fb92-39d0-85f6-4aa0f4a016df')
 Carrier.create!(:country => Country.find_by_iso3('ECU'), :name => 'Otecel (Movistar)', :clickatell_name => 'Otecel (Movistar)', :guid => '5a2772d6-f846-e0d9-ca49-2bac33a70e0b')
@@ -224,15 +224,15 @@ Carrier.create!(:country => Country.find_by_iso3('FRA'), :name => 'Bouygues Tele
 Carrier.create!(:country => Country.find_by_iso3('FRA'), :name => 'Orange', :clickatell_name => 'Orange', :guid => 'be95ca08-bc24-d036-08e0-3263f80cd081')
 Carrier.create!(:country => Country.find_by_iso3('FRA'), :name => 'SFR', :clickatell_name => 'SFR', :guid => '6322bcd9-357c-7f32-2dc8-a77f899b2bb3')
 
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Digicel (Bouygues Telecom)', :clickatell_name => 'Digicel (Bouygues Telecom)', :guid => 'd957f795-3036-cc61-50c4-6cfdabaf2670')
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Orange (France Caraibe Mobiles)', :clickatell_name => 'Orange (France Caraibe Mobiles)', :guid => '005bb63f-bfe7-0737-d34d-68e66d36048c')
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Outremer Telecom', :clickatell_name => 'Outremer Telecom', :guid => '52614552-f81f-98db-5914-f1924736b283')
+
+
+
 
 Carrier.create!(:country => Country.find_by_iso3('PYF'), :name => 'Tikiphone', :clickatell_name => 'Tikiphone', :guid => 'ac3927df-f4f2-835b-e8c4-44e81652a947')
 
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Bouygues (Digicel)', :clickatell_name => 'Bouygues (Digicel)', :guid => '87a42e2b-a1ea-5aef-1cfd-7e0bd37564a2')
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Only (Outremer)', :clickatell_name => 'Only (Outremer)', :guid => '8f5a9a9f-0408-7124-7680-45b2195f9365')
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Orange', :clickatell_name => 'Orange', :guid => '4b8de1c4-c185-c4c7-08b5-8c1980da2585')
+
+
+
 
 Carrier.create!(:country => Country.find_by_iso3('GAB'), :name => 'Celtel', :clickatell_name => 'Celtel', :guid => 'da7a169f-de33-6089-4973-35658ac91697')
 Carrier.create!(:country => Country.find_by_iso3('GAB'), :name => 'Libertis', :clickatell_name => 'Libertis', :guid => '17f02478-7585-389f-170a-5557fcf51681')
@@ -265,9 +265,9 @@ Carrier.create!(:country => Country.find_by_iso3('GRL'), :name => 'TELE Greenlan
 Carrier.create!(:country => Country.find_by_iso3('GRD'), :name => 'Cable & Wireless', :clickatell_name => 'Cable & Wireless', :guid => '11442314-e4bb-aaac-7b06-e855f42af9b4')
 Carrier.create!(:country => Country.find_by_iso3('GRD'), :name => 'Cingular (Grenada Wireless)', :clickatell_name => 'Cingular (Grenada Wireless)', :guid => 'd67cc2fc-2f7b-7709-3180-c50128e54292')
 
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Bouygues (Digicel)', :clickatell_name => 'Bouygues (Digicel)', :guid => 'c99dee94-0ae6-fa4a-7ee5-08f0d3a10a8b')
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Orange (France Caraibe Mobiles)', :clickatell_name => 'Orange (France Caraibe Mobiles)', :guid => '994e705b-5904-6783-99b2-e1d41a271bec')
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Outremer Telecom', :clickatell_name => 'Outremer Telecom', :guid => '5340691f-14cd-a9a4-0f31-f8993cad2092')
+
+
+
 
 Carrier.create!(:country => Country.find_by_iso3('GUM'), :name => 'DOCOMO PACIFIC', :clickatell_name => 'DOCOMO PACIFIC', :guid => 'e08ddab1-0cd8-b6e4-2070-0bcd3392a895')
 
@@ -275,8 +275,8 @@ Carrier.create!(:country => Country.find_by_iso3('GTM'), :name => 'Movistar', :c
 Carrier.create!(:country => Country.find_by_iso3('GTM'), :name => 'Sercom (Claro)', :clickatell_name => 'Sercom (Claro)', :guid => '5022954a-2a39-86d0-1828-a3cbf7d83f43')
 Carrier.create!(:country => Country.find_by_iso3('GTM'), :name => 'Tigo (Comcel)', :clickatell_name => 'Tigo (Comcel)', :guid => '7a369604-3563-00f4-64d0-0e53bb3c1e32')
 
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Guernsey Airtel Ltd', :clickatell_name => 'Guernsey Airtel Ltd', :guid => '9a028194-3789-009b-504a-dd2523da8a44')
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Sure (Cable & Wireless)', :clickatell_name => 'Sure (Cable & Wireless)', :guid => '4998aa09-d0e4-daee-e875-2008914c4921')
+
+
 
 Carrier.create!(:country => Country.find_by_iso3('GIN'), :name => 'Areeba (MTN)', :clickatell_name => 'Areeba (MTN)', :guid => '10fc51d0-77b6-88e6-9f5a-47750c3df642')
 Carrier.create!(:country => Country.find_by_iso3('GIN'), :name => 'Cellcom', :clickatell_name => 'Cellcom', :guid => '7db13ab1-5c39-b342-a027-b4aa8fdfb0ef')
@@ -519,8 +519,8 @@ Carrier.create!(:country => Country.find_by_iso3('MLT'), :name => 'Melita Mobile
 Carrier.create!(:country => Country.find_by_iso3('MLT'), :name => 'Mobisle Communications (Go Mobile)', :clickatell_name => 'Mobisle Communications (Go Mobile)', :guid => '765db0db-521f-2c4f-0963-f1932e4b4e16')
 Carrier.create!(:country => Country.find_by_iso3('MLT'), :name => 'Vodafone Malta Ltd', :clickatell_name => 'Vodafone Malta Ltd', :guid => 'e3dbf2c5-3b61-43fb-00ef-2dbf9314c1bc')
 
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Digicel (Bouygues)', :clickatell_name => 'Digicel (Bouygues)', :guid => '72f42f1b-39ac-6250-6af8-e8a4f5baa919')
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Outremer Telecom', :clickatell_name => 'Outremer Telecom', :guid => 'c72d7ffc-7d00-e7cc-abcc-2605ec26f99c')
+
+
 
 Carrier.create!(:country => Country.find_by_iso3('MRT'), :name => 'Mattel', :clickatell_name => 'Mattel', :guid => 'dcdfa10f-51da-a2f3-cb8b-9c380ec2de36')
 Carrier.create!(:country => Country.find_by_iso3('MRT'), :name => 'Mauritel Mobiles', :clickatell_name => 'Mauritel Mobiles', :guid => '4ef67b51-b2bc-dff5-92ac-76c8645ebefc')
@@ -600,9 +600,9 @@ Carrier.create!(:country => Country.find_by_iso3('PAK'), :name => 'Telenor', :cl
 Carrier.create!(:country => Country.find_by_iso3('PAK'), :name => 'UFone (PAKTEL)', :clickatell_name => 'UFone (PAKTEL)', :guid => '0e6d173e-d0a0-7c5c-e91e-343a3eea3098')
 Carrier.create!(:country => Country.find_by_iso3('PAK'), :name => 'Warid Telecom', :clickatell_name => 'Warid Telecom', :guid => 'e3faacf4-53dc-551d-0dd6-37f357ac9833')
 
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Palestine Cellular (Jawwal)', :clickatell_name => 'Palestine Cellular (Jawwal)', :guid => 'ac21e4e4-815f-8ed8-25c8-47768e07bf72')
 
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Palestine Cellular (Jawwal)', :clickatell_name => 'Palestine Cellular (Jawwal)', :guid => 'edc48016-8d79-6d6c-1b11-cea86377df21')
+
+
 
 Carrier.create!(:country => Country.find_by_iso3('PAN'), :name => 'Cable & Wireless', :clickatell_name => 'Cable & Wireless', :guid => 'e616d360-2c97-e442-c0d6-a470ab678b8d')
 Carrier.create!(:country => Country.find_by_iso3('PAN'), :name => 'Movistar', :clickatell_name => 'Movistar', :guid => 'e73f6ee5-8adf-8823-cec9-626351208dbb')
@@ -644,8 +644,8 @@ Carrier.create!(:country => Country.find_by_iso3('PRI'), :name => 'Telefonica Mo
 Carrier.create!(:country => Country.find_by_iso3('QAT'), :name => 'Qatar Telecom (Q-Tel)', :clickatell_name => 'Qatar Telecom (Q-Tel)', :guid => 'bba0f4fb-4d2e-234a-cbfe-e5183b31a6df')
 Carrier.create!(:country => Country.find_by_iso3('QAT'), :name => 'Vodafone Qatar Q.S.C.', :clickatell_name => 'Vodafone Qatar Q.S.C.', :guid => 'c20334df-0e21-c826-a93a-5115ed08fea5')
 
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Orange (France Telecom)', :clickatell_name => 'Orange (France Telecom)', :guid => '7cec96f7-d9cd-8bf1-1ffa-1d0b70ebb88d')
-Carrier.create!(:country => Country.find_by_iso3('0'), :name => 'Outremer Telecom', :clickatell_name => 'Outremer Telecom', :guid => 'b21d6da8-697b-2c2b-335b-a5c41db87fa0')
+
+
 
 Carrier.create!(:country => Country.find_by_iso3('ROU'), :name => 'Cosmote (Cosmorom)', :clickatell_name => 'Cosmote (Cosmorom)', :guid => 'cbff77b2-557d-6128-2e3d-6d768c9f566c')
 Carrier.create!(:country => Country.find_by_iso3('ROU'), :name => 'Orange (Dialog, Mobil Rom)', :clickatell_name => 'Orange (Dialog, Mobil Rom)', :guid => 'c42f3887-b1d5-86a9-ca12-460ff722bc32')
@@ -853,3 +853,4 @@ Carrier.create!(:country => Country.find_by_iso3('ZMB'), :name => 'MTN (Telecel)
 Carrier.create!(:country => Country.find_by_iso3('ZWE'), :name => 'Econet', :clickatell_name => 'Econet', :guid => 'd6b99a0f-5e07-4a96-4068-0fc28477f07f')
 Carrier.create!(:country => Country.find_by_iso3('ZWE'), :name => 'NetOne', :clickatell_name => 'NetOne', :guid => 'a9f5c192-53e6-8f80-b56f-0332c628ca29')
 Carrier.create!(:country => Country.find_by_iso3('ZWE'), :name => 'Telecel (P+T Corp.)', :clickatell_name => 'Telecel (P+T Corp.)', :guid => '61b5fc8d-a50b-a573-e15c-9df60520e363')
+Carrier.create!(:country => Country.find_by_iso3('ZWE'), :name => '', :clickatell_name => '', :guid => '')
