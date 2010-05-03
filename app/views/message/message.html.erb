@@ -96,7 +96,7 @@
       values.map! do |value|
         case key
         when 'country'
-          result = countries.select{|x| x.iso2 == value}.first
+          result = countries.select{|x| x.iso2.casecmp(value) == 0}.first
           result ? result.name : value 
         when 'carrier'
           result = carriers.select{|x| x.guid == value}.first

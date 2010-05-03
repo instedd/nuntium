@@ -16,15 +16,15 @@ class Country < ActiveRecord::Base
   end
   
   def self.find_by_iso2(iso2)
-    all.select{|c| c.iso2 == iso2}.first
+    all.select{|c| c.iso2.casecmp(iso2) == 0}.first
   end
   
   def self.find_by_iso3(iso3)
-    all.select{|c| c.iso3 == iso3}.first
+    all.select{|c| c.iso3.casecmp(iso3) == 0}.first
   end
   
   def self.find_by_iso2_or_iso3(iso)
-    all.select{|c| c.iso2 == iso || c.iso3 == iso}.first
+    all.select{|c| c.iso2.casecmp(iso) == 0 || c.iso3.casecmp(iso) == 0}.first
   end
   
   def to_xml(options = {})

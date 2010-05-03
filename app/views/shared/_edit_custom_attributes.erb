@@ -65,7 +65,7 @@ end
           =
           <select name="custom_attribute_value[]">
             <% countries.each do |country| %>
-              <option value="<%= country.iso2 %>" <%= 'selected="selected"' if country.iso2 == value %>><%= country.name %></option>
+              <option value="<%= country.iso2 %>" <%= 'selected="selected"' if country.iso2.casecmp(value) == 0 %>><%= country.name %></option>
             <% end %>
           </select>
           <%
