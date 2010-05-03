@@ -405,7 +405,7 @@ function add_matching_ui(rule_id, add_matching, prefix, matching) {
 	// fill matching ui
 	var name_prefix = prefix + '[matchings][' + matching_id + ']';
 	matching_ui.append('<input type="text" name="' + name_prefix +'[property]"/>');
-	matching_ui.append('<select name="' + name_prefix +'[operator]"><option value="equals">==</option><option value="not_equals">!=</option><option value="starts_with">starts with</option><option value="regex">regex</option></select>');
+	matching_ui.append('<select name="' + name_prefix +'[operator]"><option value="equals">equals</option><option value="not_equals">not equals</option><option value="starts_with">starts with</option><option value="regex">regex</option></select>');
 	matching_ui.append('<input type="text" name="' + name_prefix +'[value]"/>');
 	matching_ui.append('<a href="#" class="remove-matching">[x]</a>');
 	
