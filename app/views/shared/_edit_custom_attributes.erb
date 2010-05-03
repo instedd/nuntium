@@ -1,9 +1,10 @@
 <%
-custom_attributes = entity.nil? ? {} : entity.custom_attributes
 include_channels = defined?(include_channels) ? include_channels : false
+as_restriction = defined?(as_restriction) ? as_restriction : false
+custom_attributes = entity.nil? ? {} : (as_restriction ? entity.restrictions : entity.custom_attributes)
 %>
 
-<h5>Custom attributes</h5>
+<h5><%= as_restriction ? 'Restrictions' : 'Custom Attributes' %></h5>
 
 <%
 # Write the applications in javascript so we can fill the combobox without
@@ -20,7 +21,7 @@ var channels =  <%= channels.to_json %>;
 <%
 if custom_attributes.empty?
   %>
-  <div id="no_custom_attributes">No custom attributes.</div>
+  <div id="no_custom_attributes">No <%= as_restriction ? 'restrictions' : 'custom attributes' %>.</div>
   <%
 end
 %>
@@ -29,14 +30,14 @@ end
   countries = Country.all
   carriers = Carrier.all_with_countries
   
-  def write_custom_attribute(applications, channels, countries, carriers, include_channels, name, values)
+  def write_custom_attribute(applications, channels, countries, carriers, include_channels, as_restriction, name, values)
     values = [values] unless values.kind_of? Array
     values.each do |value|
       is_custom = name != "" && name != "application" && name != "country" && name != "carrier"
       %>
       <li>
         <select name="<%= is_custom ? 'doesnt_matter' : 'custom_attribute_name[]'%>" onchange="channel_custom_attribute_changed(this)">
-          <option value="" <%= 'selected="selected"' if name == "" %>>Add an attribute...</option>
+          <option value="" <%= 'selected="selected"' if name == "" %>>Add <%= as_restriction ? 'a restriction' : 'an attribute' %>...</option>
           <% if applications.length > 0 %>
             <option value="application" <%= 'selected="selected"' if name == "application" %>>Application</option>
           <% end %>
@@ -106,9 +107,9 @@ end
   end
   
   custom_attributes.each do |name, values|
-    write_custom_attribute applications, channels, countries, carriers, include_channels, name, values
+    write_custom_attribute applications, channels, countries, carriers, include_channels, as_restriction, name, values
   end
-  write_custom_attribute applications, channels, countries, carriers, include_channels, '', ''
+  write_custom_attribute applications, channels, countries, carriers, include_channels, as_restriction, '', ''
   %>
 </ul>
 </div>

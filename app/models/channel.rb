@@ -8,7 +8,7 @@ class Channel < ActiveRecord::Base
   has_many :cron_tasks, :as => :parent, :dependent => :destroy # TODO: Tasks are not being destroyed
   
   serialize :configuration, Hash
-  serialize :custom_attributes
+  serialize :restrictions
   serialize :at_rules
   
   validates_presence_of :name, :protocol, :kind, :account
@@ -46,12 +46,11 @@ class Channel < ActiveRecord::Base
   end
   
   def can_route_ao?(msg)
-    # Check that each custom attribute is present in this channel's
-    # custom attributes
+    # Check that each custom attribute is present in this channel's restrictions
     msg.custom_attributes.each do |key, values|
       values = [values] unless values.kind_of? Array
     
-      channel_values = custom_attributes[key]
+      channel_values = restrictions[key]
       next unless channel_values.present?
       
       channel_values = [channel_values] unless channel_values.kind_of? Array
@@ -82,9 +81,9 @@ class Channel < ActiveRecord::Base
     self[:configuration]
   end
   
-  def custom_attributes
-    self[:custom_attributes] = ActiveSupport::OrderedHash.new if self[:custom_attributes].nil?
-    self[:custom_attributes]
+  def restrictions
+    self[:restrictions] = ActiveSupport::OrderedHash.new if self[:restrictions].nil?
+    self[:restrictions]
   end
     
   def clear_password

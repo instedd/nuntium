@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100430145522) do
+ActiveRecord::Schema.define(:version => 20100503152426) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -115,10 +115,10 @@ ActiveRecord::Schema.define(:version => 20100430145522) do
     t.text     "configuration"
     t.string   "protocol"
     t.integer  "direction"
-    t.boolean  "enabled",           :default => true
-    t.integer  "priority",          :default => 100
+    t.boolean  "enabled",       :default => true
+    t.integer  "priority",      :default => 100
     t.integer  "throttle"
-    t.text     "custom_attributes"
+    t.text     "restrictions"
     t.text     "at_rules"
   end
 

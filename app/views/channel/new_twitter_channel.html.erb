@@ -16,7 +16,7 @@
     <%= c.text_field :welcome_message, :value => @channel.configuration[:welcome_message] %>
     </p>
   <% end %>
-  <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel} %>
+  <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} %>
   <%= render :partial => 'edit_at_rules', :locals => {:f => f} %>
   <p>
   After clicking "Create Channel" you'll be prompted to login with a Twitter account

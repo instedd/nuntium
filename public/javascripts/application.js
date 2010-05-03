@@ -204,7 +204,7 @@ function twitter_view_rate_limit_status(id) {
   });
 }
 
-// === channel custom attributes ===
+// === custom attributes ===
 
 function channel_custom_attribute_changed(select) {
   select = $(select);
