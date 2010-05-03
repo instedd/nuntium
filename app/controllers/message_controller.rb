@@ -1,5 +1,6 @@
 class MessageController < AccountAuthenticatedController
 
+  include CustomAttributesControllerCommon
   include MessageFilters
 
   before_filter :check_login
@@ -45,6 +46,8 @@ class MessageController < AccountAuthenticatedController
     msg.to = m[:to]
     msg.subject = m[:subject]
     msg.body = m[:body]
+    msg.custom_attributes = get_custom_attributes
+    
     return msg
   end
   

@@ -1,4 +1,4 @@
-module ChannelControllerCommon
+module CustomAttributesControllerCommon
 
   def get_custom_attributes
     custom_attribute_names = params[:custom_attribute_name] || []

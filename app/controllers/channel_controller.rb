@@ -1,6 +1,6 @@
 class ChannelController < AccountAuthenticatedController
 
-  include ChannelControllerCommon
+  include CustomAttributesControllerCommon
   include RulesControllerCommon
 
   before_filter :check_login

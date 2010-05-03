@@ -228,6 +228,12 @@ function channel_custom_attribute_changed(select) {
     html += ' &nbsp; ' + remove_custom_attribute_link();
     li_value.html(html);
     break;
+  case 'suggested_channel':
+    var html = ' = ';
+    html += channels_select();
+    html += ' &nbsp; ' + remove_custom_attribute_link();
+    li_value.html(html);
+    break;
   case 'country':
     get_countries({
       success: function(countries) {
@@ -324,11 +330,19 @@ function get_carriers(country_id, map) {
 }
 
 function applications_select() {
+  return custom_select(applications, 'Select an application...');
+}
+
+function channels_select() {
+  return custom_select(channels, 'Select a channel...');
+}
+
+function custom_select(objects, title) {
   var html = '';
   html += '<select name="custom_attribute_value[]">';
-  html += '<option value="">Select an application...</option>';
-  for(var i = 0; i < applications.length; i++) {
-    html += '<option>' + applications[i] + '</option>';
+  html += '<option value="">' + title + '</option>';
+  for(var i = 0; i < objects.length; i++) {
+    html += '<option>' + objects[i] + '</option>';
   }
   html += '</select>';
   return html;

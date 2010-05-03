@@ -1,21 +1,24 @@
+<%
+custom_attributes = entity.nil? ? {} : entity.custom_attributes
+include_channels = defined?(include_channels) ? include_channels : false
+%>
+
 <h5>Custom attributes</h5>
 
 <%
 # Write the applications in javascript so we can fill the combobox without
 # going to the server...
-applications = @account.applications.map{|a| a.name}.sort!
-if applications.length > 0
+applications = @account.applications.map(&:name).sort!
+channels = @account.channels.map(&:name).sort!
 %>
-  <script type="text/javascript">
-  var applications = <%= applications.to_json :only => [:name] %>; 
-  </script>
-<%
-end
-%>
+<script type="text/javascript">
+var applications = <%= applications.to_json %>;
+var channels =  <%= channels.to_json %>;
+</script>
 
 <div>
 <%
-if @channel.custom_attributes.empty?
+if custom_attributes.empty?
   %>
   <div id="no_custom_attributes">No custom attributes.</div>
   <%
@@ -26,7 +29,7 @@ end
   countries = Country.all
   carriers = Carrier.all_with_countries
   
-  def write_custom_attribute(applications, countries, carriers, name, values)
+  def write_custom_attribute(applications, channels, countries, carriers, include_channels, name, values)
     values = [values] unless values.kind_of? Array
     values.each do |value|
       is_custom = name != "" && name != "application" && name != "country" && name != "carrier"
@@ -39,6 +42,9 @@ end
           <% end %>
           <option value="country" <%= 'selected="selected"' if name == "country" %>>Country</option>
           <option value="carrier" <%= 'selected="selected"' if name == "carrier" %>>Carrier</option>
+          <% if include_channels and channels.length > 0 %>
+            <option value="suggested_channel" <%= 'selected="selected"' if name == "suggested_channel" %>>Suggested channel</option>
+          <% end %>
           <option value="custom" <%= 'selected="selected"' if is_custom %>>Custom</option>
         </select>
         <span class="value">
@@ -99,10 +105,10 @@ end
     end
   end
   
-  @channel.custom_attributes.each do |name, values|
-    write_custom_attribute applications, countries, carriers, name, values
+  custom_attributes.each do |name, values|
+    write_custom_attribute applications, channels, countries, carriers, include_channels, name, values
   end
-  write_custom_attribute applications, countries, carriers, '', ''
+  write_custom_attribute applications, channels, countries, carriers, include_channels, '', ''
   %>
 </ul>
 </div>
