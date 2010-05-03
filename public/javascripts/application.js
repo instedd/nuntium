@@ -369,24 +369,30 @@ function add_rule_ui(ctx, prefix, rule) {
 	var table = jQuery('table', ctx);
 	
 	var rule_id = rules_newId();
-	var row = jQuery('<tr><td><a href="#" class="remove-rule">[x]</a></td><td><a href="#" class="add-matching">add matching</a></td><td><a href="#" class="add-action">add action</a></td></tr>');
+	var rule_prefix = prefix + '[' + rule_id + ']'
+	
+	var row = jQuery('<tr><td><a href="#" class="remove-rule">[x]</a></td><td><a href="#" class="add-matching">add matching</a></td><td><a href="#" class="add-action">add action</a></td><td><input type="checkbox" name="' + rule_prefix +'[stop]" value="yes"></td></tr>');
 	table.append(row);
 	var add_matching = jQuery('.add-matching', row);
 	var add_action = jQuery('.add-action', row);
 	
 	jQuery('.remove-rule', row).click(function(){ row.remove(); return false; });
-	add_matching.click(function(){ add_matching_ui(rule_id, add_matching, prefix, null); return false; });
-	add_action.click(function(){ add_action_ui(rule_id, add_action, prefix, null); return false; });
+	add_matching.click(function(){ add_matching_ui(rule_id, add_matching, rule_prefix, null); return false; });
+	add_action.click(function(){ add_action_ui(rule_id, add_action, rule_prefix, null); return false; });
 	
 	if (rule != null) {		
 		// load existing matchings
 		jQuery(rule.matchings).each(function(_, matching){
-			add_matching_ui(rule_id, add_matching, prefix, matching);
+			add_matching_ui(rule_id, add_matching, rule_prefix, matching);
 		});
 		// load existing actions
 		jQuery(rule.actions).each(function(_, action){
-			add_action_ui(rule_id, add_action, prefix, action);
+			add_action_ui(rule_id, add_action, rule_prefix, action);
 		})
+		// load stop value
+		if (rule.stop) {
+			jQuery('input:checkbox', row).val(['yes']);
+		}
 	}
 }
 
@@ -397,7 +403,7 @@ function add_matching_ui(rule_id, add_matching, prefix, matching) {
 	add_matching.before(matching_ui);
 	
 	// fill matching ui
-	var name_prefix = prefix + '[' + rule_id + '][matchings][' + matching_id + ']';
+	var name_prefix = prefix + '[matchings][' + matching_id + ']';
 	matching_ui.append('<input type="text" name="' + name_prefix +'[property]"/>');
 	matching_ui.append('<select name="' + name_prefix +'[operator]"><option value="equals">==</option><option value="not_equals">!=</option><option value="starts_with">starts with</option><option value="regex">regex</option></select>');
 	matching_ui.append('<input type="text" name="' + name_prefix +'[value]"/>');
@@ -420,7 +426,7 @@ function add_action_ui(rule_id, add_action, prefix, action) {
 	add_action.before(action_ui);
 	
 	// fill action ui
-	var name_prefix = prefix + '[' + rule_id + '][actions][' + action_id + ']';
+	var name_prefix = prefix + '[actions][' + action_id + ']';
 	action_ui.append('<input type="text" name="' + name_prefix +'[property]"/>');
 	action_ui.append(' = ');
 	action_ui.append('<input type="text" name="' + name_prefix +'[value]"/>');
@@ -437,7 +443,7 @@ function add_action_ui(rule_id, add_action, prefix, action) {
 
 function init_rules(ctx, prefix, rules) {
 	// initial ui
-	ctx.append('<table class="table"><tr><th>&nbsp;</th><th>Matching</th><th>Action</th></tr></table>');
+	ctx.append('<table class="table"><tr><th>&nbsp;</th><th>Matching</th><th>Action</th><th>Stop</th></tr></table>');
 	ctx.append('<div><a href="#" class="add-rule">add rule</a></div><br/>');
 		
 	jQuery('.add-rule', ctx).click(function(){

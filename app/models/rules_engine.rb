@@ -1,8 +1,8 @@
 module RulesEngine
   extend self
   
-  def rule(matchings, actions)
-    return 'matchings' => matchings, 'actions' => actions
+  def rule(matchings, actions, stop = false)
+    return 'matchings' => matchings, 'actions' => actions, 'stop' => stop
   end
    
   def matching(property, operator, value)
@@ -30,6 +30,9 @@ module RulesEngine
         (rule['actions'] || []).each do |action|
           res = res || {}
           res[action['property']] = action['value']
+          if rule['stop']
+            return res
+          end
         end
       end
     end
