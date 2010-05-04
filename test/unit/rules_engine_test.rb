@@ -215,5 +215,18 @@ class RulesEngineTest < ActiveSupport::TestCase
     assert_equal 'mailto://', res[:prop]
   end
   
+  test "regex matching with group replacement clickatell case" do
+    rules = [
+        rule([matching('body', OP_REGEX, '(\d+) - (.*)')], [
+          action('from', 'sms://${1}'),
+          action('body', '${2}')
+        ])
+    ]
+    
+    res = apply({'body' => '1234321 - It works!'}, rules)
+    assert_equal 'sms://1234321', res['from']
+    assert_equal 'It works!', res['body']
+  end
+  
   # TODO should be case insensitive ?
 end
