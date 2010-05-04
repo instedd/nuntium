@@ -10,6 +10,7 @@ class ClickatellChannelHandler < GenericChannelHandler
   
   def check_valid
     check_config_not_blank :api_id
+    check_config_not_blank :network
     
     if (@channel.direction & Channel::Incoming) != 0    
       check_config_not_blank :incoming_password
@@ -66,6 +67,16 @@ class ClickatellChannelHandler < GenericChannelHandler
     request.verify_mode = OpenSSL::SSL::VERIFY_NONE
     request.get(uri).body
   end
+  
+  CLICKATELL_NETWORKS = {
+    '61' => '+61',
+    '44a' => '+44 [A]', 
+    '46' => '+46',
+    '49' => '+49',
+    '45' => '+45',
+    '44b' => '+44 [B]',
+    'usa' => 'USA Shortcode'
+  }
   
   @@clickatell_statuses = {
     '001' => ['Message unknown', 'The message ID is incorrect or reporting is delayed.'],

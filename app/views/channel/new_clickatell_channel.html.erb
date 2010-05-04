@@ -24,6 +24,10 @@
     <%= c.label :from %><br/>
     <%= c.text_field :from, :value => @channel[:configuration][:from] %>
     </p>
+	<p id="network">
+	<%= c.label :network %><br/>
+	<%= c.select :network, options_for_select(ClickatellChannelHandler::CLICKATELL_NETWORKS.map {|v,d| [d,v]}, @channel[:configuration][:network])%>
+	</p>
     <p id="concat_container">
     <%= c.label :concatenation %><br/>
     <%= c.text_field :concat, :value => @channel[:configuration][:concat] || 3 %>
