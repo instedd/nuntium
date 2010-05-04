@@ -32,7 +32,9 @@ class MessageController < AccountAuthenticatedController
   def create_at_message
     msg = create_message ATMessage
     msg.timestamp = Time.new.utc
-    @account.route_at msg, 'ui'
+    
+    channel = @account.find_channel params[:message][:channel_id]
+    @account.route_at msg, (channel || 'ui')
     
     redirect_to_home "AT Message was created with id <a href=\"/message/at/#{msg.id}\" onclick=\"window.open(this.href,'log','width=640,height=480,scrollbars=yes');return false;\">#{msg.id}</a>"
   end
