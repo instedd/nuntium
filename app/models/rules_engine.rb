@@ -26,13 +26,14 @@ module RulesEngine
     res = nil
     
     (rules || []).each do |rule|
-      if matches(context, rule)
+      match_datas = matches(context, rule)
+      # Matches if all values are true or MatchData (not false or nil)
+      if match_datas.all?
         (rule['actions'] || []).each do |action|
           res = res || {}
-          res[action['property']] = action['value']
-          if rule['stop']
-            return res
-          end
+          value = action['value']
+          res[action['property']] = get_value(value, rule['matchings'], match_datas)
+          return res if rule['stop']
         end
       end
     end
@@ -42,38 +43,67 @@ module RulesEngine
   
   private
   
+  # Collect each matching in an array. This can be true/false values
+  # as well as MatchData values, later used for regexp replacement.
   def matches(context, rule)
-    (rule['matchings'] || []).all? { |m| matches_matching(context, m) }
+    result = []
+    (rule['matchings'] || []).each do |m| 
+      result << matches_matching(context, m)
+    end
+    result
   end
   
   def matches_matching(context, matching)    
     at_context = context[matching['property']]
+    at_context = [at_context] unless at_context.kind_of? Array
     at_matching = matching['value']
-
-    if at_context.class <= Array then
-      # multiple values
-      return at_context.any? do |v| 
-        matches_value(v, matching['operator'], at_matching)
-      end
-    else
-      # single value
-      return matches_value(at_context, matching['operator'], at_matching)
+    at_context.each do |v|
+      result = matches_value(v, matching['operator'], at_matching)
+      return result if result
     end
+    nil
   end
   
   def matches_value(at_context, op, at_matching)
     case op
-      when OP_EQUALS then
-        return at_context == at_matching
-      when OP_NOT_EQUALS then
-        return at_context != at_matching
-      when OP_STARTS_WITH then
-        return at_context.starts_with?(at_matching)
-      when OP_REGEX then
-        return !Regexp.new(at_matching).match(at_context).nil?
-      else
-        return false
+    when OP_EQUALS then
+      at_context == at_matching
+    when OP_NOT_EQUALS then
+      at_context != at_matching
+    when OP_STARTS_WITH then
+      at_context.starts_with?(at_matching)
+    when OP_REGEX then
+      Regexp.new(at_matching).match(at_context)
+    else
+      false
     end  
+  end
+  
+  # Regepx for ${...}
+  VariablesRegexp = %r(\$\{(.*?)\})
+  
+  def get_value(value, matchings, match_datas)
+    return value unless matchings and value.kind_of? String 
+    value.gsub(VariablesRegexp) do |match|
+      # Remove the ${ from the beginning and the } from the end
+      exp = match[2 .. -2]
+      # It might be ${from.1} or ${1}
+      prefix, number = exp.split('.')
+      idx = nil
+      if prefix and number
+        # If it's ${from.1}, find first regexp rule that matches from and get the first group
+        idx = matchings.find_index{|m| m['property'] == prefix and m['operator'] == OP_REGEX}
+      else
+        # If it's ${1}, find first regexp rule and get the first group
+        idx = matchings.find_index{|m| m['operator'] == OP_REGEX}
+        number = prefix
+      end
+      if idx and match_datas[idx]
+        value = match_datas[idx][number.to_i]
+      else
+        match
+      end
+    end
   end
   
 end
