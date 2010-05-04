@@ -27,8 +27,7 @@ module RulesEngine
     
     (rules || []).each do |rule|
       match_datas = matches(context, rule)
-      # Matches if all values are true or MatchData (not false or nil)
-      if match_datas.all?
+      if match_datas
         (rule['actions'] || []).each do |action|
           res = res || {}
           value = action['value']
@@ -43,12 +42,13 @@ module RulesEngine
   
   private
   
-  # Collect each matching in an array. This can be true/false values
-  # as well as MatchData values, later used for regexp replacement.
+  # Collect each matching in an array if all match, else returns nil
   def matches(context, rule)
     result = []
     (rule['matchings'] || []).each do |m| 
-      result << matches_matching(context, m)
+      match = matches_matching(context, m)
+      return nil unless match
+      result << match
     end
     result
   end
