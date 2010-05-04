@@ -176,5 +176,57 @@ class RulesEngineTest < ActiveSupport::TestCase
     assert !res.has_key?(:propB)
   end
   
+  test "regex matching with group replacement" do
+    rules = [
+        rule([matching(:prop, OP_REGEX, 'sms://(.*)')], [action(:prop, 'mailto://${1}')])
+    ]
+    
+    res = apply({:prop => 'sms://foo'}, rules)
+    assert_equal 'mailto://foo', res[:prop]
+  end
+  
+  test "regex matching with group replacement second group" do
+    rules = [
+        rule([matching(:prop, OP_REGEX, '(.*?)://(.*)')], [action(:prop, 'foobar://${2}')])
+    ]
+    
+    res = apply({:prop => 'sms://foo'}, rules)
+    assert_equal 'foobar://foo', res[:prop]
+  end
+  
+  test "regex matching with property group replacement" do
+    rules = [
+        rule([
+          matching('prop1', OP_REGEX, 'sms://(.*)'),
+          matching('prop2', OP_REGEX, '(.*?)://(.*)')
+        ], [action('prop', 'mailto://${prop1.1}.${prop2.2}')]),
+    ]
+    
+    res = apply({'prop1' => 'sms://foo', 'prop2' => 'lala://lele'}, rules)
+    assert_equal 'mailto://foo.lele', res['prop']
+  end
+  
+  test "regex matching with group replacement no match" do
+    rules = [
+        rule([matching(:prop, OP_REGEX, 'sms://(.*)')], [action(:prop, 'mailto://${2}')])
+    ]
+    
+    res = apply({:prop => 'sms://foo'}, rules)
+    assert_equal 'mailto://', res[:prop]
+  end
+  
+  test "regex matching with group replacement clickatell case" do
+    rules = [
+        rule([matching('body', OP_REGEX, '(\d+) - (.*)')], [
+          action('from', 'sms://${1}'),
+          action('body', '${2}')
+        ])
+    ]
+    
+    res = apply({'body' => '1234321 - It works!'}, rules)
+    assert_equal 'sms://1234321', res['from']
+    assert_equal 'It works!', res['body']
+  end
+  
   # TODO should be case insensitive ?
 end
