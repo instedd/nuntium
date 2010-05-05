@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 require 'yaml'
 require 'net/http'
 require 'uri'
@@ -16,7 +17,7 @@ if (not option_download) and (not File.exists?(csv_filename))
 end
 
 if option_download
-  p "downloading clickatell mo coverage ..."
+  puts "downloading clickatell mo coverage ..."
   url = URI.parse('http://www.clickatell.com/pricing/standard_mo_coverage.php?action=export&country=')
   req = Net::HTTP::Get.new("#{url.path}?#{url.query}")
   res = Net::HTTP.start(url.host, url.port) {|http|
@@ -27,18 +28,18 @@ if option_download
   csvFile.write(res.body)
   csvFile.close
 
-  p "  saved at #{csv_filename}"
+  puts "  saved at #{csv_filename}"
 end
 
 ActiveRecord::Base.transaction do
   
-p "Cleaning ClickatellCoverageMO"
+puts "Cleaning ClickatellCoverageMO"
 ClickatellCoverageMO.all.map do |c| 
   c.delete
   c.save
 end
 
-p "Saving clickatell mo coverage"
+puts "Saving clickatell mo coverage"
 
 # parse clickatell mo coverage file
 missing_countries = Set.new
@@ -100,13 +101,13 @@ ClickatellCoverageMO.create!(
   :cost => 1
 )
 
-p "Updated clickatell mo coverage"
+puts "Updated clickatell mo coverage"
 
 unless missing_countries.empty?
-  p
-  p "The following countries/carriers are missing in db:"
-  p missing_countries.to_a.sort.join ", "
-  p
+  puts
+  puts "The following countries/carriers are missing in db:"
+  puts missing_countries.to_a.sort.join ", "
+  puts
 end
 
 end
