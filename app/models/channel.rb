@@ -46,17 +46,21 @@ class Channel < ActiveRecord::Base
   end
   
   def can_route_ao?(msg)
-    # Check that each custom attribute is present in this channel's restrictions
+    # Check that each custom attribute is present in this channel's restrictions (probably augmented with handler's)
+    handler_restrictions = self.handler.restrictions
+    
     msg.custom_attributes.each do |key, values|
       values = [values] unless values.kind_of? Array
     
-      channel_values = restrictions[key]
+      channel_values = handler_restrictions[key]
       next unless channel_values.present?
       
       channel_values = [channel_values] unless channel_values.kind_of? Array
       
       return false unless values.any?{|v| channel_values.include? v}
     end
+    
+    return true
   end
   
   def self.find_all_by_account_id(account_id)

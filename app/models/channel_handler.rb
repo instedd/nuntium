@@ -39,6 +39,11 @@ class ChannelHandler
     {}
   end
   
+  # Returns restrictions of the channel to be used to route AOs
+  def restrictions
+    @channel.restrictions
+  end
+  
   protected
   
   def check_config_not_blank(*keys)
