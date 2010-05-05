@@ -10,7 +10,6 @@ class ClickatellChannelHandler < GenericChannelHandler
   
   def check_valid
     check_config_not_blank :api_id
-    check_config_not_blank :network
     
     if (@channel.direction & Channel::Incoming) != 0    
       check_config_not_blank :incoming_password

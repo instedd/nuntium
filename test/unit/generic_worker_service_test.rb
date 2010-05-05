@@ -25,6 +25,8 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 		clean_queues
     
     StubGenericJob.value_after_perform = nil
+    
+    super
   end
 
 	def teardown
@@ -141,7 +143,15 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
   end
   
   def clean_database
-    [Account, AccountLog, Channel, AOMessage, WorkerQueue].each(&:delete_all)
+    [
+      Account, AccountLog, 
+      AddressSource, AOMessage, Application, 
+      ATMessage, Carrier, Channel,
+      ClickatellCoverageMO, ClickatellMessagePart, Country, 
+      CronTask, ManagedProcess, MobileNumber, 
+      QSTOutgoingMessage, SmppMessagePart,
+      TwitterChannelStatus, WorkerQueue
+    ].each(&:delete_all)
   end
 
 	def clean_queues

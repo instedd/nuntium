@@ -8,7 +8,7 @@ class CronTaskTest < ActiveSupport::TestCase
 
   include Mocha::API
   
-  teardown :clean_database
+  setup :clean_database
   
   test "should save empty task" do
     task = CronTask.new :interval => 0
@@ -209,7 +209,15 @@ class CronTaskTest < ActiveSupport::TestCase
   end
   
   def clean_database
-    [Account, AccountLog, Channel, CronTask, WorkerQueue].each(&:delete_all)
+    [
+      Account, AccountLog, 
+      AddressSource, AOMessage, Application, 
+      ATMessage, Carrier, Channel,
+      ClickatellCoverageMO, ClickatellMessagePart, Country, 
+      CronTask, ManagedProcess, MobileNumber, 
+      QSTOutgoingMessage, SmppMessagePart,
+      TwitterChannelStatus, WorkerQueue
+    ].each(&:delete_all)
   end
   
   class Handler
