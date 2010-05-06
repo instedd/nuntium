@@ -201,7 +201,7 @@ class HomeController < AccountAuthenticatedController
         msgs << other
         @ao_ids_not_present_in_query << other.id
       end
-    end 
+    end
   
     # Get parent ids of broadcast copies and bring the parents
     copies = msgs.select{|x| x.parent_id}.map &:parent_id

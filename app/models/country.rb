@@ -15,6 +15,10 @@ class Country < ActiveRecord::Base
     countries
   end
   
+  def self.find_by_id(id)
+    all.select{|c| c.id == id}.first
+  end
+  
   def self.find_by_iso2(iso2)
     all.select{|c| c.iso2.casecmp(iso2) == 0}.first
   end

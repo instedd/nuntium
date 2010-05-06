@@ -15,18 +15,16 @@ class ClickatellChannelHandler < GenericChannelHandler
     return res if res.has_key?('country')
     return res if res.has_key?('carrier')
     
-    # sin restriction is modified inplace, clone it.
+    # since restriction is modified inplace, clone it.
     res = res.clone
     
-    # TODO: cache?
     ClickatellCoverageMO.find_all_by_network(network).each do |coverage|      
       if coverage.carrier.nil? then
         # coverage applied to countries
-        # TODO: check if this country navigation uses the cache
-        add_restriction res, 'country', coverage.country.iso2
+        add_restriction res, 'country', Country.find_by_id(coverage.country_id).iso2
       else
         # coverage applied to carriers
-        add_restriction res, 'carrier', coverage.carrier.guid
+        add_restriction res, 'carrier', Carrier.find_by_id(coverage.carrier_id).guid
       end
     end
     
