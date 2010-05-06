@@ -60,6 +60,10 @@ class HomeController < AccountAuthenticatedController
       :page => @ao_page,
       :per_page => @results_per_page
       )
+    # Get parents if they are not present, get children if they are not present
+    complete_broadcasted @ao_messages
+    # Put broadcasted messages on top of their children
+    @ao_messages.sort!{|x, y| x.parent_id == y.id ? 1 : (x.id == y.parent_id ? -1 : y.id <=> x.id)}
     
     build_at_messages_filter
       
@@ -182,6 +186,30 @@ class HomeController < AccountAuthenticatedController
   def logoff
     session[:account_id] = nil
     redirect_to :action => :index
+  end
+  
+  private
+  
+  def complete_broadcasted(msgs)
+    @ao_ids_not_present_in_query = []
+    
+    def add_if_not_present(msgs, conditions)
+      others = AOMessage.all(:conditions => conditions)
+      all_ids = msgs.map &:id
+      others.each do |other|
+        next if all_ids.include? other.id
+        msgs << other
+        @ao_ids_not_present_in_query << other.id
+      end
+    end 
+  
+    # Get parent ids of broadcast copies and bring the parents
+    copies = msgs.select{|x| x.parent_id}.map &:parent_id
+    add_if_not_present msgs, ['id IN (?)', copies] if copies.present?
+    
+    # Get ids of messages that are broadcasted and bring the children
+    broadcasted = msgs.select{|x| x.state == 'broadcasted'}.map &:id
+    add_if_not_present msgs, ['parent_id IN (?)', broadcasted] if broadcasted.present?
   end
 
 end

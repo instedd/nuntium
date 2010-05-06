@@ -107,7 +107,7 @@ class Application < ActiveRecord::Base
       channels.each do |channel|
         copy = msg.clone
         copy.state = 'pending'
-        copy.guid = Guid.new
+        copy.guid = Guid.new.to_s
         copy.parent_id = msg.id
         
         channel.route_ao copy, via_interface

@@ -68,6 +68,22 @@
     <td><b>State:</b></td>
     <td><%= @msg.state %></td>
   </tr>
+  <% if @msg.state == 'broadcasted' %>
+    <tr valign="baseline">
+      <td><b>Broadcasted copies:</b></td>
+      <td>
+        <%= AOMessage.all(:conditions => ['parent_id = ?', @msg.id]).map do |b|
+          link_to b.id, {:controller => :message, :action => :view_ao_message, :id => b.id}, :target => '_blank'
+        end.join(', ') %>
+      </td>
+    </tr>
+  <% end %>
+  <% if @msg.parent_id and parent = @msg.class.find_by_id(@msg.parent_id)%>
+    <tr valign="baseline">
+      <td><b>Original:</b></td>
+      <td><%= link_to parent.id, {:controller => :message, :action => :view_ao_message, :id => parent.id}, :target => '_blank' %></td>
+    </tr>
+  <% end %>
   <% if @msg.class == AOMessage && !@msg.channel.nil?
     hash = @msg.channel.handler.more_info(@msg)
     hash.each_pair do |key, value|

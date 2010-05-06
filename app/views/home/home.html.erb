@@ -253,14 +253,21 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
       <th></th>
     </tr>
     <tr>
-    <% @ao_messages.each do |msg| %>
+    <% @ao_messages.each_with_index do |msg, i| %>
       <%
       chan = @channels.select{|x| msg.channel_id == x.id}.first
       app = @applications.select{|x| msg.application_id == x.id}.first
       %>
-      <tr>
+      <tr <%= 'class="not_present_in_this_query"' if @ao_ids_not_present_in_query.include? msg.id %>>
         <td><input type="checkbox" name="ao_messages[]" value="<%= msg.id %>" <%= 'checked="checked"' if !params[:ao_messages].nil? && params[:ao_messages].include?(msg.id.to_s) %>/></td>
-        <td><%= time_ago msg.timestamp %></td>
+        <td>
+          <% if msg.parent_id
+            image_name = @ao_messages[i+1] && @ao_messages[i+1].parent_id == msg.parent_id ? 'branch' : 'branch_end'
+            %>
+            <%= image_tag "#{image_name}.png", :size => '16x16', :style => 'position:relative; top:4px' %>
+          <% end %>
+          <%= time_ago msg.timestamp %>
+        </td>
         <td align="right"><%= msg.id %></td>
         <td><%= short_html msg.guid %></td>
         <td><%= short_html msg.channel_relative_id %></td>
@@ -272,7 +279,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
         <td><%= app ? app.name : '' %></td>
         <td align="right"><%= msg.tries %></td>
         <td><%= msg.state %></td>
-        <td><%= link_to 'view log', {:controller => :message, :action => :view_ao_message, :id => msg.id}, :popup => ['log', 'width=640,height=480,scrollbars=yes'] %></td>
+        <td><%= link_to 'view log', {:controller => :message, :action => :view_ao_message, :id => msg.id}, :target => '_blank'%></td>
       </tr>
     <% end %>
   </table>
@@ -342,7 +349,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelle
         <td><%= app ? app.name : '' %></td>
         <td align="right"><%= msg.tries %></td>
         <td><%= msg.state %></td>
-        <td><%= link_to 'view log', {:controller => :message, :action => :view_at_message, :id => msg.id}, :popup => ['log', 'width=640,height=480,scrollbars=yes'] %></td>
+        <td><%= link_to 'view log', {:controller => :message, :action => :view_at_message, :id => msg.id}, :target => '_blank'%></td>
       </tr>
     <% end %>
   </table>
