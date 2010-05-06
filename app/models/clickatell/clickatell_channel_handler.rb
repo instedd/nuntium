@@ -7,10 +7,34 @@ class ClickatellChannelHandler < GenericChannelHandler
   def job_class
     SendClickatellMessageJob
   end
+
+  def restrictions
+    res = super
+    network = @channel.configuration[:network]
+    return res if network.nil?
+    return res if res.has_key?('country')
+    return res if res.has_key?('carrier')
+    
+    # sin restriction is modified inplace, clone it.
+    res = res.clone
+    
+    # TODO: cache?
+    ClickatellCoverageMO.find_all_by_network(network).each do |coverage|      
+      if coverage.carrier.nil? then
+        # coverage applied to countries
+        # TODO: check if this country navigation uses the cache
+        add_restriction res, 'country', coverage.country.iso2
+      else
+        # coverage applied to carriers
+        add_restriction res, 'carrier', coverage.carrier.guid
+      end
+    end
+    
+    return res
+  end
   
   def check_valid
     check_config_not_blank :api_id
-    check_config_not_blank :network
     
     if (@channel.direction & Channel::Incoming) != 0    
       check_config_not_blank :incoming_password
@@ -133,4 +157,16 @@ class ClickatellChannelHandler < GenericChannelHandler
     301 => { :kind => :fatal, :description => 'No credit left'},
     302 => { :kind => :message, :description => 'Max allowed credit'}
   }
+  
+  private
+  
+  # adds restriction to result value
+  def add_restriction(res, key, value)
+    if res[key].nil?
+      res[key] = [value]
+    else
+      res[key] << value
+    end
+  end
+  
 end

@@ -46,4 +46,86 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
     
     assert_equal 0, WorkerQueue.count(:conditions => ['queue_name = ?', Queues.ao_queue_name_for(@chan)])
   end
+  
+  test "should use network for channel ao rounting filtering" do
+    Country.create!(:name =>'Argentina', :iso2 => 'AR', :iso3 => 'ARG', :phone_prefix => '54')
+    Country.create!(:name =>'Armenia', :iso2 => 'AM', :iso3 => 'ARM', :phone_prefix => '374')  
+
+    @chan.configuration[:network] = '44'
+    @chan.save!  
+    ClickatellCoverageMO.create!(
+      :country_id => Country.find_by_iso2('AR').id,
+      :carrier_id => nil,
+      :network => '44',
+      :cost => 1
+    )
+    
+    assert @chan.can_route_ao?(ao_with('AR'))
+    assert_false @chan.can_route_ao?(ao_with('AM'))
+  end
+  
+  test "should skip network if channel defines restrictions on country" do
+    Country.create!(:name =>'Argentina', :iso2 => 'AR', :iso3 => 'ARG', :phone_prefix => '54')
+    Country.create!(:name =>'Armenia', :iso2 => 'AM', :iso3 => 'ARM', :phone_prefix => '374')  
+
+    @chan.configuration[:network] = '44'
+    @chan.restrictions['country'] = 'AM' # this overrides clickatell's coverage
+    @chan.save!  
+
+    ClickatellCoverageMO.create!(
+      :country_id => Country.find_by_iso2('AR').id,
+      :carrier_id => nil,
+      :network => '44',
+      :cost => 1
+    )
+    
+    assert_false @chan.can_route_ao?(ao_with('AR'))
+    assert @chan.can_route_ao?(ao_with('AM'))
+  end
+  
+  test "should use network for carrier ao rounting filtering" do
+    Country.create!(:name =>'Argentina', :iso2 => 'AR', :iso3 => 'ARG', :phone_prefix => '54')
+    Carrier.create!(:country => Country.find_by_iso2('AR'), :name => 'carrier-1', :guid => 'guid-1')    
+    Carrier.create!(:country => Country.find_by_iso2('AR'), :name => 'carrier-2', :guid => 'guid-2') 
+
+    @chan.configuration[:network] = '44'
+    @chan.save!  
+       
+    ClickatellCoverageMO.create!(
+      :country_id => Country.find_by_iso2('AR').id,
+      :carrier_id =>  Carrier.find_by_name('carrier-1').id,
+      :network => '44',
+      :cost => 1
+    )
+    
+    assert @chan.can_route_ao?(ao_with('AR', 'guid-1'))
+    assert_false @chan.can_route_ao?(ao_with('AR', 'guid-2'))
+  end
+  
+  test "should skip network if channel defines restrictions on carrier" do
+    Country.create!(:name =>'Argentina', :iso2 => 'AR', :iso3 => 'ARG', :phone_prefix => '54')
+    Carrier.create!(:country => Country.find_by_iso2('AR'), :name => 'carrier-1', :guid => 'guid-1')    
+    Carrier.create!(:country => Country.find_by_iso2('AR'), :name => 'carrier-2', :guid => 'guid-2') 
+
+    @chan.configuration[:network] = '44'
+    @chan.restrictions['carrier'] = Carrier.find_by_name('carrier-2').guid # this overrides clickatell's coverage
+    @chan.save!  
+       
+    ClickatellCoverageMO.create!(
+      :country_id => Country.find_by_iso2('AR').id,
+      :carrier_id =>  Carrier.find_by_name('carrier-1').id,
+      :network => '44',
+      :cost => 1
+    )
+    
+    assert_false @chan.can_route_ao?(ao_with('AR', 'guid-1'))
+    assert @chan.can_route_ao?(ao_with('AR', 'guid-2'))
+  end
+  
+  def ao_with(country, carrier = nil)
+    msg = AOMessage.new
+    msg.country = country
+    msg.carrier = carrier unless carrier.nil?
+    msg
+  end
 end

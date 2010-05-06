@@ -32,6 +32,10 @@ class ActiveSupport::TestCase
   # then set this back to true.
   self.use_instantiated_fixtures  = false
 
+  def setup
+    Rails.cache.clear
+  end
+    
   # Returns the string to be used for HTTP_AUTHENTICATION header
   def http_auth(user, pass)
     'Basic ' + Base64.encode64(user + ':' + pass)
