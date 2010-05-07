@@ -160,7 +160,7 @@ class Channel < ActiveRecord::Base
     xml.channel attributes do
       xml.configuration do
         configuration.each do |name, value|
-          xml.property :name => name, :value => value unless name.to_s.include? 'password'
+          xml.property :name => name, :value => value unless name.to_s.include? 'password' or value.blank?
         end
       end
       xml.restrictions do
@@ -179,7 +179,7 @@ class Channel < ActiveRecord::Base
     attributes.to_json
     attributes[:configuration] = []
     configuration.each do |name, value|
-      attributes[:configuration] << {:name => name, :value => value} unless name.to_s.include? 'password'
+      attributes[:configuration] << {:name => name, :value => value} unless name.to_s.include? 'password' or value.blank?
     end
     restrictions.each do |name, values|
       attributes[:restrictions] ||= []
