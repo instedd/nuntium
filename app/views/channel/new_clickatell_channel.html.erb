@@ -6,6 +6,7 @@
   <%= render :partial => 'edit_name', :locals => {:f => f} %>
   <%= render :partial => 'edit_protocol', :locals => {:f => f, :default => 'sms'} %>
   <%= render :partial => 'edit_priority', :locals => {:f => f} %>
+  <%= render :partial => 'edit_application', :locals => {:f => f} %>
   <%= render :partial => 'edit_direction', :locals => {:on_change => "clickatell_channel_direction_changed()"} %>
   <% f.fields_for :configuration do |c| %>
     <p id="user_container">

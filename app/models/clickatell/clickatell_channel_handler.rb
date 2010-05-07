@@ -44,8 +44,10 @@ class ClickatellChannelHandler < GenericChannelHandler
   end
   
   def info
-    @channel.configuration[:user] + " / " << @channel.configuration[:api_id] <<
-      " <a href=\"#\" onclick=\"clickatell_view_credit(#{@channel.id}); return false;\">view credit</a>"
+    s = ""
+    s << @channel.configuration[:user] + " / " if @channel.configuration[:user].present? 
+    s << @channel.configuration[:api_id] + " <a href=\"#\" onclick=\"clickatell_view_credit(#{@channel.id}); return false;\">view credit</a>"
+    s
   end
   
   def more_info(ao_msg)

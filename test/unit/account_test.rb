@@ -185,4 +185,34 @@ class AccountTest < ActiveSupport::TestCase
     
     assert_equal 'ar', msg.country
   end
+  
+  test "at routing routes to channel's application" do
+    account = Account.create! :name => 'account', :password => 'foo'
+    app1 = create_app account, 1
+    app2 = create_app account, 2
+    chan = new_channel account, 'chan'
+    chan.application_id = app2.id
+    chan.save!
+    
+    msg = ATMessage.new :subject => 'one', :from => 'sms://5467', :to => 'sms://2', :body => 'bar'
+    account.route_at msg, chan
+    
+    assert_equal app2.id, msg.application_id
+  end
+  
+  test "at routing routes to channel's application overriding custom attribute" do
+    account = Account.create! :name => 'account', :password => 'foo'
+    app1 = create_app account, 1
+    app2 = create_app account, 2
+    chan = new_channel account, 'chan'
+    chan.application_id = app2.id
+    chan.save!
+    
+    msg = ATMessage.new :subject => 'one', :from => 'sms://5467', :to => 'sms://2', :body => 'bar'
+    msg.custom_attributes['application'] = app1.name
+    
+    account.route_at msg, chan
+    
+    assert_equal app2.id, msg.application_id
+  end
 end

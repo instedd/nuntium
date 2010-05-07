@@ -49,13 +49,18 @@ class Account < ActiveRecord::Base
   def route_at(msg, via_channel)
     return if duplicated? msg
     
+    # Fill some fields
     msg.account_id = self.id
     msg.timestamp ||= Time.now.utc
     msg.channel = via_channel if via_channel.kind_of? Channel
     msg.state = 'queued'
     
-    # Apply AT Rules
     if via_channel.kind_of? Channel
+      # Set application custom attribute if the channel belongs to an application
+      if via_channel.application_id
+        msg.custom_attributes['application'] = (find_application(via_channel.application_id).name rescue nil)
+      end
+      # Apply AT Rules
       at_routing_res = RulesEngine.apply(msg.rules_context, via_channel.at_rules)
       msg.merge at_routing_res
     end
@@ -73,7 +78,7 @@ class Account < ActiveRecord::Base
     elsif applications.length == 1
       applications.first.route_at msg, via_channel
     else
-      # if msg says which application to be used ...
+      # if msg says which application to be used...
       dest_application_name = msg.custom_attributes['application']
       
       # if not, run the app_routing_rules

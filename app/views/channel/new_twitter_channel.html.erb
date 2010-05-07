@@ -10,6 +10,7 @@
   <%= render :partial => 'edit_name', :locals => {:f => f} %>
   <%= render :partial => 'edit_protocol', :locals => {:f => f, :default => 'twitter'} %>
   <%= render :partial => 'edit_priority', :locals => {:f => f} %>
+  <%= render :partial => 'edit_application', :locals => {:f => f} %>
   <% f.fields_for :configuration do |c| %>
     <p>
     Welcome message for new followers (leave blank if not desired)<br/>

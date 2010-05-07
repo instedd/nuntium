@@ -108,7 +108,8 @@
       <th>Direction</th>
       <th>Protocol</th>
       <th>Info</th>
-      <th>Throttle</th>
+      <th>Priority</th>
+      <th>Application</th>
       <th>Queued AO Messages</th>
       <th></th>
     </tr>
@@ -121,7 +122,8 @@
         <td><%= chan.direction_text %></td>
         <td><%= chan.protocol %></td>
         <td><%= chan.info.blank? ? '' : chan.info %></td>
-        <td align="right"><%= chan.throttle.nil? ? '' : "#{chan.throttle}/min" %></td>
+        <td><%= chan.priority %></td>
+        <td><%= @applications.select{|x| x.id == chan.application_id}.first.name rescue nil %></td>
         <%
         queued = @channels_queued_count[chan.id]
         if queued > 0

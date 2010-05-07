@@ -78,6 +78,8 @@ class SmppChannelHandler < ChannelHandler
   
   def info
     c = @channel.configuration
-    "#{c[:user]}@#{c[:host]}:#{c[:port]}"
+    s = "#{c[:user]}@#{c[:host]}:#{c[:port]}"
+    s << " (#{chan.throttle}/min)" if @channel.throttle != 0
+    s
   end
 end

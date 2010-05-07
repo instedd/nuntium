@@ -2,6 +2,7 @@ require 'digest/sha2'
 
 class Channel < ActiveRecord::Base
   belongs_to :account, :touch => :updated_at
+  belongs_to :application
   
   has_many :qst_outgoing_messages
   has_many :address_sources
