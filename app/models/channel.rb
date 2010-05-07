@@ -138,6 +138,17 @@ class Channel < ActiveRecord::Base
     end
   end
   
+  def self.direction_from_text(direction)
+    case direction
+    when 'incoming'
+      Incoming
+    when 'outgoing'
+      Outgoing
+    when 'bidirectional'
+      Bidirectional
+    end
+  end
+  
   def check_valid_in_ui
     @check_valid_in_ui = true
   end
@@ -160,7 +171,10 @@ class Channel < ActiveRecord::Base
     xml.channel attributes do
       xml.configuration do
         configuration.each do |name, value|
-          xml.property :name => name, :value => value unless name.to_s.include? 'password' or value.blank?
+          next if value.blank?
+          is_password = name.to_s.include? 'password'
+          next if is_password and (options[:include_passwords].nil? or options[:include_passwords] === false)  
+          xml.property :name => name, :value => value
         end
       end
       xml.restrictions do
@@ -179,7 +193,10 @@ class Channel < ActiveRecord::Base
     attributes.to_json
     attributes[:configuration] = []
     configuration.each do |name, value|
-      attributes[:configuration] << {:name => name, :value => value} unless name.to_s.include? 'password' or value.blank?
+      next if value.blank?
+      is_password = name.to_s.include? 'password'
+      next if is_password and (options[:include_passwords].nil? or options[:include_passwords] === false)
+      attributes[:configuration] << {:name => name, :value => value}
     end
     restrictions.each do |name, values|
       attributes[:restrictions] ||= []
