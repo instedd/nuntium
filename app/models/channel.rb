@@ -13,6 +13,7 @@ class Channel < ActiveRecord::Base
   serialize :at_rules
   
   validates_presence_of :name, :protocol, :kind, :account
+  validates_format_of :name, :with => /^[a-zA-Z0-9\-_]+$/, :message => "can only contain alphanumeric characters, '_' or '-' (no spaces allowed)"
   validates_uniqueness_of :name, :scope => :account_id, :message => 'has already been used by another channel in the account'
   validates_numericality_of :throttle, :allow_nil => true, :only_integer => true, :greater_than_or_equal_to => 0
   

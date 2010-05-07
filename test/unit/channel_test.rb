@@ -14,6 +14,13 @@ class ChannelTest < ActiveSupport::TestCase
     end
   end
   
+  [' ', '$', '.', '!', '~', ')', '(', '%', '^', '/', '\\'].each do |sym|
+    test "should not save if name has symbol #{sym}" do
+      @chan.name = "foo#{sym}bar"
+      assert !@chan.save
+    end
+  end
+  
   test "should not save if name is taken" do
     chan2 = Channel.new :name =>'channel', :account_id => @account.id, :kind => 'qst_server', :protocol => 'sms'
     chan2.configuration = {:password => 'foo', :password_confirmation => 'foo'}
