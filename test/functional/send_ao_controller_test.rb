@@ -6,8 +6,8 @@ class SendAoControllerTest < ActionController::TestCase
     account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server', 'sms')
     application = create_app account
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application', 'app_pass')
-    get :create, {:from => 'sms://1234', :to => 'sms://5678', :subject => 's', :body => 'b', :guid => 'g', :account_name => account.name}
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application', 'app_pass')
+    get :create, {:from => 'sms://1234', :to => 'sms://5678', :subject => 's', :body => 'b', :guid => 'g', :account_name => account.name, :application_name => 'application'}
     
     messages = AOMessage.all
     assert_equal 1, messages.length
@@ -32,8 +32,8 @@ class SendAoControllerTest < ActionController::TestCase
     account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server', 'sms')
     application = create_app account
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application', 'app_pass')
-    get :create, {:from => 'sms://1234', :to => 'PROT://5678', :subject => 's', :body => 'b', :guid => 'g', :account_name => account.name}
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application', 'app_pass')
+    get :create, {:from => 'sms://1234', :to => 'PROT://5678', :subject => 's', :body => 'b', :guid => 'g', :account_name => account.name, :application_name => 'application'}
     
     messages = AOMessage.all
     assert_equal 1, messages.length
@@ -57,8 +57,8 @@ class SendAoControllerTest < ActionController::TestCase
     account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server', 'sms')
     application = create_app account
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application', 'app_pass')
-    get :create, {:from => 'sms://1234', :subject => 's', :body => 'b', :guid => 'g', :account_name => account.name}
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application', 'app_pass')
+    get :create, {:from => 'sms://1234', :subject => 's', :body => 'b', :guid => 'g', :account_name => account.name, :application_name => 'application'}
     
     messages = AOMessage.all
     assert_equal 1, messages.length
@@ -82,8 +82,8 @@ class SendAoControllerTest < ActionController::TestCase
     account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server', 'sms')
     application = create_app account
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application', 'wrong_pass')
-    get :create, {:from => 'sms://1234', :to => 'sms://5678', :subject => 's', :body => 'b', :guid => 'g', :account_name => account.name}
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application', 'wrong_pass')
+    get :create, {:from => 'sms://1234', :to => 'sms://5678', :subject => 's', :body => 'b', :guid => 'g', :account_name => account.name, :application_name => 'application'}
     
     assert_response 401
     

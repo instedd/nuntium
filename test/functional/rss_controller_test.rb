@@ -12,9 +12,9 @@ class RssControllerTest < ActionController::TestCase
     account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
     application = create_app account
     
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application', 'app_pass')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application', 'app_pass')
     @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')
-    post :create, :account_name => account.name
+    post :create, :account_name => account.name, :application_name => 'application'
     
     assert_response :ok
     
@@ -39,9 +39,9 @@ class RssControllerTest < ActionController::TestCase
     account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
     application = create_app account
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application', 'app_pass')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application', 'app_pass')
     @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')
-    post :create, :account_name => account.name
+    post :create, :account_name => account.name, :application_name => 'application'
     
     messages = AOMessage.all
     assert_equal 1, messages.length
@@ -57,9 +57,9 @@ class RssControllerTest < ActionController::TestCase
     application = create_app account
     chan2 = create_channel(account, 'chan2', 'chan_pass2', 'qst_server', 'protocol2');
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application', 'app_pass')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application', 'app_pass')
     @request.env['RAW_POST_DATA'] = new_rss_feed('protocol2://Someone else')
-    post :create, :account_name => account.name
+    post :create, :account_name => account.name, :application_name => 'application'
     
     messages = AOMessage.all
     assert_equal 1, messages.length
@@ -74,9 +74,9 @@ class RssControllerTest < ActionController::TestCase
     account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
     application = create_app account
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application', 'app_pass')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application', 'app_pass')
     @request.env['RAW_POST_DATA'] = new_rss_feed('Someone else')
-    post :create, :account_name => account.name
+    post :create, :account_name => account.name, :application_name => 'application'
     
     messages = AOMessage.all
     assert_equal 1, messages.length
@@ -98,9 +98,9 @@ class RssControllerTest < ActionController::TestCase
     account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
     application = create_app account
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application', 'app_pass')  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application', 'app_pass')
     @request.env['RAW_POST_DATA'] = new_rss_feed('unknown://Someone else')
-    post :create, :account_name => account.name
+    post :create, :account_name => account.name, :application_name => 'application'
     
     messages = AOMessage.all
     assert_equal 1, messages.length
@@ -123,9 +123,9 @@ class RssControllerTest < ActionController::TestCase
   
     application = create_app account
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application', 'app_pass')  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application', 'app_pass')  
     @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')
-    post :create, :account_name => account.name
+    post :create, :account_name => account.name, :application_name => 'application'
     
     messages = AOMessage.all
     assert_equal 1, messages.length
@@ -145,8 +145,8 @@ class RssControllerTest < ActionController::TestCase
     msg = new_at_message(application1, 0)
     new_at_message(application2, 1)
     
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application1', 'app_pass')
-    get :index, :account_name => account.name
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application1', 'app_pass')
+    get :index, :account_name => account.name, :application_name => 'application1'
     
     assert_response :ok
     
@@ -170,8 +170,8 @@ class RssControllerTest < ActionController::TestCase
     msg.subject = nil
     msg.save!
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application1', 'app_pass')
-    get :index, :account_name => account.name
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application1', 'app_pass')
+    get :index, :account_name => account.name, :application_name => 'application1'
     
     assert_select "title", "Outbox"
     
@@ -189,8 +189,8 @@ class RssControllerTest < ActionController::TestCase
     new_at_message(application1, 0)
     new_at_message(application1, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application1', 'app_pass')  
-    get :index, :account_name => account.name
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application1', 'app_pass')  
+    get :index, :account_name => account.name, :application_name => 'application1'
     
     assert_select "title", "Outbox"
     
@@ -208,9 +208,9 @@ class RssControllerTest < ActionController::TestCase
     new_at_message(application1, 0)
     new_at_message(application1, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application1', 'app_pass')  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application1', 'app_pass')  
     @request.env["HTTP_IF_MODIFIED_SINCE"] = time_for_msg(1).to_s
-    get :index, :account_name => account.name
+    get :index, :account_name => account.name, :application_name => 'application1'
     
     assert_response :not_modified
   end
@@ -222,9 +222,9 @@ class RssControllerTest < ActionController::TestCase
     new_at_message(application1, 0)
     msg = new_at_message(application1, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application1', 'app_pass')  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application1', 'app_pass')  
     @request.env["HTTP_IF_MODIFIED_SINCE"] = time_for_msg(0).to_s
-    get :index, :account_name => account.name
+    get :index, :account_name => account.name, :application_name => 'application1'
     
     assert_select "title", "Outbox"
     
@@ -242,11 +242,11 @@ class RssControllerTest < ActionController::TestCase
     msg_0 = new_at_message(application1, 0)
     msg_1 = new_at_message(application1, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application1', 'app_pass')  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application1', 'app_pass')  
     @request.env["HTTP_IF_MODIFIED_SINCE"] = time_for_msg(0).to_s
     
     # 1st try
-    get :index, :account_name => account.name
+    get :index, :account_name => account.name, :application_name => 'application1'
     
     assert_select "guid" do |es|
       assert_equal 1, es.length
@@ -259,7 +259,7 @@ class RssControllerTest < ActionController::TestCase
     assert_equal 'delivered', msgs[1].state
     
     # 2st tryapplication1 = create_app account, 1
-    get :index, :account_name => account.name
+    get :index, :account_name => account.name, :application_name => 'application1'
     
     assert_select "guid" do |es|
       assert_equal 1, es.length
@@ -272,7 +272,7 @@ class RssControllerTest < ActionController::TestCase
     assert_equal 'delivered', msgs[1].state
     
     # 3rd try
-    get :index, :account_name => account.name
+    get :index, :account_name => account.name, :application_name => 'application1'
     
     assert_select "guid" do |es|
       assert_equal 1, es.length
@@ -285,7 +285,7 @@ class RssControllerTest < ActionController::TestCase
     assert_equal 'delivered', msgs[1].state
     
     # 4th try: no message return and it's status is failed
-    get :index, :account_name => account.name
+    get :index, :account_name => account.name, :application_name => 'application1'
     
     assert_select "guid", {:count => 0}
     
@@ -296,7 +296,7 @@ class RssControllerTest < ActionController::TestCase
     assert_equal 'failed', msgs[1].state 
     
     # 5th try: tries was not incremented
-    get :index, :account_name => account.name
+    get :index, :account_name => account.name, :application_name => 'application1'
     
     assert_select "guid", {:count => 0}
     
@@ -314,9 +314,9 @@ class RssControllerTest < ActionController::TestCase
     new_at_message(application1, 0)
     new_at_message(application1, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application1', 'app_pass')  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application1', 'app_pass')  
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 1"
-    get :index, :account_name => account.name
+    get :index, :account_name => account.name, :application_name => 'application1'
     
     assert_response :not_modified
   end
@@ -328,9 +328,9 @@ class RssControllerTest < ActionController::TestCase
     new_at_message(application1, 0)
     msg = new_at_message(application1, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application1', 'app_pass')  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application1', 'app_pass')  
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 0"
-    get :index, :account_name => account.name
+    get :index, :account_name => account.name, :application_name => 'application1'
     
     assert_select "title", "Outbox"
     
@@ -345,8 +345,8 @@ class RssControllerTest < ActionController::TestCase
     account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
     application1 = create_app account, 1
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application1', 'wrong_pass')
-    post :create, :account_name => account.name
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application1', 'wrong_pass')
+    post :create, :account_name => account.name, :application_name => 'application1'
     
     assert_response 401
   end
@@ -355,8 +355,28 @@ class RssControllerTest < ActionController::TestCase
     account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
     application1 = create_app account, 1
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('application1', 'wrong_pass')
-    get :index, :account_name => account.name
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application1', 'wrong_pass')
+    get :index, :account_name => account.name, :application_name => 'application1'
+    
+    assert_response 401
+  end
+  
+  test "index not found name mismatch 1" do
+    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
+    application1 = create_app account, 1
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account2/application1', 'app_pass')
+    get :index, :account_name => account.name, :application_name => 'application1'
+    
+    assert_response 401
+  end
+  
+  test "index not found name mismatch 2" do
+    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
+    application1 = create_app account, 1
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application2', 'app_pass')
+    get :index, :account_name => account.name, :application_name => 'application1'
     
     assert_response 401
   end
