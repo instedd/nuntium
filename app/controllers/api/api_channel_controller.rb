@@ -9,7 +9,7 @@ class ApiChannelController < ApiAuthenticatedController
     end
     
     respond_to do |format|
-      format.xml { render :xml => channels.to_xml(:root => 'channels') }
+      format.xml { render :xml => channels.to_xml(:root => 'channels', :skip_types => true) }
       format.json { render :json => channels.to_json }
     end
   end

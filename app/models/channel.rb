@@ -165,7 +165,21 @@ class Channel < ActiveRecord::Base
     }
     attributes[:application] = application.name if application_id
     
-    xml.channel attributes
+    xml.channel attributes do
+      xml.configuration do
+        configuration.each do |name, value|
+          xml.property :name => name, :value => value unless name.to_s.include? 'password'
+        end
+      end
+      xml.restrictions do
+        restrictions.each do |name, values|
+          values = [values] unless values.kind_of? Array
+          values.each do |value|
+            xml.property :name => name, :value => value
+          end 
+        end
+      end unless restrictions.empty?
+    end
   end
   
   private

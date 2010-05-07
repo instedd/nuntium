@@ -79,4 +79,50 @@ class ChannelTest < ActiveSupport::TestCase
     chan = xml[:channel]
     assert_equal app1.name, chan[:application]
   end
+  
+  test "to xml configuration" do
+    @chan.kind = 'clickatell'
+    @chan.direction = 'incoming'
+    @chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :from => 'something', :incoming_password => 'incoming_pass' }
+    
+    xml = Hash.from_xml(@chan.to_xml).with_indifferent_access
+    config = xml[:channel][:configuration]
+    properties = config[:property]
+    
+    assert_equal 3, properties.length
+    @chan.configuration.each do |name, value|
+      found = false
+      properties.each do |prop|
+        if prop[:name] == name.to_s
+          assert_equal value, prop[:value], "Property #{name} expected to be #{value} but was #{prop[:value]}"
+          found = true
+        end
+      end
+      if name.to_s.include? 'password'
+        assert_false found, "Property #{name} should not be exposed"
+      else
+        assert_true found, "Property #{name} not found"
+      end
+    end
+  end
+  
+  test "to xml restrictions" do
+    @chan.restrictions['single'] = 'one'
+    @chan.restrictions['multi'] = ['a', 'b']
+    
+    xml = Hash.from_xml(@chan.to_xml).with_indifferent_access
+    properties = xml[:channel][:restrictions][:property]
+    
+    assert_equal 3, properties.length
+    @chan.restrictions.each do |name, values|
+      values = [values] unless values.kind_of? Array
+      values.each do |value|
+        found = false
+        properties.each do |prop|
+          found = true if prop[:name] == name.to_s and value == prop[:value]
+        end
+        assert_true found, "Property #{name} not found"
+      end
+    end
+  end
 end
