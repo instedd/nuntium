@@ -63,7 +63,8 @@ ActionController::Routing::Routes.draw do |map|
   # API
   map.countries '/api/countries.:format', :controller => 'api_country', :action => :index
   map.countries '/api/carriers.:format', :controller => 'api_carrier', :action => :index
-  map.api_channels_get '/api/channels.:format', :controller => 'api_channel', :action => :index
+  map.api_channels_index '/api/channels.:format', :controller => 'api_channel', :action => :index
+  map.api_channels_show '/api/channels/:name.:format', :controller => 'api_channel', :action => :show
 
   # The priority is based upon order of creation: first created -> highest priority.
 

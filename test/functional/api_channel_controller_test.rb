@@ -22,16 +22,41 @@ class ApiChannelControllerTest < ActionController::TestCase
     @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
     get :index, :format => format
     
-    assert_response :ok
-    
     case format
     when 'xml'
       xml = Hash.from_xml(@response.body).with_indifferent_access
       chans = xml[:channels]
-      assert_equal expected_channel_count, chans.length
+      if expected_channel_count == 0
+        assert_nil chans
+      else
+        assert_equal expected_channel_count, chans[:channel].length
+      end
     when 'json'
       json = JSON.parse @response.body
       assert_equal expected_channel_count, json.length
+    end
+  end
+  
+  def show(name, format, expected_channel_count)
+    yield if block_given?
+    
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
+    get :show, :format => format, :name => name
+    
+    if expected_channel_count == 0
+      assert_response :not_found
+      return
+    else
+      assert_response :ok
+    end
+    
+    case format
+    when 'xml'
+      xml = Hash.from_xml(@response.body).with_indifferent_access
+      assert_not_nil xml[:channel]
+    when 'json'
+      json = JSON.parse @response.body
+      assert_not_nil json
     end
   end
   
@@ -58,6 +83,24 @@ class ApiChannelControllerTest < ActionController::TestCase
           chan.save
         end
         chan = new_channel @account, "chan3"
+      end
+    end
+    
+    test "show #{format} not found" do
+      show 'hola', format, 0
+    end
+    
+    test "show #{format} for application found" do
+      show 'hola', format, 1 do
+        chan = new_channel @account, "hola"
+        chan.application_id = @application.id
+          chan.save
+      end
+    end
+    
+    test "show #{format} for no application found" do
+      show 'hola', format, 1 do
+        chan = new_channel @account, "hola"
       end
     end
   end
