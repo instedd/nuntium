@@ -16,13 +16,9 @@ class ApiCarrierController < ApplicationController
       return head :bad_request
     end
     
-    case params[:format]
-    when 'xml'
-      render :xml => (carriers_for country).to_xml
-    when 'json'
-      render :json => (carriers_for country).to_json
-    else
-      head :bad_request
+    respond_to do |format|
+      format.xml { render :xml => (carriers_for country).to_xml(:root => 'carriers') }
+      format.json { render :json => (carriers_for country).to_json }
     end
   end
   

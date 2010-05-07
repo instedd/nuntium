@@ -1,13 +1,9 @@
 class ApiCountryController < ApplicationController
 
   def index
-    case params[:format]
-    when 'xml'
-      render :xml => countries.to_xml
-    when 'json'
-      render :json => countries.to_json(:only => [:name, :iso2, :iso3, :phone_prefix])
-    else
-      head :bad_request
+    respond_to do |format|
+      format.xml { render :xml => countries.to_xml(:root => 'countries') }
+      format.json { render :json => countries.to_json(:only => [:name, :iso2, :iso3, :phone_prefix]) }
     end
   end
   
