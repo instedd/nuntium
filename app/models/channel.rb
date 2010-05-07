@@ -134,7 +134,7 @@ class Channel < ActiveRecord::Base
     when Outgoing
       'outgoing'
     when Bidirectional
-      'bi-directional'
+      'bidirectional'
     end
   end
   
@@ -148,6 +148,24 @@ class Channel < ActiveRecord::Base
   
   def logger
     account.logger
+  end
+  
+  def to_xml(options = {})
+    options[:indent] ||= 2
+    xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
+    xml.instruct! unless options[:skip_instruct]
+    
+    attributes = {
+      :name => name, 
+      :kind => kind, 
+      :protocol => protocol,
+      :direction => direction_text,
+      :enabled => enabled.to_s,
+      :priority => priority
+    }
+    attributes[:application] = application.name if application_id
+    
+    xml.channel attributes
   end
   
   private

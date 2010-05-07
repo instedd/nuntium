@@ -3,7 +3,7 @@ require 'test_helper'
 class ChannelTest < ActiveSupport::TestCase
   def setup
     @account = Account.create(:name => 'account', :password => 'foo')
-    @chan = Channel.new :name =>'channel', :account_id => @account.id, :kind => 'qst_server', :protocol => 'sms'
+    @chan = Channel.new :name =>'channel', :account_id => @account.id, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional
     @chan.configuration = {:password => 'foo', :password_confirmation => 'foo'}
   end
   
@@ -56,5 +56,27 @@ class ChannelTest < ActiveSupport::TestCase
     
     res = RulesEngine.apply({:from => 'sms://1'}, chan_stored.at_rules)
     assert_equal 'whitness', res[:ca1]
+  end
+  
+  test "to xml" do
+    xml = Hash.from_xml(@chan.to_xml).with_indifferent_access
+    chan = xml[:channel]
+    assert_equal @chan.name, chan[:name]
+    assert_equal @chan.kind, chan[:kind]
+    assert_equal @chan.protocol, chan[:protocol]
+    assert_equal 'bidirectional', chan[:direction]
+    assert_equal 'true', chan[:enabled]
+    assert_equal @chan.priority.to_s, chan[:priority]
+    assert_nil chan[:application]
+  end
+  
+  test "to xml with application" do
+    app1 = create_app @account, '1'
+    @chan.application_id = app1.id
+    @chan.save!
+  
+    xml = Hash.from_xml(@chan.to_xml).with_indifferent_access
+    chan = xml[:channel]
+    assert_equal app1.name, chan[:application]
   end
 end
