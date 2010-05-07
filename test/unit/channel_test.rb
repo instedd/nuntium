@@ -37,7 +37,7 @@ class ChannelTest < ActiveSupport::TestCase
   end
   
   test "should be enabled by default" do
-    @chan.save
+    @chan.save!
     assert @chan.enabled
   end
   
@@ -50,7 +50,7 @@ class ChannelTest < ActiveSupport::TestCase
       ])
     ]
     
-    @chan.save
+    @chan.save!
     
     chan_stored = Channel.find_by_id(@chan.id)
     

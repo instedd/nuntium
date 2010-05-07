@@ -70,5 +70,6 @@ class RoutesTest < ActionController::TestCase
   test "api" do
     assert_routing({:path => "/api/countries.xml"}, { :controller => "api_country", :action => "index", :format => "xml" })
     assert_routing({:path => "/api/carriers.xml"}, { :controller => "api_carrier", :action => "index", :format => "xml" })
+    assert_routing({:path => "/api/channels.xml", :method => :get}, { :controller => "api_channel", :action => "index", :format => "xml" })
   end
 end
