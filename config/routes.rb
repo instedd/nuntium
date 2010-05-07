@@ -61,8 +61,8 @@ ActionController::Routing::Routes.draw do |map|
   map.view_at_message '/message/at/:id', :controller => 'message', :action => :view_at_message
   
   # API
-  map.countries '/api/countries.:format', :controller => 'country', :action => :index
-  map.countries '/api/carriers.:format', :controller => 'carrier', :action => :index
+  map.countries '/api/countries.:format', :controller => 'api_country', :action => :index
+  map.countries '/api/carriers.:format', :controller => 'api_carrier', :action => :index
 
   # The priority is based upon order of creation: first created -> highest priority.
 

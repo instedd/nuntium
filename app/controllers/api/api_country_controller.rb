@@ -1,4 +1,4 @@
-class CountryController < ApplicationController
+class ApiCountryController < ApplicationController
 
   def index
     case params[:format]

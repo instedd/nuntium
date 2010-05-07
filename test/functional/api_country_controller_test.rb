@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class CountryControllerTest < ActionController::TestCase
+class ApiCountryControllerTest < ActionController::TestCase
 
   def setup
     @attributes = {:name => 'Argentina', :iso2 => 'ar', :iso3 =>'arg', :phone_prefix => '54'}

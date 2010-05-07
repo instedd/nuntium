@@ -1,4 +1,4 @@
-class CarrierController < ApplicationController
+class ApiCarrierController < ApplicationController
 
   def index
     country_id = params[:country_id]

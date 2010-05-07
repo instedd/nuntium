@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class CarrierControllerTest < ActionController::TestCase
+class ApiCarrierControllerTest < ActionController::TestCase
 
   def setup
     country = Country.create!(:name => 'Argentina', :iso2 => 'ar', :iso3 =>'arg', :phone_prefix => '54')
