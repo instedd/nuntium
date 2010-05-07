@@ -174,7 +174,7 @@ class Channel < ActiveRecord::Base
     end
   end
   
-  def to_json
+  def to_json(options = {})
     attributes = common_to_x_attributes
     attributes.to_json
     attributes[:configuration] = []
