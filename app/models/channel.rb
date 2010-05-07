@@ -155,15 +155,7 @@ class Channel < ActiveRecord::Base
     xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
     xml.instruct! unless options[:skip_instruct]
     
-    attributes = {
-      :name => name, 
-      :kind => kind, 
-      :protocol => protocol,
-      :direction => direction_text,
-      :enabled => enabled.to_s,
-      :priority => priority
-    }
-    attributes[:application] = application.name if application_id
+    attributes = common_to_x_attributes
     
     xml.channel attributes do
       xml.configuration do
@@ -180,6 +172,20 @@ class Channel < ActiveRecord::Base
         end
       end unless restrictions.empty?
     end
+  end
+  
+  def to_json
+    attributes = common_to_x_attributes
+    attributes.to_json
+    attributes[:configuration] = []
+    configuration.each do |name, value|
+      attributes[:configuration] << {:name => name, :value => value} unless name.to_s.include? 'password'
+    end
+    restrictions.each do |name, values|
+      attributes[:restrictions] ||= []
+      attributes[:restrictions] << {:name => name, :value => values}
+    end unless restrictions.empty?
+    attributes.to_json
   end
   
   private
@@ -228,6 +234,19 @@ class Channel < ActiveRecord::Base
   
   def self.cache_key(account_id)
     "account_#{account_id}_channels"
+  end
+  
+  def common_to_x_attributes
+    attributes = {
+      :name => name, 
+      :kind => kind, 
+      :protocol => protocol,
+      :direction => direction_text,
+      :enabled => enabled.to_s,
+      :priority => priority
+    }
+    attributes[:application] = application.name if application_id
+    attributes
   end
 
 end

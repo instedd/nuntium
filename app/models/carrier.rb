@@ -43,7 +43,7 @@ class Carrier < ActiveRecord::Base
   end
   
   def to_json(options = {})
-    "{\"name\":\"#{escape(name)}\",\"guid\":\"#{escape(guid)}\",\"country_iso2\":\"#{escape(country.iso2)}\"}"
+    {:name => name, :guid => guid, :country_iso2 => country.iso2}.to_json
   end
   
   private

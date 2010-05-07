@@ -26,7 +26,8 @@ class ApiCarrierControllerTest < ActionController::TestCase
       get :index, :format => 'json', :country_id => country_code
       assert_response :ok
       
-      carriers = JSON.parse @response.body
+      carriers = JSON.parse(@response.body)
+      
       assert_equal 1, carriers.length
       assert_equal 'Personal', carriers[0]['name']
       assert_equal "Some'Guid", carriers[0]['guid']
