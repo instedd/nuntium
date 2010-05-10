@@ -122,14 +122,11 @@ class ApiChannelControllerTest < ActionController::TestCase
       assert_not_nil result
       assert_equal @account.id, result.account_id
       assert_equal @application.id, result.application_id
-      assert_equal chan.name, result.name 
-      assert_equal chan.kind, result.kind
-      assert_equal chan.protocol, result.protocol
-      assert_equal chan.direction, result.direction
+      [:name, :kind, :protocol, :direction, :restrictions].each do |sym|
+        assert_equal chan.send(sym), result.send(sym)
+      end
       assert_equal chan.configuration[:url], result.configuration[:url]
       assert_equal chan.configuration[:user], result.configuration[:user]
-      assert_equal chan.restrictions['foo'], result.restrictions['foo']
-      assert_equal chan.restrictions['bar'], result.restrictions['bar']
     end
   end
 
