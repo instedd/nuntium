@@ -67,6 +67,7 @@ ActionController::Routing::Routes.draw do |map|
   map.api_channels_create '/api/channels.:format', :conditions => {:method => :post}, :controller => 'api_channel', :action => :create
   map.api_channels_show '/api/channels/:name.:format', :conditions => {:method => :get}, :controller => 'api_channel', :action => :show
   map.api_channels_update '/api/channels/:name.:format', :conditions => {:method => :put}, :controller => 'api_channel', :action => :update
+  map.api_channels_destroy '/api/channels/:name', :conditions => {:method => :delete}, :controller => 'api_channel', :action => :destroy  
 
   # The priority is based upon order of creation: first created -> highest priority.
 

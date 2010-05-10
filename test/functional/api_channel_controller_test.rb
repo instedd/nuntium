@@ -158,5 +158,35 @@ class ApiChannelControllerTest < ActionController::TestCase
       end
     end
   end
+  
+  test "delete channel succeeds" do
+    chan = new_channel @account, "chan_foo"
+    chan.application_id = @application.id
+    chan.save
+    
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
+    delete :destroy, :name => "chan_foo"
+    
+    assert_response :ok
+    
+    assert_nil @account.find_channel "chan_foo"
+  end
+  
+  test "delete channel fails, no channel found" do
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
+    delete :destroy, :name => "chan_lala"
+    
+    assert_response :bad_request
+  end
+  
+  test "delete channel fails, does not own channel" do
+    chan = new_channel @account, "chan_foo"
+    chan.save
+    
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
+    delete :destroy, :name => "chan_foo"
+    
+    assert_response :bad_request
+  end
 
 end

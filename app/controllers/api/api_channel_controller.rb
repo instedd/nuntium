@@ -46,6 +46,16 @@ class ApiChannelController < ApiAuthenticatedController
     end
   end
   
+  def destroy
+    chan = @account.find_channel params[:name]
+    if chan and chan.application_id == @application.id
+      chan.destroy
+      head :ok
+    else
+      head :bad_request
+    end
+  end
+  
   private
   
   def errors_to_xml(errors)

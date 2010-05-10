@@ -74,5 +74,6 @@ class RoutesTest < ActionController::TestCase
     assert_routing({:path => "/api/channels/foo.xml", :method => :get}, { :controller => "api_channel", :action => "show", :format => "xml", :name => "foo" })
     assert_routing({:path => "/api/channels.xml", :method => :post}, { :controller => "api_channel", :action => "create", :format => "xml" })
     assert_routing({:path => "/api/channels/foo.xml", :method => :put}, { :controller => "api_channel", :action => "update", :format => "xml", :name => "foo" })
+    assert_routing({:path => "/api/channels/foo", :method => :delete}, { :controller => "api_channel", :action => "destroy", :name => "foo" })
   end
 end
