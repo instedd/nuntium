@@ -23,7 +23,7 @@ class SmtpChannelHandler < GenericChannelHandler
     config = @channel.configuration
     
     smtp = Net::SMTP.new(config[:host], config[:port].to_i)
-    if (config[:use_ssl] == '1')
+    if (config[:use_ssl] == '1' || config[:use_ssl] == 'true')
       smtp.enable_tls
     end
     

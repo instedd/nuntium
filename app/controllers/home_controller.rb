@@ -134,7 +134,7 @@ class HomeController < AccountAuthenticatedController
     @application.account_id = @account.id
     
     cfg = app[:configuration]
-    @application.use_address_source = cfg[:use_address_source] == '1'
+    @application.use_address_source = cfg[:use_address_source] == '1' || cfg[:use_address_source] == 'true' 
     @application.ao_rules = get_rules :aorules
     @application.strategy = cfg[:strategy]
     

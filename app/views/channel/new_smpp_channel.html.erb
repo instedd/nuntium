@@ -50,7 +50,7 @@
 		<%= c.check_box :endianness, {:checked => @channel.configuration[:endianness] == 'little'}, :little, :big %> <%= c.label 'Use little endian for ucs-2' %>
 		</p>
 		<p>
-		<%= c.check_box :accept_mo_hex_string, :checked => @channel.configuration[:accept_mo_hex_string] == '1' %> <%= c.label 'Hex strings' %>
+		<%= c.check_box :accept_mo_hex_string, :checked => (@channel.configuration[:accept_mo_hex_string] == '1' || @channel.configuration[:accept_mo_hex_string] == 'true') %> <%= c.label 'Hex strings' %>
 		</p>
 		<% encodings = [['ASCII', 'ascii'], ['Latin1', 'latin1'], ['UCS-2', 'ucs-2'], ['GSM 03.38', 'gsm']] %>
 		<p>

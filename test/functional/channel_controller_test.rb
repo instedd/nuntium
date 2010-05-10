@@ -38,7 +38,7 @@ class ChannelControllerTest < ActionController::TestCase
     # The channel was changed
     chans = Channel.all
     assert_equal 1, chans.length
-    "channel/new_qst_server_channel.html.erb"
+    "channel/edit_qst_server_channel.html.erb"
     chan = chans[0]
     assert(chan.handler.authenticate('new_pass'))
   end
@@ -94,7 +94,7 @@ class ChannelControllerTest < ActionController::TestCase
     
     get :update_channel, {:id => chan.id, :channel => {:protocol => '', :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => account.id}
     
-    assert_template "channel/new_qst_server_channel.html.erb"
+    assert_template "channel/edit_qst_server_channel.html.erb"
   end
 
   test "create chan fails name already exists" do

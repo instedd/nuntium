@@ -218,7 +218,7 @@ class SmppTransceiverDelegate
     msg = ATMessage.new
     msg.from = source.with_protocol 'sms'
     msg.to = destination.with_protocol 'sms'
-    if @channel.configuration[:accept_mo_hex_string] == '1' and is_hex(text) 
+    if (@channel.configuration[:accept_mo_hex_string] == '1' || @channel.configuration[:accept_mo_hex_string] == 'true') and is_hex(text) 
       bytes = hex_to_bytes text
       iconv = Iconv.new('utf-8', ucs2_endianized)
       msg.subject = iconv.iconv bytes
