@@ -9,7 +9,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
     time = Time.now
     
     account = Account.create(:name => 'account', :password => 'pass')
-    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'smtp')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'smtp', :direction => Channel::Bidirectional)
     chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '0'}
     chan.save
     
@@ -45,7 +45,7 @@ msgstr.strip!
     time = Time.now
     
     account = Account.create(:name => 'account', :password => 'pass')
-    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'smtp')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'smtp', :direction => Channel::Bidirectional)
     chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'}
     chan.save
     

@@ -1,6 +1,12 @@
 require 'digest/sha2'
 
 class Channel < ActiveRecord::Base
+
+  # Channel directions
+  Incoming = 1
+  Outgoing = 2
+  Bidirectional = Incoming + Outgoing
+
   belongs_to :account, :touch => :updated_at
   belongs_to :application
   
@@ -15,6 +21,7 @@ class Channel < ActiveRecord::Base
   validates_presence_of :name, :protocol, :kind, :account
   validates_format_of :name, :with => /^[a-zA-Z0-9\-_]+$/, :message => "can only contain alphanumeric characters, '_' or '-' (no spaces allowed)", :unless => proc {|c| c.name.blank?}
   validates_uniqueness_of :name, :scope => :account_id, :message => 'has already been used by another channel in the account'
+  validates_inclusion_of :direction, :in => [Incoming, Outgoing, Bidirectional], :message => "must be 'incoming', 'outgoing' or 'bidirectional'" 
   validates_numericality_of :throttle, :allow_nil => true, :only_integer => true, :greater_than_or_equal_to => 0
   
   validate :handler_check_valid
@@ -25,11 +32,6 @@ class Channel < ActiveRecord::Base
   
   before_destroy :clear_cache 
   after_save :clear_cache
-  
-  # Channel directions
-  Incoming = 1
-  Outgoing = 2
-  Bidirectional = Incoming + Outgoing
 
   include(CronTask::CronTaskOwner)
   
@@ -139,13 +141,15 @@ class Channel < ActiveRecord::Base
   end
   
   def self.direction_from_text(direction)
-    case direction
+    case direction.downcase
     when 'incoming'
       Incoming
     when 'outgoing'
       Outgoing
     when 'bidirectional'
       Bidirectional
+    else
+      -1
     end
   end
   
@@ -288,7 +292,7 @@ class Channel < ActiveRecord::Base
     chan.protocol = hash[:protocol]
     chan.priority = hash[:priority]
     chan.enabled = hash[:enabled] == 'true'
-    chan.direction = Channel.direction_from_text(hash[:direction])
+    chan.direction = Channel.direction_from_text(hash[:direction]) if hash[:direction]
     
     hash_config = hash[:configuration] || {}
     hash_config = hash_config[:property] || [] if format == :xml and hash_config[:property]

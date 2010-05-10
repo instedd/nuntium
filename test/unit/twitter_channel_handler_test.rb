@@ -5,7 +5,7 @@ class TwitterChannelHandlerTest < ActiveSupport::TestCase
   
   def setup
     @account = Account.create(:name => 'account', :password => 'foo')
-    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'twitter', :protocol => 'sms')
+    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'twitter', :protocol => 'sms', :direction => Channel::Bidirectional)
   end
   
   test "should enqueue" do

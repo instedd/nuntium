@@ -5,7 +5,7 @@ class DtacChannelHandlerTest < ActiveSupport::TestCase
   
   def setup
     @account = Account.create(:name => 'account', :password => 'foo')
-    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'dtac', :protocol => 'sms')
+    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'dtac', :protocol => 'sms', :direction => Channel::Bidirectional)
     @chan.configuration = {:user => 'user', :password => 'password', :sno => 'sno' }
   end
   

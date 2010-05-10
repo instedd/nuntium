@@ -3,7 +3,7 @@ require 'test_helper'
 class Pop3ChannelHandlerTest < ActiveSupport::TestCase
   def setup
     @account = Account.create(:name => 'account', :password => 'foo')
-    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'pop3', :protocol => 'sms')
+    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'pop3', :protocol => 'sms', :direction => Channel::Bidirectional)
     @chan.configuration = {:host => 'host', :port => '430', :user => 'user', :password => 'password' }
   end
 

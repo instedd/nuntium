@@ -184,7 +184,7 @@ class CronTaskTest < ActiveSupport::TestCase
   
   def create_channel(kind = 'qst_server')
     account = Account.create :name => 'account', :password => 'foo'
-    ch = Channel.new :name =>'channel', :account_id => account.id, :kind => kind, :protocol => 'sms'
+    ch = Channel.new :name =>'channel', :account_id => account.id, :kind => kind, :protocol => 'sms', :direction => Channel::Bidirectional
     ch.configuration = {:password => 'foo', :password_confirmation => 'foo', :user => 'foobar', :port => 600, :host => 'example.com'}
     ch.save!
     ch

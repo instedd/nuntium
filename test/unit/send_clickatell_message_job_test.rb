@@ -36,7 +36,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     request.expects(:get).with(uri).returns(response)
     
     account = Account.create(:name => 'account', :password => 'pass')
-    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell', :direction => Channel::Bidirectional)
     chan.configuration = {:api_id => 'api1', :user => 'user1', :password => 'pass1', :from => 'someone', :incoming_password => 'pass2'}
     assert_true chan.save!
     
@@ -80,7 +80,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     request.expects(:get).with(uri).returns(response)
     
     account = Account.create(:name => 'account', :password => 'pass')
-    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell', :direction => Channel::Bidirectional)
     chan.configuration = {:api_id => 'api1', :user => 'user1', :password => 'pass1', :from => 'someone', :incoming_password => 'pass2'}
     assert_true chan.save!
     
@@ -127,7 +127,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     request.expects(:get).with(uri).returns(response)
     
     account = Account.create(:name => 'account', :password => 'pass')
-    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell', :direction => Channel::Bidirectional)
     chan.configuration = {:api_id => 'api1', :user => 'user1', :password => 'pass1', :from => 'someone', :incoming_password => 'pass2'}
     assert_true chan.save!
     

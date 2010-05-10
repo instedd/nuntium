@@ -10,7 +10,7 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     account = Account.create(:name => 'account', :password => 'pass')
     application = create_app account
     
-    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3', :direction => Channel::Bidirectional)
     chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '0'}
     chan.save
       
@@ -56,7 +56,7 @@ END_OF_MESSAGE
     account = Account.create(:name => 'account', :password => 'pass')
     application = create_app account
     
-    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3', :direction => Channel::Bidirectional)
     chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'}
     chan.save
       
@@ -103,7 +103,7 @@ END_OF_MESSAGE
     account = Account.create(:name => 'account', :password => 'pass')
     application = create_app account
     
-    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3')
+    chan = Channel.new(:account_id => account.id, :name => 'chan', :protocol => 'protocol', :kind => 'pop3', :direction => Channel::Bidirectional)
     chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '0'}
     chan.save
       

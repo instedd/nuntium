@@ -5,7 +5,7 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
   
   def setup
     @account = Account.create(:name => 'account', :password => 'foo')
-    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'clickatell', :protocol => 'sms')
+    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'clickatell', :protocol => 'sms', :direction => Channel::Bidirectional)
     @chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :from => 'something', :incoming_password => 'incoming_pass' }
   end
   

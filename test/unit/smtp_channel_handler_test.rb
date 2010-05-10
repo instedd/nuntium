@@ -5,7 +5,7 @@ class SmtpChannelHandlerTest < ActiveSupport::TestCase
   
   def setup
     @account = Account.create(:name => 'account', :password => 'foo')
-    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'smtp', :protocol => 'sms')
+    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'smtp', :protocol => 'sms', :direction => Channel::Bidirectional)
     @chan.configuration = {:host => 'host', :port => '430', :user => 'user', :password => 'password' }
   end
   

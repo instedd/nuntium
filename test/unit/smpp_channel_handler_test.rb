@@ -7,7 +7,7 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
   
   def setup
     @account = Account.create(:name => 'account', :password => 'foo')
-    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'smpp', :protocol => 'smpp')
+    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'smpp', :protocol => 'smpp', :direction => Channel::Bidirectional)
     @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :system_type => 'smpp', :mt_encodings => ['ascii'], :default_mo_encoding => 'ascii', :mt_csms_method => 'udh' }
   end
   

@@ -21,8 +21,13 @@ class ChannelTest < ActiveSupport::TestCase
     end
   end
   
+  test "should not save if direction is wrong" do
+    @chan.direction = 100
+    assert !@chan.save
+  end
+  
   test "should not save if name is taken" do
-    chan2 = Channel.new :name =>'channel', :account_id => @account.id, :kind => 'qst_server', :protocol => 'sms'
+    chan2 = Channel.new :name =>'channel', :account_id => @account.id, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional
     chan2.configuration = {:password => 'foo', :password_confirmation => 'foo'}
     assert chan2.save
     assert !@chan.save
@@ -30,7 +35,7 @@ class ChannelTest < ActiveSupport::TestCase
   
   test "should save if name is taken in another account" do
     account2 = Account.create(:name => 'account2', :password => 'foo')
-    chan2 = Channel.new :name =>'channel', :account_id => account2.id, :kind => 'qst_server', :protocol => 'sms'
+    chan2 = Channel.new :name =>'channel', :account_id => account2.id, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional
     chan2.configuration = {:password => 'foo', :password_confirmation => 'foo'}
     assert chan2.save
     assert @chan.save

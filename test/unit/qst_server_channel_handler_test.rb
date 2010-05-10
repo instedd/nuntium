@@ -3,7 +3,7 @@ require 'test_helper'
 class QstServerChannelHandlerTest < ActiveSupport::TestCase
   def setup
     @account = Account.create(:name => 'account', :password => 'foo')
-    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'qst_server', :protocol => 'sms')
+    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional)
     @chan.configuration = {:password => 'foo', :password_confirmation => 'foo'}
   end
   
