@@ -87,7 +87,7 @@ class ApiChannelController < ApiAuthenticatedController
     xml.instruct!
     xml.error :summary => 'There were problems creating the channel' do
       errors.each do |name, value|
-        xml.field :name => name, :value => value
+        xml.property :name => name, :value => value
       end
     end
     xml.target!
@@ -96,10 +96,10 @@ class ApiChannelController < ApiAuthenticatedController
   def errors_to_json(errors)
     attrs = {
       :summary => 'There were some problems',
-      :fields => []
+      :properties => []
     }
     errors.each do |name, value|
-      attrs[:fields] << { name => value }
+      attrs[:properties] << { name => value }
     end
     attrs.to_json
   end

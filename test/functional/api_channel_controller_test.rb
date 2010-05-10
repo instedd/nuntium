@@ -145,12 +145,12 @@ class ApiChannelControllerTest < ActionController::TestCase
       if format == 'xml'
         error = errors[:error]
         assert_not_nil error[:summary]
-        fields = error[:field]
+        fields = error[:property]
         assert_equal "name", fields[:name]
         assert_not_nil fields[:value]
       else
         assert_not_nil errors[:summary]
-        fields = errors[:fields]
+        fields = errors[:properties]
         assert_equal 1, fields.length
         assert_equal 1, fields[0].length
         assert_equal "name", fields[0].keys[0]
