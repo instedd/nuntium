@@ -1,1 +1,1 @@
-ensure log directory in repository
+Ensure log directory in repository
