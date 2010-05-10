@@ -1,5 +1,6 @@
 class ApiChannelController < ApiAuthenticatedController
 
+  # GET /api/channels.:format
   def index
     channels = @account.channels
     channels = channels.select{|c| c.application_id.nil? || c.application_id == @application.id}
@@ -14,6 +15,7 @@ class ApiChannelController < ApiAuthenticatedController
     end
   end
   
+  # GET /api/channels/:name.:format
   def show
     channels = @account.channels
     channels = channels.select{|c| c.application_id.nil? || c.application_id == @application.id}
@@ -27,6 +29,7 @@ class ApiChannelController < ApiAuthenticatedController
     end
   end
   
+  # POST /api/channels.:format
   def create
     data = request.POST.present? ? request.POST : request.raw_post
     chan = nil
@@ -39,6 +42,7 @@ class ApiChannelController < ApiAuthenticatedController
     save chan
   end
   
+  # PUT /api/channels/:name.:format
   def update
     chan = @account.find_channel params[:name]
     return head :bad_request unless chan and chan.application_id == @application.id
@@ -53,6 +57,7 @@ class ApiChannelController < ApiAuthenticatedController
     save chan
   end
   
+  # DELETE /api/channels/:name
   def destroy
     chan = @account.find_channel params[:name]
     if chan and chan.application_id == @application.id

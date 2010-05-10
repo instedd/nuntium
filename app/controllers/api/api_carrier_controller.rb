@@ -1,5 +1,6 @@
 class ApiCarrierController < ApplicationController
 
+  # GET /api/carriers.:format?country_id=:country_id
   def index
     country_id = params[:country_id]
     

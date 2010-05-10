@@ -1,5 +1,6 @@
 class ApiCountryController < ApplicationController
 
+  # GET /api/countries.:format
   def index
     respond_to do |format|
       format.xml { render :xml => countries.to_xml(:root => 'countries', :skip_types => true) }
