@@ -105,7 +105,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
     
     test "create #{format} channel succeeds" do
-      chan = Channel.new(:name => 'new_chan', :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional);
+      chan = Channel.new(:name => 'new_chan', :kind => 'qst_client', :protocol => 'sms', :direction => Channel::Bidirectional);
       chan.configuration = {:url => 'a', :user => 'b', :password => 'c'};
       chan.restrictions['foo'] = ['a', 'b', 'c']
       chan.restrictions['bar'] = 'baz'
@@ -122,11 +122,40 @@ class ApiChannelControllerTest < ActionController::TestCase
       assert_not_nil result
       assert_equal @account.id, result.account_id
       assert_equal @application.id, result.application_id
-      [:name, :kind, :protocol, :direction, :restrictions].each do |sym|
+      [:name, :kind, :protocol, :direction, :restrictions, :configuration].each do |sym|
         assert_equal chan.send(sym), result.send(sym)
       end
-      assert_equal chan.configuration[:url], result.configuration[:url]
-      assert_equal chan.configuration[:user], result.configuration[:user]
+    end
+    
+    test "create #{format} channel fails missing name" do
+      chan = Channel.new(:kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional);
+      chan.configuration = {:password => 'c'};
+      
+      @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
+      @request.env['RAW_POST_DATA'] = format == 'xml' ? chan.to_xml(:include_passwords => true) : chan.to_json(:include_passwords => true)
+      
+      before_count = Channel.all.length
+      
+      post :create, :format => format
+      
+      assert_response :bad_request
+      assert_equal before_count, Channel.all.length
+      
+      errors = (format == 'xml' ? Hash.from_xml(@response.body) : JSON.parse(@response.body)).with_indifferent_access
+      if format == 'xml'
+        error = errors[:error]
+        assert_not_nil error[:summary]
+        fields = error[:field]
+        assert_equal "name", fields[:name]
+        assert_not_nil fields[:value]
+      else
+        assert_not_nil errors[:summary]
+        fields = errors[:fields]
+        assert_equal 1, fields.length
+        assert_equal 1, fields[0].length
+        assert_equal "name", fields[0].keys[0]
+        assert_not_nil fields[0].values[0]
+      end
     end
   end
 

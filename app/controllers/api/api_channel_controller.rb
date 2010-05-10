@@ -39,8 +39,36 @@ class ApiChannelController < ApiAuthenticatedController
     if chan.save
       head :ok
     else
-      head :bad_request 
+      respond_to do |format|
+        format.xml { render :xml => errors_to_xml(chan.errors), :status => :bad_request }
+        format.json { render :json => errors_to_json(chan.errors), :status => :bad_request } 
+      end 
     end
+  end
+  
+  private
+  
+  def errors_to_xml(errors)
+    require 'builder'
+    xml = Builder::XmlMarkup.new(:indent => 2)
+    xml.instruct!
+    xml.error :summary => 'There were problems creating the channel' do
+      errors.each do |name, value|
+        xml.field :name => name, :value => value
+      end
+    end
+    xml.target!
+  end
+  
+  def errors_to_json(errors)
+    attrs = {
+      :summary => 'There were problems creating the channel',
+      :fields => []
+    }
+    errors.each do |name, value|
+      attrs[:fields] << { name => value }
+    end
+    attrs.to_json
   end
 
 end

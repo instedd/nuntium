@@ -13,7 +13,7 @@ class Channel < ActiveRecord::Base
   serialize :at_rules
   
   validates_presence_of :name, :protocol, :kind, :account
-  validates_format_of :name, :with => /^[a-zA-Z0-9\-_]+$/, :message => "can only contain alphanumeric characters, '_' or '-' (no spaces allowed)"
+  validates_format_of :name, :with => /^[a-zA-Z0-9\-_]+$/, :message => "can only contain alphanumeric characters, '_' or '-' (no spaces allowed)", :unless => proc {|c| c.name.blank?}
   validates_uniqueness_of :name, :scope => :account_id, :message => 'has already been used by another channel in the account'
   validates_numericality_of :throttle, :allow_nil => true, :only_integer => true, :greater_than_or_equal_to => 0
   
@@ -288,13 +288,17 @@ class Channel < ActiveRecord::Base
     chan.direction = Channel.direction_from_text(hash[:direction])
     
     hash_config = hash[:configuration] || {}
-    hash_config = hash_config[:property] || [] if format == :xml
+    hash_config = hash_config[:property] || [] if format == :xml and hash_config[:property]
+    hash_config = [hash_config] unless hash_config.kind_of? Array
+    
     hash_config.each do |property|
       chan.configuration[property[:name].to_sym] = property[:value]
     end
     
     hash_restrict = hash[:restrictions] || {}
-    hash_restrict = hash_restrict[:property] || [] if format == :xml 
+    hash_restrict = hash_restrict[:property] || [] if format == :xml and hash_restrict[:property]
+    hash_restrict = [hash_restrict] unless hash_restrict.kind_of? Array
+    
     hash_restrict.each do |property|
       old_value = chan.restrictions[property[:name]]
       if old_value
