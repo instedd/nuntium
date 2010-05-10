@@ -28,36 +28,14 @@ class ApiChannelController < ApiAuthenticatedController
   end
   
   def create
-    tree = request.POST.present? ? request.POST : Hash.from_xml(request.raw_post).with_indifferent_access
-    xml = tree[:channel]
-    
-    chan = Channel.new
+    data = request.POST.present? ? request.POST : request.raw_post
+    chan = nil
+    respond_to do |format|
+      format.xml { chan = Channel.from_xml(data) }
+      format.json { chan = Channel.from_json(data) } 
+    end
     chan.account = @account
     chan.application = @application
-    chan.name = xml[:name]
-    chan.kind = xml[:kind]
-    chan.protocol = xml[:protocol]
-    chan.priority = xml[:priority]
-    chan.enabled = xml[:enabled] == 'true'
-    chan.direction = Channel.direction_from_text(xml[:direction])
-    
-    ((xml[:configuration] || {})[:property] || []).each do |property|
-      chan.configuration[property[:name].to_sym] = property[:value]
-    end
-    
-    ((xml[:restrictions] || {})[:property] || []).each do |property|
-      old_value = chan.restrictions[property[:name]]
-      if old_value
-        if old_value.kind_of? Array
-          chan.restrictions[property[:name]] << property[:value]
-        else
-          chan.restrictions[property[:name]] = [old_value, property[:value]]
-        end
-      else
-        chan.restrictions[property[:name]] = property[:value]
-      end
-    end
-    
     if chan.save
       head :ok
     else

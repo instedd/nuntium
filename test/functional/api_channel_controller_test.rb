@@ -103,34 +103,34 @@ class ApiChannelControllerTest < ActionController::TestCase
         chan = new_channel @account, "hola"
       end
     end
-  end
-  
-  test "create xml channel succeeds" do
-    chan = Channel.new(:name => 'new_chan', :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional);
-    chan.configuration = {:url => 'a', :user => 'b', :password => 'c'};
-    chan.restrictions['foo'] = ['a', 'b', 'c']
-    chan.restrictions['bar'] = 'baz'
     
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
-    @request.env['RAW_POST_DATA'] = chan.to_xml(:include_passwords => true)
-    
-    post :create, :format => 'xml'
-    
-    assert_response :ok
-    
-    result = @account.channels.last
-    
-    assert_not_nil result
-    assert_equal @account.id, result.account_id
-    assert_equal @application.id, result.application_id
-    assert_equal chan.name, result.name 
-    assert_equal chan.kind, result.kind
-    assert_equal chan.protocol, result.protocol
-    assert_equal chan.direction, result.direction
-    assert_equal chan.configuration[:url], result.configuration[:url]
-    assert_equal chan.configuration[:user], result.configuration[:user]
-    assert_equal chan.restrictions['foo'], result.restrictions['foo']
-    assert_equal chan.restrictions['bar'], result.restrictions['bar']
+    test "create #{format} channel succeeds" do
+      chan = Channel.new(:name => 'new_chan', :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional);
+      chan.configuration = {:url => 'a', :user => 'b', :password => 'c'};
+      chan.restrictions['foo'] = ['a', 'b', 'c']
+      chan.restrictions['bar'] = 'baz'
+      
+      @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
+      @request.env['RAW_POST_DATA'] = format == 'xml' ? chan.to_xml(:include_passwords => true) : chan.to_json(:include_passwords => true)
+      
+      post :create, :format => format
+      
+      assert_response :ok
+      
+      result = @account.channels.last
+      
+      assert_not_nil result
+      assert_equal @account.id, result.account_id
+      assert_equal @application.id, result.application_id
+      assert_equal chan.name, result.name 
+      assert_equal chan.kind, result.kind
+      assert_equal chan.protocol, result.protocol
+      assert_equal chan.direction, result.direction
+      assert_equal chan.configuration[:url], result.configuration[:url]
+      assert_equal chan.configuration[:user], result.configuration[:user]
+      assert_equal chan.restrictions['foo'], result.restrictions['foo']
+      assert_equal chan.restrictions['bar'], result.restrictions['bar']
+    end
   end
 
 end

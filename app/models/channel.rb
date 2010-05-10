@@ -188,6 +188,11 @@ class Channel < ActiveRecord::Base
     end
   end
   
+  def self.from_xml(hash_or_string)
+    tree = hash_or_string.kind_of?(Hash) ? hash_or_string : Hash.from_xml(hash_or_string).with_indifferent_access
+    Channel.from_hash tree[:channel], :xml
+  end
+  
   def to_json(options = {})
     attributes = common_to_x_attributes
     attributes.to_json
@@ -203,6 +208,11 @@ class Channel < ActiveRecord::Base
       attributes[:restrictions] << {:name => name, :value => values}
     end unless restrictions.empty?
     attributes.to_json
+  end
+  
+  def self.from_json(hash_or_string)
+    tree = hash_or_string.kind_of?(Hash) ? hash_or_string : JSON.parse(hash_or_string).with_indifferent_access
+    Channel.from_hash tree, :json
   end
   
   private
@@ -265,5 +275,40 @@ class Channel < ActiveRecord::Base
     attributes[:application] = application.name if application_id
     attributes
   end
+  
+  def self.from_hash(hash, format)
+    chan = Channel.new
+    chan.account = @account
+    chan.application = @application
+    chan.name = hash[:name]
+    chan.kind = hash[:kind]
+    chan.protocol = hash[:protocol]
+    chan.priority = hash[:priority]
+    chan.enabled = hash[:enabled] == 'true'
+    chan.direction = Channel.direction_from_text(hash[:direction])
+    
+    hash_config = hash[:configuration] || {}
+    hash_config = hash_config[:property] || [] if format == :xml
+    hash_config.each do |property|
+      chan.configuration[property[:name].to_sym] = property[:value]
+    end
+    
+    hash_restrict = hash[:restrictions] || {}
+    hash_restrict = hash_restrict[:property] || [] if format == :xml 
+    hash_restrict.each do |property|
+      old_value = chan.restrictions[property[:name]]
+      if old_value
+        if old_value.kind_of? Array
+          chan.restrictions[property[:name]] << property[:value]
+        else
+          chan.restrictions[property[:name]] = [old_value, property[:value]]
+        end
+      else
+        chan.restrictions[property[:name]] = property[:value]
+      end
+    end
+    
+    chan
+  end 
 
 end
