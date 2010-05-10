@@ -95,7 +95,7 @@ class ApiChannelController < ApiAuthenticatedController
   
   def errors_to_json(errors)
     attrs = {
-      :summary => 'There were problems creating the channel',
+      :summary => 'There were some problems',
       :fields => []
     }
     errors.each do |name, value|
