@@ -36,14 +36,21 @@ class ApiChannelController < ApiAuthenticatedController
     end
     chan.account = @account
     chan.application = @application
-    if chan.save
-      head :ok
-    else
-      respond_to do |format|
-        format.xml { render :xml => errors_to_xml(chan.errors), :status => :bad_request }
-        format.json { render :json => errors_to_json(chan.errors), :status => :bad_request } 
-      end 
+    save chan
+  end
+  
+  def update
+    chan = @account.find_channel params[:name]
+    return head :bad_request unless chan and chan.application_id == @application.id
+  
+    data = request.POST.present? ? request.POST : request.raw_post
+    update = nil
+    respond_to do |format|
+      format.xml { update = Channel.from_xml(data) }
+      format.json { update = Channel.from_json(data) } 
     end
+    chan.merge(update)
+    save chan
   end
   
   def destroy
@@ -57,6 +64,17 @@ class ApiChannelController < ApiAuthenticatedController
   end
   
   private
+  
+  def save(channel)
+    if channel.save
+      head :ok
+    else
+      respond_to do |format|
+        format.xml { render :xml => errors_to_xml(channel.errors), :status => :bad_request }
+        format.json { render :json => errors_to_json(channel.errors), :status => :bad_request } 
+      end 
+    end
+  end
   
   def errors_to_xml(errors)
     require 'builder'

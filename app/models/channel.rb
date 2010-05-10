@@ -215,6 +215,12 @@ class Channel < ActiveRecord::Base
     Channel.from_hash tree, :json
   end
   
+  def merge(other)
+    [:name, :kind, :protocol, :direction, :enabled, :priority, :configuration, :restrictions].each do |sym|
+      send("#{sym}=", other.send(sym)) if other.send(sym).present?
+    end
+  end
+  
   private
   
   def handler_check_valid
@@ -264,14 +270,11 @@ class Channel < ActiveRecord::Base
   end
   
   def common_to_x_attributes
-    attributes = {
-      :name => name, 
-      :kind => kind, 
-      :protocol => protocol,
-      :direction => direction_text,
-      :enabled => enabled.to_s,
-      :priority => priority
-    }
+    attributes = {}
+    [:name, :kind, :protocol, :enabled, :priority].each do |sym|
+      attributes[sym] = send(sym) unless send(sym).blank?
+    end
+    attributes[:direction] = direction_text 
     attributes[:application] = application.name if application_id
     attributes
   end
@@ -289,15 +292,15 @@ class Channel < ActiveRecord::Base
     
     hash_config = hash[:configuration] || {}
     hash_config = hash_config[:property] || [] if format == :xml and hash_config[:property]
-    hash_config = [hash_config] unless hash_config.kind_of? Array
+    hash_config = [hash_config] unless hash_config.kind_of? Array or hash_config.kind_of? String 
     
     hash_config.each do |property|
       chan.configuration[property[:name].to_sym] = property[:value]
-    end
+    end unless hash_config.kind_of? String
     
     hash_restrict = hash[:restrictions] || {}
     hash_restrict = hash_restrict[:property] || [] if format == :xml and hash_restrict[:property]
-    hash_restrict = [hash_restrict] unless hash_restrict.kind_of? Array
+    hash_restrict = [hash_restrict] unless hash_restrict.kind_of? Array or hash_restrict.kind_of? String
     
     hash_restrict.each do |property|
       old_value = chan.restrictions[property[:name]]
@@ -310,7 +313,7 @@ class Channel < ActiveRecord::Base
       else
         chan.restrictions[property[:name]] = property[:value]
       end
-    end
+    end unless hash_restrict.kind_of? String
     
     chan
   end 
