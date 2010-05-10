@@ -121,10 +121,9 @@ module MessageCommon
   def merge(attributes)
     attributes = attributes || {}
     
-    self.from = attributes["from"] if attributes.has_key?("from")
-    self.to = attributes["to"] if attributes.has_key?("to")
-    self.subject = attributes["subject"] if attributes.has_key?("subject")
-    self.body = attributes["body"] if attributes.has_key?("body")
+    ['from', 'to', 'subject', 'body'].each do |sym|
+      send("#{sym}=", attributes[sym]) if attributes.has_key? sym
+    end
     
     other_attributes = attributes.reject { |k,v| ["from","to","subject","body"].include?(k) }
     self[:custom_attributes] = self.custom_attributes.merge(other_attributes)

@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ChannelTest < ActiveSupport::TestCase
   def setup
-    @account = Account.create(:name => 'account', :password => 'foo')
+    @account = Account.create!(:name => 'account', :password => 'foo')
     @chan = Channel.new :name =>'channel', :account_id => @account.id, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional
     @chan.configuration = {:password => 'foo', :password_confirmation => 'foo'}
   end
@@ -133,7 +133,7 @@ class ChannelTest < ActiveSupport::TestCase
     assert_equal @chan.kind, chan[:kind]
     assert_equal @chan.protocol, chan[:protocol]
     assert_equal 'bidirectional', chan[:direction]
-    assert_equal 'true', chan[:enabled]
+    assert_true chan[:enabled]
     assert_equal @chan.priority, chan[:priority]
     assert_nil chan[:application]
   end
