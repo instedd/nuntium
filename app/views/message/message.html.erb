@@ -78,7 +78,7 @@
       </td>
     </tr>
   <% end %>
-  <% if @msg.parent_id and parent = @msg.class.find_by_id(@msg.parent_id)%>
+  <% if @msg.class == AOMessage and @msg.parent_id and parent = @msg.class.find_by_id(@msg.parent_id)%>
     <tr valign="baseline">
       <td><b>Original:</b></td>
       <td><%= link_to parent.id, {:controller => :message, :action => :view_ao_message, :id => parent.id}, :target => '_blank' %></td>
