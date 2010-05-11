@@ -160,10 +160,11 @@ class ApiChannelControllerTest < ActionController::TestCase
     
     test "update #{format} channel succeeds" do
       chan = new_channel @account, "chan_foo"
+      chan.priority = 20
       chan.application_id = @application.id
       chan.save!
       
-      dummy = Channel.new(:protocol => 'foobar')
+      dummy = Channel.new(:protocol => 'foobar', :priority => nil)
       
       @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
       @request.env['RAW_POST_DATA'] = format == 'xml' ? dummy.to_xml(:include_passwords => true) : dummy.to_json(:include_passwords => true)
@@ -174,6 +175,7 @@ class ApiChannelControllerTest < ActionController::TestCase
       
       chan.reload
       assert_equal 'foobar', chan.protocol
+      assert_equal 20, chan.priority
     end
     
     test "update #{format} channel configuration succeeds" do
