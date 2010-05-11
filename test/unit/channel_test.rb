@@ -119,8 +119,7 @@ class ChannelTest < ActiveSupport::TestCase
     properties = xml[:channel][:restrictions][:property]
     
     assert_equal 3, properties.length
-    @chan.restrictions.each do |name, values|
-      values = [values] unless values.kind_of? Array
+    @chan.restrictions.each_multivalue do |name, values|
       values.each do |value|
         found = false
         properties.each do |prop|

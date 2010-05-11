@@ -53,9 +53,7 @@ class Channel < ActiveRecord::Base
     # Check that each custom attribute is present in this channel's restrictions (probably augmented with handler's)
     handler_restrictions = self.handler.restrictions
     
-    msg.custom_attributes.each do |key, values|
-      values = [values] unless values.kind_of? Array
-    
+    msg.custom_attributes.each_multivalue do |key, values|
       channel_values = handler_restrictions[key]
       next unless channel_values.present?
       
@@ -184,8 +182,7 @@ class Channel < ActiveRecord::Base
         end
       end
       xml.restrictions do
-        restrictions.each do |name, values|
-          values = [values] unless values.kind_of? Array
+        restrictions.each_multivalue do |name, values|
           values.each do |value|
             xml.property :name => name, :value => value
           end 
@@ -298,27 +295,18 @@ class Channel < ActiveRecord::Base
     
     hash_config = hash[:configuration] || {}
     hash_config = hash_config[:property] || [] if format == :xml and hash_config[:property]
-    hash_config = [hash_config] unless hash_config.kind_of? Array or hash_config.kind_of? String 
+    hash_config = [hash_config] unless hash_config.blank? or hash_config.kind_of? Array or hash_config.kind_of? String
     
     hash_config.each do |property|
-      chan.configuration[property[:name].to_sym] = property[:value]
+      chan.configuration.store_multivalue property[:name].to_sym, property[:value]
     end unless hash_config.kind_of? String
     
     hash_restrict = hash[:restrictions] || {}
     hash_restrict = hash_restrict[:property] || [] if format == :xml and hash_restrict[:property]
-    hash_restrict = [hash_restrict] unless hash_restrict.kind_of? Array or hash_restrict.kind_of? String
+    hash_restrict = [hash_restrict] unless hash_restrict.blank? or hash_restrict.kind_of? Array or hash_restrict.kind_of? String
     
     hash_restrict.each do |property|
-      old_value = chan.restrictions[property[:name]]
-      if old_value
-        if old_value.kind_of? Array
-          chan.restrictions[property[:name]] << property[:value]
-        else
-          chan.restrictions[property[:name]] = [old_value, property[:value]]
-        end
-      else
-        chan.restrictions[property[:name]] = property[:value]
-      end
+      chan.restrictions.store_multivalue property[:name], property[:value]
     end unless hash_restrict.kind_of? String
     
     chan

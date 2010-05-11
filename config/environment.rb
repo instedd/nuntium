@@ -83,4 +83,5 @@ end
 AccountCreationDisabled = false
 
 # Include extensions
+require 'hash'
 require 'string'

@@ -11,17 +11,8 @@ module CustomAttributesControllerCommon
     0.upto(custom_attribute_names.length).each do |i|
       name = custom_attribute_names[i]
       value = custom_attribute_values[i]
-      next unless name and value 
-      old = custom_attributes[name]
-      if old
-        if old.kind_of? Array
-          old << value
-        else
-          custom_attributes[name] = [old, value]
-        end
-      else
-        custom_attributes[name] = value
-      end
+      next unless name and value
+      custom_attributes.store_multivalue name, value
     end
     
     custom_attributes

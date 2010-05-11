@@ -107,8 +107,7 @@
 
   <div id="custom_attributes">
   <table class="table">
-    <% @msg.custom_attributes.each do |key, values|
-      values = [values] unless values.kind_of? Array
+    <% @msg.custom_attributes.each_multivalue do |key, values|
       values.map! do |value|
         case key
         when 'country'

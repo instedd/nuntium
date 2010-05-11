@@ -98,8 +98,10 @@ module MessageCommon
     require 'builder'
     xml.message(:id => self.guid, :from => self.from, :to => self.to, :when => self.timestamp.xmlschema) do
       xml.text self.subject_and_body
-      custom_attributes.each do |name, value|
-        xml.property :name => name, :value => value
+      custom_attributes.each_multivalue do |name, values|
+        values.each do |value|
+          xml.property :name => name, :value => value
+        end
       end
     end
   end
@@ -162,13 +164,7 @@ module MessageCommon
         if properties.present?
           properties = [properties] if properties.class <= Hash      
           properties.each do |prop|
-            if msg.custom_attributes[prop[:name]].kind_of? Array
-              msg.custom_attributes[prop[:name]] << prop[:value]
-            elsif msg.custom_attributes[prop[:name]]
-              msg.custom_attributes[prop[:name]] = [msg.custom_attributes[prop[:name]], prop[:value]]
-            else
-              msg.custom_attributes[prop[:name]] = prop[:value]
-            end
+            msg.custom_attributes.store_multivalue prop[:name], prop[:value]
           end
         end
         
