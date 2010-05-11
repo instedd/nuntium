@@ -137,6 +137,8 @@ class Channel < ActiveRecord::Base
       'outgoing'
     when Bidirectional
       'bidirectional'
+    else
+      'unknown'
     end
   end
   
@@ -278,7 +280,7 @@ class Channel < ActiveRecord::Base
     [:name, :kind, :protocol, :enabled, :priority].each do |sym|
       attributes[sym] = send(sym) unless send(sym).blank?
     end
-    attributes[:direction] = direction_text 
+    attributes[:direction] = direction_text unless direction_text == 'unknown'
     attributes[:application] = application.name if application_id
     attributes
   end

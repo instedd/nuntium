@@ -163,7 +163,7 @@ class ApiChannelControllerTest < ActionController::TestCase
       chan.application_id = @application.id
       chan.save!
       
-      dummy = Channel.new(:protocol => 'foobar', :direction => Channel::Bidirectional) 
+      dummy = Channel.new(:protocol => 'foobar')
       
       @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
       @request.env['RAW_POST_DATA'] = format == 'xml' ? dummy.to_xml(:include_passwords => true) : dummy.to_json(:include_passwords => true)
@@ -181,7 +181,7 @@ class ApiChannelControllerTest < ActionController::TestCase
       chan.application_id = @application.id
       chan.save!
       
-      dummy = Channel.new(:direction => Channel::Bidirectional)
+      dummy = Channel.new
       dummy.configuration = {:url => 'x', :user => 'y', :password => 'z'}; 
       
       @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
@@ -201,7 +201,7 @@ class ApiChannelControllerTest < ActionController::TestCase
       chan.application_id = @application.id
       chan.save!
       
-      dummy = Channel.new(:direction => Channel::Bidirectional)
+      dummy = Channel.new
       dummy.restrictions = {'x' => 'z'}; 
       
       @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
