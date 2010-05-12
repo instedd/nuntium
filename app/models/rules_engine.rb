@@ -32,8 +32,8 @@ module RulesEngine
           res = res || {}
           value = action['value']
           res[action['property']] = get_value(value, rule['matchings'], match_datas)
-          return res if rule['stop']
         end
+        return res if rule['stop']
       end
     end
     
