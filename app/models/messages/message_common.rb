@@ -124,7 +124,7 @@ module MessageCommon
     attributes = attributes || {}
     
     ['from', 'to', 'subject', 'body'].each do |sym|
-      send("#{sym}=", attributes[sym]) if attributes.has_key? sym
+      send "#{sym}=", attributes[sym] if attributes.has_key? sym
     end
     
     other_attributes = attributes.reject { |k,v| ["from","to","subject","body"].include?(k) }

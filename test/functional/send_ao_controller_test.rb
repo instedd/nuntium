@@ -90,5 +90,21 @@ class SendAoControllerTest < ActionController::TestCase
     messages = AOMessage.all
     assert_equal 0, messages.length
   end
+  
+  test "send ao custom attributes" do
+    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server', 'sms')
+    application = create_app account
+  
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application', 'app_pass')
+    get :create, {:from => 'sms://1234', :to => 'sms://5678', :subject => 's', :body => 'b', :guid => 'g', :account_name => account.name, :application_name => 'application',
+      'foo' => ['bar', 'baz'], 'bax' => 'bex'}
+      
+    messages = AOMessage.all
+    assert_equal 1, messages.length
+    
+    msg = messages[0]
+    assert_equal ['bar', 'baz'], msg.custom_attributes['foo']
+    assert_equal 'bex', msg.custom_attributes['bax']
+  end
 
 end

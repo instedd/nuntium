@@ -220,7 +220,7 @@ class Channel < ActiveRecord::Base
   
   def merge(other)
     [:name, :kind, :protocol, :direction, :enabled, :priority, :configuration, :restrictions].each do |sym|
-      send("#{sym}=", other.send(sym)) if other.send(sym).present?
+      send "#{sym}=", other.send(sym) if other.send(sym).present?
     end
   end
   
