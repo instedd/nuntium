@@ -284,8 +284,9 @@ class ActiveSupport::TestCase
     assert_select "item pubDate", msg.timestamp.rfc822
   end
   
-  def new_channel(account, name)
+  def new_channel(account, name, options = {})
     chan = Channel.new(:account_id => account.id, :name => name, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional);
+    options.each {|key, value| chan.send("#{key}=", value)}
     chan.configuration = {:url => 'a', :user => 'b', :password => 'c'};
     chan.save!
     chan
