@@ -8,13 +8,23 @@ class ClickatellController < AccountAuthenticatedController
 
   # GET /clickatell/:account_id/incoming
   def index
-    udh = ClickatellUdh.from_string params[:udh]
-    if udh
-      index_multipart_message udh
-    else
-      index_single_message
+    if params[:udh].present?
+      udh = Udh.new(params[:udh].hex_to_bytes)
+      return index_multipart_message udh if udh[0]
     end
+    
+    index_single_message
   end
+  
+  def view_credit
+    id = params[:id]
+    @channel = @account.find_channel id
+    return redirect_to_home unless @channel && @channel.kind == 'clickatell'
+    
+    render :text => @channel.handler.get_credit
+  end
+  
+  private
   
   def index_single_message
     create_message params[:text]
@@ -23,13 +33,13 @@ class ClickatellController < AccountAuthenticatedController
   
   def index_multipart_message(udh)
     # Search other received parts
-    conditions = ['originating_isdn = ? AND reference_number = ?', params[:from], udh.reference_number]
+    conditions = ['originating_isdn = ? AND reference_number = ?', params[:from], udh[0][:reference_number]]
     parts = ClickatellMessagePart.all(:conditions => conditions)
     
     # If all other parts are there
-    if parts.length == udh.part_count - 1
+    if parts.length == udh[0][:part_count] - 1
       # Add this new part, sort and get text
-      parts.push ClickatellMessagePart.new(:part_number => udh.part_number, :text => params[:text])
+      parts.push ClickatellMessagePart.new(:part_number => udh[0][:part_number], :text => params[:text])
       parts.sort! { |x,y| x.part_number <=> y.part_number }
       text = parts.collect { |x| x.text }.to_s
       
@@ -42,9 +52,9 @@ class ClickatellController < AccountAuthenticatedController
       # Just save the part
       ClickatellMessagePart.create(
         :originating_isdn => params[:from],
-        :reference_number => udh.reference_number,
-        :part_count => udh.part_count,
-        :part_number => udh.part_number,
+        :reference_number => udh[0][:reference_number],
+        :part_count => udh[0][:part_count],
+        :part_number => udh[0][:part_number],
         :timestamp => get_timestamp,
         :text => params[:text]
         )
@@ -65,14 +75,6 @@ class ClickatellController < AccountAuthenticatedController
   
   def get_timestamp
     @@clickatell_timezone.parse(params[:timestamp]).utc rescue Time.now.utc
-  end
-  
-  def view_credit
-    id = params[:id]
-    @channel = @account.find_channel id
-    return redirect_to_home unless @channel && @channel.kind == 'clickatell'
-    
-    render :text => @channel.handler.get_credit
   end
   
   def authenticate

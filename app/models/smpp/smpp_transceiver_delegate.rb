@@ -218,8 +218,8 @@ class SmppTransceiverDelegate
     msg = ATMessage.new
     msg.from = source.with_protocol 'sms'
     msg.to = destination.with_protocol 'sms'
-    if (@channel.configuration[:accept_mo_hex_string] == '1' || @channel.configuration[:accept_mo_hex_string] == 'true') and is_hex(text) 
-      bytes = hex_to_bytes text
+    if (@channel.configuration[:accept_mo_hex_string] == '1' || @channel.configuration[:accept_mo_hex_string] == 'true') and text.is_hex? 
+      bytes = text.hex_to_bytes
       iconv = Iconv.new('utf-8', ucs2_endianized)
       msg.subject = iconv.iconv bytes
     else
@@ -317,14 +317,6 @@ class SmppTransceiverDelegate
   
   def ucs2_endianized
     @channel.configuration[:endianness] == 'little' ? 'ucs-2le' : 'ucs-2be'
-  end
-  
-  def is_hex(msg)
-    msg =~ /[0-9a-fA-F]{4}+/
-  end
-  
-  def hex_to_bytes(msg)
-    msg.scan(/../).map{|x| x.to_i(16).chr}.join
   end
   
   def bytes_to_int(bytes)
