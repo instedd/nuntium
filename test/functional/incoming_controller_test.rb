@@ -2,54 +2,46 @@ require 'test_helper'
 
 class IncomingControllerTest < ActionController::TestCase
 
-  test "get last message id" do
-    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
-    application1 = create_app account, 1
-    
-    new_at_message(application1, 0)
-    msg = new_at_message(application1, 1)
+  def setup
+    @account, @chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
+    @application1 = create_app @account, 1
     
     # This is so that we have another channel but the one we are looking for is used
-    create_channel(account, 'chan3', 'chan_pass3', 'qst_server')
+    create_channel(@account, 'chan3', 'chan_pass3', 'qst_server')
     
     # This is to see that this doesn't interfere with the test
-    account2, chan2 = create_account_and_channel('account2', 'account_pass2', 'chan2', 'chan_pass2', 'qst_server')
-    application2 = create_app account2, 1
+    @account2, @chan2 = create_account_and_channel('account2', 'account_pass2', 'chan2', 'chan_pass2', 'qst_server')
+    @application2 = create_app @account2, 1
+  end
+
+  test "get last message id" do
+    new_at_message(@application1, 0)
+    msg = new_at_message(@application1, 1)
     
-    new_at_message(application2, 2)
+    new_at_message(@application2, 2)
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
     head 'index', :account_id => 'account'
-    
     assert_response :ok
+    
     assert_equal msg.guid.to_s, @response.headers['ETag']
   end
   
   test "get last message id not exists" do
-    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
-    application1 = create_app account, 1
-  
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
     head 'index', :account_id => 'account'
-    
     assert_response :ok
+    
     assert_equal "", @response.headers['ETag']
   end
   
   test "can't read" do
-    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
-    application1 = create_app account, 1
-    
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
     get 'index', :account_id => 'account'
-    
     assert_response :not_found
   end
   
   test "push message" do
-    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
-    application1 = create_app account, 1
-  
     @request.env['RAW_POST_DATA'] = <<-eos
       <?xml version="1.0" encoding="utf-8"?>
       <messages>
@@ -70,8 +62,8 @@ class IncomingControllerTest < ActionController::TestCase
     assert_response :ok
     assert_equal msg.guid.to_s, @response.headers['ETag']
     
-    assert_equal account.id, msg.account_id
-    assert_equal application1.id, msg.application_id
+    assert_equal @account.id, msg.account_id
+    assert_equal @application1.id, msg.application_id
     assert_equal "Hello!", msg.body
     assert_equal "Someone", msg.from
     assert_equal "Someone else", msg.to
@@ -80,9 +72,6 @@ class IncomingControllerTest < ActionController::TestCase
   end
   
   test "push message with custom attributes" do
-    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
-    application1 = create_app account, 1
-  
     @request.env['RAW_POST_DATA'] = <<-eos
       <?xml version="1.0" encoding="utf-8"?>
       <messages>
@@ -109,20 +98,14 @@ class IncomingControllerTest < ActionController::TestCase
   end
   
   test "get last message id not authorized" do
-    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
-
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'wrong_chan_pass')
     head 'index', :account_id => 'account'
-    
     assert_response 401
   end
   
   test "push messages not authorized" do
-    account, chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
-
     @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'wrong_chan_pass')
     post 'create', :account_id => 'account'
-    
     assert_response 401
   end
     
