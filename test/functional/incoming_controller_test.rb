@@ -13,26 +13,24 @@ class IncomingControllerTest < ActionController::TestCase
     @account2, @chan2 = create_account_and_channel('account2', 'account_pass2', 'chan2', 'chan_pass2', 'qst_server')
     @application2 = create_app @account2, 1
   end
+  
+  def get_last_id(expected)
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
+    head 'index', :account_id => 'account'
+    assert_response :ok
+    
+    assert_equal expected, @response.headers['ETag']
+  end
 
   test "get last message id" do
     new_at_message(@application1, 0)
-    msg = new_at_message(@application1, 1)
-    
+    msg = new_at_message(@application1, 1)    
     new_at_message(@application2, 2)
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
-    head 'index', :account_id => 'account'
-    assert_response :ok
-    
-    assert_equal msg.guid.to_s, @response.headers['ETag']
+    get_last_id msg.guid.to_s
   end
   
   test "get last message id not exists" do
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
-    head 'index', :account_id => 'account'
-    assert_response :ok
-    
-    assert_equal "", @response.headers['ETag']
+    get_last_id ""
   end
   
   test "can't read" do
@@ -41,8 +39,21 @@ class IncomingControllerTest < ActionController::TestCase
     assert_response :not_found
   end
   
+  def push(data)
+    @request.env['RAW_POST_DATA'] = data
+    
+    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
+    post 'create', :account_id => 'account'
+    assert_response :ok
+    
+    messages = ATMessage.all
+    assert_equal 1, messages.length
+    
+    messages[0]
+  end
+  
   test "push message" do
-    @request.env['RAW_POST_DATA'] = <<-eos
+    msg = push <<-eos
       <?xml version="1.0" encoding="utf-8"?>
       <messages>
         <message id="someguid" from="Someone" to="Someone else" when="2008-09-24T17:12:57-03:00">
@@ -51,15 +62,6 @@ class IncomingControllerTest < ActionController::TestCase
       </messages>
     eos
     
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
-    post 'create', :account_id => 'account'
-    
-    messages = ATMessage.all
-    assert_equal 1, messages.length
-    
-    msg = messages[0]
-    
-    assert_response :ok
     assert_equal msg.guid.to_s, @response.headers['ETag']
     
     assert_equal @account.id, msg.account_id
@@ -72,7 +74,7 @@ class IncomingControllerTest < ActionController::TestCase
   end
   
   test "push message with custom attributes" do
-    @request.env['RAW_POST_DATA'] = <<-eos
+    msg = push <<-eos
       <?xml version="1.0" encoding="utf-8"?>
       <messages>
         <message id="someguid" from="Someone" to="Someone else" when="2008-09-24T17:12:57-03:00">
@@ -84,15 +86,6 @@ class IncomingControllerTest < ActionController::TestCase
       </messages>
     eos
     
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
-    post 'create', :account_id => 'account'
-    
-    messages = ATMessage.all
-    assert_equal 1, messages.length
-    
-    msg = messages[0]
-    
-    assert_response :ok
     assert_equal ["bar1", "bar2"], msg.custom_attributes['foo1']
     assert_equal "bar3", msg.custom_attributes['foo2']
   end
