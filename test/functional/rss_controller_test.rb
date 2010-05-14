@@ -15,6 +15,15 @@ class RssControllerTest < ActionController::TestCase
     post :create, :account_name => @account.name, :application_name => @application.name
     assert_response :ok
   end
+  
+  def index(options = {})
+    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')
+    options.each do |k, v|
+      @request.env[k] = v unless k == :expected_response
+    end
+    get :index, :account_name => @account.name, :application_name => @application.name
+    assert_response (options[:expected_response] || :ok)
+  end
 
   test "should convert one rss item to out message" do
     create 'protocol://Someone else'
@@ -68,20 +77,15 @@ class RssControllerTest < ActionController::TestCase
     msg = new_at_message(@application, 0)
     new_at_message(application2, 1)
     
-    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')
-    get :index, :account_name => @account.name, :application_name => @application.name
-    
-    assert_response :ok
+    index
     
     assert_equal msg.timestamp, @response.last_modified
     
     assert_select "title", "Outbox"
     assert_select "lastBuildDate", msg.timestamp.rfc822
-    
     assert_select "guid", :count => 1 do |es|
       assert_equal 1, es.length
     end
-
     assert_shows_message_as_rss_item msg
   end
   
@@ -90,27 +94,22 @@ class RssControllerTest < ActionController::TestCase
     msg.subject = nil
     msg.save!
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')
-    get :index, :account_name => @account.name, :application_name => @application.name
+    index
     
     assert_select "title", "Outbox"
-    
     assert_select "guid" do |es|
       assert_equal 1, es.length
     end
-
     assert_shows_message_as_rss_item msg
   end
   
   test "should convert two messages to rss items ordered by timestamp" do
     new_at_message(@application, 0)
     new_at_message(@application, 1)
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')  
-    get :index, :account_name => @account.name, :application_name => @application.name
+    
+    index
     
     assert_select "title", "Outbox"
-    
     assert_select "pubDate" do |es|
       assert_equal 2, es.length
       assert_select es[0], "pubDate", 'Sun, 02 Jan 2000 05:00:00 +0000'
@@ -121,28 +120,20 @@ class RssControllerTest < ActionController::TestCase
   test "should return not modified for HTTP_IF_MODIFIED_SINCE" do
     new_at_message(@application, 0)
     new_at_message(@application, 1)
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')  
-    @request.env["HTTP_IF_MODIFIED_SINCE"] = time_for_msg(1).to_s
-    get :index, :account_name => @account.name, :application_name => @application.name
     
-    assert_response :not_modified
+    index "HTTP_IF_MODIFIED_SINCE" => time_for_msg(1).to_s, :expected_response => :not_modified
   end
   
   test "should apply HTTP_IF_MODIFIED_SINCE" do
     new_at_message(@application, 0)
     msg = new_at_message(@application, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')  
-    @request.env["HTTP_IF_MODIFIED_SINCE"] = time_for_msg(0).to_s
-    get :index, :account_name => @account.name, :application_name => @application.name
+    index "HTTP_IF_MODIFIED_SINCE" => time_for_msg(0).to_s
     
     assert_select "title", "Outbox"
-    
     assert_select "guid" do |es|
       assert_equal 1, es.length
     end
-    
     assert_shows_message_as_rss_item msg
   end
   
@@ -178,27 +169,19 @@ class RssControllerTest < ActionController::TestCase
     new_at_message(@application, 0)
     new_at_message(@application, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')  
-    @request.env["HTTP_IF_NONE_MATCH"] = "someguid 1"
-    get :index, :account_name => @account.name, :application_name => @application.name
-    
-    assert_response :not_modified
+    index "HTTP_IF_NONE_MATCH" => "someguid 1", :expected_response => :not_modified
   end
   
   test "should apply HTTP_IF_NONE_MATCH" do
     new_at_message(@application, 0)
     msg = new_at_message(@application, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')  
-    @request.env["HTTP_IF_NONE_MATCH"] = "someguid 0"
-    get :index, :account_name => @account.name, :application_name => @application.name
+    index "HTTP_IF_NONE_MATCH" => "someguid 0"
     
     assert_select "title", "Outbox"
-    
     assert_select "guid" do |es|
       assert_equal 1, es.length
     end
-    
     assert_shows_message_as_rss_item msg
   end
   
