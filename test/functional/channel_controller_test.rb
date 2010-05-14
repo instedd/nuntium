@@ -82,10 +82,6 @@ class ChannelControllerTest < ActionController::TestCase
     assert_equal 0, chans.length
   end
   
-  # ------------------------ #
-  # Validations tests follow #
-  # ------------------------ #
-  
   test "edit channel fails protocol empty" do
     account = Account.create!({:name => 'account', :password => 'account_pass'})
     chan = Channel.new({:account_id => account.id, :name => 'chan', :protocol => 'sms', :kind => 'qst_server', :direction => Channel::Bidirectional})
@@ -95,16 +91,6 @@ class ChannelControllerTest < ActionController::TestCase
     get :update_channel, {:id => chan.id, :channel => {:protocol => '', :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => account.id}
     
     assert_template "channel/edit_qst_server_channel.html.erb"
-  end
-
-  test "create chan fails name already exists" do
-    account = Account.create!({:name => 'account', :password => 'account_pass'})
-    chan = Channel.new({:account_id => account.id, :name => 'chan', :protocol => 'sms', :kind => 'qst_server', :direction => Channel::Bidirectional})
-    chan.configuration = {:password => 'chan_pass'}
-    chan.save!
-    
-    get :create_channel, {:kind => 'qst_server', :channel => {:name => 'chan', :direction => Channel::Bidirectional, :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:account_id => account.id}
-    assert_template 'new_qst_server_channel'
   end
 
 end
