@@ -77,7 +77,44 @@ class ApplicationTest < ActiveSupport::TestCase
     application.route_at msg, nil
   end
   
-  test "ao routing saves mobile numbers" do
+  test "route ao protocol not found in message" do
+    app = create_app @account
+  
+    msg = AOMessage.new :from => 'sms://1234', :to => '+5678', :subject => 'foo', :body => 'bar'
+    app.route_ao msg, 'test'
+    
+    messages = AOMessage.all
+    assert_equal 1, messages.length
+    assert_equal 'failed', messages[0].state
+  
+    logs = AccountLog.all
+    
+    assert_equal 2, logs.length
+    log = logs[1]
+    assert_equal @account.id, log.account_id
+    assert_equal messages[0].id, log.ao_message_id
+    assert_equal "Protocol not found in 'to' field", log.message
+  end
+  
+  test "route ao channel not found for protocol" do
+    app = create_app @account
+  
+    msg = AOMessage.new :from => 'sms://1234', :to => 'unknown://+5678', :subject => 'foo', :body => 'bar'
+    app.route_ao msg, 'test'
+    
+    messages = AOMessage.all
+    assert_equal 1, messages.length
+    assert_equal 'failed', messages[0].state
+  
+    logs = AccountLog.all
+    assert_equal 2, logs.length
+    log = logs[1]
+    assert_equal @account.id, log.account_id
+    assert_equal messages[0].id, log.ao_message_id
+    assert_equal "No channel found for protocol 'unknown'", log.message
+  end
+  
+  test "route ao saves mobile numbers" do
     app = create_app @account
     
     msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5678', :subject => 'foo', :body => 'bar'
@@ -93,7 +130,7 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal @carrier.id, nums[0].carrier_id
   end
   
-  test "ao routing does not save mobile numbers if more than one country and/or carrier" do
+  test "route ao does not save mobile numbers if more than one country and/or carrier" do
     app = create_app @account
     
     msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5678', :subject => 'foo', :body => 'bar'
@@ -105,7 +142,7 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal 0, MobileNumber.count
   end
   
-  test "ao routing updates mobile numbers" do
+  test "route ao updates mobile numbers" do
     app = create_app @account
     
     MobileNumber.create!(:number => '5678', :country_id => 2)
@@ -123,7 +160,7 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal @carrier.id, nums[0].carrier_id
   end
   
-  test "ao routing filter channel because of country" do
+  test "route ao filter channel because of country" do
     app = create_app @account
     
     msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5678', :subject => 'foo', :body => 'bar'
@@ -138,7 +175,7 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal 'failed', msg.state
   end
   
-  test "ao routing filter channel because of country 2" do
+  test "route ao filter channel because of country 2" do
     app = create_app @account
     
     msg = AOMessage.new :from => 'sms://1234', :to => 'sms://+5678', :subject => 'foo', :body => 'bar'
@@ -153,7 +190,7 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal 'queued', msg.state
   end
   
-  test "ao routing use last channel" do
+  test "route ao use last channel" do
     app = create_app @account
     app.use_address_source = true
     app.save!
@@ -172,7 +209,7 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal chan2.id, msg.channel_id
   end
   
-  test "ao routing use suggested channel" do
+  test "route ao use suggested channel" do
     app = create_app @account
     chan1 = new_channel @account, 'chan1'
     chan2 = new_channel @account, 'chan2'
@@ -187,7 +224,7 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal chan2.id, msg.channel_id
   end
   
-  test "ao routing infer country" do
+  test "route ao infer country" do
     app = create_app @account
     chan1 = new_channel @account, 'chan1'
     
@@ -197,7 +234,7 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal 'ar', msg.country
   end
   
-  test "broadcast" do
+  test "route ao broadcast" do
     app = create_app @account
     app.strategy = 'broadcast'
     app.save!
@@ -221,7 +258,7 @@ class ApplicationTest < ActiveSupport::TestCase
     end
   end
   
-  test "broadcast override" do
+  test "route ao broadcast override" do
     app = create_app @account
     app.strategy = 'single_priority'
     app.save!
