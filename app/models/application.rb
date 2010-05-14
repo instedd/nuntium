@@ -138,7 +138,7 @@ class Application < ActiveRecord::Base
   
     # Update AddressSource if desired and if it the channel is bidirectional
     if use_address_source? and via_channel.kind_of? Channel and via_channel.direction == Channel::Bidirectional
-      as = AddressSource.find_by_application_id_and_address self.id, msg.from
+      as = AddressSource.find_by_application_id_and_address self.id, msg.from.mobile_number
       if as.nil?
         AddressSource.create!(:account_id => account.id, :application_id => self.id, :address => msg.from.mobile_number, :channel_id => via_channel.id) 
       else
