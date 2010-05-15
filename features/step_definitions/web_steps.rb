@@ -99,10 +99,17 @@ end
 
 Then /^(?:|I )should see JSON:$/ do |expected_json|
   require 'json'
-  expected = JSON.pretty_generate(JSON.parse(expected_json))
-  actual   = JSON.pretty_generate(JSON.parse(response.body))
+  expected = JSON.parse(expected_json)
+  actual   = JSON.parse(page.body)
   expected.should == actual
 end
+
+Then /^(?:|I )should see XML:$/ do |expected_xml|
+  expected = Hash.from_xml(expected_xml)
+  actual   = Hash.from_xml(page.body)
+  expected.should == actual
+end
+
 
 Then /^(?:|I )should see "([^\"]*)"(?: within "([^\"]*)")?$/ do |text, selector|
   with_scope(selector) do

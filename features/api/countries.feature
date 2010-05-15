@@ -11,7 +11,7 @@ Should be able to query the list of countries known to Nuntium
     
     When I go to the countries exposed via XML in the API
     
-    Then I should be presented the following XML:
+    Then I should see XML:
       """
       <countries>
         <country name="Argentina" iso2="ar" iso3="arg" phone_prefix="54" />
@@ -27,7 +27,7 @@ Should be able to query the list of countries known to Nuntium
     
     When I go to the countries exposed via JSON in the API
     
-    Then I should be presented the following JSON:
+    Then I should see JSON:
       """
       [
         {"name": "Argentina", "iso2": "ar", "iso3": "arg", "phone_prefix": "54"},
