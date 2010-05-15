@@ -62,7 +62,7 @@ Rails::Initializer.run do |config|
   # Start AMQP after rails loads:
   config.after_initialize {
     Thread.new { EM.run {} }
-  
+    
     require 'amqp'
     amqp_yaml = YAML.load_file("#{RAILS_ROOT}/config/amqp.yml")
     $amqp_config = amqp_yaml[ENV['RAILS_ENV'] || 'development']
