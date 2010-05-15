@@ -10,6 +10,9 @@ module NavigationHelpers
 
     when /the home\s?page/
       '/'
+      
+    when /the countries exposed via (.+) in the API/
+      "/api/countries.#{$1.downcase}"
 
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:
