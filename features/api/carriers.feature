@@ -15,7 +15,7 @@ Should be able to query the list of carriers known to Nuntium
       | Brazil        | Movistar  | Br-Movistar |
       
   Scenario: A website queries the Argentina carriers list in XML format     
-    When I go to the carriers for country code "ar" exposed via XML in the API
+    When I GET /api/carriers.xml?country_id=ar
     
     Then I should see XML:
       """
@@ -25,7 +25,7 @@ Should be able to query the list of carriers known to Nuntium
       """
       
   Scenario: A website queries the Argentina carriers list in JSON format     
-    When I go to the carriers for country code "ar" exposed via JSON in the API
+    When I GET /api/carriers.json?country_id=ar
     
     Then I should see JSON:
       """

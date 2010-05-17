@@ -10,15 +10,6 @@ module NavigationHelpers
 
     when /the home\s?page/
       '/'
-      
-    when /the countries exposed via (.+) in the API/
-      "/api/countries.#{$1.downcase}"
-      
-    when /the carriers for country code "(.+)" exposed via (.+) in the API/
-      "/api/carriers.#{$2.downcase}?country_id=#{$1}"
-      
-    when /the channels exposed via (.+) in the API/
-      "/api/channels.#{$1.downcase}"
 
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:

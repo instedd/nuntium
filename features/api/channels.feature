@@ -20,8 +20,8 @@ Should be able to manage the channels via a RESTful API
         | configuration password  | secret        |
       And I am authenticated as the "GeoChat" application
 
-  Scenario: Create a channel via XML
-    When I go to the channels exposed via XML in the API
+  Scenario: Query the channels via XML
+    When I GET /api/channels.xml
     
     Then I should see XML:
       """
@@ -37,8 +37,8 @@ Should be able to manage the channels via a RESTful API
       </channels>
       """
   
-  Scenario: Create a channel via JSON
-    When I go to the channels exposed via JSON in the API
+  Scenario: Query the channels via JSON
+    When I GET /api/channels.json
     
     Then I should see JSON:
       """
@@ -51,6 +51,35 @@ Should be able to manage the channels via a RESTful API
             {"name": "port", "value": "465"}
           ]}
       ]
+      """
+      
+  Scenario: Query a channel via XML
+    When I GET /api/channels/EmailChannel.xml
+    
+    Then I should see XML:
+      """
+      <channel kind="smtp" name="EmailChannel" protocol="mailto" direction="incoming"
+        enabled="true" application="GeoChat" priority="20">
+        <configuration>
+          <property name="host" value="some.host" />
+          <property name="user" value="some.user" />
+          <property name="port" value="465" />
+        </configuration>
+      </channel>
+      """
+  
+  Scenario: Query a channel via JSON
+    When I GET /api/channels/EmailChannel.json
+    
+    Then I should see JSON:
+      """
+      {"kind": "smtp", "name": "EmailChannel", "protocol": "mailto",
+        "direction": "incoming", "enabled": true, "application": "GeoChat",
+        "priority": 20, "configuration": [
+          {"name": "host", "value": "some.host"},
+          {"name": "user", "value": "some.user"},
+          {"name": "port", "value": "465"}
+        ]}
       """
       
   Scenario: Edit a channel via XML

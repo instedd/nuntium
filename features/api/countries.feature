@@ -10,7 +10,7 @@ Should be able to query the list of countries known to Nuntium
       | Brazil    | br    | bra   | 55            |
 
   Scenario: A website queries the country list in XML format    
-    When I go to the countries exposed via XML in the API
+    When I GET /api/countries.xml
     
     Then I should see XML:
       """
@@ -21,7 +21,7 @@ Should be able to query the list of countries known to Nuntium
       """
       
   Scenario: A website queries the country list in JSON format
-    When I go to the countries exposed via JSON in the API
+    When I GET /api/countries.json
     
     Then I should see JSON:
       """
