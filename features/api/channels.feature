@@ -82,25 +82,76 @@ Should be able to manage the channels via a RESTful API
         ]}
       """
       
+  Scenario: Create a channel via XML
+    When I POST XML /api/channels.xml:
+      """
+      <channel kind="smtp" name="EmailChannel2" protocol="mailto" direction="incoming"
+        enabled="true" application="GeoChat" priority="20">
+        <configuration>
+          <property name="host" value="some.host" />
+          <property name="user" value="some.user" />
+          <property name="port" value="465" />
+          <property name="password" value="secret" />
+        </configuration>
+      </channel>
+      """
+      
+    Then the Channel with the name "EmailChannel2" should have the following properties:
+      | kind                    | smtp          |
+      | protocol                | mailto        |
+      | direction_text          | incoming      |
+      | priority                | 20            |
+      | account name            | InsTEDD       |
+      | application name        | GeoChat       |
+      | configuration host      | some.host     |
+      | configuration port      | 465           |
+      | configuration user      | some.user     |
+      | configuration password  | secret        |
+      
+  Scenario: Create a channel via JSON
+    When I POST JSON /api/channels.json:
+      """
+      {"kind": "smtp", "name": "EmailChannel2", "protocol": "mailto",
+        "direction": "incoming", "enabled": true, "application": "GeoChat",
+        "priority": 20, "configuration": [
+          {"name": "host", "value": "some.host"},
+          {"name": "user", "value": "some.user"},
+          {"name": "port", "value": "465"},
+          {"name": "password", "value": "secret"}
+        ]}
+      """
+      
+    Then the Channel with the name "EmailChannel2" should have the following properties:
+      | kind                    | smtp          |
+      | protocol                | mailto        |
+      | direction_text          | incoming      |
+      | priority                | 20            |
+      | account name            | InsTEDD       |
+      | application name        | GeoChat       |
+      | configuration host      | some.host     |
+      | configuration port      | 465           |
+      | configuration user      | some.user     |
+      | configuration password  | secret        |
+      
   Scenario: Edit a channel via XML
-    When I PUT /api/channels/EmailChannel.xml:
+    When I PUT XML /api/channels/EmailChannel.xml:
       """
       <channel priority="40" />
       """
       
-    Then The Channel with the name "EmailChannel" should have the following properties:
+    Then the Channel with the name "EmailChannel" should have the following properties:
       | priority  | 40  |
       
   Scenario: Edit a channel via JSON
-    When I PUT /api/channels/EmailChannel.json:
+    When I PUT JSON /api/channels/EmailChannel.json:
       """
       {"priority": 40}
       """
       
-    Then The Channel with the name "EmailChannel" should have the following properties:
+    Then the Channel with the name "EmailChannel" should have the following properties:
       | priority  | 40  |
       
   Scenario: Delete a channel
     When I DELETE /api/channels/EmailChannel
     
-    Then The Channel with the name "EmailChannel" should not exist
+    Then the Channel with the name "EmailChannel" should not exist
