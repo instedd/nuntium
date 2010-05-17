@@ -1,4 +1,4 @@
-When /^an SMTP channel named (.+) belongs to the (.+) account$/ do |chan_name, account_name|
+When /^an SMTP channel named "([^\"]*)" belongs to the "([^\"]*)" account$/ do |chan_name, account_name|
   chan = Channel.new(
     :name => chan_name, 
     :kind => 'smtp', 

@@ -127,6 +127,18 @@ class Channel < ActiveRecord::Base
     return ''
   end
   
+  def direction=(value)
+    if value.kind_of? String
+      if value.integer?
+        self[:direction] = value.to_i
+      else
+        self[:direction] = Channel.direction_from_text(value)
+      end
+    else
+      self[:direction] = value
+    end
+  end
+  
   def direction_text
     case direction
     when Incoming
@@ -291,7 +303,7 @@ class Channel < ActiveRecord::Base
     chan.protocol = hash[:protocol]
     chan.priority = hash[:priority]
     chan.enabled = hash[:enabled] == 'true'
-    chan.direction = Channel.direction_from_text(hash[:direction]) if hash[:direction]
+    chan.direction = hash[:direction] if hash[:direction]
     
     hash_config = hash[:configuration] || {}
     hash_config = hash_config[:property] || [] if format == :xml and hash_config[:property]
