@@ -1,6 +1,6 @@
 class SendAoController < ApplicationAuthenticatedController
 
-  # GET /send_ao/:account_name
+  # GET /:account_name/:application_name/send_ao
   def create
     msg = AOMessage.new :account_id => @account.id
     params.each do |key, value|

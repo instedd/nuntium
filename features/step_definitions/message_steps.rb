@@ -1,9 +1,3 @@
-When /^"([^\"]*)" sends the following AOMessage:$/ do |app_name, table|
-  msg = AOMessage.new table.rows_hash
-  app = Application.find_by_name app_name
-  app.route_ao msg, 'rss'
-end
-
 When /^the email account "([^\"]*)" receives the following email:$/ do |to, table|
   from, subject, body = table.rows_hash['From'], table.rows_hash['Subject'], table.rows_hash['Body']
   msg = AOMessage.find_by_from "mailto://#{from}"

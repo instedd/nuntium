@@ -4,7 +4,7 @@ require 'nokogiri'
 
 class RssController < ApplicationAuthenticatedController
 
-  # GET /:account_name/rss
+  # GET /:account_name/:application_name/rss
   def index
     last_modified = request.env['HTTP_IF_MODIFIED_SINCE']
     etag = request.env['HTTP_IF_NONE_MATCH']
@@ -66,7 +66,7 @@ class RssController < ApplicationAuthenticatedController
     render :layout => false
   end
   
-  # POST /:account_name/rss
+  # POST /:account_name/:aplication_name/rss
   def create
     tree = request.POST.present? ? request.POST : Hash.from_xml(request.raw_post).with_indifferent_access
     
