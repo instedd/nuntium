@@ -35,7 +35,17 @@ When /^the following (.+) exists?:$/ do |model_name, table|
   end
 end
 
-Then /^The (.+) with the (.+) "([^\"]*)" should not exist$/ do |model, field, value|
+When /^The (.+) with the (.+) "([^\"]*)" should have the following properties:$/ do |model, field, value, table|
+  model = eval("#{model.capitalize.singularize}.find_by_#{field} '#{value}'")
+  assert_not_nil model
+  table.rows_hash.each do |name, value|
+    actual = model.send(name)
+    value = value.to_i if actual.kind_of? Integer
+    assert_equal value, actual 
+  end
+end
+
+When /^The (.+) with the (.+) "([^\"]*)" should not exist$/ do |model, field, value|
   assert_nil eval("#{model.capitalize.singularize}.find_by_#{field} '#{value}'")
 end
 
