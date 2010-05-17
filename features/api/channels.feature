@@ -155,3 +155,49 @@ Should be able to manage the channels via a RESTful API
     When I DELETE /api/channels/EmailChannel
     
     Then the Channel with the name "EmailChannel" should not exist
+    
+  Scenario: Create a channel via XML gives error
+    When I POST XML /api/channels.xml:
+      """
+      <channel kind="smtp" name="Email Channel2" protocol="mailto" direction="incoming"
+        enabled="true" application="GeoChat" priority="20">
+        <configuration>
+          <property name="host" value="some.host" />
+          <property name="user" value="some.user" />
+          <property name="port" value="465" />
+          <property name="password" value="secret" />
+        </configuration>
+      </channel>
+      """
+      
+    Then I should see XML:
+      """
+      <error summary="There were problems creating the channel">
+        <property name="name" value="can only contain alphanumeric characters, '_' or '-' (no spaces allowed)" />
+      </error>
+      """
+  Scenario: Create a channel via JSON gives error
+    When I POST JSON /api/channels.json:
+      """
+      {"kind": "smtp", "name": "Email Channel2", "protocol": "mailto",
+        "direction": "incoming", "enabled": true, "application": "GeoChat",
+        "priority": 20, "configuration": [
+          {"name": "host", "value": "some.host"},
+          {"name": "user", "value": "some.user"},
+          {"name": "port", "value": "465"},
+          {"name": "password", "value": "secret"}
+        ]}
+      """
+      
+    Then I should see JSON:
+      """
+      {
+        "summary": "There were problems creating the channel",
+        "properties": [{
+          "name": "can only contain alphanumeric characters, '_' or '-' (no spaces allowed)"
+        }]
+      }
+      """  
+    
+
+      

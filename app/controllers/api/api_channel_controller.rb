@@ -39,7 +39,7 @@ class ApiChannelController < ApiAuthenticatedController
     end
     chan.account = @account
     chan.application = @application
-    save chan
+    save chan, 'creating'
   end
   
   # PUT /api/channels/:name.:format
@@ -54,7 +54,7 @@ class ApiChannelController < ApiAuthenticatedController
       format.json { update = Channel.from_json(data) } 
     end
     chan.merge(update)
-    save chan
+    save chan, 'updating'
   end
   
   # DELETE /api/channels/:name
@@ -70,22 +70,22 @@ class ApiChannelController < ApiAuthenticatedController
   
   private
   
-  def save(channel)
+  def save(channel, action)
     if channel.save
       head :ok
     else
       respond_to do |format|
-        format.xml { render :xml => errors_to_xml(channel.errors), :status => :bad_request }
-        format.json { render :json => errors_to_json(channel.errors), :status => :bad_request } 
+        format.xml { render :xml => errors_to_xml(channel.errors, action), :status => :bad_request }
+        format.json { render :json => errors_to_json(channel.errors, action), :status => :bad_request } 
       end 
     end
   end
   
-  def errors_to_xml(errors)
+  def errors_to_xml(errors, action)
     require 'builder'
     xml = Builder::XmlMarkup.new(:indent => 2)
     xml.instruct!
-    xml.error :summary => 'There were problems creating the channel' do
+    xml.error :summary => "There were problems #{action} the channel" do
       errors.each do |name, value|
         xml.property :name => name, :value => value
       end
@@ -93,9 +93,9 @@ class ApiChannelController < ApiAuthenticatedController
     xml.target!
   end
   
-  def errors_to_json(errors)
+  def errors_to_json(errors, action)
     attrs = {
-      :summary => 'There were some problems',
+      :summary => "There were problems #{action} the channel",
       :properties => []
     }
     errors.each do |name, value|
