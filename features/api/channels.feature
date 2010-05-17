@@ -62,6 +62,15 @@ Should be able to manage the channels via a RESTful API
     Then The Channel with the name "EmailChannel" should have the following properties:
       | priority  | 40  |
       
+  Scenario: Edit a channel via JSON
+    When I PUT /api/channels/EmailChannel.json:
+      """
+      {"priority": 40}
+      """
+      
+    Then The Channel with the name "EmailChannel" should have the following properties:
+      | priority  | 40  |
+      
   Scenario: Delete a channel
     When I DELETE /api/channels/EmailChannel
     
