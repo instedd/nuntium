@@ -3,9 +3,9 @@ require 'test_helper'
 class MessageControllerTest < ActionController::TestCase
 
   def setup
-    @account = Account.create!({:name => 'account', :password => 'account_pass'})
-    @application = create_app @account
-    new_channel @account, 'foo'
+    @account = Account.make
+    @application = Application.make :account => @account
+    Channel.make :account => @account
     
     @ao_msg1 = AOMessage.create!(:account_id => @account.id, :application_id => @application.id, :state => 'pending', :body => 'one', :to => 'sms://1')
     @ao_msg2 = AOMessage.create!(:account_id => @account.id, :application_id => @application.id, :state => 'pending', :body => 'one', :to => 'sms://1')
