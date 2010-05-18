@@ -3,21 +3,25 @@ require 'test_helper'
 class ApiChannelControllerTest < ActionController::TestCase
 
   def setup
-    @account = Account.create! :name => 'acc', :password => 'acc_pass'
-    @application = create_app @account
-    @application2 = create_app @account, 10
+    @account = Account.make :password => 'secret'
+    @application = Application.make :account => @account, :password => 'secret'
+    @application2 = Application.make :account => @account
     
-    account2 = Account.create! :name => 'acc2', :password => 'acc_pass'
-    app2 = create_app account2
+    account2 = Account.make
+    app2 = Application.make :account => account2
     
-    chan2 = new_channel account2, 'foobar'
-    chan3 = new_channel @account, 'other-chan', :application_id => @application2.id
+    chan2 = Channel.make :account => account2
+    chan3 = Channel.make :account => @account, :application => @application2
+  end
+  
+  def authorize
+    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'secret')
   end
   
   def index(format, result_channel_count)
     yield if block_given?
     
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
+    authorize
     get :index, :format => format
     
     case format
@@ -38,7 +42,7 @@ class ApiChannelControllerTest < ActionController::TestCase
   def show(name, format, result_channel_count)
     yield if block_given?
     
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
+    authorize
     get :show, :format => format, :name => name
     return assert_response :not_found if result_channel_count == 0
     assert_response :ok
@@ -54,7 +58,7 @@ class ApiChannelControllerTest < ActionController::TestCase
   end
   
   def update(name, channel, format)
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
+    authorize
     @request.env['RAW_POST_DATA'] = channel.send("to_#{format}", :include_passwords => true)
     
     put :update, :format => format, :name => name
@@ -63,7 +67,7 @@ class ApiChannelControllerTest < ActionController::TestCase
   end
   
   def create(channel, format, expected_response = :ok)
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
+    authorize
     @request.env['RAW_POST_DATA'] = channel.send("to_#{format}", :include_passwords => true)
     
     post :create, :format => format
@@ -78,14 +82,14 @@ class ApiChannelControllerTest < ActionController::TestCase
     
     test "index #{format} two channels" do
       index format, 2 do
-        2.times {|i| new_channel @account, "chan#{i}", :application_id => @application.id }
+        2.times {|i| Channel.make :account => @account, :application => @application }
       end
     end
     
     test "index #{format} should also include channels that don't belong to any application" do
       index format, 3 do
-        2.times {|i| new_channel @account, "chan#{i}", :application_id => @application.id }
-        new_channel @account, "chan3"
+        2.times {|i| Channel.make :account => @account, :application => @application }
+        Channel.make :account => @account
       end
     end
     
@@ -95,19 +99,18 @@ class ApiChannelControllerTest < ActionController::TestCase
     
     test "show #{format} for application found" do
       show 'hola', format, 1 do
-        new_channel @account, "hola", :application_id => @application.id
+        Channel.make :account => @account, :application => @application, :name => 'hola'
       end
     end
     
     test "show #{format} for no application found" do
       show 'hola', format, 1 do
-        chan = new_channel @account, "hola"
+        Channel.make :account => @account, :name => 'hola'
       end
     end
     
     test "create #{format} channel succeeds" do
-      chan = Channel.new(:name => 'new_chan', :kind => 'qst_client', :protocol => 'sms', :direction => Channel::Bidirectional, :enabled => false, :priority => 2);
-      chan.configuration = {:url => 'a', :user => 'b', :password => 'c'};
+      chan = Channel.make_unsaved :qst_client, :enabled => false
       chan.restrictions['foo'] = ['a', 'b', 'c']
       chan.restrictions['bar'] = 'baz'
       
@@ -119,13 +122,12 @@ class ApiChannelControllerTest < ActionController::TestCase
       assert_equal @account.id, result.account_id
       assert_equal @application.id, result.application_id
       [:name, :kind, :protocol, :direction, :enabled, :priority, :restrictions, :configuration].each do |sym|
-        assert_equal chan.send(sym), result.send(sym)
+        assert_equal chan.send(sym), result.send(sym), "sym was not the same"
       end
     end
     
     test "create #{format} channel fails missing name" do
-      chan = Channel.new(:kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional);
-      chan.configuration = {:password => 'c'};
+      chan = Channel.make_unsaved :qst_server, :name => nil
       
       before_count = Channel.all.length      
       create chan, format, :bad_request      
@@ -144,8 +146,8 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
     
     test "update #{format} channel succeeds" do
-      chan = new_channel @account, "chan_foo", :application_id => @application.id, :priority => 20
-      update 'chan_foo', Channel.new(:protocol => 'foobar', :priority => nil), format
+      chan = Channel.make :account => @account, :application => @application, :priority => 20
+      update chan.name, Channel.new(:protocol => 'foobar', :priority => nil), format
       chan.reload
       
       assert_equal 'foobar', chan.protocol
@@ -153,8 +155,8 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
     
     test "update #{format} channel configuration succeeds" do
-      chan = new_channel @account, "chan_foo", :application_id => @application.id
-      update 'chan_foo', Channel.new(:configuration => {:url => 'x', :user => 'y', :password => 'z'}), format
+      chan = Channel.make :qst_client, :account => @account, :application => @application
+      update chan.name, Channel.new(:configuration => {:url => 'x', :user => 'y', :password => 'z'}), format
       chan.reload
       
       assert_equal 'x', chan.configuration[:url]
@@ -162,8 +164,8 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
     
     test "update #{format} channel restrictions succeeds" do
-      chan = new_channel @account, "chan_foo", :application_id => @application.id
-      update 'chan_foo', Channel.new(:restrictions => {'x' => 'z'}), format
+      chan = Channel.make :account => @account, :application => @application
+      update chan.name, Channel.new(:restrictions => {'x' => 'z'}), format
       chan.reload
       
       assert_equal 'z', chan.restrictions['x']
@@ -171,7 +173,7 @@ class ApiChannelControllerTest < ActionController::TestCase
   end
   
   test "update channel fails no channel found" do
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
+    authorize
     put :update, :format => 'xml', :name => "chan_lala"
     assert_response :bad_request
   end
@@ -179,7 +181,7 @@ class ApiChannelControllerTest < ActionController::TestCase
   test "update channel fails not owner" do
     new_channel @account, "chan_foo"
     
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
+    authorize
     put :update, :format => 'xml', :name => "chan_foo"
     assert_response :bad_request
   end
@@ -187,7 +189,7 @@ class ApiChannelControllerTest < ActionController::TestCase
   test "delete channel succeeds" do
     new_channel @account, "chan_foo", :application_id => @application.id
     
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
+    authorize
     delete :destroy, :name => "chan_foo"
     assert_response :ok
     
@@ -195,7 +197,7 @@ class ApiChannelControllerTest < ActionController::TestCase
   end
   
   test "delete channel fails, no channel found" do
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
+    authorize
     delete :destroy, :name => "chan_lala"
     assert_response :bad_request
   end
@@ -203,7 +205,7 @@ class ApiChannelControllerTest < ActionController::TestCase
   test "delete channel fails, does not own channel" do
     new_channel @account, "chan_foo"
     
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('acc/application', 'app_pass')
+    authorize
     delete :destroy, :name => "chan_foo"
     assert_response :bad_request
   end

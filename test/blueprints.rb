@@ -13,13 +13,13 @@ Sham.define do
 end
 
 Account.blueprint do
-  name
+  name { Sham.username }
   password
   password_confirmation { password }
 end
 
 Application.blueprint do
-  name
+  name { Sham.username }
   account
   interface { "rss" }
   password
@@ -70,6 +70,12 @@ Channel.blueprint do
   protocol { "sms" }
   direction { Channel::Bidirectional }
   configuration { {:password => 'secret', :password_confirmation => 'secret'} }
+  enabled { true }
+end
+
+Channel.blueprint :qst_client do
+  kind { "qst_client" }
+  configuration { {:url => Sham.url, :user => Sham.username, :password => Sham.password} }
 end
 
 Channel.blueprint :qst_server do
