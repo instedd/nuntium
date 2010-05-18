@@ -28,7 +28,7 @@ end
 
 Application.blueprint :http_post_callback do
   interface { "http_post_callback" }
-  configuration { {:interface_url => Sham.guid, :interface_user => Sham.name, :interface_password => Sham.name} }
+  configuration { {:interface_url => "http://#{Sham.guid}.com", :interface_user => Sham.name, :interface_password => Sham.name} }
 end
 
 Application.blueprint :broadcast do
@@ -37,7 +37,7 @@ end
 
 Application.blueprint :qst_client do
   interface { "qst_client" }
-  configuration { {:interface_url => Sham.guid, :interface_user => Sham.name, :interface_password => Sham.password} }
+  configuration { {:interface_url => "http://#{Sham.guid}.com", :interface_user => Sham.name, :interface_password => Sham.password} }
 end
 
 [AOMessage, ATMessage].each do |message|
@@ -46,6 +46,8 @@ end
     to { "sms://#{Sham.number8}" }
     subject { Faker::Lorem.sentence }
     body { Faker::Lorem.paragraph }
+    timestamp { Time.at(946702800 + 86400 * rand(100)).getgm }
+    guid
     state { 'pending' }
   end
 end
@@ -84,7 +86,7 @@ end
     kind { k.to_s }
     protocol { "mailto" }
     direction { d }
-    configuration { {:host => Sham.guid, :port => rand(1000), :user => Sham.name, :password => Sham.password}}
+    configuration { {:host => "http://#{Sham.guid}.com", :port => rand(1000), :user => Sham.name, :password => Sham.password}}
   end
 end
 

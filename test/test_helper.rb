@@ -229,28 +229,6 @@ class ActiveSupport::TestCase
     assert_equal 'queued', msg.state, 'message status'
   end
   
-  # Asserts all values for a message constructed with new or fill that was deserialized
-  def assert_deserialized_msg(msg, account, i, protocol = 'protocol')
-    assert_equal "Subject of the message #{i} - Body of the message #{i}", msg.subject_and_body, 'message subject and body'
-    assert_equal "Someone #{i}", msg.from, 'message from'
-    assert_equal protocol + "://Someone else #{i}", msg.to, 'message to' 
-    assert_equal "someguid #{i}", msg.guid, 'message guid' 
-    assert_equal time_for_msg(i), msg.timestamp, 'message timestamp'
-  end
-  
-  # Given an xml document string, asserts all values for a message constructed with new or fill
-  def assert_xml_msgs(xml_txt, account, rng, protocol = 'protocol')
-    rng = (rng...rng) if not rng.respond_to? :each
-    msgs = []
-    ATMessage.parse_xml(xml_txt) {|msg| msgs << msg}
-    assert_equal rng.to_a.size, msgs.size, 'messages count does not match range'
-    base = rng.to_a[0]
-    rng.each do |i|
-      msg = msgs[i-base]
-      assert_deserialized_msg(msg, account, i, protocol)
-    end
-  end
-  
   # Creates a new QSTOutgoingMessage with guid "someguid #{i}"
   def new_qst_outgoing_message(chan, ao_message_id)
     msg = QSTOutgoingMessage.new
