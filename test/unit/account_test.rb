@@ -7,7 +7,7 @@ class AccountTest < ActiveSupport::TestCase
   include RulesEngine
   
   def setup
-    @account = Account.create! :name => 'account', :password => 'foo', :password_confirmation => 'foo'
+    @account = Account.make
     @country = Country.create! :name => 'Argentina', :iso2 => 'ar', :iso3 =>'arg', :phone_prefix => '54'
     @carrier = Carrier.create! :country => @country, :name => 'Personal', :guid => "ABC123", :prefixes => '1, 2, 3'
     
@@ -26,18 +26,19 @@ class AccountTest < ActiveSupport::TestCase
   end
   
   test "should not save if password confirmation fails" do
-    @account.password_confirmation = 'foo2'
+    account = Account.make_unsaved :password => 'foo', :password_confirmation => 'foo2'
     assert !@account.save
   end
   
   test "should not save if name is taken" do
-    account = Account.new :name => 'account', :password => 'foo'
+    account = Account.make_unsaved :name => @account.name
     assert_false account.save
   end
   
   test "should authenticate" do
-    assert @account.authenticate('foo')
-    assert !@account.authenticate('foo2')
+    account = Account.make :password => 'foo'
+    assert account.authenticate('foo')
+    assert !account.authenticate('foo2')
   end
   
   test "should find by id if numerical" do

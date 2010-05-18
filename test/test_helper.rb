@@ -1,5 +1,6 @@
 ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
+require File.expand_path(File.dirname(__FILE__) + "/blueprints")
 require 'test_help'
 require 'base64'
 require 'digest/md5'
@@ -34,6 +35,7 @@ class ActiveSupport::TestCase
 
   def setup
     Rails.cache.clear
+    Sham.reset
   end
     
   # Returns the string to be used for HTTP_AUTHENTICATION header
