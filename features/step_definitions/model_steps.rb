@@ -4,7 +4,7 @@ When /^the following (.+) exists?:$/ do |model_name, table|
   #  - age: model.name = ...
   #  - configuration prop: model.configuration[prop] = ... (if configuration is a Hash)
   #  - country name: model.country = Country.find_by_name ... (otherwise)
-  model_name = model_name.capitalize
+  model_name = "#{model_name[0].chr.upcase}#{model_name[1..-1]}"
   model_name_singular = model_name.singularize
   model = eval(model_name_singular)
   
