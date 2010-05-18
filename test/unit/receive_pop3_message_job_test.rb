@@ -17,7 +17,7 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     
     expect_connection @chan, mail
     
-    perform
+    receive
     expect_at_message
   end
   
@@ -30,7 +30,7 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     
     expect_connection @chan, mail
     
-    perform
+    receive
     expect_at_message
   end
   
@@ -42,7 +42,7 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
       
     expect_connection @chan, mail
     
-    perform
+    receive
     expect_at_message
   end
   
@@ -68,7 +68,7 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     pop.expects(:finish)
   end
   
-  def perform
+  def receive
     job = ReceivePop3MessageJob.new(@chan.account.id, @chan.id)
     job.perform
   end
