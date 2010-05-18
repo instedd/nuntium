@@ -12,7 +12,7 @@ class TwitterChannelHandlerTest < ActiveSupport::TestCase
   end
   
   test "on enable binds queue" do
-    chan = Channel.make :twitter
+    chan = Channel.make_unsaved :twitter
     Queues.expects(:bind_ao).with(chan)
     chan.save!
   end
