@@ -3,20 +3,27 @@ require 'test_helper'
 class IncomingControllerTest < ActionController::TestCase
 
   def setup
-    @account, @chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
-    @application1 = create_app @account, 1
+    @account = Account.make :password
+    @chan = Channel.make_unsaved :qst_server, :account => @account
+    @chan.configuration[:password] = 'chan_pass'
+    @chan.configuration[:password_confirmation] = 'chan_pass'
+    @chan.configuration.delete :salt
+    @chan.save!
+    
+    @application1 = Application.make :account => @account
     
     # This is so that we have another channel but the one we are looking for is used
-    create_channel(@account, 'chan3', 'chan_pass3', 'qst_server')
+    Channel.make :qst_serve, :account => @account
     
     # This is to see that this doesn't interfere with the test
-    @account2, @chan2 = create_account_and_channel('account2', 'account_pass2', 'chan2', 'chan_pass2', 'qst_server')
-    @application2 = create_app @account2, 1
+    @account2 = Account.make
+    @chan2 = Channel.make :qst_server, :account => @account2
+    @application2 = Application.make :account => @account2
   end
   
   def get_last_id(expected)
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
-    head 'index', :account_id => 'account'
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
+    head 'index', :account_id => @account.name
     assert_response :ok
     
     assert_equal expected, @response.headers['ETag']
@@ -34,16 +41,16 @@ class IncomingControllerTest < ActionController::TestCase
   end
   
   test "can't read" do
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
-    get 'index', :account_id => 'account'
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
+    get 'index', :account_id => @account.name
     assert_response :not_found
   end
   
   def push(data)
     @request.env['RAW_POST_DATA'] = data
     
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'chan_pass')
-    post 'create', :account_id => 'account'
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
+    post 'create', :account_id => @account.name
     assert_response :ok
     
     messages = ATMessage.all
@@ -91,14 +98,14 @@ class IncomingControllerTest < ActionController::TestCase
   end
   
   test "get last message id not authorized" do
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'wrong_chan_pass')
-    head 'index', :account_id => 'account'
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'wrong_chan_pass')
+    head 'index', :account_id => @account.name
     assert_response 401
   end
   
   test "push messages not authorized" do
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'wrong_chan_pass')
-    post 'create', :account_id => 'account'
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'wrong_chan_pass')
+    post 'create', :account_id => @account.name
     assert_response 401
   end
     
