@@ -2,21 +2,20 @@ require 'test_helper'
 
 class ATMessageTest < ActiveSupport::TestCase
   test "at rules context include common fiels and custom attributes" do
-    msg = ATMessage.new :from => 'a', :to => 'b', :subject => 'c', :body => 'd'
+    msg = ATMessage.make_unsaved
     msg.custom_attributes = { "ca1" => 'e', "ca2" => 'f' }
     
     context = msg.rules_context
     
-    assert_equal 'a', context["from"]
-    assert_equal 'b', context["to"]
-    assert_equal 'c', context["subject"]
-    assert_equal 'd', context["body"]
+    ['from', 'to', 'subject', 'body'].each do |field|
+      assert_equal msg.send(field), context[field]
+    end
     assert_equal 'e', context["ca1"]
     assert_equal 'f', context["ca2"]
   end
   
   test "merge attributes recognize wellknown fields and custom attributes" do
-    msg = ATMessage.new   
+    msg = ATMessage.new
     attributes = { "from" => 'a', "to" => 'b', "subject" => 'c', "body" => 'd', "ca1" => 'e', "ca2" => 'f' }
     
     msg.merge attributes
@@ -30,12 +29,12 @@ class ATMessageTest < ActiveSupport::TestCase
   end
   
   test "infer attributes one country" do
-    Country.create! :name => 'Argentina', :iso2 => 'ar', :iso3 => 'arg', :phone_prefix => '12'
+    country = Country.make
   
-    msg = ATMessage.new(:from => 'sms://+1234')
+    msg = ATMessage.new :from => "sms://+#{country.phone_prefix}1234"
     msg.infer_custom_attributes
     
-    assert_equal 'ar', msg.country
+    assert_equal country.iso2, msg.country
     assert_nil msg.carrier
   end
 end
