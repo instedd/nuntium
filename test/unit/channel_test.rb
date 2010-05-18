@@ -2,47 +2,40 @@ require 'test_helper'
 
 class ChannelTest < ActiveSupport::TestCase
   def setup
-    @account = Account.create!(:name => 'account', :password => 'foo')
-    @chan = Channel.new :name =>'channel', :account_id => @account.id, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional
-    @chan.configuration = {:password => 'foo', :password_confirmation => 'foo'}
+    @chan = Channel.make
   end
   
   [:name, :kind, :protocol, :account_id].each do |field|
     test "should validate presence of #{field}" do
       @chan.send("#{field}=", nil)
-      assert !@chan.save
+      assert_false @chan.save
     end
   end
   
   [' ', '$', '.', '!', '~', ')', '(', '%', '^', '/', '\\'].each do |sym|
     test "should not save if name has symbol #{sym}" do
       @chan.name = "foo#{sym}bar"
-      assert !@chan.save
+      assert_false @chan.save
     end
   end
   
   test "should not save if direction is wrong" do
     @chan.direction = 100
-    assert !@chan.save
+    assert_false @chan.save
   end
   
   test "should not save if name is taken" do
-    chan2 = Channel.new :name =>'channel', :account_id => @account.id, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional
-    chan2.configuration = {:password => 'foo', :password_confirmation => 'foo'}
-    assert chan2.save
-    assert !@chan.save
+    chan2 = Channel.make_unsaved :name => @chan.name, :account => @chan.account
+    assert_false chan2.save
   end
   
   test "should save if name is taken in another account" do
-    account2 = Account.create(:name => 'account2', :password => 'foo')
-    chan2 = Channel.new :name =>'channel', :account_id => account2.id, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional
-    chan2.configuration = {:password => 'foo', :password_confirmation => 'foo'}
+    account2 = Account.make
+    chan2 = Channel.make_unsaved :name => @chan.name, :account => account2
     assert chan2.save
-    assert @chan.save
   end
   
   test "should be enabled by default" do
-    @chan.save!
     assert @chan.enabled
   end
   
@@ -76,13 +69,11 @@ class ChannelTest < ActiveSupport::TestCase
   end
   
   test "to xml with application" do
-    app1 = create_app @account, '1'
-    @chan.application_id = app1.id
-    @chan.save!
+    @chan.application = Application.make(:account => @chan.account)
   
     xml = Hash.from_xml(@chan.to_xml).with_indifferent_access
     chan = xml[:channel]
-    assert_equal app1.name, chan[:application]
+    assert_equal @chan.application.name, chan[:application]
   end
   
   test "to xml configuration" do
@@ -143,12 +134,10 @@ class ChannelTest < ActiveSupport::TestCase
   end
   
   test "to json with application" do
-    app1 = create_app @account, '1'
-    @chan.application_id = app1.id
-    @chan.save!
+    @chan.application = Application.make(:account => @chan.account)
   
     chan = JSON.parse(@chan.to_json).with_indifferent_access
-    assert_equal app1.name, chan[:application]
+    assert_equal @chan.application.name, chan[:application]
   end
   
   test "to json configuration" do
