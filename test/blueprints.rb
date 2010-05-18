@@ -94,6 +94,11 @@ end
   end
 end
 
+Channel.blueprint :smpp do
+  kind { "smpp" }
+  configuration {{:host => Sham.url, :port => rand(1000), :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => Sham.username, :password => Sham.password, :system_type => 'smpp', :mt_encodings => ['ascii'], :default_mo_encoding => 'ascii', :mt_csms_method => 'udh' } }
+end
+
 Channel.blueprint :twitter do
   kind { "twitter" }
   protocol { "twitter" }
