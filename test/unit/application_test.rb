@@ -48,6 +48,7 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "should enqueue http post callback" do
     app = Application.make :http_post_callback
+    p app
     
     msg = ATMessage.create!(:account => app.account, :subject => 'foo')
     
