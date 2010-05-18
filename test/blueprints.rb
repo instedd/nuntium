@@ -19,18 +19,25 @@ Application.blueprint do
   name
   account
   interface { "rss" }
-  configuration { {:use_address_source => '1'} }
   password
   password_confirmation { password }
 end
 
-Application.blueprint(:http_post_callback) do
+Application.blueprint :rss do
+end
+
+Application.blueprint :http_post_callback do
   interface { "http_post_callback" }
   configuration { {:interface_url => Sham.guid, :interface_user => Sham.name, :interface_password => Sham.name} }
 end
 
-Application.blueprint(:broadcast) do
-  configuration { {:use_address_source => '1', :strategy => 'broadcast'} }
+Application.blueprint :broadcast do
+  configuration { {:strategy => 'broadcast'} }
+end
+
+Application.blueprint :qst_client do
+  interface { "qst_client" }
+  configuration { {:interface_url => Sham.guid, :interface_user => Sham.name, :interface_password => Sham.password} }
 end
 
 [AOMessage, ATMessage].each do |message|
@@ -59,9 +66,27 @@ Channel.blueprint do
   configuration { {:password => 'secret', :password_confirmation => 'secret'} }
 end
 
-Channel.blueprint(:clickatell) do
+Channel.blueprint :qst_server do
+end
+
+Channel.blueprint :clickatell do
   kind { "clickatell" }
   configuration { {:user => Sham.name, :password => Sham.password, :api_id => Sham.name, :from => Sham.number8, :incoming_password => Sham.password }}
+end
+
+Channel.blueprint :twitter do
+  kind { "twitter" }
+  protocol { "twitter" }
+  configuration { {:token => Sham.guid, :secret => Sham.guid, :screen_name => Sham.name} }
+end
+
+[[:pop3, Channel::Incoming], [:smtp, Channel::Outgoing]].each do |k, d|
+  Channel.blueprint k do
+    kind { k.to_s }
+    protocol { "mailto" }
+    direction { d }
+    configuration { {:host => Sham.guid, :port => rand(1000), :user => Sham.name, :password => Sham.password}}
+  end
 end
 
 Country.blueprint do

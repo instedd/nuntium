@@ -212,7 +212,7 @@ class Application < ActiveRecord::Base
   configuration_accessor :delivery_ack_password
   
   def use_address_source?
-    configuration[:use_address_source]
+    configuration[:use_address_source] || true
   end
   
   def use_address_source=(value)
