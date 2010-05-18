@@ -22,6 +22,15 @@ Application.blueprint do
   password_confirmation { password }
 end
 
+Application.blueprint(:http_post_callback) do
+  interface { "http_post_callback" }
+  configuration { {:interface_url => Sham.guid, :interface_user => Sham.name, :interface_password => Sham.name} }
+end
+
+Application.blueprint(:broadcast) do
+  configuration { {:use_address_source => '1', :strategy => 'broadcast'} }
+end
+
 [AOMessage, ATMessage].each do |message|
   message.blueprint do
     from { "sms://" + (1..8).map { ('0'..'9').to_a.rand }.join }
