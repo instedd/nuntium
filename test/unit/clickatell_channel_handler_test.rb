@@ -13,10 +13,6 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
     end
   end
   
-  test "should save" do
-    assert @chan.save
-  end
-  
   test "should enqueue" do
     assert_handler_should_enqueue_ao_job @chan, SendClickatellMessageJob
   end

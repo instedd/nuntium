@@ -74,10 +74,9 @@ Channel.blueprint :clickatell do
   configuration { {:user => Sham.name, :password => Sham.password, :api_id => Sham.name, :from => Sham.number8, :incoming_password => Sham.password }}
 end
 
-Channel.blueprint :twitter do
-  kind { "twitter" }
-  protocol { "twitter" }
-  configuration { {:token => Sham.guid, :secret => Sham.guid, :screen_name => Sham.name} }
+Channel.blueprint :dtac do
+  kind { "dtac" }
+  configuration { {:user => Sham.name, :password => Sham.password, :sno => Sham.guid } }
 end
 
 [[:pop3, Channel::Incoming], [:smtp, Channel::Outgoing]].each do |k, d|
@@ -87,6 +86,12 @@ end
     direction { d }
     configuration { {:host => Sham.guid, :port => rand(1000), :user => Sham.name, :password => Sham.password}}
   end
+end
+
+Channel.blueprint :twitter do
+  kind { "twitter" }
+  protocol { "twitter" }
+  configuration { {:token => Sham.guid, :secret => Sham.guid, :screen_name => Sham.name} }
 end
 
 Country.blueprint do
