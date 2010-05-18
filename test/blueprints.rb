@@ -32,16 +32,25 @@ end
   end
 end
 
-Country.blueprint do
-  name
-  iso2 { (1..2).map { ('a'..'z').to_a.rand }.join }
-  iso3 { (1..3).map { ('a'..'z').to_a.rand }.join }
-  phone_prefix { (1..2).map { ('0'..'9').to_a.rand }.join }
-end
-
 Carrier.blueprint do
   country
   name
   guid
   prefixes { (1..2).map { ('0'..'9').to_a.rand }.join }
+end
+
+Channel.blueprint do
+  account
+  name { (1..10).map { ('a'..'z').to_a.rand }.join }
+  kind { "qst_server" }
+  protocol { "sms" }
+  direction { Channel::Bidirectional }
+  configuration { {:password => 'secret', :password_confirmation => 'secret'} }
+end
+
+Country.blueprint do
+  name
+  iso2 { (1..2).map { ('a'..'z').to_a.rand }.join }
+  iso3 { (1..3).map { ('a'..'z').to_a.rand }.join }
+  phone_prefix { (1..2).map { ('0'..'9').to_a.rand }.join }
 end

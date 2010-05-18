@@ -109,7 +109,7 @@ class AOMessageTest < ActiveSupport::TestCase
       app.delivery_ack_method = 'get'
       app.delivery_ack_url = 'foo'
       app.save!
-      chan = new_channel account, 'chan1'
+      chan = Channel.make :account => account
       
       msg = AOMessage.make :account => account, :application => app, :channel => chan
       
@@ -133,7 +133,7 @@ class AOMessageTest < ActiveSupport::TestCase
     app.delivery_ack_method = 'get'
     app.delivery_ack_url = 'foo'
     app.save!
-    chan = new_channel account, 'chan1'
+    chan = Channel.make :account => account
     
     msg = AOMessage.make :account => account, :application => app, :channel => chan
     
@@ -148,7 +148,7 @@ class AOMessageTest < ActiveSupport::TestCase
     app = Application.make_unsaved :account => account
     app.delivery_ack_method = 'none'
     app.save!
-    chan = new_channel account, 'chan1'
+    chan = Channel.make :account => account
     
     msg = AOMessage.make :account => account, :application => app, :channel => chan
     
@@ -164,7 +164,7 @@ class AOMessageTest < ActiveSupport::TestCase
     app.delivery_ack_method = 'get'
     app.delivery_ack_url = 'foo'
     app.save!
-    chan = new_channel account, 'chan1'
+    chan = Channel.make :account => account
     
     msg = AOMessage.make :account => account, :application => app
     

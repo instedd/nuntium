@@ -9,7 +9,7 @@ class AccountTest < ActiveSupport::TestCase
   def setup
     @account = Account.make
     @app = Application.make :account => @account
-    @chan = new_channel @account, 'chan'
+    @chan = Channel.make :account => @account
   end
 
   [:name, :password].each do |field|
@@ -21,7 +21,7 @@ class AccountTest < ActiveSupport::TestCase
   
   test "should not save if password confirmation fails" do
     account = Account.make_unsaved :password => 'foo', :password_confirmation => 'foo2'
-    assert !@account.save
+    assert_false account.save
   end
   
   test "should not save if name is taken" do
