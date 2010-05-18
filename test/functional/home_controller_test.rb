@@ -2,9 +2,9 @@ require 'test_helper'
 
 class HomeControllerTest < ActionController::TestCase
   test "login succeeds" do
-    account = Account.create({:name => 'account', :password => 'account_pass'});
+    account = Account.make :password => 'account_pass'
     
-    get :login, :account => {:name => 'account', :password => 'account_pass'}
+    get :login, :account => {:name => account.name, :password => 'account_pass'}
     
     # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -14,7 +14,9 @@ class HomeControllerTest < ActionController::TestCase
   end
   
   test "create account succeeds" do
-    get :create_account, :new_account => {:name => 'account', :password => 'account_pass', :password_confirmation => 'account_pass'}
+    attrs = Account.plan :password => 'account_pass'
+  
+    get :create_account, :new_account => attrs
     
     # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -24,15 +26,15 @@ class HomeControllerTest < ActionController::TestCase
     assert_equal 1, accounts.length
     
     account = accounts[0]
-    assert_equal 'account', accounts[0].name
-    assert(accounts[0].authenticate('account_pass'))
+    assert_equal attrs[:name], accounts[0].name
+    assert accounts[0].authenticate(attrs[:password]) 
     
     # Account was saved in session
     assert_equal account.id, session[:account_id]
   end
   
   test "edit account succeeds" do
-    account = Account.create({:name => 'account', :password => 'account_pass'})
+    account = Account.make :password => 'account_pass'
     
     get :update_account, {:account => {:max_tries => 1, :password => '', :password_confirmation => ''}}, {:account_id => account.id}
     
@@ -50,7 +52,7 @@ class HomeControllerTest < ActionController::TestCase
   end
   
   test "edit account change password succeeds" do
-    account = Account.create({:name => 'account', :password => 'account_pass'})
+    account = Account.make :password => 'account_pass'
     
     get :update_account, {:account => {:max_tries => 3, :password => 'new_pass', :password_confirmation => 'new_pass'}}, {:account_id => account.id}
     
@@ -67,7 +69,7 @@ class HomeControllerTest < ActionController::TestCase
   end
 
   test "home" do
-    account = Account.create({:name => 'account', :password => 'account_pass'});
+    account = Account.make
     get :home, {}, {:account_id => account.id}
     assert_template 'home/home.html.erb'
   end
@@ -77,25 +79,25 @@ class HomeControllerTest < ActionController::TestCase
   # ------------------------ #
   
   test "edit account fails with max tries" do
-    account = Account.create({:name => 'account', :password => 'account_pass'})
+    account = Account.make
     get :update_account, {:account => {:max_tries => 'foo', :password => '', :password_confirmation => ''}}, {:account_id => account.id}
     assert_template 'edit_account'
   end
   
   test "login fails wrong name" do
-    account = Account.create({:name => 'account', :password => 'account_pass'});
+    account = Account.make
     get :login, :account => {:name => 'wrong_account', :password => 'account_pass'}
     assert_template 'index'
   end
   
   test "login fails wrong pass" do
-    account = Account.create({:name => 'account', :password => 'account_pass'});
-    get :login, :account => {:name => 'account', :password => 'wrong_pass'}
+    account = Account.make
+    get :login, :account => {:name => account.name, :password => 'wrong_pass'}
     assert_template 'index'
   end
   
   test "create account fails name is empty" do
-    account = Account.create({:name => 'account', :password => 'account_pass'});
+    account = Account.make
     get :create_account, :new_account => {:name => '   ', :password=> 'foo'}
     assert_template 'index'
   end
