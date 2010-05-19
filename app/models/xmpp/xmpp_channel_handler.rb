@@ -1,50 +1,15 @@
 require 'xmpp4r/client'
 
-class XmppChannelHandler < ChannelHandler
+class XmppChannelHandler < ServiceChannelHandler
 
   include Jabber
-
-  def handle(msg)
-    Queues.publish_ao msg, create_job(msg)
+  
+  def job_class
+    SendXmppMessageJob
   end
   
-  def handle_now(msg)
-    handle msg
-  end
-  
-  def create_job(msg)
-    SendXmppMessageJob.new(@channel.account_id, @channel.id, msg.id)
-  end
-  
-  def on_enable
-    ManagedProcess.create!(
-      :account_id => @channel.account.id,
-      :name => managed_process_name,
-      :start_command => "xmpp_daemon_ctl.rb start -- #{ENV["RAILS_ENV"]} #{@channel.id}",
-      :stop_command => "xmpp_daemon_ctl.rb stop -- #{ENV["RAILS_ENV"]} #{@channel.id}",
-      :pid_file => "xmpp_daemon.#{@channel.id}.pid",
-      :log_file => "xmpp_daemon_#{@channel.id}.log",
-      :enabled => true
-    )
-    Queues.bind_ao @channel
-  end
-  
-  def on_disable
-    proc = ManagedProcess.find_by_account_id_and_name @channel.account.id, managed_process_name
-    proc.destroy if proc
-  end
-  
-  def on_changed
-    proc = ManagedProcess.find_by_account_id_and_name @channel.account.id, managed_process_name
-    proc.touch if proc
-  end
-  
-  def on_destroy
-    on_disable
-  end
-  
-  def managed_process_name
-    "XMPP #{@channel.name}"
+  def service_name
+    'xmpp_daemon'
   end
   
   def check_valid

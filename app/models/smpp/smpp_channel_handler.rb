@@ -1,45 +1,10 @@
-class SmppChannelHandler < ChannelHandler
-  def handle(msg)
-    Queues.publish_ao msg, create_job(msg)
+class SmppChannelHandler < ServiceChannelHandler
+  def job_class
+    SendSmppMessageJob
   end
   
-  def handle_now(msg)
-    handle msg
-  end
-  
-  def create_job(msg)
-    SendSmppMessageJob.new(@channel.account_id, @channel.id, msg.id)
-  end
-  
-  def on_enable
-    ManagedProcess.create!(
-      :account_id => @channel.account.id,
-      :name => managed_process_name,
-      :start_command => "smpp_daemon_ctl.rb start -- #{ENV["RAILS_ENV"]} #{@channel.id}",
-      :stop_command => "smpp_daemon_ctl.rb stop -- #{ENV["RAILS_ENV"]} #{@channel.id}",
-      :pid_file => "smpp_daemon.#{@channel.id}.pid",
-      :log_file => "smpp_daemon_#{@channel.id}.log",
-      :enabled => true
-    )
-    Queues.bind_ao @channel
-  end
-  
-  def on_disable
-    proc = ManagedProcess.find_by_account_id_and_name @channel.account.id, managed_process_name
-    proc.destroy if proc
-  end
-  
-  def on_changed
-    proc = ManagedProcess.find_by_account_id_and_name @channel.account.id, managed_process_name
-    proc.touch if proc
-  end
-  
-  def on_destroy
-    on_disable
-  end
-  
-  def managed_process_name
-    "SMPP #{@channel.name}"
+  def service_name
+    'smpp_daemon'
   end
   
   def check_valid

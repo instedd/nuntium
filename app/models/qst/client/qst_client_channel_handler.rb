@@ -3,10 +3,6 @@ class QstClientChannelHandler < ChannelHandler
     # AO Message should be queued, we just query them
   end
   
-  def handle_now(msg)
-    # AO Message should be queued, we just query them
-  end
-  
   def check_valid
     check_config_not_blank :url, :user, :password
   end

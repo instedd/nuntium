@@ -111,6 +111,12 @@ Channel.blueprint :twitter do
   configuration { {:token => Sham.guid, :secret => Sham.guid, :screen_name => Sham.username} }
 end
 
+Channel.blueprint :xmpp do
+  kind { "xmpp" }
+  protocol { "xmpp" }
+  configuration { {:user => Sham.username, :domain => Sham.url, :password => Sham.password, :server => Sham.url, :port => rand(1000), :resource => Sham.username} }
+end
+
 Country.blueprint do
   name
   iso2 { (1..2).map { ('a'..'z').to_a.rand }.join }
