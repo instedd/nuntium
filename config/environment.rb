@@ -35,6 +35,7 @@ Rails::Initializer.run do |config|
   config.gem 'faker'
   config.gem 'machinist'
   config.gem 'xmpp4r'
+  config.gem 'cucumber'
 
   # Only load the plugins named here, in the order given (default is alphabetical).
   # :all can be used as a placeholder for all plugins not explicitly named
