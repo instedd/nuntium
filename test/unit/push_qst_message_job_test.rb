@@ -347,11 +347,17 @@ include Net
   end
   
   def setup_application(cfg = {})
-    create_application_with_interface('application', 'pass', 'qst_client', { :last_at_guid => nil, :interface_url => 'http://example.com', :interface_user => 'theuser', :interface_password => 'thepass' }.merge(cfg))
+    Application.make :qst_client, :configuration => { 
+      :last_ao_guid => nil, 
+      :interface_url => 'http://example.com', 
+      :interface_user => 'theuser', 
+      :interface_password => 'thepass' }.merge(cfg)
   end
   
   def setup_application_unauth(cfg = {})
-    create_application_with_interface('application', 'pass', 'qst_client', { :last_at_guid => nil, :interface_url => 'http://example.com'}.merge(cfg))
+    Application.make :qst_client, :configuration => { 
+      :last_ao_guid => nil, 
+      :interface_url => 'http://example.com' }.merge(cfg)
   end
   
   def setup_null_http(application)
@@ -442,6 +448,20 @@ include Net
   def batch(application)
     j = PushQstMessageJob.new application.id
     j.perform_batch
+  end
+  
+  # Given a list of message or ids, checks that each message in the db has the specified state and tries
+  def assert_msgs_states(msg_ids, state, tries, kind=ATMessage)
+    msg_ids.each { |msg| assert_msg_state msg, state, tries, kind }
+  end
+  
+  # Given a message id, checks that message in the db has the specified state and tries
+  def assert_msg_state(msg_or_id, state, tries,kind=ATMessage)
+    msg_id = msg_or_id.id unless msg_or_id.kind_of? String
+    msg = kind.find_by_id(msg_id)
+    assert_not_nil msg, "message with id #{msg_id} not found"
+    assert_equal state, msg.state, "message with id #{msg_id} state does not match"
+    assert_equal tries, msg.tries, "message with id #{msg_id} tries does not match"
   end
   
 end

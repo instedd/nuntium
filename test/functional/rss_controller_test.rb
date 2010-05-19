@@ -5,19 +5,19 @@ require 'yaml'
 
 class RssControllerTest < ActionController::TestCase
   def setup
-    @account, @chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server')
-    @application = create_app @account
+    @account = Account.make
+    @chan = Channel.make :qst_server, :account => @account
+    @application = Application.make :account => @account, :password => 'app_pass'
+    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')
   end
   
-  def create(to)
-    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')
-    @request.env['RAW_POST_DATA'] = new_rss_feed(to)
+  def create(msg)
+    @request.env['RAW_POST_DATA'] = new_rss_feed msg
     post :create, :account_name => @account.name, :application_name => @application.name
     assert_response :ok
   end
   
   def index(options = {})
-    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')
     options.each do |k, v|
       @request.env[k] = v unless k == :expected_response
     end
@@ -26,7 +26,8 @@ class RssControllerTest < ActionController::TestCase
   end
 
   test "should convert one rss item to out message" do
-    create 'protocol://Someone else'
+    expected = AOMessage.make_unsaved
+    create expected
     
     messages = AOMessage.all
     assert_equal 1, messages.length
@@ -35,18 +36,15 @@ class RssControllerTest < ActionController::TestCase
     
     assert_equal @account.id, msg.account_id
     assert_equal @application.id, msg.application_id
-    assert_equal "First message", msg.subject
-    assert_equal "Body of the message", msg.body
-    assert_equal "Someone", msg.from
-    assert_equal "protocol://Someone else", msg.to
-    assert_equal "someguid", msg.guid
+    [:subject, :body, :from, :to, :guid].each do |field|
+      assert_equal expected.send(field), msg.send(field)
+    end 
     assert_equal time_for_msg(0) , msg.timestamp
-    assert_equal 'queued', msg.state
     assert_equal @chan.id, msg.channel_id
   end
   
   test "should create qst outgoing message" do
-    create 'protocol://Someone else'
+    create AOMessage.make_unsaved
     
     messages = AOMessage.all
     assert_equal 1, messages.length
@@ -57,25 +55,11 @@ class RssControllerTest < ActionController::TestCase
     assert_equal @chan.id, unread[0].channel_id
   end
   
-  test "should select channel based on protocol case qst server" do
-    chan2 = create_channel(@account, 'chan2', 'chan_pass2', 'qst_server', 'protocol2');
-  
-    create 'protocol2://Someone else'
-    
-    messages = AOMessage.all
-    assert_equal 1, messages.length
-    
-    unread = QSTOutgoingMessage.all
-    assert_equal 1, unread.length
-    assert_equal messages[0].id, unread[0].ao_message_id
-    assert_equal chan2.id, unread[0].channel_id
-  end
-  
   test "should convert one message to rss item" do
-    application2 = create_app @account, 2
+    application2 = Application.make :account => @account
     
-    msg = new_at_message(@application, 0)
-    new_at_message(application2, 1)
+    msg = ATMessage.make :account => @account, :application => @application, :state => 'queued'
+    ATMessage.make :account => @account, :application => application2, :state => 'queued'
     
     index
     
@@ -90,9 +74,7 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should convert one message without subject to rss item" do
-    msg = new_at_message(@application, 0)
-    msg.subject = nil
-    msg.save!
+    msg = ATMessage.make :account => @account, :application => @application, :state => 'queued', :subject => nil
   
     index
     
@@ -104,8 +86,7 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should convert two messages to rss items ordered by timestamp" do
-    new_at_message(@application, 0)
-    new_at_message(@application, 1)
+    2.times { |i| ATMessage.make :account => @account, :application => @application, :timestamp => time_for_msg(i), :state => 'queued' }
     
     index
     
@@ -118,15 +99,13 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should return not modified for HTTP_IF_MODIFIED_SINCE" do
-    new_at_message(@application, 0)
-    new_at_message(@application, 1)
-    
+    2.times { ATMessage.make :account => @account, :application => @application, :timestamp => time_for_msg(0), :state => 'queued' }
     index "HTTP_IF_MODIFIED_SINCE" => time_for_msg(1).to_s, :expected_response => :not_modified
   end
   
   test "should apply HTTP_IF_MODIFIED_SINCE" do
-    new_at_message(@application, 0)
-    msg = new_at_message(@application, 1)
+    ATMessage.make :account => @account, :application => @application, :state => 'queued', :timestamp => time_for_msg(0)
+    msg = ATMessage.make :account => @account, :application => @application, :state => 'queued', :timestamp => time_for_msg(1)
   
     index "HTTP_IF_MODIFIED_SINCE" => time_for_msg(0).to_s
     
@@ -141,7 +120,6 @@ class RssControllerTest < ActionController::TestCase
     msg_0 = new_at_message(@application, 0)
     msg_1 = new_at_message(@application, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')  
     @request.env["HTTP_IF_MODIFIED_SINCE"] = time_for_msg(0).to_s
     
     1.upto 5 do |try|
@@ -210,22 +188,37 @@ class RssControllerTest < ActionController::TestCase
   end
   
   # Utility methods follow
-  def new_rss_feed(to)
+  def new_rss_feed(msg)
     <<-eos
       <?xml version="1.0" encoding="UTF-8"?>
       <rss version="2.0">
         <channel>
           <item>
-            <title>First message</title>
-            <description>Body of the message</description>
-            <author>Someone</author>
-            <to>#{to}</to>
+            <title>#{msg.subject}</title>
+            <description>#{msg.body}</description>
+            <author>#{msg.from}</author>
+            <to>#{msg.to}</to>
             <pubDate>Sun Jan 02 05:00:00 UTC 2000</pubDate>
-            <guid>someguid</guid>
+            <guid>#{msg.guid}</guid>
           </item>
         </channel>
       </rss>
     eos
+  end
+  
+  def assert_shows_message_as_rss_item(msg)
+    if msg.subject.nil?
+      assert_select "item title", msg.body
+      assert_select "item description", {:count => 0}
+    else
+      assert_select "item title", msg.subject
+      assert_select "item description", msg.body
+    end
+    
+    assert_select "item author", msg.from
+    assert_select "item to", msg.to
+    assert_select "item guid", msg.guid
+    assert_select "item pubDate", msg.timestamp.rfc822
   end
   
 end

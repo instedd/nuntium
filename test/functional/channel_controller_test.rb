@@ -81,7 +81,7 @@ class ChannelControllerTest < ActionController::TestCase
   end
   
   test "edit channel fails protocol empty" do
-    chan = Channel.make :qst_server
+    chan = Channel.make :qst_server, :account => @account
     
     get :update_channel, {:id => chan.id, :channel => {:protocol => '', :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => @account.id}
     

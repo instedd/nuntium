@@ -179,21 +179,21 @@ class ApiChannelControllerTest < ActionController::TestCase
   end
   
   test "update channel fails not owner" do
-    new_channel @account, "chan_foo"
+    chan = Channel.make :account => @account
     
     authorize
-    put :update, :format => 'xml', :name => "chan_foo"
+    put :update, :format => 'xml', :name => chan.name
     assert_response :bad_request
   end
   
   test "delete channel succeeds" do
-    new_channel @account, "chan_foo", :application_id => @application.id
+    chan = Channel.make :account => @account, :application => @application
     
     authorize
-    delete :destroy, :name => "chan_foo"
+    delete :destroy, :name => chan.name
     assert_response :ok
     
-    assert_nil @account.find_channel "chan_foo"
+    assert_nil @account.find_channel chan.name
   end
   
   test "delete channel fails, no channel found" do
@@ -203,10 +203,10 @@ class ApiChannelControllerTest < ActionController::TestCase
   end
   
   test "delete channel fails, does not own channel" do
-    new_channel @account, "chan_foo"
+    chan = Channel.make :account => @account
     
     authorize
-    delete :destroy, :name => "chan_foo"
+    delete :destroy, :name => chan.name
     assert_response :bad_request
   end
 

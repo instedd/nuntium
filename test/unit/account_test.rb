@@ -109,7 +109,7 @@ class AccountTest < ActiveSupport::TestCase
   end
   
   test "apply app routing" do
-    app2 = create_app @account, 2
+    app2 = Application.make :account => @account
     
     @account.app_routing_rules = [
       rule([matching('subject', OP_EQUALS, 'one')], [action('application', @app.name)]),
@@ -128,7 +128,7 @@ class AccountTest < ActiveSupport::TestCase
   end
   
   test "skip app routing if message has an application property already" do
-    app2 = create_app @account, 2
+    app2 = Application.make :account => @account
     
     @account.app_routing_rules = [
       rule([], [action('application', app2.name)])
@@ -152,7 +152,7 @@ class AccountTest < ActiveSupport::TestCase
   end
   
   test "at routing routes to channel's application" do
-    app2 = create_app @account, 2
+    app2 = Application.make :account => @account
     @chan.application_id = app2.id
     @chan.save!
     
@@ -163,7 +163,7 @@ class AccountTest < ActiveSupport::TestCase
   end
   
   test "at routing routes to channel's application overriding custom attribute" do
-    app2 = create_app @account, 2
+    app2 = Application.make :account => @account
     @chan.application_id = app2.id
     @chan.save!
     

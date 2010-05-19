@@ -48,7 +48,6 @@ class ApplicationTest < ActiveSupport::TestCase
   
   test "should enqueue http post callback" do
     app = Application.make :http_post_callback
-    p app
     
     msg = ATMessage.create!(:account => app.account, :subject => 'foo')
     
@@ -98,6 +97,18 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal app.account.id, log.account_id
     assert_equal messages[0].id, log.ao_message_id
     assert_equal "No channel found for protocol 'unknown'", log.message
+  end
+  
+  test "route select channel based on protocol" do
+    app = Application.make
+  
+    chan1 = Channel.make :account => app.account, :protocol => 'protocol' 
+    chan2 = Channel.make :account => app.account, :protocol => 'protocol2'
+    
+    msg = AOMessage.make_unsaved(:to => 'protocol2://Someone else')
+    app.route_ao msg, 'test'
+    
+    assert_equal chan2.id, msg.channel_id
   end
   
   test "route ao saves mobile numbers" do

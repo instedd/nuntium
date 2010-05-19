@@ -189,9 +189,9 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
   end
   
   def setup_application_unauth(cfg = {})
-    create_application_with_interface  'application', 'pass', 'qst_client', 
-      { :last_ao_guid => nil, 
-        :interface_url => 'http://example.com' }.merge(cfg)
+    Application.make :qst_client, :configuration => { 
+      :last_ao_guid => nil, 
+      :interface_url => 'http://example.com' }.merge(cfg)
   end
   
   def setup_null_http(application)

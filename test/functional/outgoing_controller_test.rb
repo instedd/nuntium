@@ -14,13 +14,16 @@ class OutgoingControllerTest < ActionController::TestCase
     
     Channel.make_unsaved :qst_server, :account => @account
   end
+  
+  def create_qst_ao(account, channel)
+    msg = AOMessage.make :account => account, :state => 'queued'
+    QSTOutgoingMessage.create! :channel => channel, :ao_message_id => msg.id
+    msg
+  end
 
   test "get one" do
-    msg2 = new_ao_message(@account2, 1)
-    new_qst_outgoing_message(@chan2, msg2.id)
-    
-    msg = new_ao_message(@account, 0)
-    new_qst_outgoing_message(@chan, msg.id)
+    msg2 = create_qst_ao @account2, @chan2
+    msg = create_qst_ao @account, @chan
     
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')    
     get 'index', :account_id => @account.name
@@ -46,12 +49,12 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "get one with custom properties" do
-    msg = new_ao_message(@account, 0)
+    msg = AOMessage.make_unsaved :account => @account
     msg.custom_attributes['foo1'] = 'bar1'
     msg.custom_attributes['foo2'] = 'bar2'
     msg.save!
     
-    new_qst_outgoing_message(@chan, msg.id)
+    QSTOutgoingMessage.create! :channel => @chan, :ao_message_id => msg.id
     
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')    
     get 'index', :account_id => @account.name
@@ -61,7 +64,7 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "get one not unread" do
-    new_ao_message(@account, 0)
+    AOMessage.make :account => @account
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')    
     get 'index', :account_id => @account.name
@@ -69,8 +72,7 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "get one increments retires" do
-    msg = new_ao_message(@account, 0)
-    new_qst_outgoing_message(@chan, msg.id)
+    msg = create_qst_ao @account, @chan
     
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')    
     
@@ -87,14 +89,9 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "should return not modified for HTTP_IF_NONE_MATCH" do
-    msg2 = new_ao_message(@account2, 2)
-    new_qst_outgoing_message(@chan2, msg2.id)
-    
-    msg0 = new_ao_message(@account, 0)
-    new_qst_outgoing_message(@chan, msg0.id)
-    
-    msg1 = new_ao_message(@account, 1)
-    new_qst_outgoing_message(@chan, msg1.id)
+    msg2 = create_qst_ao @account2, @chan2    
+    msg0 = create_qst_ao @account, @chan
+    msg1 = create_qst_ao @account, @chan
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')    
     @request.env["HTTP_IF_NONE_MATCH"] = msg1.guid
@@ -109,11 +106,8 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "should apply HTTP_IF_NONE_MATCH" do
-    msg0 = new_ao_message(@account, 0)
-    new_qst_outgoing_message(@chan, msg0.id)
-    
-    msg1 = new_ao_message(@account, 1)
-    new_qst_outgoing_message(@chan, msg1.id)
+    msg0 = create_qst_ao @account, @chan
+    msg1 = create_qst_ao @account, @chan
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')    
     @request.env["HTTP_IF_NONE_MATCH"] = msg0.guid
@@ -138,13 +132,7 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "should apply HTTP_IF_NONE_MATCH with max" do
-    msgs = []
-    
-    (1..4).each do |i|
-      msg = new_ao_message(@account, i) 
-      msgs.push msg
-      new_qst_outgoing_message(@chan, msg.id)
-    end
+    msgs = 4.times.map{ create_qst_ao(@account, @chan) }
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')    
     @request.env["HTTP_IF_NONE_MATCH"] = msgs[1].guid.to_s
@@ -170,8 +158,7 @@ class OutgoingControllerTest < ActionController::TestCase
   
   test "should apply HTTP_IF_NONE_MATCH real example" do
     # First
-    msg = new_ao_message(@account, 0)
-    new_qst_outgoing_message(@chan, msg.id)
+    msg = create_qst_ao @account, @chan
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
     get 'index', :account_id => @account.name
@@ -182,8 +169,7 @@ class OutgoingControllerTest < ActionController::TestCase
     assert_shows_message msg
     
     # Second
-    msg1 = new_ao_message(@account, 1)
-    new_qst_outgoing_message(@chan, msg1.id)
+    msg1 = create_qst_ao @account, @chan
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')    
     @request.env["HTTP_IF_NONE_MATCH"] = msg.guid.to_s
@@ -197,14 +183,11 @@ class OutgoingControllerTest < ActionController::TestCase
   
   test "should skip failed messages" do
     10.times do |i|
-      msg = new_ao_message(@account, i)
-      msg.tries = 4
-      msg.save!
-      new_qst_outgoing_message(@chan, msg.id)
+      msg = AOMessage.make :account => @account, :tries => 4
+      QSTOutgoingMessage.create! :channel => @chan, :ao_message_id => msg.id
     end
     
-    msg11 = new_ao_message(@account, 11)
-    new_qst_outgoing_message(@chan, msg11.id)
+    msg11 = create_qst_ao @account, @chan
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')    
     get 'index', :account_id => @account.name
@@ -221,8 +204,7 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "should work if HTTP_IF_NONE_MATCH is not found" do
-    msg = new_ao_message(@account, 0)
-    new_qst_outgoing_message(@chan, msg.id)
+    msg = create_qst_ao @account, @chan
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 3"
@@ -238,21 +220,29 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   test "bug update wrong ao messages" do
-    msg2 = new_ao_message(@account2, 0)
-    msg2.save!
-    new_qst_outgoing_message(@chan2, msg2.id)
+    msg2 = create_qst_ao @account2, @chan2
     
     original_state = msg2.state
   
-    msg = new_ao_message(@account, 1)
-    msg.save!
-    new_qst_outgoing_message(@chan, msg.id)
+    msg = create_qst_ao @account, @chan
   
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
     @request.env["HTTP_IF_NONE_MATCH"] = msg.guid    
     get 'index', :account_id => @account.name
     
     assert_equal original_state, AOMessage.find(msg2.id).state
+  end
+  
+  def assert_shows_message(msg)
+    assert_select "message[id=?]", msg.guid
+    assert_select "message[from=?]", msg.from
+    assert_select "message[to=?]", msg.to
+    assert_select "message[when=?]", msg.timestamp.iso8601
+    assert_select "message text", msg.subject.nil? ? msg.body : msg.subject + " - " + msg.body
+    
+    msg.custom_attributes.each do |name, value|
+      assert_select "message property[name=?][value=?]", name, value, :count => 1
+    end
   end
   
 end
