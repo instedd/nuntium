@@ -38,7 +38,7 @@ class ChannelController < AccountAuthenticatedController
   end
   
   def edit_channel
-    if File.exists? "#{view_paths}/channel/edit_#{@channel.kind}_channel.html.erb"
+    if view_paths.any?{|p| File.exists? "#{p.path}/channel/edit_#{@channel.kind}_channel.html.erb"}
       render "edit_#{@channel.kind}_channel"
     else
       render "new_#{@channel.kind}_channel"

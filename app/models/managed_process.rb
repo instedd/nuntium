@@ -1,5 +1,7 @@
 class ManagedProcess < ActiveRecord::Base
 
+  belongs_to :account
+
   after_create :publish_start_notification
   before_destroy :publish_stop_notification
   after_update :publish_restart_notification

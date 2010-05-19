@@ -212,7 +212,7 @@ class Application < ActiveRecord::Base
   configuration_accessor :delivery_ack_password
   
   def use_address_source?
-    configuration[:use_address_source]
+    configuration[:use_address_source] || true
   end
   
   def use_address_source=(value)
@@ -322,7 +322,8 @@ class Application < ActiveRecord::Base
     return if self.salt.present?
     
     self.salt = ActiveSupport::SecureRandom.base64(8)
-    self.password = Digest::SHA2.hexdigest(self.salt + self.password)
+    self.password = Digest::SHA2.hexdigest(self.salt + self.password) if self.password
+    self.password_confirmation = Digest::SHA2.hexdigest(self.salt + self.password_confirmation) if self.password_confirmation
   end
   
   def clear_cache

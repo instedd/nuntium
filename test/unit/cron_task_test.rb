@@ -18,11 +18,7 @@ class CronTaskTest < ActiveSupport::TestCase
   end
   
   test "should create task when creating qst account and drop if changed" do
-    account = Account.create! :name => 'foo', :password => 'bar'
-  
-    application = Application.new :account_id => account.id, :name => 'application', :interface => 'qst_client', :password => 'x'
-    application.configuration = {:interface_url => 'foo', :interface_user => 'bar', :interface_password => 'baz'}
-    application.save!
+    application = Application.make :qst_client
     
     assert_equal 2, application.cron_tasks.size
     t1, t2 = application.cron_tasks.all
@@ -39,16 +35,12 @@ class CronTaskTest < ActiveSupport::TestCase
   end
   
   test "should create task when changing account to qst" do
-    account = Account.create! :name => 'foo', :password => 'bar'
-  
-    application = Application.new :account_id => account.id, :name => 'application', :interface => 'rss', :password => 'x'
-    application.configuration = {:password => 'baz'}
-    application.save!
+    application = Application.make :rss
     
     assert_equal 0, application.cron_tasks.size
     assert_equal 0, CronTask.all.size
     
-    application.update_attribute(:interface, 'qst_client')
+    application.update_attribute :interface, 'qst_client'
     application.reload
     assert_equal 2, application.cron_tasks.size
     
@@ -62,36 +54,27 @@ class CronTaskTest < ActiveSupport::TestCase
   end
   
   test "should drop task with account" do
-    account = Account.create! :name => 'foo', :password => 'bar'
-  
-    application = Application.new :account_id => account.id, :name => 'account', :interface => 'qst_client', :password => 'x'
-    application.configuration = {:interface_url => 'foo', :interface_user => 'bar', :interface_password => 'baz'}
-    application.save!
-    
-    assert_equal 2, application.cron_tasks.size
-    assert_equal PushQstMessageJob, application.cron_tasks.first.get_handler.class
-    assert_equal PullQstMessageJob, application.cron_tasks.last.get_handler.class
-    
+    application = Application.make :qst_client
     application.destroy
     assert_equal 0, CronTask.all.size
   end
   
   test "should create twitter task for channel" do
-    ch = create_channel('twitter')
+    ch = Channel.make :twitter
     assert_equal 1, CronTask.all.size
     assert_equal ch.id, CronTask.first.get_handler.channel_id
     assert_equal ReceiveTwitterMessageJob, CronTask.first.get_handler.class
   end
   
   test "should create pop3 task for channel" do
-    ch = create_channel('pop3')
+    ch = Channel.make :pop3
     assert_equal 1, CronTask.all.size
     assert_equal ch.id, CronTask.first.get_handler.channel_id
     assert_equal ReceivePop3MessageJob, CronTask.first.get_handler.class
   end
   
   test "should not create task for non task channel" do
-    create_channel 'qst_server'
+    ch = Channel.make :qst_server
     assert_equal 0, CronTask.all.size
   end
   
@@ -101,7 +84,7 @@ class CronTaskTest < ActiveSupport::TestCase
   end
   
   test "should save account task" do
-    account = Account.create :name => 'account', :password => 'foo'
+    account = Account.make
     task = CronTask.new :parent => account, :interval => 10
     assert task.save!
     
@@ -111,7 +94,7 @@ class CronTaskTest < ActiveSupport::TestCase
   end
   
   test "should save channel task" do
-    ch = create_channel
+    ch = Channel.make :qst_server
     
     task = CronTask.new :parent => ch, :interval => 50
     assert task.save!
@@ -180,14 +163,6 @@ class CronTaskTest < ActiveSupport::TestCase
     task2.reload
     assert_not_nil task2.locked_tag
     th.join
-  end
-  
-  def create_channel(kind = 'qst_server')
-    account = Account.create :name => 'account', :password => 'foo'
-    ch = Channel.new :name =>'channel', :account_id => account.id, :kind => kind, :protocol => 'sms', :direction => Channel::Bidirectional
-    ch.configuration = {:password => 'foo', :password_confirmation => 'foo', :user => 'foobar', :port => 600, :host => 'example.com'}
-    ch.save!
-    ch
   end
 
   def create_task(last_run=nil, handler=create_handler, interval = 60, sleep_time = 0)

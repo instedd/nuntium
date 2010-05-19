@@ -4,11 +4,10 @@ class ClickatellControllerTest < ActionController::TestCase
   tests ClickatellController
   
   def setup
-    @account = Account.create!(:name => 'account', :password => 'account_pass')
-    @application = create_app @account
-    
-    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'clickatell', :protocol => 'protocol', :direction => Channel::Bidirectional)
-    @chan.configuration = {:user => 'user', :password => 'password', :api_id => '1034412', :incoming_password => 'incoming', :from => 'from' }
+    @account = Account.make
+    @application = Application.make :account => @account, :password => 'secret'
+    @chan = Channel.make_unsaved :clickatell, :account => @account
+    @chan.configuration[:incoming_password] = 'incoming'
     @chan.save!
   end
   
@@ -30,8 +29,8 @@ class ClickatellControllerTest < ActionController::TestCase
   end
 
   test "index" do
-    api_id, from, to, timestamp, charset, udh, text, mo_msg_id =  '1034412',  '442345235413', '61234234231', '2009-12-16 19:34:40', 'ISO-8859-1', '', 'some text', '5223433'
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'incoming')
+    api_id, from, to, timestamp, charset, udh, text, mo_msg_id = @chan.configuration[:api_id],  '442345235413', '61234234231', '2009-12-16 19:34:40', 'ISO-8859-1', '', 'some text', '5223433'
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'incoming')
     
     get :index, :account_id => @account.name, :api_id => api_id, :from => from, :to => to, :text => text, :timestamp => timestamp, :charset => charset, :moMsgId => mo_msg_id, :udh => udh
     assert_response :ok
@@ -42,16 +41,15 @@ class ClickatellControllerTest < ActionController::TestCase
   [:normal_order, :inverted_order].each do |order|
     test "two parts #{order}" do
       from, to = '442345235413', '61234234231'
+      @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'incoming')
       
       2.times do |time|
         if (time == 0 and order == :normal_order) or (time == 1 and order == :inverted_order) 
-          api_id, timestamp, charset, udh, text, mo_msg_id =  '1034412', '2009-12-16 19:34:40', 'ISO-8859-1', '050003050201', 'Hello ', '1'
-          @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'incoming')
+          api_id, timestamp, charset, udh, text, mo_msg_id = @chan.configuration[:api_id], '2009-12-16 19:34:40', 'ISO-8859-1', '050003050201', 'Hello ', '1'
           get :index, :account_id => @account.name, :api_id => api_id, :from => from, :to => to, :text => text, :timestamp => timestamp, :charset => charset, :moMsgId => mo_msg_id, :udh => udh
           assert_response :ok
         else
-          api_id, timestamp, charset, udh, text, mo_msg_id =  '1034412', '2009-12-16 19:34:40', 'ISO-8859-1', '050003050202', 'world', '2'
-          @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'incoming')
+          api_id, timestamp, charset, udh, text, mo_msg_id = @chan.configuration[:api_id], '2009-12-16 19:34:40', 'ISO-8859-1', '050003050202', 'world', '2'
           get :index, :account_id => @account.name, :api_id => api_id, :from => from, :to => to, :text => text, :timestamp => timestamp, :charset => charset, :moMsgId => mo_msg_id, :udh => udh
           assert_response :ok
         end
@@ -62,13 +60,12 @@ class ClickatellControllerTest < ActionController::TestCase
   end
   
   test "ignore message headers" do
-    api_id, from, to, timestamp, charset, udh, text, mo_msg_id =  '1034412',  '442345235413', '61234234231', '2009-12-16 19:34:40', 'ISO-8859-1', '050103050202', 'Hello ', '1'
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'incoming')
+    api_id, from, to, timestamp, charset, udh, text, mo_msg_id = @chan.configuration[:api_id],  '442345235413', '61234234231', '2009-12-16 19:34:40', 'ISO-8859-1', '050103050202', 'Hello ', '1'
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'incoming')
     get :index, :account_id => @account.name, :api_id => api_id, :from => from, :to => to, :text => text, :timestamp => timestamp, :charset => charset, :moMsgId => mo_msg_id, :udh => udh
     assert_response :ok
 
-    api_id, from, to, timestamp, charset, udh, text, mo_msg_id =  '1034412',  '442345235413', '61234234231', '2009-12-16 19:34:40', 'ISO-8859-1', '050103050201', 'world', '1'
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'incoming')
+    api_id, from, to, timestamp, charset, udh, text, mo_msg_id = @chan.configuration[:api_id],  '442345235413', '61234234231', '2009-12-16 19:34:40', 'ISO-8859-1', '050103050201', 'world', '1'
     get :index, :account_id => @account.name, :api_id => api_id, :from => from, :to => to, :text => text, :timestamp => timestamp, :charset => charset, :moMsgId => mo_msg_id, :udh => udh
     assert_response :ok
         
@@ -79,7 +76,7 @@ class ClickatellControllerTest < ActionController::TestCase
   end
   
   test "fails authorization because of account" do
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'incoming')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'incoming')
     get :index, :account_id => 'another', :api_id => @chan.configuration[:api_id], :from => 'from1', :to => 'to1', :text => 'some text', :timestamp => '1218007814', :charset => 'UTF-8', :moMsgId => 'someid'
     assert_response 401
     
@@ -87,7 +84,7 @@ class ClickatellControllerTest < ActionController::TestCase
   end
   
   test "fails authorization because of channel" do
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('chan', 'incoming2')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'incoming2')
     get :index, :account_id => @account.name, :api_id => @chan.configuration[:api_id], :from => 'from1', :to => 'to1', :text => 'some text', :timestamp => '1218007814', :charset => 'UTF-8', :moMsgId => 'someid'
     assert_response 401
     

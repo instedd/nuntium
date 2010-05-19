@@ -2,9 +2,7 @@ require 'test_helper'
 
 class Pop3ChannelHandlerTest < ActiveSupport::TestCase
   def setup
-    @account = Account.create(:name => 'account', :password => 'foo')
-    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'pop3', :protocol => 'sms', :direction => Channel::Bidirectional)
-    @chan.configuration = {:host => 'host', :port => '430', :user => 'user', :password => 'password' }
+    @chan = Channel.make :pop3
   end
 
   [:host, :user, :password, :port].each do |field|
@@ -15,15 +13,11 @@ class Pop3ChannelHandlerTest < ActiveSupport::TestCase
   
   test "should not save if port is not a number" do
     @chan.configuration[:port] = 'foo'
-    assert !@chan.save
+    assert_false @chan.save
   end
   
   test "should not save if port is negative" do
     @chan.configuration[:port] = -430
-    assert !@chan.save
-  end
-  
-  test "should save" do
-    assert @chan.save
+    assert_false @chan.save
   end
 end

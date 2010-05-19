@@ -3,14 +3,15 @@ require 'test_helper'
 class SendAoControllerTest < ActionController::TestCase
 
   def setup
-    @account, @chan = create_account_and_channel('account', 'account_pass', 'chan', 'chan_pass', 'qst_server', 'sms')
-    @application = create_app @account
+    @account = Account.make
+    @chan = Channel.make :account => @account
+    @application = Application.make :account => @account, :password => 'app_pass'
+    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')
   end
   
   {nil => false, 'PROT://567' => false, 'sms://5678' => true}.each do |to, ok|
     test "send ao with to = #{to}" do
-      @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application', 'app_pass')
-      get :create, {:from => 'sms://1234', :to => to, :subject => 's', :body => 'b', :guid => 'g', :account_name => @account.name, :application_name => 'application'}
+      get :create, {:from => 'sms://1234', :to => to, :subject => 's', :body => 'b', :guid => 'g', :account_name => @account.name, :application_name => @application.name}
       
       messages = AOMessage.all
       assert_equal 1, messages.length
@@ -32,8 +33,8 @@ class SendAoControllerTest < ActionController::TestCase
   end
   
   test "send ao fails not authorized" do
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application', 'wrong_pass')
-    get :create, {:from => 'sms://1234', :to => 'sms://5678', :subject => 's', :body => 'b', :guid => 'g', :account_name => @account.name, :application_name => 'application'}
+    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'wrong_pass')
+    get :create, {:from => 'sms://1234', :to => 'sms://5678', :subject => 's', :body => 'b', :guid => 'g', :account_name => @account.name, :application_name => @application.name}
     
     assert_response 401
     
@@ -42,8 +43,7 @@ class SendAoControllerTest < ActionController::TestCase
   end
   
   test "send ao custom attributes" do
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('account/application', 'app_pass')
-    get :create, {:from => 'sms://1234', :to => 'sms://5678', :subject => 's', :body => 'b', :guid => 'g', :account_name => @account.name, :application_name => 'application',
+    get :create, {:from => 'sms://1234', :to => 'sms://5678', :subject => 's', :body => 'b', :guid => 'g', :account_name => @account.name, :application_name => @application.name,
       'foo' => ['bar', 'baz'], 'bax' => 'bex'}
       
     messages = AOMessage.all

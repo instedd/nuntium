@@ -22,16 +22,18 @@ class QstServerChannelHandler < ChannelHandler
   
     @channel.errors.add(:password, "can't be blank") if pass.blank?
     
-    if !pass.nil? && !confirm.nil? && pass != confirm
-      if !pass.nil? and !salt.nil?
+    if pass && confirm && pass != confirm
+      if pass and salt
         confirm = Digest::SHA2.hexdigest(salt + confirm)
-        if !pass.nil? && !confirm.nil? && pass != confirm
+        if pass && confirm && pass != confirm
           @channel.errors.add(:password, "doesn't match confirmation")
         end
       else
         @channel.errors.add(:password, "doesn't match confirmation")
       end
-    end  
+    end
+    
+    config.delete :password_confirmation
   end
   
   def update(params)

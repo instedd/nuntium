@@ -6,11 +6,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   include Mocha::API
   
   def setup
-    @account = Account.create!(:name => "testaccount", :password => "testpass")
-    @application = create_app @account
-    
-    @chan = Channel.new(:account_id => @account.id, :name => 'chan', :kind => 'smpp', :protocol => 'sms', :direction => Channel::Bidirectional)
-    @chan.configuration = {:host => 'host', :port => '3200', :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => 'user', :password => 'password', :system_type => 'smpp' }
+    @chan = Channel.make_unsaved :smpp
     @transceiver = mock('Smpp::Transceiver')
   end
 
@@ -87,7 +83,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   def assert_delivery_report(channel_relative_id, state, optional_parameters = {})
     save_channel_with_default_config
     
-    msg = AOMessage.create!(:account_id => @account.id, :channel_id => @chan.id, :channel_relative_id => "#{channel_relative_id}") 
+    msg = AOMessage.create! :account => @chan.account, :channel => @chan, :channel_relative_id => "#{channel_relative_id}" 
     pdu = Smpp::Pdu::DeliverSm.new '4444', '8888', 'hola', optional_parameters
     
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
@@ -105,7 +101,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     pdu_submit_sm_response = Smpp::Pdu::Base.create(pdu_submit_sm_response_bin.scan(/../).map{|x| x.to_i(16).chr}.join)
     pdu_deliver_sm = Smpp::Pdu::Base.create(pdu_deliver_sm_bin.scan(/../).map{|x| x.to_i(16).chr}.join)
     
-    msg = AOMessage.create!(:account_id => @account.id, :channel_id => @chan.id) 
+    msg = AOMessage.create! :account => @chan.account, :channel => @chan 
     
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
     
@@ -305,7 +301,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   test "delivery report received ignore duplicate" do
     save_channel_with_default_config
     
-    msg = AOMessage.create!(:account_id => @account.id, :channel_id => @chan.id, :channel_relative_id => '123') 
+    msg = AOMessage.create! :account => @chan.account, :channel => @chan, :channel_relative_id => '123' 
     pdu = Smpp::Pdu::DeliverSm.new '4444', '8888', 'hola', {:msg_reference => 123, :stat => 'REJECTED'}
     
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
@@ -337,7 +333,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   test "message accepted" do
     save_channel_with_default_config
     
-    msg = AOMessage.create!(:account_id => @account.id, :channel_id => @chan.id) 
+    msg = AOMessage.create! :account => @chan.account, :channel => @chan 
     pdu = Smpp::Pdu::SubmitSmResponse.new 456, 0, '7B'
     
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
@@ -351,7 +347,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   test "message rejected" do
     save_channel_with_default_config
     
-    msg = AOMessage.create!(:account_id => @account.id, :channel_id => @chan.id) 
+    msg = AOMessage.create! :account => @chan.account, :channel => @chan 
     pdu = Smpp::Pdu::SubmitSmResponse.new 456, 0, '7b'
     
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)

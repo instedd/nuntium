@@ -8,7 +8,7 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
   include Mocha::API
   include Net
   
-  def test_perform_first_run
+  test "perform first run" do
     application = setup_application
     msgs = sample_messages application, (3..8)
     
@@ -19,10 +19,10 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
     
     assert_equal :success, result
     assert_last_id application, msgs[-1].guid
-    assert_sample_messages application, (3..8)
+    assert_sample_messages application, msgs
   end
   
-  def test_perform_first_run_no_messages
+  test "perform first run no messages" do
     application = setup_application 
     
     setup_http application,
@@ -34,7 +34,7 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
     assert_last_id application, nil
   end
 
-  def test_perform_with_etag
+ test "perform with etag" do
     application = setup_application 
     msgs = sample_messages application, (5..8)
     application.set_last_ao_guid 'lastetag'
@@ -47,10 +47,10 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
     
     assert_equal :success, result
     assert_last_id application, msgs[-1].guid
-    assert_sample_messages application, (5..8)
+    assert_sample_messages application, msgs
   end
   
-  def test_perform_with_etag_on_ssl
+  test "perform with etag on ssl" do
     application = setup_application :interface_url => 'https://example.com'
     msgs = sample_messages application, (5..8)
     application.set_last_ao_guid 'lastetag'
@@ -65,10 +65,10 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
     
     assert_equal :success, result
     assert_last_id application, msgs[-1].guid
-    assert_sample_messages application, (5..8)
+    assert_sample_messages application, msgs
   end
   
-  def test_perform_with_etag_not_modified
+  test "perform with etag not modified" do
     application = setup_application 
     application.set_last_ao_guid 'lastetag'
     
@@ -82,7 +82,7 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
     assert_last_id application, 'lastetag'
   end
 
-  def test_perform_pulls_until_not_modified
+  test "perform pulls until not modified" do
     application = setup_application 
     msgs =  sample_messages application, (0...10)
     msgs += sample_messages application, (10...60)
@@ -98,10 +98,10 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
     
     assert_equal :success, result
     assert_last_id application, msgs[-1].guid
-    assert_sample_messages application, (10...60)
+    assert_sample_messages application, msgs[10 .. -1]
   end
   
-  def test_perform_pulls_until_size_less_than_max
+  test "perform pulls until size less than max" do
     application = setup_application 
     msgs =  sample_messages application, (0...10)
     msgs += sample_messages application, (10...65)
@@ -116,10 +116,10 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
     
     assert_equal :success, result
     assert_last_id application, msgs[-1].guid
-    assert_sample_messages application, (10...65)
+    assert_sample_messages application, msgs[10 .. -1]
   end
   
-  def test_perform_pulls_until_failure
+  test "perform pulls until failure" do
     application = setup_application 
     msgs =  sample_messages application, (0...10)
     msgs += sample_messages application, (10...60)
@@ -138,10 +138,10 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
     
     assert_equal :error_pulling_messages, result
     assert_last_id application, msgs[-1].guid
-    assert_sample_messages application, (10...60)
+    assert_sample_messages application, msgs[10 .. -1]
   end
 
-  def test_failure_response_code
+  test "failure response code" do
     application = setup_application 
     application.set_last_ao_guid 'lastetag'
     
@@ -155,7 +155,7 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
     assert_last_id application, 'lastetag'
   end
 
-  def test_failure_processing_response
+  test "failure processing response" do
     application = setup_application 
     application.set_last_ao_guid 'lastetag'
     
@@ -181,17 +181,17 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
   end
   
   def setup_application(cfg = {})
-    create_application_with_interface 'application', 'pass', 'qst_client', 
-      { :last_ao_guid => nil, 
-        :interface_url => 'http://example.com', 
-        :interface_user => 'theuser', 
-        :interface_password => 'thepass' }.merge(cfg)
+    Application.make :qst_client, :configuration => { 
+      :last_ao_guid => nil, 
+      :interface_url => 'http://example.com', 
+      :interface_user => 'theuser', 
+      :interface_password => 'thepass' }.merge(cfg)
   end
   
   def setup_application_unauth(cfg = {})
-    create_application_with_interface  'application', 'pass', 'qst_client', 
-      { :last_ao_guid => nil, 
-        :interface_url => 'http://example.com' }.merge(cfg)
+    Application.make :qst_client, :configuration => { 
+      :last_ao_guid => nil, 
+      :interface_url => 'http://example.com' }.merge(cfg)
   end
   
   def setup_null_http(application)
@@ -237,21 +237,21 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
     http
   end
   
-  def assert_sample_messages application, range
-    range.each do |i| 
-      msg = AOMessage.find_by_guid "someguid #{i}"
-      assert_not_nil msg, "message #{i} is nil"
-      assert_deserialized_msg msg, application.account, i
+  def assert_sample_messages application, msgs
+    msgs.each do |expected| 
+      msg = AOMessage.find_by_guid expected.guid
+      assert_not_nil msg
+      [:subject_and_body, :from, :to, :guid, :timestamp].each do |field|
+        assert_equal expected.send(field), msg.send(field)
+      end
       assert_equal application.account.id, msg.account_id
     end
   end
   
   def sample_messages application, range 
     msgs = []
-    range.each do |i| 
-      msg = AOMessage.new
-      fill_msg msg, application.account, i, "protocol"
-      msgs << msg
+    range.each do |i|
+      msgs << AOMessage.make_unsaved
     end
     msgs
   end

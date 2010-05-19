@@ -1,5 +1,6 @@
 ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
+require File.expand_path(File.dirname(__FILE__) + "/blueprints")
 require 'test_help'
 require 'base64'
 require 'digest/md5'
@@ -34,6 +35,7 @@ class ActiveSupport::TestCase
 
   def setup
     Rails.cache.clear
+    Sham.reset
   end
     
   # Returns the string to be used for HTTP_AUTHENTICATION header
@@ -101,46 +103,6 @@ class ActiveSupport::TestCase
     end
     http
   end
-
-  # Creates an application with a specific interface and configuration
-  def create_application_with_interface(account_name, account_pass, interface, cfg)
-    account = Account.create!(:name => account_name, :password => account_pass)
-    application = Application.new(:account_id => account.id, :name => account_name, :interface => interface, :password => account_pass)
-    application.configuration = {}
-    cfg.each_pair do |k,v| application.configuration[k] = v end
-    application.save!
-    application
-  end
-  
-  # Creates an account and a qst channel with the given values.
-  # Returns the tupple [account, channel]
-  def create_account_and_channel(account_name, account_pass, chan_name, chan_pass, kind, protocol = 'protocol')
-    account = Account.new
-    account.name = account_name
-    account.password = account_pass
-    account.save!
-    
-    channel = create_channel account, chan_name, chan_pass, kind, protocol
-    
-    [account, channel]
-  end
-  
-  def create_channel(account, name, pass, kind, protocol = 'protocol')
-    channel = Channel.new
-    channel.account_id = account.id
-    channel.name = name
-    channel.protocol = protocol
-    channel.configuration = { :password => pass }
-    channel.kind = kind
-    channel.direction = Channel::Bidirectional
-    channel.save!
-    
-    channel
-  end
-  
-  def create_app(account, i = nil)
-    Application.create! :account_id => account.id, :name => (i.nil? ? 'application' : "application#{i}"), :interface => 'rss', :password => 'app_pass'
-  end
   
   # Creates a new message of the specified kind with values according to i
   def new_message(account, i, kind, protocol = 'protocol', state = 'queued', tries = 0)
@@ -166,11 +128,6 @@ class ActiveSupport::TestCase
       msg.save!
     end
     msg
-  end
-  
-  # Creates an AOMessage that belongs to account and has values according to i
-  def new_ao_message(account, i, protocol = 'protocol', state = 'queued', tries = 0)
-    new_message account, i, AOMessage, protocol, state, tries
   end
   
   # Fills the values of an existing message
@@ -201,20 +158,6 @@ class ActiveSupport::TestCase
     return Time.at(946702800).utc
   end
   
-  # Given a message id, checks that message in the db has the specified state and tries
-  def assert_msg_state(msg_or_id, state, tries,kind=ATMessage)
-    msg_id = msg_or_id.id unless msg_or_id.kind_of? String
-    msg = kind.find_by_id(msg_id)
-    assert_not_nil msg, "message with id #{msg_id} not found"
-    assert_equal state, msg.state, "message with id #{msg_id} state does not match"
-    assert_equal tries, msg.tries, "message with id #{msg_id} tries does not match"
-  end
-  
-  # Given a list of message or ids, checks that each message in the db has the specified state and tries
-  def assert_msgs_states(msg_ids, state, tries, kind=ATMessage)
-    msg_ids.each { |msg| assert_msg_state msg, state, tries, kind }
-  end
-  
   # Asserts all values for a message constructed with new or fill
   def assert_msg(msg, account, i, protocol = 'protocol')
     assert_equal account.id, msg.account_id, 'message account id'
@@ -225,71 +168,6 @@ class ActiveSupport::TestCase
     assert_equal "someguid #{i}", msg.guid, 'message guid' 
     assert_equal time_for_msg(i), msg.timestamp, 'message timestamp' 
     assert_equal 'queued', msg.state, 'message status'
-  end
-  
-  # Asserts all values for a message constructed with new or fill that was deserialized
-  def assert_deserialized_msg(msg, account, i, protocol = 'protocol')
-    assert_equal "Subject of the message #{i} - Body of the message #{i}", msg.subject_and_body, 'message subject and body'
-    assert_equal "Someone #{i}", msg.from, 'message from'
-    assert_equal protocol + "://Someone else #{i}", msg.to, 'message to' 
-    assert_equal "someguid #{i}", msg.guid, 'message guid' 
-    assert_equal time_for_msg(i), msg.timestamp, 'message timestamp'
-  end
-  
-  # Given an xml document string, asserts all values for a message constructed with new or fill
-  def assert_xml_msgs(xml_txt, account, rng, protocol = 'protocol')
-    rng = (rng...rng) if not rng.respond_to? :each
-    msgs = []
-    ATMessage.parse_xml(xml_txt) {|msg| msgs << msg}
-    assert_equal rng.to_a.size, msgs.size, 'messages count does not match range'
-    base = rng.to_a[0]
-    rng.each do |i|
-      msg = msgs[i-base]
-      assert_deserialized_msg(msg, account, i, protocol)
-    end
-  end
-  
-  # Creates a new QSTOutgoingMessage with guid "someguid #{i}"
-  def new_qst_outgoing_message(chan, ao_message_id)
-    msg = QSTOutgoingMessage.new
-    msg.channel_id = chan.id
-    msg.ao_message_id = ao_message_id
-    msg.save!
-  end
-  
-  def assert_shows_message(msg)
-    assert_select "message[id=?]", msg.guid
-    assert_select "message[from=?]", msg.from
-    assert_select "message[to=?]", msg.to
-    assert_select "message[when=?]", msg.timestamp.iso8601
-    assert_select "message text", msg.subject.nil? ? msg.body : msg.subject + " - " + msg.body
-    
-    msg.custom_attributes.each do |name, value|
-      assert_select "message property[name=?][value=?]", name, value, :count => 1
-    end
-  end
-  
-  def assert_shows_message_as_rss_item(msg)
-    if msg.subject.nil?
-      assert_select "item title", msg.body
-      assert_select "item description", {:count => 0}
-    else
-      assert_select "item title", msg.subject
-      assert_select "item description", msg.body
-    end
-    
-    assert_select "item author", msg.from
-    assert_select "item to", msg.to
-    assert_select "item guid", msg.guid
-    assert_select "item pubDate", msg.timestamp.rfc822
-  end
-  
-  def new_channel(account, name, options = {})
-    chan = Channel.new(:account_id => account.id, :name => name, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional);
-    options.each {|key, value| chan.send("#{key}=", value)}
-    chan.configuration = {:url => 'a', :user => 'b', :password => 'c'};
-    chan.save!
-    chan
   end
   
   def assert_validates_configuration_presence_of(chan, field)
