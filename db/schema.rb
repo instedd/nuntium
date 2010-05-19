@@ -69,7 +69,7 @@ ActiveRecord::Schema.define(:version => 20100507141522) do
   create_table "applications", :force => true do |t|
     t.string   "name"
     t.integer  "account_id"
-    t.string   "interface"
+    t.string   "interface",     :default => "rss"
     t.text     "configuration"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -127,7 +127,7 @@ ActiveRecord::Schema.define(:version => 20100507141522) do
     t.integer  "country_id"
     t.integer  "carrier_id"
     t.string   "network"
-    t.integer  "cost"
+    t.integer  "cost",       :limit => 10, :precision => 10, :scale => 0
     t.datetime "created_at"
     t.datetime "updated_at"
   end

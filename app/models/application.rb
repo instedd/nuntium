@@ -115,7 +115,7 @@ class Application < ActiveRecord::Base
       end
     else
       # Select channels with less or equal priority than the other channels
-      channels = channels.select{|c| channels.all?{|x| c.priority <= x.priority }}
+      channels = channels.select{|c| channels.all?{|x| (c.priority || 100) <= (x.priority || 100) }}
       
       # Select a random channel to handle the message
       channels.rand.route_ao msg, via_interface
