@@ -53,24 +53,22 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
   end
   
   test "should execute job when enqueued" do
+    header = mock('header')
+    header.expects(:ack)
+    
+    job = mock('job')
+    job.expects(:perform).returns(true)
+    
+    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, kind_of(MQ)).yields(header, job)
     @service.start
-    
-    msg = AOMessage.create! :account => @account, :channel => @chan
-    
-    Queues.publish_ao msg, StubGenericJob.new
-    sleep 0.3
-    
-    assert_equal 10, StubGenericJob.value_after_perform
   end
   
   test "should execute job notification when enqueued" do
+    header = mock('header')
+    job = mock('job')
+    job.expects(:perform).with(@service)
+    Queues.expects(:subscribe_notifications).with(@@id, @@working_group, kind_of(MQ)).yields(header, job)
     @service.start
-    
-    Queues.publish_notification StubGenericJob.new, @@working_group
-    sleep 0.5
-    
-    assert_equal 10, StubGenericJob.value_after_perform
-    assert_equal @service, StubGenericJob.arguments[0]
   end
   
   test "should stand to unsubscribe channel temporarily on unknown exception" do

@@ -63,7 +63,7 @@ Should be able to send messages to nuntium
           </item>
         </channel>
       </rss>
-      """        
+      """
       
   Scenario: Send message via HTTP inerface
     Given I am authenticated as the "GeoChat" application
