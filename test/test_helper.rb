@@ -32,6 +32,8 @@ class ActiveSupport::TestCase
   # instantiated fixtures translates to a database query per test method),
   # then set this back to true.
   self.use_instantiated_fixtures  = false
+  
+  include Mocha::API
 
   def setup
     Rails.cache.clear
@@ -179,17 +181,18 @@ class ActiveSupport::TestCase
     chan.save!
     
     jobs = []
-    Queues.subscribe_ao(chan) { |header, job| jobs << job; header.ack; sleep 0.3 }
+    Queues.expects(:publish_ao).with do |msg, job|
+      jobs << job
+    end
     
-    msg = AOMessage.new(:account_id => chan.account_id, :channel_id => chan.id)
+    msg = AOMessage.make :account_id => chan.account_id, :channel_id => chan.id
     chan.handler.handle(msg)
-    
-    sleep 0.3
     
     assert_equal 1, jobs.length
     assert_equal job_class, jobs[0].class
     assert_equal msg.id, jobs[0].message_id
     assert_equal chan.id, jobs[0].channel_id
     assert_equal chan.account_id, jobs[0].account_id
+    assert_equal msg.id, jobs[0].message_id
   end
 end
