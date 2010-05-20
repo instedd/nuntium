@@ -45,12 +45,14 @@ class XmppChannelHandlerTest < ActiveSupport::TestCase
   end
   
   test "on change touches managed process" do
-    proc = ManagedProcess.first
+    proc = mock('ManagedProcess')
+  
+    ManagedProcess.expects(:find_by_account_id_and_name).
+      with(@chan.account.id, "xmpp_daemon #{@chan.name}").
+      returns(proc)
+    proc.expects(:touch)
     
-    sleep 1
     @chan.touch
-    
-    assert ManagedProcess.first.updated_at > proc.updated_at
   end
   
 end

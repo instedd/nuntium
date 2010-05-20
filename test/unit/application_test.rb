@@ -14,8 +14,6 @@ class ApplicationTest < ActiveSupport::TestCase
     app.route_ao msg, 'test'    
     assert_equal chan2.id, msg.channel_id
     
-    sleep 2
-    
     chan2.priority = chan1.priority + 10
     chan2.save!
     

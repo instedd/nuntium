@@ -175,10 +175,6 @@ class ActiveSupport::TestCase
     assert !chan.save
   end
   
-  def assert_validates_configuration_ok(chan)
-    assert chan.save
-  end
-  
   def assert_handler_should_enqueue_ao_job(chan, job_class)
     chan.save!
     
