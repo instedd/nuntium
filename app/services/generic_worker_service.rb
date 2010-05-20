@@ -2,9 +2,12 @@ class GenericWorkerService < Service
 
   PrefetchCount = 5
   
-  def initialize(id, working_group)
+  attr_reader :sessions
+  
+  def initialize(id, working_group, suspension_time = 5 * 60)
     @id = id
     @working_group = working_group
+    @suspension_time = suspension_time
   end
 
   def start
@@ -12,12 +15,12 @@ class GenericWorkerService < Service
     MQ.error { |err| Rails.logger.error err }
   
     @sessions = {}
+    @notifications_session = MQ.new
     
     WorkerQueue.find_each(:conditions => ['working_group = ? AND enabled = ?', @working_group, true]) do |wq|
       subscribe_to_queue wq
     end
     
-    @notifications_session = MQ.new
     Queues.subscribe_notifications(@id, @working_group, @notifications_session) do |header, job|
       job.perform self
     end
@@ -43,8 +46,11 @@ class GenericWorkerService < Service
       
         if wq.ack
           Queues.publish_notification UnsubscribeFromQueueJob.new(wq.queue_name), @working_group, @notifications_session
-          EM.add_timer(@suspension_time) do
-            Queues.publish_notification SubscribeToQueueJob.new(wq.queue_name), @working_group, @notifications_session            
+          reactivate = proc { Queues.publish_notification SubscribeToQueueJob.new(wq.queue_name), @working_group, @notifications_session } 
+          if @suspension_time == 0
+            reactivate.call
+          else
+            EM.add_timer(@suspension_time) { reactivate.call }
           end
         end
       end
