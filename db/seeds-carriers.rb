@@ -303,10 +303,10 @@ Carrier.create!(:country => Country.find_by_iso3('HUN'), :name => 'Pannon GSM', 
 Carrier.create!(:country => Country.find_by_iso3('HUN'), :name => 'T-Mobile (Magyar Telekom)', :clickatell_name => 'T-Mobile (Magyar Telekom)', :guid => 'f3a93882-5497-f3d1-c30e-2680c4e53069')
 Carrier.create!(:country => Country.find_by_iso3('HUN'), :name => 'Vodafone (V.R.A.M Tele.)', :clickatell_name => 'Vodafone (V.R.A.M Tele.)', :guid => '3e9b00c6-0e80-60c7-b449-b9141e7d26f5')
 
-Carrier.create!(:country => Country.find_by_iso3('IS '), :name => 'Landssimi (Siminn)', :clickatell_name => 'Landssimi (Siminn)', :guid => '3b6d2290-6633-5e9a-9807-2c5708cfe664')
-Carrier.create!(:country => Country.find_by_iso3('IS '), :name => 'Nova', :clickatell_name => 'Nova', :guid => 'bcc3a002-0c0c-698c-1e0b-d21d4ff4af73')
-Carrier.create!(:country => Country.find_by_iso3('IS '), :name => 'Og Vodafone (Islandssimi)', :clickatell_name => 'Og Vodafone (Islandssimi)', :guid => '199bea3d-0d4b-99c2-3285-873b5ee2b034')
-Carrier.create!(:country => Country.find_by_iso3('IS '), :name => 'Viking Wireless(IMC)', :clickatell_name => 'Viking Wireless(IMC)', :guid => 'a2aa8f6e-cf9a-8881-39ac-38bf2f912a14')
+Carrier.create!(:country => Country.find_by_iso3('IS '), :name => 'Landssimi (Siminn)', :clickatell_name => 'Landssimi (Siminn)', :guid => '3b6d2290-6633-5e9a-9807-2c5708cfe664')
+Carrier.create!(:country => Country.find_by_iso3('IS '), :name => 'Nova', :clickatell_name => 'Nova', :guid => 'bcc3a002-0c0c-698c-1e0b-d21d4ff4af73')
+Carrier.create!(:country => Country.find_by_iso3('IS '), :name => 'Og Vodafone (Islandssimi)', :clickatell_name => 'Og Vodafone (Islandssimi)', :guid => '199bea3d-0d4b-99c2-3285-873b5ee2b034')
+Carrier.create!(:country => Country.find_by_iso3('IS '), :name => 'Viking Wireless(IMC)', :clickatell_name => 'Viking Wireless(IMC)', :guid => 'a2aa8f6e-cf9a-8881-39ac-38bf2f912a14')
 
 Carrier.create!(:country => Country.find_by_iso3('IND'), :name => 'Aircel - Tamil Nadu', :clickatell_name => 'Aircel - Tamil Nadu', :guid => 'f9eb38ac-7b0c-1f8c-6ab7-61d650e8e38d')
 Carrier.create!(:country => Country.find_by_iso3('IND'), :name => 'Aircel Cellular - Chennai', :clickatell_name => 'Aircel Cellular - Chennai', :guid => '4a3aafa8-c0f4-a2f1-2031-75f451d08488')

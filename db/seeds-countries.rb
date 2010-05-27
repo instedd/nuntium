@@ -97,7 +97,7 @@ Country.create!(:name =>'Holy See (Vatican City)', :iso2 => 'VA', :iso3 => 'VAT'
 Country.create!(:name =>'Honduras', :iso2 => 'HN', :iso3 => 'HND', :phone_prefix => '504', :clickatell_name => 'Honduras')
 Country.create!(:name =>'Hong Kong', :iso2 => 'HK', :iso3 => 'HKG', :phone_prefix => '852', :clickatell_name => 'HongKong')
 Country.create!(:name =>'Hungary', :iso2 => 'HU', :iso3 => 'HUN', :phone_prefix => '36', :clickatell_name => 'Hungary')
-Country.create!(:name =>'Iceland', :iso2 => 'IS', :iso3 => 'IS ', :phone_prefix => '354', :clickatell_name => 'Iceland')
+Country.create!(:name =>'Iceland', :iso2 => 'IS', :iso3 => 'IS ', :phone_prefix => '354', :clickatell_name => 'Iceland')
 Country.create!(:name =>'India', :iso2 => 'IN', :iso3 => 'IND', :phone_prefix => '91', :clickatell_name => 'India')
 Country.create!(:name =>'Indonesia', :iso2 => 'ID', :iso3 => 'IDN', :phone_prefix => '62', :clickatell_name => 'Indonesia')
 Country.create!(:name =>'Iran', :iso2 => 'IR', :iso3 => 'IRN', :phone_prefix => '98', :clickatell_name => 'Iran')
