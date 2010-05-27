@@ -30,7 +30,8 @@ class SendPostCallbackMessageJob
       :to => msg.to, 
       :subject => msg.subject, 
       :body => msg.body, 
-      :guid => msg.guid 
+      :guid => msg.guid,
+      :channel => msg.channel.name 
     }
     req.set_form_data(data)
     
@@ -39,12 +40,14 @@ class SendPostCallbackMessageJob
       when Net::HTTPSuccess, Net::HTTPRedirection
         ATMessage.update_tries([msg.id],'delivered')
         ATMessage.log_delivery([msg], account, 'http_post_callback')
+        return true
+        
       when Net::HTTPUnauthorized
         app.alert "Sending HTTP POST callback received unauthorized: invalid credentials"
     
         app.interface = 'rss'
         app.save!
-        return
+        return false
       else
         ATMessage.update_tries([msg.id],'failed')
         #TODO check if this error is logged
