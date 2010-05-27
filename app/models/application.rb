@@ -147,13 +147,14 @@ class Application < ActiveRecord::Base
       end
     end
     
+    # save the message here so we have and id for the later job
+    msg.save!
+    
     # Check if callback interface is configured
     if self.interface == 'http_post_callback'
       Queues.publish_application self, SendPostCallbackMessageJob.new(msg.account_id, msg.application_id, msg.id)
     end
-    
-    msg.save!
-    
+        
     if 'ui' == via_channel
       logger.at_message_created_via_ui msg
     else

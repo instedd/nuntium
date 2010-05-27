@@ -47,6 +47,7 @@ class SendPostCallbackMessageJob
         return
       else
         ATMessage.update_tries([msg.id],'failed')
+        #TODO check if this error is logged
         account.logger.error :at_message_id => @message_id, :message => "HTTP POST callback failed #{res.error!}"
         raise res.error!
     end
