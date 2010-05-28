@@ -23,6 +23,19 @@ class ApiCarrierController < ApplicationController
     end
   end
   
+  # GET /api/carriers/:guid.:format
+  def show
+    guid = params[:guid]
+    carrier = Carrier.find_by_guid guid
+    
+    return head :bad_request unless carrier
+    
+    respond_to do |format|
+      format.xml { render :xml => carrier.to_xml(:skip_types => true) }
+      format.json { render :json => carrier.to_json }
+    end
+  end
+  
   private
   
   def carriers_for(country)

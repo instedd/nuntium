@@ -33,4 +33,20 @@ Should be able to query the list of carriers known to Nuntium
         {"name": "Personal", "country_iso2": "ar", "guid": "Ar-Personal"}
       ]
       """
+      
+  Scenario: A website queries a carrier in XML format     
+    When I GET /api/carriers/Ar-Personal.xml
+    
+    Then I should see XML:
+      """
+      <carrier name="Personal" country_iso2="ar" guid="Ar-Personal" />
+      """
+      
+  Scenario: A website queries a carrier in JSON format     
+    When I GET /api/carriers/Ar-Personal.json
+    
+    Then I should see JSON:
+      """
+      {"name": "Personal", "country_iso2": "ar", "guid": "Ar-Personal"}
+      """
 

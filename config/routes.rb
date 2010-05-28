@@ -63,6 +63,7 @@ ActionController::Routing::Routes.draw do |map|
   # API
   map.countries '/api/countries.:format', :controller => 'api_country', :action => :index
   map.carriers '/api/carriers.:format', :controller => 'api_carrier', :action => :index
+  map.carrier '/api/carriers/:guid.:format', :controller => 'api_carrier', :action => :show
   map.api_channels_index '/api/channels.:format', :conditions => {:method => :get}, :controller => 'api_channel', :action => :index
   map.api_channels_create '/api/channels.:format', :conditions => {:method => :post}, :controller => 'api_channel', :action => :create
   map.api_channels_show '/api/channels/:name.:format', :conditions => {:method => :get}, :controller => 'api_channel', :action => :show
