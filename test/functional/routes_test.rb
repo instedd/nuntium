@@ -69,8 +69,9 @@ class RoutesTest < ActionController::TestCase
   
   test "api" do
     assert_routing({:path => "/api/countries.xml"}, { :controller => "api_country", :action => "index", :format => "xml" })
+    assert_routing({:path => "/api/countries/foo.xml"}, { :controller => "api_country", :action => "show", :format => "xml", :iso => 'foo'})
     assert_routing({:path => "/api/carriers.xml"}, { :controller => "api_carrier", :action => "index", :format => "xml" })
-    assert_routing({:path => "/api/carriers/guid.xml"}, { :controller => "api_carrier", :action => "show", :format => "xml", :guid => 'guid' })
+    assert_routing({:path => "/api/carriers/foo.xml"}, { :controller => "api_carrier", :action => "show", :format => "xml", :guid => 'foo' })
     assert_routing({:path => "/api/channels.xml", :method => :get}, { :controller => "api_channel", :action => "index", :format => "xml" })
     assert_routing({:path => "/api/channels/foo.xml", :method => :get}, { :controller => "api_channel", :action => "show", :format => "xml", :name => "foo" })
     assert_routing({:path => "/api/channels.xml", :method => :post}, { :controller => "api_channel", :action => "create", :format => "xml" })

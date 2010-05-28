@@ -30,3 +30,19 @@ Should be able to query the list of countries known to Nuntium
         {"name": "Brazil", "iso2": "br", "iso3": "bra", "phone_prefix": "55"}
       ]
       """
+      
+  Scenario: A website queries a country in XML format    
+    When I GET /api/countries/ar.xml
+    
+    Then I should see XML:
+      """
+      <country name="Argentina" iso2="ar" iso3="arg" phone_prefix="54" />
+      """
+      
+  Scenario: A website queries the country list in JSON format
+    When I GET /api/countries/ar.json
+    
+    Then I should see JSON:
+      """
+      {"name": "Argentina", "iso2": "ar", "iso3": "arg", "phone_prefix": "54"}
+      """
