@@ -159,7 +159,7 @@ Country.create!(:name =>'Nicaragua', :iso2 => 'NI', :iso3 => 'NIC', :phone_prefi
 Country.create!(:name =>'Niger', :iso2 => 'NE', :iso3 => 'NER', :phone_prefix => '227', :clickatell_name => 'Niger')
 Country.create!(:name =>'Nigeria', :iso2 => 'NG', :iso3 => 'NGA', :phone_prefix => '234', :clickatell_name => 'Nigeria')
 Country.create!(:name =>'Niue', :iso2 => 'NU', :iso3 => 'NIU', :phone_prefix => '683', :clickatell_name => '')
-Country.create!(:name =>'Norfolk Island', :iso2 => '', :iso3 => 'NFK', :phone_prefix => '672', :clickatell_name => '')
+Country.create!(:name =>'Norfolk Island', :iso2 => 'NF', :iso3 => 'NFK', :phone_prefix => '672', :clickatell_name => '')
 Country.create!(:name =>'North Korea', :iso2 => 'KP', :iso3 => 'PRK', :phone_prefix => '850', :clickatell_name => '')
 Country.create!(:name =>'Northern Mariana Islands', :iso2 => 'MP', :iso3 => 'MNP', :phone_prefix => '1670', :clickatell_name => '')
 Country.create!(:name =>'Norway', :iso2 => 'NO', :iso3 => 'NOR', :phone_prefix => '47', :clickatell_name => 'Norway')
