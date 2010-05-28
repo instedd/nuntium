@@ -1,4 +1,13 @@
 RAILS_ROOT=File.join(File.dirname(__FILE__), '..')
+RAILS_ENV= "production" # may be changed to "development"
+
+if RAILS_ENV == "production"
+	MONGREL_PORTS = %w{3000 3001 3002 3003} 
+	WORKERS_COUNT = 4
+else
+	MONGREL_PORTS = %w{3000}
+	WORKERS_COUNT = 1
+end
 
 # == Helper functions ==
 
@@ -46,7 +55,7 @@ def service(name, *args)
     name_suffix = args.length == 0 ? "" : args.join('-')
     w.name = "nuntium-#{name.gsub('_', '-')}#{name_suffix}"
     w.interval = 5.seconds
-    service_args = "production" + (args.length == 0 ? "" : " #{args.join(' ')}")
+    service_args = RAILS_ENV + (args.length == 0 ? "" : " #{args.join(' ')}")
     w.start = "ruby #{RAILS_ROOT}/lib/services/#{name}_daemon_ctl.rb start -- #{service_args}"
     w.stop = "ruby #{RAILS_ROOT}/lib/services/#{name}_daemon_ctl.rb stop -- #{service_args}"
     pid_file_suffix = args.length == 0 ? "" : ".#{args.join('.')}"
@@ -62,11 +71,11 @@ end
 
 # == Services start here ==
 
-%w{3000 3001 3002 3003}.each do |port|
+MONGREL_PORTS.each do |port|
   God.watch do |w|
     w.name = "nuntium-mongrel-#{port}"
     w.interval = 30.seconds
-    w.start = "mongrel_rails start -c #{RAILS_ROOT} -p #{port} -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid -d -e production"
+    w.start = "mongrel_rails start -c #{RAILS_ROOT} -p #{port} -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid -d -e #{RAILS_ENV}"
     w.stop = "mongrel_rails stop -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid"
     w.restart = "mongrels_rails restart -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid"
     w.start_grace = 10.seconds
@@ -90,7 +99,7 @@ end
 service 'cron'
 
 ['slow', 'fast'].each do |working_group|
-  4.times do |i|
+  WORKERS_COUNT.times do |i|
     service 'generic_worker', working_group, i do |w|
       manage_gracefuly w
     end
