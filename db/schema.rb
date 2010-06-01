@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100507141522) do
+ActiveRecord::Schema.define(:version => 20100601154346) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -121,6 +121,7 @@ ActiveRecord::Schema.define(:version => 20100507141522) do
     t.text     "restrictions"
     t.text     "at_rules"
     t.integer  "application_id"
+    t.string   "address"
   end
 
   create_table "clickatell_coverage_mos", :force => true do |t|

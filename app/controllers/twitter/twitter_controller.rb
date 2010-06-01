@@ -27,6 +27,7 @@ class TwitterController < AccountAuthenticatedController
     session['twitter_channel_name'] = @channel.name
     session['twitter_channel_priority'] = @channel.priority
     session['twitter_channel_application_id'] = @channel.application_id
+    session['twitter_channel_address'] = @channel.address
     session['twitter_channel_welcome_message'] = @channel.configuration[:welcome_message]
     session['twitter_channel_custom_attributes'] = get_custom_attributes
     
@@ -43,6 +44,7 @@ class TwitterController < AccountAuthenticatedController
     session['twitter_channel_id'] = params[:id]
     session['twitter_channel_priority'] = params[:channel][:priority]
     session['twitter_channel_application_id'] = params[:channel][:application_id]
+    session['twitter_channel_address'] = params[:channel][:address]
     session['twitter_channel_welcome_message'] = params[:channel][:configuration][:welcome_message]
     session['twitter_channel_custom_attributes'] = get_custom_attributes
     
@@ -76,6 +78,7 @@ class TwitterController < AccountAuthenticatedController
       }
     @channel.priority = session['twitter_channel_priority']
     @channel.application_id = session['twitter_channel_application_id']
+    @channel.address = session['twitter_channel_address']
     @channel.restrictions = session['twitter_channel_custom_attributes']
     
     session['twitter_token']  = nil
@@ -84,6 +87,7 @@ class TwitterController < AccountAuthenticatedController
     session['twitter_channel_name'] = nil
     session['twitter_channel_priority'] = nil
     session['twitter_channel_application_id'] = nil
+    session['twitter_channel_address'] = nil
     session['twitter_channel_welcome_message'] = nil
     session['twitter_channel_custom_attributes'] = nil
 

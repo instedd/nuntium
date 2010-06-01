@@ -7,17 +7,18 @@ Should be able to manage the channels via a RESTful API
     Given an account named "InsTEDD" exists
       And an application named "GeoChat" belongs to the "InsTEDD" account
       And the following Channel exists:
-        | name                    | EmailChannel  |
-        | kind                    | smtp          |
-        | protocol                | mailto        |
-        | direction               | incoming      |
-        | priority                | 20            |
-        | account name            | InsTEDD       |
-        | application name        | GeoChat       |
-        | configuration host      | some.host     |
-        | configuration port      | 465           |
-        | configuration user      | some.user     |
-        | configuration password  | secret        |
+        | name                    | EmailChannel    |
+        | kind                    | smtp            |
+        | protocol                | mailto          |
+        | direction               | incoming        |
+        | address                 | mailto://a@b.c  |
+        | priority                | 20              |
+        | account name            | InsTEDD         |
+        | application name        | GeoChat         |
+        | configuration host      | some.host       |
+        | configuration port      | 465             |
+        | configuration user      | some.user       |
+        | configuration password  | secret          |
       And I am authenticated as the "GeoChat" application
 
   Scenario: Query the channels via XML
@@ -27,7 +28,7 @@ Should be able to manage the channels via a RESTful API
       """
       <channels>
         <channel kind="smtp" name="EmailChannel" protocol="mailto" direction="incoming"
-          enabled="true" application="GeoChat" priority="20">
+          enabled="true" application="GeoChat" priority="20" address="mailto://a@b.c">
           <configuration>
             <property name="host" value="some.host" />
             <property name="user" value="some.user" />
@@ -45,7 +46,7 @@ Should be able to manage the channels via a RESTful API
       [
         {"kind": "smtp", "name": "EmailChannel", "protocol": "mailto",
           "direction": "incoming", "enabled": true, "application": "GeoChat",
-          "priority": 20, "configuration": [
+          "priority": 20, "address": "mailto://a@b.c", "configuration": [
             {"name": "host", "value": "some.host"},
             {"name": "user", "value": "some.user"},
             {"name": "port", "value": "465"}
@@ -59,7 +60,7 @@ Should be able to manage the channels via a RESTful API
     Then I should see XML:
       """
       <channel kind="smtp" name="EmailChannel" protocol="mailto" direction="incoming"
-        enabled="true" application="GeoChat" priority="20">
+        enabled="true" application="GeoChat" priority="20" address="mailto://a@b.c">
         <configuration>
           <property name="host" value="some.host" />
           <property name="user" value="some.user" />
@@ -75,7 +76,7 @@ Should be able to manage the channels via a RESTful API
       """
       {"kind": "smtp", "name": "EmailChannel", "protocol": "mailto",
         "direction": "incoming", "enabled": true, "application": "GeoChat",
-        "priority": 20, "configuration": [
+        "priority": 20, "address": "mailto://a@b.c", "configuration": [
           {"name": "host", "value": "some.host"},
           {"name": "user", "value": "some.user"},
           {"name": "port", "value": "465"}
@@ -86,7 +87,7 @@ Should be able to manage the channels via a RESTful API
     When I POST XML /api/channels.xml:
       """
       <channel kind="smtp" name="EmailChannel2" protocol="mailto" direction="incoming"
-        enabled="true" application="GeoChat" priority="20">
+        enabled="true" application="GeoChat" priority="20" address="mailto://a@b.c">
         <configuration>
           <property name="host" value="some.host" />
           <property name="user" value="some.user" />
@@ -97,23 +98,24 @@ Should be able to manage the channels via a RESTful API
       """
       
     Then the Channel with the name "EmailChannel2" should have the following properties:
-      | kind                    | smtp          |
-      | protocol                | mailto        |
-      | direction_text          | incoming      |
-      | priority                | 20            |
-      | account name            | InsTEDD       |
-      | application name        | GeoChat       |
-      | configuration host      | some.host     |
-      | configuration port      | 465           |
-      | configuration user      | some.user     |
-      | configuration password  | secret        |
+      | kind                    | smtp            |
+      | protocol                | mailto          |
+      | direction_text          | incoming        |
+      | priority                | 20              |
+      | account name            | InsTEDD         |
+      | application name        | GeoChat         |
+      | address                 | mailto://a@b.c  |
+      | configuration host      | some.host       |
+      | configuration port      | 465             |
+      | configuration user      | some.user       |
+      | configuration password  | secret          |
       
   Scenario: Create a channel via JSON
     When I POST JSON /api/channels.json:
       """
       {"kind": "smtp", "name": "EmailChannel2", "protocol": "mailto",
         "direction": "incoming", "enabled": true, "application": "GeoChat",
-        "priority": 20, "configuration": [
+        "priority": 20, "address": "mailto://a@b.c", "configuration": [
           {"name": "host", "value": "some.host"},
           {"name": "user", "value": "some.user"},
           {"name": "port", "value": "465"},
@@ -122,16 +124,17 @@ Should be able to manage the channels via a RESTful API
       """
       
     Then the Channel with the name "EmailChannel2" should have the following properties:
-      | kind                    | smtp          |
-      | protocol                | mailto        |
-      | direction_text          | incoming      |
-      | priority                | 20            |
-      | account name            | InsTEDD       |
-      | application name        | GeoChat       |
-      | configuration host      | some.host     |
-      | configuration port      | 465           |
-      | configuration user      | some.user     |
-      | configuration password  | secret        |
+      | kind                    | smtp            |
+      | protocol                | mailto          |
+      | direction_text          | incoming        |
+      | priority                | 20              |
+      | account name            | InsTEDD         |
+      | application name        | GeoChat         |
+      | address                 | mailto://a@b.c  |
+      | configuration host      | some.host       |
+      | configuration port      | 465             |
+      | configuration user      | some.user       |
+      | configuration password  | secret          |
       
   Scenario: Edit a channel via XML
     When I PUT XML /api/channels/EmailChannel.xml:

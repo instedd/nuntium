@@ -293,6 +293,7 @@ class Channel < ActiveRecord::Base
     end
     attributes[:direction] = direction_text unless direction_text == 'unknown'
     attributes[:application] = application.name if application_id
+    attributes[:address] = address if address.present?
     attributes
   end
   
@@ -306,6 +307,7 @@ class Channel < ActiveRecord::Base
     chan.priority = hash[:priority]
     chan.enabled = hash[:enabled] == 'true'
     chan.direction = hash[:direction] if hash[:direction]
+    chan.address = hash[:address] if hash[:address]
     
     hash_config = hash[:configuration] || {}
     hash_config = hash_config[:property] || [] if format == :xml and hash_config[:property]
