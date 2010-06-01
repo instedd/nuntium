@@ -189,6 +189,34 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal 'queued', msg.state
   end
   
+  test "route ao test filter when empty value passes" do
+    app = Application.make
+    
+    msg = AOMessage.make_unsaved
+    
+    chan1 = Channel.make_unsaved :account => app.account
+    chan1.restrictions['country'] = ['ar', '']
+    chan1.save!
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal 'queued', msg.state
+  end
+  
+  test "route ao test filter when empty value does not pass" do
+    app = Application.make
+    
+    msg = AOMessage.make_unsaved
+    
+    chan1 = Channel.make_unsaved :account => app.account
+    chan1.restrictions['country'] = ['ar']
+    chan1.save!
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal 'failed', msg.state
+  end 
+  
   test "route ao use last channel" do
     app = Application.make
     

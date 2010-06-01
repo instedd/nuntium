@@ -225,12 +225,14 @@ function channel_custom_attribute_changed(select) {
   case 'application':
     var html = ' = ';
     html += applications_select();
+    if (show_accept_when_not_specified_option) html += ' &nbsp; ' + accept_when_not_specified_checkbox(true);
     html += ' &nbsp; ' + remove_custom_attribute_link();
     li_value.html(html);
     break;
   case 'suggested_channel':
     var html = ' = ';
     html += channels_select();
+    if (show_accept_when_not_specified_option) html += ' &nbsp; ' + accept_when_not_specified_checkbox();
     html += ' &nbsp; ' + remove_custom_attribute_link();
     li_value.html(html);
     break;
@@ -239,6 +241,7 @@ function channel_custom_attribute_changed(select) {
       success: function(countries) {
         var html = ' = ';
         html += countries_select(countries, 'custom_attribute_value[]');
+        if (show_accept_when_not_specified_option) html += ' &nbsp; ' + accept_when_not_specified_checkbox(true);
         html += ' &nbsp; ' + remove_custom_attribute_link();
         li_value.html(html);
       },
@@ -253,6 +256,7 @@ function channel_custom_attribute_changed(select) {
         var html = ' = ';
         html += countries_select(countries, 'countries', 'channel_custom_attribute_country_changed(this)');
         html += '<span class="value2"></span>';
+        if (show_accept_when_not_specified_option) html += ' &nbsp; ' + accept_when_not_specified_checkbox(true);
         html += ' &nbsp; ' + remove_custom_attribute_link();
         li_value.html(html);
       },
@@ -265,6 +269,7 @@ function channel_custom_attribute_changed(select) {
     first_select.attr('name', 'doesnt_matter');
     
     var html = 'Name: <input type="text" name="custom_attribute_name[]"> Value: <input type="text" name="custom_attribute_value[]">';
+    if (show_accept_when_not_specified_option) html += ' &nbsp; ' + accept_when_not_specified_checkbox();
     html += ' &nbsp; ' + remove_custom_attribute_link();
     li_value.html(html);
     break;
@@ -371,6 +376,15 @@ function carriers_select(carriers) {
     html += '<option value="' + carriers[i].guid + '">' + carriers[i].name + '</option>';
   }
   html += '</select>';
+  return html;
+}
+
+function accept_when_not_specified_checkbox(checked) {
+  var html = '';
+  html += '<input type="hidden" name="custom_attribute_optional[]" value="0"/>';
+  html += '<input type="checkbox" name="custom_attribute_optional[]" value="1"';
+  if (checked) html += ' checked="checked"';
+  html += '/> Accept when not specified';
   return html;
 }
 

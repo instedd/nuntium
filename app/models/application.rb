@@ -55,7 +55,7 @@ class Application < ActiveRecord::Base
     # Save mobile number information
     MobileNumber.update msg.to.mobile_number, msg.country, msg.carrier if protocol == 'sms'
     
-    # Intef attributes
+    # Infer attributes
     msg.infer_custom_attributes
     
     # AO Rules

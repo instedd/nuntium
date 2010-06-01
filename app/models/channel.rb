@@ -62,6 +62,11 @@ class Channel < ActiveRecord::Base
       return false unless values.any?{|v| channel_values.include? v}
     end
     
+    handler_restrictions.each_multivalue do |key, values|
+      next if values.include? ''
+      return false unless msg.custom_attributes.has_key? key
+    end
+    
     return true
   end
   

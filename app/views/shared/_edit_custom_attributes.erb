@@ -2,6 +2,7 @@
 include_channels = defined?(include_channels) ? include_channels : false
 as_restriction = defined?(as_restriction) ? as_restriction : false
 custom_attributes = entity.nil? ? {} : (as_restriction ? entity.restrictions : entity.custom_attributes)
+show_accept_when_not_specified_option = defined?(accept_when_not_specified_option) ? accept_when_not_specified_option : true
 %>
 
 <h5><%= as_restriction ? 'Restrictions' : 'Custom Attributes' %></h5>
@@ -14,7 +15,8 @@ channels = @account.channels.map(&:name).sort!
 %>
 <script type="text/javascript">
 var applications = <%= applications.to_json %>;
-var channels =  <%= channels.to_json %>;
+var channels = <%= channels.to_json %>;
+var show_accept_when_not_specified_option = <%= show_accept_when_not_specified_option ? 'true' : 'false' %>;
 </script>
 
 <div>
@@ -30,9 +32,11 @@ end
   countries = Country.all
   carriers = Carrier.all_with_countries
   
-  def write_custom_attribute(applications, channels, countries, carriers, include_channels, as_restriction, name, values)
+  def write_custom_attribute(applications, channels, countries, carriers, include_channels, as_restriction, show_accept_when_not_specified_option, name, values)
     values = [values] unless values.kind_of? Array
     values.each do |value|
+      next if value == '' and name != ''
+    
       is_custom = name != "" && name != "application" && name != "country" && name != "carrier"
       %>
       <li>
@@ -91,15 +95,18 @@ end
         else
           %>
           Name: <input type="text" name="custom_attribute_name[]" value="<%= h name %>"> Value: <input type="text" name="custom_attribute_value[]" value="<%= h value %>">
-          <%
-        end
-        
-        if name != ''
-          %>
-          &nbsp; <a href="javascript:void(0)" onclick="remove_custom_attribute(this)">Remove</a>
-          <%
+        <%
         end
         %>
+        
+        <% if name != '' %>
+          <% if show_accept_when_not_specified_option %>
+            &nbsp;
+            <input type="hidden" name="custom_attribute_optional[]" value="0"/>
+            <input type="checkbox" name="custom_attribute_optional[]" value="1" <%= 'checked="checked"' if values.include? '' %>/> Accept when not specified
+          <% end %>
+          &nbsp; <a href="javascript:void(0)" onclick="remove_custom_attribute(this)">Remove</a>
+        <% end %>
         </span>
        </li>
       <%
@@ -107,9 +114,9 @@ end
   end
   
   custom_attributes.each do |name, values|
-    write_custom_attribute applications, channels, countries, carriers, include_channels, as_restriction, name, values
+    write_custom_attribute applications, channels, countries, carriers, include_channels, as_restriction, show_accept_when_not_specified_option, name, values
   end
-  write_custom_attribute applications, channels, countries, carriers, include_channels, as_restriction, '', ''
+  write_custom_attribute applications, channels, countries, carriers, include_channels, as_restriction, show_accept_when_not_specified_option, '', ''
   %>
 </ul>
 </div>
