@@ -162,6 +162,47 @@ class Application < ActiveRecord::Base
     end
   end
   
+  def candidate_channels_for(msg)
+    # Fill some fields
+    if msg.new_record?
+      msg.account ||= self.account
+      msg.application ||= self
+      msg.timestamp ||= Time.now.utc
+    end
+    
+    # Find protocol of message (based on "to" field)
+    protocol = msg.to.nil? ? '' : msg.to.protocol
+    return [] if protocol == ''
+    
+    # Infer attributes
+    msg.infer_custom_attributes
+    
+    # AO Rules
+    ao_rules_res = RulesEngine.apply(msg.rules_context, self.ao_rules)
+    msg.merge ao_rules_res
+    
+    # Get all outgoing enabled channels
+    channels = account.channels.select{|c| c.enabled && c.is_outgoing?}
+    
+    # Find channels that handle that protocol
+    channels = channels.select {|x| x.protocol == protocol}
+    
+    # Filter them according to custom attributes
+    channels = channels.select{|x| x.can_route_ao? msg}
+    
+    # See if the message includes a suggested channel
+    if msg.suggested_channel
+      suggested_channel = channels.select{|x| x.name == msg.suggested_channel}.first
+      return [suggested_channel] if suggested_channel
+    end
+    
+    # See if there is a last channel used to route an AT message with this address
+    last_channel = get_last_channel msg.to.mobile_number, channels
+    return [last_channel] if last_channel
+    
+    return channels
+  end
+  
   def self.find_all_by_account_id(account_id)
     apps = Rails.cache.read cache_key(account_id)
     if not apps

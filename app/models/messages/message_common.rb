@@ -172,5 +172,19 @@ module MessageCommon
       end
     end
     
+    def from_hash(hash)
+      msg = self.new
+      hash.each do |key, value|
+        if [:from, :to, :subject, :body, :guid].include? key.to_sym
+          # Normal attribute
+          msg.send "#{key}=", value
+        else
+          # Custom attribute
+          msg.custom_attributes[key] = value
+        end
+      end
+      msg
+    end
+    
   end
 end

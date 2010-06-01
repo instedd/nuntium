@@ -200,7 +200,50 @@ Should be able to manage the channels via a RESTful API
           "name": "can only contain alphanumeric characters, '_' or '-' (no spaces allowed)"
         }]
       }
-      """  
-    
-
+      """ 
       
+  Scenario: Get the list of candidate channels via XML 
+    Given the following Channel exists:
+        | name                    | QstServerChannel  |
+        | kind                    | qst_server        |
+        | protocol                | sms               |
+        | direction               | bidirectional     |
+        | address                 | sms://0           |
+        | account name            | InsTEDD           |
+        | application name        | GeoChat           |
+        | configuration password  | secret            |
+        
+    When I GET /api/candidate/channels.xml?from=sms://1&to=sms://2&subject=Hello
+    
+    Then I should see XML:
+      """
+      <channels>
+        <channel kind="qst_server" name="QstServerChannel" protocol="sms" direction="bidirectional"
+          enabled="true" application="GeoChat" priority="100" address="sms://0">
+          <configuration>
+          </configuration>
+        </channel>
+      </channels>
+      """
+      
+  Scenario: Get the list of candidate channels via JSON 
+    Given the following Channel exists:
+        | name                    | QstServerChannel  |
+        | kind                    | qst_server        |
+        | protocol                | sms               |
+        | direction               | bidirectional     |
+        | address                 | sms://0           |
+        | account name            | InsTEDD           |
+        | application name        | GeoChat           |
+        | configuration password  | secret            |
+        
+    When I GET /api/candidate/channels.json?from=sms://1&to=sms://2&subject=Hello
+    
+    Then I should see JSON:
+      """
+      [
+      {"kind": "qst_server", "name": "QstServerChannel", "protocol": "sms",
+        "direction": "bidirectional", "enabled": true, "application": "GeoChat",
+        "priority": 100, "address": "sms://0", "configuration": []}
+      ]
+      """

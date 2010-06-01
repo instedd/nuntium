@@ -189,7 +189,7 @@ class Channel < ActiveRecord::Base
       xml.configuration do
         configuration.each do |name, value|
           next if value.blank?
-          is_password = name.to_s.include? 'password'
+          is_password = name.to_s.include?('password') || name.to_s == 'salt'
           next if is_password and (options[:include_passwords].nil? or options[:include_passwords] === false)  
           xml.property :name => name, :value => value
         end
@@ -215,7 +215,7 @@ class Channel < ActiveRecord::Base
     attributes[:configuration] = []
     configuration.each do |name, value|
       next if value.blank?
-      is_password = name.to_s.include? 'password'
+      is_password = name.to_s.include?('password') || name.to_s == 'salt'
       next if is_password and (options[:include_passwords].nil? or options[:include_passwords] === false)
       attributes[:configuration] << {:name => name, :value => value}
     end

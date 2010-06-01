@@ -9,10 +9,7 @@ class ApiChannelController < ApiAuthenticatedController
       c.application = @application if c.application_id
     end
     
-    respond_to do |format|
-      format.xml { render :xml => channels.to_xml(:root => 'channels', :skip_types => true) }
-      format.json { render :json => channels.to_json }
-    end
+    respond channels
   end
   
   # GET /api/channels/:name.:format
@@ -23,10 +20,7 @@ class ApiChannelController < ApiAuthenticatedController
     
     return head :not_found unless channel
     
-    respond_to do |format|
-      format.xml { render :xml => channel.to_xml(:root => 'channels', :skip_types => true) }
-      format.json { render :json => channel.to_json }
-    end
+    respond channel
   end
   
   # POST /api/channels.:format
@@ -68,7 +62,23 @@ class ApiChannelController < ApiAuthenticatedController
     end
   end
   
+  # GET /api/candidate/channels.:format
+  def candidates
+    msg = AOMessage.from_hash params
+    msg.account_id = @account.id
+    
+    channels = @application.candidate_channels_for msg
+    respond channels
+  end
+  
   private
+  
+  def respond(object)
+    respond_to do |format|
+      format.xml { render :xml => object.to_xml(:root => 'channels', :skip_types => true) }
+      format.json { render :json => object.to_json }
+    end
+  end
   
   def save(channel, action)
     if channel.save
