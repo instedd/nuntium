@@ -41,6 +41,7 @@ class RoutesTest < ActionController::TestCase
       assert_routing({:path => "/message/#{kind}/10"}, { :controller => "message", :action => "view_#{kind}_message", :id => '10' })
     end
     assert_routing({:path => "/message/ao/reroute"}, { :controller => "message", :action => "reroute_ao_messages" })
+    assert_routing({:path => "/message/ao/simulate_route"}, { :controller => "message", :action => "simulate_route_ao" })
   end
   
   test "applications" do

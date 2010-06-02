@@ -1,6 +1,6 @@
 <h4>Create new <%= @kind == 'ao' ? 'Application Originated' : 'Application Terminated' %> Message</h4>
 
-<% form_for :message, :url => { :controller => 'message', :action => (@kind == 'ao' ? :create_ao_message : :create_at_message)} do |f| %>
+<% form_for :message, :html => {:id => :new_message_form} do |f| %>
   <% [:from, :to, :subject].each do |field| %>
     <p>
     <%= f.label field %><br/>
@@ -23,7 +23,28 @@
     </p>
   <% end %>
   <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @message, :include_channels => @kind == 'ao', :accept_when_not_specified_option => false} %>
-  <%= submit_tag 'Create Message' %>
+  <button onClick="create_message()">Create Message</button>
+  <% if @kind == 'ao' %>
+    or <button onClick="simulate_route()">Simulate Route</button>
+  <% end %>
 <% end %>
+
+<script>
+function create_message() {
+  var f = document.getElementById('new_message_form');
+  f.action = '<%= url_for :controller => 'message', :action => (@kind == 'ao' ? :create_ao_message : :create_at_message) %>';
+  f.target = '_self';
+  f.submit();
+}
+
+<% if @kind == 'ao' %>
+function simulate_route() {
+  var f = document.getElementById('new_message_form');
+  f.action = '<%= url_for :controller => :message, :action => :simulate_route_ao %>';
+  f.target = '_blank';
+  f.submit();
+}
+<% end %>
+</script>
 
 <%= link_to 'Go back', :controller => :home, :action => :home %>

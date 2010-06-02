@@ -52,6 +52,7 @@ ActionController::Routing::Routes.draw do |map|
   map.create_ao_message '/message/ao/create', :controller => 'message', :action => :create_ao_message
   map.mark_ao_messages_as_cancelled '/message/ao/mark_as_cancelled', :controller => 'message', :action => :mark_ao_messages_as_cancelled
   map.mark_ao_messages_as_cancelled '/message/ao/reroute', :controller => 'message', :action => :reroute_ao_messages
+  map.simulate_route_ao '/message/ao/simulate_route', :controller => 'message', :action => :simulate_route_ao
   map.view_ao_message '/message/ao/:id', :controller => 'message', :action => :view_ao_message
   
   # AT messages
