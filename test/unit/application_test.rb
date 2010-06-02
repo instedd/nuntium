@@ -109,6 +109,18 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal chan2.id, msg.channel_id
   end
   
+  test "route select channel based on protocol -> get candidate channels" do
+    app = Application.make
+  
+    chan1 = Channel.make :account => app.account, :protocol => 'protocol' 
+    chan2 = Channel.make :account => app.account, :protocol => 'protocol2'
+    
+    msg = AOMessage.make_unsaved(:to => 'protocol2://Someone else')
+    channels = app.candidate_channels_for_ao msg
+    
+    assert_equal [chan2], channels
+  end
+  
   test "route ao saves mobile numbers" do
     app = Application.make
     country = Country.make

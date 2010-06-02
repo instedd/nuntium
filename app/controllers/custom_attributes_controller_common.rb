@@ -30,10 +30,6 @@ module CustomAttributesControllerCommon
       j += 1
     end
     
-    p "!!!"
-    p custom_attributes
-    p "!!!"
-    
     custom_attributes
   end
 

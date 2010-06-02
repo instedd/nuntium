@@ -36,14 +36,11 @@ class Application < ActiveRecord::Base
     return if duplicated? msg
     
     # Fill some fields
-    if msg.new_record?
-      msg.account ||= self.account
-      msg.application ||= self
-      msg.timestamp ||= Time.now.utc
-    end
+    fill_common_message_properties msg
     
-    # Find protocol of message (based on "to" field)
+    # Check protocol presence
     protocol = msg.to.nil? ? '' : msg.to.protocol
+    
     if protocol == ''
       msg.state = 'failed'
       msg.save!
@@ -55,37 +52,8 @@ class Application < ActiveRecord::Base
     # Save mobile number information
     MobileNumber.update msg.to.mobile_number, msg.country, msg.carrier if protocol == 'sms'
     
-    # Infer attributes
-    msg.infer_custom_attributes
-    
-    # AO Rules
-    ao_rules_res = RulesEngine.apply(msg.rules_context, self.ao_rules)
-    msg.merge ao_rules_res
-    
-    # Get all outgoing enabled channels
-    channels = account.channels.select{|c| c.enabled && c.is_outgoing?}
-    
-    # Find channels that handle that protocol
-    channels = channels.select {|x| x.protocol == protocol}
-    
-    # Filter them according to custom attributes
-    channels = channels.select{|x| x.can_route_ao? msg}
-    
-    # See if the message includes a suggested channel
-    if msg.suggested_channel
-      suggested_channel = channels.select{|x| x.name == msg.suggested_channel}.first
-      if suggested_channel
-        suggested_channel.route_ao msg, via_interface
-        return true
-      end
-    end
-    
-    # See if there is a last channel used to route an AT message with this address
-    last_channel = get_last_channel msg.to.mobile_number, channels
-    if last_channel
-      last_channel.route_ao msg, via_interface
-      return true
-    end
+    # Get the list of candidate channels
+    channels = candidate_channels_for_ao msg
     
     # Exit if no candidate channel 
     if channels.empty?
@@ -97,6 +65,13 @@ class Application < ActiveRecord::Base
       return true
     end
     
+    # Route to the only channel if that's the case
+    if channels.length == 1
+      channels.first.route_ao msg, via_interface
+      return true
+    end
+    
+    # Or route according to a strategy
     final_strategy = msg.strategy || strategy
     if final_strategy == 'broadcast'
       msg.state = 'broadcasted'
@@ -162,13 +137,9 @@ class Application < ActiveRecord::Base
     end
   end
   
-  def candidate_channels_for(msg)
+  def candidate_channels_for_ao(msg)
     # Fill some fields
-    if msg.new_record?
-      msg.account ||= self.account
-      msg.application ||= self
-      msg.timestamp ||= Time.now.utc
-    end
+    fill_common_message_properties msg
     
     # Find protocol of message (based on "to" field)
     protocol = msg.to.nil? ? '' : msg.to.protocol
@@ -349,6 +320,14 @@ class Application < ActiveRecord::Base
   def duplicated?(msg)
     return false if !msg.new_record? || msg.guid.nil?
     msg.class.exists?(['application_id = ? and guid = ?', self.id, msg.guid])
+  end
+  
+  def fill_common_message_properties(msg)
+    if msg.new_record?
+      msg.account ||= self.account
+      msg.application ||= self
+      msg.timestamp ||= Time.now.utc
+    end
   end
   
   def get_last_channel(address, outgoing_channels)

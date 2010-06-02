@@ -67,7 +67,7 @@ class ApiChannelController < ApiAuthenticatedController
     msg = AOMessage.from_hash params
     msg.account_id = @account.id
     
-    channels = @application.candidate_channels_for msg
+    channels = @application.candidate_channels_for_ao msg
     respond channels
   end
   
