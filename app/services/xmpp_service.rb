@@ -36,6 +36,10 @@ class XmppService < Service
       server = @channel.configuration[:server].blank? ? nil : @channel.configuration[:server]
       @client.connect server, @channel.configuration[:port]
       @client.auth @channel.configuration[:password]
+      
+      presence = Jabber::Presence.new.set_show(:chat)
+      presence.set_status @channel.configuration[:status] if @channel.configuration[:status].present?      
+      @client.send presence
       true
     rescue => ex
       alert_msg = ex.to_s
@@ -78,6 +82,9 @@ class XmppService < Service
     @client.add_message_callback do |msg|
       Rails.logger.debug "Receiving message #{msg}"
       
+      # Sometimes a nil msg arrives...
+      next unless msg
+      
       if msg.type == :error
         ao = AOMessage.find_by_id msg.id
         if ao
@@ -91,12 +98,16 @@ class XmppService < Service
         next
       end
       
+      # The body might be empty when receiving "composing" messages 
+      next unless msg.body.present?
+      
       at = ATMessage.new
       at.channel_relative_id = msg.id
       at.from = msg.from.to_s.with_protocol 'xmpp'
       at.to = msg.to.to_s.with_protocol 'xmpp'
       at.subject = msg.subject
       at.body = msg.body
+      
       @channel.route_at at
     end
   end
