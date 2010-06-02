@@ -39,7 +39,7 @@ class String
   # (no protocol and + prefix removed)
   def mobile_number
     num = self.without_protocol
-    num = num[1..-1] if num[0].chr == '+'
+    num = num[1..-1] if num.length > 0 and num[0].chr == '+'
     num 
   end
   

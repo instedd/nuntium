@@ -32,6 +32,14 @@ class AOMessageTest < ActiveSupport::TestCase
     assert_nil msg.carrier
   end
   
+  test "infer attributes when to is just protocol" do
+    msg = AOMessage.new :to => 'sms://'
+    msg.infer_custom_attributes
+    
+    assert_nil msg.country
+    assert_nil msg.carrier
+  end
+  
   test "infer attributes one country" do
     country = Country.make
   
