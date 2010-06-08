@@ -21,9 +21,6 @@ Rails::Initializer.run do |config|
   # config.gem "bj"
   # config.gem "hpricot", :version => '0.6', :source => "http://code.whytheluckystiff.net"
   # config.gem "aws-s3", :lib => "aws/s3"
-  config.gem "mocha"
-  config.gem 'test-unit', :lib => 'test/unit'
-  config.gem "thoughtbot-shoulda", :lib => "shoulda", :source => "http://gems.github.com"
   config.gem "tmail"
   config.gem 'mislav-will_paginate', :lib => 'will_paginate', :source => 'http://gems.github.com'
   config.gem "guid"
@@ -32,10 +29,7 @@ Rails::Initializer.run do |config|
   config.gem "eventmachine"
   config.gem 'amqp'
   config.gem 'memcached'
-  config.gem 'faker'
-  config.gem 'machinist'
   config.gem 'xmpp4r'
-  config.gem 'cucumber'
 
   # Only load the plugins named here, in the order given (default is alphabetical).
   # :all can be used as a placeholder for all plugins not explicitly named

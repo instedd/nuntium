@@ -1,5 +1,5 @@
 RAILS_ROOT=File.join(File.dirname(__FILE__), '..')
-RAILS_ENV= "production" # may be changed to "development"
+RAILS_ENV= "development" # may be changed to "development"
 
 if RAILS_ENV == "production"
 	MONGREL_PORTS = %w{3000 3001 3002 3003} 

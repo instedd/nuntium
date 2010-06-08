@@ -1,5 +1,11 @@
 # Edit at your own peril - it's recommended to regenerate this file
 # in the future when you upgrade to a newer version of Cucumber.
+config.gem 'test-unit', :lib => 'test/unit'
+config.gem "mocha"
+config.gem "thoughtbot-shoulda", :lib => "shoulda", :source => "http://gems.github.com"
+config.gem 'faker'
+config.gem 'machinist'
+config.gem 'cucumber'
 
 # IMPORTANT: Setting config.cache_classes to false is known to
 # break Cucumber's use_transactional_fixtures method.
