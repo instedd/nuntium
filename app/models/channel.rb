@@ -205,7 +205,11 @@ class Channel < ActiveRecord::Base
   end
   
   def self.from_xml(hash_or_string)
-    tree = hash_or_string.kind_of?(Hash) ? hash_or_string : Hash.from_xml(hash_or_string).with_indifferent_access
+    if hash_or_string.empty?
+      tree = {:channel => {}}
+    else
+      tree = hash_or_string.kind_of?(Hash) ? hash_or_string : Hash.from_xml(hash_or_string).with_indifferent_access
+    end
     Channel.from_hash tree[:channel], :xml
   end
   
@@ -227,7 +231,11 @@ class Channel < ActiveRecord::Base
   end
   
   def self.from_json(hash_or_string)
-    tree = hash_or_string.kind_of?(Hash) ? hash_or_string : JSON.parse(hash_or_string).with_indifferent_access
+    if hash_or_string.empty?
+      tree = {}
+    else
+      tree = hash_or_string.kind_of?(Hash) ? hash_or_string : JSON.parse(hash_or_string).with_indifferent_access
+    end
     Channel.from_hash tree, :json
   end
   
