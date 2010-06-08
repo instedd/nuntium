@@ -101,13 +101,13 @@ Then /^(?:|I )should see JSON:$/ do |expected_json|
   require 'json'
   expected = JSON.parse(expected_json)
   actual   = JSON.parse(page.body)
-  actual.should == expected
+  expected.should == actual if not compare actual, expected
 end
 
 Then /^(?:|I )should see XML:$/ do |expected_xml|
   expected = Hash.from_xml(expected_xml)
   actual   = Hash.from_xml(page.body)
-  actual.should == expected
+  expected.should == actual if not compare actual, expected
 end
 
 
@@ -223,4 +223,44 @@ end
 
 Then /^show me the page$/ do
   save_and_open_page
+end
+
+def compare(e1, e2)
+  return false if e1.class != e2.class
+  if e1.class <= Hash
+    ret = _compare_hashes e1, e2
+    return false if not ret
+    ret = _compare_hashes e2, e1
+    return false if not ret
+  elsif e1.class <= Array
+    ret = _compare_arrays e1, e2
+    return false if not ret
+    ret = _compare_arrays e2, e1
+    return false if not ret
+  else
+    return e1 == e2
+  end
+  true
+end
+
+def _compare_hashes(h1, h2)
+  h1.each do |key, value|
+    ret = compare value, h2[key]
+    return false if not ret
+  end
+  true
+end
+
+def _compare_arrays(a1, a2)
+  a1.each do |v1|
+    ok = false
+    a2.each do |v2|
+      if compare v1, v2
+        ok = true
+        next
+      end  
+    end
+    return false if not ok
+  end
+  true
 end
