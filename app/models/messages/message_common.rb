@@ -178,6 +178,8 @@ module MessageCommon
         if [:from, :to, :subject, :body, :guid].include? key.to_sym
           # Normal attribute
           msg.send "#{key}=", value
+        elsif [:controller, :action, :application_name, :account_name].include? key.to_sym
+          # Nothing, ignore these because they come from the request
         else
           # Custom attribute
           msg.custom_attributes[key] = value

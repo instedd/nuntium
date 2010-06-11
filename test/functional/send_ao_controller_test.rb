@@ -18,7 +18,8 @@ class SendAoControllerTest < ActionController::TestCase
       
       msg = messages[0]
       
-      assert_equal (ok ? 'id: ' : 'error: ') + msg.id.to_s, @response.body
+      assert_equal msg.id.to_s, @response.headers['X-Nuntium-Id']
+      assert_equal msg.guid.to_s, @response.headers['X-Nuntium-Guid']
       
       assert_equal @account.id, msg.account_id
       assert_equal "s", msg.subject

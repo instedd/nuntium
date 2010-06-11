@@ -6,11 +6,9 @@ class SendAoController < ApplicationAuthenticatedController
     msg.account_id = @account.id
     @application.route_ao msg, 'http'
     
-    if msg.state == 'failed'
-      render :text => "error: #{msg.id}"
-    else
-      render :text => "id: #{msg.id}"
-    end
+    response.headers['X-Nuntium-Id'] = msg.id.to_s
+    response.headers['X-Nuntium-Guid'] = msg.guid.to_s
+    head msg.state == 'failed' ? :bad_request : :ok
   end
 
 end
