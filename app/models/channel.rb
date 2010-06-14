@@ -313,7 +313,7 @@ class Channel < ActiveRecord::Base
     chan.kind = hash[:kind]
     chan.protocol = hash[:protocol]
     chan.priority = hash[:priority]
-    chan.enabled = to_bool(hash[:enabled])
+    chan.enabled = hash[:enabled].to_b
     chan.direction = hash[:direction] if hash[:direction]
     chan.address = hash[:address] if hash[:address]
     
@@ -334,14 +334,6 @@ class Channel < ActiveRecord::Base
     end unless hash_restrict.kind_of? String
     
     chan
-  end
-  
-  def to_bool(value)
-    if value.class <= String
-      value.downcase == 'true' || value == '1'
-    else
-      value
-    end
   end
 
 end
