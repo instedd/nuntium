@@ -142,3 +142,9 @@ acronym {
 .not_present_in_this_query td {
   color: #999
 }
+
+#version {
+  color: #bbbbbb;
+  text-align: right;
+  font-size: 8pt;
+}
