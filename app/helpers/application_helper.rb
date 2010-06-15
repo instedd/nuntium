@@ -13,4 +13,13 @@ module ApplicationHelper
     return '' if time.nil?
     '<span title="' << time.utc.to_s << '">' << time_ago_in_words(time.utc, true) << ' ago</span>'
   end
+  
+  def nuntium_version
+    begin
+      @@nuntium_version = File.read('VERSION').strip unless defined? @@nuntium_version
+    rescue Errno::ENOENT
+      @@nuntium_version = 'Development'
+    end
+    @@nuntium_version
+  end
 end

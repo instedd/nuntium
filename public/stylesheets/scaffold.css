@@ -163,3 +163,9 @@ acronym {
 #alerts a {
   color: white
 }
+
+#version {
+  color: #bbbbbb;
+  text-align: right;
+  font-size: 8pt;
+}
