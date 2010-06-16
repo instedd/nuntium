@@ -1,15 +1,15 @@
 class SendSmppMessageJob
-  attr_accessor :application_id, :channel_id, :message_id
+  attr_accessor :account_id, :channel_id, :message_id
 
-  def initialize(application_id, channel_id, message_id)
-    @application_id = application_id
+  def initialize(account_id, channel_id, message_id)
+    @account_id = account_id
     @channel_id = channel_id
     @message_id = message_id
   end
   
   def perform(delegate)
-    app = Application.find_by_id @application_id
-    channel = Channel.find @channel_id
+    account = Account.find_by_id @account_id
+    channel = account.find_channel @channel_id
     msg = AOMessage.find @message_id
     
     from = msg.from.without_protocol
@@ -19,10 +19,10 @@ class SendSmppMessageJob
     begin
       error_or_nil = delegate.send_message(msg.id, from, to, sms)
     rescue => e
-      msg.send_failed app, channel, e
+      msg.send_failed account, channel, e
     else
       if !error_or_nil.nil?
-        msg.send_failed app, channel, error_or_nil
+        msg.send_failed account, channel, error_or_nil
       end
     end
   end

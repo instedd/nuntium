@@ -8,3 +8,6 @@
 
 # Create the worker queue for cron tasks
 WorkerQueue.create!(:queue_name => 'cron_tasks_queue', :working_group => 'slow', :ack => false)
+
+load "#{RAILS_ROOT}/db/seeds-countries.rb"
+load "#{RAILS_ROOT}/db/seeds-carriers.rb"

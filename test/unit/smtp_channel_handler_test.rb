@@ -4,9 +4,7 @@ class SmtpChannelHandlerTest < ActiveSupport::TestCase
   include Mocha::API
   
   def setup
-    @app = Application.create(:name => 'app', :password => 'foo')
-    @chan = Channel.new(:application_id => @app.id, :name => 'chan', :kind => 'smtp', :protocol => 'sms')
-    @chan.configuration = {:host => 'host', :port => '430', :user => 'user', :password => 'password' }
+    @chan = Channel.make :smtp
   end
   
   [:host, :user, :password, :port].each do |field|
@@ -17,16 +15,12 @@ class SmtpChannelHandlerTest < ActiveSupport::TestCase
   
   test "should not save if port is not a number" do
     @chan.configuration[:port] = 'foo'
-    assert !@chan.save
+    assert_false @chan.save
   end
   
   test "should not save if port is negative" do
     @chan.configuration[:port] = -430
-    assert !@chan.save
-  end
-  
-  test "should save" do
-    assert @chan.save
+    assert_false @chan.save
   end
   
   test "should enqueue" do
@@ -34,13 +28,12 @@ class SmtpChannelHandlerTest < ActiveSupport::TestCase
   end
   
   test "on enable binds queue" do
-    Queues.expects(:bind_ao).with(@chan)
-    @chan.save!
+    chan = Channel.make_unsaved :smtp
+    Queues.expects(:bind_ao).with chan
+    chan.save!
   end
   
   test "on enable creates worker queue" do
-    @chan.save!
-    
     wqs = WorkerQueue.all(:conditions => ['queue_name = ?', Queues.ao_queue_name_for(@chan)])
     assert_equal 1, wqs.length
     assert_equal 'fast', wqs[0].working_group
@@ -49,10 +42,7 @@ class SmtpChannelHandlerTest < ActiveSupport::TestCase
   end
   
   test "on disable destroys worker queue" do
-    @chan.save!
-    
-    @chan.enabled = false
-    @chan.save!
+    @chan.update_attribute :enabled, false
     
     assert_equal 0, WorkerQueue.count(:conditions => ['queue_name = ?', Queues.ao_queue_name_for(@chan)])
   end

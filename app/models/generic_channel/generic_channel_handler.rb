@@ -5,12 +5,8 @@ class GenericChannelHandler < ChannelHandler
     Queues.publish_ao msg, create_job(msg)
   end
   
-  def handle_now(msg)
-    create_job(msg).perform
-  end
-  
   def create_job(msg)
-    job_class.new(@channel.application_id, @channel.id, msg.id)
+    job_class.new(@channel.account_id, @channel.id, msg.id)
   end
   
   def on_enable

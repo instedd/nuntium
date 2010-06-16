@@ -1,11 +1,14 @@
-class MessageController < AuthenticatedController
+class MessageController < AccountAuthenticatedController
 
+  include CustomAttributesControllerCommon
   include MessageFilters
 
   before_filter :check_login
   after_filter :compress, :only => [:view_ao_message, :view_at_message]
 
   def new_ao_message
+    return redirect_to_home if @account.applications.empty?
+  
     @kind = 'ao'
     render "new_message.html.erb"
   end
@@ -18,7 +21,10 @@ class MessageController < AuthenticatedController
   def create_ao_message
     msg = create_message AOMessage
     
-    @application.route msg, 'user'
+    application = @account.find_application params[:message][:application_id]
+    return redirect_to_home unless application
+    
+    application.route_ao msg, 'user'
     
     redirect_to_home "AO Message was created with id <a href=\"/message/ao/#{msg.id}\" onclick=\"window.open(this.href,'log','width=640,height=480,scrollbars=yes');return false;\">#{msg.id}</a>"
   end
@@ -26,20 +32,33 @@ class MessageController < AuthenticatedController
   def create_at_message
     msg = create_message ATMessage
     msg.timestamp = Time.new.utc
-    @application.accept msg, 'ui'
+    
+    channel = @account.find_channel params[:message][:channel_id]
+    @account.route_at msg, (channel || 'ui')
     
     redirect_to_home "AT Message was created with id <a href=\"/message/at/#{msg.id}\" onclick=\"window.open(this.href,'log','width=640,height=480,scrollbars=yes');return false;\">#{msg.id}</a>"
+  end
+  
+  def simulate_route_ao
+    @msg = create_message AOMessage
+    
+    application = @account.find_application params[:message][:application_id]
+    return redirect_to_home unless application
+    
+    @channels = application.candidate_channels_for_ao @msg
   end
   
   def create_message(kind)
     m = params[:message]
   
     msg = kind.new
-    msg.application_id = @application.id
+    msg.account_id = @account.id
     msg.from = m[:from]
     msg.to = m[:to]
     msg.subject = m[:subject]
     msg.body = m[:body]
+    msg.custom_attributes = get_custom_attributes
+    
     return msg
   end
   
@@ -87,8 +106,11 @@ class MessageController < AuthenticatedController
       msgs = AOMessage.all(:conditions => ['id IN (?)', ids])
     end
     
+    applications = @account.applications
+    
     msgs.each do |msg|
-      @application.reroute msg
+      application = applications.select{|x| x.id == msg.application_id}.first
+      application.reroute_ao msg if application
     end
     
     flash[:notice] = "#{msgs.length} Application Originated messages #{msgs.length == 1 ? 'was' : 'were'} re-routed"
@@ -101,9 +123,9 @@ class MessageController < AuthenticatedController
   def view_ao_message
     @id = params[:id]
     @msg = AOMessage.find_by_id @id
-    redirect_to_home if @msg.nil? || @msg.application_id != @application.id
+    redirect_to_home if @msg.nil? || @msg.account_id != @account.id
     @hide_title = true
-    @logs = ApplicationLog.find_all_by_ao_message_id(@id, :order => :created_at)
+    @logs = AccountLog.find_all_by_ao_message_id(@id, :order => :created_at)
     @kind = 'ao'
     render "message.html.erb"
   end
@@ -111,9 +133,9 @@ class MessageController < AuthenticatedController
   def view_at_message
     @id = params[:id]
     @msg = ATMessage.find_by_id @id
-    redirect_to_home if @msg.nil? || @msg.application_id != @application.id
+    redirect_to_home if @msg.nil? || @msg.account_id != @account.id
     @hide_title = true
-    @logs = ApplicationLog.find_all_by_at_message_id(@id, :order => :created_at)
+    @logs = AccountLog.find_all_by_at_message_id(@id, :order => :created_at)
     @kind = 'at'
     render "message.html.erb"
   end

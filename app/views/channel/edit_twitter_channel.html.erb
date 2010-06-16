@@ -1,4 +1,4 @@
-<%= edit_channel_header %>
+<%= render :partial => 'edit_channel_header' %>
 
 <% if TwitterConsumerConfig.nil? %>
   <%= render :partial => 'twitter_configuration_missing' %>
@@ -6,8 +6,11 @@
 
 <% form_for :channel, :html => { :id => 'edit_twitter_channel_form' } do |f| %>
   <%= f.error_messages %>
-  <%= edit_channel_name f %>
-  <%= edit_channel_protocol f %>
+  <%= render :partial => 'edit_name', :locals => {:f => f} %>
+  <%= render :partial => 'edit_protocol', :locals => {:f => f} %>
+  <%= render :partial => 'edit_priority', :locals => {:f => f} %>
+  <%= render :partial => 'edit_application', :locals => {:f => f} %>
+  <%= render :partial => 'edit_address', :locals => {:f => f} %>
   <% f.fields_for :configuration do |c| %>
     <p>
     <%= c.label :screen_name %><br/>
@@ -21,6 +24,8 @@
       %>
     </p>
   <% end %>
+  <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} %>
+  <%= render :partial => 'edit_at_rules', :locals => {:f => f} %>
   <button onClick="twitter_channel_update()">Update channel</button>
   or
   <button onClick="twitter_channel_update_user()">Update channel and also change Twitter account</button>

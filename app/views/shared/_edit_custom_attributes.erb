@@ -1,0 +1,123 @@
+<%
+include_channels = defined?(include_channels) ? include_channels : false
+as_restriction = defined?(as_restriction) ? as_restriction : false
+custom_attributes = entity.nil? ? {} : (as_restriction ? entity.restrictions : entity.custom_attributes)
+show_accept_when_not_specified_option = defined?(accept_when_not_specified_option) ? accept_when_not_specified_option : true
+%>
+
+<h5><%= as_restriction ? 'Restrictions' : 'Custom Attributes' %></h5>
+
+<%
+# Write the applications in javascript so we can fill the combobox without
+# going to the server...
+applications = @account.applications.map(&:name).sort!
+channels = @account.channels.map(&:name).sort!
+%>
+<script type="text/javascript">
+var applications = <%= applications.to_json %>;
+var channels = <%= channels.to_json %>;
+var show_accept_when_not_specified_option = <%= show_accept_when_not_specified_option ? 'true' : 'false' %>;
+</script>
+
+<div>
+<%
+if custom_attributes.empty?
+  %>
+  <div id="no_custom_attributes">No <%= as_restriction ? 'restrictions' : 'custom attributes' %>.</div>
+  <%
+end
+%>
+<ul id="custom_attributes">
+  <%
+  countries = Country.all
+  carriers = Carrier.all_with_countries
+  
+  def write_custom_attribute(applications, channels, countries, carriers, include_channels, as_restriction, show_accept_when_not_specified_option, name, values)
+    values = [values] unless values.kind_of? Array
+    values.each do |value|
+      next if value == '' and name != ''
+    
+      is_custom = name != "" && name != "application" && name != "country" && name != "carrier"
+      %>
+      <li>
+        <select name="<%= is_custom ? 'doesnt_matter' : 'custom_attribute_name[]'%>" onchange="channel_custom_attribute_changed(this)">
+          <option value="" <%= 'selected="selected"' if name == "" %>>Add <%= as_restriction ? 'a restriction' : 'an attribute' %>...</option>
+          <% if applications.length > 0 %>
+            <option value="application" <%= 'selected="selected"' if name == "application" %>>Application</option>
+          <% end %>
+          <option value="country" <%= 'selected="selected"' if name == "country" %>>Country</option>
+          <option value="carrier" <%= 'selected="selected"' if name == "carrier" %>>Carrier</option>
+          <% if include_channels and channels.length > 0 %>
+            <option value="suggested_channel" <%= 'selected="selected"' if name == "suggested_channel" %>>Suggested channel</option>
+          <% end %>
+          <option value="custom" <%= 'selected="selected"' if is_custom %>>Custom</option>
+        </select>
+        <span class="value">
+        <%
+        case name
+        when 'application'
+          %>
+          =
+          <select name="custom_attribute_value[]">
+            <% applications.each do |app| %>
+              <option><%= app %></option>
+            <% end %>
+          </select>
+          <%
+        when 'country'
+          %>
+          =
+          <select name="custom_attribute_value[]">
+            <% countries.each do |country| %>
+              <option value="<%= country.iso2 %>" <%= 'selected="selected"' if country.iso2.casecmp(value) == 0 %>><%= country.name %></option>
+            <% end %>
+          </select>
+          <%
+        when 'carrier'
+          selected_carrier = carriers.select{|x| x.guid == value}.first
+          %>
+          =
+          <select name="doesnt_matter" onchange="channel_custom_attribute_country_changed(this)">
+            <% countries.each do |country| %>
+              <option value="<%= country.iso2 %>" <%= 'selected="selected"' if selected_carrier.country.id == country.id %>><%= country.name %></option>
+            <% end %>
+          </select>
+          <span class="value2">
+            <select name="custom_attribute_value[]">
+              <% carriers.select{|x| x.country.iso2 == selected_carrier.country.iso2}.each do |carrier| %>
+                <option value="<%= carrier.guid %>" <%= 'selected="selected"' if selected_carrier.guid == value %>><%= carrier.name %></option>
+              <% end %>
+            </select>
+          </span>
+          <%
+        when ''
+          nil # Nothing
+        else
+          %>
+          Name: <input type="text" name="custom_attribute_name[]" value="<%= h name %>"> Value: <input type="text" name="custom_attribute_value[]" value="<%= h value %>">
+        <%
+        end
+        %>
+        
+        <% if name != '' %>
+          <% if show_accept_when_not_specified_option %>
+            &nbsp;
+            <input type="hidden" name="custom_attribute_optional[]" value="0"/>
+            <input type="checkbox" name="custom_attribute_optional[]" value="1" <%= 'checked="checked"' if values.include? '' %>/> Accept when not specified
+          <% end %>
+          &nbsp; <a href="javascript:void(0)" onclick="remove_custom_attribute(this)">Remove</a>
+        <% end %>
+        </span>
+       </li>
+      <%
+    end
+  end
+  
+  custom_attributes.each do |name, values|
+    write_custom_attribute applications, channels, countries, carriers, include_channels, as_restriction, show_accept_when_not_specified_option, name, values
+  end
+  write_custom_attribute applications, channels, countries, carriers, include_channels, as_restriction, show_accept_when_not_specified_option, '', ''
+  %>
+</ul>
+</div>
+<br/>

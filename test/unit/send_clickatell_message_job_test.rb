@@ -6,10 +6,12 @@ require 'mocha'
 
 class SendClickatellMessageJobTest < ActiveSupport::TestCase
   include Mocha::API
+  
+  def setup
+    @chan = Channel.make :clickatell
+  end
 
   should "perform" do
-    request = mock('Net::HTTP')
-  
     response = mock('Net::HTTPResponse')
     response.stubs(
       :code => '200', 
@@ -17,31 +19,10 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain', 
       :body => 'ID: msgid')
       
-    host = URI::parse('https://api.clickatell.com')
-      
-    uri = '/http/sendmsg'
-    uri += '?api_id=api1'
-    uri += '&user=user1'
-    uri += '&password=pass1'
-    uri += '&from=someone'
-    uri += '&mo=1'
-    uri += '&to=5678'
-    uri += '&text=text+me'
+    msg = AOMessage.make :account => Account.make
     
-    Net::HTTP.expects(:new).with(host.host, host.port).returns(request)
-    request.expects('use_ssl=').with(true)
-    request.expects('verify_mode=').with(OpenSSL::SSL::VERIFY_NONE)
-    request.expects(:get).with(uri).returns(response)
-    
-    app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell')
-    chan.configuration = {:api_id => 'api1', :user => 'user1', :password => 'pass1', :from => 'someone', :incoming_password => 'pass2'}
-    assert_true chan.save!
-    
-    msg = AOMessage.create(:application_id => app.id, :from => 'sms://1234', :to => 'sms://5678', :body => 'text me', :state => 'pending')
-      
-    job = SendClickatellMessageJob.new(app.id, chan.id, msg.id)
-    result = job.perform
+    expect_http msg, response    
+    deliver msg
     
     msg = AOMessage.first
     assert_equal 'msgid', msg.channel_relative_id
@@ -50,8 +31,6 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
   end
   
   should "perform error" do
-    request = mock('Net::HTTP')
-  
     response = mock('Net::HTTPResponse')
     response.stubs(
       :code => '200', 
@@ -59,44 +38,21 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain', 
       :body => 'ERR: 105, Invalid destination address')
       
-    host = URI::parse('https://api.clickatell.com')
-      
-    uri = '/http/sendmsg'
-    uri += '?api_id=api1'
-    uri += '&user=user1'
-    uri += '&password=pass1'
-    uri += '&from=someone'
-    uri += '&mo=1'
-    uri += '&to=5678'
-    uri += '&text=text+me'
+    msg = AOMessage.make :account => Account.make
     
-    Net::HTTP.expects(:new).with(host.host, host.port).returns(request)
-    request.expects('use_ssl=').with(true)
-    request.expects('verify_mode=').with(OpenSSL::SSL::VERIFY_NONE)
-    request.expects(:get).with(uri).returns(response)
-    
-    app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell')
-    chan.configuration = {:api_id => 'api1', :user => 'user1', :password => 'pass1', :from => 'someone', :incoming_password => 'pass2'}
-    assert_true chan.save!
-    
-    msg = AOMessage.create(:application_id => app.id, :from => 'sms://1234', :to => 'sms://5678', :body => 'text me', :state => 'queued')
-    
-    job = SendClickatellMessageJob.new(app.id, chan.id, msg.id)
-    result = job.perform
+    expect_http msg, response 
+    deliver msg
     
     msg = AOMessage.first
     assert_equal 1, msg.tries
-    assert_equal 'queued', msg.state
+    assert_equal 'pending', msg.state
     
-    logs = ApplicationLog.all
+    logs = AccountLog.all
     assert_equal 1, logs.length
     assert_true logs[0].message.include?('105, Invalid destination address')
   end
   
   should "perform fatal error" do
-    request = mock('Net::HTTP')
-  
     response = mock('Net::HTTPResponse')
     response.stubs(
       :code => '200', 
@@ -104,37 +60,48 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain', 
       :body => 'ERR: 002, Unknown username or password')
       
-    host = URI::parse('https://api.clickatell.com')
-      
-    uri = '/http/sendmsg'
-    uri += '?api_id=api1'
-    uri += '&user=user1'
-    uri += '&password=pass1'
-    uri += '&from=someone'
-    uri += '&mo=1'
-    uri += '&to=5678'
-    uri += '&text=text+me'
+    msg = AOMessage.make :account => Account.make
     
+    expect_http msg, response 
+    deliver msg
+    
+    msg = AOMessage.first
+    assert_equal 0, msg.tries
+    assert_equal 'pending', msg.state
+    
+    @chan.reload
+    assert_false @chan.enabled
+  end
+  
+  def expect_http(msg, response)
+    params = {
+      :api_id => @chan.configuration[:api_id],
+      :user => @chan.configuration[:user],
+      :password => @chan.configuration[:password],
+      :from => @chan.configuration[:from],
+      :mo => '1',
+      :to => msg.to.without_protocol,
+      :text => msg.subject_and_body
+    }
+    uri = "/http/sendmsg?#{params.to_query}"
+  
+    host = URI::parse('https://api.clickatell.com')
+    request = mock('Net::HTTP')
     Net::HTTP.expects(:new).with(host.host, host.port).returns(request)
     request.expects('use_ssl=').with(true)
     request.expects('verify_mode=').with(OpenSSL::SSL::VERIFY_NONE)
     request.expects(:get).with(uri).returns(response)
-    
-    app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'clickatell')
-    chan.configuration = {:api_id => 'api1', :user => 'user1', :password => 'pass1', :from => 'someone', :incoming_password => 'pass2'}
-    assert_true chan.save!
-    
-    msg = AOMessage.create(:application_id => app.id, :from => 'sms://1234', :to => 'sms://5678', :body => 'text me', :state => 'queued')
-    
-    job = SendClickatellMessageJob.new(app.id, chan.id, msg.id)
-    job.perform
-    
+  end
+  
+  def deliver(msg)
+    job = SendClickatellMessageJob.new(@chan.account.id, @chan.id, msg.id)
+    result = job.perform
+  end
+  
+  def check_message_was_delivered(channel_relative_id)
     msg = AOMessage.first
-    assert_equal 0, msg.tries
-    assert_equal 'queued', msg.state
-    
-    chan.reload
-    assert_false chan.enabled
+    assert_equal channel_relative_id, msg.channel_relative_id
+    assert_equal 1, msg.tries
+    assert_equal 'delivered', msg.state
   end
 end

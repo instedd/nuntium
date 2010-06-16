@@ -54,12 +54,12 @@ module MessageState
       return msg
     end
     
-    # Returns all messages for an application or channel newer than a specific message
-    # * all app's messages are returned if msg and msg_id is nil
-    # * options include app_id, channel_id, desc, batch_size
+    # Returns all messages for an account or channel newer than a specific message
+    # * all account's messages are returned if msg and msg_id is nil
+    # * options include account_id, channel_id, desc, batch_size
     def fetch_newer_messages(msg_or_id, args)
       args = { :desc => false, :bach_size => 10 }.merge(args)
-      raise Exception.new('Must set either channel or app id') if args[:app_id].nil? and args[:channel_id].nil?
+      raise Exception.new('Must set either channel or account id') if args[:account_id].nil? and args[:channel_id].nil?
       
       msg = self.get_message(msg_or_id)
       args[:after_timestamp] = msg.timestamp unless msg.nil?
@@ -67,7 +67,7 @@ module MessageState
       query = "state IN ('delivered', 'queued')"
       params = []
       
-      # Filter by app/channel/timestamp
+      # Filter by account/channel/timestamp
       add_filter query, params, args
       
       # Order by time, last arrived message will be first
@@ -90,10 +90,10 @@ module MessageState
         params << args[:before_timestamp]
       end
       
-      # Filter by app
-      if args[:app_id]
-        query << " AND application_id = ?"
-        params << args[:app_id]
+      # Filter by account
+      if args[:account_id]
+        query << " AND account_id = ?"
+        params << args[:account_id]
       end
       
       # Filter by channel if requested

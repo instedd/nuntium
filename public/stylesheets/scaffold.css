@@ -119,18 +119,6 @@ acronym {
   border-bottom: 1px dashed black;
 }
 
-.example {
-  background-color: white;
-  border: 2px solid #6192A7;
-  padding: 10px;
-  font-size: 11px;
-}
-
-#address_source_result {
-  color:blue;
-  font-weight:bold;
-}
-
 #title {
   color: blue;
   font-weight:bold;
@@ -151,17 +139,8 @@ acronym {
   margin-top:8px;
 }
 
-#alerts {
-  border:2px solid black;
-  background:red;
-  padding:4px;
-  font-weight:bold;
-  color:white;
-  margin-top:8px;
-}
-
-#alerts a {
-  color: white
+.not_present_in_this_query td {
+  color: #999
 }
 
 #version {

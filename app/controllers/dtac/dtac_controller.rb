@@ -13,14 +13,14 @@ class DtacController < ApplicationController
     msg.channel_relative_id = params[:ID]
     msg.timestamp = Time.now.utc
     
-    @application.accept msg, nil
+    @account.route_at msg, nil
     
     head :ok
   end
   
   def authenticate
-    @application = Application.find_by_id_or_name(params[:application_id])
-    return !@application.nil?
+    @account = Account.find_by_id_or_name(params[:account_id])
+    return !@account.nil?
   end
   
 end

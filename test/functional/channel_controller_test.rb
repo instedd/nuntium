@@ -2,12 +2,16 @@ require 'test_helper'
 
 class ChannelControllerTest < ActionController::TestCase
 
+  def setup
+    @account = Account.make
+  end
+
   test "create qst server channel succeeds" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
+    attrs = Channel.plan :qst_server
+  
+    get :create_channel, {:kind => 'qst_server', :channel => attrs}, {:account_id => @account.id}
     
-    get :create_channel, {:kind => 'qst_server', :channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application_id => app.id}
-    
-    # Go to app home page
+    # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
     assert_equal 'Channel was created', flash[:notice]
     
@@ -16,42 +20,39 @@ class ChannelControllerTest < ActionController::TestCase
     assert_equal 1, chans.length
     
     chan = chans[0]
-    assert_equal app.id, chan.application_id
-    assert_equal 'chan', chan.name
-    assert_equal 'sms', chan.protocol
-    assert_equal 'qst_server', chan.kind
-    assert(chan.handler.authenticate('chan_pass'))
+    assert_equal @account.id, chan.account_id
+    assert_equal attrs[:name], chan.name
+    assert_equal attrs[:protocol], chan.protocol
+    assert_equal attrs[:kind], chan.kind
+    assert(chan.handler.authenticate(attrs[:configuration][:password]))
   end
   
   test "edit channel change password succeeds" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
-    chan = Channel.new({:application_id => app.id, :name => 'chan', :protocol => 'sms', :direction => Channel::Bidirectional, :kind => 'qst_server'})
-    chan.configuration = {:password => 'chan_pass'}
-    chan.save
+    chan = Channel.make :qst_server, :account => @account
     
-    get :update_channel, {:id => chan.id, :channel => {:protocol => 'sms', :configuration => {:password => 'new_pass', :password_confirmation => 'new_pass'}}}, {:application_id => app.id}
+    get :update_channel, {:id => chan.id, :channel => {:protocol => 'sms', :direction => Channel::Bidirectional, :configuration => {:password => 'new_pass', :password_confirmation => 'new_pass'}}}, {:account_id => @account.id}
     
-    # Go to app home page
+    # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
     assert_equal 'Channel was updated', flash[:notice]
     
     # The channel was changed
     chans = Channel.all
     assert_equal 1, chans.length
-    
     chan = chans[0]
     assert(chan.handler.authenticate('new_pass'))
   end
   
   test "edit qst server channel succeeds" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
-    chan = Channel.new({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst_server'})
-    chan.configuration = {:password => 'chan_pass'}
-    chan.save
+    chan = Channel.make_unsaved :qst_server, :account => @account
+    chan.configuration[:password] = 'chan_pass'
+    chan.configuration[:password_confirmation] = 'chan_pass'
+    chan.configuration.delete :salt
+    chan.save!
     
-    get :update_channel, {:id => chan.id, :channel => {:protocol => 'mail', :configuration => {:password => '', :password_confirmation => ''}}}, {:application_id => app.id}
+    get :update_channel, {:id => chan.id, :channel => {:protocol => 'mail', :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => @account.id}
     
-    # Go to app home page
+    # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
     assert_equal 'Channel was updated', flash[:notice]
     
@@ -66,14 +67,11 @@ class ChannelControllerTest < ActionController::TestCase
   end
   
   test "delete channel" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
-    chan = Channel.new({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst_server'})
-    chan.configuration = {:password => 'chan_pass'}
-    chan.save
+    chan = Channel.make :qst_server, :account => @account
     
-    get :delete_channel, {:id => chan.id}, {:application_id => app.id}
+    get :delete_channel, {:id => chan.id}, {:account_id => @account.id}
     
-    # Go to app home page
+    # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
     assert_equal 'Channel was deleted', flash[:notice]
     
@@ -82,29 +80,12 @@ class ChannelControllerTest < ActionController::TestCase
     assert_equal 0, chans.length
   end
   
-  # ------------------------ #
-  # Validations tests follow #
-  # ------------------------ #
-  
   test "edit channel fails protocol empty" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
-    chan = Channel.new({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst_server'})
-    chan.configuration = {:password => 'chan_pass'}
-    chan.save
+    chan = Channel.make :qst_server, :account => @account
     
-    get :update_channel, {:id => chan.id, :channel => {:protocol => '', :configuration => {:password => '', :password_confirmation => ''}}}, {:application_id => app.id}
-    assert_template 'edit_qst_server_channel'
-  end
-
-  test "create chan fails name already exists" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
-    chan = Channel.new({:application_id => app.id, :name => 'chan', :protocol => 'sms', :kind => 'qst_server'})
-    chan.configuration = {:password => 'chan_pass'}
-    chan.save
+    get :update_channel, {:id => chan.id, :channel => {:protocol => '', :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => @account.id}
     
-    get :create_channel, {:kind => 'qst_server', :channel => {:name => 'chan', :protocol => 'sms', :configuration => {:password => 'chan_pass', :password_confirmation => 'chan_pass'}}}, {:application_id => app.id}
-    assert_template 'new_qst_server_channel'
+    assert_template "channel/edit_qst_server_channel.html.erb"
   end
-  
 
 end

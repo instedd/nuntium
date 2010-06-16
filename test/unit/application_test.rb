@@ -5,550 +5,25 @@ class ApplicationTest < ActiveSupport::TestCase
 
   include Mocha::API
 
-  test "should not save if name is blank" do
-    app = Application.new(:password => 'foo')
-    assert !app.save
-  end
-  
-  test "should not save if password is blank" do
-    app = Application.new(:name => 'app')
-    assert !app.save
-  end
-  
-  test "should not save if password confirmation fails" do
-    app = Application.new(:name => 'app', :password => 'foo', :password_confirmation => 'foo2')
-    assert !app.save
-  end
-  
-  test "should not save if name is taken" do
-    Application.create!(:name => 'app', :password => 'foo')
-    app = Application.new(:name => 'app', :password => 'foo2')
-    assert !app.save
-  end
-  
-  test "should save app" do
-    app = Application.new(:name => 'app', :password => 'foo', :password_confirmation => 'foo')
-    assert app.save
-  end
-  
-  test "should find by name" do
-    app1 = Application.create!(:name => 'app', :password => 'foo')
-    app2 = Application.find_by_name 'app'
-    assert_equal app1.id, app2.id
-  end
-  
-  test "should authenticate" do
-    app1 = Application.create!(:name => 'app', :password => 'foo')
-    assert app1.authenticate('foo')
-    assert !app1.authenticate('foo2')
-  end
-  
-  test "should find by id if numerical" do
-    app = Application.create!(:name => 'app', :password => 'foo')
-    found = Application.find_by_id_or_name(app.id.to_s)
-    assert_equal app, found
-  end
-  
-  test "should find by name if string" do
-    app = Application.create!(:name => 'app2', :password => 'foo')
-    found = Application.find_by_id_or_name('app2')
-    assert_equal app, found
-  end
-  
-  test "ao routing change from" do
-    app = Application.new(:name => 'app', :password => 'foo')
-    app.configuration[:ao_routing] = "msg.from = 'sms://1234'"
-    app.save!
-    
-    chan1 = new_channel app, 'Uno'
-    chan2 = new_channel app, 'Dos'
-    
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
-    app.route(msg, 'test')
-    
-    assert_equal 'sms://1234', msg.from
-    
-    msg = AOMessage.all[0]
-    assert_equal 'sms://1234', msg.from
-  end
-  
-  test "ao routing change from twice" do
-    app = Application.new(:name => 'app', :password => 'foo')
-    app.configuration[:ao_routing] = "msg.from = 'sms://1234'"
-    app.save!
-    
-    chan1 = new_channel app, 'Uno'
-    chan2 = new_channel app, 'Dos'
-    
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
-    app.route(msg, 'test')
-    
-    assert_equal 1, AOMessage.all.length
-    
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
-    app.route(msg, 'test')
-    
-    assert_equal 2, AOMessage.all.length
-    
-    assert_equal 'sms://1234', msg.from
-  end
-  
-  test "ao routing select channel by name" do
-    app = Application.new(:name => 'app', :password => 'foo')
-    app.save!
-    
-    chan1 = new_channel app, 'Uno'
-    chan2 = new_channel app, 'Dos'
-    chan2.metric = chan1.metric + 100
-    chan2.save!
-    
-    app.configuration[:ao_routing] = "msg.route_to_channel 'Dos'"
-    app.save!
-    
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
-    app.route(msg, 'test')
-    
-    assert_equal 1, AOMessage.all.length
-    
-    qsts = QSTOutgoingMessage.all
-    assert_equal 1, qsts.length
-    assert_equal chan2.id, qsts[0].channel_id
-  end
-  
-  test "ao routing select channel by array" do
-    app = Application.new(:name => 'app', :password => 'foo')
-    app.save!
-    
-    chan1 = new_channel app, 'Uno'
-    chan2 = new_channel app, 'Dos'
-    chan2.metric = chan1.metric + 100
-    chan2.save!
-    chan3 = new_channel app, 'Tres'
-    chan3.metric = chan1.metric + 90
-    chan3.save!
-    
-    app.configuration[:ao_routing] = "msg.route_to_any_channel 'Dos', 'Tres'"
-    app.save!
-    
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
-    app.route(msg, 'test')
-    
-    assert_equal 1, AOMessage.all.length
-    
-    qsts = QSTOutgoingMessage.all
-    assert_equal 1, qsts.length
-    assert_equal chan3.id, qsts[0].channel_id
-  end
-  
-  test "ao routing change application" do
-    app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.save!
-    
-    app2 = Application.create!(:name => 'app2', :password => 'foo')
-    
-    chan1 = new_channel app1, 'Uno'
-    chan2 = new_channel app1, 'Dos'
-    chan3 = new_channel app2, 'Tres'
-    
-    app1.configuration[:ao_routing] = "msg.route_to_application 'app2'"
-    app1.save!
-    
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
-    app1.route(msg, 'test')
-    
-    assert_equal 1, AOMessage.all.length
-    
-    qsts = QSTOutgoingMessage.all
-    assert_equal 1, qsts.length
-    assert_equal chan3.id, qsts[0].channel_id
-  end
-  
-  test "ao routing copy in two channels" do
-    app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.save!
-    
-    app2 = Application.create!(:name => 'app2', :password => 'foo')
-    
-    chan1 = new_channel app1, 'Uno'
-    chan2 = new_channel app1, 'Dos'
-    
-    app1.configuration[:ao_routing] = "msg.copy{|x| x.from = 'UNO'; x.route_to_channel 'Uno'}; msg.copy{|x| x.from = 'DOS'; x.route_to_channel 'Dos'};"
-    app1.save!
-    
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')
-    app1.route(msg, 'test')
-    
-    msgs = AOMessage.all
-    assert_equal 2, msgs.length
-    assert_equal 'UNO', msgs[0].from
-    assert_equal 'DOS', msgs[1].from
-    
-    qsts = QSTOutgoingMessage.all
-    assert_equal 2, qsts.length
-    assert_equal chan1.id, qsts[0].channel_id
-    assert_equal chan2.id, qsts[1].channel_id
-  end
-  
-  test "ao routing route to any channel test passes" do
-    app = Application.new(:name => 'app', :password => 'foo')
-    app.configuration[:ao_routing] = "msg.from = 'bar'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'bar'})" 
-    assert_true app.save
-  end
-  
-  test "ao routing route to any channel test fails" do
-    app = Application.new(:name => 'app', :password => 'foo')
-    app.configuration[:ao_routing] = "msg.from = 'bar'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'baZ'})" 
-    assert_false app.save
-  end
-  
-  test "ao routing route to any channel test passes with comments in the end" do
-    app = Application.new(:name => 'app', :password => 'foo')
-    app.configuration[:ao_routing] = "msg.from = 'bar'
-    #comment"
-    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'bar'})
-    #comment" 
-    assert_true app.save
-
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://5678', :subject => 'foo', :body => 'bar')    
-    app.route msg, 'test'
-    assert_equal 'bar', AOMessage.all[0].from
-  end
-  
-  test "ao routing route to any channel explicit test passes" do
-    app = Application.create!(:name => 'app', :password => 'foo')
-    chan = new_channel app, 'Uno'
-    
-    app.configuration[:ao_routing] = "msg.route_to_any_channel 'Uno'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, 'Uno')" 
-    assert_true app.save
-  end
-  
-  test "ao routing route to any channel explicit test fails" do
-    app = Application.create!(:name => 'app', :password => 'foo')
-    chan = new_channel app, 'Uno'
-    
-    app.configuration[:ao_routing] = "msg.route_to_any_channel 'Uno'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, 'Dos')" 
-    assert_false app.save
-  end
-  
-  test "ao routing route to any channel explicit test fails many" do
-    app = Application.create!(:name => 'app', :password => 'foo')
-    chan = new_channel app, 'Uno'
-    
-    app.configuration[:ao_routing] = "msg.route_to_any_channel 'Uno', 'Dos'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, 'Dos')" 
-    assert_false app.save
-  end
-  
-  test "ao routing route to any channel explicit and change from test passes" do
-    app = Application.create!(:name => 'app', :password => 'foo')
-    chan = new_channel app, 'Uno'
-    
-    app.configuration[:ao_routing] = "msg.from = 'bar'; msg.route_to_any_channel 'Uno'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'bar'}, 'Uno')" 
-    assert_true app.save
-  end
-  
-  test "ao routing route to any channel explicit and change from test fails" do
-    app = Application.create!(:name => 'app', :password => 'foo')
-    chan = new_channel app, 'Uno'
-    
-    app.configuration[:ao_routing] = "msg.from = 'bar'; msg.route_to_any_channel 'Uno'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_any_channel({:from => 'foo'}, {:from => 'foo'}, 'Uno')" 
-    assert_false app.save
-  end
-  
-  test "ao routing route to channel test passes" do
-    app = Application.create!(:name => 'app', :password => 'foo')
-    chan = new_channel app, 'Uno'
-    
-    app.configuration[:ao_routing] = "msg.route_to_channel 'Uno'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_channel({:from => 'foo'}, 'Uno')" 
-    assert_true app.save
-  end
-  
-  test "ao routing route to channel test fails" do
-    app = Application.create!(:name => 'app', :password => 'foo')
-    chan = new_channel app, 'Uno'
-    
-    app.configuration[:ao_routing] = "msg.route_to_channel 'Uno'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_channel({:from => 'foo'}, 'Dos')" 
-    assert_false app.save
-  end
-  
-  test "ao routing route to channel and change from test passes" do
-    app = Application.create!(:name => 'app', :password => 'foo')
-    chan = new_channel app, 'Uno'
-    
-    app.configuration[:ao_routing] = "msg.from = 'bar'; msg.route_to_channel 'Uno'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_channel({:from => 'foo'}, {:from => 'bar'}, 'Uno')" 
-    assert_true app.save
-  end
-  
-  test "ao routing route to channel and change from test fails" do
-    app = Application.create!(:name => 'app', :password => 'foo')
-    chan = new_channel app, 'Uno'
-    
-    app.configuration[:ao_routing] = "msg.from = 'bar'; msg.route_to_channel 'Uno'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_channel({:from => 'foo'}, {:from => 'foo'}, 'Uno')" 
-    assert_false app.save
-  end
-  
-  test "ao routing route to application test passes" do
-    app = Application.create!(:name => 'app', :password => 'foo')
-    app.configuration[:ao_routing] = "msg.route_to_application 'app'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_application({:from => 'foo'}, 'app')" 
-    assert_true app.save
-  end
-  
-  test "ao routing route to application test fails" do
-    app = Application.new(:name => 'app', :password => 'foo')
-    app.configuration[:ao_routing] = "msg.route_to_application 'app'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_application({:from => 'foo'}, 'app2')" 
-    assert_false app.save
-  end
-  
-  test "ao routing route to application and change from test passes" do
-    app = Application.create!(:name => 'app', :password => 'foo')
-    app.configuration[:ao_routing] = "msg.from = 'bar'; msg.route_to_application 'app'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_application({:from => 'foo'}, {:from => 'bar'}, 'app')" 
-    assert_true app.save
-  end
-  
-  test "ao routing route to application and change from test fails" do
-    app = Application.new(:name => 'app', :password => 'foo')
-    app.configuration[:ao_routing] = "msg.from = 'bar'; msg.route_to_application 'app'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_application({:from => 'foo'}, {:from => 'foo'}, 'app')" 
-    assert_false app.save
-  end
-  
-  test "ao routing route same message twice fails" do
-    app = Application.new(:name => 'app', :password => 'foo')
-    app.configuration[:ao_routing] = "msg.route_to_channel 'one'; msg.route_to_application 'app'"
-    app.configuration[:ao_routing_test] = "assert.routed_to_application({}, {}, 'app')" 
-    assert_false app.save
-  end
-  
-  test "at routing" do
-    app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.configuration[:at_routing] = "msg.from = 'foo'"
-    app1.save!
-    
-    chan = new_channel app1, 'Uno'
-    
-    msg = ATMessage.new(:application_id => app1.id, :from => 'bar')
-    app1.accept msg, chan    
-    
-    assert_equal 'foo', msg.from
-    assert_equal 'foo', ATMessage.all[0].from
-  end
-  
-  test "at routing change application" do
-    app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.configuration[:at_routing] = "msg.application = Application.find_by_name 'app2'"
-    app1.save!
-    
-    app2 = Application.create!(:name => 'app2', :password => 'foo')
-    
-    chan = new_channel app1, 'Uno'
-    
-    msg = ATMessage.new(:application_id => app1.id, :from => 'bar')
-    app1.accept msg, chan    
-    
-    assert_equal app2.id, ATMessage.all[0].application_id
-  end
-  
-  test "at routing test passes" do
-    app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.configuration[:at_routing] = "msg.from = 'foo'"
-    app1.configuration[:at_routing_test] = "assert.transform({:from => 'bar'}, {:from => 'foo'})"
-    assert_true app1.save
-  end
-  
-  test "at routing test fails" do
-    app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.configuration[:at_routing] = "msg.from = 'foo'"
-    app1.configuration[:at_routing_test] = "assert.transform({:from => 'bar'}, {:from => 'bar'})"
-    assert_false app1.save
-  end
-  
-  test "at routing test passes with comments" do
-    app1 = Application.new(:name => 'app1', :password => 'foo')
-    app1.configuration[:at_routing] = "msg.from = 'foo'
-    #comment"
-    app1.configuration[:at_routing_test] = "assert.transform({:from => 'bar'}, {:from => 'foo'})
-    #comment"
-    assert_true app1.save
-    
-    chan1 = new_channel app1, 'Uno'
-    app1.accept ATMessage.new, chan1
-    assert_equal 'foo', ATMessage.first.from
-  end
-  
-  test "at routing inspect channel in test passes" do
-    app1 = Application.create!(:name => 'app1', :password => 'foo')
-    chan1 = new_channel app1, 'Uno'
-    chan2 = new_channel app1, 'Dos'
-    
-    app1.configuration[:at_routing] = "if !msg.channel.nil? && msg.channel.name == 'Uno'; msg.from = 'bar'; end;"
-    app1.configuration[:at_routing_test] = "assert.transform({:from => 'to'}, {:from => 'bar'}, 'Uno')"
-    assert_true app1.save
-  end
-  
-  test "at routing inspect channel in test fails" do
-    app1 = Application.create!(:name => 'app1', :password => 'foo')
-    chan1 = new_channel app1, 'Uno'
-    chan2 = new_channel app1, 'Dos'
-    
-    app1.configuration[:at_routing] = "if !msg.channel.nil? && msg.channel.name == 'Uno'; msg.from = 'bar'; end;"
-    app1.configuration[:at_routing_test] = "assert.transform({:from => 'to'}, {:from => 'foo'}, 'Uno')"
-    assert_false app1.save
-  end
-  
-  test "at routing doesn't create address source" do
-    app = Application.create!(:name => 'app1', :password => 'foo')
-    chan = new_channel app, 'Uno'
-    
-    msg = ATMessage.new(:application_id => app.id, :from => 'bar')
-    app.accept msg, chan
-    
-    assert_equal 0, AddressSource.all.length
-  end
-  
-  test "at routing creates address source" do
-    app = Application.new(:name => 'app1', :password => 'foo')
-    app.configuration[:use_address_source] = 1
-    app.save!
-    
-    chan = new_channel app, 'Uno'
-    
-    msg = ATMessage.new(:application_id => app.id, :from => 'sms://1234')
-    app.accept msg, chan
-    
-    ass = AddressSource.all
-    assert_equal 1, ass.length
-    
-    as = ass[0]
-    assert_equal app.id, as.application_id
-    assert_equal 'sms://1234', as.address
-    assert_equal chan.id, as.channel_id
-  end
-  
-  test "at routing overrides address source" do
-    app = Application.new(:name => 'app1', :password => 'foo')
-    app.configuration[:use_address_source] = 1
-    app.save!
-    
-    chan1 = new_channel app, 'Uno'
-    chan2 = new_channel app, 'Dos'
-    
-    msg = ATMessage.new(:application_id => app.id, :from => 'sms://1234')
-    app.accept msg, chan1
-    
-    msg = ATMessage.new(:application_id => app.id, :from => 'sms://1234')
-    app.accept msg, chan2
-    
-    ass = AddressSource.all
-    assert_equal 1, ass.length
-    
-    as = ass[0]
-    assert_equal app.id, as.application_id
-    assert_equal 'sms://1234', as.address
-    assert_equal chan2.id, as.channel_id
-  end
-  
-  test "ao routing uses address source" do
-    app = Application.new(:name => 'app1', :password => 'foo')
-    app.configuration[:use_address_source] = 1
-    app.save!
-    
-    chan1 = new_channel app, 'Uno'
-    chan2 = new_channel app, 'Dos'
-    chan2.metric = chan1.metric - 10
-    chan2.save!
-    
-    msg = ATMessage.new(:application_id => app.id, :from => 'sms://1234')
-    app.accept msg, chan1
-    
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://1234', :subject => 'foo', :body => 'bar')
-    app.route(msg, 'test')
-    
-    assert_equal chan1.id, msg.channel_id
-  end
-  
-  test "ao routing does not use address source" do
-    app = Application.new(:name => 'app1', :password => 'foo')
-    app.configuration[:use_address_source] = 1
-    app.save!
-    
-    chan1 = new_channel app, 'Uno'
-    chan2 = new_channel app, 'Dos'
-    chan2.metric = chan1.metric - 10
-    chan2.save!
-    
-    msg = ATMessage.new(:application_id => app.id, :from => 'sms://1234')
-    app.accept msg, chan1
-    
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://1239', :subject => 'foo', :body => 'bar')
-    app.route(msg, 'test')
-    
-    assert_equal chan2.id, msg.channel_id
-  end
-  
-  test "ao routing test with address source" do
-    app = Application.new(:name => 'app1', :password => 'foo')
-    app.configuration[:use_address_source] = 1
-    app.save!
-    
-    chan1 = new_channel app, 'Uno'
-    chan2 = new_channel app, 'Dos'
-    chan2.metric = chan1.metric - 10
-    chan2.save!
-    
-    app.configuration[:ao_routing] = "if !preferred_channel.nil?; msg.route_to_channel preferred_channel; else; msg.route_to_channel 'Dos'; end;"
-    app.configuration[:ao_routing_test] = "assert.routed_to_channel({:preferred_channel => 'Uno'}, {}, 'Uno')"
-    app.save!
-    
-    msg = ATMessage.new(:application_id => app.id, :from => 'sms://1234')
-    app.accept msg, chan1
-    
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://1239', :subject => 'foo', :body => 'bar')
-    app.route(msg, 'test')
-    
-    assert_equal chan2.id, msg.channel_id
-  end
-  
   test "check modified" do
-    app = Application.new(:name => 'app1', :password => 'foo')
-    app.save!
+    app = Application.make
+    chan1 = Channel.make :account => app.account
+    chan2 = Channel.make :account => app.account, :priority => chan1.priority - 10
     
-    chan1 = new_channel app, 'Uno'
-    chan2 = new_channel app, 'Dos'
-    chan2.metric = chan1.metric - 10
-    chan2.save!
-    
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://1239', :subject => 'foo', :body => 'bar')
-    app.route(msg, 'test')
-    
+    msg = AOMessage.make_unsaved
+    app.route_ao msg, 'test'    
     assert_equal chan2.id, msg.channel_id
     
-    sleep 1
-    
-    chan2.metric = chan1.metric + 10
+    chan2.priority = chan1.priority + 10
     chan2.save!
     
-    msg = AOMessage.new(:from => 'sms://4321', :to => 'sms://1239', :subject => 'foo', :body => 'bar')
-    app.route(msg, 'test')
-    
+    msg = AOMessage.make_unsaved
+    app.route_ao msg, 'test'    
     assert_equal chan1.id, msg.channel_id
   end
   
   test "should create worker queue on create" do
-    app = Application.create!(:name => 'app1', :password => 'foo')
-    
+    app = Application.make
     wqs = WorkerQueue.all
     assert_equal 1, wqs.length
     assert_equal "application_queue.#{app.id}", wqs[0].queue_name
@@ -565,20 +40,264 @@ class ApplicationTest < ActiveSupport::TestCase
       true
     end
   
-    app = Application.create!(:name => 'app1', :password => 'foo')
-    
+    app = Application.make
     assert_same app, binded
   end
   
   test "should enqueue http post callback" do
-    app = Application.create!(:name => 'app1', :password => 'foo', :interface => 'http_post_callback')
-    msg = ATMessage.create!(:application => app, :subject => 'foo')
+    app = Application.make :http_post_callback
     
-    Queues.expects(:publish_application) do |a, j|
-      a.id == app.id and j.kind_of?(SendPostCallbackMessageJob) and j.application_id == app.id and j.message_id == msg.id 
+    msg = ATMessage.create!(:account => app.account, :subject => 'foo')
+    
+    Queues.expects(:publish_application).with do |a, j|
+      a.id == app.id and 
+        j.kind_of?(SendPostCallbackMessageJob) and 
+        j.account_id == app.account.id and 
+        j.application_id == app.id and
+        j.message_id == msg.id 
     end
     
-    app.accept msg, 'ui'
+    app.route_at msg, nil
+  end
+  
+  test "route ao protocol not found in message" do
+    app = Application.make
+  
+    msg = AOMessage.make_unsaved :to => '+5678'
+    app.route_ao msg, 'test'
+    
+    messages = AOMessage.all
+    assert_equal 1, messages.length
+    assert_equal 'failed', messages[0].state
+  
+    logs = AccountLog.all
+    
+    assert_equal 2, logs.length
+    log = logs[1]
+    assert_equal app.account.id, log.account_id
+    assert_equal messages[0].id, log.ao_message_id
+    assert_equal "Protocol not found in 'to' field", log.message
+  end
+  
+  test "route ao channel not found for protocol" do
+    app = Application.make
+  
+    msg = AOMessage.make_unsaved :to => 'unknown://+5678'
+    app.route_ao msg, 'test'
+    
+    messages = AOMessage.all
+    assert_equal 1, messages.length
+    assert_equal 'failed', messages[0].state
+  
+    logs = AccountLog.all
+    assert_equal 2, logs.length
+    log = logs[1]
+    assert_equal app.account.id, log.account_id
+    assert_equal messages[0].id, log.ao_message_id
+    assert_equal "No channel found for protocol 'unknown'", log.message
+  end
+  
+  test "route select channel based on protocol" do
+    app = Application.make
+  
+    chan1 = Channel.make :account => app.account, :protocol => 'protocol' 
+    chan2 = Channel.make :account => app.account, :protocol => 'protocol2'
+    
+    msg = AOMessage.make_unsaved(:to => 'protocol2://Someone else')
+    app.route_ao msg, 'test'
+    
+    assert_equal chan2.id, msg.channel_id
+  end
+  
+  test "route select channel based on protocol -> get candidate channels" do
+    app = Application.make
+  
+    chan1 = Channel.make :account => app.account, :protocol => 'protocol' 
+    chan2 = Channel.make :account => app.account, :protocol => 'protocol2'
+    
+    msg = AOMessage.make_unsaved(:to => 'protocol2://Someone else')
+    channels = app.candidate_channels_for_ao msg
+    
+    assert_equal [chan2], channels
+  end
+  
+  test "route ao saves mobile numbers" do
+    app = Application.make
+    country = Country.make
+    carrier = Carrier.make :country => country
+    
+    msg = AOMessage.make_unsaved
+    msg.custom_attributes['country'] = country.iso2
+    msg.custom_attributes['carrier'] = carrier.guid
+    
+    app.route_ao msg, 'test'
+    
+    nums = MobileNumber.all
+    assert_equal 1, nums.length
+    assert_equal msg.to.mobile_number, nums[0].number
+    assert_equal country.id, nums[0].country_id
+    assert_equal carrier.id, nums[0].carrier_id
+  end
+  
+  test "route ao does not save mobile numbers if more than one country and/or carrier" do
+    app = Application.make
+    
+    msg = AOMessage.make_unsaved
+    msg.custom_attributes['country'] = ['ar', 'br']
+    msg.custom_attributes['carrier'] = ['ABC123', 'XYZ']
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal 0, MobileNumber.count
+  end
+  
+  test "route ao updates mobile numbers" do
+    app = Application.make
+    country = Country.make
+    carrier = Carrier.make :country => country
+    
+    MobileNumber.create!(:number => '5678', :country_id => country.id + 1)
+    
+    msg = AOMessage.make_unsaved :to => 'sms://+5678'
+    msg.custom_attributes['country'] = country.iso2
+    msg.custom_attributes['carrier'] = carrier.guid
+    
+    app.route_ao msg, 'test'
+    
+    nums = MobileNumber.all
+    assert_equal 1, nums.length
+    assert_equal msg.to.mobile_number, nums[0].number
+    assert_equal country.id, nums[0].country_id
+    assert_equal carrier.id, nums[0].carrier_id
+  end
+  
+  test "route ao filter channel because of country" do
+    app = Application.make
+    
+    msg = AOMessage.make_unsaved
+    msg.custom_attributes['country'] = 'br'
+    
+    chan1 = Channel.make_unsaved :account => app.account
+    chan1.restrictions['country'] = 'ar'  
+    chan1.save!
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal 'failed', msg.state
+  end
+  
+  test "route ao filter channel because of country 2" do
+    app = Application.make
+    
+    msg = AOMessage.make_unsaved
+    msg.custom_attributes['country'] = ['br', 'bz']
+    
+    chan1 = Channel.make_unsaved :account => app.account
+    chan1.restrictions['country'] = ['ar', 'br']
+    chan1.save!
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal 'queued', msg.state
+  end
+  
+  test "route ao test filter when empty value passes" do
+    app = Application.make
+    
+    msg = AOMessage.make_unsaved
+    
+    chan1 = Channel.make_unsaved :account => app.account
+    chan1.restrictions['country'] = ['ar', '']
+    chan1.save!
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal 'queued', msg.state
+  end
+  
+  test "route ao test filter when empty value does not pass" do
+    app = Application.make
+    
+    msg = AOMessage.make_unsaved
+    
+    chan1 = Channel.make_unsaved :account => app.account
+    chan1.restrictions['country'] = ['ar']
+    chan1.save!
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal 'failed', msg.state
+  end 
+  
+  test "route ao use last channel" do
+    app = Application.make
+    
+    chan1 = Channel.make :account => app.account
+    chan2 = Channel.make :account => app.account, :priority => chan1.priority + 10
+    
+    AddressSource.create! :account_id => app.account.id, :application_id => app.id, :channel_id => chan2.id, :address => '5678' 
+    
+    msg = AOMessage.make_unsaved :to => 'sms://+5678'
+    app.route_ao msg, 'test'
+    
+    assert_equal chan2.id, msg.channel_id
+  end
+  
+  test "route ao use suggested channel" do
+    app = Application.make
+    chan1 = Channel.make :account => app.account
+    chan2 = Channel.make :account => app.account, :priority => chan1.priority + 10
+    
+    msg = AOMessage.make_unsaved
+    msg.suggested_channel = chan2.name
+    app.route_ao msg, 'test'
+    
+    assert_equal chan2.id, msg.channel_id
+  end
+  
+  test "route ao infer country" do
+    app = Application.make
+    chan = Channel.make :account => app.account
+    country = Country.make
+    
+    msg = AOMessage.make_unsaved :to => "sms://+#{country.phone_prefix}1234"
+    app.route_ao msg, 'test'
+    
+    assert_equal country.iso2, msg.country
+  end
+  
+  test "route ao broadcast" do
+    app = Application.make :broadcast
+    
+    chans = [Channel.make(:account => app.account), Channel.make(:account => app.account)]
+    
+    msg = AOMessage.make_unsaved
+    app.route_ao msg, 'test'
+    
+    assert_nil msg.channel
+    assert_equal 'broadcasted', msg.state
+    
+    children = AOMessage.all :conditions => ['parent_id = ?', msg.id]
+    assert_equal 2, children.length
+    
+    2.times do |i|
+      assert_equal chans[i], children[i].channel
+      assert_equal msg.id, children[i].parent_id
+      assert_not_nil children[i].guid
+      assert_not_equal children[i].guid, msg.guid
+    end
+  end
+  
+  test "route ao broadcast override" do
+    app = Application.make
+    
+    chans = [Channel.make(:account => app.account), Channel.make(:account => app.account)]
+    
+    msg = AOMessage.make_unsaved
+    msg.strategy = 'broadcast'
+    app.route_ao msg, 'test'
+    
+    assert_equal 'broadcasted', msg.state
   end
   
 end

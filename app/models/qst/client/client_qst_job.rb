@@ -37,15 +37,15 @@ module ClientQstJob
   end
 
   # Validates application for QST
-  def validate_app(app)
-    if app.nil?
+  def validate_application(application)
+    if application.nil?
       Rails.logger.warn 'Validate application for QST: application not found'
       return :error_no_application
-    elsif app.configuration.nil? or app.configuration[:url].nil?
-      Rails.logger.warn "Validate application for QST: no url found in application configuration for pushing/pulling messages in application #{app.name}"
+    elsif application.interface_url.blank?
+      Rails.logger.warn "Validate application for QST: no url found in application configuration for pushing/pulling messages in application #{application.name}"
       return :error_no_url_in_configuration
-    elsif not app.interface == 'qst_client'
-      Rails.logger.warn "Validate application for QST: found interface #{app.interface} when expecting qst in application #{app.name}"
+    elsif not application.interface == 'qst_client'
+      Rails.logger.warn "Validate application for QST: found interface #{application.interface} when expecting qst in application #{application.name}"
       return :error_wrong_interface
     end
     nil
@@ -59,7 +59,7 @@ module ClientQstJob
     elsif not channel.enabled
       Rails.logger.warn "Validate channel for QST: channel #{channel.id} is disabled"
       return :error_channel_disabled
-    elsif channel.configuration.nil? or channel.configuration[:url].nil?
+    elsif channel.configuration[:url].blank?
       Rails.logger.warn "Validate channel for QST: no url found in channel configuration for pushing/pulling messages in channel #{channel.id}"
       return :error_no_url_in_configuration
     end

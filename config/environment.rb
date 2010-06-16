@@ -21,16 +21,15 @@ Rails::Initializer.run do |config|
   # config.gem "bj"
   # config.gem "hpricot", :version => '0.6', :source => "http://code.whytheluckystiff.net"
   # config.gem "aws-s3", :lib => "aws/s3"
-  config.gem "mocha"
-  config.gem 'test-unit', :lib => 'test/unit'
-  config.gem "thoughtbot-shoulda", :lib => "shoulda", :source => "http://gems.github.com"
   config.gem "tmail"
   config.gem 'mislav-will_paginate', :lib => 'will_paginate', :source => 'http://gems.github.com'
   config.gem "guid"
-  config.gem 'twitter', :version => '0.6.15'  
+  config.gem 'twitter'  
   config.gem 'ruby-smpp', :lib => 'smpp', :version => '0.2.1'
   config.gem "eventmachine"
   config.gem 'amqp'
+  config.gem 'memcached'
+  config.gem 'xmpp4r'
 
   # Only load the plugins named here, in the order given (default is alphabetical).
   # :all can be used as a placeholder for all plugins not explicitly named
@@ -78,8 +77,5 @@ else
   TwitterConsumerConfig = nil
 end
 
-# Disable application creation from UI
-ApplicationCreationDisabled = false
-
-# Include extensions
-require 'string'
+# Disable account creation from UI
+AccountCreationDisabled = false

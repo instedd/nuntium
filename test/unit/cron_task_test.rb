@@ -8,7 +8,7 @@ class CronTaskTest < ActiveSupport::TestCase
 
   include Mocha::API
   
-  teardown :clean_database
+  setup :clean_database
   
   test "should save empty task" do
     task = CronTask.new :interval => 0
@@ -17,68 +17,64 @@ class CronTaskTest < ActiveSupport::TestCase
     assert_equal 0, t2.interval
   end
   
-  test "should create task when creating qst app and drop if changed" do
-    app = Application.create :name => 'app', :password => 'foo', :interface => 'qst_client'
+  test "should create task when creating qst account and drop if changed" do
+    application = Application.make :qst_client
     
-    assert_equal 2, app.cron_tasks.size
-    t1, t2 = app.cron_tasks.all
+    assert_equal 2, application.cron_tasks.size
+    t1, t2 = application.cron_tasks.all
     
     assert_equal PushQstMessageJob, t1.get_handler.class
-    assert_equal app.id, t1.parent_id
+    assert_equal application.id, t1.parent_id
     
     assert_equal PullQstMessageJob, t2.get_handler.class
-    assert_equal app.id, t2.parent_id
+    assert_equal application.id, t2.parent_id
     
-    app.update_attribute(:interface, 'rss')
-    assert_equal 0, app.cron_tasks.size
+    application.update_attribute(:interface, 'rss')
+    assert_equal 0, application.cron_tasks.size
     assert_equal 0, CronTask.all.size
   end
   
-  test "should create task when changing app to qst" do
-    app = Application.create :name => 'app', :password => 'foo', :interface => 'rss'
-    assert_equal 0, app.cron_tasks.size
+  test "should create task when changing account to qst" do
+    application = Application.make :rss
+    
+    assert_equal 0, application.cron_tasks.size
     assert_equal 0, CronTask.all.size
     
-    app.update_attribute(:interface, 'qst_client')
-    app.reload
-    assert_equal 2, app.cron_tasks.size
+    application.update_attribute :interface, 'qst_client'
+    application.reload
+    assert_equal 2, application.cron_tasks.size
     
-    t1, t2 = app.cron_tasks.all
+    t1, t2 = application.cron_tasks.all
     
     assert_equal PushQstMessageJob, t1.get_handler.class
-    assert_equal app.id, t1.parent_id
+    assert_equal application.id, t1.parent_id
     
     assert_equal PullQstMessageJob, t2.get_handler.class
-    assert_equal app.id, t2.parent_id
+    assert_equal application.id, t2.parent_id
   end
   
-  test "should drop task with application" do
-    app = Application.create :name => 'app', :password => 'foo', :interface => 'qst_client'
-    
-    assert_equal 2, app.cron_tasks.size
-    assert_equal PushQstMessageJob, app.cron_tasks.first.get_handler.class
-    assert_equal PullQstMessageJob, app.cron_tasks.last.get_handler.class
-    
-    app.destroy
+  test "should drop task with account" do
+    application = Application.make :qst_client
+    application.destroy
     assert_equal 0, CronTask.all.size
   end
   
   test "should create twitter task for channel" do
-    ch = create_channel('twitter')
+    ch = Channel.make :twitter
     assert_equal 1, CronTask.all.size
     assert_equal ch.id, CronTask.first.get_handler.channel_id
     assert_equal ReceiveTwitterMessageJob, CronTask.first.get_handler.class
   end
   
   test "should create pop3 task for channel" do
-    ch = create_channel('pop3')
+    ch = Channel.make :pop3
     assert_equal 1, CronTask.all.size
     assert_equal ch.id, CronTask.first.get_handler.channel_id
     assert_equal ReceivePop3MessageJob, CronTask.first.get_handler.class
   end
   
   test "should not create task for non task channel" do
-    create_channel 'qst_server'
+    ch = Channel.make :qst_server
     assert_equal 0, CronTask.all.size
   end
   
@@ -87,18 +83,18 @@ class CronTaskTest < ActiveSupport::TestCase
     assert !task.save
   end
   
-  test "should save application task" do
-    app = Application.create :name => 'app', :password => 'foo'
-    task = CronTask.new :parent => app, :interval => 10
+  test "should save account task" do
+    account = Account.make
+    task = CronTask.new :parent => account, :interval => 10
     assert task.save!
     
     t2 = CronTask.find_by_id task.id
     assert_equal 10, t2.interval
-    assert_equal app, t2.parent
+    assert_equal account, t2.parent
   end
   
   test "should save channel task" do
-    ch = create_channel
+    ch = Channel.make :qst_server
     
     task = CronTask.new :parent => ch, :interval => 50
     assert task.save!
@@ -168,14 +164,6 @@ class CronTaskTest < ActiveSupport::TestCase
     assert_not_nil task2.locked_tag
     th.join
   end
-  
-  def create_channel(kind = 'qst_server')
-    app = Application.create :name => 'app', :password => 'foo'
-    ch = Channel.new :name =>'channel', :application_id => app.id, :kind => kind, :protocol => 'sms'
-    ch.configuration = {:password => 'foo', :password_confirmation => 'foo', :user => 'foobar', :port => 600, :host => 'example.com'}
-    ch.save!
-    ch
-  end
 
   def create_task(last_run=nil, handler=create_handler, interval = 60, sleep_time = 0)
     task = CronTask.new :interval => interval, :last_run => last_run
@@ -196,7 +184,15 @@ class CronTaskTest < ActiveSupport::TestCase
   end
   
   def clean_database
-    [Application, ApplicationLog, Channel, CronTask, WorkerQueue].each(&:delete_all)
+    [
+      Account, AccountLog, 
+      AddressSource, AOMessage, Application, 
+      ATMessage, Carrier, Channel,
+      ClickatellCoverageMO, ClickatellMessagePart, Country, 
+      CronTask, ManagedProcess, MobileNumber, 
+      QSTOutgoingMessage, SmppMessagePart,
+      TwitterChannelStatus, WorkerQueue
+    ].each(&:delete_all)
   end
   
   class Handler

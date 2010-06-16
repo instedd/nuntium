@@ -4,75 +4,58 @@ require 'mocha'
 
 class SendSmtpMessageJobTest < ActiveSupport::TestCase
   include Mocha::API
+  
+  def setup
+    @time = Time.now
+    @chan = Channel.make :smtp
+  end
 
   should "perform no ssl" do
-    time = Time.now
-    
-    app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'smtp')
-    chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '0'}
-    chan.save
-    
-    msg = AOMessage.create(:application_id => app.id, :from => 'mailto://from@mail.com', :to => 'mailto://to@mail.com', :subject => 'some subject', :body => 'some body', :timestamp => time, :guid => 'some guid', :state => 'pending')
-
-msgstr = <<-END_OF_MESSAGE
-From: from@mail.com
-To: to@mail.com
-Subject: some subject
-Date: #{msg.timestamp}
-Message-Id: <some guid@nuntium.instedd.org>
-
-some body
-END_OF_MESSAGE
-msgstr.strip!
-  
-    smtp = mock('Net::SMTP')
-  
-    Net::SMTP.expects(:new).with('the_host', 123).returns(smtp)
-    smtp.expects(:start).with('localhost.localdomain', 'the_user', 'the_password')
-    smtp.expects(:send_message).with(msgstr, 'from@mail.com', 'to@mail.com')
-    smtp.expects(:finish)
-    
-    job = SendSmtpMessageJob.new(app.id, chan.id, msg.id)
-    job.perform
-    
-    msg = AOMessage.first
-    assert_equal 1, msg.tries
-    assert_equal 'delivered', msg.state
+    msg = AOMessage.make :account => @chan.account
+    msgstr = msg_as_email msg    
+    expect_smtp msg, msgstr
+    deliver msg
+    expect_ao_message_was_delivered
   end
   
   should "perform ssl" do
-    time = Time.now
+    @chan.configuration[:use_ssl] = '1'
+    @chan.save!
     
-    app = Application.create(:name => 'app', :password => 'pass')
-    chan = Channel.new(:application_id => app.id, :name => 'chan', :protocol => 'protocol', :kind => 'smtp')
-    chan.configuration = {:host => 'the_host', :port => 123, :user => 'the_user', :password => 'the_password', :use_ssl => '1'}
-    chan.save
-    
-    msg = AOMessage.create(:application_id => app.id, :from => 'mailto://from@mail.com', :to => 'mailto://to@mail.com', :subject => 'some subject', :body => 'some body', :timestamp => time, :guid => 'some guid', :state => 'pending')
-
-msgstr = <<-END_OF_MESSAGE
-From: from@mail.com
-To: to@mail.com
-Subject: some subject
-Date: #{msg.timestamp}
-Message-Id: <some guid@nuntium.instedd.org>
-
-some body
-END_OF_MESSAGE
-msgstr.strip!
+    msg = AOMessage.make :account => @chan.account
+    msgstr = msg_as_email msg
+    expect_smtp msg, msgstr
+    deliver msg
+    expect_ao_message_was_delivered
+  end
   
+  def msg_as_email(msg)
+    s = ""
+    s << "From: #{msg.from.without_protocol}\n"
+    s << "To: #{msg.to.without_protocol}\n"
+    s << "Subject: #{msg.subject}\n"
+    s << "Date: #{msg.timestamp}\n"
+    s << "Message-Id: <#{msg.guid}@nuntium.instedd.org>\n"
+    s << "\n"
+    s << msg.body
+    s.strip
+  end
+  
+  def expect_smtp(msg, msgstr)
     smtp = mock('Net::SMTP')
-  
-    Net::SMTP.expects(:new).with('the_host', 123).returns(smtp)
-    smtp.expects(:enable_tls)
-    smtp.expects(:start).with('localhost.localdomain', 'the_user', 'the_password')
-    smtp.expects(:send_message).with(msgstr, 'from@mail.com', 'to@mail.com')
+    Net::SMTP.expects(:new).with(@chan.configuration[:host], @chan.configuration[:port]).returns(smtp)
+    smtp.expects(:enable_tls) if @chan.configuration[:use_ssl] == '1'
+    smtp.expects(:start).with('localhost.localdomain', @chan.configuration[:user], @chan.configuration[:password])
+    smtp.expects(:send_message).with(msgstr, msg.from.without_protocol, msg.to.without_protocol)
     smtp.expects(:finish)
-    
-    job = SendSmtpMessageJob.new(app.id, chan.id, msg.id)
+  end
+  
+  def deliver(msg)
+    job = SendSmtpMessageJob.new(@chan.account.id, @chan.id, msg.id)
     job.perform
-    
+  end
+  
+  def expect_ao_message_was_delivered
     msg = AOMessage.first
     assert_equal 1, msg.tries
     assert_equal 'delivered', msg.state

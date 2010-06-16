@@ -1,4 +1,7 @@
-class ChannelController < AuthenticatedController
+class ChannelController < AccountAuthenticatedController
+
+  include CustomAttributesControllerCommon
+  include RulesControllerCommon
 
   before_filter :check_login
   before_filter :check_channel, :except => [:new_channel, :create_channel]
@@ -17,10 +20,13 @@ class ChannelController < AuthenticatedController
     throttle_opt = chan.delete :throttle_opt
     
     @channel = Channel.new(chan)
-    @channel.application_id = @application.id
+    @channel.account_id = @account.id
     @channel.kind = params[:kind]
     @channel.direction = chan[:direction]
+    @channel.priority = chan[:priority]
     @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
+    @channel.restrictions = get_custom_attributes
+    @channel.at_rules = get_rules :atrules
     
     @channel.check_valid_in_ui
     if !@channel.save
@@ -32,7 +38,7 @@ class ChannelController < AuthenticatedController
   end
   
   def edit_channel
-    if File.exists? "#{view_paths}/channel/edit_#{@channel.kind}_channel.html.erb"
+    if view_paths.any?{|p| File.exists? "#{p.path}/channel/edit_#{@channel.kind}_channel.html.erb"}
       render "edit_#{@channel.kind}_channel"
     else
       render "new_#{@channel.kind}_channel"
@@ -47,11 +53,13 @@ class ChannelController < AuthenticatedController
     
     @channel.handler.update(chan)
     @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
+    @channel.restrictions = get_custom_attributes
+    @channel.at_rules = get_rules :atrules
     
     @channel.check_valid_in_ui
     if !@channel.save
       @channel.clear_password
-      return render "edit_#{@channel.kind}_channel"
+      return edit_channel
     end
     
     redirect_to_home 'Channel was updated'
@@ -78,13 +86,13 @@ class ChannelController < AuthenticatedController
     # queued messages in those channels.
     requeued_messages_count = 0;
     
-    other_channels = @application.channels.all(:conditions => ['enabled = ? AND protocol = ? AND (direction = ? OR direction = ?)', true, @channel.protocol, Channel::Outgoing, Channel::Bidirectional])
+    other_channels = @account.channels.select{|c| c.enabled && c.protocol == @channel.protocol && @channel.is_outgoing?}
     
     if !other_channels.empty?
       queued_messages = AOMessage.all(:conditions => ['channel_id = ? AND state = ?', @channel.id, 'queued'])
       requeued_messages_count = queued_messages.length
       queued_messages.each do |msg|
-        @application.route(msg, 'user')
+        @account.route_ao msg, 'user'
       end
     end
     
@@ -101,8 +109,8 @@ class ChannelController < AuthenticatedController
   protected
   
   def check_channel
-    @channel = Channel.find_by_id params[:id]
-    redirect_to_home if @channel.nil? || @channel.application_id != @application.id
+    @channel = @account.find_channel params[:id]
+    redirect_to_home if @channel.nil?
   end
 
 end

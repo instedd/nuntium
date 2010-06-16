@@ -5,161 +5,161 @@ require 'net/https'
 require 'mocha'
 
 class PullQstMessageJobTest < ActiveSupport::TestCase
-include Mocha::API
-include Net
+  include Mocha::API
+  include Net
   
-  def test_perform_first_run
-    app = setup_app
-    msgs = sample_messages app, (3..8)
+  test "perform first run" do
+    application = setup_application
+    msgs = sample_messages application, (3..8)
     
-    setup_http app,
+    setup_http application,
       :get_msgs => msgs
       
-    result = job app
+    result = job application
     
     assert_equal :success, result
-    assert_last_id app, msgs[-1].guid
-    assert_sample_messages app, (3..8)
+    assert_last_id application, msgs[-1].guid
+    assert_sample_messages application, msgs
   end
   
-  def test_perform_first_run_no_messages
-    app = setup_app 
+  test "perform first run no messages" do
+    application = setup_application 
     
-    setup_http app,
+    setup_http application,
       :not_modified => true
       
-    result = job app
+    result = job application
     
     assert_equal :success, result
-    assert_last_id app, nil
+    assert_last_id application, nil
   end
 
-  def test_perform_with_etag
-    app = setup_app 
-    msgs = sample_messages app, (5..8)
-    app.set_last_ao_guid 'lastetag'
+ test "perform with etag" do
+    application = setup_application 
+    msgs = sample_messages application, (5..8)
+    application.set_last_ao_guid 'lastetag'
     
-    setup_http app,
+    setup_http application,
       :get_msgs => msgs,
       :etag => 'lastetag' 
       
-    result = job app
+    result = job application
     
     assert_equal :success, result
-    assert_last_id app, msgs[-1].guid
-    assert_sample_messages app, (5..8)
+    assert_last_id application, msgs[-1].guid
+    assert_sample_messages application, msgs
   end
   
-  def test_perform_with_etag_on_ssl
-    app = setup_app :url => 'https://example.com'
-    msgs = sample_messages app, (5..8)
-    app.set_last_ao_guid 'lastetag'
+  test "perform with etag on ssl" do
+    application = setup_application :interface_url => 'https://example.com'
+    msgs = sample_messages application, (5..8)
+    application.set_last_ao_guid 'lastetag'
     
-    setup_http app,
+    setup_http application,
       :get_msgs => msgs,
       :etag => 'lastetag',
       :use_ssl => true,
       :url_port => 443
       
-    result = job app
+    result = job application
     
     assert_equal :success, result
-    assert_last_id app, msgs[-1].guid
-    assert_sample_messages app, (5..8)
+    assert_last_id application, msgs[-1].guid
+    assert_sample_messages application, msgs
   end
   
-  def test_perform_with_etag_not_modified
-    app = setup_app 
-    app.set_last_ao_guid 'lastetag'
+  test "perform with etag not modified" do
+    application = setup_application 
+    application.set_last_ao_guid 'lastetag'
     
-    setup_http app,
+    setup_http application,
       :etag => 'lastetag',
       :not_modified => true
       
-    result = job app
+    result = job application
     
     assert_equal :success, result
-    assert_last_id app, 'lastetag'
+    assert_last_id application, 'lastetag'
   end
 
-  def test_perform_pulls_until_not_modified
-    app = setup_app 
-    msgs =  sample_messages app, (0...10)
-    msgs += sample_messages app, (10...60)
-    app.set_last_ao_guid msgs[9].guid
+  test "perform pulls until not modified" do
+    application = setup_application 
+    msgs =  sample_messages application, (0...10)
+    msgs += sample_messages application, (10...60)
+    application.set_last_ao_guid msgs[9].guid
     
     current = 10
-    result = job_with_callback(app) do
+    result = job_with_callback(application) do
       assert current <= 60
       data = current < 60 ? { :get_msgs => msgs[current...current+10] } : { :not_modified => true }
-      setup_http app, data.merge({:etag => msgs[current-1].guid})
+      setup_http application, data.merge({:etag => msgs[current-1].guid})
       current += 10          
     end
     
     assert_equal :success, result
-    assert_last_id app, msgs[-1].guid
-    assert_sample_messages app, (10...60)
+    assert_last_id application, msgs[-1].guid
+    assert_sample_messages application, msgs[10 .. -1]
   end
   
-  def test_perform_pulls_until_size_less_than_max
-    app = setup_app 
-    msgs =  sample_messages app, (0...10)
-    msgs += sample_messages app, (10...65)
-    app.set_last_ao_guid msgs[9].guid
+  test "perform pulls until size less than max" do
+    application = setup_application 
+    msgs =  sample_messages application, (0...10)
+    msgs += sample_messages application, (10...65)
+    application.set_last_ao_guid msgs[9].guid
     
     current = 10
-    result = job_with_callback(app) do
+    result = job_with_callback(application) do
       assert current <= 60
-      setup_http app, :etag => msgs[current-1].guid, :get_msgs => msgs[current...current+10] 
+      setup_http application, :etag => msgs[current-1].guid, :get_msgs => msgs[current...current+10] 
       current += 10          
     end
     
     assert_equal :success, result
-    assert_last_id app, msgs[-1].guid
-    assert_sample_messages app, (10...65)
+    assert_last_id application, msgs[-1].guid
+    assert_sample_messages application, msgs[10 .. -1]
   end
   
-  def test_perform_pulls_until_failure
-    app = setup_app 
-    msgs =  sample_messages app, (0...10)
-    msgs += sample_messages app, (10...60)
-    app.set_last_ao_guid msgs[9].guid
+  test "perform pulls until failure" do
+    application = setup_application 
+    msgs =  sample_messages application, (0...10)
+    msgs += sample_messages application, (10...60)
+    application.set_last_ao_guid msgs[9].guid
     
     current = 10
-    result = job_with_callback(app) do
+    result = job_with_callback(application) do
       assert current <= 60
       if current == 60
-        setup_http app, :etag => msgs[current-1].guid, :get_response => mock_http_failure
+        setup_http application, :etag => msgs[current-1].guid, :get_response => mock_http_failure
       else
-        setup_http app, :etag => msgs[current-1].guid, :get_msgs => msgs[current...current+10]
+        setup_http application, :etag => msgs[current-1].guid, :get_msgs => msgs[current...current+10]
       end
       current += 10          
     end
     
     assert_equal :error_pulling_messages, result
-    assert_last_id app, msgs[-1].guid
-    assert_sample_messages app, (10...60)
+    assert_last_id application, msgs[-1].guid
+    assert_sample_messages application, msgs[10 .. -1]
   end
 
-  def test_failure_response_code
-    app = setup_app 
-    app.set_last_ao_guid 'lastetag'
+  test "failure response code" do
+    application = setup_application 
+    application.set_last_ao_guid 'lastetag'
     
-    setup_http app,
+    setup_http application,
       :get_response => mock_http_failure,
       :etag => 'lastetag' 
       
-    result = job app
+    result = job application
     
     assert_equal :error_pulling_messages, result
-    assert_last_id app, 'lastetag'
+    assert_last_id application, 'lastetag'
   end
 
-  def test_failure_processing_response
-    app = setup_app 
-    app.set_last_ao_guid 'lastetag'
+  test "failure processing response" do
+    application = setup_application 
+    application.set_last_ao_guid 'lastetag'
     
-    setup_http app,
+    setup_http application,
       :etag => 'lastetag',
       :get_body => 
       <<-XML
@@ -167,41 +167,41 @@ include Net
       <messages><messa
       XML
       
-    result = job app
+    result = job application
     
     assert_equal :error_processing_messages, result
-    assert_last_id app, 'lastetag'
+    assert_last_id application, 'lastetag'
   end
   
   private
   
-  def assert_last_id(app, last_id)
-    afterapp = Application.find_by_id app.id
-    assert_equal last_id, afterapp.configuration[:last_ao_guid]
+  def assert_last_id(application, last_id)
+    afterapplication = Application.find_by_id application.id
+    assert_equal last_id, afterapplication.configuration[:last_ao_guid]
   end
   
-  def setup_app(cfg = {})
-    create_app_with_interface 'app', 'pass', 'qst_client', 
-      { :last_ao_guid => nil, 
-        :url => 'http://example.com', 
-        :cred_user => 'theuser', 
-        :cred_pass => 'thepass' }.merge(cfg)
+  def setup_application(cfg = {})
+    Application.make :qst_client, :configuration => { 
+      :last_ao_guid => nil, 
+      :interface_url => 'http://example.com', 
+      :interface_user => 'theuser', 
+      :interface_password => 'thepass' }.merge(cfg)
   end
   
-  def setup_app_unauth(cfg = {})
-    create_app_with_interface  'app', 'pass', 'qst_client', 
-      { :last_ao_guid => nil, 
-        :url => 'http://example.com' }.merge(cfg)
+  def setup_application_unauth(cfg = {})
+    Application.make :qst_client, :configuration => { 
+      :last_ao_guid => nil, 
+      :interface_url => 'http://example.com' }.merge(cfg)
   end
   
-  def setup_null_http(app)
-    setup_http app, 
+  def setup_null_http(application)
+    setup_http application, 
       :auth => false, 
       :expects_get => false,
       :expects_init => false
   end
   
-  def setup_http(app, opts)
+  def setup_http(application, opts)
     cfg = { 
       :auth => true, 
       :expects_get => true,
@@ -237,28 +237,28 @@ include Net
     http
   end
   
-  def assert_sample_messages app, range
-    range.each do |i| 
-      msg = AOMessage.find_by_guid "someguid #{i}"
-      assert_not_nil msg, "message #{i} is nil"
-      assert_deserialized_msg msg, app, i
-      assert_equal app.id, msg.application_id
+  def assert_sample_messages application, msgs
+    msgs.each do |expected| 
+      msg = AOMessage.find_by_guid expected.guid
+      assert_not_nil msg
+      [:subject_and_body, :from, :to, :guid, :timestamp].each do |field|
+        assert_equal expected.send(field), msg.send(field)
+      end
+      assert_equal application.account.id, msg.account_id
     end
   end
   
-  def sample_messages app, range 
+  def sample_messages application, range 
     msgs = []
-    range.each do |i| 
-      msg = AOMessage.new
-      fill_msg msg, app, i, "protocol"
-      msgs << msg
+    range.each do |i|
+      msgs << AOMessage.make_unsaved
     end
     msgs
   end
   
   class CallbackJob < PullQstMessageJob
-    def initialize(app_id, block)
-      super app_id
+    def initialize(application_id, block)
+      super application_id
       @block = block
     end
     def perform_batch
@@ -267,18 +267,18 @@ include Net
     end
   end
   
-  def job_with_callback(app, &block)
-    j = CallbackJob.new app.id, block
+  def job_with_callback(application, &block)
+    j = CallbackJob.new application.id, block
     j.perform
   end
   
-  def job(app)
-    j = PullQstMessageJob.new app.id
+  def job(application)
+    j = PullQstMessageJob.new application.id
     j.perform
   end
   
-  def batch(app)
-    j = PullQstMessageJob.new app.id
+  def batch(application)
+    j = PullQstMessageJob.new application.id
     j.perform_batch
   end
   

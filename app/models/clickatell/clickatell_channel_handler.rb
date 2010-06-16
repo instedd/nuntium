@@ -7,6 +7,29 @@ class ClickatellChannelHandler < GenericChannelHandler
   def job_class
     SendClickatellMessageJob
   end
+
+  def restrictions
+    res = super
+    network = @channel.configuration[:network]
+    return res if network.nil?
+    return res if res.has_key?('country')
+    return res if res.has_key?('carrier')
+    
+    # since restriction is modified inplace, clone it.
+    res = res.clone
+    
+    ClickatellCoverageMO.find_all_by_network(network).each do |coverage|      
+      if coverage.carrier.nil? then
+        # coverage applied to countries
+        add_restriction res, 'country', Country.find_by_id(coverage.country_id).iso2
+      else
+        # coverage applied to carriers
+        add_restriction res, 'carrier', Carrier.find_by_id(coverage.carrier_id).guid
+      end
+    end
+    
+    return res
+  end
   
   def check_valid
     check_config_not_blank :api_id
@@ -21,8 +44,10 @@ class ClickatellChannelHandler < GenericChannelHandler
   end
   
   def info
-    @channel.configuration[:user] + " / " << @channel.configuration[:api_id] <<
-      " <a href=\"#\" onclick=\"clickatell_view_credit(#{@channel.id}); return false;\">view credit</a>"
+    s = ""
+    s << @channel.configuration[:user] + " / " if @channel.configuration[:user].present? 
+    s << @channel.configuration[:api_id] + " <a href=\"#\" onclick=\"clickatell_view_credit(#{@channel.id}); return false;\">view credit</a>"
+    s
   end
   
   def more_info(ao_msg)
@@ -66,6 +91,16 @@ class ClickatellChannelHandler < GenericChannelHandler
     request.verify_mode = OpenSSL::SSL::VERIFY_NONE
     request.get(uri).body
   end
+  
+  CLICKATELL_NETWORKS = {
+    '61' => '+61',
+    '44a' => '+44 [A]', 
+    '46' => '+46',
+    '49' => '+49',
+    '45' => '+45',
+    '44b' => '+44 [B]',
+    'usa' => 'USA Shortcode'
+  }
   
   @@clickatell_statuses = {
     '001' => ['Message unknown', 'The message ID is incorrect or reporting is delayed.'],
@@ -122,4 +157,16 @@ class ClickatellChannelHandler < GenericChannelHandler
     301 => { :kind => :fatal, :description => 'No credit left'},
     302 => { :kind => :message, :description => 'Max allowed credit'}
   }
+  
+  private
+  
+  # adds restriction to result value
+  def add_restriction(res, key, value)
+    if res[key].nil?
+      res[key] = [value]
+    else
+      res[key] << value
+    end
+  end
+  
 end

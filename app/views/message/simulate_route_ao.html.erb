@@ -1,0 +1,11 @@
+<h4><%= link_to_function 'Candidate Channels', "toggle('candidate_channels')" %></h4>
+
+<div id="candidate_channels">
+<% if @channels.empty? %>
+No candidate channel for the given message.
+<% else %>
+  <%= @channels.map(&:name).join ', ' %>
+<% end %>
+</div>
+
+<%= render :partial => 'message' %>

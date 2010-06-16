@@ -3,17 +3,13 @@ class QstClientChannelHandler < ChannelHandler
     # AO Message should be queued, we just query them
   end
   
-  def handle_now(msg)
-    # AO Message should be queued, we just query them
-  end
-  
   def check_valid
     check_config_not_blank :url, :user, :password
   end
 
   def on_enable
-    @channel.create_task('qst-client-channel-push', QST_PUSH_INTERVAL, PushQstChannelMessageJob.new(@channel.application_id, @channel.id))
-    @channel.create_task('qst-client-channel-pull', QST_PULL_INTERVAL, PullQstChannelMessageJob.new(@channel.application_id, @channel.id))
+    @channel.create_task('qst-client-channel-push', QST_PUSH_INTERVAL, PushQstChannelMessageJob.new(@channel.account_id, @channel.id))
+    @channel.create_task('qst-client-channel-pull', QST_PULL_INTERVAL, PullQstChannelMessageJob.new(@channel.account_id, @channel.id))
   end
   
   def on_disable

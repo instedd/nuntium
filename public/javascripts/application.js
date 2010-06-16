@@ -73,7 +73,7 @@ function select_all_at_messages() {
   select_all('at_messages[]');
   if (total_at_messages > current_at_messages) {
     var e = $('#all_at_messages_text');
-    e.show();
+    e.show();// === address source ===
     e.html('' + current_at_messages + ' messages are selected. <a href="javascript:void(0)" onclick="select_all_pages_at_messages()">Select all ' + total_at_messages + ' messages</a>.');
   }
 }
@@ -154,6 +154,8 @@ function create_channel(select) {
   select.value = '';
 }
 
+// === clickatell ===
+
 function clickatell_channel_direction_changed() {
   var dir = $('#channel_direction :selected').val();
   
@@ -186,6 +188,8 @@ function clickatell_view_credit(id) {
   });
 }
 
+// === twitter ===
+
 function twitter_view_rate_limit_status(id) {
   $.ajax({
     type: "GET",
@@ -200,34 +204,287 @@ function twitter_view_rate_limit_status(id) {
   });
 }
 
-// Find address source 
-$(function() {
-  var find_address_source = function() {
-    $('#address_source_result').html('Searching...');
-    $.ajax({
-      type: "GET",
-      url: '/application/find_address_source', 
-      data: {address: $('#address_source').val()},
-      success: function(name) {
-        if (name) {
-          $('#address_source_result').html(name);
-        } else {
-          $('#address_source_result').html('No channel found');
-        }
+// === custom attributes ===
+
+function channel_custom_attribute_changed(select) {
+  select = $(select);
+  li = select.parent();
+  first_select = $(li.children()[0]);
+  first_select.attr('name', 'custom_attribute_name[]'); 
+  
+  li_value = li.children('.value');
+  
+  cloned_li = li.clone();
+  $(cloned_li.children()[0]).val('');
+  
+  value = select.val();
+  switch(value) {
+  case '':
+    li_value.html('');
+    break;
+  case 'application':
+    var html = ' = ';
+    html += applications_select();
+    if (show_accept_when_not_specified_option) html += ' &nbsp; ' + accept_when_not_specified_checkbox(true);
+    html += ' &nbsp; ' + remove_custom_attribute_link();
+    li_value.html(html);
+    break;
+  case 'suggested_channel':
+    var html = ' = ';
+    html += channels_select();
+    if (show_accept_when_not_specified_option) html += ' &nbsp; ' + accept_when_not_specified_checkbox();
+    html += ' &nbsp; ' + remove_custom_attribute_link();
+    li_value.html(html);
+    break;
+  case 'country':
+    get_countries({
+      success: function(countries) {
+        var html = ' = ';
+        html += countries_select(countries, 'custom_attribute_value[]');
+        if (show_accept_when_not_specified_option) html += ' &nbsp; ' + accept_when_not_specified_checkbox(true);
+        html += ' &nbsp; ' + remove_custom_attribute_link();
+        li_value.html(html);
       },
       error: function() {
-        $('#address_source_result').html('An error happened :-(');
+        li_value.html('An error happened :-(');
       }
     });
-  };
+    break;
+  case 'carrier':
+    get_countries({
+      success: function(countries) {
+        var html = ' = ';
+        html += countries_select(countries, 'countries', 'channel_custom_attribute_country_changed(this)');
+        html += '<span class="value2"></span>';
+        if (show_accept_when_not_specified_option) html += ' &nbsp; ' + accept_when_not_specified_checkbox(true);
+        html += ' &nbsp; ' + remove_custom_attribute_link();
+        li_value.html(html);
+      },
+      error: function() {
+        li_value.html('An error happened :-(');
+      }
+    });
+    break;
+  case 'custom':
+    first_select.attr('name', 'doesnt_matter');
+    
+    var html = 'Name: <input type="text" name="custom_attribute_name[]"> Value: <input type="text" name="custom_attribute_value[]">';
+    if (show_accept_when_not_specified_option) html += ' &nbsp; ' + accept_when_not_specified_checkbox();
+    html += ' &nbsp; ' + remove_custom_attribute_link();
+    li_value.html(html);
+    break;
+  }
   
-  $('#address_source').keydown(function(event) {
-    if (event.keyCode == 13) {
-      find_address_source();
-      return false;
-    } else if (event.keyCode != 37 && event.keyCode != 39) {
-      $('#address_source_result').html('');
+  ul = li.parent();
+  lis = ul.children();
+  last_li = lis[lis.length - 1];
+  
+  if ($($(last_li).children()[0]).val()) {
+    $("#custom_attributes").append(cloned_li);
+  }
+}
+
+function channel_custom_attribute_country_changed(select) {
+  select = $(select);
+  country = select.val();
+  li = select.parent();
+  li_value2 = li.children('.value2');
+  
+  if (!country) {
+    li_value2.html('');
+    return;
+  }
+  
+  get_carriers(country, {
+    success: function(carriers) {
+      li_value2.html(carriers_select(carriers));
+    },
+    error: function() {
+      li_value2.html('An error happened :-(');
     }
   });
-  $('#address_source_button').click(find_address_source);
-});
+}
+
+function remove_custom_attribute(a) {
+  $(a).parent().parent().remove();
+}
+
+function remove_custom_attribute_link() {
+  return '<a href="javascript:void(0)" onclick="remove_custom_attribute(this)">Remove</a>';
+}
+
+// === Utility functions ===
+function get_countries(map) {
+  $.ajax({
+    type: "GET",
+    url: '/api/countries.json',
+    dataType: 'json', 
+    success: map.success,
+    error: map.error,
+  });
+}
+
+function get_carriers(country_id, map) {
+  $.ajax({
+    type: "GET",
+    url: '/api/carriers.json?country_id=' + country_id,
+    dataType: 'json', 
+    success: map.success,
+    error: map.error,
+  });
+}
+
+function applications_select() {
+  return custom_select(applications, 'Select an application...');
+}
+
+function channels_select() {
+  return custom_select(channels, 'Select a channel...');
+}
+
+function custom_select(objects, title) {
+  var html = '';
+  html += '<select name="custom_attribute_value[]">';
+  html += '<option value="">' + title + '</option>';
+  for(var i = 0; i < objects.length; i++) {
+    html += '<option>' + objects[i] + '</option>';
+  }
+  html += '</select>';
+  return html;
+}
+
+function countries_select(countries, name, onchange) {
+  var html = '';
+  html += '<select name="' + name + '"';
+  if (onchange) {
+    html += 'onchange="' + onchange + '"';
+  }
+  html += '>';
+  html += '<option value="">Select a country...</option>';
+  for(var i = 0; i < countries.length; i++) {
+    html += '<option value="' + countries[i].iso2 + '">' + countries[i].name + '</option>';
+  }
+  html += '</select>';
+  return html;
+}
+
+function carriers_select(carriers) {
+  var html = '';
+  html += '<select name="custom_attribute_value[]">';
+  html += '<option value="">Select a carrier...</option>';
+  for(var i = 0; i < carriers.length; i++) {
+    html += '<option value="' + carriers[i].guid + '">' + carriers[i].name + '</option>';
+  }
+  html += '</select>';
+  return html;
+}
+
+function accept_when_not_specified_checkbox(checked) {
+  var html = '';
+  html += '<input type="hidden" name="custom_attribute_optional[]" value="0"/>';
+  html += '<input type="checkbox" name="custom_attribute_optional[]" value="1"';
+  if (checked) html += ' checked="checked"';
+  html += '/> Accept when not specified';
+  return html;
+}
+
+// ======= rules engine ui ===========
+
+var rules_nextId = 0;
+function rules_newId() { rules_nextId++; return rules_nextId; }
+
+function add_rule_ui(ctx, prefix, rule) {
+	var table = jQuery('table', ctx);
+	
+	var rule_id = rules_newId();
+	var rule_prefix = prefix + '[' + rule_id + ']'
+	
+	var row = jQuery('<tr><td><a href="#" class="remove-rule">[x]</a></td><td><a href="#" class="add-matching">add matching</a></td><td><a href="#" class="add-action">add action</a></td><td><input type="checkbox" name="' + rule_prefix +'[stop]" value="yes"></td></tr>');
+	table.append(row);
+	var add_matching = jQuery('.add-matching', row);
+	var add_action = jQuery('.add-action', row);
+	
+	jQuery('.remove-rule', row).click(function(){ row.remove(); return false; });
+	add_matching.click(function(){ add_matching_ui(rule_id, add_matching, rule_prefix, null); return false; });
+	add_action.click(function(){ add_action_ui(rule_id, add_action, rule_prefix, null); return false; });
+	
+	if (rule != null) {		
+		// load existing matchings
+		jQuery(rule.matchings).each(function(_, matching){
+			add_matching_ui(rule_id, add_matching, rule_prefix, matching);
+		});
+		// load existing actions
+		jQuery(rule.actions).each(function(_, action){
+			add_action_ui(rule_id, add_action, rule_prefix, action);
+		})
+		// load stop value
+		if (rule.stop) {
+			jQuery('input:checkbox', row).val(['yes']);
+		}
+	}
+}
+
+function add_matching_ui(rule_id, add_matching, prefix, matching) {
+	// add matching ui
+	var matching_id = rules_newId();
+	var matching_ui = jQuery('<div/>');
+	add_matching.before(matching_ui);
+	
+	// fill matching ui
+	var name_prefix = prefix + '[matchings][' + matching_id + ']';
+	matching_ui.append('<input type="text" name="' + name_prefix +'[property]"/>');
+	matching_ui.append('<select name="' + name_prefix +'[operator]"><option value="equals">equals</option><option value="not_equals">not equals</option><option value="starts_with">starts with</option><option value="regex">regex</option></select>');
+	matching_ui.append('<input type="text" name="' + name_prefix +'[value]"/>');
+	matching_ui.append('<a href="#" class="remove-matching">[x]</a>');
+	
+	jQuery('.remove-matching', matching_ui).click(function(){ matching_ui.remove(); return false; });
+	
+	// fill matching values
+	if (matching != null) {
+		jQuery('input:first', matching_ui).val(matching.property);
+		jQuery('select', matching_ui).val(matching.operator);
+		jQuery('input:last', matching_ui).val(matching.value);
+	}
+}
+
+function add_action_ui(rule_id, add_action, prefix, action) {
+	// add action ui
+	var action_id = rules_newId();
+	var action_ui = jQuery('<div/>');
+	add_action.before(action_ui);
+	
+	// fill action ui
+	var name_prefix = prefix + '[actions][' + action_id + ']';
+	action_ui.append('<input type="text" name="' + name_prefix +'[property]"/>');
+	action_ui.append(' = ');
+	action_ui.append('<input type="text" name="' + name_prefix +'[value]"/>');
+	action_ui.append('<a href="#" class="remove-action">[x]</a>');
+	
+	jQuery('.remove-action', action_ui).click(function(){ action_ui.remove(); return false; });
+	
+	// fil action values
+	if (action != null) {
+		jQuery('input:first', action_ui).val(action.property);
+		jQuery('input:last', action_ui).val(action.value);
+	}
+}
+
+function init_rules(ctx, prefix, rules) {
+	// initial ui
+	ctx.append('<table class="table"><tr><th>&nbsp;</th><th>Matching</th><th>Action</th><th>Stop</th></tr></table>');
+	ctx.append('<div><a href="#" class="add-rule">add rule</a></div><br/>');
+		
+	jQuery('.add-rule', ctx).click(function(){
+		add_rule_ui(ctx, prefix, null);				
+		return false;
+	});
+	
+	// load existing rules
+	if (rules != null) {
+		jQuery(rules).each(function(_, rule){
+			add_rule_ui(ctx, prefix, rule);
+		});
+	}
+}
+
+

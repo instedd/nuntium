@@ -2,17 +2,16 @@ require 'rss/1.0'
 require 'rss/2.0'
 require 'nokogiri'
 
-class RssController < ApplicationController
-  before_filter :authenticate
+class RssController < ApplicationAuthenticatedController
 
-  # GET /rss
+  # GET /:account_name/:application_name/rss
   def index
     last_modified = request.env['HTTP_IF_MODIFIED_SINCE']
     etag = request.env['HTTP_IF_NONE_MATCH']
     
-    # Filter by application
-    query = 'application_id = ? AND (state = ? OR state = ?)'
-    params = [@application.id, 'queued', 'delivered']
+    # Filter by account and application
+    query = 'account_id = ? AND application_id = ? AND (state = ? OR state = ?)'
+    params = [@account.id, @application.id, 'queued', 'delivered']
     
     # Filter by date if requested
     if !last_modified.nil?
@@ -49,7 +48,7 @@ class RssController < ApplicationController
     
     # Separate messages into ones that have their tries
     # over max_tries and those still valid.
-    valid_messages, invalid_messages = filter_tries_exceeded_and_not_exceeded @at_messages, @application
+    valid_messages, invalid_messages = filter_tries_exceeded_and_not_exceeded @at_messages, @account
     
     # Mark as failed messages that have their tries over max_tries
     if !invalid_messages.empty?
@@ -57,7 +56,7 @@ class RssController < ApplicationController
     end
     
     # Logging: say that valid messages were returned and invalid no
-    ATMessage.log_delivery(@at_messages, @application, 'rss')
+    ATMessage.log_delivery(@at_messages, @account, 'rss')
     
     @at_messages = valid_messages
     return head :not_modified if @at_messages.empty?
@@ -67,7 +66,7 @@ class RssController < ApplicationController
     render :layout => false
   end
   
-  # POST /rss
+  # POST /:account_name/:aplication_name/rss
   def create
     tree = request.POST.present? ? request.POST : Hash.from_xml(request.raw_post).with_indifferent_access
     
@@ -77,7 +76,6 @@ class RssController < ApplicationController
       items.each do |item|
         # Create AO message
         msg = AOMessage.new
-        msg.application_id = @application.id
         msg.from = item[:author]
         msg.to = item[:to]
         msg.subject = item[:title]
@@ -85,23 +83,12 @@ class RssController < ApplicationController
         msg.guid = item[:guid] unless item[:guid].nil?
         msg.timestamp = item[:pubDate].to_datetime
         
-        # And let the application handle it
-        @application.route msg, 'rss'
+        # And let the account handle it
+        @application.route_ao msg, 'rss'
       end
     end
-     
+    
     head :ok
-  end
-  
-  def authenticate
-    authenticate_or_request_with_http_basic do |username, password|
-      @application = Application.find_by_id_or_name(username)
-      if !@application.nil? and @application.interface == 'rss'
-        @application.authenticate password
-      else
-        false
-      end
-    end
   end
 end
 

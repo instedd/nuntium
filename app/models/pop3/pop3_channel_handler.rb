@@ -18,7 +18,7 @@ class Pop3ChannelHandler < ChannelHandler
     config = @channel.configuration
     
     pop = Net::POP3.new(config[:host], config[:port].to_i)
-    pop.enable_ssl(OpenSSL::SSL::VERIFY_NONE) if config[:use_ssl] == '1'
+    pop.enable_ssl(OpenSSL::SSL::VERIFY_NONE) if config[:use_ssl].to_b
     
     begin
       pop.start(config[:user], config[:password])
@@ -34,7 +34,7 @@ class Pop3ChannelHandler < ChannelHandler
   end
 
   def on_enable
-    @channel.create_task('pop3-receive', POP3_RECEIVE_INTERVAL, ReceivePop3MessageJob.new(@channel.application_id, @channel.id))
+    @channel.create_task('pop3-receive', POP3_RECEIVE_INTERVAL, ReceivePop3MessageJob.new(@channel.account_id, @channel.id))
   end
   
   def on_disable

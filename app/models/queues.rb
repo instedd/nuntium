@@ -2,15 +2,15 @@ module Queues
 
   class << self
   
-    def publish_application(app, job)
+    def publish_application(application, job)
       application_exchange.publish(job.to_yaml, 
-        :routing_key => application_routing_key_for(app), 
+        :routing_key => application_routing_key_for(application), 
         :persistent => true)
     end
     
-    def bind_application(app, mq = MQ)
-      application_queue_for(app, mq).bind(application_exchange(mq), 
-        :routing_key => application_routing_key_for(app))
+    def bind_application(application, mq = MQ)
+      application_queue_for(application, mq).bind(application_exchange(mq), 
+        :routing_key => application_routing_key_for(application))
     end
   
     def publish_ao(msg, job)
@@ -92,16 +92,16 @@ module Queues
       mq.topic('applications', :durable => true)
     end
     
-    def application_queue_for(app, mq = MQ)
-      mq.queue(application_queue_name_for(app), :durable => true)
+    def application_queue_for(application, mq = MQ)
+      mq.queue(application_queue_name_for(application), :durable => true)
     end
     
-    def application_queue_name_for(app)
-      "application_queue.#{app.id}"
+    def application_queue_name_for(application)
+      "application_queue.#{application.id}"
     end
     
-    def application_routing_key_for(app)
-      "application.#{app.id}"
+    def application_routing_key_for(application)
+      "application.#{application.id}"
     end
     
     def ao_exchange(mq = MQ)
@@ -113,11 +113,11 @@ module Queues
     end
     
     def ao_queue_name_for(channel)
-      "ao_queue.#{channel.application_id}.#{channel.kind}.#{channel.id}"
+      "ao_queue.#{channel.account_id}.#{channel.kind}.#{channel.id}"
     end
     
     def ao_routing_key_for(channel)
-      "ao.#{channel.application_id}.#{channel.kind}.#{channel.id}"
+      "ao.#{channel.account_id}.#{channel.kind}.#{channel.id}"
     end
     
     def notifications_exchange(mq = MQ)

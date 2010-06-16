@@ -1,7 +1,6 @@
 # Knows what to do when an AOMessage arrives via a channel kind.
 # Implementations must define:
 # - handle(msg): to handle a message, typically creating a feature job to execute
-# - handle_now(msg): to handle a message, sending it now
 # - check_valid: to perform error validations on channel's configuration (optional)
 # - check_valid_in_ui: to perform error validations when configured from the ui, otherwise tests would become slow (optional)
 # - before_save: to apply a transformation before saving it (optional)
@@ -37,6 +36,11 @@ class ChannelHandler
   # displayed in the message view
   def more_info(ao_msg)
     {}
+  end
+  
+  # Returns restrictions of the channel to be used to route AOs
+  def restrictions
+    @channel.restrictions
   end
   
   protected

@@ -1,6 +1,8 @@
 require 'twitter'
 
-class TwitterController < AuthenticatedController
+class TwitterController < AccountAuthenticatedController
+
+  include CustomAttributesControllerCommon
 
   before_filter :check_login
   before_filter :check_twitter_properly_configured
@@ -10,6 +12,7 @@ class TwitterController < AuthenticatedController
     return redirect_to_home if chan.nil?
     
     @channel = Channel.new(chan)
+    
     if @channel.name.blank?
       @channel.errors.add(:name, "can't be blank")
       return render "channel/new_twitter_channel"
@@ -22,7 +25,11 @@ class TwitterController < AuthenticatedController
     session['twitter_token'] = request_token.token
     session['twitter_secret'] = request_token.secret
     session['twitter_channel_name'] = @channel.name
+    session['twitter_channel_priority'] = @channel.priority
+    session['twitter_channel_application_id'] = @channel.application_id
+    session['twitter_channel_address'] = @channel.address
     session['twitter_channel_welcome_message'] = @channel.configuration[:welcome_message]
+    session['twitter_channel_custom_attributes'] = get_custom_attributes
     
     redirect_to request_token.authorize_url
   end
@@ -35,7 +42,11 @@ class TwitterController < AuthenticatedController
     session['twitter_token'] = request_token.token
     session['twitter_secret'] = request_token.secret
     session['twitter_channel_id'] = params[:id]
+    session['twitter_channel_priority'] = params[:channel][:priority]
+    session['twitter_channel_application_id'] = params[:channel][:application_id]
+    session['twitter_channel_address'] = params[:channel][:address]
     session['twitter_channel_welcome_message'] = params[:channel][:configuration][:welcome_message]
+    session['twitter_channel_custom_attributes'] = get_custom_attributes
     
     redirect_to request_token.authorize_url
   end
@@ -49,14 +60,14 @@ class TwitterController < AuthenticatedController
     if session['twitter_channel_id'].nil?
       @update = false
       @channel = Channel.new
-      @channel.application_id = @application.id
+      @channel.account_id = @account.id
       @channel.name = session['twitter_channel_name']      
       @channel.kind = 'twitter'
       @channel.protocol = 'twitter'
-      @channel.direction = Channel::Bidirectional  
+      @channel.direction = Channel::Bidirectional
     else
       @update = true
-      @channel = Channel.find session['twitter_channel_id']
+      @channel = @account.find_channel session['twitter_channel_id']
     end
     
     @channel.configuration = {
@@ -65,12 +76,20 @@ class TwitterController < AuthenticatedController
       :token => access_token.token,
       :secret => access_token.secret
       }
+    @channel.priority = session['twitter_channel_priority']
+    @channel.application_id = session['twitter_channel_application_id']
+    @channel.address = session['twitter_channel_address']
+    @channel.restrictions = session['twitter_channel_custom_attributes']
     
     session['twitter_token']  = nil
     session['twitter_secret'] = nil
     session['twitter_channel_id'] = nil
     session['twitter_channel_name'] = nil
-    session['twitter_channel_welcome_message'] = nil    
+    session['twitter_channel_priority'] = nil
+    session['twitter_channel_application_id'] = nil
+    session['twitter_channel_address'] = nil
+    session['twitter_channel_welcome_message'] = nil
+    session['twitter_channel_custom_attributes'] = nil
 
     if @channel.save
       flash[:notice] = @update ? 'Channel was updated' : 'Channel was created'
@@ -82,8 +101,8 @@ class TwitterController < AuthenticatedController
   
   def view_rate_limit_status
     id = params[:id]
-    @channel = Channel.find_by_id id
-    if @channel.nil? || @channel.application_id != @application.id || @channel.kind != 'twitter'
+    @channel = @account.find_channel id
+    if @channel.nil? || @channel.account_id != @account.id || @channel.kind != 'twitter'
       return redirect_to_home
     end
     

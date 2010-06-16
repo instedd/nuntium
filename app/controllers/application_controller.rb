@@ -13,14 +13,14 @@ class ApplicationController < ActionController::Base
 
   # Given an array of AOMessage or ATMessage, this methods
   # returns two arrays:
-  #  - The first one has the messages which have tries < app.max_tries
-  #  - The second one has the messages which have tries >= app.max_tries
-  def filter_tries_exceeded_and_not_exceeded(msgs, app)
+  #  - The first one has the messages which have tries < account.max_tries
+  #  - The second one has the messages which have tries >= account.max_tries
+  def filter_tries_exceeded_and_not_exceeded(msgs, account)
     valid_messages = []
     invalid_messages = []
     
     msgs.each do |msg|
-      if msg.tries >= app.max_tries
+      if msg.tries >= account.max_tries
         invalid_messages.push msg
       else
         valid_messages.push msg

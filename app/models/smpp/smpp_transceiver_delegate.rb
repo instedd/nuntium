@@ -140,7 +140,7 @@ class SmppTransceiverDelegate
     create_at_message pdu.source_addr, pdu.destination_addr, pdu.data_coding, text
   rescue Exception => e
     logger.error "Error in mo_received: #{e.class} #{e.to_s}"
-    ApplicationLogger.exception_in_channel @channel, e
+    AccountLogger.exception_in_channel @channel, e
   end
   
   def delivery_report_received(transceiver, pdu)
@@ -165,10 +165,10 @@ class SmppTransceiverDelegate
     end
     msg.save!
     
-    @channel.application.logger.ao_message_status_receieved msg, pdu.stat
+    @channel.account.logger.ao_message_status_receieved msg, pdu.stat
   rescue Exception => e
     logger.error "Error in delivery_report_received: #{e.class} #{e.to_s}"
-    ApplicationLogger.exception_in_channel @channel, e
+    AccountLogger.exception_in_channel @channel, e
   end
   
   def message_accepted(transceiver, mt_message_id, pdu)
@@ -191,10 +191,10 @@ class SmppTransceiverDelegate
     msg.tries += 1
     msg.save!
     
-    @channel.application.logger.ao_message_status_receieved msg, 'ACK'
+    @channel.account.logger.ao_message_status_receieved msg, 'ACK'
   rescue Exception => e
     logger.error "Error in message_accepted: #{e.class} #{e.to_s}"
-    ApplicationLogger.exception_in_channel @channel, e
+    AccountLogger.exception_in_channel @channel, e
   end
   
   def message_rejected(transceiver, mt_message_id, pdu)
@@ -208,18 +208,18 @@ class SmppTransceiverDelegate
     msg.tries += 1
     msg.save!
     
-    @channel.application.logger.ao_message_status_warning msg, "Command Status '#{pdu.command_status}'"
+    @channel.account.logger.ao_message_status_warning msg, "Command Status '#{pdu.command_status}'"
   rescue Exception => e
     logger.error "Error in message_rejected: #{e.class} #{e.to_s}"
-    ApplicationLogger.exception_in_channel @channel, e
+    AccountLogger.exception_in_channel @channel, e
   end
   
   def create_at_message(source, destination, data_coding, text)
     msg = ATMessage.new
     msg.from = source.with_protocol 'sms'
     msg.to = destination.with_protocol 'sms'
-    if @channel.configuration[:accept_mo_hex_string] == '1' and is_hex(text) 
-      bytes = hex_to_bytes text
+    if (@channel.configuration[:accept_mo_hex_string].to_b) and text.is_hex? 
+      bytes = text.hex_to_bytes
       iconv = Iconv.new('utf-8', ucs2_endianized)
       msg.subject = iconv.iconv bytes
     else
@@ -242,7 +242,7 @@ class SmppTransceiverDelegate
       end
     end
     
-    @channel.accept msg
+    @channel.route_at msg
   end
   
   def part_received(source, destination, data_coding, text, ref, total, partn)
@@ -317,14 +317,6 @@ class SmppTransceiverDelegate
   
   def ucs2_endianized
     @channel.configuration[:endianness] == 'little' ? 'ucs-2le' : 'ucs-2be'
-  end
-  
-  def is_hex(msg)
-    msg =~ /[0-9a-fA-F]{4}+/
-  end
-  
-  def hex_to_bytes(msg)
-    msg.scan(/../).map{|x| x.to_i(16).chr}.join
   end
   
   def bytes_to_int(bytes)

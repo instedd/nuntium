@@ -5,38 +5,46 @@ require 'yaml'
 
 class RssControllerTest < ActionController::TestCase
   def setup
-    @request.env['CONTENT_TYPE'] = 'application/xml'
+    @account = Account.make
+    @chan = Channel.make :qst_server, :account => @account
+    @application = Application.make :account => @account, :password => 'app_pass'
+    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')
+  end
+  
+  def create(msg)
+    @request.env['RAW_POST_DATA'] = new_rss_feed msg
+    post :create, :account_name => @account.name, :application_name => @application.name
+    assert_response :ok
+  end
+  
+  def index(options = {})
+    options.each do |k, v|
+      @request.env[k] = v unless k == :expected_response
+    end
+    get :index, :account_name => @account.name, :application_name => @application.name
+    assert_response (options[:expected_response] || :ok)
   end
 
   test "should convert one rss item to out message" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-    
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
-    @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')
-    post :create
+    expected = AOMessage.make_unsaved
+    create expected
     
     messages = AOMessage.all
     assert_equal 1, messages.length
     
     msg = messages[0]
     
-    assert_equal app.id, msg.application_id
-    assert_equal "First message", msg.subject
-    assert_equal "Body of the message", msg.body
-    assert_equal "Someone", msg.from
-    assert_equal "protocol://Someone else", msg.to
-    assert_equal "someguid", msg.guid
+    assert_equal @account.id, msg.account_id
+    assert_equal @application.id, msg.application_id
+    [:subject, :body, :from, :to, :guid].each do |field|
+      assert_equal expected.send(field), msg.send(field)
+    end 
     assert_equal time_for_msg(0) , msg.timestamp
-    assert_equal 'queued', msg.state
-    assert_equal chan.id, msg.channel_id
+    assert_equal @chan.id, msg.channel_id
   end
   
   test "should create qst outgoing message" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
-    @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')
-    post :create
+    create AOMessage.make_unsaved
     
     messages = AOMessage.all
     assert_equal 1, messages.length
@@ -44,141 +52,45 @@ class RssControllerTest < ActionController::TestCase
     unread = QSTOutgoingMessage.all
     assert_equal 1, unread.length
     assert_equal messages[0].id, unread[0].ao_message_id
-    assert_equal chan.id, unread[0].channel_id
-  end
-  
-  test "should select channel based on protocol case qst server" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server', 'protocol1')
-    chan2 = create_channel(app, 'chan2', 'chan_pass2', 'qst_server', 'protocol2');
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
-    @request.env['RAW_POST_DATA'] = new_rss_feed('protocol2://Someone else')
-    post :create
-    
-    messages = AOMessage.all
-    assert_equal 1, messages.length
-    
-    unread = QSTOutgoingMessage.all
-    assert_equal 1, unread.length
-    assert_equal messages[0].id, unread[0].ao_message_id
-    assert_equal chan2.id, unread[0].channel_id
-  end
-  
-  test "qst server no protocol in message" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
-    @request.env['RAW_POST_DATA'] = new_rss_feed('Someone else')
-    post :create
-    
-    messages = AOMessage.all
-    assert_equal 1, messages.length
-    assert_equal 'error', messages[0].state
-    
-    unread = QSTOutgoingMessage.all
-    assert_equal 0, unread.length
-    
-    logs = ApplicationLog.all
-    assert_equal 2, logs.length
-    log = logs[1]
-    assert_equal app.id, log.application_id
-    assert_equal messages[0].id, log.ao_message_id
-    assert_equal "Protocol not found in 'to' field", log.message
-  end
-  
-  test "qst server channel not found for protocol" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
-    @request.env['RAW_POST_DATA'] = new_rss_feed('unknown://Someone else')
-    post :create
-    
-    messages = AOMessage.all
-    assert_equal 1, messages.length
-    assert_equal 'error', messages[0].state
-    
-    unread = QSTOutgoingMessage.all
-    assert_equal 0, unread.length
-    
-    logs = ApplicationLog.all
-    assert_equal 2, logs.length
-    log = logs[1]
-    assert_equal app.id, log.application_id
-    assert_equal messages[0].id, log.ao_message_id
-    assert_equal "No channel found for protocol 'unknown'", log.message
-  end
-  
-  test "qst server more than one channel found for protocol" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-    chan2 = create_channel(app, 'chan2', 'chan_pass', 'qst_server')
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
-    @request.env['RAW_POST_DATA'] = new_rss_feed('protocol://Someone else')
-    post :create
-    
-    messages = AOMessage.all
-    assert_equal 1, messages.length
-    assert_equal 'queued', messages[0].state
-    
-    unread = QSTOutgoingMessage.all
-    assert_equal 1, unread.length
-    assert_equal messages[0].id, unread[0].ao_message_id
-    assert_true unread[0].channel_id == chan.id || unread[0].channel_id == chan2.id
+    assert_equal @chan.id, unread[0].channel_id
   end
   
   test "should convert one message to rss item" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-    msg = new_at_message(app, 0)
+    application2 = Application.make :account => @account
     
-    app2, chan2 = create_app_and_channel('app2', 'app_pass2', 'chan2', 'chan_pass2', 'qst_server')
-    new_at_message(app2, 1)
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
-    get :index
+    msg = ATMessage.make :account => @account, :application => @application, :state => 'queued'
+    ATMessage.make :account => @account, :application => application2, :state => 'queued'
+    
+    index
     
     assert_equal msg.timestamp, @response.last_modified
     
     assert_select "title", "Outbox"
     assert_select "lastBuildDate", msg.timestamp.rfc822
-    
-    assert_select "guid" do |es|
+    assert_select "guid", :count => 1 do |es|
       assert_equal 1, es.length
     end
-
     assert_shows_message_as_rss_item msg
   end
   
   test "should convert one message without subject to rss item" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-    msg = new_at_message(app, 0)
-    msg.subject = nil
-    msg.save
-    
-    app2, chan2 = create_app_and_channel('app2', 'app_pass2', 'chan2', 'chan_pass2', 'qst_server')
-    new_at_message(app2, 1)
+    msg = ATMessage.make :account => @account, :application => @application, :state => 'queued', :subject => nil
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
-    get :index
+    index
     
     assert_select "title", "Outbox"
-    
     assert_select "guid" do |es|
       assert_equal 1, es.length
     end
-
     assert_shows_message_as_rss_item msg
   end
   
   test "should convert two messages to rss items ordered by timestamp" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-    new_at_message(app, 0)
-    new_at_message(app, 1)
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
-    get :index
+    2.times { |i| ATMessage.make :account => @account, :application => @application, :timestamp => time_for_msg(i), :state => 'queued' }
+    
+    index
     
     assert_select "title", "Outbox"
-    
     assert_select "pubDate" do |es|
       assert_equal 2, es.length
       assert_select es[0], "pubDate", 'Sun, 02 Jan 2000 05:00:00 +0000'
@@ -187,180 +99,126 @@ class RssControllerTest < ActionController::TestCase
   end
   
   test "should return not modified for HTTP_IF_MODIFIED_SINCE" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-    new_at_message(app, 0)
-    new_at_message(app, 1)
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
-    @request.env["HTTP_IF_MODIFIED_SINCE"] = time_for_msg(1).to_s
-    get :index
-    
-    assert_response :not_modified
+    2.times { ATMessage.make :account => @account, :application => @application, :timestamp => time_for_msg(0), :state => 'queued' }
+    index "HTTP_IF_MODIFIED_SINCE" => time_for_msg(1).to_s, :expected_response => :not_modified
   end
   
   test "should apply HTTP_IF_MODIFIED_SINCE" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-    new_at_message(app, 0)
-    msg = new_at_message(app, 1)
+    ATMessage.make :account => @account, :application => @application, :state => 'queued', :timestamp => time_for_msg(0)
+    msg = ATMessage.make :account => @account, :application => @application, :state => 'queued', :timestamp => time_for_msg(1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
-    @request.env["HTTP_IF_MODIFIED_SINCE"] = time_for_msg(0).to_s
-    get :index
+    index "HTTP_IF_MODIFIED_SINCE" => time_for_msg(0).to_s
     
     assert_select "title", "Outbox"
-    
     assert_select "guid" do |es|
       assert_equal 1, es.length
     end
-    
     assert_shows_message_as_rss_item msg
   end
   
   test "should apply HTTP_IF_MODIFIED_SINCE and increment tries" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-    msg_0 = new_at_message(app, 0)
-    msg_1 = new_at_message(app, 1)
+    msg_0 = new_at_message(@application, 0)
+    msg_1 = new_at_message(@application, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
     @request.env["HTTP_IF_MODIFIED_SINCE"] = time_for_msg(0).to_s
     
-    # 1st try
-    get :index
-    
-    assert_select "guid" do |es|
-      assert_equal 1, es.length
+    1.upto 5 do |try|
+      get :index, :account_name => @account.name, :application_name => @application.name
+      
+      msgs = ATMessage.all
+      assert_equal 2, msgs.length
+      assert_equal 0, msgs[0].tries
+      
+      if 1 <= try and try <= 3
+        assert_select "guid" do |es|
+          assert_equal 1, es.length
+        end 
+        assert_equal try, msgs[1].tries
+        assert_equal 'delivered', msgs[1].state
+      else
+        assert_select "guid", {:count => 0}
+        assert_equal 4, msgs[1].tries
+        assert_equal 'failed', msgs[1].state
+      end
     end
-    
-    msgs = ATMessage.all
-    assert_equal 2, msgs.length
-    assert_equal 0, msgs[0].tries
-    assert_equal 1, msgs[1].tries
-    assert_equal 'delivered', msgs[1].state
-    
-    # 2st try
-    get :index
-    
-    assert_select "guid" do |es|
-      assert_equal 1, es.length
-    end
-    
-    msgs = ATMessage.all
-    assert_equal 2, msgs.length
-    assert_equal 0, msgs[0].tries
-    assert_equal 2, msgs[1].tries
-    assert_equal 'delivered', msgs[1].state
-    
-    # 3rd try
-    get :index
-    
-    assert_select "guid" do |es|
-      assert_equal 1, es.length
-    end
-    
-    msgs = ATMessage.all
-    assert_equal 2, msgs.length
-    assert_equal 0, msgs[0].tries
-    assert_equal 3, msgs[1].tries
-    assert_equal 'delivered', msgs[1].state
-    
-    # 4th try: no message return and it's status is failed
-    get :index
-    
-    assert_select "guid", {:count => 0}
-    
-    msgs = ATMessage.all
-    assert_equal 2, msgs.length
-    assert_equal 0, msgs[0].tries
-    assert_equal 4, msgs[1].tries
-    assert_equal 'failed', msgs[1].state 
-    
-    # 5th try: tries was not incremented
-    get :index
-    
-    assert_select "guid", {:count => 0}
-    
-    msgs = ATMessage.all
-    assert_equal 2, msgs.length
-    assert_equal 0, msgs[0].tries
-    assert_equal 4, msgs[1].tries
-    assert_equal 'failed', msgs[1].state 
   end
   
   test "should return not modified for HTTP_IF_NONE_MATCH" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-    new_at_message(app, 0)
-    new_at_message(app, 1)
+    new_at_message(@application, 0)
+    new_at_message(@application, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
-    @request.env["HTTP_IF_NONE_MATCH"] = "someguid 1"
-    get :index
-    
-    assert_response :not_modified
+    index "HTTP_IF_NONE_MATCH" => "someguid 1", :expected_response => :not_modified
   end
   
   test "should apply HTTP_IF_NONE_MATCH" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-    new_at_message(app, 0)
-    msg = new_at_message(app, 1)
+    new_at_message(@application, 0)
+    msg = new_at_message(@application, 1)
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')  
-    @request.env["HTTP_IF_NONE_MATCH"] = "someguid 0"
-    get :index
+    index "HTTP_IF_NONE_MATCH" => "someguid 0"
     
     assert_select "title", "Outbox"
-    
     assert_select "guid" do |es|
       assert_equal 1, es.length
     end
-    
     assert_shows_message_as_rss_item msg
   end
   
   test "create not authorized" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'wrong_pass')
-    post :create
-    
+    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'wrong_pass')
+    post :create, :account_name => @account.name, :application_name => @application.name
     assert_response 401
   end
   
   test "index not authorized" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-  
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'wrong_pass')
-    get :index
-    
+    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'wrong_pass')
+    get :index, :account_name => @account.name, :application_name => @application.name
     assert_response 401
   end
   
-  test "index not authorized wrong interface" do
-    app, chan = create_app_and_channel('app', 'app_pass', 'chan', 'chan_pass', 'qst_server')
-    app.update_attribute :interface, 'qst_client'
+  test "index not found name mismatch 1" do
+    @request.env['HTTP_AUTHORIZATION'] = http_auth("account2/#{@application.name}", 'app_pass')
+    get :index, :account_name => @account.name, :application_name => @application.name
+    assert_response 401
+  end
   
-    @request.env['HTTP_AUTHORIZATION'] = http_auth('app', 'app_pass')
-    get :index
-    
+  test "index not found name mismatch 2" do
+    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/application2", 'app_pass')
+    get :index, :account_name => @account.name, :application_name => @application.name
     assert_response 401
   end
   
   # Utility methods follow
-  def new_rss_feed(to)
+  def new_rss_feed(msg)
     <<-eos
       <?xml version="1.0" encoding="UTF-8"?>
       <rss version="2.0">
         <channel>
           <item>
-            <title>First message</title>
-            <description>Body of the message</description>
-            <author>Someone</author>
-            <to>#{to}</to>
+            <title>#{msg.subject}</title>
+            <description>#{msg.body}</description>
+            <author>#{msg.from}</author>
+            <to>#{msg.to}</to>
             <pubDate>Sun Jan 02 05:00:00 UTC 2000</pubDate>
-            <guid>someguid</guid>
+            <guid>#{msg.guid}</guid>
           </item>
         </channel>
       </rss>
     eos
+  end
+  
+  def assert_shows_message_as_rss_item(msg)
+    if msg.subject.nil?
+      assert_select "item title", msg.body
+      assert_select "item description", {:count => 0}
+    else
+      assert_select "item title", msg.subject
+      assert_select "item description", msg.body
+    end
+    
+    assert_select "item author", msg.from
+    assert_select "item to", msg.to
+    assert_select "item guid", msg.guid
+    assert_select "item pubDate", msg.timestamp.rfc822
   end
   
 end

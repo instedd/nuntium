@@ -2,24 +2,24 @@
 # Subclasses must implement managed_perform.
 class SendMessageJob
 
-  attr_accessor :application_id, :channel_id, :message_id
+  attr_accessor :account_id, :channel_id, :message_id
   
-  def initialize(application_id, channel_id, message_id)
-    @application_id = application_id
+  def initialize(account_id, channel_id, message_id)
+    @account_id = account_id
     @channel_id = channel_id
     @message_id = message_id
   end
   
   def perform
     begin
-      @app = Application.find_by_id @application_id
-      @channel = Channel.find @channel_id
+      @account = Account.find_by_id @account_id
+      @channel = @account.find_channel @channel_id
       @msg = AOMessage.find @message_id
       @config = @channel.configuration
     
       managed_perform
     rescue MessageException => ex
-      @msg.send_failed @app, @channel, ex.inner
+      @msg.send_failed @account, @channel, ex.inner
       true
     rescue PermanentException => ex
       alert_msg = "Permanent exception executing #{self}: #{ex.class} #{ex} #{ex.backtrace}"

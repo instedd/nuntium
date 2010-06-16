@@ -1,5 +1,6 @@
 ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
+require File.expand_path(File.dirname(__FILE__) + "/blueprints")
 require 'test_help'
 require 'base64'
 require 'digest/md5'
@@ -31,7 +32,14 @@ class ActiveSupport::TestCase
   # instantiated fixtures translates to a database query per test method),
   # then set this back to true.
   self.use_instantiated_fixtures  = false
+  
+  include Mocha::API
 
+  def setup
+    Rails.cache.clear
+    Sham.reset
+  end
+    
   # Returns the string to be used for HTTP_AUTHENTICATION header
   def http_auth(user, pass)
     'Basic ' + Base64.encode64(user + ':' + pass)
@@ -97,69 +105,36 @@ class ActiveSupport::TestCase
     end
     http
   end
-
-  # Creates an app with a specific interface and configuration
-  def create_app_with_interface(app_name, app_pass, interface, cfg)
-    app = Application.create!(:name => app_name, :password => app_pass, :interface => interface)
-    app.configuration = {}
-    cfg.each_pair do |k,v| app.configuration[k] = v end
-    app.save!
-    app
-  end
-  
-  # Creates an app and a qst channel with the given values.
-  # Returns the tupple [application, channel]
-  def create_app_and_channel(app_name, app_pass, chan_name, chan_pass, kind, protocol = 'protocol')
-    app = Application.new
-    app.name = app_name
-    app.password = app_pass
-    app.save!
-    
-    channel = create_channel app, chan_name, chan_pass, kind, protocol
-    
-    [app, channel]
-  end
-  
-  def create_channel(app, name, pass, kind, protocol = 'protocol')
-    channel = Channel.new
-    channel.application_id = app.id
-    channel.name = name
-    channel.protocol = protocol
-    channel.configuration = { :password => pass }
-    channel.kind = kind
-    channel.direction = Channel::Bidirectional
-    channel.save!
-    
-    channel
-  end
   
   # Creates a new message of the specified kind with values according to i
-  def new_message(app, i, kind, protocol = 'protocol', state = 'queued', tries = 0)
+  def new_message(account, i, kind, protocol = 'protocol', state = 'queued', tries = 0)
     if i.respond_to? :each
       msgs = []
-      i.each { |j| msgs << new_message(app, j, kind, protocol, state, tries) } 
+      i.each { |j| msgs << new_message(account, j, kind, protocol, state, tries) } 
       return msgs
     else
       msg = kind.new
-      fill_msg msg, app, i, protocol, state, tries
+      fill_msg msg, account, i, protocol, state, tries
       msg.save!
       return msg
     end
   end
   
-  # Creates an ATMessage that belongs to app and has values according to i
-  def new_at_message(app, i, protocol = 'protocol', state = 'queued', tries = 0)
-    new_message app, i, ATMessage, protocol, state, tries
-  end
-  
-  # Creates an AOMessage that belongs to app and has values according to i
-  def new_ao_message(app, i, protocol = 'protocol', state = 'queued', tries = 0)
-    new_message app, i, AOMessage, protocol, state, tries
+  # Creates an ATMessage that belongs to account and has values according to i
+  def new_at_message(application, i, protocol = 'protocol', state = 'queued', tries = 0)
+    msg = new_message application.account, i, ATMessage, protocol, state, tries
+    if msg.respond_to? :each
+      msg.each{|x| x.application_id = application.id, x.save!}   
+    else
+      msg.application_id = application.id
+      msg.save!
+    end
+    msg
   end
   
   # Fills the values of an existing message
-  def fill_msg(msg, app, i, protocol = 'protocol', state = 'queued', tries = 0)
-    msg.application_id = app.id
+  def fill_msg(msg, account, i, protocol = 'protocol', state = 'queued', tries = 0)
+    msg.account_id = account.id
     msg.subject = "Subject of the message #{i}"
     msg.body = "Body of the message #{i}"
     msg.from = "Someone #{i}"
@@ -185,23 +160,9 @@ class ActiveSupport::TestCase
     return Time.at(946702800).utc
   end
   
-  # Given a message id, checks that message in the db has the specified state and tries
-  def assert_msg_state(msg_or_id, state, tries,kind=ATMessage)
-    msg_id = msg_or_id.id unless msg_or_id.kind_of? String
-    msg = kind.find_by_id(msg_id)
-    assert_not_nil msg, "message with id #{msg_id} not found"
-    assert_equal state, msg.state, "message with id #{msg_id} state does not match"
-    assert_equal tries, msg.tries, "message with id #{msg_id} tries does not match"
-  end
-  
-  # Given a list of message or ids, checks that each message in the db has the specified state and tries
-  def assert_msgs_states(msg_ids, state, tries, kind=ATMessage)
-    msg_ids.each { |msg| assert_msg_state msg, state, tries, kind }
-  end
-  
   # Asserts all values for a message constructed with new or fill
-  def assert_msg(msg, app, i, protocol = 'protocol')
-    assert_equal app.id, msg.application_id, 'message application id'
+  def assert_msg(msg, account, i, protocol = 'protocol')
+    assert_equal account.id, msg.account_id, 'message account id'
     assert_equal "Subject of the message #{i}", msg.subject, 'message subject'
     assert_equal "Body of the message #{i}", msg.body, 'message body'
     assert_equal "Someone #{i}", msg.from, 'message from'
@@ -211,89 +172,27 @@ class ActiveSupport::TestCase
     assert_equal 'queued', msg.state, 'message status'
   end
   
-  # Asserts all values for a message constructed with new or fill that was deserialized
-  def assert_deserialized_msg(msg, app, i, protocol = 'protocol')
-    assert_equal "Subject of the message #{i} - Body of the message #{i}", msg.subject_and_body, 'message subject and body'
-    assert_equal "Someone #{i}", msg.from, 'message from'
-    assert_equal protocol + "://Someone else #{i}", msg.to, 'message to' 
-    assert_equal "someguid #{i}", msg.guid, 'message guid' 
-    assert_equal time_for_msg(i), msg.timestamp, 'message timestamp'
-  end
-  
-  # Given an xml document string, asserts all values for a message constructed with new or fill
-  def assert_xml_msgs(xml_txt, app, rng, protocol = 'protocol')
-    rng = (rng...rng) if not rng.respond_to? :each
-    msgs = ATMessage.parse_xml(xml_txt)
-    assert_equal rng.to_a.size, msgs.size, 'messages count does not match range' 
-    base = rng.to_a[0]
-    rng.each do |i|
-      msg = msgs[i-base]
-      assert_deserialized_msg(msg, app, i, protocol)
-    end
-  end
-  
-  # Creates a new QSTOutgoingMessage with guid "someguid #{i}"
-  def new_qst_outgoing_message(chan, ao_message_id)
-    msg = QSTOutgoingMessage.new
-    msg.channel_id = chan.id
-    msg.ao_message_id = ao_message_id
-    msg.save!
-  end
-  
-  def assert_shows_message(msg)
-    assert_select "message[id=?]", msg.guid
-    assert_select "message[from=?]", msg.from
-    assert_select "message[to=?]", msg.to
-    assert_select "message[when=?]", msg.timestamp.iso8601
-    assert_select "message text", msg.subject.nil? ? msg.body : msg.subject + " - " + msg.body
-  end
-  
-  def assert_shows_message_as_rss_item(msg)
-    if msg.subject.nil?
-      assert_select "item title", msg.body
-      assert_select "item description", {:count => 0}
-    else
-      assert_select "item title", msg.subject
-      assert_select "item description", msg.body
-    end
-    
-    assert_select "item author", msg.from
-    assert_select "item to", msg.to
-    assert_select "item guid", msg.guid
-    assert_select "item pubDate", msg.timestamp.rfc822
-  end
-  
-  def new_channel(app, name)
-    chan = Channel.new(:application_id => app.id, :name => name, :kind => 'qst_server', :protocol => 'sms', :direction => Channel::Bidirectional);
-    chan.configuration = {:url => 'a', :user => 'b', :password => 'c'};
-    chan.save!
-    chan
-  end
-  
   def assert_validates_configuration_presence_of(chan, field)
     chan.configuration.delete field
     assert !chan.save
-  end
-  
-  def assert_validates_configuration_ok(chan)
-    assert chan.save
   end
   
   def assert_handler_should_enqueue_ao_job(chan, job_class)
     chan.save!
     
     jobs = []
-    Queues.subscribe_ao(chan) { |header, job| jobs << job; header.ack; sleep 0.3 }
+    Queues.expects(:publish_ao).with do |msg, job|
+      jobs << job
+    end
     
-    msg = AOMessage.new(:application_id => chan.application_id, :channel_id => chan.id)
+    msg = AOMessage.make :account_id => chan.account_id, :channel_id => chan.id
     chan.handler.handle(msg)
-    
-    sleep 0.3
     
     assert_equal 1, jobs.length
     assert_equal job_class, jobs[0].class
     assert_equal msg.id, jobs[0].message_id
     assert_equal chan.id, jobs[0].channel_id
-    assert_equal chan.application_id, jobs[0].application_id
+    assert_equal chan.account_id, jobs[0].account_id
+    assert_equal msg.id, jobs[0].message_id
   end
 end

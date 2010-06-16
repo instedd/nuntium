@@ -5,15 +5,15 @@ class ClientQstConfiguration
   end
 
   def user
-    configuration[:cred_user] || configuration[:user]
+    configuration[:user] || configuration[:interface_user]
   end
 
   def pass
-    configuration[:cred_pass] || configuration[:pass] || configuration[:password]
+    configuration[:password] || configuration[:interface_password]
   end
 
   def url
-    configuration[:url]
+    configuration[:url] || configuration[:interface_url]
   end
   
   def max_tries
@@ -39,11 +39,7 @@ class ClientQstConfiguration
   end
   
   def logger
-    if @parent.instance_of? Application
-      @parent.logger
-    elsif @parent.instance_of? Channel
-      @parent.application.logger
-    end
+    @parent.account.logger
   end
   
   private

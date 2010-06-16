@@ -1,0 +1,38 @@
+<h4>Edit settings / Change password</h4>
+
+<% form_for :account, :url => { :controller => 'home', :action => :update_account } do |f| %>
+  <%= f.error_messages %>
+  <p>
+  <%= f.label :max_tries %><br/>
+  <%= f.text_field :max_tries %>
+  </p>
+  <hr />
+  <p>
+  <b>Leave blank if you don't want to change the password</b><br/>
+  <%= f.label :password %><br/>
+  <%= f.password_field :password, :value => '', :autocomplete => :off %>
+  </p>
+  <p>
+  <%= f.label :password_confirmation %><br/>
+  <%= f.password_field :password_confirmation, :value => '', :autocomplete => :off %>
+  </p>
+  <hr />
+  <p>
+	<h5>App Routing Rules</h5>
+
+	<div class="apprules"></div>
+	<i>
+		Available context for matching are: from, to, subject, body, subject_and_body and any custom attribute like country (iso2) or carrier (guid).<br>
+		Rules need to determine the application (by name) that will be used as target of the message.
+	</i>
+
+	<script type="text/javascript">	
+	jQuery(function(){
+		init_rules(jQuery('.apprules'), 'apprules', <%= @account.app_routing_rules.to_json %>);
+	});
+	</script>
+  </p>
+  <%= submit_tag 'Update' %>
+<% end %>
+
+<%= link_to 'Go back', :controller => :home, :action => :home %>

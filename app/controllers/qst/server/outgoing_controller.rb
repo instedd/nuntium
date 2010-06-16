@@ -1,5 +1,5 @@
 class OutgoingController < QSTServerController
-  # GET /qst/:application_id/outgoing
+  # GET /qst/:account_id/outgoing
   def index
     etag = request.env['HTTP_IF_NONE_MATCH']
     max = params[:max]
@@ -45,7 +45,7 @@ class OutgoingController < QSTServerController
       if !@ao_messages.empty?
         # Separate messages into ones that have their tries
         # over max_tries and those still valid.
-        valid_messages, invalid_messages = filter_tries_exceeded_and_not_exceeded @ao_messages, @application
+        valid_messages, invalid_messages = filter_tries_exceeded_and_not_exceeded @ao_messages, @account
         
         # Mark as failed messages that have their tries over max_tries
         if !invalid_messages.empty?
@@ -53,7 +53,7 @@ class OutgoingController < QSTServerController
           sql.execute("UPDATE ao_messages SET state = 'failed' WHERE id IN (#{invalid_message_ids})")
           sql.execute("DELETE FROM qst_outgoing_messages WHERE ao_message_id IN (#{invalid_message_ids})") 
           invalid_messages.each do |message|
-            @application.logger.ao_message_delivery_exceeded_tries message, 'qst_server'
+            @account.logger.ao_message_delivery_exceeded_tries message, 'qst_server'
           end
         end
       end
@@ -65,13 +65,14 @@ class OutgoingController < QSTServerController
       
       # Logging: say that valid messages were returned
       @ao_messages.each do |message|
-        @application.logger.ao_message_delivery_succeeded message, 'qst_server'
+        @account.logger.ao_message_delivery_succeeded message, 'qst_server'
       end
       
       @ao_messages.sort! {|x,y| x.timestamp <=> y.timestamp}
     end 
     
     response.headers['ETag'] = @ao_messages.last.id.to_s if !@ao_messages.empty?
-	  render :layout => false
+    response.headers["Content-Type"] = "application/xml; charset=utf-8"
+	  render :text => AOMessage.write_xml(@ao_messages)
   end
 end

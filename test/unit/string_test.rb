@@ -35,4 +35,10 @@ class StringTest < ActiveSupport::TestCase
     assert_true 'HolaATodos'.starts_with?('Hola')
     assert_false 'HolaATodos'.starts_with?('HolaT')
   end
+  
+  test "mobile_number" do
+    assert_equal '1234', 'sms://1234'.mobile_number
+    assert_equal '1234', 'sms://+1234'.mobile_number
+    assert_equal '1234', '+1234'.mobile_number
+  end
 end

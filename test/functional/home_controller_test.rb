@@ -2,73 +2,75 @@ require 'test_helper'
 
 class HomeControllerTest < ActionController::TestCase
   test "login succeeds" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
+    account = Account.make :password => 'account_pass'
     
-    get :login, :application => {:name => 'app', :password => 'app_pass'}
+    get :login, :account => {:name => account.name, :password => 'account_pass'}
     
-    # Go to app home page
+    # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
     
-    # App id was saved in session
-    assert_equal app.id, session[:application_id]
+    # Account id was saved in session
+    assert_equal account.id, session[:account_id]
   end
   
-  test "create app succeeds" do
-    get :create_application, :new_application => {:name => 'app', :password => 'app_pass', :password_confirmation => 'app_pass'}
+  test "create account succeeds" do
+    attrs = Account.plan :password => 'account_pass'
+  
+    get :create_account, :new_account => attrs
     
-    # Go to app home page
+    # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
     
-    # The app was created
-    apps = Application.all
-    assert_equal 1, apps.length
+    # The account was created
+    accounts = Account.all
+    assert_equal 1, accounts.length
     
-    app = apps[0]
-    assert_equal 'app', apps[0].name
-    assert(apps[0].authenticate('app_pass'))
+    account = accounts[0]
+    assert_equal attrs[:name], accounts[0].name
+    assert accounts[0].authenticate(attrs[:password]) 
     
-    # App was saved in session
-    assert_equal app.id, session[:application_id]
+    # Account was saved in session
+    assert_equal account.id, session[:account_id]
   end
   
-  test "edit app succeeds" do
-    app = Application.create({:name => 'app', :password => 'app_pass', :interface => 'rss' })
+  test "edit account succeeds" do
+    account = Account.make :password => 'account_pass'
     
-    get :update_application, {:application => {:max_tries => 1, :interface => 'qst_client', :configuration => { :url => 'myurl' }, :password => '', :password_confirmation => ''}}, {:application_id => app.id}
+    get :update_account, {:account => {:max_tries => 1, :password => '', :password_confirmation => ''}}, {:account_id => account.id}
     
-    # Go to app home page
+    # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
-    assert_equal 'Application was changed', flash[:notice]
+    assert_equal 'Account was changed', flash[:notice]
     
-    # The app was changed
-    apps = Application.all
-    assert_equal 1, apps.length
+    # The account was changed
+    accounts = Account.all
+    assert_equal 1, accounts.length
     
-    app = apps[0]
-    assert_equal 1, app.max_tries
-    assert(app.authenticate('app_pass'))
+    account = accounts[0]
+    assert_equal 1, account.max_tries
+    assert(account.authenticate('account_pass'))
   end
   
-  test "edit app change password succeeds" do
-    app = Application.create({:name => 'app', :password => 'app_pass', :interface => 'rss'})
+  test "edit account change password succeeds" do
+    account = Account.make :password => 'account_pass'
     
-    get :update_application, {:application => {:max_tries => 3, :interface => 'rss', :password => 'new_pass', :password_confirmation => 'new_pass'}}, {:application_id => app.id}
+    get :update_account, {:account => {:max_tries => 3, :password => 'new_pass', :password_confirmation => 'new_pass'}}, {:account_id => account.id}
     
-    # Go to app home page
+    # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
-    assert_equal 'Application was changed', flash[:notice]
+    assert_equal 'Account was changed', flash[:notice]
     
-    # The app was changed
-    apps = Application.all
-    assert_equal 1, apps.length
+    # The account was changed
+    accounts = Account.all
+    assert_equal 1, accounts.length
     
-    app = apps[0]
-    assert(app.authenticate('new_pass'))
+    account = accounts[0]
+    assert(account.authenticate('new_pass'))
   end
 
   test "home" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
-    get :home, {}, {:application_id => app.id}
+    account = Account.make
+    get :home, {}, {:account_id => account.id}
     assert_template 'home/home.html.erb'
   end
   
@@ -76,33 +78,27 @@ class HomeControllerTest < ActionController::TestCase
   # Validations tests follow #
   # ------------------------ #
   
-  test "edit app fails with max tries" do
-    app = Application.create({:name => 'app', :password => 'app_pass'})
-    get :update_application, {:application => {:max_tries => 'foo', :password => '', :password_confirmation => ''}}, {:application_id => app.id}
-    assert_template 'edit_application'
-  end
-  
-  test "edit app fails with invalid interface" do
-    app = Application.create({:name => 'app', :password => 'app_pass', :interface => 'rss'})
-    get :update_application, {:application => {:max_tries => '1', :interface => 'invalid' , :password => '', :password_confirmation => ''}}, {:application_id => app.id}
-    assert_template 'edit_application'
+  test "edit account fails with max tries" do
+    account = Account.make
+    get :update_account, {:account => {:max_tries => 'foo', :password => '', :password_confirmation => ''}}, {:account_id => account.id}
+    assert_template 'edit_account'
   end
   
   test "login fails wrong name" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
-    get :login, :application => {:name => 'wrong_app', :password => 'app_pass'}
+    account = Account.make
+    get :login, :account => {:name => 'wrong_account', :password => 'account_pass'}
     assert_template 'index'
   end
   
   test "login fails wrong pass" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
-    get :login, :application => {:name => 'app', :password => 'wrong_pass'}
+    account = Account.make
+    get :login, :account => {:name => account.name, :password => 'wrong_pass'}
     assert_template 'index'
   end
   
-  test "create app fails name is empty" do
-    app = Application.create({:name => 'app', :password => 'app_pass'});
-    get :create_application, :new_application => {:name => '   ', :password=> 'foo'}
+  test "create account fails name is empty" do
+    account = Account.make
+    get :create_account, :new_account => {:name => '   ', :password=> 'foo'}
     assert_template 'index'
   end
   
