@@ -44,7 +44,7 @@ class SmppChannelHandler < ServiceChannelHandler
   def info
     c = @channel.configuration
     s = "#{c[:user]}@#{c[:host]}:#{c[:port]}"
-    s << " (#{chan.throttle}/min)" if @channel.throttle != 0
+    s << " (#{@channel.throttle}/min)" if @channel.throttle.present? and @channel.throttle != 0
     s
   end
 end

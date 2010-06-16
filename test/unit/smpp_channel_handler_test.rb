@@ -55,4 +55,8 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
     @chan.touch
   end
   
+  test "info" do
+    assert_equal "#{@chan.configuration[:user]}@#{@chan.configuration[:host]}:#{@chan.configuration[:port]}", @chan.handler.info
+  end
+  
 end
