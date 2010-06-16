@@ -221,10 +221,10 @@ class SmppTransceiverDelegate
     if (@channel.configuration[:accept_mo_hex_string].to_b) and text.is_hex? 
       bytes = text.hex_to_bytes
       iconv = Iconv.new('utf-8', ucs2_endianized)
-      msg.subject = iconv.iconv bytes
+      msg.body = iconv.iconv bytes
     else
       if data_coding == 0 and @default_mo_encoding == 'gsm'
-        msg.subject = GsmDecoder.decode text
+        msg.body = GsmDecoder.decode text
       else
         source_encoding = case data_coding
           when 0: encoding_endianized(@default_mo_encoding)
@@ -235,9 +235,9 @@ class SmppTransceiverDelegate
         
         if source_encoding
           iconv = Iconv.new('utf-8', source_encoding)
-          msg.subject = iconv.iconv text
+          msg.body = iconv.iconv text
         else
-          msg.subject = text
+          msg.body = text
         end
       end
     end
