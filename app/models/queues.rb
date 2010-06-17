@@ -124,12 +124,12 @@ module Queues
       mq.topic('notifications')
     end
     
-    def notifications_queue(id, mq = MQ)
-      mq.queue("notifications_queue_#{id}", :auto_delete => true)
+    def notifications_queue(id, routing_key, mq = MQ)
+      mq.queue("notifications_queue_#{routing_key}_#{id}", :auto_delete => true)
     end
     
     def bind_notifications(id, routing_key, mq = MQ)
-      notifications_queue(id, mq).bind(
+      notifications_queue(id, routing_key, mq).bind(
         notifications_exchange(mq), 
         :routing_key => routing_key)
     end

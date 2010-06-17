@@ -75,7 +75,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
       msg = msgs[0]
       assert_equal 'sms://4444', msg.from
       assert_equal 'sms://8888', msg.to
-      assert_equal output, msg.subject
+      assert_equal output, msg.body
       assert_equal @chan.id, msg.channel_id
     end
   end
@@ -236,7 +236,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     msg = msgs[0]
     assert_equal 'sms://856202210289', msg.from
     assert_equal 'sms://2488', msg.to
-    assert_equal "ກຂຄ", msg.subject
+    assert_equal "ກຂຄ", msg.body
     assert_equal @chan.id, msg.channel_id 
   end  
   
