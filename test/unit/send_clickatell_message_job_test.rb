@@ -21,7 +21,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       
     msg = AOMessage.make :account => Account.make
     
-    expect_http msg, response    
+    expect_rest msg, response    
     deliver msg
     
     msg = AOMessage.first
@@ -40,7 +40,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       
     msg = AOMessage.make :account => Account.make
     
-    expect_http msg, response 
+    expect_rest msg, response 
     deliver msg
     
     msg = AOMessage.first
@@ -62,7 +62,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       
     msg = AOMessage.make :account => Account.make
     
-    expect_http msg, response 
+    expect_rest msg, response 
     deliver msg
     
     msg = AOMessage.first
@@ -73,7 +73,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     assert_false @chan.enabled
   end
   
-  def expect_http(msg, response)
+  def expect_rest(msg, response)
     params = {
       :api_id => @chan.configuration[:api_id],
       :user => @chan.configuration[:user],
@@ -83,14 +83,8 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :to => msg.to.without_protocol,
       :text => msg.subject_and_body
     }
-    uri = "/http/sendmsg?#{params.to_query}"
-  
-    host = URI::parse('https://api.clickatell.com')
-    request = mock('Net::HTTP')
-    Net::HTTP.expects(:new).with(host.host, host.port).returns(request)
-    request.expects('use_ssl=').with(true)
-    request.expects('verify_mode=').with(OpenSSL::SSL::VERIFY_NONE)
-    request.expects(:get).with(uri).returns(response)
+    
+    RestClient.expects(:get).with("https://api.clickatell.com/http/sendmsg?#{params.to_query}").returns(response)
   end
   
   def deliver(msg)
