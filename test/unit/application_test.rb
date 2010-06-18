@@ -1,9 +1,6 @@
 require 'test_helper'
-require 'mocha'
 
 class ApplicationTest < ActiveSupport::TestCase
-
-  include Mocha::API
 
   test "check modified" do
     app = Application.make

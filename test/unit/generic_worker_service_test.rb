@@ -1,9 +1,6 @@
 require 'test_helper'
-require 'mocha'
 
 class GenericWorkerServiceTest < ActiveSupport::TestCase
-
-  include Mocha::API
   
   @@id = 10000000
   @@working_group = 'fast'

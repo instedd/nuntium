@@ -2,10 +2,8 @@ require 'test_helper'
 require 'uri'
 require 'net/http'
 require 'net/https'
-require 'mocha'
 
 class PullQstMessageJobTest < ActiveSupport::TestCase
-  include Mocha::API
   include Net
   
   test "perform first run" do

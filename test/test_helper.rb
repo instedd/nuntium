@@ -6,6 +6,7 @@ require 'base64'
 require 'digest/md5'
 require 'digest/sha2'
 require 'shoulda'
+require 'mocha'
 
 class ActiveSupport::TestCase
   # Transactional fixtures accelerate your tests by wrapping each test method

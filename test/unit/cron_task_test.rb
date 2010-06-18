@@ -1,12 +1,8 @@
 require 'test_helper'
-require 'mocha'
-
 
 class CronTaskTest < ActiveSupport::TestCase
 
   self.use_transactional_fixtures = false
-
-  include Mocha::API
   
   setup :clean_database
   

@@ -1,9 +1,6 @@
 require 'test_helper'
-require 'mocha'
 
 class AOMessageTest < ActiveSupport::TestCase
-  include Mocha::API
-
   test "subject and body no subject nor body" do
     msg = AOMessage.new
     assert_equal '', msg.subject_and_body

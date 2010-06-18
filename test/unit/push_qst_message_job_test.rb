@@ -2,11 +2,9 @@ require 'test_helper'
 require 'uri'
 require 'net/http'
 require 'net/https'
-require 'mocha'
 
 class PushQstMessageJobTest < ActiveSupport::TestCase
-include Mocha::API
-include Net
+  include Net
   
   def test_perform_first_run
     application = setup_application

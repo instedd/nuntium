@@ -1,9 +1,6 @@
 require 'test_helper'
-require 'mocha'
 
 class SendClickatellMessageJobTest < ActiveSupport::TestCase
-  include Mocha::API
-  
   def setup
     @chan = Channel.make :clickatell
   end

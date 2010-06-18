@@ -1,10 +1,7 @@
 require 'test_helper'
 require 'mq'
-require 'mocha'
 
 class XmppChannelHandlerTest < ActiveSupport::TestCase
-  include Mocha::API
-  
   def setup
     @chan = Channel.make :xmpp
   end
