@@ -1,7 +1,4 @@
 require 'test_helper'
-require 'uri'
-require 'net/http'
-require 'net/https'
 require 'mocha'
 
 class SendClickatellMessageJobTest < ActiveSupport::TestCase
