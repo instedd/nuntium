@@ -25,7 +25,7 @@ class SendDeliveryAckJob
     data = {:guid => msg.guid, :channel => chan.name, :state => @state}
     
     if app.delivery_ack_method == 'get'
-      res = RestClient.get "#{app.delivery_ack_url}?#{data}", headers
+      res = RestClient.get "#{app.delivery_ack_url}?#{data.to_query}", headers
     else
       res = RestClient.post app.delivery_ack_url, data, headers
     end
@@ -36,9 +36,9 @@ class SendDeliveryAckJob
       when Net::HTTPSuccess, Net::HTTPRedirection
         return
       when Net::HTTPUnauthorized
-        application.alert "Sending HTTP delivery ack received unauthorized: invalid credentials"
-        application.delivery_ack_method = 'none'
-        application.save!
+        app.alert "Sending HTTP delivery ack received unauthorized: invalid credentials"
+        app.delivery_ack_method = 'none'
+        app.save!
         return
       else
         account.logger.error :ao_message_id => @message_id, :message => "HTTP delivery ack failed #{res.error!}"
