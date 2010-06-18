@@ -81,7 +81,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :text => msg.subject_and_body
     }
     
-    RestClient.expects(:get).with("https://api.clickatell.com/http/sendmsg?#{params.to_query}").returns(response)
+    Clickatell.expects(:send_message).with(params).returns(response)
   end
   
   def deliver(msg)
