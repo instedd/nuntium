@@ -16,7 +16,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
     response = mock('RestClient::Response')
     response.expects('net_http_res').returns(Net::HTTPSuccess.new 'x', 'x', 'x')
     
-    RestClient.expects('get').with("http://www.domain.com?#{@query.to_query}", :content_type => "application/x-www-form-urlencoded").returns(response)
+    RestClient.expects('get').with("#{@application.delivery_ack_url}?#{@query.to_query}", :content_type => "application/x-www-form-urlencoded").returns(response)
   
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
     job.perform
@@ -32,7 +32,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
     response = mock('RestClient::Response')
     response.expects('net_http_res').returns(Net::HTTPSuccess.new 'x', 'x', 'x')
     
-    RestClient.expects('get').with("http://www.domain.com?#{@query.to_query}", :content_type => "application/x-www-form-urlencoded", :user => @application.delivery_ack_user, :password => @application.delivery_ack_password).returns(response)
+    RestClient.expects('get').with("#{@application.delivery_ack_url}?#{@query.to_query}", :content_type => "application/x-www-form-urlencoded", :user => @application.delivery_ack_user, :password => @application.delivery_ack_password).returns(response)
   
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
     job.perform
@@ -46,7 +46,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
     response = mock('RestClient::Response')
     response.expects('net_http_res').returns(Net::HTTPSuccess.new 'x', 'x', 'x')
     
-    RestClient.expects('post').with("http://www.domain.com", @query, :content_type => "application/x-www-form-urlencoded").returns(response)
+    RestClient.expects('post').with(@application.delivery_ack_url, @query, :content_type => "application/x-www-form-urlencoded").returns(response)
   
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
     job.perform
@@ -62,7 +62,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
     response = mock('RestClient::Response')
     response.expects('net_http_res').returns(Net::HTTPSuccess.new 'x', 'x', 'x')
     
-    RestClient.expects('post').with("http://www.domain.com", @query, :content_type => "application/x-www-form-urlencoded", :user => @application.delivery_ack_user, :password => @application.delivery_ack_password).returns(response)
+    RestClient.expects('post').with(@application.delivery_ack_url, @query, :content_type => "application/x-www-form-urlencoded", :user => @application.delivery_ack_user, :password => @application.delivery_ack_password).returns(response)
   
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
     job.perform
@@ -76,7 +76,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
     response = mock('RestClient::Response')
     response.expects('net_http_res').returns(Net::HTTPUnauthorized.new 'x', 'x', 'x')
     
-    RestClient.expects('get').with("http://www.domain.com?#{@query.to_query}", :content_type => "application/x-www-form-urlencoded").returns(response)
+    RestClient.expects('get').with("#{@application.delivery_ack_url}?#{@query.to_query}", :content_type => "application/x-www-form-urlencoded").returns(response)
   
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
     job.perform

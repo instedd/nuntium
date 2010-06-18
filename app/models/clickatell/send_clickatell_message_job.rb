@@ -1,6 +1,3 @@
-require 'uri'
-require 'net/http'
-require 'net/https'
 include ActiveSupport::Multibyte
 
 class SendClickatellMessageJob < SendMessageJob

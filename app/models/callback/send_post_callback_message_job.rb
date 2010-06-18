@@ -1,8 +1,3 @@
-require 'uri'
-require 'net/http'
-require 'net/https'
-include ActiveSupport::Multibyte
-
 class SendPostCallbackMessageJob
   attr_accessor :account_id, :application_id, :message_id
 
@@ -17,12 +12,11 @@ class SendPostCallbackMessageJob
     app = account.find_application @application_id
     msg = ATMessage.get_message @message_id
     
-    url = URI.parse(app.interface_url)
-    req = Net::HTTP::Post.new(url.path)
+    headers = {:content_type => "application/x-www-form-urlencoded"}
     if app.interface_user.present?
-      req.basic_auth app.interface_user, app.interface_password
+      headers[:user] = app.interface_user
+      headers[:password] = app.interface_password
     end
-    req.content_type = "application/x-www-form-urlencoded"
 
     data = { 
       :application => app.name, 
@@ -33,9 +27,10 @@ class SendPostCallbackMessageJob
       :guid => msg.guid,
       :channel => msg.channel.name 
     }
-    req.set_form_data(data)
     
-    res = Net::HTTP.new(url.host, url.port).start {|http| http.request(req) }
+    res = RestClient.post app.interface_url, data, headers
+    res = res.net_http_res
+    
     case res
       when Net::HTTPSuccess, Net::HTTPRedirection
         ATMessage.update_tries([msg.id],'delivered')
