@@ -1,8 +1,3 @@
-require 'uri'
-require 'net/http'
-require 'net/https'
-include ActiveSupport::Multibyte
-
 class SendDeliveryAckJob
   attr_accessor :account_id, :application_id, :message_id, :state
 
@@ -19,25 +14,24 @@ class SendDeliveryAckJob
     msg = AOMessage.get_message @message_id
     chan = account.find_channel msg.channel_id
     
-    return unless app and chan and app.delivery_ack_method != 'none' 
+    return unless app and chan and app.delivery_ack_method != 'none'
     
-    url = URI.parse(app.delivery_ack_url)
-    req = nil
+    headers = {:content_type => "application/x-www-form-urlencoded"}
+    if app.delivery_ack_user.present?
+      headers[:user] = app.delivery_ack_user
+      headers[:password] = app.delivery_ack_password
+    end
     
     data = {:guid => msg.guid, :channel => chan.name, :state => @state}
+    
     if app.delivery_ack_method == 'get'
-      req = Net::HTTP::Get.new("#{url.path}?#{data.to_query}")
+      res = RestClient.get "#{app.delivery_ack_url}?#{data}", headers
     else
-      req = Net::HTTP::Post.new(url.path.present? ? url.path : '/')
-      req.set_form_data(data)
+      res = RestClient.post app.delivery_ack_url, data, headers
     end
     
-    if app.delivery_ack_user.present?
-      req.basic_auth app.delivery_ack_user, app.delivery_ack_password
-    end
-    req.content_type = "application/x-www-form-urlencoded"
+    res = res.net_http_res
     
-    res = Net::HTTP.new(url.host, url.port).start {|http| http.request(req) }
     case res
       when Net::HTTPSuccess, Net::HTTPRedirection
         return
