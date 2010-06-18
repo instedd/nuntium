@@ -77,19 +77,14 @@ class ClickatellChannelHandler < GenericChannelHandler
   
   def get_credit
     cfg = @channel.configuration
-    uri = "/http/getbalance?api_id=#{cfg[:api_id]}&user=#{cfg[:user]}&password=#{cfg[:password]}"
-    host = URI::parse('http://api.clickatell.com')
-    Net::HTTP::new(host.host, host.port).get(uri).body
+    query = {:api_id => cfg[:api_id], :user => cfg[:user], :password => cfg[:password]}.to_query
+    RestClient.get("http://api.clickatell.com/http/getbalance?#{query}").body
   end
   
   def get_status(ao_msg)
     cfg = @channel.configuration
-    uri = "/http/querymsg?api_id=#{cfg[:api_id]}&user=#{cfg[:user]}&password=#{cfg[:password]}&apimsgid=#{ao_msg.channel_relative_id}"
-    host = URI::parse('https://api.clickatell.com')
-    request = Net::HTTP::new(host.host, host.port)
-    request.use_ssl = true
-    request.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    request.get(uri).body
+    query = {:api_id => cfg[:api_id], :user => cfg[:user], :password => cfg[:password], :apimsgid => ao_msg.channel_relative_id}.to_query
+    RestClient.get("https://api.clickatell.com/http/querymsg?#{query}").body
   end
   
   CLICKATELL_NETWORKS = {
