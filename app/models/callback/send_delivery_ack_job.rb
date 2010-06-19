@@ -16,20 +16,20 @@ class SendDeliveryAckJob
     
     return unless app and chan and app.delivery_ack_method != 'none'
     
-    headers = {:content_type => "application/x-www-form-urlencoded"}
-    if app.delivery_ack_user.present?
-      headers[:user] = app.delivery_ack_user
-      headers[:password] = app.delivery_ack_password
-    end
-    
     data = {:guid => msg.guid, :channel => chan.name, :state => @state}
     
-    if app.delivery_ack_method == 'get'
-      res = RestClient.get "#{app.delivery_ack_url}?#{data.to_query}", headers
-    else
-      res = RestClient.post app.delivery_ack_url, data, headers
+    options = {:headers => {:content_type => "application/x-www-form-urlencoded"}}
+    if app.delivery_ack_user.present?
+      options[:user] = app.delivery_ack_user
+      options[:password] = app.delivery_ack_password
     end
     
+    res = RestClient::Resource.new app.delivery_ack_url, options
+    res = if app.delivery_ack_method == 'get'
+      res["?#{data.to_query}"].get
+    else
+      res.post data
+    end
     res = res.net_http_res
     
     case res

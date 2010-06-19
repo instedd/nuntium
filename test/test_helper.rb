@@ -40,6 +40,29 @@ class ActiveSupport::TestCase
     Rails.cache.clear
     Sham.reset
   end
+  
+  def expect_get(options = {})
+    response = mock('RestClient::Response')
+    response.expects('net_http_res').returns(options[:returns].new 'x', 'x', 'x')
+    
+    resource2 = mock('RestClient::Resource')
+    resource2.expects('get').returns(response)
+    
+    resource = mock('RestClient::Resource')
+    resource.expects('[]').with("?#{options[:query_params].to_query}").returns(resource2)
+    
+    RestClient::Resource.expects('new').with(options[:url], options[:options]).returns(resource)
+  end
+  
+  def expect_post(options = {})
+    response = mock('RestClient::Response')
+    response.expects('net_http_res').returns(options[:returns].new 'x', 'x', 'x')
+    
+    resource = mock('RestClient::Resource')
+    resource.expects('post').with(options[:data]).returns(response)
+    
+    RestClient::Resource.expects('new').with(options[:url], options[:options]).returns(resource)
+  end
     
   # Returns the string to be used for HTTP_AUTHENTICATION header
   def http_auth(user, pass)

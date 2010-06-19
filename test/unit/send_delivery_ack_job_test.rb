@@ -12,11 +12,11 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
     @application.delivery_ack_method = 'get'
     @application.delivery_ack_url = 'http://www.domain.com'
     @application.save!
-  
-    response = mock('RestClient::Response')
-    response.expects('net_http_res').returns(Net::HTTPSuccess.new 'x', 'x', 'x')
     
-    RestClient.expects('get').with("#{@application.delivery_ack_url}?#{@query.to_query}", :content_type => "application/x-www-form-urlencoded").returns(response)
+    expect_get :url => @application.delivery_ack_url,
+      :query_params => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPSuccess
   
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
     job.perform
@@ -28,55 +28,55 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
     @application.delivery_ack_user = 'john'
     @application.delivery_ack_password = 'doe'
     @application.save!
-  
-    response = mock('RestClient::Response')
-    response.expects('net_http_res').returns(Net::HTTPSuccess.new 'x', 'x', 'x')
     
-    RestClient.expects('get').with("#{@application.delivery_ack_url}?#{@query.to_query}", :content_type => "application/x-www-form-urlencoded", :user => @application.delivery_ack_user, :password => @application.delivery_ack_password).returns(response)
-  
+    expect_get :url => @application.delivery_ack_url,
+      :query_params => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}, :user => @application.delivery_ack_user, :password => @application.delivery_ack_password},
+      :returns => Net::HTTPSuccess
+    
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
     job.perform
   end
-  
+#  
   test "post" do
     @application.delivery_ack_method = 'post'
     @application.delivery_ack_url = 'http://www.domain.com'
     @application.save!
-  
-    response = mock('RestClient::Response')
-    response.expects('net_http_res').returns(Net::HTTPSuccess.new 'x', 'x', 'x')
     
-    RestClient.expects('post').with(@application.delivery_ack_url, @query, :content_type => "application/x-www-form-urlencoded").returns(response)
+    expect_post :url => @application.delivery_ack_url,
+      :data => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPSuccess
   
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
     job.perform
   end
-  
+
   test "post with auth" do
     @application.delivery_ack_method = 'post'
     @application.delivery_ack_url = 'http://www.domain.com'
     @application.delivery_ack_user = 'john'
     @application.delivery_ack_password = 'doe'
     @application.save!
-  
-    response = mock('RestClient::Response')
-    response.expects('net_http_res').returns(Net::HTTPSuccess.new 'x', 'x', 'x')
     
-    RestClient.expects('post').with(@application.delivery_ack_url, @query, :content_type => "application/x-www-form-urlencoded", :user => @application.delivery_ack_user, :password => @application.delivery_ack_password).returns(response)
+    expect_post :url => @application.delivery_ack_url,
+      :data => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}, :user => @application.delivery_ack_user, :password => @application.delivery_ack_password},
+      :returns => Net::HTTPSuccess
   
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
     job.perform
   end
-  
+
   test "get unauthorized" do
     @application.delivery_ack_method = 'get'
     @application.delivery_ack_url = 'http://www.domain.com'
     @application.save!
-  
-    response = mock('RestClient::Response')
-    response.expects('net_http_res').returns(Net::HTTPUnauthorized.new 'x', 'x', 'x')
     
-    RestClient.expects('get').with("#{@application.delivery_ack_url}?#{@query.to_query}", :content_type => "application/x-www-form-urlencoded").returns(response)
+    expect_get :url => @application.delivery_ack_url,
+      :query_params => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPUnauthorized
   
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
     job.perform

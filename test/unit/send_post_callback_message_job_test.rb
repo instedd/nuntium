@@ -19,11 +19,11 @@ class SendPostCallbackMessageJobTest < ActiveSupport::TestCase
   test "post" do
     @application.interface_url = 'http://www.domain.com'
     @application.save!
-  
-    response = mock('RestClient::Response')
-    response.expects('net_http_res').returns(Net::HTTPSuccess.new 'x', 'x', 'x')
     
-    RestClient.expects('post').with(@application.interface_url, @query, :content_type => "application/x-www-form-urlencoded").returns(response)
+    expect_post :url => @application.interface_url,
+      :data => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPSuccess
   
     job = SendPostCallbackMessageJob.new @application.account_id, @application.id, @msg.id
     job.perform
@@ -34,11 +34,11 @@ class SendPostCallbackMessageJobTest < ActiveSupport::TestCase
     @application.interface_user = 'john'
     @application.interface_password = 'pass'
     @application.save!
-  
-    response = mock('RestClient::Response')
-    response.expects('net_http_res').returns(Net::HTTPSuccess.new 'x', 'x', 'x')
     
-    RestClient.expects('post').with(@application.interface_url, @query, :content_type => "application/x-www-form-urlencoded", :user => @application.interface_user, :password => @application.interface_password).returns(response)
+    expect_post :url => @application.interface_url,
+      :data => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}, :user => @application.interface_user, :password => @application.interface_password},
+      :returns => Net::HTTPSuccess
   
     job = SendPostCallbackMessageJob.new @application.account_id, @application.id, @msg.id
     job.perform
@@ -47,11 +47,11 @@ class SendPostCallbackMessageJobTest < ActiveSupport::TestCase
   test "post unauthorized" do
     @application.interface_url = 'http://www.domain.com'
     @application.save!
-  
-    response = mock('RestClient::Response')
-    response.expects('net_http_res').returns(Net::HTTPUnauthorized.new 'x', 'x', 'x')
     
-    RestClient.expects('post').with(@application.interface_url, @query, :content_type => "application/x-www-form-urlencoded").returns(response)
+    expect_post :url => @application.interface_url,
+      :data => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPUnauthorized
   
     job = SendPostCallbackMessageJob.new @application.account_id, @application.id, @msg.id
     job.perform

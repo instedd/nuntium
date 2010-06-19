@@ -11,12 +11,6 @@ class SendPostCallbackMessageJob
     account = Account.find_by_id @account_id
     app = account.find_application @application_id
     msg = ATMessage.get_message @message_id
-    
-    headers = {:content_type => "application/x-www-form-urlencoded"}
-    if app.interface_user.present?
-      headers[:user] = app.interface_user
-      headers[:password] = app.interface_password
-    end
 
     data = { 
       :application => app.name, 
@@ -27,8 +21,14 @@ class SendPostCallbackMessageJob
       :guid => msg.guid,
       :channel => msg.channel.name 
     }
+
+    options = {:headers => {:content_type => "application/x-www-form-urlencoded"}}
+    if app.interface_user.present?
+      options[:user] = app.interface_user
+      options[:password] = app.interface_password
+    end
     
-    res = RestClient.post app.interface_url, data, headers
+    res = RestClient::Resource.new(app.interface_url, options).post data
     res = res.net_http_res
     
     case res
