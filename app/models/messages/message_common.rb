@@ -154,7 +154,7 @@ module MessageCommon
     end
     
     def from_qst(msgs)
-      msgs.map{|x| AOMessage.new :guid => x['id'], :from => x['from'], :to => x['to'], :body => x['text'], :timestamp => x['when']}
+      msgs.map{|x| self.new :guid => x['id'], :from => x['from'], :to => x['to'], :body => x['text'], :timestamp => x['when']}
     end
   
     # Given an xml document string extracts all messages from it and yields them

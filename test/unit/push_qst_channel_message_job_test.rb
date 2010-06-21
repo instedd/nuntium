@@ -77,7 +77,7 @@ class PushQstChannelMessageJobTest < ActiveSupport::TestCase
     assert_equal 1, @msg2.tries
   end
   
-  test "authentication exception sets application interface to rss" do
+  test "authentication exception disables channel" do
     @msg = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued'
     
     response = mock('Response')
