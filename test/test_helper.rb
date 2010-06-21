@@ -69,67 +69,6 @@ class ActiveSupport::TestCase
     'Basic ' + Base64.encode64(user + ':' + pass)
   end
   
-  def mock_http_request(kind, path, name='request', user=nil, pass=nil, headers={})
-    request = mock(name) do
-      expects(:basic_auth).with(user, pass) unless user.nil? or pass.nil?
-      headers.each_pair do |k,v|
-        expects(:[]=).with(k,v)
-      end  
-    end
-    kind.expects(:new).with(path).returns(request)
-    request
-  end
-  
-  # Returns a new mock for a failed http response with the specified headers and code
-  def mock_http_failure(code = '400', message = 'Mocked error message', headers = {})
-    require 'net/http'
-    response = mock do
-      stubs(:code => code)
-      stubs(:message => message)
-      headers.each_pair do |k,v|
-        stubs(:[]).with(k).returns(v)
-      end  
-    end
-    response
-  end
-  
-  # Returns a new mock for a successful http response with the specified headers
-  def mock_http_success(headers = {})
-    require 'net/http'
-    response = mock do
-      stubs(:code => '200')
-      headers.each_pair do |k,v|
-        stubs(:[]).with(k).returns(v)
-      end  
-    end
-    response
-  end
-  
-  # Returns a new mock for a successful http response with a body and the specified headers
-  def mock_http_success_body(body, headers = {})
-    require 'net/http'
-    response = mock_http_success(headers)
-    response.stubs(:body => body)
-    response
-  end
-
-  # Returns a new Net:HTTP mocked object and applies all expectations to it
-  # Will be returned when the user creates a new instance
-  def mock_http(host, port='80', expected=true, ssl=false, &block)
-    require 'net/http'
-    http = mock('http', &block) 
-    if ssl
-      http.expects(:use_ssl=).with(true) 
-      http.expects(:verify_mode=).with(OpenSSL::SSL::VERIFY_NONE) 
-    end
-    if expected
-      Net::HTTP.expects(:new).with(host, port).returns(http)
-    else
-      Net::HTTP.stubs(:new).with(host, port).returns(http)
-    end
-    http
-  end
-  
   # Creates a new message of the specified kind with values according to i
   def new_message(account, i, kind, protocol = 'protocol', state = 'queued', tries = 0)
     if i.respond_to? :each
