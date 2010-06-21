@@ -109,6 +109,7 @@ module MessageCommon
   def to_qst
     h = {'id' => guid, 'from' => from, 'to' => to, 'text' => subject_and_body, 'when' => timestamp}
     h['properties'] = custom_attributes if custom_attributes.present?
+    h
   end
   
   # Rule Engine related methods
@@ -158,6 +159,7 @@ module MessageCommon
       msgs.map do |x| 
         m = self.new :guid => x['id'], :from => x['from'], :to => x['to'], :body => x['text'], :timestamp => x['when']
         m.custom_attributes = x['properties'] if x['properties'].present?
+        m
       end
     end
   
