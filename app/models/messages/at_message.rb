@@ -9,7 +9,7 @@ class ATMessage < ActiveRecord::Base
   include MessageGetter
   include MessageState
   
-   # Logs that each message was delivered/not delivered through the given interface
+  # Logs that each message was delivered/not delivered through the given interface
   def self.log_delivery(msgs, account, interface)
     msgs.each do |msg|
       if msg.tries < account.max_tries

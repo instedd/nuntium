@@ -13,6 +13,8 @@ class PushQstMessageJob
     @application = Application.find_by_id(@application_id)
     @client = QstClient.new @application.interface_url, @application.interface_user, @application.interface_password
     last_id = @client.get_last_id
+    
+    ATMessage.mark_older_as_confirmed last_id, :account_id => @application.account_id if last_id
   
     begin
       msgs = ATMessage.fetch_newer_messages(last_id, :desc => false, :batch_size => batch_size, :account_id => @application.account_id)

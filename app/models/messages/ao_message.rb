@@ -11,6 +11,17 @@ class AOMessage < ActiveRecord::Base
   include MessageGetter
   include MessageState
   
+  # Logs that each message was delivered/not delivered through the given interface
+  def self.log_delivery(msgs, account, interface)
+    msgs.each do |msg|
+      if msg.tries < account.max_tries
+        account.logger.ao_message_delivery_succeeded msg, interface
+      else
+        account.logger.ao_message_delivery_exceeded_tries msg, interface
+      end
+    end
+  end
+  
   def send_succeeed(account, channel, channel_relative_id = nil)
     self.state = 'delivered'
     self.tries += 1
