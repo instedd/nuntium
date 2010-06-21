@@ -107,7 +107,8 @@ module MessageCommon
   end
   
   def to_qst
-    {'id' => guid, 'from' => from, 'to' => to, 'text' => subject_and_body, 'when' => timestamp}
+    h = {'id' => guid, 'from' => from, 'to' => to, 'text' => subject_and_body, 'when' => timestamp}
+    h['properties'] = custom_attributes if custom_attributes.present?
   end
   
   # Rule Engine related methods
@@ -154,7 +155,10 @@ module MessageCommon
     end
     
     def from_qst(msgs)
-      msgs.map{|x| self.new :guid => x['id'], :from => x['from'], :to => x['to'], :body => x['text'], :timestamp => x['when']}
+      msgs.map do |x| 
+        m = self.new :guid => x['id'], :from => x['from'], :to => x['to'], :body => x['text'], :timestamp => x['when']
+        m.custom_attributes = x['properties'] if x['properties'].present?
+      end
     end
   
     # Given an xml document string extracts all messages from it and yields them
@@ -165,6 +169,8 @@ module MessageCommon
       messages = [messages] if messages.class <= Hash 
       
       (messages || []).each do |elem|
+        next if elem.kind_of? String
+      
         msg = self.new
         msg.from = elem[:from]
         msg.to = elem[:to]

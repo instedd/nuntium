@@ -13,7 +13,7 @@ class PushQstMessageJobTest < ActiveSupport::TestCase
     @job.batch_size = 3
     
     @client = mock('QstClient')
-    QstClient.expects(:new).with(@application.interface_url, @application.interface_user, @application.interface_password).returns(@client)    
+    QstClient.expects(:new).with(@application.interface_url, @application.interface_user, @application.interface_password).returns(@client)
   end
   
   test "no messages" do

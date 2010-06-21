@@ -4,9 +4,9 @@ class QSTServerController < ApplicationController
   def authenticate
     authenticate_or_request_with_http_basic do |username, password|
       @account = Account.find_by_id_or_name(params[:account_id])
-      if !@account.nil?
+      if @account
         @channel = @account.channels.select{|c| c.name == username && c.kind == 'qst_server'}.first
-        if !@channel.nil?
+        if @channel
           @channel.handler.authenticate password
         else
           false
