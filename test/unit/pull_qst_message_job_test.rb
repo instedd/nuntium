@@ -35,7 +35,8 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
  test "perform with etag" do
     application = setup_application 
     msgs = sample_messages application, (5..8)
-    application.set_last_ao_guid 'lastetag'
+    application.last_ao_guid = 'lastetag'
+    application.save!
     
     setup_http application,
       :get_msgs => msgs,
@@ -51,7 +52,8 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
   test "perform with etag on ssl" do
     application = setup_application :interface_url => 'https://example.com'
     msgs = sample_messages application, (5..8)
-    application.set_last_ao_guid 'lastetag'
+    application.last_ao_guid = 'lastetag'
+    application.save!
     
     setup_http application,
       :get_msgs => msgs,
@@ -68,7 +70,8 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
   
   test "perform with etag not modified" do
     application = setup_application 
-    application.set_last_ao_guid 'lastetag'
+    application.last_ao_guid = 'lastetag'
+    application.save!
     
     setup_http application,
       :etag => 'lastetag',
@@ -84,7 +87,8 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
     application = setup_application 
     msgs =  sample_messages application, (0...10)
     msgs += sample_messages application, (10...60)
-    application.set_last_ao_guid msgs[9].guid
+    application.last_ao_guid = msgs[9].guid
+    application.save!
     
     current = 10
     result = job_with_callback(application) do
@@ -103,7 +107,8 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
     application = setup_application 
     msgs =  sample_messages application, (0...10)
     msgs += sample_messages application, (10...65)
-    application.set_last_ao_guid msgs[9].guid
+    application.last_ao_guid = msgs[9].guid
+    application.save!
     
     current = 10
     result = job_with_callback(application) do
@@ -121,7 +126,8 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
     application = setup_application 
     msgs =  sample_messages application, (0...10)
     msgs += sample_messages application, (10...60)
-    application.set_last_ao_guid msgs[9].guid
+    application.last_ao_guid = msgs[9].guid
+    application.save!
     
     current = 10
     result = job_with_callback(application) do
@@ -141,7 +147,8 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
 
   test "failure response code" do
     application = setup_application 
-    application.set_last_ao_guid 'lastetag'
+    application.last_ao_guid = 'lastetag'
+    application.save!
     
     setup_http application,
       :get_response => mock_http_failure,
@@ -155,7 +162,8 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
 
   test "failure processing response" do
     application = setup_application 
-    application.set_last_ao_guid 'lastetag'
+    application.last_ao_guid = 'lastetag'
+    application.save!
     
     setup_http application,
       :etag => 'lastetag',

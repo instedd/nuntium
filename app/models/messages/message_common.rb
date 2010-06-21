@@ -106,6 +106,10 @@ module MessageCommon
     end
   end
   
+  def to_qst
+    {:id => guid, :from => from, :to => to, :text => subject_and_body, :when => timestamp}
+  end
+  
   # Rule Engine related methods
   
   # Builds Context for AT Rules execution
@@ -144,21 +148,25 @@ module MessageCommon
       end
       xml.target!
     end
+    
+    def to_qst(msgs)
+      msgs.map{|x| x.to_qst}
+    end
   
     # Given an xml document string extracts all messages from it and yields them
     def parse_xml(txt_or_hash)
       tree = txt_or_hash.kind_of?(Hash) ? txt_or_hash : Hash.from_xml(txt_or_hash).with_indifferent_access
       
-      messages = tree[:messages][:message]
+      messages = ((tree || {})[:messages] || {})[:message]
       messages = [messages] if messages.class <= Hash 
       
-      messages.each do |elem|
+      (messages || []).each do |elem|
         msg = self.new
         msg.from = elem[:from]
         msg.to = elem[:to]
         msg.body = elem[:text]
         msg.guid = elem[:id]
-        msg.timestamp = Time.parse(elem[:when])
+        msg.timestamp = Time.parse(elem[:when]) if elem[:when] rescue nil
         
         properties = elem[:property]
         if properties.present?

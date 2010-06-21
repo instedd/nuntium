@@ -58,7 +58,10 @@ class PullQstMessageJob
     rescue => e
       # On error, save last processed ok and quit
       account.logger.error_processing_msgs e.to_s
-      application.set_last_ao_guid(last_new_id) unless last_new_id.nil?
+      if last_new_id
+        application.last_ao_guid = last_new_id
+        application.save!
+      end
       return :error_processing_messages
     else
       # On success, update last id and return success or pending
@@ -67,7 +70,10 @@ class PullQstMessageJob
       else
         RAILS_DEFAULT_LOGGER.info "Pull QST in account #{account.name}: polled '#{size}' messages to server up to id '#{last_new_id}'"
       end
-      application.set_last_ao_guid(last_new_id) unless last_new_id.nil?
+      if last_new_id
+        application.last_ao_guid = last_new_id
+        application.save!
+      end
       return size < BATCH_SIZE ? :success : :success_pending 
     end
   
