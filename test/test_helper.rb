@@ -123,18 +123,6 @@ class ActiveSupport::TestCase
     return Time.at(946702800).utc
   end
   
-  # Asserts all values for a message constructed with new or fill
-  def assert_msg(msg, account, i, protocol = 'protocol')
-    assert_equal account.id, msg.account_id, 'message account id'
-    assert_equal "Subject of the message #{i}", msg.subject, 'message subject'
-    assert_equal "Body of the message #{i}", msg.body, 'message body'
-    assert_equal "Someone #{i}", msg.from, 'message from'
-    assert_equal protocol + "://Someone else #{i}", msg.to, 'message to' 
-    assert_equal "someguid #{i}", msg.guid, 'message guid' 
-    assert_equal time_for_msg(i), msg.timestamp, 'message timestamp' 
-    assert_equal 'queued', msg.state, 'message status'
-  end
-  
   def assert_validates_configuration_presence_of(chan, field)
     chan.configuration.delete field
     assert !chan.save
