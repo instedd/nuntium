@@ -107,7 +107,7 @@ module MessageCommon
   end
   
   def to_qst
-    {:id => guid, :from => from, :to => to, :text => subject_and_body, :when => timestamp}
+    {'id' => guid, 'from' => from, 'to' => to, 'text' => subject_and_body, 'when' => timestamp}
   end
   
   # Rule Engine related methods
@@ -151,6 +151,10 @@ module MessageCommon
     
     def to_qst(msgs)
       msgs.map{|x| x.to_qst}
+    end
+    
+    def from_qst(msgs)
+      msgs.map{|x| AOMessage.new :guid => x['id'], :from => x['from'], :to => x['to'], :body => x['text'], :timestamp => x['when']}
     end
   
     # Given an xml document string extracts all messages from it and yields them
