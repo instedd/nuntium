@@ -1,10 +1,7 @@
 require 'test_helper'
-require 'mocha'
 require 'smpp'
 
 class SmppTranceiverDelegateTest < ActiveSupport::TestCase
-  include Mocha::API
-  
   def setup
     @chan = Channel.make_unsaved :smpp
     @transceiver = mock('Smpp::Transceiver')

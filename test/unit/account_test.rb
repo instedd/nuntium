@@ -1,9 +1,7 @@
 require 'test_helper'
-require 'mocha'
 
 class AccountTest < ActiveSupport::TestCase
 
-  include Mocha::API
   include RulesEngine
   
   def setup

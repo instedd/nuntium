@@ -1,11 +1,8 @@
 require 'test_helper'
 require 'net/pop'
 require 'yaml'
-require 'mocha'
 
 class ReceivePop3MessageJobTest < ActiveSupport::TestCase
-  include Mocha::API
-  
   def setup
     @chan = Channel.make :pop3
     @email = ATMessage.make_unsaved :email

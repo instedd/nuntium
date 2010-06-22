@@ -1,8 +1,6 @@
 require 'test_helper'
-require 'mocha'
 
 class ManagedProcessTest < ActiveSupport::TestCase
-  include Mocha::API
   
   test "publish start notification on create" do
     jobs = collect_jobs

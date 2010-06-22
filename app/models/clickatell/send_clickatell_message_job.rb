@@ -1,18 +1,8 @@
-require 'uri'
-require 'net/http'
-require 'net/https'
 include ActiveSupport::Multibyte
 
 class SendClickatellMessageJob < SendMessageJob
   def managed_perform
-    host = URI::parse('https://api.clickatell.com')
-    
-    request = Net::HTTP::new(host.host, host.port)
-    request.use_ssl = true
-    request.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    
-    result = ''
-    response = request.get(uri)
+    response = Clickatell.send_message query_parameters
     if response.body[0..2] == "ID:"
       @msg.channel_relative_id = response.body[4..-1]
       @msg.send_succeeed @account, @channel
@@ -30,7 +20,7 @@ class SendClickatellMessageJob < SendMessageJob
     end   
   end
   
-  def uri
+  def query_parameters
     params = {}
     params[:api_id] = @config[:api_id]
     params[:user] = @config[:user]
@@ -47,7 +37,7 @@ class SendClickatellMessageJob < SendMessageJob
       params[:unicode] = '1'
     end
     params[:concat] = @config[:concat] unless @config[:concat].blank?
-    "/http/sendmsg?#{params.to_query}"
+    params
   end
   
   def is_low_ascii(str)

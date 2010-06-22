@@ -6,6 +6,7 @@ require 'base64'
 require 'digest/md5'
 require 'digest/sha2'
 require 'shoulda'
+require 'mocha'
 
 class ActiveSupport::TestCase
   # Transactional fixtures accelerate your tests by wrapping each test method
@@ -39,71 +40,33 @@ class ActiveSupport::TestCase
     Rails.cache.clear
     Sham.reset
   end
+  
+  def expect_get(options = {})
+    response = mock('RestClient::Response')
+    response.expects('net_http_res').returns(options[:returns].new 'x', 'x', 'x')
+    
+    resource2 = mock('RestClient::Resource')
+    resource2.expects('get').returns(response)
+    
+    resource = mock('RestClient::Resource')
+    resource.expects('[]').with("?#{options[:query_params].to_query}").returns(resource2)
+    
+    RestClient::Resource.expects('new').with(options[:url], options[:options]).returns(resource)
+  end
+  
+  def expect_post(options = {})
+    response = mock('RestClient::Response')
+    response.expects('net_http_res').returns(options[:returns].new 'x', 'x', 'x')
+    
+    resource = mock('RestClient::Resource')
+    resource.expects('post').with(options[:data]).returns(response)
+    
+    RestClient::Resource.expects('new').with(options[:url], options[:options]).returns(resource)
+  end
     
   # Returns the string to be used for HTTP_AUTHENTICATION header
   def http_auth(user, pass)
     'Basic ' + Base64.encode64(user + ':' + pass)
-  end
-  
-  def mock_http_request(kind, path, name='request', user=nil, pass=nil, headers={})
-    request = mock(name) do
-      expects(:basic_auth).with(user, pass) unless user.nil? or pass.nil?
-      headers.each_pair do |k,v|
-        expects(:[]=).with(k,v)
-      end  
-    end
-    kind.expects(:new).with(path).returns(request)
-    request
-  end
-  
-  # Returns a new mock for a failed http response with the specified headers and code
-  def mock_http_failure(code = '400', message = 'Mocked error message', headers = {})
-    require 'net/http'
-    response = mock do
-      stubs(:code => code)
-      stubs(:message => message)
-      headers.each_pair do |k,v|
-        stubs(:[]).with(k).returns(v)
-      end  
-    end
-    response
-  end
-  
-  # Returns a new mock for a successful http response with the specified headers
-  def mock_http_success(headers = {})
-    require 'net/http'
-    response = mock do
-      stubs(:code => '200')
-      headers.each_pair do |k,v|
-        stubs(:[]).with(k).returns(v)
-      end  
-    end
-    response
-  end
-  
-  # Returns a new mock for a successful http response with a body and the specified headers
-  def mock_http_success_body(body, headers = {})
-    require 'net/http'
-    response = mock_http_success(headers)
-    response.stubs(:body => body)
-    response
-  end
-
-  # Returns a new Net:HTTP mocked object and applies all expectations to it
-  # Will be returned when the user creates a new instance
-  def mock_http(host, port='80', expected=true, ssl=false, &block)
-    require 'net/http'
-    http = mock('http', &block) 
-    if ssl
-      http.expects(:use_ssl=).with(true) 
-      http.expects(:verify_mode=).with(OpenSSL::SSL::VERIFY_NONE) 
-    end
-    if expected
-      Net::HTTP.expects(:new).with(host, port).returns(http)
-    else
-      Net::HTTP.stubs(:new).with(host, port).returns(http)
-    end
-    http
   end
   
   # Creates a new message of the specified kind with values according to i
@@ -158,18 +121,6 @@ class ActiveSupport::TestCase
   # Returns base time to be used for tests in utc
   def base_time
     return Time.at(946702800).utc
-  end
-  
-  # Asserts all values for a message constructed with new or fill
-  def assert_msg(msg, account, i, protocol = 'protocol')
-    assert_equal account.id, msg.account_id, 'message account id'
-    assert_equal "Subject of the message #{i}", msg.subject, 'message subject'
-    assert_equal "Body of the message #{i}", msg.body, 'message body'
-    assert_equal "Someone #{i}", msg.from, 'message from'
-    assert_equal protocol + "://Someone else #{i}", msg.to, 'message to' 
-    assert_equal "someguid #{i}", msg.guid, 'message guid' 
-    assert_equal time_for_msg(i), msg.timestamp, 'message timestamp' 
-    assert_equal 'queued', msg.state, 'message status'
   end
   
   def assert_validates_configuration_presence_of(chan, field)

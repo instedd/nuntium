@@ -1,19 +1,15 @@
 require 'test_helper'
 
-class PushQstMessageJobTest < ActiveSupport::TestCase
+class PushQstChannelMessageJobTest < ActiveSupport::TestCase
 
   def setup
-    @application = Application.make
-    @application.interface_url = 'url'
-    @application.interface_user = 'user'
-    @application.interface_password = 'pass'
-    @application.save!
+    @channel = Channel.make :qst_client
     
-    @job = PushQstMessageJob.new @application.id
+    @job = PushQstChannelMessageJob.new @channel.account_id, @channel.id
     @job.batch_size = 3
     
     @client = mock('QstClient')
-    QstClient.expects(:new).with(@application.interface_url, @application.interface_user, @application.interface_password).returns(@client)
+    QstClient.expects(:new).with(@channel.configuration[:url], @channel.configuration[:user], @channel.configuration[:password]).returns(@client)    
   end
   
   test "no messages" do
@@ -24,15 +20,15 @@ class PushQstMessageJobTest < ActiveSupport::TestCase
   end
   
   test "one message no previous last id" do
-    @msg = ATMessage.make :account => @application.account, :application => @application, :state => 'queued'
+    @msg = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued'
     
     @client.expects(:get_last_id).returns(nil)
     @client.expects(:put_messages).with([@msg.to_qst]).returns(@msg.guid)
     
     @job.perform
     
-    @application.reload
-    assert_equal @msg.guid, @application.last_at_guid
+    @channel.reload
+    assert_equal @msg.guid, @channel.configuration[:last_ao_guid]
     
     @msg.reload
     assert_equal 'confirmed', @msg.state
@@ -40,16 +36,16 @@ class PushQstMessageJobTest < ActiveSupport::TestCase
   end
   
   test "two messages with previous last id" do
-    @msg1 = ATMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now
-    @msg2 = ATMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now + 1
+    @msg1 = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now
+    @msg2 = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now + 1
     
     @client.expects(:get_last_id).returns(@msg1.guid)
     @client.expects(:put_messages).with([@msg2.to_qst]).returns(@msg2.guid)
     
     @job.perform
     
-    @application.reload
-    assert_equal @msg2.guid, @application.last_at_guid
+    @channel.reload
+    assert_equal @msg2.guid, @channel.configuration[:last_ao_guid]
     
     @msg1.reload
     assert_equal 'confirmed', @msg1.state
@@ -61,16 +57,16 @@ class PushQstMessageJobTest < ActiveSupport::TestCase
   end
   
   test "two messages no previous last id but only one confirmed" do
-    @msg1 = ATMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now
-    @msg2 = ATMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now + 1
+    @msg1 = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now
+    @msg2 = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now + 1
     
     @client.expects(:get_last_id).returns(nil)
     @client.expects(:put_messages).with([@msg1.to_qst, @msg2.to_qst]).returns(@msg1.guid)
     
     @job.perform
     
-    @application.reload
-    assert_equal @msg1.guid, @application.last_at_guid
+    @channel.reload
+    assert_equal @msg1.guid, @channel.configuration[:last_ao_guid]
     
     @msg1.reload
     assert_equal 'confirmed', @msg1.state
@@ -81,8 +77,8 @@ class PushQstMessageJobTest < ActiveSupport::TestCase
     assert_equal 1, @msg2.tries
   end
   
-  test "authentication exception sets application interface to rss" do
-    @msg = ATMessage.make :account => @application.account, :application => @application, :state => 'queued'
+  test "authentication exception disables channel" do
+    @msg = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued'
     
     response = mock('Response')
     response.stubs(:code => 401)
@@ -92,16 +88,16 @@ class PushQstMessageJobTest < ActiveSupport::TestCase
     
     @job.perform
     
-    @application.reload
-    assert_nil @application.last_at_guid
-    assert_equal 'rss', @application.interface
+    @channel.reload
+    assert_nil @channel.configuration[:last_at_guid]
+    assert_false @channel.enabled
   end
   
   test "check has quota if returned messages equal batch size" do
     @job.batch_size = 1
     
-    @msg1 = ATMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now
-    @msg2 = ATMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now + 1
+    @msg1 = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now
+    @msg2 = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now + 1
     
     @client.expects(:get_last_id).returns(nil)
     

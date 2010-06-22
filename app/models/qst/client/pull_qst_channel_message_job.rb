@@ -1,93 +1,45 @@
 class PullQstChannelMessageJob
+
+  include CronTask::QuotedTask
   
-  BATCH_SIZE = 10
-  
-  include ClientQstJob
+  attr_accessor :batch_size
   
   def initialize(account_id, channel_id)
     @account_id = account_id
     @channel_id = channel_id
+    @batch_size = 10
   end
   
-  def perform_batch
-    require 'uri'
-    require 'net/http'
-    require 'builder'
-
-    account = Account.find_by_id @account_id
-    channel = account.find_channel @channel_id
-    err = validate_channel channel
-    cfg = ClientQstConfiguration.new channel
-    return err unless err.nil?
-
-    # Create http requestor and uri
-    http, path = create_http cfg, 'outgoing' 
-    if http.nil? then return :error_initializing_http end
-    path << "?max=#{BATCH_SIZE}"  
+  def perform
+    @account = Account.find_by_id(@account_id)
+    @channel = @account.find_channel @channel_id
     
-    # Get messages from server
-    response = request_messages(account, channel, cfg, http, path) 
+    @client = QstClient.new @channel.configuration[:url], @channel.configuration[:user], @channel.configuration[:password]
     
-    # Handle different responses
-    if response.nil?
-      return :error_pulling_messages
-    elsif response.code == "304" # not modified
-      Rails.logger.info "Pull QST in channel #{@channel_id}: no new messages"
-      return :success
-    elsif response.code == "401" # Unauthorized
-      channel.alert "Unauthorized: invalid credentials"
-    
-      channel.enabled = false
-      channel.save!
-      return
-    elsif response.code[0,1] != "2" # not success
-      account.logger.error_pulling_msgs response.message
-      return :error_pulling_messages
-    end
-    
-    # Accumulators
-    last_new_id = nil
-    size = 0
+    options = {:max => batch_size}
     
     begin
-      # Process successfully downloaded messages
-      ATMessage.parse_xml response.body do |msg|
-        msg.account_id = @account_id
-        account.route_at msg, channel
-        
-        last_new_id = msg.guid
-        size += 1
+      options[:from_id] = @channel.configuration[:last_at_guid] if @channel.configuration[:last_at_guid]
+      
+      msgs = @client.get_messages options
+      msgs = ATMessage.from_qst msgs
+      
+      return if msgs.empty?
+      
+      msgs.each do |msg|
+        @account.route_at msg, @channel
       end
-    rescue => e
-      # On error, save last processed ok and quit
-      account.logger.error_processing_msgs e.to_s
-      cfg.set_last_at_guid(last_new_id) unless last_new_id.nil?
-      return :error_processing_messages
+      @channel.configuration[:last_at_guid] = msgs.last.guid
+      @channel.save!
+    end while has_quota?
+  rescue QstClient::Exception => ex
+    if ex.response.code == 401
+      @channel.logger.error :channel_id => @channel.id, :message => "Pull Qst messages received unauthorized"
+    
+      @channel.enabled = false
+      @channel.save!
     else
-      # On success, update last id and return success or pending
-      if last_new_id.nil?
-        Rails.logger.info "Pull QST in channel #{@channel_id}: pulled '#{size}' messages from server"
-      else
-        Rails.logger.info "Pull QST in channel #{@channel_id}: pulled '#{size}' messages from server up to id '#{last_new_id}'"
-      end
-      cfg.set_last_at_guid(last_new_id) unless last_new_id.nil?
-      return size < BATCH_SIZE ? :success : :success_pending 
+      @channel.logger.error :channel_id => @channel.id, :message => "Pull Qst messages received response code #{ex.response.code}"
     end
-  
   end
-  
-  # Creates a get request with proper authentication
-  def request_messages account, channel, cfg, http, path
-    last_id = cfg.last_at_guid
-    user = cfg.user
-    pass = cfg.pass
-    request = Net::HTTP::Get.new path
-    request.basic_auth(user, pass) unless user.nil? or pass.nil?
-    request['if-none-match'] = last_id unless last_id.nil?
-    http.request request
-  rescue => err
-    cfg.logger.error :message => "Error getting messages from the server: #{err}"
-    return nil
-  end
-  
 end

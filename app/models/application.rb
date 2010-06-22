@@ -196,16 +196,6 @@ class Application < ActiveRecord::Base
     self.password == Digest::SHA2.hexdigest(self.salt + password)
   end
   
-  def set_last_at_guid(value)
-    self.configuration[:last_at_guid] = value
-    self.save
-  end
-  
-  def set_last_ao_guid(value)
-    self.configuration[:last_ao_guid] = value
-    self.save
-  end
-  
   def self.configuration_accessor(name, default = nil)
     define_method(name) do
       configuration[name] || default
@@ -223,6 +213,8 @@ class Application < ActiveRecord::Base
   configuration_accessor :delivery_ack_url
   configuration_accessor :delivery_ack_user
   configuration_accessor :delivery_ack_password
+  configuration_accessor :last_at_guid
+  configuration_accessor :last_ao_guid
   
   def use_address_source?
     configuration[:use_address_source] || true

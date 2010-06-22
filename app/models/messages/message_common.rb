@@ -106,6 +106,12 @@ module MessageCommon
     end
   end
   
+  def to_qst
+    h = {'id' => guid, 'from' => from, 'to' => to, 'text' => subject_and_body, 'when' => timestamp}
+    h['properties'] = custom_attributes if custom_attributes.present?
+    h
+  end
+  
   # Rule Engine related methods
   
   # Builds Context for AT Rules execution
@@ -144,21 +150,35 @@ module MessageCommon
       end
       xml.target!
     end
+    
+    def to_qst(msgs)
+      msgs.map{|x| x.to_qst}
+    end
+    
+    def from_qst(msgs)
+      msgs.map do |x| 
+        m = self.new :guid => x['id'], :from => x['from'], :to => x['to'], :body => x['text'], :timestamp => x['when']
+        m.custom_attributes = x['properties'] if x['properties'].present?
+        m
+      end
+    end
   
     # Given an xml document string extracts all messages from it and yields them
     def parse_xml(txt_or_hash)
       tree = txt_or_hash.kind_of?(Hash) ? txt_or_hash : Hash.from_xml(txt_or_hash).with_indifferent_access
       
-      messages = tree[:messages][:message]
+      messages = ((tree || {})[:messages] || {})[:message]
       messages = [messages] if messages.class <= Hash 
       
-      messages.each do |elem|
+      (messages || []).each do |elem|
+        next if elem.kind_of? String
+      
         msg = self.new
         msg.from = elem[:from]
         msg.to = elem[:to]
         msg.body = elem[:text]
         msg.guid = elem[:id]
-        msg.timestamp = Time.parse(elem[:when])
+        msg.timestamp = Time.parse(elem[:when]) if elem[:when] rescue nil
         
         properties = elem[:property]
         if properties.present?

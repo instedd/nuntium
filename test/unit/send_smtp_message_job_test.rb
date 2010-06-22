@@ -1,10 +1,7 @@
 require 'test_helper'
 require 'net/smtp'
-require 'mocha'
 
 class SendSmtpMessageJobTest < ActiveSupport::TestCase
-  include Mocha::API
-  
   def setup
     @time = Time.now
     @chan = Channel.make :smtp

@@ -5,11 +5,6 @@ class SendDtacMessageJob < SendMessageJob
   def managed_perform
     str = @msg.subject_and_body
     encoded = ActiveSupport::Multibyte::Chars.u_unpack(str).map { |i| i.to_s(16).rjust(4, '0') }
-    
-    File.open(File.join(RAILS_ROOT, 'log', 'dtac.log'), 'a') { 
-      |fh|
-      fh.puts "Sending new AO message #{@msg.subject_and_body} #{encoded.to_s}"
-    }
   
     response = Net::HTTP.post_form(
       URI.parse('http://corpsms.dtac.co.th/servlet/com.iess.socket.SmsCorplink'), {

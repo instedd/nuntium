@@ -1,10 +1,7 @@
-require 'rexml/document'
-
 class IncomingController < QSTServerController
   # HEAD /qst/:account_id/incoming
   def index
     return head(:not_found) if !request.head?
-    
     msg = ATMessage.last(:order => :timestamp, :conditions => ['account_id = ?', @account.id], :select => 'guid')
     etag = msg.nil? ? nil : msg.guid
     head :ok, 'ETag' => etag
