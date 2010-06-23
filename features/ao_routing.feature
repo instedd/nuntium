@@ -19,13 +19,22 @@ Should be able to specify ao rules
     When the application "GeoChat" sends a message with "to" set to "sms://5401"
     Then the message with "to" set to "sms://5401" should have been routed to the "a_channel" channel
     
-    When the application "GeoChat" sends a message with "to" set to "sms://5501"    
+    When the application "GeoChat" sends a message with "to" set to "sms://5501"
     Then the message with "to" set to "sms://5501" should have been routed to the "b_channel" channel
     
-  # 2)
+  # 4)
   Scenario: Route according to priority
     Given a "clickatell" channel named "high" with "priority" set to "20" belongs to the "InSTEDD" account
     Given a "clickatell" channel named "low" with "priority" set to "40" belongs to the "InSTEDD" account
     
     When the application "GeoChat" sends a message with "to" set to "sms://5401"
     Then the message with "to" set to "sms://5401" should have been routed to the "high" channel
+    
+  # 6)
+  Scenario: Route according to credit
+    Given a "clickatell" channel named "requires_credit" with "credit" restriction set to "true" belongs to the "InSTEDD" account
+      And a "clickatell" channel named "accepts_all" belongs to the "InSTEDD" account
+      
+    When the application "GeoChat" sends a message with "to" set to "sms://5501" and "credit" custom attribute set to "false"
+    Then the message with "to" set to "sms://5501" should have been routed to the "accepts_all" channel
+  

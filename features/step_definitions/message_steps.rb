@@ -22,6 +22,15 @@ When /^the application "([^\"]*)" sends a message with "([^\"]*)" set to "([^\"]
   a.route_ao msg, 'cucumber_interface'
 end
 
+When /^the application "([^\"]*)" sends a message with "([^\"]*)" set to "([^\"]*)" and "([^\"]*)" custom attribute set to "([^\"]*)"$/ do |app_name, msg_field, msg_value, attr_name, attr_value|
+  a = Application.find_by_name app_name
+  raise "Application named \"#{app_name}\" does not exist" unless a
+  
+  msg = AOMessage.make_unsaved msg_field => msg_value
+  msg.custom_attributes[attr_name] = attr_value
+  a.route_ao msg, 'cucumber_interface'  
+end
+
 Then /^the message with "([^\"]*)" set to "([^\"]*)" should have been routed to the "([^\"]*)" channel$/ do |msg_field, msg_value, chan_name|
   msg = AOMessage.send "find_by_#{msg_field}", msg_value
   raise "Message with \"#{msg_field}\" set to \"#{msg_value}\" does not exist" unless msg
