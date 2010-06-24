@@ -9,6 +9,10 @@ class ClickatellChannelHandler < GenericChannelHandler
   end
 
   def restrictions
+    # try to load the restrictions from cache    
+    res = Rails.cache.read "channel_restrictions.#{@channel.id}"
+    return res if res
+    
     res = super
     network = @channel.configuration[:network]
     return res if network.nil?
@@ -17,17 +21,22 @@ class ClickatellChannelHandler < GenericChannelHandler
     
     # since restriction is modified inplace, clone it.
     res = res.clone
-    
-    ClickatellCoverageMO.find_all_by_network(network).each do |coverage|      
-      if coverage.carrier.nil? then
-        # coverage applied to countries
-        add_restriction res, 'country', Country.find_by_id(coverage.country_id).iso2
-      else
+    countries = Country.all
+    carriers = Carrier.all
+
+    ClickatellCoverageMO.find_all_by_network(network).each do |coverage|
+      # coverage applied to countries
+      add_restriction res, 'country', Country.find_by_id(coverage.country_id, countries).iso2
+
+      if not coverage.carrier_id.nil? then
         # coverage applied to carriers
-        add_restriction res, 'carrier', Carrier.find_by_id(coverage.carrier_id).guid
+        add_restriction res, 'carrier', Carrier.find_by_id(coverage.carrier_id, carriers).guid
       end
     end
     
+    add_restriction res, 'carrier', ''
+    
+    Rails.cache.write "channel_restrictions.#{@channel.id}", res
     return res
   end
   
@@ -158,7 +167,7 @@ class ClickatellChannelHandler < GenericChannelHandler
     if res[key].nil?
       res[key] = [value]
     else
-      res[key] << value
+      res[key] << value unless res[key].include? value
     end
   end
   

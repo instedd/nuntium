@@ -112,6 +112,67 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
     assert @chan.can_route_ao?(ao_with(country.iso2, carrier2.guid))
   end
   
+  test "clickatell channel restrictions made based on coverage table" do
+    country1 = Country.make
+    carrier1 = Carrier.make :country => country1
+    carrier2 = Carrier.make :country => country1
+    country2 = Country.make
+    carrier3 = Carrier.make :country => country2
+    carrier4 = Carrier.make :country => country2
+    
+    @chan.configuration[:network] = '44'
+    @chan.save!
+    
+    ClickatellCoverageMO.create!(:country_id => country1.id, :carrier_id => carrier1.id, :network => '44', :cost => 1)
+    ClickatellCoverageMO.create!(:country_id => country1.id, :carrier_id => carrier2.id, :network => '44', :cost => 1)
+    ClickatellCoverageMO.create!(:country_id => country2.id, :carrier_id => carrier3.id, :network => '44', :cost => 1)
+    ClickatellCoverageMO.create!(:country_id => country2.id, :carrier_id => carrier4.id, :network => '44', :cost => 1)
+    
+    assert_equal ({
+      'carrier' => [carrier1.guid, carrier2.guid, carrier3.guid, carrier4.guid, ''],
+      'country' => [country1.iso2, country2.iso2]
+      }), @chan.handler.restrictions
+  end
+  
+  test "clickatell channel can send a message within coverage table" do
+    country = Country.make
+    carrier = Carrier.make :country => country
+    
+    @chan.configuration[:network] = '44'
+    @chan.save!
+    
+    ClickatellCoverageMO.create!(:country_id => country.id, :carrier_id => carrier.id, :network => '44', :cost => 1)
+    
+    assert @chan.can_route_ao?(ao_with(country.iso2, carrier.guid))
+  end
+  
+  test "clickatell channel can send a message within coverage table only with country" do
+    country = Country.make
+    carrier = Carrier.make :country => country
+    
+    @chan.configuration[:network] = '44'
+    @chan.save!
+    
+    ClickatellCoverageMO.create!(:country_id => country.id, :carrier_id => carrier.id, :network => '44', :cost => 1)
+    
+    assert @chan.can_route_ao?(ao_with(country.iso2))
+  end
+  
+  test "clickatell channel restrictions must be fast" do
+    500.times do
+      country = Country.make
+      carrier = Carrier.make :country => country
+      ClickatellCoverageMO.create!(:country_id => country.id, :carrier_id => carrier.id, :network => '44', :cost => 1)
+    end
+    
+    @chan.configuration[:network] = '44'
+    @chan.save!
+    
+    puts "Loading"
+    r = @chan.restrictions
+    puts "End"
+  end
+  
   def ao_with(country, carrier = nil)
     msg = AOMessage.new
     msg.country = country

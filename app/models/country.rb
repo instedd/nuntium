@@ -15,8 +15,8 @@ class Country < ActiveRecord::Base
     countries
   end
   
-  def self.find_by_id(id)
-    all.select{|c| c.id == id}.first
+  def self.find_by_id(id, countries = all)
+    countries.select{|c| c.id == id}.first
   end
   
   def self.find_by_iso2(iso2)

@@ -6,8 +6,8 @@ Should be able to send messages to nuntium
   Background:
     Given an account named "InsTEDD" exists
       And an application named "GeoChat" belongs to the "InsTEDD" account
-      And an SMTP channel named "email" belongs to the "InsTEDD" account
-      
+      And an "smtp" channel named "email" belongs to the "InsTEDD" account
+  
   Scenario: Send message via RSS interface
     Given I am authenticated as the "GeoChat" application
     
