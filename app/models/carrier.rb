@@ -23,8 +23,8 @@ class Carrier < ActiveRecord::Base
     carriers
   end
   
-  def self.find_by_id(id)
-    all.select{|c| c.id == id}.first
+  def self.find_by_id(id, carriers = all)
+    carriers.select{|c| c.id == id}.first
   end
   
   def self.find_by_country_id(country_id)
