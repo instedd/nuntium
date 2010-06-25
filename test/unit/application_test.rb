@@ -168,6 +168,45 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal carrier.id, nums[0].carrier_id
   end
   
+  test "route ao completes country and carrier if missing" do
+    app = Application.make
+    country = Country.make
+    carrier = Carrier.make :country => country
+    MobileNumber.create!(:number => '5678', :country_id => country.id, :carrier_id => carrier.id)
+    
+    msg = AOMessage.make_unsaved :to => 'sms://+5678'
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal country.iso2, msg.country
+    assert_equal carrier.guid, msg.carrier
+  end
+  
+  test "route ao doesnt complete country or carrier if present" do
+    app = Application.make
+    country = Country.make
+    carrier = Carrier.make :country => country
+    MobileNumber.create!(:number => '5678', :country_id => country.id, :carrier_id => carrier.id)
+    
+    msg = AOMessage.make_unsaved :to => 'sms://+5678', :country => 'foo_country', :carrier => 'foo_carrier'
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal 'foo_country', msg.country
+    assert_equal 'foo_carrier', msg.carrier
+  end
+  
+  test "route ao doesnt complete country or carrier if mobile number is missing" do
+    app = Application.make
+    
+    msg = AOMessage.make_unsaved :to => 'sms://+5678'
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal nil, msg.country
+    assert_equal nil, msg.carrier
+  end
+  
   test "route ao filter channel because of country" do
     app = Application.make
     
