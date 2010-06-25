@@ -6,7 +6,12 @@ class WorkerQueue < ActiveRecord::Base
   private
   
   def publish_subscribe_notification
-    Queues.publish_notification SubscribeToQueueJob.new(queue_name), working_group
+    # Since this callback is executed inside a transaction, delay the
+    # notification one second to allow the transaction to be committed.
+    # Otherwise the workers wont see the new record.
+    EM.add_timer(1) do
+      Queues.publish_notification SubscribeToQueueJob.new(queue_name), working_group
+    end
   end
   
   def publish_unsubscribe_notification
