@@ -10,6 +10,7 @@ ActionController::Routing::Routes.draw do |map|
   # Qst
   map.resources :incoming, :path_prefix => '/:account_id/qst', :only => [:index, :create]
   map.resources :outgoing, :path_prefix => '/:account_id/qst', :only => [:index]
+  map.qst_set_address '/:account_id/qst/setaddress', :controller => 'address', :action => :update
   
   # Clickatell
   map.clickatel_credit '/clickatell/view_credit', :controller => 'clickatell', :action => :view_credit
