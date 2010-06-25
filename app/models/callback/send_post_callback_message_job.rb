@@ -50,4 +50,8 @@ class SendPostCallbackMessageJob
         raise res.error!
     end
   end
+
+  def to_s
+    "<SendPostCallbackMessageJob:#{@message_id}>"
+  end
 end
