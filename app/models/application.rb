@@ -52,9 +52,6 @@ class Application < ActiveRecord::Base
     # Save mobile number information
     MobileNumber.update msg.to.mobile_number, msg.country, msg.carrier if protocol == 'sms'
     
-    # Complete missing fields using mobile number information
-    MobileNumber.complete_missing_fields msg
-    
     # Get the list of candidate channels
     channels = candidate_channels_for_ao msg
     
@@ -147,6 +144,9 @@ class Application < ActiveRecord::Base
     # Find protocol of message (based on "to" field)
     protocol = msg.to.nil? ? '' : msg.to.protocol
     return [] if protocol == ''
+    
+    # Complete missing fields using mobile number information
+    MobileNumber.complete_missing_fields msg
     
     # Infer attributes
     msg.infer_custom_attributes
