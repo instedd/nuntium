@@ -16,7 +16,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     msg = AOMessage.make :account => Account.make
     
     expect_rest msg, response    
-    deliver msg
+    assert (deliver msg)
     
     msg = AOMessage.first
     assert_equal 'msgid', msg.channel_relative_id
@@ -35,7 +35,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     msg = AOMessage.make :account => Account.make
     
     expect_rest msg, response 
-    deliver msg
+    assert (deliver msg)
     
     msg = AOMessage.first
     assert_equal 1, msg.tries
@@ -57,7 +57,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     msg = AOMessage.make :account => Account.make
     
     expect_rest msg, response 
-    deliver msg
+    assert_false (deliver msg)
     
     msg = AOMessage.first
     assert_equal 0, msg.tries
@@ -83,7 +83,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
   
   def deliver(msg)
     job = SendClickatellMessageJob.new(@chan.account.id, @chan.id, msg.id)
-    result = job.perform
+    job.perform
   end
   
   def check_message_was_delivered(channel_relative_id)

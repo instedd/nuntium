@@ -10,7 +10,7 @@ class ClickatellChannelHandler < GenericChannelHandler
 
   def restrictions
     # try to load the restrictions from cache    
-    res = Rails.cache.read "channel_restrictions.#{@channel.id}"
+    res = Rails.cache.read restrictions_cache_key
     return res if res
     
     res = super
@@ -36,8 +36,18 @@ class ClickatellChannelHandler < GenericChannelHandler
     
     add_restriction res, 'carrier', ''
     
-    Rails.cache.write "channel_restrictions.#{@channel.id}", res
+    Rails.cache.write restrictions_cache_key, res
     return res
+  end
+  
+  def on_changed
+    super
+    clear_restrictions_cache
+  end
+  
+  def on_destroy
+    super
+    clear_restrictions_cache
   end
   
   def check_valid
@@ -169,6 +179,14 @@ class ClickatellChannelHandler < GenericChannelHandler
     else
       res[key] << value unless res[key].include? value
     end
+  end
+  
+  def clear_restrictions_cache
+    Rails.cache.delete restrictions_cache_key
+  end
+  
+  def restrictions_cache_key
+    "channel_restrictions.#{@channel.id}"
   end
   
 end

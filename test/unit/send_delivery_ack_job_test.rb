@@ -37,7 +37,24 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
     job.perform
   end
-#  
+  
+  test "get with custom attributes" do
+    @application.delivery_ack_method = 'get'
+    @application.delivery_ack_url = 'http://www.domain.com'
+    @application.save!
+    
+    @msg.custom_attributes['foo'] = 'bar'
+    @msg.save!
+    
+    expect_get :url => @application.delivery_ack_url,
+      :query_params => @query.merge(@msg.custom_attributes),
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPSuccess
+  
+    job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
+    job.perform
+  end
+  
   test "post" do
     @application.delivery_ack_method = 'post'
     @application.delivery_ack_url = 'http://www.domain.com'

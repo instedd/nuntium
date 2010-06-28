@@ -7,8 +7,8 @@ Sham.define do
   username { Faker::Internet.user_name }
   url { Faker::Internet.domain_name }
   password { Faker::Name.name }
-  number2(:unique => false) { (1..2).map { ('0'..'9').to_a.rand }.join }
-  number8 { (1..8).map { ('0'..'9').to_a.rand }.join }
+  number2(:unique => false) { (1..2).map { ('1'..'9').to_a.rand }.join }
+  number8 { (1..8).map { ('1'..'9').to_a.rand }.join }
   guid { (1..10).map { ('a'..'z').to_a.rand }.join }
 end
 
