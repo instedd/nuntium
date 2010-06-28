@@ -168,9 +168,7 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
     @chan.configuration[:network] = '44'
     @chan.save!
     
-    puts "Loading"
     r = @chan.restrictions
-    puts "End"
   end
   
   def ao_with(country, carrier = nil)
