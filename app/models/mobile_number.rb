@@ -27,12 +27,10 @@ class MobileNumber < ActiveRecord::Base
       mob.country_id = country.id if country
       mob.carrier_id = carrier.id if carrier
       mob.save!
+      return mob
     end
-  end
-  
-  def self.complete_missing_fields(msg)
-    mob = MobileNumber.find_by_number msg.to.mobile_number
-    mob.complete_missing_fields msg if mob
+    
+    return nil
   end
   
   def complete_missing_fields(msg)

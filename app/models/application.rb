@@ -50,10 +50,10 @@ class Application < ActiveRecord::Base
     end
     
     # Save mobile number information
-    MobileNumber.update msg.to.mobile_number, msg.country, msg.carrier if protocol == 'sms'
+    mob = MobileNumber.update msg.to.mobile_number, msg.country, msg.carrier if protocol == 'sms'
     
     # Get the list of candidate channels
-    channels = candidate_channels_for_ao msg
+    channels = candidate_channels_for_ao msg, :mobile_number => mob
     
     # Exit if no candidate channel 
     if channels.empty?
@@ -137,7 +137,11 @@ class Application < ActiveRecord::Base
     end
   end
   
-  def candidate_channels_for_ao(msg)
+  # Returns the candidate channels when routing an ao message.
+  # Optimizations can be:
+  #  - :mobile_number => associated to the message, so that it does not need to
+  #                      be read when completing missing fields
+  def candidate_channels_for_ao(msg, optimizations = {})
     # Fill some fields
     fill_common_message_properties msg
     
@@ -146,7 +150,10 @@ class Application < ActiveRecord::Base
     return [] if protocol == ''
     
     # Complete missing fields using mobile number information
-    MobileNumber.complete_missing_fields msg
+    if protocol == 'sms'
+      mob = optimizations[:mobile_number] || (MobileNumber.find_by_number msg.to.mobile_number)
+      mob.complete_missing_fields msg if mob
+    end
     
     # Infer attributes
     msg.infer_custom_attributes
