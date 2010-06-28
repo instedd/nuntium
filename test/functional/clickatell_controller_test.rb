@@ -21,7 +21,7 @@ class ClickatellControllerTest < ActionController::TestCase
     assert_equal @account.id, msg.account_id
     assert_equal "sms://#{options[:from]}", msg.from
     assert_equal "sms://#{options[:to]}", msg.to
-    assert_equal options[:subject], msg.subject
+    assert_equal options[:body], msg.body
     assert_equal Time.parse('2009-12-16 17:34:40 UTC'), msg.timestamp
     assert_equal options[:channel_relative_id], msg.channel_relative_id
     assert_equal 'queued', msg.state
@@ -35,7 +35,7 @@ class ClickatellControllerTest < ActionController::TestCase
     get :index, :account_id => @account.name, :api_id => api_id, :from => from, :to => to, :text => text, :timestamp => timestamp, :charset => charset, :moMsgId => mo_msg_id, :udh => udh
     assert_response :ok
     
-    assert_message :from => from, :to => to, :subject => text, :channel_relative_id => mo_msg_id
+    assert_message :from => from, :to => to, :body => text, :channel_relative_id => mo_msg_id
   end
   
   [:normal_order, :inverted_order].each do |order|
@@ -55,7 +55,7 @@ class ClickatellControllerTest < ActionController::TestCase
         end
       end
       
-      assert_message :from => from, :to => to, :subject => 'Hello world', :channel_relative_id => (order == :normal_order ? '2' : '1')
+      assert_message :from => from, :to => to, :body => 'Hello world', :channel_relative_id => (order == :normal_order ? '2' : '1')
     end
   end
   

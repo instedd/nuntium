@@ -39,6 +39,7 @@ class ActiveSupport::TestCase
   def setup
     Rails.cache.clear
     Sham.reset
+    WorkerQueue.publish_notification_delay = 0
   end
   
   def expect_get(options = {})
