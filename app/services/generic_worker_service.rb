@@ -1,6 +1,6 @@
 class GenericWorkerService < Service
 
-  PrefetchCount = 5
+  PrefetchCount = 1
   
   attr_reader :sessions
   
