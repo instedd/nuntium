@@ -13,7 +13,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain', 
       :body => 'ID: msgid')
       
-    msg = AOMessage.make :account => Account.make
+    msg = AOMessage.make :account => Account.make, :channel => @chan
     
     expect_rest msg, response    
     assert (deliver msg)
@@ -32,14 +32,14 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain', 
       :body => 'ERR: 105, Invalid destination address')
       
-    msg = AOMessage.make :account => Account.make
+    msg = AOMessage.make :account => Account.make, :channel => @chan
     
     expect_rest msg, response 
     assert (deliver msg)
     
     msg = AOMessage.first
     assert_equal 1, msg.tries
-    assert_equal 'pending', msg.state
+    assert_equal 'queued', msg.state
     
     logs = AccountLog.all
     assert_equal 1, logs.length
@@ -54,14 +54,14 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain', 
       :body => 'ERR: 002, Unknown username or password')
       
-    msg = AOMessage.make :account => Account.make
+    msg = AOMessage.make :account => Account.make, :channel => @chan
     
     expect_rest msg, response 
     assert_false (deliver msg)
     
     msg = AOMessage.first
     assert_equal 0, msg.tries
-    assert_equal 'pending', msg.state
+    assert_equal 'queued', msg.state
     
     @chan.reload
     assert_false @chan.enabled

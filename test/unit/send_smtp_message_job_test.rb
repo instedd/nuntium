@@ -8,7 +8,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
   end
 
   should "perform no ssl" do
-    msg = AOMessage.make :account => @chan.account
+    msg = AOMessage.make :account => @chan.account, :channel => @chan
     msgstr = msg_as_email msg    
     expect_smtp msg, msgstr
     assert (deliver msg)
@@ -19,7 +19,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
     @chan.configuration[:use_ssl] = '1'
     @chan.save!
     
-    msg = AOMessage.make :account => @chan.account
+    msg = AOMessage.make :account => @chan.account, :channel => @chan
     msgstr = msg_as_email msg
     expect_smtp msg, msgstr
     assert (deliver msg)
