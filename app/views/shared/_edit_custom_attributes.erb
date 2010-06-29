@@ -85,7 +85,7 @@ end
           <span class="value2">
             <select name="custom_attribute_value[]">
               <% carriers.select{|x| x.country.iso2 == selected_carrier.country.iso2}.each do |carrier| %>
-                <option value="<%= carrier.guid %>" <%= 'selected="selected"' if selected_carrier.guid == value %>><%= carrier.name %></option>
+                <option value="<%= carrier.guid %>" <%= 'selected="selected"' if selected_carrier.guid == carrier.guid %>><%= carrier.name %></option>
               <% end %>
             </select>
           </span>
