@@ -9,7 +9,7 @@ Should be able to specify ao rules
         | Argentina | ar    | arg   | 54            |
         | Brazil    | br    | bra   | 55            |
     And an account named "InSTEDD" exists
-        And an application named "GeoChat" belongs to the "InSTEDD" account
+    And an application named "GeoChat" belongs to the "InSTEDD" account
 
   # 1)
   Scenario: Route according to country code
