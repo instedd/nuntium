@@ -35,6 +35,10 @@ class Carrier < ActiveRecord::Base
     all.select {|x| x.guid == guid}.first
   end
   
+  def self.find_by_name(name)
+    all.select {|x| x.name == name}.first
+  end
+  
   def to_xml(options = {})
     options[:indent] ||= 2
     xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])

@@ -42,10 +42,17 @@ When /^the account "([^\"]*)" receives a message with "([^\"]*)" set to "([^\"]*
   a.route_at msg, c
 end
 
-Then /^the message with "([^\"]*)" set to "([^\"]*)" should have been routed to the "([^\"]*)" channel$/ do |msg_field, msg_value, chan_name|
+When /^the message with "([^\"]*)" set to "([^\"]*)" should have been routed to the "([^\"]*)" channel$/ do |msg_field, msg_value, chan_name|
   msg = AOMessage.send "find_by_#{msg_field}", msg_value
   raise "Message with \"#{msg_field}\" set to \"#{msg_value}\" does not exist" unless msg
   
   assert_equal chan_name, msg.channel.name
+end
+
+When /^the message with "([^\"]*)" set to "([^\"]*)" should have its carrier set to "([^\"]*)"$/ do |msg_field, msg_value, carrier_guid|
+  msg = AOMessage.send "find_by_#{msg_field}", msg_value
+  raise "Message with \"#{msg_field}\" set to \"#{msg_value}\" does not exist" unless msg
+  
+  assert_equal carrier_guid, msg.carrier
 end
 

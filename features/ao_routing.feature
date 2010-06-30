@@ -8,6 +8,10 @@ Should be able to specify ao rules
         | name      | iso2  | iso3  | phone_prefix  |
         | Argentina | ar    | arg   | 54            |
         | Brazil    | br    | bra   | 55            |
+    And the following Carriers exist:
+      | country name  | name      | guid        |
+      | Argentina     | Personal  | Ar-Personal |
+      | Brazil        | Movistar  | Br-Movistar |
     And an account named "InSTEDD" exists
     And an application named "GeoChat" belongs to the "InSTEDD" account
 
@@ -37,3 +41,12 @@ Should be able to specify ao rules
       
     When the application "GeoChat" sends a message with "to" set to "sms://5501" and "credit" custom attribute set to "false"
     Then the message with "to" set to "sms://5501" should have been routed to the "accepts_all" channel
+    
+  # 8)
+  Scenario: Infer carrier when present in mobile numbers
+    Given a "clickatell" channel named "chan" belongs to the "InSTEDD" account
+      And the number "5001" is associated to the "Personal" carrier
+      
+    When the application "GeoChat" sends a message with "to" set to "sms://5001"
+    
+    Then the message with "to" set to "sms://5001" should have its carrier set to "Ar-Personal"
