@@ -149,14 +149,8 @@ class Application < ActiveRecord::Base
     protocol = msg.to.nil? ? '' : msg.to.protocol
     return [] if protocol == ''
     
-    # Complete missing fields using mobile number information
-    if protocol == 'sms'
-      mob = optimizations[:mobile_number] || (MobileNumber.find_by_number msg.to.mobile_number)
-      mob.complete_missing_fields msg if mob
-    end
-    
     # Infer attributes
-    msg.infer_custom_attributes
+    msg.infer_custom_attributes optimizations
     
     # AO Rules
     ao_rules_res = RulesEngine.apply(msg.rules_context, self.ao_rules)

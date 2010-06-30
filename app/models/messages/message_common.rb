@@ -49,48 +49,57 @@ module MessageCommon
   custom_attributes_accessor :strategy
   custom_attributes_accessor :suggested_channel
   
-  def infer_custom_attributes
-    unless country
-      address = self.kind_of?(AOMessage) ? to : from
-      return if not address or address.protocol != 'sms'
-      
-      number = address.mobile_number
+  # Optimizations can be:
+  #  - :mobile_number => associated to the message, so that it does not need to
+  #                      be read when completing missing fields
+  def infer_custom_attributes(optimizations = {})
+    address = self.kind_of?(AOMessage) ? to : from
+    return if not address or address.protocol != 'sms'
+    
+    number = address.mobile_number
+  
+    # Infer country from phone number
+    if not self.country
       countries = Country.all.select{|x| number.start_with? x.phone_prefix}
-      return if countries.empty?
+      if countries.length > 0
+        if countries.length == 1
+          self.country = countries[0].iso2
+        else
+          self.country = countries.map &:iso2
+        end
+      end
+    end
+    
+    # Infer carrier from phone number (if country is present)
+    if self.country and not self.carrier
+      countries = self.country
+      countries = [countries] unless countries.kind_of? Array
+      countries = countries.map{|x| Country.find_by_iso2_or_iso3 x}
       
-      if countries.length == 1
-        self.country = countries[0].iso2
-      else
-        self.country = countries.map &:iso2
+      carriers = []
+      
+      countries.each do |c|
+        next unless c
+        cs = Carrier.find_by_country_id c.id
+        cs.each do |carrier| 
+          next unless carrier.prefixes.present?
+          prefixes = carrier.prefixes.split ','
+          carriers << carrier if prefixes.any?{|p| number.start_with?(c.phone_prefix + p.strip)}
+        end
+      end
+      
+      unless carriers.empty?
+        if carriers.length == 1
+          self.carrier = carriers[0].guid
+        else
+          self.carrier = carriers.map &:guid
+        end
       end
     end
     
-    return unless self.country
-    return if self.carrier
-    
-    countries = self.country
-    countries = [countries] unless countries.kind_of? Array
-    countries = countries.map{|x| Country.find_by_iso2_or_iso3 x}
-    
-    carriers = []
-    
-    countries.each do |c|
-      next unless c
-      cs = Carrier.find_by_country_id c.id
-      cs.each do |carrier| 
-        next unless carrier.prefixes.present?
-        prefixes = carrier.prefixes.split ','
-        carriers << carrier if prefixes.any?{|p| number.start_with?(c.phone_prefix + p.strip)}
-      end
-    end
-    
-    unless carriers.empty?
-      if carriers.length == 1
-        self.carrier = carriers[0].guid
-      else
-        self.carrier = carriers.map &:guid
-      end
-    end
+    # Infer country and carrier from stored MobileNumber, if any
+    mob = optimizations[:mobile_number] || (MobileNumber.find_by_number number)
+    mob.complete_missing_fields self if mob
   end
 
   # Given an xml builder writes itself unto it
