@@ -66,7 +66,11 @@ class Account < ActiveRecord::Base
     end
     
     # Save mobile number information
-    MobileNumber.update msg.from.mobile_number, msg.country, msg.carrier if msg.from and msg.from.protocol == 'sms'
+    if msg.from and msg.from.protocol == 'sms'
+      mob = MobileNumber.update msg.from.mobile_number, msg.country, msg.carrier if msg.from and msg.from.protocol == 'sms'
+      mob ||= MobileNumber.find_by_number msg.from.mobile_number
+      mob.complete_missing_fields msg if mob
+    end
     
     # Intef attributes
     msg.infer_custom_attributes

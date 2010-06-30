@@ -22,3 +22,11 @@ Should be able to specify at rules
     When the account "InSTEDD" receives a message with "from" set to "sms://5001" via the "chan" channel 
     
     Then the carrier associated with the number "5001" should be "Personal"
+    
+  Scenario: Infer carrier when present in mobile numbers
+    Given a "clickatell" channel named "chan" belongs to the "InSTEDD" account
+      And the number "5001" is associated to the "Personal" carrier
+      
+    When the account "InSTEDD" receives a message with "from" set to "sms://5001" via the "chan" channel
+    
+    Then the "ATMessage" with "from" set to "sms://5001" should have its carrier set to "Ar-Personal"

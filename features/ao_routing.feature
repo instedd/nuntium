@@ -49,7 +49,7 @@ Should be able to specify ao rules
       
     When the application "GeoChat" sends a message with "to" set to "sms://5001"
     
-    Then the message with "to" set to "sms://5001" should have its carrier set to "Ar-Personal"
+    Then the "AOMessage" with "to" set to "sms://5001" should have its carrier set to "Ar-Personal"
     
   # 9)
   Scenario: AO rule that changes the from based on the message's carrier
@@ -58,4 +58,4 @@ Should be able to specify ao rules
       
     When the application "GeoChat" sends a message with "to" set to "sms://541234"
     
-    Then the message with "to" set to "sms://541234" should have "from" set to "sms://1234"
+    Then the "AOMessage" with "to" set to "sms://541234" should have "from" set to "sms://1234"
