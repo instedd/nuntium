@@ -37,4 +37,3 @@ Should be able to specify ao rules
       
     When the application "GeoChat" sends a message with "to" set to "sms://5501" and "credit" custom attribute set to "false"
     Then the message with "to" set to "sms://5501" should have been routed to the "accepts_all" channel
-  
