@@ -245,7 +245,7 @@ class Application < ActiveRecord::Base
   def self.strategy_description(strategy)
     case strategy
     when 'broadcast'
-      'Boradcast'
+      'Broadcast'
     when 'single_priority'
       'Single (priority)'
     end

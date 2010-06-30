@@ -48,7 +48,7 @@ end
     body { Faker::Lorem.paragraph }
     timestamp { Time.at(946702800 + 86400 * rand(100)).getgm }
     guid
-    state { 'pending' }
+    state { 'queued' }
   end
   message.blueprint :email do
     from { "mailto://#{Sham.email}" }
