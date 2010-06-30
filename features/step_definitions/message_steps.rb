@@ -56,3 +56,10 @@ When /^the message with "([^\"]*)" set to "([^\"]*)" should have its carrier set
   assert_equal carrier_guid, msg.carrier
 end
 
+Then /^the message with "([^\"]*)" set to "([^\"]*)" should have "([^\"]*)" set to "([^\"]*)"$/ do |msg_field, msg_value, msg_expected_field, msg_expected_value|
+  msg = AOMessage.send "find_by_#{msg_field}", msg_value
+  raise "Message with \"#{msg_field}\" set to \"#{msg_value}\" does not exist" unless msg
+  
+  assert_equal msg_expected_value, msg.send(msg_expected_field)
+end
+
