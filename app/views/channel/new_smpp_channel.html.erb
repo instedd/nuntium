@@ -51,7 +51,10 @@
 		</p>
 		<h5>Encoding</h5>
 		<p>
-		<%= c.check_box :endianness, {}, :little, :big %> <%= c.label 'Use little endian for ucs-2' %>
+		<%= c.check_box :endianness_mo, {}, :little, :big %> <%= c.label 'Use little endian for ucs-2 MO messages' %>
+		</p>
+		<p>
+		<%= c.check_box :endianness_mt, {}, :little, :big %> <%= c.label 'Use little endian for ucs-2 MT messages' %>
 		</p>
 		<p>
 		<%= c.check_box :accept_mo_hex_string %> <%= c.label 'Hex strings' %>

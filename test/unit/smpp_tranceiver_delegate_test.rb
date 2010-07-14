@@ -22,7 +22,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
 
   def send_message(encodings, input, output, output_coding, options = {})
     @chan.configuration[:mt_encodings] = encodings
-    @chan.configuration[:endianness] = options.fetch(:endianness, :big).to_s
+    @chan.configuration[:endianness_mt] = options.fetch(:endianness_mt, :big).to_s
     @chan.configuration[:default_mo_encoding] = 'ascii'
     @chan.configuration[:mt_csms_method] = options.fetch(:mt_csms_method, 'udh')
     @chan.configuration[:mt_max_length] = options.fetch(:mt_max_length, 254)
@@ -46,7 +46,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   
   def receive_message(input, input_coding, output, options = {})
     @chan.configuration[:mt_encodings] = ['ascii']
-    @chan.configuration[:endianness] = options.fetch(:endianness, :big).to_s
+    @chan.configuration[:endianness_mo] = options.fetch(:endianness_mo, :big).to_s
     @chan.configuration[:default_mo_encoding] = options.fetch(:default_mo_encoding, 'ascii')
     @chan.configuration[:mt_csms_method] = 'udh'
     @chan.configuration[:accept_mo_hex_string] = options.fetch(:accept_mo_hex_string, false) ? '1' : '0'
@@ -117,7 +117,8 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   
   def save_channel_with_default_config
     @chan.configuration[:mt_encodings] = ['ascii'] 
-    @chan.configuration[:endianness] = 'big'
+    @chan.configuration[:endianness_mo] = 'big'
+    @chan.configuration[:endianness_mt] = 'big'
     @chan.configuration[:default_mo_encoding] = 'ascii'
     @chan.configuration[:mt_csms_method] = 'udh'
     @chan.configuration[:mt_max_length] = 254
@@ -149,7 +150,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   end
   
   test "send ucs2 little endian" do
-    send_message ['ucs-2'], 'hola', "h\000o\000l\000a\000", 8, :endianness => :little
+    send_message ['ucs-2'], 'hola', "h\000o\000l\000a\000", 8, :endianness_mt => :little
   end
   
   test "send large message using udh" do
@@ -202,11 +203,11 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   end
   
   test "receive usc2-le message" do
-    receive_message "h\000o\000l\000a\000", 8, 'hola', :endianness => :little
+    receive_message "h\000o\000l\000a\000", 8, 'hola', :endianness_mo => :little
   end
   
   test "receive default encoding message" do
-    receive_message "h\000o\000l\000a\000", 0, 'hola', :endianness => :little, :default_mo_encoding => 'ucs-2'
+    receive_message "h\000o\000l\000a\000", 0, 'hola', :endianness_mo => :little, :default_mo_encoding => 'ucs-2'
   end
   
   test "receive gsm message as default" do
@@ -218,7 +219,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   end
   
   test "receive hex string not hex" do
-    receive_message "h\000o\000l\000a\000", 8, 'hola', :endianness => :little, :accept_mo_hex_string => true
+    receive_message "h\000o\000l\000a\000", 8, 'hola', :endianness_mo => :little, :accept_mo_hex_string => true
   end
   
   test "receive lao message" do
@@ -226,7 +227,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     pdu = Smpp::Pdu::Base.create(pdubin.scan(/../).map{|x| x.to_i(16).chr}.join)
     
     @chan.configuration[:mt_encodings] = ['ascii']
-    @chan.configuration[:endianness] = :big
+    @chan.configuration[:endianness_mo] = :big
     @chan.configuration[:default_mo_encoding] = 'ascii'
     @chan.configuration[:mt_csms_method] = 'udh'
     @chan.configuration[:accept_mo_hex_string] = '1'

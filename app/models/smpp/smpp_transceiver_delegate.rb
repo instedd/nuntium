@@ -8,7 +8,7 @@ class SmppTransceiverDelegate
   def initialize(transceiver, channel)
     @transceiver = transceiver
     @channel = channel
-    @encodings = @channel.configuration[:mt_encodings].map { |x| encoding_endianized x }
+    @encodings = @channel.configuration[:mt_encodings].map { |x| encoding_endianized(x, :mt) }
     @mt_max_length = @channel.configuration[:mt_max_length].to_i
     @mt_csms_method = @channel.configuration[:mt_csms_method]
     @mo_cache = Cache.new(nil, nil, 100, 86400)
@@ -218,17 +218,17 @@ class SmppTransceiverDelegate
     msg.to = destination.with_protocol 'sms'
     if @channel.configuration[:accept_mo_hex_string] == '1' and is_hex(text) 
       bytes = hex_to_bytes text
-      iconv = Iconv.new('utf-8', ucs2_endianized)
+      iconv = Iconv.new('utf-8', ucs2_endianized(:mo))
       msg.body = iconv.iconv bytes
     else
       if data_coding == 0 and @default_mo_encoding == 'gsm'
         msg.body = GsmDecoder.decode text
       else
         source_encoding = case data_coding
-          when 0: encoding_endianized(@default_mo_encoding)
+          when 0: encoding_endianized(@default_mo_encoding, :mo)
           when 1: 'ascii'
           when 3: 'latin1'
-          when 8: ucs2_endianized
+          when 8: ucs2_endianized(:mo)
         end
         
         if source_encoding
@@ -309,12 +309,13 @@ class SmppTransceiverDelegate
     @transceiver.send_mt(id, from, to, text, options)
   end
   
-  def encoding_endianized(encoding)
-    encoding == 'ucs-2' ? ucs2_endianized : encoding
+  def encoding_endianized(encoding, direction)
+    encoding == 'ucs-2' ? ucs2_endianized(direction) : encoding
   end
   
-  def ucs2_endianized
-    @channel.configuration[:endianness] == 'little' ? 'ucs-2le' : 'ucs-2be'
+  def ucs2_endianized(direction)
+    endianness = @channel.configuration[direction == :mo ? :endianness_mo : :endianness_mt]
+    endianness == 'little' ? 'ucs-2le' : 'ucs-2be'
   end
   
   def is_hex(msg)
