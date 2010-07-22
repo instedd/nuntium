@@ -64,6 +64,10 @@ class ActiveSupport::TestCase
     
     RestClient::Resource.expects('new').with(options[:url], options[:options]).returns(resource)
   end
+  
+  def expect_no_rest
+    RestClient::Resource.expects(:new).never
+  end
     
   # Returns the string to be used for HTTP_AUTHENTICATION header
   def http_auth(user, pass)

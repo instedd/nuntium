@@ -59,4 +59,14 @@ class SendPostCallbackMessageJobTest < ActiveSupport::TestCase
     @application.reload
     assert_equal 'rss', @application.interface
   end
+  
+  test "discard not queued messages" do
+    expect_no_rest
+    
+    @msg.state = 'cancelled'
+    @msg.save!
+    
+    job = SendPostCallbackMessageJob.new @application.account_id, @application.id, @msg.id
+    assert_true job.perform
+  end
 end

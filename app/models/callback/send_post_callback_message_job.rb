@@ -11,6 +11,7 @@ class SendPostCallbackMessageJob
     account = Account.find_by_id @account_id
     app = account.find_application @application_id
     msg = ATMessage.get_message @message_id
+    return true if msg.state != 'queued'
 
     data = { 
       :application => app.name, 
