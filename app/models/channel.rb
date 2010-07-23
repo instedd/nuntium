@@ -241,7 +241,7 @@ class Channel < ActiveRecord::Base
   
   def merge(other)
     [:name, :kind, :protocol, :direction, :enabled, :priority, :configuration, :restrictions].each do |sym|
-      send "#{sym}=", other.send(sym) if other.send(sym).present?
+      write_attribute sym, other.read_attribute(sym) if !other.read_attribute(sym).nil?
     end
   end
   
