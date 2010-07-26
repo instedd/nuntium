@@ -121,6 +121,12 @@ class ChannelTest < ActiveSupport::TestCase
     end
   end
   
+  test "from xml with empty restrictions creates the empty hash" do
+    c = Channel.from_xml('<channel><restrictions/></channel>')
+    
+    assert_not_nil c.read_attribute(:restrictions)
+  end
+  
   test "to json" do
     chan = JSON.parse(@chan.to_json).with_indifferent_access
     

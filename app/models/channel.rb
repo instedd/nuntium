@@ -329,6 +329,10 @@ class Channel < ActiveRecord::Base
     hash_restrict = hash_restrict[:property] || [] if format == :xml and hash_restrict[:property]
     hash_restrict = [hash_restrict] unless hash_restrict.blank? or hash_restrict.kind_of? Array or hash_restrict.kind_of? String
     
+    # force the empty hash at least, if the restrictions were specified
+    # this is needed for proper merging when updating through api
+    chan.restrictions if hash.has_key? :restrictions
+    
     hash_restrict.each do |property|
       chan.restrictions.store_multivalue property[:name], property[:value]
     end unless hash_restrict.kind_of? String
