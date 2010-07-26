@@ -44,13 +44,15 @@ class ChannelControllerTest < ActionController::TestCase
   end
   
   test "edit qst server channel succeeds" do
-    chan = Channel.make_unsaved :qst_server, :account => @account
+    app1 = Application.make :account => @account
+    app2 = Application.make :account => @account
+    chan = Channel.make_unsaved :qst_server, :account => @account, :priority => 100, :application_id => app1.id
     chan.configuration[:password] = 'chan_pass'
     chan.configuration[:password_confirmation] = 'chan_pass'
     chan.configuration.delete :salt
     chan.save!
     
-    get :update_channel, {:id => chan.id, :channel => {:protocol => 'mail', :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => @account.id}
+    get :update_channel, {:id => chan.id, :channel => {:protocol => 'mail', :priority => 200, :application_id => app2.id, :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => @account.id}
     
     # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -63,6 +65,8 @@ class ChannelControllerTest < ActionController::TestCase
     chan = chans[0]
     
     assert_equal 'mail', chan.protocol
+    assert_equal 200, chan.priority
+    assert_equal app2.id, chan.application_id
     assert(chan.handler.authenticate('chan_pass'))
   end
   
