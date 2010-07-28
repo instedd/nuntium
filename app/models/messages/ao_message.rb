@@ -33,9 +33,7 @@ class AOMessage < ActiveRecord::Base
   
   def send_failed(account, channel, exception)
     self.tries += 1
-    if self.tries >= account.max_tries
-      self.state = 'failed'
-    end
+    self.state = 'failed'
     self.save!
     
     account.logger.exception_in_channel_and_ao_message channel, self, exception

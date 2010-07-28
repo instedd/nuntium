@@ -39,7 +39,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     
     msg = AOMessage.first
     assert_equal 1, msg.tries
-    assert_equal 'queued', msg.state
+    assert_equal 'failed', msg.state
     
     logs = AccountLog.all
     assert_equal 1, logs.length
