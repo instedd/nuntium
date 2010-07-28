@@ -36,8 +36,10 @@ class ActiveSupport::TestCase
   
   include Mocha::API
 
-  def setup
+  setup do
     Rails.cache.clear
+    Country.delete_all
+    Carrier.delete_all
     Sham.reset
     WorkerQueue.publish_notification_delay = 0
   end

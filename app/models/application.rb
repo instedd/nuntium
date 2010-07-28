@@ -113,12 +113,11 @@ class Application < ActiveRecord::Base
   
     # Update AddressSource if desired and if it the channel is bidirectional
     if use_address_source? and via_channel.kind_of? Channel and via_channel.direction == Channel::Bidirectional
-      as = AddressSource.find_by_application_id_and_address self.id, msg.from.mobile_number
+      as = AddressSource.find_by_application_id_and_address_and_channel_id self.id, msg.from, via_channel.id
       if as.nil?
-        AddressSource.create!(:account_id => account.id, :application_id => self.id, :address => msg.from.mobile_number, :channel_id => via_channel.id) 
+        AddressSource.create!(:account_id => account.id, :application_id => self.id, :address => msg.from, :channel_id => via_channel.id) 
       else
-        as.channel_id = via_channel.id
-        as.save!
+        as.touch
       end
     end
     
@@ -172,7 +171,7 @@ class Application < ActiveRecord::Base
     end
     
     # See if there is a last channel used to route an AT message with this address
-    last_channel = get_last_channel msg.to.mobile_number, channels
+    last_channel = get_last_channel msg.to, channels
     return [last_channel] if last_channel
     
     return channels
@@ -328,11 +327,15 @@ class Application < ActiveRecord::Base
   
   def get_last_channel(address, outgoing_channels)
     return nil unless use_address_source?
-    as = AddressSource.first(:conditions => ['application_id = ? AND address = ?', self.id, address])
-    return nil if as.nil?
-    candidates = outgoing_channels.select{|x| x.id == as.channel_id}
-    return nil if candidates.empty?
-    return candidates[0]
+    ass = AddressSource.all :conditions => ['application_id = ? AND address = ?', self.id, address], :order => 'updated_at DESC'
+    return nil if ass.empty?
+    
+    # Return the first outgoing_channel that was used as a last channel.
+    ass.each do |as|
+      candidate = outgoing_channels.select{|x| x.id == as.channel_id}.first
+      return candidate if candidate
+    end
+    return nil
   end
   
   def hash_password

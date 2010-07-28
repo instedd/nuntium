@@ -271,12 +271,47 @@ class ApplicationTest < ActiveSupport::TestCase
     chan1 = Channel.make :account => app.account
     chan2 = Channel.make :account => app.account, :priority => chan1.priority + 10
     
-    AddressSource.create! :account_id => app.account.id, :application_id => app.id, :channel_id => chan2.id, :address => '5678' 
-    
     msg = AOMessage.make_unsaved :to => 'sms://+5678'
+    
+    AddressSource.create! :account_id => app.account.id, :application_id => app.id, :channel_id => chan2.id, :address => msg.to 
+    
     app.route_ao msg, 'test'
     
     assert_equal chan2.id, msg.channel_id
+  end
+  
+  test "route ao use last recent channel" do
+    app = Application.make
+    
+    chan1 = Channel.make :account => app.account
+    chan2 = Channel.make :account => app.account, :priority => chan1.priority + 10
+    chan3 = Channel.make :account => app.account, :priority => chan1.priority + 20
+    
+    msg = AOMessage.make_unsaved :to => 'sms://+5678'
+    
+    AddressSource.create! :account_id => app.account.id, :application_id => app.id, :channel_id => chan1.id, :address => msg.to, :updated_at => (Time.now - 10) 
+    AddressSource.create! :account_id => app.account.id, :application_id => app.id, :channel_id => chan3.id, :address => msg.to
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal chan3.id, msg.channel_id
+  end
+  
+  test "route ao use last recent channel that is a candidate" do
+    app = Application.make
+    
+    chan1 = Channel.make :account => app.account
+    chan2 = Channel.make :account => app.account, :priority => chan1.priority + 10
+    chan3 = Channel.make :account => app.account, :priority => chan1.priority + 20, :enabled => false
+    
+    msg = AOMessage.make_unsaved :to => 'sms://+5678'
+    
+    AddressSource.create! :account_id => app.account.id, :application_id => app.id, :channel_id => chan1.id, :address => msg.to, :updated_at => (Time.now - 10) 
+    AddressSource.create! :account_id => app.account.id, :application_id => app.id, :channel_id => chan3.id, :address => msg.to
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal chan1.id, msg.channel_id
   end
   
   test "route ao use suggested channel" do
