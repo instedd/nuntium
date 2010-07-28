@@ -39,6 +39,23 @@ class ChannelTest < ActiveSupport::TestCase
     assert @chan.enabled
   end
   
+  test "should serialize/deserialize ao_rules" do  
+    @chan.ao_rules = [
+      RulesEngine.rule([
+        RulesEngine.matching(:from, RulesEngine::OP_EQUALS, 'sms://1')
+      ],[
+        RulesEngine.action(:ca1,'whitness')
+      ])
+    ]
+    
+    @chan.save!
+    
+    chan_stored = Channel.find_by_id(@chan.id)
+    
+    res = RulesEngine.apply({:from => 'sms://1'}, chan_stored.ao_rules)
+    assert_equal 'whitness', res[:ca1]
+  end
+  
   test "should serialize/deserialize at_rules" do  
     @chan.at_rules = [
       RulesEngine.rule([
@@ -54,6 +71,21 @@ class ChannelTest < ActiveSupport::TestCase
     
     res = RulesEngine.apply({:from => 'sms://1'}, chan_stored.at_rules)
     assert_equal 'whitness', res[:ca1]
+  end
+  
+  test "route ao applies ao rules" do
+    @chan.ao_rules = [
+      RulesEngine.rule([
+        RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1')
+      ],[
+        RulesEngine.action('from','sms://2')
+      ])
+    ]
+    
+    msg = AOMessage.make_unsaved :from => 'sms://1', :account => @chan.account, :application => @chan.application
+    @chan.route_ao msg, 'test'
+    
+    assert_equal 'sms://2', msg.from
   end
   
   test "to xml" do

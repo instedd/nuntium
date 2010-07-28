@@ -26,6 +26,7 @@ class ChannelController < AccountAuthenticatedController
     @channel.priority = chan[:priority]
     @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
     @channel.restrictions = get_custom_attributes
+    @channel.ao_rules = get_rules :aorules
     @channel.at_rules = get_rules :atrules
     
     @channel.check_valid_in_ui
@@ -54,6 +55,7 @@ class ChannelController < AccountAuthenticatedController
     @channel.handler.update(chan)
     @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
     @channel.restrictions = get_custom_attributes
+    @channel.ao_rules = get_rules :aorules
     @channel.at_rules = get_rules :atrules
     
     @channel.check_valid_in_ui

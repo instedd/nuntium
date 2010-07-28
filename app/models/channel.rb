@@ -16,6 +16,7 @@ class Channel < ActiveRecord::Base
   
   serialize :configuration, Hash
   serialize :restrictions
+  serialize :ao_rules
   serialize :at_rules
   
   validates_presence_of :name, :protocol, :kind, :account
@@ -36,6 +37,10 @@ class Channel < ActiveRecord::Base
   include(CronTask::CronTaskOwner)
   
   def route_ao(msg, via_interface)
+    # Apply AO Rules
+    ao_routing_res = RulesEngine.apply(msg.rules_context, self.ao_rules)
+    msg.merge ao_routing_res
+  
     # Save the message
     msg.channel = self
     msg.state = 'queued'
