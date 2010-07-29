@@ -33,6 +33,7 @@ Rails::Initializer.run do |config|
   config.gem 'rest-client', :lib => 'rest_client', :source => 'http://gems.github.com'
   config.gem 'qst_client'
   config.gem 'nokogiri'
+  config.gem 'daemon_controller'
 
   # Only load the plugins named here, in the order given (default is alphabetical).
   # :all can be used as a placeholder for all plugins not explicitly named
