@@ -91,5 +91,23 @@ class ChannelControllerTest < ActionController::TestCase
     
     assert_template "channel/edit_qst_server_channel.html.erb"
   end
+  
+  test "disable channel re-routes" do
+    chan1 = Channel.make :qst_server, :account => @account
+    chan2 = Channel.make :qst_server, :account => @account
+    
+    app = Application.make :account => @account
+    msg = AOMessage.make :account => @account, :application => app, :channel => chan1, :state => 'queued'
+    
+    get :disable_channel, {:id => chan1.id}, {:account_id => @account.id}
+    
+    chan1.reload
+    chan2.reload
+    msg.reload
+    
+    assert_false chan1.enabled
+    assert_true chan2.enabled
+    assert_equal chan2.id, msg.channel_id
+  end
 
 end
