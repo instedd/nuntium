@@ -2,7 +2,7 @@ require 'test_helper'
 
 class QstServerChannelHandlerTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make :qst_server, :configuration => {:password => 'foo'}
+    @chan = Channel.make :qst_server, :configuration => {:password => 'foo', :password_confirmation => 'foo'}
   end
   
   test "should not save if password is blank" do
