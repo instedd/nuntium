@@ -11,6 +11,7 @@ class SendPostCallbackMessageJob
     account = Account.find_by_id @account_id
     app = account.find_application @application_id
     msg = ATMessage.get_message @message_id
+    return true if msg.state != 'queued'
 
     data = { 
       :application => app.name, 
@@ -49,5 +50,9 @@ class SendPostCallbackMessageJob
         account.logger.error :at_message_id => @message_id, :message => "HTTP POST callback failed #{res.error!}"
         raise res.error!
     end
+  end
+
+  def to_s
+    "<SendPostCallbackMessageJob:#{@message_id}>"
   end
 end

@@ -2,6 +2,14 @@ class MobileNumber < ActiveRecord::Base
   belongs_to :country
   belongs_to :carrier
   
+  def country
+    country_id ? (Country.find_by_id country_id) : nil
+  end
+  
+  def carrier
+    carrier_id ? (Carrier.find_by_id carrier_id) : nil
+  end
+  
   def self.update(number, country, carrier)
     if country and not country.kind_of? Array
       country = Country.find_by_iso2_or_iso3 country if country
@@ -19,6 +27,16 @@ class MobileNumber < ActiveRecord::Base
       mob.country_id = country.id if country
       mob.carrier_id = carrier.id if carrier
       mob.save!
+      return mob
     end
+    
+    return nil
+  end
+  
+  def complete_missing_fields(msg)
+    # complete country
+    msg.country = country.iso2 if not msg.country and country
+    # complete carrier
+    msg.carrier = carrier.guid if not msg.carrier and carrier
   end
 end

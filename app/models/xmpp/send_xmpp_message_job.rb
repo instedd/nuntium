@@ -1,4 +1,4 @@
-class SendXmppMessageJob < SendMessageJob
+class SendXmppMessageJob
   attr_accessor :account_id, :channel_id, :message_id
 
   def initialize(account_id, channel_id, message_id)

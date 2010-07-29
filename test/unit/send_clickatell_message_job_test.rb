@@ -13,10 +13,10 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain', 
       :body => 'ID: msgid')
       
-    msg = AOMessage.make :account => Account.make
+    msg = AOMessage.make :account => Account.make, :channel => @chan, :guid => '1-2'
     
     expect_rest msg, response    
-    deliver msg
+    assert (deliver msg)
     
     msg = AOMessage.first
     assert_equal 'msgid', msg.channel_relative_id
@@ -32,14 +32,14 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain', 
       :body => 'ERR: 105, Invalid destination address')
       
-    msg = AOMessage.make :account => Account.make
+    msg = AOMessage.make :account => Account.make, :channel => @chan
     
     expect_rest msg, response 
-    deliver msg
+    assert (deliver msg)
     
     msg = AOMessage.first
     assert_equal 1, msg.tries
-    assert_equal 'pending', msg.state
+    assert_equal 'failed', msg.state
     
     logs = AccountLog.all
     assert_equal 1, logs.length
@@ -54,14 +54,14 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain', 
       :body => 'ERR: 002, Unknown username or password')
       
-    msg = AOMessage.make :account => Account.make
+    msg = AOMessage.make :account => Account.make, :channel => @chan
     
     expect_rest msg, response 
-    deliver msg
+    assert_false (deliver msg)
     
     msg = AOMessage.first
     assert_equal 0, msg.tries
-    assert_equal 'pending', msg.state
+    assert_equal 'queued', msg.state
     
     @chan.reload
     assert_false @chan.enabled
@@ -75,7 +75,8 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :from => @chan.configuration[:from],
       :mo => '1',
       :to => msg.to.without_protocol,
-      :text => msg.subject_and_body
+      :text => msg.subject_and_body,
+      :climsgid => msg.guid.gsub('-', ''),
     }
     
     Clickatell.expects(:send_message).with(params).returns(response)
@@ -83,7 +84,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
   
   def deliver(msg)
     job = SendClickatellMessageJob.new(@chan.account.id, @chan.id, msg.id)
-    result = job.perform
+    job.perform
   end
   
   def check_message_was_delivered(channel_relative_id)

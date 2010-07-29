@@ -106,7 +106,7 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal chan2.id, msg.channel_id
   end
   
-  test "route select channel based on protocol -> get candidate channels" do
+  test "candidate channels" do
     app = Application.make
   
     chan1 = Channel.make :account => app.account, :protocol => 'protocol' 
@@ -116,6 +116,18 @@ class ApplicationTest < ActiveSupport::TestCase
     channels = app.candidate_channels_for_ao msg
     
     assert_equal [chan2], channels
+  end
+  
+  test "candidate channels ordered by priority" do
+    app = Application.make
+  
+    chan1 = Channel.make :account => app.account, :protocol => 'protocol', :priority => 2 
+    chan2 = Channel.make :account => app.account, :protocol => 'protocol', :priority => 1
+    
+    msg = AOMessage.make_unsaved(:to => 'protocol://Someone else')
+    channels = app.candidate_channels_for_ao msg
+    
+    assert_equal [chan2.id, chan1.id], channels.map(&:id)
   end
   
   test "route ao saves mobile numbers" do
@@ -166,6 +178,45 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal msg.to.mobile_number, nums[0].number
     assert_equal country.id, nums[0].country_id
     assert_equal carrier.id, nums[0].carrier_id
+  end
+  
+  test "route ao completes country and carrier if missing" do
+    app = Application.make
+    country = Country.make
+    carrier = Carrier.make :country => country
+    MobileNumber.create!(:number => '5678', :country_id => country.id, :carrier_id => carrier.id)
+    
+    msg = AOMessage.make_unsaved :to => 'sms://+5678'
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal country.iso2, msg.country
+    assert_equal carrier.guid, msg.carrier
+  end
+  
+  test "route ao doesnt complete country or carrier if present" do
+    app = Application.make
+    country = Country.make
+    carrier = Carrier.make :country => country
+    MobileNumber.create!(:number => '5678', :country_id => country.id, :carrier_id => carrier.id)
+    
+    msg = AOMessage.make_unsaved :to => 'sms://+5678', :country => 'foo_country', :carrier => 'foo_carrier'
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal 'foo_country', msg.country
+    assert_equal 'foo_carrier', msg.carrier
+  end
+  
+  test "route ao doesnt complete country or carrier if mobile number is missing" do
+    app = Application.make
+    
+    msg = AOMessage.make_unsaved :to => 'sms://+5678'
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal nil, msg.country
+    assert_equal nil, msg.carrier
   end
   
   test "route ao filter channel because of country" do
@@ -232,12 +283,47 @@ class ApplicationTest < ActiveSupport::TestCase
     chan1 = Channel.make :account => app.account
     chan2 = Channel.make :account => app.account, :priority => chan1.priority + 10
     
-    AddressSource.create! :account_id => app.account.id, :application_id => app.id, :channel_id => chan2.id, :address => '5678' 
-    
     msg = AOMessage.make_unsaved :to => 'sms://+5678'
+    
+    AddressSource.create! :account_id => app.account.id, :application_id => app.id, :channel_id => chan2.id, :address => msg.to 
+    
     app.route_ao msg, 'test'
     
     assert_equal chan2.id, msg.channel_id
+  end
+  
+  test "route ao use last recent channel" do
+    app = Application.make
+    
+    chan1 = Channel.make :account => app.account
+    chan2 = Channel.make :account => app.account, :priority => chan1.priority + 10
+    chan3 = Channel.make :account => app.account, :priority => chan1.priority + 20
+    
+    msg = AOMessage.make_unsaved :to => 'sms://+5678'
+    
+    AddressSource.create! :account_id => app.account.id, :application_id => app.id, :channel_id => chan1.id, :address => msg.to, :updated_at => (Time.now - 10) 
+    AddressSource.create! :account_id => app.account.id, :application_id => app.id, :channel_id => chan3.id, :address => msg.to
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal chan3.id, msg.channel_id
+  end
+  
+  test "route ao use last recent channel that is a candidate" do
+    app = Application.make
+    
+    chan1 = Channel.make :account => app.account
+    chan2 = Channel.make :account => app.account, :priority => chan1.priority + 10
+    chan3 = Channel.make :account => app.account, :priority => chan1.priority + 20, :enabled => false
+    
+    msg = AOMessage.make_unsaved :to => 'sms://+5678'
+    
+    AddressSource.create! :account_id => app.account.id, :application_id => app.id, :channel_id => chan1.id, :address => msg.to, :updated_at => (Time.now - 10) 
+    AddressSource.create! :account_id => app.account.id, :application_id => app.id, :channel_id => chan3.id, :address => msg.to
+    
+    app.route_ao msg, 'test'
+    
+    assert_equal chan1.id, msg.channel_id
   end
   
   test "route ao use suggested channel" do

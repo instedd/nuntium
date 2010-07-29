@@ -48,7 +48,10 @@
 		</p>
 		<h5>Encoding</h5>
 		<p>
-		<%= c.check_box :endianness, {:checked => @channel.configuration[:endianness] == 'little'}, :little, :big %> <%= c.label 'Use little endian for ucs-2' %>
+		<%= c.check_box :endianness_mo, {:checked => @channel.configuration[:endianness_mo] == 'little'}, :little, :big %> <%= c.label 'Use little endian for ucs-2 MO messages' %>
+		</p>
+		<p>
+		<%= c.check_box :endianness_mt, {:checked => @channel.configuration[:endianness_mt] == 'little'}, :little, :big %> <%= c.label 'Use little endian for ucs-2 MT messages' %>
 		</p>
 		<p>
 		<%= c.check_box :accept_mo_hex_string, :checked => (@channel.configuration[:accept_mo_hex_string] == '1' || @channel.configuration[:accept_mo_hex_string] == 'true') %> <%= c.label 'Hex strings' %>
@@ -76,6 +79,7 @@
 		</p>
 	<% end %>
 	<%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} %>
+	<%= render :partial => 'edit_ao_rules', :locals => {:f => f} %>
 	<%= render :partial => 'edit_at_rules', :locals => {:f => f} %>
 	<%= channel_submit_tag %>
 <% end %>

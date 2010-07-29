@@ -16,6 +16,7 @@ class Channel < ActiveRecord::Base
   
   serialize :configuration, Hash
   serialize :restrictions
+  serialize :ao_rules
   serialize :at_rules
   
   validates_presence_of :name, :protocol, :kind, :account
@@ -36,6 +37,10 @@ class Channel < ActiveRecord::Base
   include(CronTask::CronTaskOwner)
   
   def route_ao(msg, via_interface)
+    # Apply AO Rules
+    ao_routing_res = RulesEngine.apply(msg.rules_context, self.ao_rules)
+    msg.merge ao_routing_res
+  
     # Save the message
     msg.channel = self
     msg.state = 'queued'
@@ -240,8 +245,8 @@ class Channel < ActiveRecord::Base
   end
   
   def merge(other)
-    [:name, :kind, :protocol, :direction, :enabled, :priority, :configuration, :restrictions].each do |sym|
-      send "#{sym}=", other.send(sym) if other.send(sym).present?
+    [:name, :kind, :protocol, :direction, :enabled, :priority, :configuration, :restrictions, :address].each do |sym|
+      write_attribute sym, other.read_attribute(sym) if !other.read_attribute(sym).nil?
     end
   end
   
@@ -328,6 +333,10 @@ class Channel < ActiveRecord::Base
     hash_restrict = hash[:restrictions] || {}
     hash_restrict = hash_restrict[:property] || [] if format == :xml and hash_restrict[:property]
     hash_restrict = [hash_restrict] unless hash_restrict.blank? or hash_restrict.kind_of? Array or hash_restrict.kind_of? String
+    
+    # force the empty hash at least, if the restrictions were specified
+    # this is needed for proper merging when updating through api
+    chan.restrictions if hash.has_key? :restrictions
     
     hash_restrict.each do |property|
       chan.restrictions.store_multivalue property[:name], property[:value]

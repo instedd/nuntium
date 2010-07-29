@@ -18,16 +18,13 @@
     <%= c.password_field :password, :autocomplete => :off, :value => @channel[:configuration][:password] %>
     </p>
     <p>
-    <%= c.label :sno %><br/>
-    <%= c.text_field :sno, :value => @channel[:configuration][:sno] %>
-    </p>
-    <p>
     Callback urls for incoming messages:<br/>
     <code>/dtac/<%= @account.name %>/incoming</code><br/>
     <code>/dtac/<%= @account.id %>/incoming</code>
     </p>
   <% end %>
   <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} %>
+  <%= render :partial => 'edit_ao_rules', :locals => {:f => f} %>
   <%= render :partial => 'edit_at_rules', :locals => {:f => f} %>
   <%= channel_submit_tag %>
 <% end %>

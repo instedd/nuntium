@@ -31,10 +31,35 @@ When /^the application "([^\"]*)" sends a message with "([^\"]*)" set to "([^\"]
   a.route_ao msg, 'cucumber_interface'  
 end
 
-Then /^the message with "([^\"]*)" set to "([^\"]*)" should have been routed to the "([^\"]*)" channel$/ do |msg_field, msg_value, chan_name|
+When /^the account "([^\"]*)" receives a message with "([^\"]*)" set to "([^\"]*)" via the "([^\"]*)" channel$/ do |acc_name, msg_field, msg_value, chan_name|
+  a = Account.find_by_name acc_name
+  raise "Account named \"#{acc_name}\" does not exist" unless a
+  
+  c = Channel.all(:conditions => ['account_id = ? AND name = ?', a.id, chan_name]).first
+  raise "Channel named \"#{chan_name}\" belonging to the \"#{acc_name}\" account does not exist" unless c
+  
+  msg = ATMessage.make_unsaved msg_field => msg_value
+  a.route_at msg, c
+end
+
+When /^the message with "([^\"]*)" set to "([^\"]*)" should have been routed to the "([^\"]*)" channel$/ do |msg_field, msg_value, chan_name|
   msg = AOMessage.send "find_by_#{msg_field}", msg_value
   raise "Message with \"#{msg_field}\" set to \"#{msg_value}\" does not exist" unless msg
   
   assert_equal chan_name, msg.channel.name
+end
+
+When /^the "([^\"]*)" with "([^\"]*)" set to "([^\"]*)" should have its carrier set to "([^\"]*)"$/ do |msg_class, msg_field, msg_value, carrier_guid|
+  msg = eval(msg_class).send "find_by_#{msg_field}", msg_value
+  raise "#{msg_class} with \"#{msg_field}\" set to \"#{msg_value}\" does not exist" unless msg
+  
+  assert_equal carrier_guid, msg.carrier
+end
+
+Then /^the "([^\"]*)" with "([^\"]*)" set to "([^\"]*)" should have "([^\"]*)" set to "([^\"]*)"$/ do |msg_class, msg_field, msg_value, msg_expected_field, msg_expected_value|
+  msg = eval(msg_class).send "find_by_#{msg_field}", msg_value
+  raise "#{msg_class} with \"#{msg_field}\" set to \"#{msg_value}\" does not exist" unless msg
+  
+  assert_equal msg_expected_value, msg.send(msg_expected_field)
 end
 

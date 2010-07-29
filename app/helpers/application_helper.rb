@@ -16,7 +16,7 @@ module ApplicationHelper
   end
   
   def short_html(msg, length = 15)
-    '<span title="' << (h msg) << '">' << short(msg, length) << '</span>'
+    '<span title="' << (h msg) << '">' << h(short(msg, length)) << '</span>'
   end
   
   def time_ago(time)

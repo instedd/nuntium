@@ -7,7 +7,7 @@ class DtacChannelHandlerTest < ActiveSupport::TestCase
     @chan = Channel.make :dtac
   end
   
-  [:user, :password, :sno].each do |field|
+  [:user, :password].each do |field|
     test "should validate configuration presence of #{field}" do
       assert_validates_configuration_presence_of @chan, field
     end

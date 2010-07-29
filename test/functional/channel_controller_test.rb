@@ -44,13 +44,15 @@ class ChannelControllerTest < ActionController::TestCase
   end
   
   test "edit qst server channel succeeds" do
-    chan = Channel.make_unsaved :qst_server, :account => @account
+    app1 = Application.make :account => @account
+    app2 = Application.make :account => @account
+    chan = Channel.make_unsaved :qst_server, :account => @account, :priority => 100, :application_id => app1.id
     chan.configuration[:password] = 'chan_pass'
     chan.configuration[:password_confirmation] = 'chan_pass'
     chan.configuration.delete :salt
     chan.save!
     
-    get :update_channel, {:id => chan.id, :channel => {:protocol => 'mail', :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => @account.id}
+    get :update_channel, {:id => chan.id, :channel => {:protocol => 'mail', :priority => 200, :application_id => app2.id, :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => @account.id}
     
     # Go to account home page
     assert_redirected_to(:controller => 'home', :action => 'home')
@@ -63,6 +65,8 @@ class ChannelControllerTest < ActionController::TestCase
     chan = chans[0]
     
     assert_equal 'mail', chan.protocol
+    assert_equal 200, chan.priority
+    assert_equal app2.id, chan.application_id
     assert(chan.handler.authenticate('chan_pass'))
   end
   
@@ -86,6 +90,24 @@ class ChannelControllerTest < ActionController::TestCase
     get :update_channel, {:id => chan.id, :channel => {:protocol => '', :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => @account.id}
     
     assert_template "channel/edit_qst_server_channel.html.erb"
+  end
+  
+  test "disable channel re-routes" do
+    chan1 = Channel.make :qst_server, :account => @account
+    chan2 = Channel.make :qst_server, :account => @account
+    
+    app = Application.make :account => @account
+    msg = AOMessage.make :account => @account, :application => app, :channel => chan1, :state => 'queued'
+    
+    get :disable_channel, {:id => chan1.id}, {:account_id => @account.id}
+    
+    chan1.reload
+    chan2.reload
+    msg.reload
+    
+    assert_false chan1.enabled
+    assert_true chan2.enabled
+    assert_equal chan2.id, msg.channel_id
   end
 
 end

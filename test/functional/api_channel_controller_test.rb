@@ -146,12 +146,14 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
     
     test "update #{format} channel succeeds" do
-      chan = Channel.make :account => @account, :application => @application, :priority => 20
-      update chan.name, Channel.new(:protocol => 'foobar', :priority => nil), format
+      chan = Channel.make :account => @account, :application => @application, :priority => 20, :address => 'sms://1'
+      update chan.name, Channel.new(:protocol => 'foobar', :priority => nil, :enabled => false, :address => 'sms://2'), format
       chan.reload
       
       assert_equal 'foobar', chan.protocol
       assert_equal 20, chan.priority
+      assert_equal false, chan.enabled
+      assert_equal 'sms://2', chan.address
     end
     
     test "update #{format} channel configuration succeeds" do

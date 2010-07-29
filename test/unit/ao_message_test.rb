@@ -107,6 +107,31 @@ class AOMessageTest < ActiveSupport::TestCase
     assert_equal 'movistar', msg.carrier
   end
   
+  test "infer from mobile numbers" do
+    country = Country.make :iso2 => 'ar', :phone_prefix => '0'
+    carrier = Carrier.make :country => country, :guid => 'personal'
+    mob = MobileNumber.create! :number => '1234', :country => country, :carrier => carrier
+    
+    msg = AOMessage.new :to => 'sms://1234'
+    msg.infer_custom_attributes
+    
+    assert_equal country.iso2, msg.country
+    assert_equal carrier.guid, msg.carrier
+  end
+  
+  test "infer partially from mobile numbers" do
+    country = Country.make :iso2 => 'ar', :phone_prefix => '0'
+    carrier = Carrier.make :country => country, :guid => 'personal'
+    mob = MobileNumber.create! :number => '1234', :carrier => carrier
+    
+    msg = AOMessage.new :to => 'sms://1234'
+    msg.country = 'ar'
+    msg.infer_custom_attributes
+    
+    assert_equal country.iso2, msg.country
+    assert_equal carrier.guid, msg.carrier
+  end
+  
   ['failed', 'confirmed', 'delivered'].each do |state|
     test "delivery ack when #{state}" do
       account = Account.make

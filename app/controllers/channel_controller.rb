@@ -26,6 +26,7 @@ class ChannelController < AccountAuthenticatedController
     @channel.priority = chan[:priority]
     @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
     @channel.restrictions = get_custom_attributes
+    @channel.ao_rules = get_rules :aorules
     @channel.at_rules = get_rules :atrules
     
     @channel.check_valid_in_ui
@@ -54,6 +55,7 @@ class ChannelController < AccountAuthenticatedController
     @channel.handler.update(chan)
     @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
     @channel.restrictions = get_custom_attributes
+    @channel.ao_rules = get_rules :aorules
     @channel.at_rules = get_rules :atrules
     
     @channel.check_valid_in_ui
@@ -89,10 +91,10 @@ class ChannelController < AccountAuthenticatedController
     other_channels = @account.channels.select{|c| c.enabled && c.protocol == @channel.protocol && @channel.is_outgoing?}
     
     if !other_channels.empty?
-      queued_messages = AOMessage.all(:conditions => ['channel_id = ? AND state = ?', @channel.id, 'queued'])
+      queued_messages = AOMessage.all :conditions => ['channel_id = ? AND state = ?', @channel.id, 'queued'], :include => :application
       requeued_messages_count = queued_messages.length
       queued_messages.each do |msg|
-        @account.route_ao msg, 'user'
+        msg.application.route_ao msg, 'user' if msg.application
       end
     end
     

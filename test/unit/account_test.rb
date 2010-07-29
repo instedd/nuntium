@@ -74,10 +74,51 @@ class AccountTest < ActiveSupport::TestCase
     
     as = AddressSource.all
     assert_equal 1, as.length
-    assert_equal msg.from.mobile_number, as[0].address
+    assert_equal msg.from, as[0].address
     assert_equal @account.id, as[0].account_id
     assert_equal @app.id, as[0].application_id
     assert_equal @chan.id, as[0].channel_id
+  end
+  
+  test "route at saves update updated_at for same channel" do
+    previous_date = (Time.now - 10)
+    msg = ATMessage.make_unsaved
+    
+    AddressSource.create! :address => msg.from, :account_id => @account.id, :application_id => @app.id, :channel_id => @chan.id, :updated_at => previous_date
+    
+    @account.route_at msg, @chan 
+  
+    as = AddressSource.all
+    assert_equal 1, as.length
+    
+    assert_equal msg.from, as[0].address
+    assert_equal @account.id, as[0].account_id
+    assert_equal @app.id, as[0].application_id
+    assert_equal @chan.id, as[0].channel_id
+    assert as[0].updated_at > previous_date
+  end
+  
+   test "route at saves many last channels" do
+    chan2 = Channel.make :account => @account
+   
+    msg1 = ATMessage.make_unsaved :from => 'sms://1234'
+    @account.route_at msg1, @chan
+    
+    msg2 = ATMessage.make_unsaved :from => 'sms://1234'
+    @account.route_at msg2, chan2
+    
+    as = AddressSource.all
+    assert_equal 2, as.length
+    
+    assert_equal msg1.from, as[0].address
+    assert_equal @account.id, as[0].account_id
+    assert_equal @app.id, as[0].application_id
+    assert_equal @chan.id, as[0].channel_id
+    
+    assert_equal msg2.from, as[1].address
+    assert_equal @account.id, as[1].account_id
+    assert_equal @app.id, as[1].application_id
+    assert_equal chan2.id, as[1].channel_id
   end
   
   test "route at does not save last channel if it's not bidirectional" do

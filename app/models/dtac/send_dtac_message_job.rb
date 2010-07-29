@@ -8,15 +8,15 @@ class SendDtacMessageJob < SendMessageJob
   
     response = Net::HTTP.post_form(
       URI.parse('http://corpsms.dtac.co.th/servlet/com.iess.socket.SmsCorplink'), {
-        'RefNo'=>(0...14).map{ ('a'..'z').to_a[rand(26)] }.join, #HACK: DTAC supports only 15 chars for ID, we need to figure out what to use
-        'Msn'=>@msg.to.without_protocol,
-        'Sno'=>config[:sno],
-        'Sender'=>config[:sno],
-        'Msg'=>encoded.to_s,
-        'Encoding'=>25,
-        'MsgType'=>'H',
-        'User' =>  config[:user],
-        'Password' => config[:password]})
+        'RefNo' => (0...14).map{ ('a'..'z').to_a[rand(26)] }.join, #HACK: DTAC supports only 15 chars for ID, we need to figure out what to use
+        'Msn' => @msg.to.without_protocol,
+        'Sno' => @msg.from.without_protocol,
+        'Sender' => @msg.from.without_protocol,
+        'Msg' => encoded.to_s,
+        'Encoding' => 25,
+        'MsgType' => 'H',
+        'User' => @config[:user],
+        'Password' => @config[:password]})
         
     if response.code[0,1] == "2" # HTTP OK
       # we have to check the status value, 0 means success
