@@ -174,6 +174,8 @@ class Application < ActiveRecord::Base
     last_channel = get_last_channel msg.to, channels
     return [last_channel] if last_channel
     
+    channels.sort!{|x, y| (x.priority || 100) <=> (y.priority || 100)}
+    
     return channels
   end
   
