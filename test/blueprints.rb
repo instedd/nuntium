@@ -88,7 +88,7 @@ end
 
 Channel.blueprint :dtac do
   kind { "dtac" }
-  configuration { {:user => Sham.username, :password => Sham.password, :sno => Sham.guid } }
+  configuration { {:user => Sham.username, :password => Sham.password } }
 end
 
 [[:pop3, Channel::Incoming], [:smtp, Channel::Outgoing]].each do |k, d|

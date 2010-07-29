@@ -18,10 +18,6 @@
     <%= c.password_field :password, :autocomplete => :off, :value => @channel[:configuration][:password] %>
     </p>
     <p>
-    <%= c.label :sno %><br/>
-    <%= c.text_field :sno, :value => @channel[:configuration][:sno] %>
-    </p>
-    <p>
     Callback urls for incoming messages:<br/>
     <code>/dtac/<%= @account.name %>/incoming</code><br/>
     <code>/dtac/<%= @account.id %>/incoming</code>
