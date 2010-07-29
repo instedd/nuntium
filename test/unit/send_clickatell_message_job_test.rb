@@ -13,7 +13,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain', 
       :body => 'ID: msgid')
       
-    msg = AOMessage.make :account => Account.make, :channel => @chan
+    msg = AOMessage.make :account => Account.make, :channel => @chan, :guid => '1-2'
     
     expect_rest msg, response    
     assert (deliver msg)
@@ -75,7 +75,8 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :from => @chan.configuration[:from],
       :mo => '1',
       :to => msg.to.without_protocol,
-      :text => msg.subject_and_body
+      :text => msg.subject_and_body,
+      :climsgid => msg.guid.gsub('-', ''),
     }
     
     Clickatell.expects(:send_message).with(params).returns(response)

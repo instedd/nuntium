@@ -37,6 +37,7 @@ class SendClickatellMessageJob < SendMessageJob
       params[:text] = to_unicode_raw_string(@msg.subject_and_body)
       params[:unicode] = '1'
     end
+    params[:climsgid] = @msg.guid.gsub('-', '')
     params[:concat] = @config[:concat] unless @config[:concat].blank?
     params
   end
