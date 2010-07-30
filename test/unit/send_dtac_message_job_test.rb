@@ -16,7 +16,7 @@ class SendDtacMessageJobTest < ActiveSupport::TestCase
     msg = AOMessage.make :account => Account.make, :channel => @chan
     
     expect_http_post msg, response    
-    assert (deliver msg)
+    assert_true (deliver msg)
     
     msg = AOMessage.first
     assert_equal 1, msg.tries

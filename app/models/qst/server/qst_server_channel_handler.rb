@@ -9,7 +9,7 @@ class QstServerChannelHandler < ChannelHandler
   end
   
   def authenticate(password)
-    @channel.configuration[:password] == hash(@channel.configuration[:salt], password)
+    @channel.configuration[:password] == hash(decoded_salt, password)
   end
   
   def check_valid
@@ -52,7 +52,7 @@ class QstServerChannelHandler < ChannelHandler
   def before_save
     return if !@channel.configuration[:salt].nil?
     @channel.configuration[:salt] = ActiveSupport::SecureRandom.base64(8)
-    @channel.configuration[:password] = hash @channel.configuration[:salt], @channel.configuration[:password]
+    @channel.configuration[:password] = hash decoded_salt, @channel.configuration[:password]
   end
   
   def clear_password
@@ -60,7 +60,11 @@ class QstServerChannelHandler < ChannelHandler
     @channel.configuration[:password] = nil
   end
   
+  def decoded_salt
+    Base64.decode64 @channel.configuration[:salt]
+  end
+  
   def hash(salt, password)
-    Base64.encode64(Digest::SHA1.digest(salt + Iconv.conv('ucs-2le', 'utf-8', password)))
+    Base64.encode64(Digest::SHA1.digest(salt + Iconv.conv('ucs-2le', 'utf-8', password))).strip
   end
 end

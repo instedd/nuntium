@@ -16,7 +16,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     msg = AOMessage.make :account => Account.make, :channel => @chan, :guid => '1-2'
     
     expect_rest msg, response    
-    assert (deliver msg)
+    assert_true (deliver msg)
     
     msg = AOMessage.first
     assert_equal 'msgid', msg.channel_relative_id
@@ -35,7 +35,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     msg = AOMessage.make :account => Account.make, :channel => @chan
     
     expect_rest msg, response 
-    assert (deliver msg)
+    assert_true (deliver msg)
     
     msg = AOMessage.first
     assert_equal 1, msg.tries

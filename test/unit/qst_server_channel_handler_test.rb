@@ -19,4 +19,8 @@ class QstServerChannelHandlerTest < ActiveSupport::TestCase
     assert @chan.handler.authenticate('foo')
     assert_false @chan.handler.authenticate('foo2')
   end
+  
+  test "should update" do
+    assert @chan.save
+  end
 end
