@@ -12,6 +12,8 @@ class SendSmppMessageJob
     channel = account.find_channel @channel_id
     msg = AOMessage.find @message_id
     
+    return if msg.state != 'queued' or msg.channel_id != @channel_id
+    
     from = msg.from.without_protocol
     to = msg.to.without_protocol
     sms = msg.subject_and_body

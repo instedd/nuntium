@@ -38,7 +38,7 @@ class SendDtacMessageJob < SendMessageJob
     else
       raise response.body
     end
-    :success
+    true
   end
   
 end
