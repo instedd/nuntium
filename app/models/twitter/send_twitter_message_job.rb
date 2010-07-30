@@ -5,6 +5,8 @@ class SendTwitterMessageJob < SendMessageJob
     @msg.channel_relative_id = response.id
     @msg.send_succeeed @account, @channel
     true
+  rescue Twitter::General => ex
+    raise MessageException.new(ex)
   rescue Twitter::NotFound => ex
     raise MessageException.new(ex)
   rescue Twitter::Unauthorized => ex
