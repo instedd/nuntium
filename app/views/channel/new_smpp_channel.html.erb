@@ -75,7 +75,7 @@
 		</p>
 		<p>
 		<%= c.label 'MT CSMS method:' %><br/>
-		<%= c.select :mt_csms_method, options_for_select([['UDH', 'udh'], ['Optional parameters', 'optional_parameters'], ['Message payload', 'message_paylod']], @channel.configuration[:mt_csms_method]) %>
+		<%= c.select :mt_csms_method, options_for_select([['UDH', 'udh'], ['Optional parameters', 'optional_parameters'], ['Message payload', 'message_payload']], @channel.configuration[:mt_csms_method]) %>
 		</p>
 	<% end %>
 	<%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} %>
