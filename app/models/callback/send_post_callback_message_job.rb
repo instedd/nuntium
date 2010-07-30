@@ -1,3 +1,5 @@
+require 'cgi'
+
 class SendPostCallbackMessageJob
   attr_accessor :account_id, :application_id, :message_id
 
@@ -15,11 +17,11 @@ class SendPostCallbackMessageJob
 
     data = { 
       :application => app.name, 
-      :from => msg.from,
-      :to => msg.to, 
-      :subject => msg.subject, 
-      :body => msg.body, 
-      :guid => msg.guid,
+      :from => encode(msg.from),
+      :to => encode(msg.to), 
+      :subject => encode(msg.subject), 
+      :body => encode(msg.body), 
+      :guid => encode(msg.guid),
       :channel => msg.channel.name 
     }
 
@@ -50,6 +52,11 @@ class SendPostCallbackMessageJob
         account.logger.error :at_message_id => @message_id, :message => "HTTP POST callback failed #{res.error!}"
         raise res.error!
     end
+  end
+  
+  def encode(str)
+    str = CGI.escape(str) if str
+    str
   end
 
   def to_s

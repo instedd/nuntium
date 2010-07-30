@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'cgi'
 
 class SendPostCallbackMessageJobTest < ActiveSupport::TestCase
   def setup
@@ -7,12 +8,12 @@ class SendPostCallbackMessageJobTest < ActiveSupport::TestCase
     @msg = ATMessage.make :account => @application.account, :application => @application, :channel => @chan
     @query = { 
       :application => @application.name, 
-      :from => @msg.from,
-      :to => @msg.to, 
-      :subject => @msg.subject, 
-      :body => @msg.body, 
-      :guid => @msg.guid,
-      :channel => @chan.name 
+      :from => CGI.escape(@msg.from),
+      :to => CGI.escape(@msg.to), 
+      :subject => CGI.escape(@msg.subject), 
+      :body => CGI.escape(@msg.body), 
+      :guid => CGI.escape(@msg.guid),
+      :channel => @chan.name
     }
   end
   
