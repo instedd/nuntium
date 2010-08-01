@@ -166,7 +166,7 @@ class SmppGateway < SmppTransceiverDelegate
     if header
       header.ack
     else
-      Rails.logger.error "Pending header not found for message id: #{mt_message_id}"
+      Rails.logger.error "Pending header not found for message id: #{message_id}"
     end
   end
   
