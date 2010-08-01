@@ -222,15 +222,12 @@ class Application < ActiveRecord::Base
   configuration_accessor :last_ao_guid
   
   def use_address_source?
-    configuration[:use_address_source] || true
+    v = configuration[:use_address_source]
+    v.nil? || v == true || v == 1 || v == '1' || v == 'true'  
   end
   
   def use_address_source=(value)
-    if value
-      configuration[:use_address_source] = true
-    else
-      configuration.delete :use_address_source
-    end
+    configuration[:use_address_source] = value == true || value == '1' || value == 1 || value == 'true'
   end
   
   def strategy_description

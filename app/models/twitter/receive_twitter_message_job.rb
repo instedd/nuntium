@@ -99,8 +99,12 @@ class ReceiveTwitterMessageJob
     # For each: follow them and send welcome message
     has_welcome_message = !@config[:welcome_message].blank?
     new_followers.each do |follower|
-      @client.friendship_create(follower, true)
-      @client.direct_message_create(follower, @config[:welcome_message]) if has_welcome_message
+      begin
+        @client.friendship_create(follower, true)
+        @client.direct_message_create(follower, @config[:welcome_message]) if has_welcome_message
+      rescue Twitter::General => ex
+        # TODO do something?
+      end
       return if not has_quota?
     end
   end

@@ -224,14 +224,14 @@ function channel_custom_attribute_changed(select) {
     break;
   case 'application':
     var html = ' = ';
-    html += applications_select();
+    html += applications_select('custom_attribute_value[]');
     if (show_accept_when_not_specified_option) html += ' &nbsp; ' + accept_when_not_specified_checkbox(true);
     html += ' &nbsp; ' + remove_custom_attribute_link();
     li_value.html(html);
     break;
   case 'suggested_channel':
     var html = ' = ';
-    html += channels_select();
+    html += channels_select('custom_attribute_value[]');
     if (show_accept_when_not_specified_option) html += ' &nbsp; ' + accept_when_not_specified_checkbox();
     html += ' &nbsp; ' + remove_custom_attribute_link();
     li_value.html(html);
@@ -297,7 +297,7 @@ function channel_custom_attribute_country_changed(select) {
   
   get_carriers(country, {
     success: function(carriers) {
-      li_value2.html(carriers_select(carriers));
+      li_value2.html(carriers_select(carriers, 'custom_attribute_value[]'));
     },
     error: function() {
       li_value2.html('An error happened :-(');
@@ -334,17 +334,27 @@ function get_carriers(country_id, map) {
   });
 }
 
-function applications_select() {
-  return custom_select(applications, 'Select an application...');
+function get_carrier(carrier_id, map) {
+  $.ajax({
+    type: "GET",
+    url: '/api/carriers/' + carrier_id + '.json',
+    dataType: 'json', 
+    success: map.success,
+    error: map.error,
+  });
 }
 
-function channels_select() {
-  return custom_select(channels, 'Select a channel...');
+function applications_select(name) {
+  return custom_select(applications, 'Select an application...', name);
 }
 
-function custom_select(objects, title) {
+function channels_select(name) {
+  return custom_select(channels, 'Select a channel...', name);
+}
+
+function custom_select(objects, title, name) {
   var html = '';
-  html += '<select name="custom_attribute_value[]">';
+  html += '<select name="' + name + '">';
   html += '<option value="">' + title + '</option>';
   for(var i = 0; i < objects.length; i++) {
     html += '<option>' + objects[i] + '</option>';
@@ -368,9 +378,9 @@ function countries_select(countries, name, onchange) {
   return html;
 }
 
-function carriers_select(carriers) {
+function carriers_select(carriers, name) {
   var html = '';
-  html += '<select name="custom_attribute_value[]">';
+  html += '<select name="' + name + '">';
   html += '<option value="">Select a carrier...</option>';
   for(var i = 0; i < carriers.length; i++) {
     html += '<option value="' + carriers[i].guid + '">' + carriers[i].name + '</option>';
@@ -416,7 +426,7 @@ function add_rule_ui(ctx, prefix, rule) {
 		// load existing actions
 		jQuery(rule.actions).each(function(_, action){
 			add_action_ui(rule_id, add_action, rule_prefix, action);
-		})
+		});
 		// load stop value
 		if (rule.stop) {
 			jQuery('input:checkbox', row).val(['yes']);
@@ -432,18 +442,21 @@ function add_matching_ui(rule_id, add_matching, prefix, matching) {
 	
 	// fill matching ui
 	var name_prefix = prefix + '[matchings][' + matching_id + ']';
-	matching_ui.append('<input type="text" name="' + name_prefix +'[property]"/>');
-	matching_ui.append('<select name="' + name_prefix +'[operator]"><option value="equals">equals</option><option value="not_equals">not equals</option><option value="starts_with">starts with</option><option value="regex">regex</option></select>');
-	matching_ui.append('<input type="text" name="' + name_prefix +'[value]"/>');
+	matching_ui.append('<span class="property"><select name="' + name_prefix +'[property]"><option value="application">Application</option><option value="country">Country</option><option value="carrier">Carrier</option><option value="other">Other...</option></select></span>');
+	matching_ui.append('<select class="operator" name="' + name_prefix +'[operator]"><option value="equals">equals</option><option value="not_equals">not equals</option><option value="starts_with">starts with</option><option value="regex">regex</option></select>');
+	matching_ui.append('<span class="value"><input type="text" name="' + name_prefix +'[value]"/></span>');
 	matching_ui.append('<a href="#" class="remove-matching">[x]</a>');
 	
 	jQuery('.remove-matching', matching_ui).click(function(){ matching_ui.remove(); return false; });
 	
-	// fill matching values
+	var property = jQuery('select:first', matching_ui);
+	var propertyDiv = jQuery('.property', matching_ui);
+	var valueDiv = jQuery('.value', matching_ui);
+	var operatorSelect = jQuery('.operator', matching_ui);
+	
+	init_properties(name_prefix, property, propertyDiv, valueDiv, operatorSelect);
 	if (matching != null) {
-		jQuery('input:first', matching_ui).val(matching.property);
-		jQuery('select', matching_ui).val(matching.operator);
-		jQuery('input:last', matching_ui).val(matching.value);
+	  init_existing_property(matching, name_prefix, property, propertyDiv, valueDiv, operatorSelect);
 	}
 }
 
@@ -455,17 +468,20 @@ function add_action_ui(rule_id, add_action, prefix, action) {
 	
 	// fill action ui
 	var name_prefix = prefix + '[actions][' + action_id + ']';
-	action_ui.append('<input type="text" name="' + name_prefix +'[property]"/>');
+	action_ui.append('<span class="property"><select name="' + name_prefix +'[property]"><option value="application">Application</option><option value="country">Country</option><option value="carrier">Carrier</option><option value="other">Other...</option></select></span>');
 	action_ui.append(' = ');
-	action_ui.append('<input type="text" name="' + name_prefix +'[value]"/>');
+	action_ui.append('<span class="value"><input type="text" name="' + name_prefix +'[value]"/></span>');
 	action_ui.append('<a href="#" class="remove-action">[x]</a>');
 	
 	jQuery('.remove-action', action_ui).click(function(){ action_ui.remove(); return false; });
 	
-	// fil action values
+	var property = jQuery('select:first', action_ui);
+	var propertyDiv = jQuery('.property', action_ui);
+	var valueDiv = jQuery('.value', action_ui);
+	
+	init_properties(name_prefix, property, propertyDiv, valueDiv);
 	if (action != null) {
-		jQuery('input:first', action_ui).val(action.property);
-		jQuery('input:last', action_ui).val(action.value);
+	  init_existing_property(action, name_prefix, property, propertyDiv, valueDiv);
 	}
 }
 
@@ -487,4 +503,143 @@ function init_rules(ctx, prefix, rules) {
 	}
 }
 
+function init_properties(name_prefix, property, propertyDiv, valueDiv, operatorSelect) {
+  var propertyChangedFunction = function(property) {
+	  var val = property.val();
+	  switch(val) {
+	  case 'application':
+	    init_property_application(name_prefix, valueDiv, operatorSelect);
+	    break;
+	  case 'country':
+	    init_property_country(name_prefix, valueDiv, operatorSelect);
+	    break;
+    case 'carrier':
+      init_property_carrier(name_prefix, valueDiv, operatorSelect);
+      break;
+	  case 'other':
+	    init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect);
+	    break;
+	  }
+	};
+	property.change(function() { propertyChangedFunction(jQuery(this))});
+	propertyChangedFunction(property);
+}
 
+function init_property_application(name_prefix, valueDiv, operatorSelect, existing) {
+  if (operatorSelect) {
+    operatorSelect.html(op_equals_not_equals());
+    if (existing) operatorSelect.val(existing.operator);
+  }
+	valueDiv.html(applications_select(name_prefix + '[value]'));
+	if (existing) {
+	  jQuery('select', valueDiv).val(existing.value);
+	}
+}
+
+function init_property_country(name_prefix, valueDiv, operatorSelect, existing) {
+  if (operatorSelect) {
+    operatorSelect.html(op_equals_not_equals());
+    if (existing) operatorSelect.val(existing.operator);
+  }
+  get_countries({
+    success: function(countries) {
+      valueDiv.html(countries_select(countries, name_prefix + '[value]'));
+      if (existing) {
+	      jQuery('select', valueDiv).val(existing.value);
+	    }
+    },
+    error: function() {
+      alert('An error happened while retreiving countries :-(');
+    }
+  });
+}
+
+function init_property_carrier(name_prefix, valueDiv, operatorSelect, existing) {
+  if (operatorSelect) {
+    operatorSelect.html(op_equals_not_equals());
+    if (existing) operatorSelect.val(existing.operator);
+  }
+  get_countries({
+    success: function(countries) {
+      valueDiv.html(countries_select(countries, 'dummy'));
+      var countriesSelect = jQuery('select:first', valueDiv);
+      var countriesSelectChange = function() {
+        var countryId = countriesSelect.val();
+        if (countryId) {
+          get_carriers(countriesSelect.val(), {
+            success: function(carriers) {
+              var selects = jQuery('select', valueDiv);
+              if (selects.length == 2) {
+                jQuery('select:last', valueDiv).remove();
+              }
+              valueDiv.append(carriers_select(carriers, name_prefix + '[value]'));
+              if (existing) {
+                jQuery('select:last', valueDiv).val(existing.value);
+              }
+            },
+            error: function() {
+              alert('An error happened while retreiving carriers :-(');
+            }
+          });
+        } else {
+          jQuery('select:last', valueDiv).remove();
+        }
+      };
+      
+      countriesSelect.change(function() { countriesSelectChange() });
+      if (existing) {
+        get_carrier(existing.value, {
+          success: function(carrier) {
+            countriesSelect.val(carrier.country_iso2);
+            countriesSelectChange(countriesSelect);
+          },
+          error: function() {
+            alert('An error happened while retreiving a carrier :-(');
+          }
+        });
+      }
+    },
+    error: function() {
+      alert('An error happened while retreiving countries :-(');
+    }
+  });
+}
+
+function init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect, existing) {
+  propertyDiv.html('<input type="text" name="' + name_prefix +'[property]"/>');
+  operatorSelect.html(op_all());
+  valueDiv.html('<input type="text" name="' + name_prefix +'[value]"/>');
+  
+  if (existing) {
+    jQuery('input', propertyDiv).val(existing.property);
+    jQuery('input', valueDiv).val(existing.value);
+    operatorSelect.val(existing.operator);
+  }
+} 
+
+function init_existing_property(existing, name_prefix, property, propertyDiv, valueDiv, operatorSelect) {
+  property.val(existing.property);
+  switch(existing.property) {
+  case 'application':
+    init_property_application(name_prefix, valueDiv, operatorSelect, existing);
+    break;
+  case 'country':
+    init_property_country(name_prefix, valueDiv, operatorSelect, existing);
+    break;
+  case 'carrier':
+    init_property_carrier(name_prefix, valueDiv, operatorSelect, existing);
+    break;
+  default:
+    jQuery('input', propertyDiv).val(existing.property);
+    init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect, existing);
+    break;
+  }
+}
+
+function op_equals_not_equals() {
+  return '<option value="equals">equals</option><option value="not_equals">not equals</option>';
+}
+
+function op_all() {
+  return '<option value="equals">equals</option><option value="not_equals">not equals</option><option value="starts_with">starts with</option><option value="regex">regex</option>';
+}
