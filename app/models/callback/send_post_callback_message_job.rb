@@ -1,5 +1,3 @@
-require 'cgi'
-
 class SendPostCallbackMessageJob
   attr_accessor :account_id, :application_id, :message_id
 
@@ -17,11 +15,11 @@ class SendPostCallbackMessageJob
 
     data = { 
       :application => app.name, 
-      :from => encode(msg.from),
-      :to => encode(msg.to), 
-      :subject => encode(msg.subject), 
-      :body => encode(msg.body), 
-      :guid => encode(msg.guid),
+      :from => msg.from,
+      :to => msg.to, 
+      :subject => msg.subject, 
+      :body => msg.body, 
+      :guid => msg.guid,
       :channel => msg.channel.name 
     }
 
