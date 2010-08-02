@@ -607,13 +607,17 @@ function init_property_carrier(name_prefix, valueDiv, operatorSelect, existing) 
 
 function init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect, existing) {
   propertyDiv.html('<input type="text" name="' + name_prefix +'[property]"/>');
-  operatorSelect.html(op_all());
+  if (operatorSelect) {
+    operatorSelect.html(op_all());
+  }
   valueDiv.html('<input type="text" name="' + name_prefix +'[value]"/>');
   
   if (existing) {
     jQuery('input', propertyDiv).val(existing.property);
     jQuery('input', valueDiv).val(existing.value);
-    operatorSelect.val(existing.operator);
+    if (operatorSelect) {
+      operatorSelect.val(existing.operator);
+    }
   }
 } 
 
@@ -630,7 +634,6 @@ function init_existing_property(existing, name_prefix, property, propertyDiv, va
     init_property_carrier(name_prefix, valueDiv, operatorSelect, existing);
     break;
   default:
-    jQuery('input', propertyDiv).val(existing.property);
     init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect, existing);
     break;
   }
