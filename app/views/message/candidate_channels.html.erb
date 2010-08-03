@@ -8,4 +8,4 @@ No candidate channel for the given message.
 <% end %>
 </div>
 
-<%= render :partial => 'message' %>
+<%= render :partial => 'message', :locals => {:msg => @msg, :title => 'Message'} %>

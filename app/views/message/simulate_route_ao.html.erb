@@ -1,17 +1,25 @@
-<h4><%= link_to_function 'Route simulation', "toggle('route_simulation')" %></h4>
+<h4>Route simulation</h4>
 
-<div id="route_simulation">
-<% if @channels %>
-  <% if @channels.size > 1 %>
-    All of these channels have the same priority:<br/>
-    <div style="margin:10px"><%= @channels.map(&:name).join ', ' %></div>
-    and <b><%= @channel.name %></b> was chosen randomly between them.   
-  <% else %>
-    <%= @channel.name %>
+<% if @strategy == 'broadcast' %>
+  <div>Message was broadcasted.</div>
+  <% i = 0 %>
+  <% @messages.each do |msg| %>
+    <%= render :partial => 'message', :locals => {:msg => msg, :title => (i == 0 ? 'Original copy' : "Broadcasted copy #{i}")} %>
+    <% i += 1 %>
   <% end %>
 <% else %>
-  No channel for the given message.
+  <div id="route_simulation">
+  <% if @channels %>
+    <% if @channels.size > 1 %>
+      All of these channels have the same priority:<br/>
+      <div style="margin:10px"><%= @channels.map(&:name).join ', ' %></div>
+      and <b><%= @channel.name %></b> was chosen randomly between them.   
+    <% else %>
+      <%= @channel.name %>
+    <% end %>
+  <% else %>
+    No channel for the given message.
+  <% end %>
+  </div>
+  <%= render :partial => 'message', :locals => {:msg => @msg, :title => 'Details'} %>
 <% end %>
-</div>
-
-<%= render :partial => 'message' %>

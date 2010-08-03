@@ -108,34 +108,89 @@ class Application < ActiveRecord::Base
     self.route_ao msg, 're-route'
   end
   
-  # Simulates routing a message. Returns a hash with:
-  #  - channels: all the channels that were candidates (have the same priority, but
-  #              one of the was chosen randomly)
-  #  - channel: the channel, if any
+  # Simulates routing a message.
+  #
+  # If the message was routed using the single priority strategy it returns a hash:
+  #  - :strategy => single_priority
+  #  - :channels => all the channels that were candidates (have the same priority, but
+  #                 one of the was chosen randomly)
+  #  - :channel  => the channel, if any
+  #
+  # If the message was routed using broadcast, it returns a hash:
+  #  - :strategy => broadcast
+  #  - :messages => the list of messages (original and copies)
+  #
   # Might return nil if there are no candidate channels for the message
   def simulate_route_ao(msg)
+    msg.guid ||= Guid.new.to_s
+  
+    # Fill some fields
+    fill_common_message_properties msg
+    
+    # Find protocol of message (based on "to" field)
+    protocol = msg.to.nil? ? '' : msg.to.protocol
+    return nil if protocol == ''
+  
     # Get the list of candidate channels
     channels = candidate_channels_for_ao msg
     
+    # Failed if no chanenl
     if channels.empty?
       msg.state = 'failed'
       return nil
     end
     
-    # Select channels with less or equal priority than the other channels
-    channels = channels.select{|c| channels.all?{|x| (c.priority || 100) <= (x.priority || 100) }}
+    # Route to the only channel if that's the case
+    if channels.length == 1
+      channel = channels[0] 
     
-    # Select a random channel to handle the message
-    channel = channels.rand
+      # Apply AO rules
+      channel.apply_ro_rules msg
+      
+      # Assign channel and state
+      msg.channel = channel
+      msg.state = 'queued'
+      
+      return {:strategy => 'single_priority', :channels => channels, :channel => channel}
+    end
     
-    # Apply AO rules
-    channel.apply_ro_rules msg
+    # Or route according to a strategy
+    final_strategy = msg.strategy || strategy
+    if final_strategy == 'broadcast'
+      msgs = [msg]
     
-    # Assign channel and state
-    msg.channel = channel
-    msg.state = 'queued'
-    
-    {:channels => channels, :channel => channel}
+      msg.state = 'broadcasted'
+      
+      channels.each do |channel|
+        copy = msg.clone
+        copy.state = 'queued'
+        copy.channel = channel
+        copy.guid = Guid.new.to_s
+        copy.parent_id = msg.id
+        
+        # Apply AO rules
+        channel.apply_ro_rules copy
+        
+        msgs << copy
+      end
+      
+      return {:strategy => 'broadcast', :messages => msgs}
+    else
+      # Select channels with less or equal priority than the other channels
+      channels = channels.select{|c| channels.all?{|x| (c.priority || 100) <= (x.priority || 100) }}
+      
+      # Select a random channel to handle the message
+      channel = channels.rand
+      
+      # Apply AO rules
+      channel.apply_ro_rules msg
+      
+      # Assign channel and state
+      msg.channel = channel
+      msg.state = 'queued'
+      
+      return {:strategy => 'single_priority', :channels => channels, :channel => channel}
+    end
   end
   
   def route_at(msg, via_channel)

@@ -39,15 +39,6 @@ class MessageController < AccountAuthenticatedController
     redirect_to_home "AT Message was created with id <a href=\"/message/at/#{msg.id}\" onclick=\"window.open(this.href,'log','width=640,height=480,scrollbars=yes');return false;\">#{msg.id}</a>"
   end
   
-  def candidate_channels
-    @msg = create_message AOMessage
-    
-    application = @account.find_application params[:message][:application_id]
-    return redirect_to_home unless application
-    
-    @channels = application.candidate_channels_for_ao @msg
-  end
-  
   def simulate_route_ao
     @msg = create_message AOMessage
     
@@ -56,8 +47,10 @@ class MessageController < AccountAuthenticatedController
     
     result = application.simulate_route_ao @msg
     if result
+      @strategy = result[:strategy]
       @channels = result[:channels]
       @channel = result[:channel]
+      @messages = result[:messages]
     end
   end
   
