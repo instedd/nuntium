@@ -17,6 +17,16 @@
   <%= f.password_field :password_confirmation, :value => '', :autocomplete => :off %>
   </p>
   <hr />
+  
+  <%
+  # Write the applications in javascript so we can fill the combobox without
+  # going to the server...
+  applications = @account.applications.map(&:name).sort!
+  %>
+  <script type="text/javascript">
+  var applications = <%= applications.to_json %>;
+  </script>
+  
   <p>
 	<h5>App Routing Rules</h5>
 
