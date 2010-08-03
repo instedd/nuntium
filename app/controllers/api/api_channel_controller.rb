@@ -32,7 +32,14 @@ class ApiChannelController < ApiAuthenticatedController
       format.json { chan = Channel.from_json(data) } 
     end
     chan.account = @account
-    chan.application = @application
+    if @application
+      chan.application = @application
+    else
+      app_name = data[:application] || (data[:channel] && data[:channel][:application])
+      if app_name
+        chan.application = @account.find_application app_name
+      end
+    end
     save chan, 'creating'
   end
   
@@ -48,6 +55,11 @@ class ApiChannelController < ApiAuthenticatedController
       format.json { update = Channel.from_json(data) } 
     end
     chan.merge(update)
+    
+    new_app_name = data[:application] || (data[:channel] && data[:channel][:application])
+    if new_app_name
+      chan.application = @account.find_application new_app_name
+    end
     save chan, 'updating'
   end
   

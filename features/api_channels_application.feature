@@ -5,7 +5,7 @@ Should be able to manage the channels via a RESTful API
 
   Background:
     Given an account named "InsTEDD" exists
-      And an application named "GeoChat" belongs to the "InsTEDD" account
+      And an application named "GeoChat" belongs to the "InsTEDD" account      
       And the following Channel exists:
         | name                    | EmailChannel    |
         | kind                    | smtp            |

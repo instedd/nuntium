@@ -312,8 +312,6 @@ class Channel < ActiveRecord::Base
   
   def self.from_hash(hash, format)
     chan = Channel.new
-    chan.account = @account
-    chan.application = @application
     chan.name = hash[:name]
     chan.kind = hash[:kind]
     chan.protocol = hash[:protocol]
