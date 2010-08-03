@@ -1,5 +1,5 @@
-Feature: Manage the channels of a nuntium account via a RESTful API
-In order to manage the channels of a nuntium account remotely
+Feature: Manage the channels of a nuntium application via a RESTful API
+In order to manage the channels of a nuntium application remotely
 A website owner
 Should be able to manage the channels via a RESTful API
 

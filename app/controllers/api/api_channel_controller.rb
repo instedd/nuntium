@@ -39,7 +39,7 @@ class ApiChannelController < ApiAuthenticatedController
   # PUT /api/channels/:name.:format
   def update
     chan = @account.find_channel params[:name]
-    return head :bad_request unless chan and chan.application_id == @application.id
+    return head :bad_request unless chan and (@application.nil? || chan.application_id == @application.id)
   
     data = request.POST.present? ? request.POST : request.raw_post
     update = nil
@@ -54,7 +54,7 @@ class ApiChannelController < ApiAuthenticatedController
   # DELETE /api/channels/:name
   def destroy
     chan = @account.find_channel params[:name]
-    if chan and chan.application_id == @application.id
+    if chan and (@application.nil? || chan.application_id == @application.id)
       chan.destroy
       head :ok
     else
