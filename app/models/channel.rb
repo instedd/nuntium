@@ -38,8 +38,7 @@ class Channel < ActiveRecord::Base
   
   def route_ao(msg, via_interface)
     # Apply AO Rules
-    ao_routing_res = RulesEngine.apply(msg.rules_context, self.ao_rules)
-    msg.merge ao_routing_res
+    apply_ro_rules msg
   
     # Save the message
     msg.channel = self
@@ -52,6 +51,11 @@ class Channel < ActiveRecord::Base
     
     # Handle the message
     handle msg
+  end
+  
+  def apply_ro_rules(msg)
+    ao_routing_res = RulesEngine.apply(msg.rules_context, self.ao_rules)
+    msg.merge ao_routing_res
   end
   
   def can_route_ao?(msg)

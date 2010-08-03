@@ -108,6 +108,36 @@ class Application < ActiveRecord::Base
     self.route_ao msg, 're-route'
   end
   
+  # Simulates routing a message. Returns a hash with:
+  #  - channels: all the channels that were candidates (have the same priority, but
+  #              one of the was chosen randomly)
+  #  - channel: the channel, if any
+  # Might return nil if there are no candidate channels for the message
+  def simulate_route_ao(msg)
+    # Get the list of candidate channels
+    channels = candidate_channels_for_ao msg
+    
+    if channels.empty?
+      msg.state = 'failed'
+      return nil
+    end
+    
+    # Select channels with less or equal priority than the other channels
+    channels = channels.select{|c| channels.all?{|x| (c.priority || 100) <= (x.priority || 100) }}
+    
+    # Select a random channel to handle the message
+    channel = channels.rand
+    
+    # Apply AO rules
+    channel.apply_ro_rules msg
+    
+    # Assign channel and state
+    msg.channel = channel
+    msg.state = 'queued'
+    
+    {:channels => channels, :channel => channel}
+  end
+  
   def route_at(msg, via_channel)
     msg.application_id = self.id
   
