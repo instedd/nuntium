@@ -87,7 +87,7 @@ class MessageController < AccountAuthenticatedController
   def mark_messages_as_cancelled(kind)
     all = kind == AOMessage ? :ao_all : :at_all
   
-    if !params[all].nil? && params[all] == '1'
+    if params[all].to_b
       kind == AOMessage ? build_ao_messages_filter : build_at_messages_filter
       conditions = kind == AOMessage ? @ao_conditions : @at_conditions
       kind.update_all("state = 'cancelled'", conditions)
@@ -111,7 +111,7 @@ class MessageController < AccountAuthenticatedController
   
   def reroute_ao_messages
     msgs = []
-    if !params[:ao_all].nil? && params[:ao_all] == '1'
+    if params[:ao_all].to_b
       build_ao_messages_filter
       conditions = @ao_conditions
       msgs = AOMessage.all(:conditions => conditions)

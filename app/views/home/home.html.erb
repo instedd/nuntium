@@ -426,13 +426,13 @@ var total_at_messages = <%= @at_messages.total_entries %>;
 var current_at_messages = <%= @at_messages.length %>;
 
 <%
-if !params[:ao_all].nil? && params[:ao_all] == '1'
+if !params[:ao_all].nil? && params[:ao_all].to_b
   %>
   select_all_pages_ao_messages();
   <%
 end
 
-if !params[:at_all].nil? && params[:at_all] == '1'
+if !params[:at_all].nil? && params[:at_all].to_b
   %>
   select_all_pages_at_messages();
   <%

@@ -319,11 +319,11 @@ class Application < ActiveRecord::Base
   
   def use_address_source?
     v = configuration[:use_address_source]
-    v.nil? || v == true || v == 1 || v == '1' || v == 'true'  
+    v.nil? || v.to_b  
   end
   
   def use_address_source=(value)
-    configuration[:use_address_source] = value == true || value == '1' || value == 1 || value == 'true'
+    configuration[:use_address_source] = value.to_b
   end
   
   def strategy_description

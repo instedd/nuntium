@@ -22,7 +22,7 @@ module CustomAttributesControllerCommon
       name = custom_attribute_names[j]
       next unless name
       
-      if custom_attribute_options[i + 1] == '1'
+      if custom_attribute_options[i + 1].to_b
         custom_attributes.store_multivalue custom_attribute_names[j], ''
         i += 1
       end
