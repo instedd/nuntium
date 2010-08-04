@@ -7,7 +7,7 @@ class Channel < ActiveRecord::Base
   Outgoing = 2
   Bidirectional = Incoming + Outgoing
 
-  belongs_to :account, :touch => :updated_at
+  belongs_to :account
   belongs_to :application
   
   has_many :qst_outgoing_messages

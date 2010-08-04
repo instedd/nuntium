@@ -18,6 +18,7 @@ class Account < ActiveRecord::Base
   validates_numericality_of :max_tries, :only_integer => true, :greater_than_or_equal_to => 0
   
   before_save :hash_password
+  after_save :restart_channel_processes
   
   def self.find_by_id_or_name(id_or_name)
     account = self.find_by_id(id_or_name) if id_or_name =~ /\A\d+\Z/ or id_or_name.kind_of? Integer
@@ -142,6 +143,10 @@ class Account < ActiveRecord::Base
     self.salt = nil
     self.password = nil
     self.password_confirmation = nil
+  end
+  
+  def restart_channel_processes
+    channels.each { |x| x.handler.on_changed }
   end
   
   def to_s

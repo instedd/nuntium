@@ -29,6 +29,8 @@ class Application < ActiveRecord::Base
   before_destroy :clear_cache 
   after_save :clear_cache
   
+  after_save :restart_channel_processes
+  
   include(CronTask::CronTaskOwner)
   
   # Route an AOMessage.
@@ -453,6 +455,10 @@ class Application < ActiveRecord::Base
   def clear_cache
     Rails.cache.delete Application.cache_key(account_id)
     true
+  end
+  
+  def restart_channel_processes
+    account.restart_channel_processes
   end
   
   def self.cache_key(account_id)

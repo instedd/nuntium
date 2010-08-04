@@ -54,4 +54,26 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
     @chan.touch
   end
   
+  test "on account change touches" do
+    proc = mock('ManagedProcess')
+  
+    ManagedProcess.expects(:find_by_account_id_and_name).
+      with(@chan.account.id, "smpp_daemon #{@chan.name}").
+      returns(proc)
+    proc.expects(:touch)
+    
+    @chan.account.save!
+  end
+  
+  test "on application change touches" do
+    proc = mock('ManagedProcess')
+  
+    ManagedProcess.expects(:find_by_account_id_and_name).
+      with(@chan.account.id, "smpp_daemon #{@chan.name}").
+      returns(proc)
+    proc.expects(:touch)
+    
+    Application.make :account => @chan.account
+  end
+  
 end
