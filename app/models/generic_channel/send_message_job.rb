@@ -51,5 +51,9 @@ class SendMessageJob
   def managed_perform
     raise PermanentException.new(Exception.new("managed_perform method is not implemented for #{self.class.name}")) 
   end
-
+  
+  def to_s
+    "<#{self.class}:#{@message_id}>"
+  end
+  
 end
