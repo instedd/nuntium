@@ -14,10 +14,10 @@
     <tr>
       <td><%= time_ago log.created_at %></td>
       <td><%= log.severity_html %></td>
-      <td><%= log.message %></td>
+      <td><%= log.message.gsub("\n", "<br/>") rescue '' %></td>
     </tr>
   <% end %>
 </table>
 </div>
 
-<%= render :partial => 'message', :locals => {:msg => @msg, :title => 'Message'} %>
+<%= render :partial => 'message', :locals => {:msg => @msg, :title => 'Message', :log => nil} %>

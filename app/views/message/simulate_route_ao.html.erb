@@ -4,22 +4,17 @@
   <div>Message was broadcasted.</div>
   <% i = 0 %>
   <% @messages.each do |msg| %>
-    <%= render :partial => 'message', :locals => {:msg => msg, :title => (i == 0 ? 'Original copy' : "Broadcasted copy #{i}")} %>
+    <%= render :partial => 'message', :locals => {:msg => msg, :title => (i == 0 ? 'Original copy' : "Broadcasted copy #{i}"), :log => @logs[i]} %>
     <% i += 1 %>
   <% end %>
-<% else %>
+<% elsif @strategy == 'single_priority' %>
   <div id="route_simulation">
-  <% if @channels %>
-    <% if @channels.size > 1 %>
-      All of these channels have the same priority:<br/>
-      <div style="margin:10px"><%= @channels.map(&:name).join ', ' %></div>
-      and <b><%= @channel.name %></b> was chosen randomly between them.   
-    <% else %>
-      <%= @channel.name %>
-    <% end %>
-  <% else %>
-    No channel for the given message.
-  <% end %>
+  <%= @channel.name %>
   </div>
-  <%= render :partial => 'message', :locals => {:msg => @msg, :title => 'Details'} %>
+  <%= render :partial => 'message', :locals => {:msg => @msg, :title => 'Details', :log => @log} %>
+<% else %>
+   <div id="route_simulation">
+   No channel for the given message.
+   </div>
+   <%= render :partial => 'message', :locals => {:msg => @msg, :title => 'Details', :log => @log} %>
 <% end %>

@@ -63,9 +63,13 @@ module MessageCommon
       countries = Country.all.select{|x| number.start_with? x.phone_prefix}
       if countries.length > 0
         if countries.length == 1
+          ThreadLocalLogger << "Country #{countries[0].name} (#{countries[0].iso2}) was inferred from prefix"
           self.country = countries[0].iso2
         else
-          self.country = countries.map &:iso2
+          self.country = countries.map do |c|
+            ThreadLocalLogger << "Country #{c.name} (#{c.iso2}) was inferred from prefix"
+            c.iso2
+          end
         end
       end
     end
@@ -84,7 +88,10 @@ module MessageCommon
         cs.each do |carrier| 
           next unless carrier.prefixes.present?
           prefixes = carrier.prefixes.split ','
-          carriers << carrier if prefixes.any?{|p| number.start_with?(c.phone_prefix + p.strip)}
+          if prefixes.any?{|p| number.start_with?(c.phone_prefix + p.strip)}
+            ThreadLocalLogger << "Carrier #{carrier.name} was inferred from prefix"
+            carriers << carrier
+          end 
         end
       end
       
@@ -139,11 +146,19 @@ module MessageCommon
     attributes = attributes || {}
     
     ['from', 'to', 'subject', 'body'].each do |sym|
-      send "#{sym}=", attributes[sym] if attributes.has_key? sym
+      if attributes.has_key? sym
+        old = send sym
+        send "#{sym}=", attributes[sym]
+        ThreadLocalLogger << "'#{sym}' changed from '#{old}' to '#{attributes[sym]}'"
+      end 
     end
     
     other_attributes = attributes.reject { |k,v| ["from","to","subject","body"].include?(k) }
-    self[:custom_attributes] = self.custom_attributes.merge(other_attributes)
+    other_attributes.each do |key, value|
+      old = custom_attributes[key]
+      custom_attributes[key] = value
+      ThreadLocalLogger << "'#{key}' changed from '#{old}' to '#{value}'"
+    end
   end
 
   module ClassMethods

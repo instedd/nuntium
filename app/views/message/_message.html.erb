@@ -104,5 +104,11 @@
     end
   end 
   %>
+  <% if log.present? %>
+    <tr valign="baseline">
+      <td><b>Log:</b></td>
+      <td><%= log.gsub("\n", "<br/>") %></td>
+    </tr>
+  <% end %>
 </table>
 </div>

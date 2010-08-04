@@ -36,26 +36,33 @@ class Channel < ActiveRecord::Base
 
   include(CronTask::CronTaskOwner)
   
-  def route_ao(msg, via_interface)
+  def route_ao(msg, via_interface, options = {})
+    simulate = options[:simulate]
+  
+    ThreadLocalLogger << "Message routed to channel '#{name}'"
+  
     # Apply AO Rules
     apply_ro_rules msg
   
     # Save the message
     msg.channel = self
     msg.state = 'queued'
-    msg.save!
-    
-    # Do some logging
-    logger.ao_message_received msg, via_interface
-    logger.ao_message_handled_by_channel msg, self
-    
-    # Handle the message
-    handle msg
+    msg.save! unless simulate
+
+    unless simulate        
+      logger.info :application_id => msg.application_id, :channel_id => self.id, :ao_message_id => msg.id, :message => ThreadLocalLogger.result
+      
+      # Handle the message
+      handle msg
+    end
   end
   
   def apply_ro_rules(msg)
     ao_routing_res = RulesEngine.apply(msg.rules_context, self.ao_rules)
-    msg.merge ao_routing_res
+    if ao_routing_res.present?
+      ThreadLocalLogger << "Applying channel ao rules..."
+      msg.merge ao_routing_res
+    end
   end
   
   def can_route_ao?(msg)
@@ -184,7 +191,7 @@ class Channel < ActiveRecord::Base
   end
   
   def logger
-    account.logger
+    @logger = AccountLogger.new self.account_id
   end
   
   def to_xml(options = {})

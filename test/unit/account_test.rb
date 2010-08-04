@@ -49,7 +49,7 @@ class AccountTest < ActiveSupport::TestCase
     msg.custom_attributes['country'] = country.iso2
     msg.custom_attributes['carrier'] = carrier.guid
     
-    @account.route_at msg, nil
+    @account.route_at msg, @chan
     
     nums = MobileNumber.all
     assert_equal 1, nums.length
@@ -63,7 +63,7 @@ class AccountTest < ActiveSupport::TestCase
     msg.custom_attributes['country'] = ['ar', 'br']
     msg.custom_attributes['carrier'] = ['ABC123', 'XYZ']
     
-    @account.route_at msg, nil
+    @account.route_at msg, @chan
     
     assert_equal 0, MobileNumber.count
   end

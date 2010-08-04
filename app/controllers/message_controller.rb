@@ -34,7 +34,7 @@ class MessageController < AccountAuthenticatedController
     msg.timestamp = Time.new.utc
     
     channel = @account.find_channel params[:message][:channel_id]
-    @account.route_at msg, (channel || 'ui')
+    @account.route_at msg, channel
     
     redirect_to_home "AT Message was created with id <a href=\"/message/at/#{msg.id}\" onclick=\"window.open(this.href,'log','width=640,height=480,scrollbars=yes');return false;\">#{msg.id}</a>"
   end
@@ -45,13 +45,21 @@ class MessageController < AccountAuthenticatedController
     application = @account.find_application params[:message][:application_id]
     return redirect_to_home unless application
     
-    result = application.simulate_route_ao @msg
-    if result
-      @strategy = result[:strategy]
-      @channels = result[:channels]
-      @channel = result[:channel]
-      @messages = result[:messages]
-    end
+    result = application.route_ao @msg, 'ui', :simulate => true
+    
+    @strategy = result[:strategy]
+    @channels = result[:channels]
+    @channel = result[:channel]
+    @messages = result[:messages]
+    @log = result[:log]
+    @logs = result[:logs]
+  end
+  
+  def simulate_route_at
+    @msg = create_message ATMessage
+    
+    channel = @account.find_channel params[:message][:channel_id]
+    @log = @account.route_at @msg, channel, :simulate => true
   end
   
   def create_message(kind)
