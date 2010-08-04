@@ -18,4 +18,14 @@
   <p>
   <%= c.label :use_ssl %> <%= c.check_box :use_ssl, {:checked => @channel[:configuration][:use_ssl].to_b} %>
   </p>
+  <%
+  kind = @channel.new_record? ? params[:kind] : @channel.kind
+  if kind == 'pop3'
+    %>
+    <p>
+    <%= c.label :remove_quoted_text_or_text_after_first_empty_line %> <%= c.check_box :remove_quoted_text_or_text_after_first_empty_line, {:checked => @channel[:configuration][:remove_quoted_text_or_text_after_first_empty_line].to_b} %>
+    </p>
+    <%
+  end
+  %>
 <% end %>

@@ -15,6 +15,7 @@ class ReceivePop3MessageJob
     account = Account.find @account_id
     @channel = account.find_channel @channel_id
     config = @channel.configuration
+    remove_quoted = config[:remove_quoted_text_or_text_after_first_empty_line].to_b
     
     pop = Net::POP3.new(config[:host], config[:port].to_i)
     pop.enable_ssl(OpenSSL::SSL::VERIFY_NONE) if config[:use_ssl].to_b
@@ -39,6 +40,9 @@ class ReceivePop3MessageJob
         msg.to = "mailto://#{receiver}"
         msg.subject = tmail.subject
         msg.body = tmail_body
+        if remove_quoted
+          msg.body = ReceivePop3MessageJob.remove_quoted_text_or_text_after_first_empty_line msg.body
+        end
         msg.channel_relative_id = tmail.message_id
         msg.timestamp = tmail.date
         
@@ -53,6 +57,21 @@ class ReceivePop3MessageJob
   rescue => ex
     AccountLogger.exception_in_channel @channel, ex if @channel
   end
+  
+  def self.remove_quoted_text_or_text_after_first_empty_line(text)
+    result = ""
+    text.lines.each do |line|
+      line = line.strip
+      break if line.empty?
+      break if line.start_with? '>'
+      break if line.start_with?('On') && line.end_with?(':')
+      result << line
+      result << "\n" 
+    end
+    result.strip
+  end
+  
+  private
   
   def get_body(tmail)
     # Not multipart? Return body as is.
