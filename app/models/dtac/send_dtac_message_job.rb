@@ -23,7 +23,8 @@ class SendDtacMessageJob < SendMessageJob
       values = {};
     
       # split the body and put the key-value pairs in a hash
-      array = response.read_body.split("\n")
+      response_body = response.read_body 
+      array = response_body.split("\n")
       array.each { |e| 
         ar = e.split("=")
         values[ar[0]] = ar[1]  
@@ -33,7 +34,12 @@ class SendDtacMessageJob < SendMessageJob
       if ( status == 0 )
         @msg.send_succeeed @account, @channel
       else
-         raise response.body
+        error = DtacChannelHandler::DTAC_ERRORS[status]
+      
+        raise response_body if error.nil?
+        raise PermanentException.new(Exception.new("#{status}. #{error[:description]}")) if error[:kind] == :fatal
+        raise MessageException.new(Exception.new("#{status}. #{error[:description]}")) if error[:kind] == :message
+        raise response_body
       end
     else
       raise response.body
