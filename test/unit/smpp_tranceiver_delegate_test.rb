@@ -86,10 +86,17 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
     @delegate.delivery_report_received @transceiver, pdu
     
-    puts AccountLog.all.map &:message
-    
     msg = AOMessage.find_by_id msg.id
     assert_equal state, msg.state
+    
+    logs = AccountLog.all
+    assert_equal 1, logs.length
+    
+    if optional_parameters[:message_state]
+      assert_equal "#{optional_parameters[:message_state]} received from server", logs[0].message
+    elsif optional_parameters[:stat]
+      assert_equal "#{optional_parameters[:stat]} received from server", logs[0].message
+    end
   end
   
   def assert_message_accepted_with_delivery_receipt(pdu_submit_sm_response_bin, pdu_deliver_sm_bin)

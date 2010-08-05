@@ -165,7 +165,7 @@ class SmppTransceiverDelegate
     end
     msg.save!
     
-    @channel.account.logger.ao_message_status_receieved msg, pdu.stat
+    @channel.account.logger.ao_message_status_receieved msg, (pdu.message_state || pdu.stat)
   rescue Exception => e
     logger.error "Error in delivery_report_received: #{e.class} #{e.to_s}"
     AccountLogger.exception_in_channel @channel, e
