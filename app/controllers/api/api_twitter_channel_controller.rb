@@ -10,7 +10,14 @@ class ApiTwitterChannelController < ApiAuthenticatedController
     user = params[:user]
     follow = params[:follow].to_b
     
-    result = channel.handler.friendship_create user, follow
+    begin
+      result = channel.handler.friendship_create user, follow
+    rescue Twitter::TwitterError => e
+      index = e.message.index '):'
+      code = e.message[1 .. index].to_i
+      msg = e.message[index + 2 .. -1].strip
+      return render :text => msg, :status => code
+    end
     
     render :json => result
   end
