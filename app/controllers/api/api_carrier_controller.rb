@@ -9,12 +9,12 @@ class ApiCarrierController < ApplicationController
       # Nothing
     elsif country_id.length == 2
       country = Country.find_by_iso2 country_id
-      return head :bad_request unless country
+      return head :not_found unless country
     elsif country_id.length == 3
       country = Country.find_by_iso3 country_id
-      return head :bad_request unless country
+      return head :not_found unless country
     else
-      return head :bad_request
+      return head :not_found
     end
     
     respond_to do |format|
@@ -28,7 +28,7 @@ class ApiCarrierController < ApplicationController
     guid = params[:guid]
     carrier = Carrier.find_by_guid guid
     
-    return head :bad_request unless carrier
+    return head :not_found unless carrier
     
     respond_to do |format|
       format.xml { render :xml => carrier.to_xml(:skip_types => true) }

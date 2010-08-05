@@ -12,7 +12,7 @@ class ApiCountryController < ApplicationController
   def show
     iso = params[:iso]
     country = Country.find_by_iso2_or_iso3 iso
-    return head :bad_request unless country
+    return head :not_found unless country
     
     respond_to do |format|
       format.xml { render :xml => country.to_xml(:skip_types => true) }

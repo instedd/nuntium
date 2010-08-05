@@ -57,7 +57,7 @@ class ApiCarrierControllerTest < ActionController::TestCase
   ['xml', 'json'].each do |format|
     test "index #{format} no matching country" do
       get :index, :format => format, :country_id => 'ZZZ'
-      assert_response :bad_request
+      assert_response :not_found
     end
   end
   
