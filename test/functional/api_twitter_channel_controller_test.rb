@@ -67,4 +67,14 @@ class ApiTwitterChannelControllerTest < ActionController::TestCase
     assert_response :not_found
   end
   
+  test "channel not twitter" do
+    @account = Account.make :password => 'secret'
+    @channel = Channel.make :qst_server, :account => @account
+    
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@account.name, 'secret')
+    get :friendship_create, :name => @channel.name, :user => 'foo'
+    
+    assert_response :bad_request
+  end
+  
 end

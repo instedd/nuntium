@@ -5,6 +5,7 @@ class ApiTwitterChannelController < ApiAuthenticatedController
     
     return head :not_found unless channel
     return head :forbidden if @application && !channel.application_id
+    return head :bad_request if channel.kind != 'twitter'
     
     user = params[:user]
     follow = params[:follow].to_b
