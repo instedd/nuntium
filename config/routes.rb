@@ -75,6 +75,7 @@ ActionController::Routing::Routes.draw do |map|
   map.api_channels_update '/api/channels/:name.:format', :conditions => {:method => :put}, :controller => 'api_channel', :action => :update
   map.api_channels_destroy '/api/channels/:name', :conditions => {:method => :delete}, :controller => 'api_channel', :action => :destroy  
   map.api_candidate_channels '/api/candidate/channels.:format', :conditions => {:method => :get}, :controller => 'api_channel', :action => :candidates
+  map.api_twitter_follow '/api/channels/:name/twitter/friendships/create', :conditions => {:method => :get}, :controller => 'api_twitter_channel', :action => :friendship_create
 
   # The priority is based upon order of creation: first created -> highest priority.
 

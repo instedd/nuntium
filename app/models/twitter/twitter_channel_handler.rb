@@ -23,6 +23,11 @@ class TwitterChannelHandler < GenericChannelHandler
     Twitter::Base.new(oauth)
   end
   
+  def friendship_create(user, follow)
+    client = TwitterChannelHandler.new_client(@channel.configuration)
+    client.friendship_create user, follow
+  end
+  
   def info
     @channel.configuration[:screen_name] +
       " <a href=\"#\" onclick=\"twitter_view_rate_limit_status(#{@channel.id}); return false;\">view rate limit status</a>"
