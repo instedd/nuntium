@@ -14,13 +14,11 @@ class ApiChannelController < ApiAuthenticatedController
   
   # GET /api/channels/:name.:format
   def show
-    channels = @account.channels
-    channels = channels.select{|c| c.application_id.nil? || c.application_id == @application.id}
-    channel = channels.select{|x| x.name == params[:name]}.first
+    chan = @account.find_channel params[:name]
     
-    return head :not_found unless channel
+    return head :not_found unless chan
     
-    respond channel
+    respond chan
   end
   
   # POST /api/channels.:format
@@ -46,7 +44,9 @@ class ApiChannelController < ApiAuthenticatedController
   # PUT /api/channels/:name.:format
   def update
     chan = @account.find_channel params[:name]
-    return head :bad_request unless chan and (@application.nil? || chan.application_id == @application.id)
+    
+    return head :not_found unless chan
+    return head :forbidden if @application && !chan.application_id
   
     data = request.POST.present? ? request.POST : request.raw_post
     update = nil
@@ -66,12 +66,12 @@ class ApiChannelController < ApiAuthenticatedController
   # DELETE /api/channels/:name
   def destroy
     chan = @account.find_channel params[:name]
-    if chan and (@application.nil? || chan.application_id == @application.id)
-      chan.destroy
-      head :ok
-    else
-      head :bad_request
-    end
+    
+    return head :not_found unless chan
+    return head :forbidden if @application && !chan.application_id
+    
+    chan.destroy
+    head :ok
   end
   
   # GET /api/candidate/channels.:format

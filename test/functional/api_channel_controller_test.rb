@@ -177,7 +177,7 @@ class ApiChannelControllerTest < ActionController::TestCase
   test "update channel fails no channel found" do
     authorize
     put :update, :format => 'xml', :name => "chan_lala"
-    assert_response :bad_request
+    assert_response :not_found
   end
   
   test "update channel fails not owner" do
@@ -185,7 +185,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     
     authorize
     put :update, :format => 'xml', :name => chan.name
-    assert_response :bad_request
+    assert_response :forbidden
   end
   
   test "delete channel succeeds" do
@@ -201,7 +201,7 @@ class ApiChannelControllerTest < ActionController::TestCase
   test "delete channel fails, no channel found" do
     authorize
     delete :destroy, :name => "chan_lala"
-    assert_response :bad_request
+    assert_response :not_found
   end
   
   test "delete channel fails, does not own channel" do
@@ -209,7 +209,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     
     authorize
     delete :destroy, :name => chan.name
-    assert_response :bad_request
+    assert_response :forbidden
   end
 
 end
