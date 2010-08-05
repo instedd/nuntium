@@ -76,6 +76,8 @@ class ApiChannelController < ApiAuthenticatedController
   
   # GET /api/candidate/channels.:format
   def candidates
+    return head :bad_request unless @application
+  
     msg = AOMessage.from_hash params
     msg.account_id = @account.id
     
