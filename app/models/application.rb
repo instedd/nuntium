@@ -78,7 +78,7 @@ class Application < ActiveRecord::Base
     end
     
     # Save mobile number information
-    mob = MobileNumber.update(msg.to.mobile_number, msg.country, msg.carrier, options) if not simulate and protocol == 'sms'
+    mob = MobileNumber.update(msg.to.mobile_number, msg.country, msg.carrier, options) if protocol == 'sms'
     
     # Get the list of candidate channels
     channels = candidate_channels_for_ao msg, :mobile_number => mob
