@@ -10,212 +10,221 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     @channel = Channel.make
   end
   
-  test "message received via channel" do
-    @msg = ATMessage.make_unsaved
-    @account.route_at @msg, @channel
+  [false, true].each do |simulate|
+    test "message received via channel simulate = #{simulate}" do
+      @msg = ATMessage.make_unsaved
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      
+      assert_in_log "Message received via channel '#{@channel.name}' logged in as '#{@account.name}'"
+    end
     
-    @log = check_log
+    test "setting channel application simulate = #{simulate}" do
+      @channel.application = @app
+      @channel.save!
     
-    assert_in_log "Message received via channel '#{@channel.name}' logged in as '#{@account.name}'"
-  end
-  
-  test "setting channel application" do
-    @channel.application = @app
-    @channel.save!
-  
-    @msg = ATMessage.make_unsaved
-    @account.route_at @msg, @channel
+      @msg = ATMessage.make_unsaved
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      
+      assert_in_log "Message's application set to '#{@app.name}' because the channel belongs to it"
+    end
     
-    @log = check_log
+    test "applied at rules simulate = #{simulate}" do
+      @channel.at_rules = [
+          rule(nil,[action('from','sms://5678')])
+      ]
+      @channel.save!
+      
+      @msg = ATMessage.make_unsaved :from => 'sms://1234'
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      
+      assert_in_log "Applying channel at rules..."
+      assert_in_log "'from' changed from 'sms://1234' to 'sms://5678'"
+    end
     
-    assert_in_log "Message's application set to '#{@app.name}' because the channel belongs to it"
-  end
-  
-  test "applied at rules" do
-    @channel.at_rules = [
-        rule(nil,[action('from','sms://5678')])
-    ]
-    @channel.save!
+    test "save country mobile number information simulate = #{simulate}" do
+      country = Country.make
     
-    @msg = ATMessage.make_unsaved :from => 'sms://1234'
-    @account.route_at @msg, @channel
+      @msg = ATMessage.make_unsaved
+      @msg.country = country.iso2 
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      
+      assert_in_log "The number #{@msg.from.mobile_number} is now associated with country #{country.name} (#{country.iso2}"
+    end
     
-    @log = check_log
+    test "save carrier mobile number information simulate = #{simulate}" do
+      carrier = Carrier.make
     
-    assert_in_log "Applying channel at rules..."
-    assert_in_log "'from' changed from 'sms://1234' to 'sms://5678'"
-  end
-  
-  test "save country mobile number information" do
-    country = Country.make
-  
-    @msg = ATMessage.make_unsaved
-    @msg.country = country.iso2 
-    @account.route_at @msg, @channel
+      @msg = ATMessage.make_unsaved
+      @msg.carrier = carrier.guid 
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      
+      assert_in_log "The number #{@msg.from.mobile_number} is now associated with carrier #{carrier.name} (#{carrier.guid}"
+    end
     
-    @log = check_log
+    test "inferred country simulate = #{simulate}" do
+      country = Country.make
     
-    assert_in_log "The number #{@msg.from.mobile_number} is now associated with country #{country.name} (#{country.iso2}"
-  end
-  
-  test "save carrier mobile number information" do
-    carrier = Carrier.make
-  
-    @msg = ATMessage.make_unsaved
-    @msg.carrier = carrier.guid 
-    @account.route_at @msg, @channel
+      @msg = AOMessage.make_unsaved :from => "sms://#{country.phone_prefix}12"
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      
+      assert_in_log "Country #{country.name} (#{country.iso2}) was inferred from prefix"
+    end
     
-    @log = check_log
+    test "inferred carrier simulate = #{simulate}" do
+      carrier = Carrier.make
     
-    assert_in_log "The number #{@msg.from.mobile_number} is now associated with carrier #{carrier.name} (#{carrier.guid}"
-  end
-  
-  test "inferred country" do
-    country = Country.make
-  
-    @msg = AOMessage.make_unsaved :from => "sms://#{country.phone_prefix}12"
-    @account.route_at @msg, @channel
+      @msg = ATMessage.make_unsaved :from => "sms://#{carrier.country.phone_prefix}#{carrier.prefixes}"
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      
+      assert_in_log "Carrier #{carrier.name} was inferred from prefix"
+    end
     
-    @log = check_log
+    test "inferred country from mobile number simulate = #{simulate}" do
+      country = Country.make  
+      @msg = ATMessage.make_unsaved :from => "sms://xx12"    
+      MobileNumber.create! :number => @msg.from.mobile_number, :country_id => country.id    
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      
+      assert_in_log "Country #{country.name} (#{country.iso2}) was inferred from mobile numbers table"
+    end
     
-    assert_in_log "Country #{country.name} (#{country.iso2}) was inferred from prefix"
-  end
-  
-  test "inferred carrier" do
-    carrier = Carrier.make
-  
-    @msg = ATMessage.make_unsaved :from => "sms://#{carrier.country.phone_prefix}#{carrier.prefixes}"
-    @account.route_at @msg, @channel
+    test "inferred carrier from mobile number simulate = #{simulate}" do
+      carrier = Carrier.make
+      @msg = ATMessage.make_unsaved :from => "sms://xx12"    
+      MobileNumber.create! :number => @msg.from.mobile_number, :carrier_id => carrier.id    
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      
+      assert_in_log "Carrier #{carrier.name} (#{carrier.guid}) was inferred from mobile numbers table"
+    end
     
-    @log = check_log
+    test "no application found simulate = #{simulate}" do
+      @app.destroy
     
-    assert_in_log "Carrier #{carrier.name} was inferred from prefix"
-  end
-  
-  test "inferred country from mobile number" do
-    country = Country.make  
-    @msg = ATMessage.make_unsaved :from => "sms://xx12"    
-    MobileNumber.create! :number => @msg.from.mobile_number, :country_id => country.id    
-    @account.route_at @msg, @channel
+      @msg = ATMessage.make_unsaved
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      
+      assert_in_log "No application found for routing message"
+    end
     
-    @log = check_log
+    test "no application was determined simulate = #{simulate}" do
+      app2 = Application.make :account_id => @app.account_id
+      
+      @msg = ATMessage.make_unsaved
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      
+      assert_in_log "No application was determined. Check application routing rules in account settings"
+    end
     
-    assert_in_log "Country #{country.name} (#{country.iso2}) was inferred from mobile numbers table"
-  end
-  
-  test "inferred carrier from mobile number" do
-    carrier = Carrier.make
-    @msg = ATMessage.make_unsaved :from => "sms://xx12"    
-    MobileNumber.create! :number => @msg.from.mobile_number, :carrier_id => carrier.id    
-    @account.route_at @msg, @channel
+    test "one application simulate = #{simulate}" do
+      @msg = ATMessage.make_unsaved
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      assert_equal @app.id, @log.application_id unless simulate
+      
+      assert_in_log "Message routed to application '#{@app.name}'"
+    end
     
-    @log = check_log
+    test "account at rules simulate = #{simulate}" do
+      app2 = Application.make :account_id => @app.account_id
+      
+      @msg = ATMessage.make_unsaved
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      
+      assert_in_log "Applying account at rules..."
+    end
     
-    assert_in_log "Carrier #{carrier.name} (#{carrier.guid}) was inferred from mobile numbers table"
-  end
-  
-  test "no application found" do
-    @app.destroy
-  
-    @msg = ATMessage.make_unsaved
-    @account.route_at @msg, @channel
+    test "account at rules app not found simulate = #{simulate}" do
+      app2 = Application.make :account_id => @app.account_id
+      
+      @account.app_routing_rules= [
+          rule(nil,[action('application','foobar')])
+      ]
+      @account.save!
+      
+      @msg = ATMessage.make_unsaved
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      
+      assert_in_log "Application 'foobar' does not exist"
+    end
     
-    @log = check_log
+    test "account at rules app found simulate = #{simulate}" do
+      app2 = Application.make :account_id => @app.account_id
+      
+      @account.app_routing_rules= [
+          rule(nil,[action('application',@app.name)])
+      ]
+      @account.save!
+      
+      @msg = ATMessage.make_unsaved
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      assert_equal @app.id, @log.application_id unless simulate
+      
+      assert_in_log "Message routed to application '#{@app.name}'"
+    end
     
-    assert_in_log "No application found for routing message"
-  end
-  
-  test "no application was determined" do
-    app2 = Application.make :account_id => @app.account_id
+    test "address source created simulate = #{simulate}" do
+      @msg = ATMessage.make_unsaved
+      
+      AddressSource.create!(:account_id => @account.id, :application_id => @app.id, :address => @msg.from, :channel_id => @channel.id)
+      
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      
+      assert_in_log "AddressSource updated with channel '#{@channel.name}'"
+    end
     
-    @msg = ATMessage.make_unsaved
-    @account.route_at @msg, @channel
-    
-    @log = check_log
-    
-    assert_in_log "No application was determined. Check application routing rules in account settings"
-  end
-  
-  test "one application" do
-    @msg = ATMessage.make_unsaved
-    @account.route_at @msg, @channel
-    
-    @log = check_log
-    assert_equal @app.id, @log.application_id
-    
-    assert_in_log "Message routed to application '#{@app.name}'"
-  end
-  
-  test "account at rules" do
-    app2 = Application.make :account_id => @app.account_id
-    
-    @msg = ATMessage.make_unsaved
-    @account.route_at @msg, @channel
-    
-    @log = check_log
-    
-    assert_in_log "Applying account at rules..."
-  end
-  
-  test "account at rules app not found" do
-    app2 = Application.make :account_id => @app.account_id
-    
-    @account.app_routing_rules= [
-        rule(nil,[action('application','foobar')])
-    ]
-    @account.save!
-    
-    @msg = ATMessage.make_unsaved
-    @account.route_at @msg, @channel
-    
-    @log = check_log
-    
-    assert_in_log "Application 'foobar' does not exist"
-  end
-  
-  test "account at rules app found" do
-    app2 = Application.make :account_id => @app.account_id
-    
-    @account.app_routing_rules= [
-        rule(nil,[action('application',@app.name)])
-    ]
-    @account.save!
-    
-    @msg = ATMessage.make_unsaved
-    @account.route_at @msg, @channel
-    
-    @log = check_log
-    assert_equal @app.id, @log.application_id
-    
-    assert_in_log "Message routed to application '#{@app.name}'"
-  end
-  
-  test "address source created" do
-    @msg = ATMessage.make_unsaved
-    
-    AddressSource.create!(:account_id => @account.id, :application_id => @app.id, :address => @msg.from, :channel_id => @channel.id)
-    
-    @account.route_at @msg, @channel
-    
-    @log = check_log
-    
-    assert_in_log "AddressSource updated with channel '#{@channel.name}'"
-  end
-  
-  test "address source updated" do
-    @msg = ATMessage.make_unsaved
-    @account.route_at @msg, @channel
-    
-    @log = check_log
-    
-    assert_in_log "AddressSource created with channel '#{@channel.name}'"
+    test "address source updated simulate = #{simulate}" do
+      @msg = ATMessage.make_unsaved
+      @account.route_at @msg, @channel, :simulate => simulate
+      
+      @log = check_log :simulate => simulate
+      
+      assert_in_log "AddressSource created with channel '#{@channel.name}'"
+    end
   end
   
   def assert_in_log(message)
     assert_true @log.message.include?(message) 
   end
   
-  def check_log
+  def check_log(options = {})
+    if options[:simulate]
+      msg = ThreadLocalLogger.result
+      log = mock('log')
+      log.stubs :message => msg
+      return log
+    end
+  
     logs = AccountLog.all
     assert_equal 1, logs.length
       
