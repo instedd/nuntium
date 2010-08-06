@@ -1,11 +1,20 @@
-<h4><%= link_to_function 'Candidate Channels', "toggle('candidate_channels')" %></h4>
+<h4>Route simulation</h4>
 
-<div id="candidate_channels">
-<% if @channels.empty? %>
-No candidate channel for the given message.
+<% if @strategy == 'broadcast' %>
+  <div>Message was broadcasted.</div>
+  <% i = 0 %>
+  <% @messages.each do |msg| %>
+    <%= render :partial => 'message', :locals => {:msg => msg, :title => (i == 0 ? 'Original copy' : "Broadcasted copy #{i}"), :log => @logs[i]} %>
+    <% i += 1 %>
+  <% end %>
+<% elsif @strategy == 'single_priority' %>
+  <div id="route_simulation">
+  <%= @channel.name %>
+  </div>
+  <%= render :partial => 'message', :locals => {:msg => @msg, :title => 'Details', :log => @log} %>
 <% else %>
-  <%= @channels.map(&:name).join ', ' %>
+   <div id="route_simulation">
+   No channel for the given message.
+   </div>
+   <%= render :partial => 'message', :locals => {:msg => @msg, :title => 'Details', :log => @log} %>
 <% end %>
-</div>
-
-<%= render :partial => 'message' %>

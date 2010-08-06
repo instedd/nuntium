@@ -15,6 +15,11 @@ class ApiAuthenticatedController < ApplicationController
             success = true
           end
         end
+      else
+        @account = Account.find_by_id_or_name username
+        if @account and @account.authenticate password
+          success = true
+        end
       end
       success
     end

@@ -44,6 +44,9 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     logs = AccountLog.all
     assert_equal 1, logs.length
     assert_true logs[0].message.include?('105, Invalid destination address')
+    
+    @chan.reload
+    assert_true @chan.enabled
   end
   
   should "perform fatal error" do

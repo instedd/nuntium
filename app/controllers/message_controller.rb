@@ -34,7 +34,7 @@ class MessageController < AccountAuthenticatedController
     msg.timestamp = Time.new.utc
     
     channel = @account.find_channel params[:message][:channel_id]
-    @account.route_at msg, (channel || 'ui')
+    @account.route_at msg, channel
     
     redirect_to_home "AT Message was created with id <a href=\"/message/at/#{msg.id}\" onclick=\"window.open(this.href,'log','width=640,height=480,scrollbars=yes');return false;\">#{msg.id}</a>"
   end
@@ -45,7 +45,21 @@ class MessageController < AccountAuthenticatedController
     application = @account.find_application params[:message][:application_id]
     return redirect_to_home unless application
     
-    @channels = application.candidate_channels_for_ao @msg
+    result = application.route_ao @msg, 'ui', :simulate => true
+    
+    @strategy = result[:strategy]
+    @channels = result[:channels]
+    @channel = result[:channel]
+    @messages = result[:messages]
+    @log = result[:log]
+    @logs = result[:logs]
+  end
+  
+  def simulate_route_at
+    @msg = create_message ATMessage
+    
+    channel = @account.find_channel params[:message][:channel_id]
+    @log = @account.route_at @msg, channel, :simulate => true
   end
   
   def create_message(kind)
@@ -73,7 +87,7 @@ class MessageController < AccountAuthenticatedController
   def mark_messages_as_cancelled(kind)
     all = kind == AOMessage ? :ao_all : :at_all
   
-    if !params[all].nil? && params[all] == '1'
+    if params[all].to_b
       kind == AOMessage ? build_ao_messages_filter : build_at_messages_filter
       conditions = kind == AOMessage ? @ao_conditions : @at_conditions
       kind.update_all("state = 'cancelled'", conditions)
@@ -97,7 +111,7 @@ class MessageController < AccountAuthenticatedController
   
   def reroute_ao_messages
     msgs = []
-    if !params[:ao_all].nil? && params[:ao_all] == '1'
+    if params[:ao_all].to_b
       build_ao_messages_filter
       conditions = @ao_conditions
       msgs = AOMessage.all(:conditions => conditions)

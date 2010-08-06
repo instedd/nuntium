@@ -54,7 +54,7 @@ class ApplicationTest < ActiveSupport::TestCase
         j.message_id == msg.id 
     end
     
-    app.route_at msg, nil
+    app.route_at msg, (Channel.make :account_id => app.account_id)
   end
   
   test "route ao protocol not found in message" do
@@ -66,14 +66,6 @@ class ApplicationTest < ActiveSupport::TestCase
     messages = AOMessage.all
     assert_equal 1, messages.length
     assert_equal 'failed', messages[0].state
-  
-    logs = AccountLog.all
-    
-    assert_equal 2, logs.length
-    log = logs[1]
-    assert_equal app.account.id, log.account_id
-    assert_equal messages[0].id, log.ao_message_id
-    assert_equal "Protocol not found in 'to' field", log.message
   end
   
   test "route ao channel not found for protocol" do
@@ -85,13 +77,6 @@ class ApplicationTest < ActiveSupport::TestCase
     messages = AOMessage.all
     assert_equal 1, messages.length
     assert_equal 'failed', messages[0].state
-  
-    logs = AccountLog.all
-    assert_equal 2, logs.length
-    log = logs[1]
-    assert_equal app.account.id, log.account_id
-    assert_equal messages[0].id, log.ao_message_id
-    assert_equal "No channel found for protocol 'unknown'", log.message
   end
   
   test "route select channel based on protocol" do

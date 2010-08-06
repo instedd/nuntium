@@ -55,7 +55,11 @@ When /^the (.+) with the (.+) "([^\"]*)" should have the following properties:$/
     end
     
     value = value.to_i if actual.kind_of? Integer
-    assert_equal value, actual 
+    if value == 'nil'
+      assert_nil actual
+    else
+      assert_equal value, actual
+    end 
   end
 end
 

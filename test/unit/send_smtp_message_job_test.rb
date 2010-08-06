@@ -41,7 +41,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
   def expect_smtp(msg, msgstr)
     smtp = mock('Net::SMTP')
     Net::SMTP.expects(:new).with(@chan.configuration[:host], @chan.configuration[:port]).returns(smtp)
-    smtp.expects(:enable_tls) if @chan.configuration[:use_ssl] == '1'
+    smtp.expects(:enable_tls) if @chan.configuration[:use_ssl].to_b
     smtp.expects(:start).with('localhost.localdomain', @chan.configuration[:user], @chan.configuration[:password])
     smtp.expects(:send_message).with(msgstr, msg.from.without_protocol, msg.to.without_protocol)
     smtp.expects(:finish)

@@ -14,13 +14,11 @@ class ApiChannelController < ApiAuthenticatedController
   
   # GET /api/channels/:name.:format
   def show
-    channels = @account.channels
-    channels = channels.select{|c| c.application_id.nil? || c.application_id == @application.id}
-    channel = channels.select{|x| x.name == params[:name]}.first
+    chan = @account.find_channel params[:name]
     
-    return head :not_found unless channel
+    return head :not_found unless chan
     
-    respond channel
+    respond chan
   end
   
   # POST /api/channels.:format
@@ -32,14 +30,23 @@ class ApiChannelController < ApiAuthenticatedController
       format.json { chan = Channel.from_json(data) } 
     end
     chan.account = @account
-    chan.application = @application
+    if @application
+      chan.application = @application
+    else
+      app_name = data[:application] || (data[:channel] && data[:channel][:application])
+      if app_name
+        chan.application = @account.find_application app_name
+      end
+    end
     save chan, 'creating'
   end
   
   # PUT /api/channels/:name.:format
   def update
     chan = @account.find_channel params[:name]
-    return head :bad_request unless chan and chan.application_id == @application.id
+    
+    return head :not_found unless chan
+    return head :forbidden if @application && !chan.application_id
   
     data = request.POST.present? ? request.POST : request.raw_post
     update = nil
@@ -48,22 +55,29 @@ class ApiChannelController < ApiAuthenticatedController
       format.json { update = Channel.from_json(data) } 
     end
     chan.merge(update)
+    
+    new_app_name = data[:application] || (data[:channel] && data[:channel][:application])
+    if new_app_name
+      chan.application = @account.find_application new_app_name
+    end
     save chan, 'updating'
   end
   
   # DELETE /api/channels/:name
   def destroy
     chan = @account.find_channel params[:name]
-    if chan and chan.application_id == @application.id
-      chan.destroy
-      head :ok
-    else
-      head :bad_request
-    end
+    
+    return head :not_found unless chan
+    return head :forbidden if @application && !chan.application_id
+    
+    chan.destroy
+    head :ok
   end
   
   # GET /api/candidate/channels.:format
   def candidates
+    return head :bad_request unless @application
+  
     msg = AOMessage.from_hash params
     msg.account_id = @account.id
     

@@ -18,6 +18,7 @@ class Account < ActiveRecord::Base
   validates_numericality_of :max_tries, :only_integer => true, :greater_than_or_equal_to => 0
   
   before_save :hash_password
+  after_save :restart_channel_processes
   
   def self.find_by_id_or_name(id_or_name)
     account = self.find_by_id(id_or_name) if id_or_name =~ /\A\d+\Z/ or id_or_name.kind_of? Integer
@@ -45,59 +46,85 @@ class Account < ActiveRecord::Base
     applications.select{|c| c.id == id_or_name.to_i || c.name == id_or_name}.first
   end
   
-  # Routes an ATMessage via a channel
-  def route_at(msg, via_channel)
-    return if duplicated? msg
+  # Routes an ATMessage via a channel.
+  # 
+  # When options[:simulate] is true, a simulation is done and the log is returned.
+  def route_at(msg, via_channel, options = {})
+    simulate = options[:simulate]
+  
+    return if not simulate and duplicated?(msg)
+    
+    ThreadLocalLogger.reset
+    ThreadLocalLogger << "Message received via channel '#{via_channel.name}' logged in as '#{self.name}'"
     
     # Fill some fields
     msg.account_id = self.id
     msg.timestamp ||= Time.now.utc
-    msg.channel = via_channel if via_channel.kind_of? Channel
+    msg.channel = via_channel
     msg.state = 'queued'
     
-    if via_channel.kind_of? Channel
-      # Set application custom attribute if the channel belongs to an application
-      if via_channel.application_id
-        msg.custom_attributes['application'] = (find_application(via_channel.application_id).name rescue nil)
+    # Set application custom attribute if the channel belongs to an application
+    if via_channel.application_id
+      msg.custom_attributes['application'] = find_application(via_channel.application_id).name rescue nil
+      if msg.custom_attributes['application']
+        ThreadLocalLogger << "Message's application set to '#{msg.custom_attributes['application']}' because the channel belongs to it"
       end
-      # Apply AT Rules
-      at_routing_res = RulesEngine.apply(msg.rules_context, via_channel.at_rules)
+    end
+    
+    # Apply AT Rules
+    at_routing_res = RulesEngine.apply(msg.rules_context, via_channel.at_rules)
+    if at_routing_res.present?
+      ThreadLocalLogger << "Applying channel at rules..."
       msg.merge at_routing_res
     end
     
     # Save mobile number information
-    mob = MobileNumber.update msg.from.mobile_number, msg.country, msg.carrier if msg.from and msg.from.protocol == 'sms'
+    mob = MobileNumber.update(msg.from.mobile_number, msg.country, msg.carrier, options) if msg.from and msg.from.protocol == 'sms'
     
     # Intef attributes
     msg.infer_custom_attributes :mobile_number => mob
 
     # App Routing logic
     if applications.empty?
-      msg.save!
-      logger.no_application_to_route msg
+      msg.save! unless simulate
+      
+      ThreadLocalLogger << "No application found for routing message"
+      return ThreadLocalLogger.result if simulate
+      logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => ThreadLocalLogger.result
     elsif applications.length == 1
-      applications.first.route_at msg, via_channel
+      applications.first.route_at(msg, via_channel, options)
+      return ThreadLocalLogger.result if simulate
     else
       # if msg says which application to be used...
       dest_application_name = msg.custom_attributes['application']
       
       # if not, run the app_routing_rules
       if dest_application_name.nil?
+        ThreadLocalLogger << "Applying account at rules..."
+      
         app_routing_rules_res = RulesEngine.apply(msg.rules_context, self.app_routing_rules) || {}
         dest_application_name = app_routing_rules_res['application']
       end
       
-      if !dest_application_name.nil?  
+      if dest_application_name
         application = find_application dest_application_name
-        unless application.nil?
-          application.route_at msg, via_channel
+        if application
+          application.route_at(msg, via_channel, options)
+          
+          return ThreadLocalLogger.result if simulate
         else
-          msg.save!
-          logger.application_not_found msg, app_routing_rules_res['application']
+          msg.save! unless simulate
+          
+          ThreadLocalLogger << "Application '#{app_routing_rules_res['application']}' does not exist"
+          return ThreadLocalLogger.result if simulate
+          logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => ThreadLocalLogger.result
         end
       else
-        msg.save!
-        logger.no_application_was_determined msg
+        msg.save! unless simulate
+        
+        ThreadLocalLogger << "No application was determined. Check application routing rules in account settings"
+        return ThreadLocalLogger.result if simulate
+        logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => ThreadLocalLogger.result
       end
     end
   end
@@ -109,16 +136,17 @@ class Account < ActiveRecord::Base
   end
   
   def logger
-    if @logger.nil?
-      @logger = AccountLogger.new(self.id)
-    end
-    @logger
+    @logger ||= AccountLogger.new(self.id)
   end
   
   def clear_password
     self.salt = nil
     self.password = nil
     self.password_confirmation = nil
+  end
+  
+  def restart_channel_processes
+    channels.each { |x| x.handler.on_changed }
   end
   
   def to_s

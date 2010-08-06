@@ -1,14 +1,7 @@
 class AccountLogger
-  def initialize(account_id)
+  def initialize(account_id, application_id = nil)
     @account_id = account_id
-  end
-  
-  def protocol_not_found_for_ao_message(ao_msg)
-    error(:ao_message_id => ao_msg.id, :channel_id => ao_msg.channel_id, :message => "Protocol not found in 'to' field")
-  end
-
-  def no_channel_found_for_ao_message(protocol, ao_msg)
-    error(:ao_message_id => ao_msg.id, :channel_id => ao_msg.channel_id, :message => "No channel found for protocol '#{protocol}'")
+    @application_id = application_id
   end
   
   def at_message_delivery_succeeded(msg, interface)
@@ -37,48 +30,12 @@ class AccountLogger
     end
   end
   
-  def ao_message_broadcasted(msg)
-    info(:ao_message_id => msg.id, :message => "Message was broadcasted")
-  end
-  
-  def ao_message_handled_by_channel(msg, channel)
-    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message handled by #{channel.kind} channel '#{channel.name}'")
-  end
-  
-  def ao_message_routed_to_account(msg, account)
-    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message routed to account '#{account.name}'")
-  end
-  
-  def ao_message_created_as_alert(msg)
-    info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message was created as an alert")
-  end
-  
   def ao_message_status_receieved(msg, status)
     info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "#{status} received from server")
   end
   
   def ao_message_status_warning(msg, status)
     warning(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "#{status} received from server")
-  end
-  
-  def channel_not_found(msg, channel_name)
-    if channel_name.class == Array
-      info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Channels with names '#{channel_name.join('\"')}' do not exist or are disabled")
-    else
-      info(:ao_message_id => msg.id, :channel_id => msg.channel_id, :message => "Channel with name '#{channel_name}' does not exist or is disabled")
-    end
-  end
-  
-  def at_message_received_via_channel(msg, channel)
-    info(:at_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message received via #{channel.kind} channel '#{channel.name}'")
-  end
-  
-  def at_message_received_via(msg, via)
-    info(:at_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message received via #{via}")
-  end
-  
-  def at_message_created_via_ui(msg)
-    info(:at_message_id => msg.id, :channel_id => msg.channel_id, :message => "Message created via user interface")
   end
   
   def error_routing_msg(ao_msg, e)
@@ -103,22 +60,6 @@ class AccountLogger
   
   def error_processing_msgs(msg)
     error(:message => "Error processing messages from server in QST operation: '#{msg}'")
-  end
-
-  def more_than_one_channel_found_for(protocol, ao_msg)
-    warning(:ao_message_id => ao_msg.id, :message => "More than one channel found for protocol '#{protocol}'", :channel_id => ao_msg.channel_id)
-  end
-  
-  def no_application_to_route(at_msg)
-    error :at_message_id => at_msg.id, :message => "No application to route AT messages"  
-  end
-  
-  def application_not_found(at_msg, app)
-    error :at_message_id => at_msg.id, :message => "Application named #{app} was not found"
-  end
-  
-  def no_application_was_determined(at_msg)
-    error :at_message_id => at_msg.id, :message => "No application was determined. Check App routing rules in account settings"
   end
   
   def info(hash_or_message)
@@ -152,9 +93,9 @@ class AccountLogger
     end
     
     now = Time.now.utc.to_s(:db)
-    message = hash_or_message[:message].gsub("'", "''")
+    message = (hash_or_message[:message] || "").gsub("'", "''")
     
-    insert = "INSERT INTO account_logs (account_id, channel_id, ao_message_id, at_message_id, message, severity, created_at, updated_at) VALUES (#{@account_id},#{hash_or_message[:channel_id] || "NULL"},#{hash_or_message[:ao_message_id] || "NULL"},#{hash_or_message[:at_message_id] || "NULL"},'#{message}',#{severity},'#{now}','#{now}')"
+    insert = "INSERT INTO account_logs (account_id, application_id, channel_id, ao_message_id, at_message_id, message, severity, created_at, updated_at) VALUES (#{@account_id}, #{@application_id || hash_or_message[:application_id] || "NULL"}, #{hash_or_message[:channel_id] || "NULL"},#{hash_or_message[:ao_message_id] || "NULL"},#{hash_or_message[:at_message_id] || "NULL"},'#{message}',#{severity},'#{now}','#{now}')"
     
     AccountLog.connection.execute insert
   end

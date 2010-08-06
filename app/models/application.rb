@@ -29,11 +29,34 @@ class Application < ActiveRecord::Base
   before_destroy :clear_cache 
   after_save :clear_cache
   
+  after_save :restart_channel_processes
+  
   include(CronTask::CronTaskOwner)
   
-  # Route an AOMessage
-  def route_ao(msg, via_interface)
-    return if duplicated? msg
+  # Route an AOMessage.
+  # 
+  # When options[:simulate] is true, a simulation is done with the following result:
+  #
+  # If the message was not routed:
+  #  - :strategy => nil
+  #  - :log => the log string
+  #
+  # If the message was routed using the single priority strategy:
+  #  - :strategy => single_priority
+  #  - :channel  => the channel, if any
+  #  - :log => the log string
+  #
+  # If the message was routed using broadcast:
+  #  - :strategy => broadcast
+  #  - :messages => the list of messages (original and copies)
+  #  - :logs => an array of logs for the previous messages
+  def route_ao(msg, via_interface, options = {})
+    simulate = options[:simulate]
+  
+    return if not simulate and duplicated?(msg)
+    
+    ThreadLocalLogger.reset
+    ThreadLocalLogger << "Received via interface '#{via_interface}' logged in as '#{account.name}/#{name}'"
     
     # Fill some fields
     fill_common_message_properties msg
@@ -43,14 +66,19 @@ class Application < ActiveRecord::Base
     
     if protocol == ''
       msg.state = 'failed'
-      msg.save!
-      logger.ao_message_received msg, via_interface
-      logger.protocol_not_found_for_ao_message msg
-      return true
+      msg.save! unless simulate
+      
+      ThreadLocalLogger << "Protocol not found in 'to' field"
+      if simulate
+        return {:log => ThreadLocalLogger.result}
+      else
+        logger.info :ao_message_id => msg.id, :message => ThreadLocalLogger.result
+        return true
+      end
     end
     
     # Save mobile number information
-    mob = MobileNumber.update msg.to.mobile_number, msg.country, msg.carrier if protocol == 'sms'
+    mob = MobileNumber.update(msg.to.mobile_number, msg.country, msg.carrier, options) if not simulate and protocol == 'sms'
     
     # Get the list of candidate channels
     channels = candidate_channels_for_ao msg, :mobile_number => mob
@@ -58,27 +86,47 @@ class Application < ActiveRecord::Base
     # Exit if no candidate channel 
     if channels.empty?
       msg.state = 'failed'
-      msg.save!
+      msg.save! unless simulate
       
-      logger.ao_message_received msg, via_interface
-      logger.no_channel_found_for_ao_message protocol, msg
-      return true
+      ThreadLocalLogger << "No suitable channel found for routing the message"
+      
+      if simulate
+        return {:log => ThreadLocalLogger.result}
+      else
+        logger.info :ao_message_id => msg.id, :message => ThreadLocalLogger.result
+        return true
+      end
     end
     
     # Route to the only channel if that's the case
     if channels.length == 1
-      channels.first.route_ao msg, via_interface
-      return true
+      channels.first.route_ao msg, via_interface, options
+      if simulate
+        return {:strategy => 'single_priority', :channel => channel, :log => ThreadLocalLogger.result}
+      else
+        return true
+      end
     end
     
     # Or route according to a strategy
-    final_strategy = msg.strategy || strategy
+    final_strategy = strategy
+    
+    if msg.strategy && msg.strategy != final_strategy
+      ThreadLocalLogger << "Strategy overwritten by message to '#{msg.strategy}'"
+      final_strategy = msg.strategy
+    end
+    
     if final_strategy == 'broadcast'
       msg.state = 'broadcasted'
-      msg.save!
+      msg.save! unless simulate
       
-      logger.ao_message_received msg, via_interface
-      logger.ao_message_broadcasted msg
+      logs = [ThreadLocalLogger.result] if simulate
+      msgs = [msg] if simulate
+      
+      ThreadLocalLogger << "Message broadcasted"
+      unless simulate
+        logger.info :ao_message_id => msg.id, :message => ThreadLocalLogger.result
+      end
       
       channels.each do |channel|
         copy = msg.clone
@@ -86,20 +134,43 @@ class Application < ActiveRecord::Base
         copy.guid = Guid.new.to_s
         copy.parent_id = msg.id
         
-        channel.route_ao copy, via_interface
+        ThreadLocalLogger.reset
+        
+        channel.route_ao copy, via_interface, options
+        
+        msgs << copy if simulate
+        logs << ThreadLocalLogger.result if simulate
+      end
+      
+      if simulate
+        return {:strategy => 'broadcast', :messages => msgs, :logs => logs}
       end
     else
       # Select channels with less or equal priority than the other channels
       channels = channels.select{|c| channels.all?{|x| (c.priority || 100) <= (x.priority || 100) }}
       
+      if channels.length > 1
+        ThreadLocalLogger << "All these channels have the same priority: #{channels.map(&:name).join(', ')}"
+      end
+      
       # Select a random channel to handle the message
-      channels.rand.route_ao msg, via_interface
+      channel = channels.rand 
+      channel.route_ao msg, via_interface, options
+      
+      if simulate
+        return {:strategy => 'single_priority', :channel => channel, :log => ThreadLocalLogger.result}
+      end
     end
-    true
+    
+    return true
   rescue => e
-    # Log any errors and return false
-    logger.error_routing_msg msg, e
-    return false
+    if simulate
+      return {:log => ThreadLocalLogger.result + "\n#{e}\n#{e.backtrace}"}
+    else
+      # Log any errors and return false
+      logger.error_routing_msg msg, e
+      return false
+    end
   end
   
   def reroute_ao(msg)
@@ -108,31 +179,37 @@ class Application < ActiveRecord::Base
     self.route_ao msg, 're-route'
   end
   
-  def route_at(msg, via_channel)
+  def route_at(msg, via_channel, options = {})
+    simulate = options[:simulate]
+  
     msg.application_id = self.id
+    
+    ThreadLocalLogger << "Message routed to application '#{name}'"
   
     # Update AddressSource if desired and if it the channel is bidirectional
     if use_address_source? and via_channel.kind_of? Channel and via_channel.direction == Channel::Bidirectional
       as = AddressSource.find_by_application_id_and_address_and_channel_id self.id, msg.from, via_channel.id
       if as.nil?
-        AddressSource.create!(:account_id => account.id, :application_id => self.id, :address => msg.from, :channel_id => via_channel.id) 
+        ThreadLocalLogger << "AddressSource created with channel '#{via_channel.name}'"
+        unless simulate
+          AddressSource.create!(:account_id => account.id, :application_id => self.id, :address => msg.from, :channel_id => via_channel.id)
+        end 
       else
-        as.touch
+        ThreadLocalLogger << "AddressSource updated with channel '#{via_channel.name}'"
+        as.touch unless simulate
       end
     end
     
     # save the message here so we have and id for the later job
-    msg.save!
-    
-    # Check if callback interface is configured
-    if self.interface == 'http_post_callback'
-      Queues.publish_application self, SendPostCallbackMessageJob.new(msg.account_id, msg.application_id, msg.id)
-    end
-        
-    if 'ui' == via_channel
-      logger.at_message_created_via_ui msg
-    else
-      logger.at_message_received_via_channel msg, via_channel if !via_channel.nil?
+    unless simulate
+      msg.save!
+      
+      # Check if callback interface is configured
+      if self.interface == 'http_post_callback'
+        Queues.publish_application self, SendPostCallbackMessageJob.new(msg.account_id, msg.application_id, msg.id)
+      end
+          
+      logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => ThreadLocalLogger.result
     end
   end
   
@@ -153,10 +230,15 @@ class Application < ActiveRecord::Base
     
     # AO Rules
     ao_rules_res = RulesEngine.apply(msg.rules_context, self.ao_rules)
-    msg.merge ao_rules_res
+    if ao_rules_res.present?
+      ThreadLocalLogger << "Applying application ao rules..."
+      msg.merge ao_rules_res
+    end
     
     # Get all outgoing enabled channels
-    channels = account.channels.select{|c| c.enabled && c.is_outgoing?}
+    all_channels = account.channels 
+    
+    channels = all_channels.select{|c| c.enabled && c.is_outgoing?}
     
     # Find channels that handle that protocol
     channels = channels.select {|x| x.protocol == protocol}
@@ -164,17 +246,31 @@ class Application < ActiveRecord::Base
     # Filter them according to custom attributes
     channels = channels.select{|x| x.can_route_ao? msg}
     
+    channels.sort!{|x, y| (x.priority || 100) <=> (y.priority || 100)}
+    
+    if channels.empty?
+      ThreadLocalLogger << "No channels left after restrictions"
+    else
+      ThreadLocalLogger << "Channels left after restrictions: #{channels.map(&:name).join(', ')}"
+    end
+    
     # See if the message includes a suggested channel
     if msg.suggested_channel
       suggested_channel = channels.select{|x| x.name == msg.suggested_channel}.first
-      return [suggested_channel] if suggested_channel
+      if suggested_channel
+        ThreadLocalLogger << "Suggested channel '#{msg.suggested_channel}' found in candidates"
+        return [suggested_channel]
+      else
+        ThreadLocalLogger << "Suggested channel '#{msg.suggested_channel}' not found in candidates"
+      end
     end
     
     # See if there is a last channel used to route an AT message with this address
-    last_channel = get_last_channel msg.to, channels
-    return [last_channel] if last_channel
-    
-    channels.sort!{|x, y| (x.priority || 100) <=> (y.priority || 100)}
+    last_channel = get_last_channel msg.to, all_channels, channels
+    if last_channel
+      ThreadLocalLogger << "'#{last_channel.name}' selected from address sources"
+      return [last_channel]
+    end 
     
     return channels
   end
@@ -223,11 +319,11 @@ class Application < ActiveRecord::Base
   
   def use_address_source?
     v = configuration[:use_address_source]
-    v.nil? || v == true || v == 1 || v == '1' || v == 'true'  
+    v.nil? || v.to_b  
   end
   
   def use_address_source=(value)
-    configuration[:use_address_source] = value == true || value == '1' || value == 1 || value == 'true'
+    configuration[:use_address_source] = value.to_b
   end
   
   def strategy_description
@@ -281,7 +377,7 @@ class Application < ActiveRecord::Base
   end
   
   def logger
-    account.logger
+    @logger ||= AccountLogger.new(self.account.id, self.id)
   end
   
   protected
@@ -324,17 +420,28 @@ class Application < ActiveRecord::Base
     end
   end
   
-  def get_last_channel(address, outgoing_channels)
+  def get_last_channel(address, all_channels, outgoing_channels)
     return nil unless use_address_source?
     ass = AddressSource.all :conditions => ['application_id = ? AND address = ?', self.id, address], :order => 'updated_at DESC'
     return nil if ass.empty?
     
+    chosen_channel = nil
+    address_sources_names = []
+    
     # Return the first outgoing_channel that was used as a last channel.
     ass.each do |as|
-      candidate = outgoing_channels.select{|x| x.id == as.channel_id}.first
-      return candidate if candidate
+      real = all_channels.select{|x| x.id == as.channel_id}.first
+      address_sources_names << real.name if real
+      
+      if not chosen_channel
+        candidate = outgoing_channels.select{|x| x.id == as.channel_id}.first
+        chosen_channel = candidate if candidate
+      end
     end
-    return nil
+    
+    ThreadLocalLogger << "Address sources are: #{address_sources_names.join(', ')}"
+    
+    chosen_channel
   end
   
   def hash_password
@@ -348,6 +455,10 @@ class Application < ActiveRecord::Base
   def clear_cache
     Rails.cache.delete Application.cache_key(account_id)
     true
+  end
+  
+  def restart_channel_processes
+    account.restart_channel_processes
   end
   
   def self.cache_key(account_id)

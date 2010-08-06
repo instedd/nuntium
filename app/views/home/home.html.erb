@@ -308,7 +308,11 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
 <input type="hidden" name="log_search" value="<%= @log_search %>" />
 <input type="hidden" id="at_all" name="at_all" value="0" />
 
-<%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AT Message">Create new AT Message', :controller => :message, :action => :new_at_message %> &nbsp; &nbsp;
+<% if @channels.empty? %>
+  Create a Channel to create AT Messages.
+<% else %>
+  <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AT Message">Create new AT Message', :controller => :message, :action => :new_at_message %> &nbsp; &nbsp;
+<% end %>
 Search: <input type="text" name="at_search" value="<%= h @at_search %>" size= "50" /> <a href="http://code.google.com/p/nuntium/wiki/AdvancedSearch" target="_blank" title="You can filter by field like 'id:5', 'before:&quot;20 minutes ago&quot;', 'state:queued', etc.">?</a> &nbsp; &nbsp;
 Select: <%= link_to_function 'all', 'select_all_at_messages()' %>, <%= link_to_function 'none', 'select_none_at_messages()' %> &nbsp; &nbsp;
 Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
@@ -422,13 +426,13 @@ var total_at_messages = <%= @at_messages.total_entries %>;
 var current_at_messages = <%= @at_messages.length %>;
 
 <%
-if !params[:ao_all].nil? && params[:ao_all] == '1'
+if !params[:ao_all].nil? && params[:ao_all].to_b
   %>
   select_all_pages_ao_messages();
   <%
 end
 
-if !params[:at_all].nil? && params[:at_all] == '1'
+if !params[:at_all].nil? && params[:at_all].to_b
   %>
   select_all_pages_at_messages();
   <%

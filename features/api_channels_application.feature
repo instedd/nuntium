@@ -1,11 +1,11 @@
-Feature: Manage the channels of a nuntium account via a RESTful API
-In order to manage the channels of a nuntium account remotely
+Feature: Manage the channels of a nuntium application via a RESTful API
+In order to manage the channels of a nuntium application remotely
 A website owner
 Should be able to manage the channels via a RESTful API
 
   Background:
     Given an account named "InsTEDD" exists
-      And an application named "GeoChat" belongs to the "InsTEDD" account
+      And an application named "GeoChat" belongs to the "InsTEDD" account      
       And the following Channel exists:
         | name                    | EmailChannel    |
         | kind                    | smtp            |

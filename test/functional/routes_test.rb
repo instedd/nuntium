@@ -39,9 +39,9 @@ class RoutesTest < ActionController::TestCase
       end
       assert_routing({:path => "/message/#{kind}/mark_as_cancelled"}, { :controller => "message", :action => "mark_#{kind}_messages_as_cancelled" })
       assert_routing({:path => "/message/#{kind}/10"}, { :controller => "message", :action => "view_#{kind}_message", :id => '10' })
+      assert_routing({:path => "/message/#{kind}/simulate_route"}, { :controller => "message", :action => "simulate_route_#{kind}" })
     end
-    assert_routing({:path => "/message/ao/reroute"}, { :controller => "message", :action => "reroute_ao_messages" })
-    assert_routing({:path => "/message/ao/simulate_route"}, { :controller => "message", :action => "simulate_route_ao" })
+    assert_routing({:path => "/message/ao/reroute"}, { :controller => "message", :action => "reroute_ao_messages" })    
   end
   
   test "applications" do
@@ -79,5 +79,6 @@ class RoutesTest < ActionController::TestCase
     assert_routing({:path => "/api/channels/foo.xml", :method => :put}, { :controller => "api_channel", :action => "update", :format => "xml", :name => "foo" })
     assert_routing({:path => "/api/channels/foo", :method => :delete}, { :controller => "api_channel", :action => "destroy", :name => "foo" })
     assert_routing({:path => "/api/candidate/channels.xml", :method => :get}, { :controller => "api_channel", :action => "candidates", :format => "xml" })
+    assert_routing({:path => "/api/channels/foo/twitter/friendships/create", :method => :get}, { :controller => "api_twitter_channel", :action => "friendship_create", :name => "foo" })
   end
 end
