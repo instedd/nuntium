@@ -100,7 +100,8 @@ class Application < ActiveRecord::Base
     
     # Route to the only channel if that's the case
     if channels.length == 1
-      channels.first.route_ao msg, via_interface, options
+      channel = channels.first
+      channel.route_ao msg, via_interface, options
       if simulate
         return {:strategy => 'single_priority', :channel => channel, :log => ThreadLocalLogger.result}
       else
