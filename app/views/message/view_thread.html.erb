@@ -21,9 +21,10 @@
     <% 
     chan = @channels.select{|x| msg.channel_id == x.id}.first
     app = @applications.select{|x| msg.application_id == x.id}.first
+    kind = msg.kind_of?(AOMessage) ? 'ao' : 'at'
     %>
-    <tr class="<%= msg.kind_of?(AOMessage) ? 'ao' : 'at' %>">
-      <td><%= msg.kind_of?(AOMessage) ? 'AO' : 'AT' %></td>
+    <tr class="<%= kind %>">
+      <td><%= kind.upcase %></td>
       <td>
         <% if msg.kind_of?(AOMessage) && msg.parent_id
           image_name = @ao_messages[i+1] && @ao_messages[i+1].parent_id == msg.parent_id ? 'branch' : 'branch_end'
@@ -44,7 +45,7 @@
       <td align="right"><%= msg.tries %></td>
       <td><%= msg.state %></td>
       <td>
-        <%= link_to 'view log', {:controller => :message, :action => :view_ao_message, :id => msg.id}, :target => '_blank'%>
+        <%= link_to 'view log', {:controller => :message, :action => "view_#{kind}_message", :id => msg.id}, :target => '_blank'%>
       </td>
     </tr>
   <% end %>
