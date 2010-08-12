@@ -5,6 +5,14 @@ class ClickatellCoverageMO < ActiveRecord::Base
   before_destroy :clear_cache 
   after_save :clear_cache
   
+  def country
+    country_id ? (Country.find_by_id country_id) : nil
+  end
+  
+  def carrier
+    carrier_id ? (Carrier.find_by_id carrier_id) : nil
+  end
+  
   def self.find_all_by_network(network)
     mos = Rails.cache.read 'clickatell_coverage_mos'
     if not mos

@@ -3,8 +3,6 @@ require 'test_helper'
 class ApiCarrierControllerTest < ActionController::TestCase
 
   def setup
-    Country.delete_all
-    Carrier.delete_all
     @country = Country.make
     @carrier = Carrier.make :country => @country    
     @country2 = Country.make

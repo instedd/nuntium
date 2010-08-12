@@ -5,14 +5,14 @@ class Carrier < ActiveRecord::Base
   before_destroy :clear_cache 
   after_save :clear_cache
   
+  @@carriers = nil
+  
   def self.all
-    carriers = Rails.cache.read 'carriers'
-    if not carriers
-      carriers = super
-      carriers.sort!{|x, y| x.name <=> y.name}
-      Rails.cache.write 'carriers', carriers
-    end
-    carriers
+    return @@carriers if @@carriers
+    
+    @@carriers = super
+    @@carriers.sort!{|x, y| x.name <=> y.name}
+    @@carriers
   end
   
   def self.all_with_countries
@@ -23,8 +23,8 @@ class Carrier < ActiveRecord::Base
     carriers
   end
   
-  def self.find_by_id(id, carriers = all)
-    carriers.select{|c| c.id == id}.first
+  def self.find_by_id(id)
+    all.select{|c| c.id == id}.first
   end
   
   def self.find_by_country_id(country_id)
@@ -50,6 +50,10 @@ class Carrier < ActiveRecord::Base
     {:name => name, :guid => guid, :country_iso2 => country.iso2}.to_json
   end
   
+  def self.clear_cache
+    @@carriers = nil
+  end
+  
   private
   
   def escape(str)
@@ -57,6 +61,6 @@ class Carrier < ActiveRecord::Base
   end
   
   def clear_cache
-    Rails.cache.delete 'carriers'
+    @@carriers = nil
   end
 end

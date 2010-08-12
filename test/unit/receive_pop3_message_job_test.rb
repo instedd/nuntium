@@ -70,7 +70,7 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     assert_equal "Hello", result
   end
   
-  should "remove quoted text or text after first empty line, case On...:" do
+  should "remove quoted text or text after first empty line, case empty line:" do
     original = "Hello\n\nGoodbye"
     result = ReceivePop3MessageJob.remove_quoted_text_or_text_after_first_empty_line original
     assert_equal "Hello", result
