@@ -49,7 +49,7 @@ ActionController::Routing::Routes.draw do |map|
   map.delete_application '/application/delete/:id', :controller => 'home', :action => :delete_application
   
   # Messages
-  map.view_thread '/messages/thread', :controller => 'message', :action => :view_thread
+  map.view_thread '/message/thread', :controller => 'message', :action => :view_thread
   
   # AO messages
   map.new_ao_message '/message/ao/new', :controller => 'message', :action => :new_ao_message

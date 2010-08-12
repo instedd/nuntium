@@ -26,7 +26,7 @@ class MessageController < AccountAuthenticatedController
     
     application.route_ao msg, 'user'
     
-    redirect_to_home "AO Message was created with id <a href=\"/message/ao/#{msg.id}\" target=\"_blank\">#{msg.id}</a>"
+    redirect_to_home "AO Message was created with id #{msg.id} <a href=\"/message/ao/#{msg.id}\" target=\"_blank\">view log</a> <a href=\"/message/thread?address=#{msg.to}\" target=\"_blank\">view thread</a>"
   end
   
   def create_at_message
@@ -36,7 +36,7 @@ class MessageController < AccountAuthenticatedController
     channel = @account.find_channel params[:message][:channel_id]
     @account.route_at msg, channel
     
-    redirect_to_home "AT Message was created with id <a href=\"/message/at/#{msg.id}\" target=\"_blank\">#{msg.id}</a>"
+    redirect_to_home "AT Message was created with id #{msg.id} <a href=\"/message/at/#{msg.id}\" target=\"_blank\">view log</a> <a href=\"/message/thread?address=#{msg.from}\" target=\"_blank\">view thread</a>"
   end
   
   def simulate_route_ao
