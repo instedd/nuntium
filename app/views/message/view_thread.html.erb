@@ -1,5 +1,7 @@
 <h4>Conversation thread for <%= @address %></h4>
 
+<p>Showing <%= @msgs.length %> message<%= @msgs.length != 1 ? 's' : '' %>. <%= link_to 'Show more', :controller => :message, :action => :view_thread, :address => @address, :page => @page + 1 if @has_more  %></p>
+
 <table border="1" class="table">
   <tr>
     <th>AO/AT</th>
@@ -23,7 +25,7 @@
     app = @applications.select{|x| msg.application_id == x.id}.first
     kind = msg.kind_of?(AOMessage) ? 'ao' : 'at'
     %>
-    <tr class="<%= kind %>">
+    <tr class="<%= kind %> <%= i.even_to_s %>">
       <td><%= kind.upcase %></td>
       <td>
         <% if msg.kind_of?(AOMessage) && msg.parent_id
@@ -50,3 +52,5 @@
     </tr>
   <% end %>
 </table>
+
+<p>Showing <%= @msgs.length %> message<%= @msgs.length != 1 ? 's' : '' %>. <%= link_to 'Show more', :controller => :message, :action => :view_thread, :address => @address, :page => @page + 1 if @has_more %></p>

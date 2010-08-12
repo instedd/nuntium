@@ -96,11 +96,11 @@ table.table {
 }
 
 .table tr.ao {
-  color: #00A;
+  color: #006;
 }
 
 .table tr.at {
-  color: #004;
+  color: black;
 }
 
 .table td {

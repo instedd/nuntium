@@ -60,8 +60,8 @@ class HomeController < AccountAuthenticatedController
       :page => @ao_page,
       :per_page => @results_per_page
       )
-    # Put broadcasted messages on top of their children
-    @ao_messages.sort!{|x, y| x.parent_id == y.id ? 1 : (x.id == y.parent_id ? -1 : y.id <=> x.id)}
+    
+    sort_for_broadcasted @ao_messages
     
     build_at_messages_filter
       

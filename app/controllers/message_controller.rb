@@ -160,18 +160,23 @@ class MessageController < AccountAuthenticatedController
     end
   
     @address = params[:address]
+    @page = (params[:page] || '1').to_i
     @hide_title = true
     
     @applications = @account.applications
     @channels = @account.channels
     
-    aos = AOMessage.all :conditions => ["account_id = ? AND #{esc('to')} = ?", @account.id, @address]
-    ats = ATMessage.all :conditions => ["account_id = ? AND #{esc('from')} = ?", @account.id, @address]
+    limit = @page * 5
+    aos = AOMessage.all :conditions => ["account_id = ? AND #{esc('to')} = ? AND parent_id IS NULL", @account.id, @address], :order => 'id DESC', :limit => limit 
+    ats = ATMessage.all :conditions => ["account_id = ? AND #{esc('from')} = ?", @account.id, @address], :order => 'id DESC', :limit => limit
+    
+    @has_more = aos.length == limit || ats.length == limit
     
     @msgs = []
     aos.each {|x| @msgs << x}
-    ats.each {|x| @msgs << x}    
-    @msgs.sort!{|x, y| x.id <=> y.id}
+    ats.each {|x| @msgs << x}
+    
+    sort_for_broadcasted @msgs
   end
 
 end
