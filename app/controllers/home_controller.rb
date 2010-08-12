@@ -39,6 +39,8 @@ class HomeController < AccountAuthenticatedController
     account = params[:new_account]
     return redirect_to_home if account.nil?
     
+    flash[:notice] = nil
+    
     @new_account = Account.new(account)
     if !@new_account.save
       @new_account.clear_password
