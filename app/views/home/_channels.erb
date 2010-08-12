@@ -16,8 +16,8 @@
       <th>Queued AO Messages</th>
       <th></th>
     </tr>
-    <% @channels.each do |chan| %>
-      <tr>
+    <% @channels.each_with_index do |chan, i| %>
+      <tr class="<%= i.even_to_s %>">
         <td>
           <%= image_tag (chan.enabled ? 'enabled' : 'disabled') + '.png', :size => '16x16', :style => 'position:relative; top:4px', :title => 'This channel is ' + (chan.enabled ? 'enabled' : 'disabled') %>
           <b><%= chan.name %></b></td>

@@ -14,8 +14,8 @@
       <th>Delivery ACK</th>
       <th></th>
     </tr>
-    <% @applications.each do |app| %>
-      <tr>
+    <% @applications.each_with_index do |app, i| %>
+      <tr class="<%= i.even_to_s %>">
         <td><%= app.name %></td>
         <td><%= app.interface_description %></td>
         <td><%= app.use_address_source? ? 'Yes' : 'No' %></td>

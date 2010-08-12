@@ -10,8 +10,8 @@
     <th>Text</th>
   </tr>
   <tr>
-  <% @logs.each do |log| %>
-    <tr>
+  <% @logs.each_with_index do |log, i| %>
+    <tr class="<%= i.even_to_s %>">
       <td><%= time_ago log.created_at %></td>
       <td><%= log.severity_html %></td>
       <td><%= log.message.gsub("\n", "<br/>") rescue '' %></td>

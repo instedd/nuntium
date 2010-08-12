@@ -43,12 +43,12 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelle
       <th></th>
     </tr>
     <tr>
-    <% @at_messages.each do |msg| %>
+    <% @at_messages.each_with_index do |msg, i| %>
       <%
       chan = @channels.select{|x| msg.channel_id == x.id}.first
       app = @applications.select{|x| msg.application_id == x.id}.first
       %>
-      <tr>
+      <tr class="<%= i.even_to_s %>">
         <td><input type="checkbox" name="at_messages[]" value="<%= msg.id %>" <%= 'checked="checked"' if !params[:at_messages].nil? && params[:at_messages].include?(msg.id.to_s) %>/></td>
         <td><%= time_ago msg.timestamp %></td>
         <td align="right"><%= msg.id %></td>

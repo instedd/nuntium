@@ -53,7 +53,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
       chan = @channels.select{|x| msg.channel_id == x.id}.first
       app = @applications.select{|x| msg.application_id == x.id}.first
       %>
-      <tr <%= 'class="not_present_in_this_query"' if @ao_ids_not_present_in_query.include? msg.id %>>
+      <tr class="<%= i.even_to_s %>">
         <td><input type="checkbox" name="ao_messages[]" value="<%= msg.id %>" <%= 'checked="checked"' if !params[:ao_messages].nil? && params[:ao_messages].include?(msg.id.to_s) %>/></td>
         <td>
           <% if msg.parent_id

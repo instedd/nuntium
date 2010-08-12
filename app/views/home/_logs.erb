@@ -2,8 +2,6 @@
 
 <div id="logs">
 <form id="logs_form" action="#logs">
-
-<form id="at_messages_form" action="#at">
 <input type="hidden" name="log_page" value="<%= @log_page %>" />
 <input type="hidden" name="log_previous_search" value="<%= @log_search %>" />
 <input type="hidden" name="ao_page" value="<%= @ao_page %>" />
@@ -27,11 +25,11 @@ Search: <input type="text" name="log_search" value="<%= h @log_search %>" size= 
       <th>Text</th>
     </tr>
     <tr>
-    <% @logs.each do |log| %>
+    <% @logs.each_with_index do |log, i| %>
       <%
       chan = @channels.select{|x| log.channel_id == x.id}
       %>
-      <tr>
+      <tr class="<%= i.even_to_s %>">
         <td><%= time_ago log.created_at %></td>
         <td><%= log.severity_html %></td>
         <td><%= chan.length > 0 ? chan[0].name : '' %></td>

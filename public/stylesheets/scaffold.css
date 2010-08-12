@@ -107,7 +107,15 @@ table.table {
   border: 0px;
   padding: 1px;
   background-color: #EFEFEF;
-} 
+}
+
+.table tr.even td {
+  background-color: #EFEFEF;
+}
+
+.table tr.odd td {
+  background-color: #DADADA;
+}
 
 .table th  {
   border: 0px;
