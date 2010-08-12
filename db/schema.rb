@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100804032418) do
+ActiveRecord::Schema.define(:version => 20100812184445) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -43,7 +43,7 @@ ActiveRecord::Schema.define(:version => 20100804032418) do
     t.integer  "application_id"
   end
 
-  add_index "address_sources", ["application_id", "address"], :name => "index_address_sources_on_application_id_and_address"
+  add_index "address_sources", ["application_id", "address", "channel_id"], :name => "address_sources_idx", :unique => true
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
