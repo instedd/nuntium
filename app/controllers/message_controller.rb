@@ -153,5 +153,25 @@ class MessageController < AccountAuthenticatedController
     @kind = 'at'
     render "message.html.erb"
   end
+  
+  def view_thread
+    def esc(name)
+      ActiveRecord::Base.connection.quote_column_name(name)
+    end
+  
+    @address = params[:address]
+    @hide_title = true
+    
+    @applications = @account.applications
+    @channels = @account.channels
+    
+    aos = AOMessage.all :conditions => ["account_id = ? AND #{esc('to')} = ?", @account.id, @address]
+    ats = ATMessage.all :conditions => ["account_id = ? AND #{esc('from')} = ?", @account.id, @address]
+    
+    @msgs = []
+    aos.each {|x| @msgs << x}
+    ats.each {|x| @msgs << x}    
+    @msgs.sort!{|x, y| x.id <=> y.id}
+  end
 
 end

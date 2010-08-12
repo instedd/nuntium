@@ -1,0 +1,51 @@
+<h4>Conversation thread for <%= @address %></h4>
+
+<table border="1" class="table">
+  <tr>
+    <th>AO/AT</th>
+    <th>When</th>
+    <th>Id</th>
+    <th>Guid</th>
+    <th>Channel Relative Id</th>
+    <th>From</th>
+    <th>To</th>
+    <th>Subject</th>
+    <th>Body</th>
+    <th>Channel</th>
+    <th>Application</th>
+    <th>Tries</th>
+    <th>State</th>
+    <th></th>
+  </tr>
+  <% @msgs.each_with_index do |msg, i| %>
+    <% 
+    chan = @channels.select{|x| msg.channel_id == x.id}.first
+    app = @applications.select{|x| msg.application_id == x.id}.first
+    %>
+    <tr class="<%= msg.kind_of?(AOMessage) ? 'ao' : 'at' %>">
+      <td><%= msg.kind_of?(AOMessage) ? 'AO' : 'AT' %></td>
+      <td>
+        <% if msg.kind_of?(AOMessage) && msg.parent_id
+          image_name = @ao_messages[i+1] && @ao_messages[i+1].parent_id == msg.parent_id ? 'branch' : 'branch_end'
+          %>
+          <%= image_tag "#{image_name}.png", :size => '16x16', :style => 'position:relative; top:4px' %>
+        <% end %>
+        <%= time_ago msg.timestamp %>
+      </td>
+      <td align="right"><%= msg.id %></td>
+      <td><%= short_html msg.guid %></td>
+      <td><%= short_html msg.channel_relative_id %></td>
+      <td><%= msg.from %></td>
+      <td><%= msg.to %></td>
+      <td><%= short_html msg.subject %></td>
+      <td><%= short_html msg.body %></td>
+      <td><%= chan ? chan.name : '' %></td>
+      <td><%= app ? app.name : '' %></td>
+      <td align="right"><%= msg.tries %></td>
+      <td><%= msg.state %></td>
+      <td>
+        <%= link_to 'view log', {:controller => :message, :action => :view_ao_message, :id => msg.id}, :target => '_blank'%>
+      </td>
+    </tr>
+  <% end %>
+</table>

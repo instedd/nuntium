@@ -261,7 +261,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
     </tr>
     <tr>
     <% @ao_messages.each_with_index do |msg, i| %>
-      <%
+      <% 
       chan = @channels.select{|x| msg.channel_id == x.id}.first
       app = @applications.select{|x| msg.application_id == x.id}.first
       %>
@@ -279,14 +279,16 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
         <td><%= short_html msg.guid %></td>
         <td><%= short_html msg.channel_relative_id %></td>
         <td><%= msg.from %></td>
-        <td><%= msg.to %></td>
+        <td><%= link_to msg.to, {:controller => :message, :action => :view_thread, :address => msg.to}, :target => '_blank' %></td>
         <td><%= short_html msg.subject %></td>
         <td><%= short_html msg.body %></td>
         <td><%= chan ? chan.name : '' %></td>
         <td><%= app ? app.name : '' %></td>
         <td align="right"><%= msg.tries %></td>
         <td><%= msg.state %></td>
-        <td><%= link_to 'view log', {:controller => :message, :action => :view_ao_message, :id => msg.id}, :target => '_blank'%></td>
+        <td>
+          <%= link_to 'view log', {:controller => :message, :action => :view_ao_message, :id => msg.id}, :target => '_blank'%>
+        </td>
       </tr>
     <% end %>
   </table>
@@ -352,7 +354,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelle
         <td align="right"><%= msg.id %></td>
         <td><%= short_html msg.guid %></td>
         <td><%= short_html msg.channel_relative_id %></td>
-        <td><%= msg.from %></td>
+        <td><%= link_to msg.from, {:controller => :message, :action => :view_thread, :address => msg.from}, :target => '_blank' %></td>
         <td><%= msg.to %></td>
         <td><%= short_html msg.subject %></td>
         <td><%= short_html msg.body %></td>

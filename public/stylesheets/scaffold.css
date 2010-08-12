@@ -95,11 +95,19 @@ table.table {
   border: 0px;
 }
 
+.table tr.ao {
+  color: #00A;
+}
+
+.table tr.at {
+  color: #004;
+}
+
 .table td {
   border: 0px;
   padding: 1px;
   background-color: #EFEFEF;
-}
+} 
 
 .table th  {
   border: 0px;
