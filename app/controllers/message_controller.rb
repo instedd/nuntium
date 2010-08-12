@@ -127,7 +127,7 @@ class MessageController < AccountAuthenticatedController
       application.reroute_ao msg if application
     end
     
-    flash[:notice] = "#{msgs.length} Application Originated messages #{msgs.length == 1 ? 'was' : 'were'} re-routed"
+    flash[:notice] = "#{msgs.length} Application Originated #{msgs.length == 1 ? 'message was' : 'messages were'} re-routed"
     
     params[:controller] = :home
     params[:action] = :home
