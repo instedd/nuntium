@@ -137,7 +137,7 @@ class MessageController < AccountAuthenticatedController
   def view_ao_message
     @id = params[:id]
     @msg = AOMessage.find_by_id @id
-    redirect_to_home if @msg.nil? || @msg.account_id != @account.id
+    return redirect_to_home if @msg.nil? || @msg.account_id != @account.id
     @hide_title = true
     @logs = AccountLog.find_all_by_ao_message_id(@id, :order => :created_at)
     @kind = 'ao'
@@ -147,7 +147,7 @@ class MessageController < AccountAuthenticatedController
   def view_at_message
     @id = params[:id]
     @msg = ATMessage.find_by_id @id
-    redirect_to_home if @msg.nil? || @msg.account_id != @account.id
+    return redirect_to_home if @msg.nil? || @msg.account_id != @account.id
     @hide_title = true
     @logs = AccountLog.find_all_by_at_message_id(@id, :order => :created_at)
     @kind = 'at'
