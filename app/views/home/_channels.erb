@@ -1,0 +1,73 @@
+<h4><%= link_to_function 'Channels', "toggle('channels')" %></h4>
+
+<div id="channels">
+<% if @channels.empty? %>
+  No channels.
+<% else %>
+  <table class="table" cellspacing="4">
+    <tr>
+      <th>Name</th>
+      <th>Kind</th>
+      <th>Direction</th>
+      <th>Protocol</th>
+      <th>Info</th>
+      <th>Priority</th>
+      <th>Application</th>
+      <th>Queued AO Messages</th>
+      <th></th>
+    </tr>
+    <% @channels.each do |chan| %>
+      <tr>
+        <td>
+          <%= image_tag (chan.enabled ? 'enabled' : 'disabled') + '.png', :size => '16x16', :style => 'position:relative; top:4px', :title => 'This channel is ' + (chan.enabled ? 'enabled' : 'disabled') %>
+          <b><%= chan.name %></b></td>
+        <td><%= chan.kind %></td>
+        <td><%= chan.direction_text %></td>
+        <td><%= chan.protocol %></td>
+        <td><%= chan.info.blank? ? '' : chan.info %></td>
+        <td><%= chan.priority %></td>
+        <td><%= @applications.select{|x| x.id == chan.application_id}.first.name rescue nil %></td>
+        <%
+        queued = @channels_queued_count[chan.id]
+        if queued > 0
+          %>
+          <td align="right"><%= link_to queued, :controller => :home, :action => :home, :ao_search => "channel:#{chan.name} state:queued" %></td>
+          <%
+        else
+          %>
+          <td align="right">0</td>
+          <%
+        end
+        %>
+        <td>
+          <% if chan.enabled %>
+            <%= link_to "disable", {:controller => :channel, :action => :disable_channel, :id => chan.id}, :confirm => "Are you sure you want to disable the channel #{chan.name}?" %>
+          <% else %>
+            <%= link_to "enable", :controller => :channel, :action => :enable_channel, :id => chan.id %>
+          <% end %>
+          <%= link_to "edit", :controller => :channel, :action => :edit_channel, :id => chan.id %>
+          <%= link_to "delete", {:controller => :channel, :action => :delete_channel, :id => chan.id}, :confirm => "Are you sure you want to delete the channel #{chan.name}?" %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>
+<br/>
+
+<%
+channel_kinds = [
+  ['Create new...', ''], 
+  ['Clickatell', 'clickatell'], 
+  ['DTAC', 'dtac'], 
+  ['POP3', 'pop3'],
+  ['QST client', 'qst_client'],
+  ['QST server (local gateway)', 'qst_server'],
+  ['SMPP', 'smpp'],
+  ['SMTP', 'smtp'],
+  ['Twitter', 'twitter'],
+  ['XMPP', 'xmpp'],
+  ]
+channel_kinds[1..-1].map!{|x| x[0] << ' channel'}
+%>
+<%= select_tag('new_channel', options_for_select(channel_kinds), :onchange => 'create_channel(this)') %>
+</div>

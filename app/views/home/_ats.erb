@@ -1,0 +1,73 @@
+<h4><%= link_to_function 'Last Application Terminated Messages', "toggle('last_at_messages')", :name => 'at' %></h4>
+
+<div id="last_at_messages">
+<form id="at_messages_form" action="#at">
+<input type="hidden" name="at_page" value="<%= @at_page %>" />
+<input type="hidden" name="at_previous_search" value="<%= @at_search %>" />
+<input type="hidden" name="ao_page" value="<%= @ao_page %>" />
+<input type="hidden" name="ao_search" value="<%= @ao_search %>" />
+<input type="hidden" name="log_page" value="<%= @log_page %>" />
+<input type="hidden" name="log_search" value="<%= @log_search %>" />
+<input type="hidden" id="at_all" name="at_all" value="0" />
+
+<% if @channels.empty? %>
+  Create a Channel to create AT Messages.
+<% else %>
+  <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AT Message">Create new AT Message', :controller => :message, :action => :new_at_message %> &nbsp; &nbsp;
+<% end %>
+Search: <input type="text" name="at_search" value="<%= h @at_search %>" size= "50" /> <a href="http://code.google.com/p/nuntium/wiki/AdvancedSearch" target="_blank" title="You can filter by field like 'id:5', 'before:&quot;20 minutes ago&quot;', 'state:queued', etc.">?</a> &nbsp; &nbsp;
+Select: <%= link_to_function 'all', 'select_all_at_messages()' %>, <%= link_to_function 'none', 'select_none_at_messages()' %> &nbsp; &nbsp;
+Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelled()' %>
+
+<div><%= page_entries_info @at_messages, :entry_name => 'message' %></div>
+<%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_search => @at_search, :anchor => 'at' } %>
+
+<div id="all_at_messages_text" style="display:none"></div>
+
+<% if !@at_messages.empty? %>
+  <table border="1" class="table">
+    <tr>
+      <th></th>
+      <th>When</th>
+      <th>Id</th>
+      <th>Guid</th>
+      <th>Channel Relative Id</th>
+      <th>From</th>
+      <th>To</th>
+      <th>Subject</th>
+      <th>Body</th>
+      <th>Channel</th>
+      <th>Application</th>
+      <th>Tries</th>
+      <th>State</th>
+      <th></th>
+    </tr>
+    <tr>
+    <% @at_messages.each do |msg| %>
+      <%
+      chan = @channels.select{|x| msg.channel_id == x.id}.first
+      app = @applications.select{|x| msg.application_id == x.id}.first
+      %>
+      <tr>
+        <td><input type="checkbox" name="at_messages[]" value="<%= msg.id %>" <%= 'checked="checked"' if !params[:at_messages].nil? && params[:at_messages].include?(msg.id.to_s) %>/></td>
+        <td><%= time_ago msg.timestamp %></td>
+        <td align="right"><%= msg.id %></td>
+        <td><%= short_html msg.guid %></td>
+        <td><%= short_html msg.channel_relative_id %></td>
+        <td><%= link_to msg.from, {:controller => :message, :action => :view_thread, :address => msg.from}, :target => '_blank' %></td>
+        <td><%= msg.to %></td>
+        <td><%= short_html msg.subject %></td>
+        <td><%= short_html msg.body %></td>
+        <td><%= chan ? chan.name : '' %></td>
+        <td><%= app ? app.name : '' %></td>
+        <td align="right"><%= msg.tries %></td>
+        <td><%= msg.state %></td>
+        <td><%= link_to 'view log', {:controller => :message, :action => :view_at_message, :id => msg.id}, :target => '_blank'%></td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>
+
+<%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_search => @at_search, :anchor => 'at' } %>
+</form>
+</div>
