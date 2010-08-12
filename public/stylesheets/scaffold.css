@@ -90,6 +90,10 @@ h5 {
   padding: 2px;
 }
 
+input.highlighted {
+  background-color: #FFF1A8;
+}
+
 table.table {
   padding: 0px;
   border: 0px;
