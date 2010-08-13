@@ -12,26 +12,28 @@ if as_restriction
   
   <p>
   An AO message will not be routed to this channel if its fields or custom attributes do not match those of this channel's restrictions.
+  <a href="http://code.google.com/p/nuntium/wiki/Channels#Channel_Filter_Phase" target="_blank">Learn more...</a>
   </p>  
   <%
 else
   %>
   <h5>Custom Attributes</h5>
   
+  <p>
   <%
   if @kind == 'ao'
     %>
-    <p>
     Used by channels' restrictions. Can also override the routing strategy or specify the channel to be routed to.
-    </p>
     <%
   else
     %>
-    <p>
     Can override the application this message will be routed to.
-    </p>
     <%
   end
+  %>
+  <a href="http://code.google.com/p/nuntium/wiki/Messages#Custom_attributes" target="_blank">Learn more...</a>
+  </p>
+  <%
 end
 %>
 
