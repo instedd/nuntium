@@ -19,6 +19,7 @@ Search: <input type="text" name="log_search" value="<%= h @log_search %>" size= 
     <tr>
       <th>When</th>
       <th>Severity</th>
+      <th>Application</th>
       <th>Channel</th>
       <th>AO Message</th>
       <th>AT Message</th>
@@ -28,10 +29,12 @@ Search: <input type="text" name="log_search" value="<%= h @log_search %>" size= 
     <% @logs.each_with_index do |log, i| %>
       <%
       chan = @channels.select{|x| log.channel_id == x.id}
+      app = @applications.select{|x| log.application_id == x.id}
       %>
       <tr class="<%= i.even_to_s %>">
         <td><%= time_ago log.created_at %></td>
         <td><%= log.severity_html %></td>
+        <td><%= app.length > 0 ? app[0].name : '' %></td>
         <td><%= chan.length > 0 ? chan[0].name : '' %></td>
         <td><%= link_to "#{log.ao_message_id}", {:controller => :message, :action => :view_ao_message, :id => log.ao_message_id}, :target => '_blank' if !log.ao_message_id.nil? %></td>
         <td><%= link_to "#{log.at_message_id}", {:controller => :message, :action => :view_at_message, :id => log.at_message_id}, :target => '_blank' if !log.at_message_id.nil? %></td>
