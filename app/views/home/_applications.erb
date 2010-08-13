@@ -2,6 +2,18 @@
 
 <div id="applications">
 
+<%
+if @applications.length > 1 && @account.app_routing_rules.blank?
+  %>
+  <p id="errorExplanation">
+  Now that you have more than one application you should configure rules
+  to determine the application an AT message is routed to.
+  <%= link_to "Do this now", :controller => :home, :action => :edit_account %>  
+  </p>
+  <%
+end
+%>
+
 <p>
 A Nuntium Application simply represents your application.<br/>
 If you have many applications you would create many Nuntium Applications, and you can choose to interface with each of them in a different way.
