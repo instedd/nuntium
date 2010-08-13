@@ -4,6 +4,9 @@
 <% if @applications.empty? and @channels.empty? %>
   To interact with this account you must first create a new application or a new channel.
 <% else %>
+
+  <p>These are the ways you can interface with nuntium:</p>
+
   <div style="padding-left:20px">
   
   <% if @channels.any?{|c| c.kind == 'clickatell'} %>
@@ -26,7 +29,7 @@
       <li><span style="font-family:monospace">GET <%= url_for :controller => :dtac, :action => :index, :account_id => @account.id %></span>:
         create Application Terminated Messages</li>
     </ul>
-  <% end %><th>Strategy</th>
+  <% end %>
   
   <% if not @applications.empty? %>
     <div><b>Via HTTP GET</b></div>

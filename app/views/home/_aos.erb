@@ -1,5 +1,9 @@
 <h4><%= link_to_function 'Last Application Originated Messages', "toggle('last_ao_messages')", :name => 'ao' %></h4>
 
+<p>
+Messages sent from your application into Nuntium and then into the world are called Application Originated messages. <a href="http://code.google.com/p/nuntium/wiki/Messages#Application_Originated_messages" target="_blank">Learn more...</a>
+</p>
+
 <div id="last_ao_messages">
 <form id="ao_messages_form" action="#ao">
 <input type="hidden" name="ao_page" value="<%= @ao_page %>" />

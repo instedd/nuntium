@@ -8,7 +8,7 @@
 </head>
 <body>
 <% if @hide_title.nil? %>
-  <%= link_to 'nuntium', {:controller => :home, :action => :index}, :id => 'title' %>
+  <%= link_to 'Nuntium', {:controller => :home, :action => :index}, :id => 'title' %>
   <% if !@account.nil? && !@account.id.nil? %>
     <span id="toolbar"><%= @account.name %> | <%= link_to 'Help', 'http://code.google.com/p/nuntium/', :target => '_blank' %> | <%= link_to 'Logoff', :controller => :home, :action => :logoff %></span>
   <% end %>
