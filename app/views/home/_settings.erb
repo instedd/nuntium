@@ -1,4 +1,4 @@
-<h4><%= link_to_function 'Settings', "toggle('settings')" %></h4>
+<h4><%= link_to_function 'Settings and Application Routing Rules', "toggle('settings')" %></h4>
 
 <div id="settings" style="display:none">
 <ul>
@@ -6,6 +6,6 @@
 </ul>
 
 <ul>
-  <li><%= link_to "Edit Settings / Change password", :controller => :home, :action => :edit_account %></li>
+  <li><%= link_to "Edit Settings / Edit Application Routing Rules", :controller => :home, :action => :edit_account %></li>
 </ul>
 </div>
