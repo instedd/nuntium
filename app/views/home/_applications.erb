@@ -7,9 +7,9 @@ A Nuntium Application simply represents your application.<br/>
 If you have many applications you would create many Nuntium Applications, and you can choose to interface with each of them in a different way.
 </p>
 
-<% if @applications.empty? %>
-  No applications.
-<% else %>
+<p><%= link_to 'Create new Application', :controller => :home, :action => :new_application %></p>
+
+<% unless @applications.empty? %>  
   <table class="table" cellspacing="4">
     <tr>
       <th>Name</th>
@@ -34,7 +34,5 @@ If you have many applications you would create many Nuntium Applications, and yo
     <% end %>
   </table>
 <% end %>
-<br/>
 
-<%= link_to 'Create new Application', :controller => :home, :action => :new_application %>
 </div>

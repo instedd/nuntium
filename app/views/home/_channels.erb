@@ -5,10 +5,25 @@ A channel lets Nuntium communicate with the world.<br/>
 By "the world" we mean anything that's not your particular application. For example: cellphone companies, email clients and twitter. <a href="http://code.google.com/p/nuntium/wiki/Channels" target="_blank">Learn more...</a>
 </p>
 
+<%
+channel_kinds = [
+  ['Create new...', ''], 
+  ['Clickatell', 'clickatell'], 
+  ['DTAC', 'dtac'], 
+  ['POP3', 'pop3'],
+  ['QST client', 'qst_client'],
+  ['QST server (local gateway)', 'qst_server'],
+  ['SMPP', 'smpp'],
+  ['SMTP', 'smtp'],
+  ['Twitter', 'twitter'],
+  ['XMPP', 'xmpp'],
+  ]
+channel_kinds[1..-1].map!{|x| x[0] << ' channel'}
+%>
+<p><%= select_tag('new_channel', options_for_select(channel_kinds), :onchange => 'create_channel(this)') %></p>
+
 <div id="channels">
-<% if @channels.empty? %>
-  No channels.
-<% else %>
+<% unless @channels.empty? %>
   <table class="table" cellspacing="4">
     <tr>
       <th>Name</th>
@@ -57,22 +72,4 @@ By "the world" we mean anything that's not your particular application. For exam
     <% end %>
   </table>
 <% end %>
-<br/>
-
-<%
-channel_kinds = [
-  ['Create new...', ''], 
-  ['Clickatell', 'clickatell'], 
-  ['DTAC', 'dtac'], 
-  ['POP3', 'pop3'],
-  ['QST client', 'qst_client'],
-  ['QST server (local gateway)', 'qst_server'],
-  ['SMPP', 'smpp'],
-  ['SMTP', 'smtp'],
-  ['Twitter', 'twitter'],
-  ['XMPP', 'xmpp'],
-  ]
-channel_kinds[1..-1].map!{|x| x[0] << ' channel'}
-%>
-<%= select_tag('new_channel', options_for_select(channel_kinds), :onchange => 'create_channel(this)') %>
 </div>
