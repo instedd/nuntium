@@ -1,10 +1,11 @@
 <h4><%= link_to_function 'Last Application Terminated Messages', "toggle('last_at_messages')", :name => 'at' %></h4>
 
+<div id="last_at_messages">
+
 <p>
 Messages sent from the world into Nuntium and then into your application are called Application Terminated messages. <a href="http://code.google.com/p/nuntium/wiki/Messages#Application_Terminated_messages" target="_blank">Learn more...</a>
 </p>
 
-<div id="last_at_messages">
 <form id="at_messages_form" action="#at">
 <input type="hidden" name="at_page" value="<%= @at_page %>" />
 <input type="hidden" name="at_previous_search" value="<%= @at_search %>" />

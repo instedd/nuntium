@@ -1,5 +1,7 @@
 <h4><%= link_to_function 'Channels', "toggle('channels')" %></h4>
 
+<div id="channels">
+
 <p>
 A channel lets Nuntium communicate with the world.<br/>
 By "the world" we mean anything that's not your particular application. For example: cellphone companies, email clients and twitter. <a href="http://code.google.com/p/nuntium/wiki/Channels" target="_blank">Learn more...</a>
@@ -22,7 +24,6 @@ channel_kinds[1..-1].map!{|x| x[0] << ' channel'}
 %>
 <p><%= select_tag('new_channel', options_for_select(channel_kinds), :onchange => 'create_channel(this)') %></p>
 
-<div id="channels">
 <% unless @channels.empty? %>
   <table class="table" cellspacing="4">
     <tr>
