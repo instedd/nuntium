@@ -442,28 +442,13 @@ function add_matching_ui(rule_id, add_matching, prefix, matching, matchings) {
 	
 	// fill matching ui
 	if (!matchings) {
-	  matchings = ['application', 'country', 'carrier', 'other']; 
+	  matchings = ['application', 'body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other']; 
 	}
 	
 	var name_prefix = prefix + '[matchings][' + matching_id + ']';
 	var matching_ui_str = '';
 	matching_ui_str += '<span class="property"><select name="' + name_prefix +'[property]">';
-	for(var i = 0; i < matchings.length; i++) {
-	  switch(matchings[i]) {
-	  case 'application':
-	    matching_ui_str += '<option value="application">Application</option>';
-	    break;
-	  case 'country':
-	    matching_ui_str += '<option value="country">Country</option>';
-	    break;
-    case 'carrier':
-	    matching_ui_str += '<option value="carrier">Carrier</option>';
-	    break;
-    case 'other':
-      matching_ui_str += '<option value="other">Other...</option></select>';
-      break;
-	  }
-	}
+	matching_ui_str += property_combo_string(matchings);
 	matching_ui_str += '</select></span>';
 	
 	matching_ui.append(matching_ui_str);
@@ -492,28 +477,13 @@ function add_action_ui(rule_id, add_action, prefix, action, actions) {
 	
 	// fill action ui
 	if (!actions) {
-	  actions = ['application', 'country', 'carrier', 'other'];
+	  actions = ['application', 'body', 'country', 'carrier', 'from', 'subject', 'to', 'other'];
 	}
 	
 	var name_prefix = prefix + '[actions][' + action_id + ']';
 	var action_ui_str = '';
 	action_ui_str += '<span class="property"><select name="' + name_prefix +'[property]">';
-	for(var i = 0; i < actions.length; i++) {
-	  switch(actions[i]) {
-	  case 'application':
-	    action_ui_str += '<option value="application">Application</option>';
-	    break;
-	  case 'country':
-	    action_ui_str += '<option value="country">Country</option>';
-	    break;
-    case 'carrier':
-	    action_ui_str += '<option value="carrier">Carrier</option>';
-	    break;
-    case 'other':
-      action_ui_str += '<option value="other">Other...</option></select>';
-      break;
-	  }
-	}
+	action_ui_str += property_combo_string(actions);
 	action_ui_str += '</span>';
 	
 	action_ui.append(action_ui_str);
@@ -566,6 +536,9 @@ function init_properties(name_prefix, property, propertyDiv, valueDiv, operatorS
       break;
 	  case 'other':
 	    init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect);
+	    break;
+	  default:
+	    init_property_field(name_prefix, propertyDiv, valueDiv, operatorSelect);
 	    break;
 	  }
 	};
@@ -667,7 +640,22 @@ function init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect,
       operatorSelect.val(existing.operator);
     }
   }
-} 
+}
+
+function init_property_field(name_prefix, propertyDiv, valueDiv, operatorSelect, existing) {
+  if (operatorSelect) {
+    operatorSelect.html(op_all());
+  }
+  valueDiv.html('<input type="text" name="' + name_prefix +'[value]"/>');
+  
+  if (existing) {
+    jQuery('input', propertyDiv).val(existing.property);
+    jQuery('input', valueDiv).val(existing.value);
+    if (operatorSelect) {
+      operatorSelect.val(existing.operator);
+    }
+  }
+}
 
 function init_existing_property(existing, name_prefix, property, propertyDiv, valueDiv, operatorSelect) {
   property.val(existing.property);
@@ -681,6 +669,13 @@ function init_existing_property(existing, name_prefix, property, propertyDiv, va
   case 'carrier':
     init_property_carrier(name_prefix, valueDiv, operatorSelect, existing);
     break;
+  case 'from':
+  case 'to':
+  case 'subject':
+  case 'body':
+  case 'subject_and_body':
+    init_property_field(name_prefix, propertyDiv, valueDiv, operatorSelect, existing);
+    break;
   default:
     init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect, existing);
     break;
@@ -693,4 +688,40 @@ function op_equals_not_equals() {
 
 function op_all() {
   return '<option value="equals">is</option><option value="not_equals">is not</option><option value="starts_with">starts with</option><option value="regex">regex</option>';
+}
+
+function property_combo_string(actions) {
+  str = '';
+  for(var i = 0; i < actions.length; i++) {
+	  switch(actions[i]) {
+	  case 'application':
+	    str += '<option value="application">Application</option>';
+	    break;
+	  case 'body':
+	    str += '<option value="body">Body</option>';
+	    break;
+	  case 'country':
+	    str += '<option value="country">Country</option>';
+	    break;
+    case 'carrier':
+	    str += '<option value="carrier">Carrier</option>';
+	    break;
+	  case 'from':
+	    str += '<option value="from">From</option>';
+	    break;
+    case 'subject':
+	    str += '<option value="subject">Subject</option>';
+	    break;
+	  case 'subject_and_body':
+	    str += '<option value="subject_and_body">Subject and Body</option>';
+	    break;
+	  case 'to':
+	    str += '<option value="to">To</option>';
+	    break;
+    case 'other':
+      str += '<option value="other">Other...</option></select>';
+      break;
+	  }
+	}
+	return str;
 }
