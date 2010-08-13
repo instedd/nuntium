@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100812185514) do
+ActiveRecord::Schema.define(:version => 20100813131522) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -68,6 +68,7 @@ ActiveRecord::Schema.define(:version => 20100812185514) do
     t.integer  "parent_id"
   end
 
+  add_index "ao_messages", ["account_id", "to", "id"], :name => "index_ao_messages_on_account_id_and_to_and_id"
   add_index "ao_messages", ["channel_id", "channel_relative_id"], :name => "index_ao_messages_on_channel_id_and_channel_relative_id"
   add_index "ao_messages", ["guid"], :name => "index_ao_messages_on_guid"
 
@@ -100,6 +101,8 @@ ActiveRecord::Schema.define(:version => 20100812185514) do
     t.text     "custom_attributes"
     t.integer  "application_id"
   end
+
+  add_index "at_messages", ["account_id", "from", "id"], :name => "index_at_messages_on_account_id_and_from_and_id"
 
   create_table "carriers", :force => true do |t|
     t.integer  "country_id"
