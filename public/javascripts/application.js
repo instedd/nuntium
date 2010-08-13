@@ -403,29 +403,29 @@ function accept_when_not_specified_checkbox(checked) {
 var rules_nextId = 0;
 function rules_newId() { rules_nextId++; return rules_nextId; }
 
-function add_rule_ui(ctx, prefix, rule) {
+function add_rule_ui(ctx, prefix, rule, matchings, actions) {
 	var table = jQuery('table', ctx);
 	
 	var rule_id = rules_newId();
 	var rule_prefix = prefix + '[' + rule_id + ']'
 	
-	var row = jQuery('<tr><td><a href="#" class="remove-rule">[x]</a></td><td><a href="#" class="add-matching">add matching</a></td><td><a href="#" class="add-action">add action</a></td><td><input type="checkbox" name="' + rule_prefix +'[stop]" value="yes"></td></tr>');
+	var row = jQuery('<tr><td><a href="#" class="remove-rule">[x]</a></td><td><a href="#" class="add-matching">add condition</a></td><td><a href="#" class="add-action">add action</a></td><td><input type="checkbox" name="' + rule_prefix +'[stop]" value="yes"></td></tr>');
 	table.append(row);
 	var add_matching = jQuery('.add-matching', row);
 	var add_action = jQuery('.add-action', row);
 	
 	jQuery('.remove-rule', row).click(function(){ row.remove(); return false; });
-	add_matching.click(function(){ add_matching_ui(rule_id, add_matching, rule_prefix, null); return false; });
-	add_action.click(function(){ add_action_ui(rule_id, add_action, rule_prefix, null); return false; });
+	add_matching.click(function(){ add_matching_ui(rule_id, add_matching, rule_prefix, null, matchings, actions); return false; });
+	add_action.click(function(){ add_action_ui(rule_id, add_action, rule_prefix, null, matchings, actions); return false; });
 	
 	if (rule != null) {		
 		// load existing matchings
 		jQuery(rule.matchings).each(function(_, matching){
-			add_matching_ui(rule_id, add_matching, rule_prefix, matching);
+			add_matching_ui(rule_id, add_matching, rule_prefix, matching, matchings);
 		});
 		// load existing actions
 		jQuery(rule.actions).each(function(_, action){
-			add_action_ui(rule_id, add_action, rule_prefix, action);
+			add_action_ui(rule_id, add_action, rule_prefix, action, actions);
 		});
 		// load stop value
 		if (rule.stop) {
@@ -434,15 +434,39 @@ function add_rule_ui(ctx, prefix, rule) {
 	}
 }
 
-function add_matching_ui(rule_id, add_matching, prefix, matching) {
+function add_matching_ui(rule_id, add_matching, prefix, matching, matchings) {
 	// add matching ui
 	var matching_id = rules_newId();
 	var matching_ui = jQuery('<div/>');
 	add_matching.before(matching_ui);
 	
 	// fill matching ui
+	if (!matchings) {
+	  matchings = ['application', 'country', 'carrier', 'other']; 
+	}
+	
 	var name_prefix = prefix + '[matchings][' + matching_id + ']';
-	matching_ui.append('<span class="property"><select name="' + name_prefix +'[property]"><option value="application">Application</option><option value="country">Country</option><option value="carrier">Carrier</option><option value="other">Other...</option></select></span>');
+	var matching_ui_str = '';
+	matching_ui_str += '<span class="property"><select name="' + name_prefix +'[property]">';
+	for(var i = 0; i < matchings.length; i++) {
+	  switch(matchings[i]) {
+	  case 'application':
+	    matching_ui_str += '<option value="application">Application</option>';
+	    break;
+	  case 'country':
+	    matching_ui_str += '<option value="country">Country</option>';
+	    break;
+    case 'carrier':
+	    matching_ui_str += '<option value="carrier">Carrier</option>';
+	    break;
+    case 'other':
+      matching_ui_str += '<option value="other">Other...</option></select>';
+      break;
+	  }
+	}
+	matching_ui_str += '</select></span>';
+	
+	matching_ui.append(matching_ui_str);
 	matching_ui.append('<select class="operator" name="' + name_prefix +'[operator]"><option value="equals">equals</option><option value="not_equals">not equals</option><option value="starts_with">starts with</option><option value="regex">regex</option></select>');
 	matching_ui.append('<span class="value"><input type="text" name="' + name_prefix +'[value]"/></span>');
 	matching_ui.append('<a href="#" class="remove-matching">[x]</a>');
@@ -460,15 +484,39 @@ function add_matching_ui(rule_id, add_matching, prefix, matching) {
 	}
 }
 
-function add_action_ui(rule_id, add_action, prefix, action) {
+function add_action_ui(rule_id, add_action, prefix, action, actions) {
 	// add action ui
 	var action_id = rules_newId();
 	var action_ui = jQuery('<div/>');
 	add_action.before(action_ui);
 	
 	// fill action ui
+	if (!actions) {
+	  actions = ['application', 'country', 'carrier', 'other'];
+	}
+	
 	var name_prefix = prefix + '[actions][' + action_id + ']';
-	action_ui.append('<span class="property"><select name="' + name_prefix +'[property]"><option value="application">Application</option><option value="country">Country</option><option value="carrier">Carrier</option><option value="other">Other...</option></select></span>');
+	var action_ui_str = '';
+	action_ui_str += '<span class="property"><select name="' + name_prefix +'[property]">';
+	for(var i = 0; i < actions.length; i++) {
+	  switch(actions[i]) {
+	  case 'application':
+	    action_ui_str += '<option value="application">Application</option>';
+	    break;
+	  case 'country':
+	    action_ui_str += '<option value="country">Country</option>';
+	    break;
+    case 'carrier':
+	    action_ui_str += '<option value="carrier">Carrier</option>';
+	    break;
+    case 'other':
+      action_ui_str += '<option value="other">Other...</option></select>';
+      break;
+	  }
+	}
+	action_ui_str += '</span>';
+	
+	action_ui.append(action_ui_str);
 	action_ui.append(' = ');
 	action_ui.append('<span class="value"><input type="text" name="' + name_prefix +'[value]"/></span>');
 	action_ui.append('<a href="#" class="remove-action">[x]</a>');
@@ -485,20 +533,20 @@ function add_action_ui(rule_id, add_action, prefix, action) {
 	}
 }
 
-function init_rules(ctx, prefix, rules) {
+function init_rules(ctx, prefix, rules, matchings, actions) {
 	// initial ui
-	ctx.append('<table class="table"><tr><th>&nbsp;</th><th>Matching</th><th>Action</th><th>Stop</th></tr></table>');
+	ctx.append('<table class="table"><tr><th>&nbsp;</th><th>Condition</th><th>Action</th><th>Stop</th></tr></table>');
 	ctx.append('<div><a href="#" class="add-rule">add rule</a></div><br/>');
 		
 	jQuery('.add-rule', ctx).click(function(){
-		add_rule_ui(ctx, prefix, null);				
+		add_rule_ui(ctx, prefix, null, matchings, actions);				
 		return false;
 	});
 	
 	// load existing rules
 	if (rules != null) {
 		jQuery(rules).each(function(_, rule){
-			add_rule_ui(ctx, prefix, rule);
+			add_rule_ui(ctx, prefix, rule, matchings, actions);
 		});
 	}
 }
@@ -640,9 +688,9 @@ function init_existing_property(existing, name_prefix, property, propertyDiv, va
 }
 
 function op_equals_not_equals() {
-  return '<option value="equals">equals</option><option value="not_equals">not equals</option>';
+  return '<option value="equals">is</option><option value="not_equals">is not</option>';
 }
 
 function op_all() {
-  return '<option value="equals">equals</option><option value="not_equals">not equals</option><option value="starts_with">starts with</option><option value="regex">regex</option>';
+  return '<option value="equals">is</option><option value="not_equals">is not</option><option value="starts_with">starts with</option><option value="regex">regex</option>';
 }
