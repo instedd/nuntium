@@ -5,55 +5,14 @@ class HomeController < AccountAuthenticatedController
   include MessageFilters
   include RulesControllerCommon
 
-  before_filter :check_login, :except => [:index, :login, :create_account]
-  after_filter :compress, :only => [:index, :login, :home, :edit_account]
+  before_filter :check_login, :except => [:login, :create_account]
+  after_filter :compress, :only => [:index, :login, :edit_account, :new_application, :edit_application]
   
   before_filter :check_application, :only => [:edit_application, :update_application, :delete_application]
 
   def index
-    if !session[:account_id].nil?
-      redirect_to_home
-      return
-    end
-  end
-  
-  def login
-    account = params[:account]
-    return redirect_to_home if account.nil?
-    
-    @account = Account.find_by_name account[:name]
-    if @account.nil? || !@account.authenticate(account[:password])
-      @account.clear_password unless @account.nil?
-      flash[:notice] = 'Invalid name/password'
-      return render :index
-    end
-    
-    flash[:notice] = nil
-    session[:account_id] = @account.id
-    redirect_to_home
-  end
-  
-  def create_account
-    return render :text => 'This funcionality has been disabled, contact the system administrator' if AccountCreationDisabled
-  
-    account = params[:new_account]
-    return redirect_to_home if account.nil?
-    
-    flash[:notice] = nil
-    
-    @new_account = Account.new(account)
-    if !@new_account.save
-      @new_account.clear_password
-      return render :index
-    end
-    
-    session[:account_id] = @new_account.id
-    redirect_to_home
-  end
-  
-  def home
     @results_per_page = 10
-    
+  
     build_ao_messages_filter
     
     @ao_messages = AOMessage.paginate(
@@ -95,6 +54,42 @@ class HomeController < AccountAuthenticatedController
     end
     
     @applications = @account.applications
+    
+    render :template => 'home/home'
+  end
+  
+  def login
+    account = params[:account]
+    return redirect_to_home if account.nil?
+    
+    @account = Account.find_by_name account[:name]
+    if @account.nil? || !@account.authenticate(account[:password])
+      @account.clear_password unless @account.nil?
+      flash[:notice] = 'Invalid name/password'
+      return render :index
+    end
+    
+    flash[:notice] = nil
+    session[:account_id] = @account.id
+    redirect_to_home
+  end
+  
+  def create_account
+    return render :text => 'This funcionality has been disabled, contact the system administrator' if AccountCreationDisabled
+  
+    account = params[:new_account]
+    return redirect_to_home if account.nil?
+    
+    flash[:notice] = nil
+    
+    @new_account = Account.new(account)
+    if !@new_account.save
+      @new_account.clear_password
+      return render :index
+    end
+    
+    session[:account_id] = @new_account.id
+    redirect_to_home
   end
   
   def edit_account

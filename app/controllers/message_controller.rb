@@ -105,7 +105,7 @@ class MessageController < AccountAuthenticatedController
     flash[:notice] = "#{affected} Application #{k} messages #{affected == 1 ? 'was' : 'were'} marked as cancelled"    
     
     params[:controller] = :home
-    params[:action] = :home
+    params[:action] = :index
     redirect_to params
   end
   
@@ -130,7 +130,7 @@ class MessageController < AccountAuthenticatedController
     flash[:notice] = "#{msgs.length} Application Originated #{msgs.length == 1 ? 'message was' : 'messages were'} re-routed"
     
     params[:controller] = :home
-    params[:action] = :home
+    params[:action] = :index
     redirect_to params
   end
   

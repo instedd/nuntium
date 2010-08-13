@@ -7,7 +7,7 @@ class HomeControllerTest < ActionController::TestCase
     get :login, :account => {:name => account.name, :password => 'account_pass'}
     
     # Go to account home page
-    assert_redirected_to(:controller => 'home', :action => 'home')
+    assert_redirected_to(:controller => 'home', :action => 'index')
     
     # Account id was saved in session
     assert_equal account.id, session[:account_id]
@@ -19,7 +19,7 @@ class HomeControllerTest < ActionController::TestCase
     get :create_account, :new_account => attrs
     
     # Go to account home page
-    assert_redirected_to(:controller => 'home', :action => 'home')
+    assert_redirected_to(:controller => 'home', :action => 'index')
     
     # The account was created
     accounts = Account.all
@@ -39,7 +39,7 @@ class HomeControllerTest < ActionController::TestCase
     get :update_account, {:account => {:max_tries => 1, :password => '', :password_confirmation => ''}}, {:account_id => account.id}
     
     # Go to account home page
-    assert_redirected_to(:controller => 'home', :action => 'home')
+    assert_redirected_to(:controller => 'home', :action => 'index')
     assert_equal 'Account was changed', flash[:notice]
     
     # The account was changed
@@ -57,7 +57,7 @@ class HomeControllerTest < ActionController::TestCase
     get :update_account, {:account => {:max_tries => 3, :password => 'new_pass', :password_confirmation => 'new_pass'}}, {:account_id => account.id}
     
     # Go to account home page
-    assert_redirected_to(:controller => 'home', :action => 'home')
+    assert_redirected_to(:controller => 'home', :action => 'index')
     assert_equal 'Account was changed', flash[:notice]
     
     # The account was changed
@@ -70,7 +70,7 @@ class HomeControllerTest < ActionController::TestCase
 
   test "home" do
     account = Account.make
-    get :home, {}, {:account_id => account.id}
+    get :index, {}, {:account_id => account.id}
     assert_template 'home/home.html.erb'
   end
   

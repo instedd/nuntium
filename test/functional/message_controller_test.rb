@@ -27,7 +27,7 @@ class MessageControllerTest < ActionController::TestCase
   test "mark ao messages as cancelled" do
     get :mark_ao_messages_as_cancelled, {:ao_messages => [@ao_msg1.id, @ao_msg2.id]}, {:account_id => @account.id}
     
-    assert_redirected_to(:controller => 'home', :action => 'home', :ao_messages => [@ao_msg1.id, @ao_msg2.id])
+    assert_redirected_to(:controller => 'home', :action => 'index', :ao_messages => [@ao_msg1.id, @ao_msg2.id])
     assert_equal '2 Application Originated messages were marked as cancelled', flash[:notice]
     
     assert_fields :ao, :state, 'cancelled', 'cancelled', 'pending'
@@ -36,7 +36,7 @@ class MessageControllerTest < ActionController::TestCase
   test "mark ao messages as cancelled using search" do
     get :mark_ao_messages_as_cancelled, {:ao_all => 1, :ao_search => 'one'}, {:account_id => @account.id}
     
-    assert_redirected_to(:controller => 'home', :action => 'home', :ao_all => 1, :ao_search => 'one')
+    assert_redirected_to(:controller => 'home', :action => 'index', :ao_all => 1, :ao_search => 'one')
     assert_equal '2 Application Originated messages were marked as cancelled', flash[:notice]
     
     assert_fields :ao, :state, 'cancelled', 'cancelled', 'pending'
@@ -45,7 +45,7 @@ class MessageControllerTest < ActionController::TestCase
   test "mark at messages as cancelled" do
     get :mark_at_messages_as_cancelled, {:at_messages => [@at_msg1.id, @at_msg2.id]}, {:account_id => @account.id}
     
-    assert_redirected_to(:controller => 'home', :action => 'home', :at_messages => [@at_msg1.id, @at_msg2.id])
+    assert_redirected_to(:controller => 'home', :action => 'index', :at_messages => [@at_msg1.id, @at_msg2.id])
     assert_equal '2 Application Terminated messages were marked as cancelled', flash[:notice]
     
     assert_fields :at, :state, 'cancelled', 'cancelled', 'queued'
@@ -54,7 +54,7 @@ class MessageControllerTest < ActionController::TestCase
   test "mark at messages as cancelled using search" do
     get :mark_at_messages_as_cancelled, {:at_all => 1, :at_search => 'one'}, {:account_id => @account.id}
     
-    assert_redirected_to(:controller => 'home', :action => 'home', :at_all => 1, :at_search => 'one')
+    assert_redirected_to(:controller => 'home', :action => 'index', :at_all => 1, :at_search => 'one')
     assert_equal '2 Application Terminated messages were marked as cancelled', flash[:notice]
     
     assert_fields :at, :state, 'cancelled', 'cancelled', 'queued'
@@ -63,7 +63,7 @@ class MessageControllerTest < ActionController::TestCase
   test "re-route ao messages" do
     get :reroute_ao_messages, {:ao_messages => [@ao_msg1.id, @ao_msg2.id]}, {:account_id => @account.id}
     
-    assert_redirected_to(:controller => 'home', :action => 'home', :ao_messages => [@ao_msg1.id, @ao_msg2.id])
+    assert_redirected_to(:controller => 'home', :action => 'index', :ao_messages => [@ao_msg1.id, @ao_msg2.id])
     assert_equal '2 Application Originated messages were re-routed', flash[:notice]
     
     assert_fields :ao, :state, 'queued', 'queued', 'pending'
@@ -73,7 +73,7 @@ class MessageControllerTest < ActionController::TestCase
   test "re-route ao messages using search" do
     get :reroute_ao_messages, {:ao_all => 1, :ao_search => 'one'}, {:account_id => @account.id}
     
-    assert_redirected_to(:controller => 'home', :action => 'home', :ao_all => 1, :ao_search => 'one')
+    assert_redirected_to(:controller => 'home', :action => 'index', :ao_all => 1, :ao_search => 'one')
     assert_equal '2 Application Originated messages were re-routed', flash[:notice]
     
     assert_fields :ao, :state, 'queued', 'queued', 'pending'

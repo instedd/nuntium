@@ -24,6 +24,10 @@ module ApplicationHelper
     '<span title="' << time.utc.to_s << '">' << time_ago_in_words(time.utc, true) << ' ago</span>'
   end
   
+  def go_back_link
+    link_to 'Go back', :controller => :home, :action => :index
+  end
+  
   def nuntium_version
     begin
       @@nuntium_version = File.read('VERSION').strip unless defined? @@nuntium_version

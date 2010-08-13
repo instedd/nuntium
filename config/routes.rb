@@ -1,8 +1,7 @@
 ActionController::Routing::Routes.draw do |map|
   # Home
   map.root :controller => 'home'
-  map.home '/home', :controller => 'home', :action => :home
-
+  
   # Interfaces
   map.resources :rss, :path_prefix => '/:account_name/:application_name', :only => [:index, :create]
   map.send_ao '/:account_name/:application_name/send_ao', :controller => 'send_ao', :action => :create
