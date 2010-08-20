@@ -34,20 +34,21 @@ class ReceivePop3MessageJob
       tmail = TMail::Mail.parse(mail.pop)
       tmail_body = get_body tmail
       
-      tmail.to.each do |receiver|
-        msg = ATMessage.new
-        msg.from = "mailto://#{tmail.from[0]}"
-        msg.to = "mailto://#{receiver}"
-        msg.subject = tmail.subject
-        msg.body = tmail_body
-        if remove_quoted
-          msg.body = ReceivePop3MessageJob.remove_quoted_text_or_text_after_first_empty_line msg.body
-        end
-        msg.channel_relative_id = tmail.message_id
-        msg.timestamp = tmail.date
-        
-        account.route_at msg, @channel
+      sender = (tmail.from || []).first
+      receiver = (tmail.to || []).first
+      
+      msg = ATMessage.new
+      msg.from = "mailto://#{sender}"
+      msg.to = "mailto://#{receiver}"
+      msg.subject = tmail.subject
+      msg.body = tmail_body
+      if remove_quoted
+        msg.body = ReceivePop3MessageJob.remove_quoted_text_or_text_after_first_empty_line msg.body
       end
+      msg.channel_relative_id = tmail.message_id
+      msg.timestamp = tmail.date
+      
+      account.route_at msg, @channel
       
       mail.delete
       break if not has_quota?

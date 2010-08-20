@@ -76,10 +76,38 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     assert_equal "Hello", result
   end
   
+  should "not throw if mail has no to field" do
+    @email.to = nil
+  
+    AccountLogger.expects(:exception_in_channel).never
+    
+    mail = mock('Net::POPMail')
+    mail.stubs :pop => msg_as_email(@email)
+    
+    expect_connection @chan, mail
+    receive
+    
+    assert_equal 1, ATMessage.count
+  end
+  
+  should "not throw if mail has no from field" do
+    @email.from = nil
+  
+    AccountLogger.expects(:exception_in_channel).never
+    
+    mail = mock('Net::POPMail')
+    mail.stubs :pop => msg_as_email(@email)
+    
+    expect_connection @chan, mail
+    receive
+    
+    assert_equal 1, ATMessage.count
+  end
+  
   def msg_as_email(email)
     msg = ""
-    msg << "From: #{email.from.without_protocol}\n"
-    msg << "To: #{email.to.without_protocol}\n"
+    msg << "From: #{email.from.without_protocol}\n" if email.from
+    msg << "To: #{email.to.without_protocol}\n" if email.to
     msg << "Subject: #{email.subject}\n"
     msg << "Date: Thu, 5 Nov 2009 14:52:54 +0100\n"
     msg << "Message-ID: <#{email.guid}@baci.local.tmail>\n" unless email.guid.blank?
