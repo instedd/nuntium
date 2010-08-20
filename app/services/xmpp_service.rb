@@ -105,8 +105,8 @@ class XmppService < Service
       
       at = ATMessage.new
       at.channel_relative_id = msg.id
-      at.from = msg.from.to_s.with_protocol 'xmpp'
-      at.to = msg.to.to_s.with_protocol 'xmpp'
+      at.from = msg.from.bare.to_s.with_protocol 'xmpp'
+      at.to = msg.to.bare.to_s.with_protocol 'xmpp'
       at.subject = msg.subject
       at.body = msg.body
       
@@ -117,7 +117,7 @@ class XmppService < Service
   def receive_subscriptions
     @roster = Roster::Helper.new(@client)
     @roster.add_subscription_request_callback do |item, pres|
-      Rails.logger.debug "Accept subscription from #{pres.from}"
+      @channel.logger.info :message => "Accepting subscription from #{pres.from}", :application_id => @channel.application_id, :channel_id => @channel.id 
     
       # we accept everyone 
       @roster.accept_subscription(pres.from)
