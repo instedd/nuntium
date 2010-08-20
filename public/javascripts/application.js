@@ -475,8 +475,6 @@ function add_action_ui(rule_id, add_action, prefix, action, actions) {
 	var action_ui = jQuery('<div/>');
 	add_action.before(action_ui);
 	
-	alert(actions);
-	
 	// fill action ui
 	if (!actions) {
 	  actions = ['application', 'body', 'country', 'carrier', 'from', 'subject', 'to', 'other'];
