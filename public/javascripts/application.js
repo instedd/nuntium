@@ -415,8 +415,8 @@ function add_rule_ui(ctx, prefix, rule, matchings, actions) {
 	var add_action = jQuery('.add-action', row);
 	
 	jQuery('.remove-rule', row).click(function(){ row.remove(); return false; });
-	add_matching.click(function(){ add_matching_ui(rule_id, add_matching, rule_prefix, null, matchings, actions); return false; });
-	add_action.click(function(){ add_action_ui(rule_id, add_action, rule_prefix, null, matchings, actions); return false; });
+	add_matching.click(function(){ add_matching_ui(rule_id, add_matching, rule_prefix, null, matchings); return false; });
+	add_action.click(function(){  add_action_ui(rule_id, add_action, rule_prefix, null, actions); return false; });
 	
 	if (rule != null) {		
 		// load existing matchings
@@ -474,6 +474,8 @@ function add_action_ui(rule_id, add_action, prefix, action, actions) {
 	var action_id = rules_newId();
 	var action_ui = jQuery('<div/>');
 	add_action.before(action_ui);
+	
+	alert(actions);
 	
 	// fill action ui
 	if (!actions) {
