@@ -30,6 +30,17 @@ module MessageFilters
     @log_conditions = build_log_filter(@log_search)
   end
   
+  # Put broadcasted messages on top of their children
+  def sort_for_broadcasted(msgs)
+    msgs.sort! do |x, y|
+      if x.kind_of?(AOMessage) && y.kind_of?(AOMessage)
+        x.parent_id == y.id ? 1 : (x.id == y.parent_id ? -1 : y.id <=> x.id)
+      else
+        y.id <=> x.id
+      end
+    end
+  end
+  
   def build_message_filter(search)
     def esc(name)
       ActiveRecord::Base.connection.quote_column_name(name)

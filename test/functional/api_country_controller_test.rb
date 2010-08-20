@@ -3,7 +3,6 @@ require 'test_helper'
 class ApiCountryControllerTest < ActionController::TestCase
 
   def setup
-    Country.delete_all
     @attributes = {:name => 'Argentina', :iso2 => 'ar', :iso3 =>'arg', :phone_prefix => '54'}
     Country.create!(@attributes)
   end

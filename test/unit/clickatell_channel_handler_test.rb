@@ -158,19 +158,6 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
     assert @chan.can_route_ao?(ao_with(country.iso2))
   end
   
-  test "clickatell channel restrictions must be fast" do
-    500.times do
-      country = Country.make
-      carrier = Carrier.make :country => country
-      ClickatellCoverageMO.create!(:country_id => country.id, :carrier_id => carrier.id, :network => '44', :cost => 1)
-    end
-    
-    @chan.configuration[:network] = '44'
-    @chan.save!
-    
-    r = @chan.restrictions
-  end
-  
   def ao_with(country, carrier = nil)
     msg = AOMessage.new
     msg.country = country

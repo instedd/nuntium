@@ -90,15 +90,35 @@ h5 {
   padding: 2px;
 }
 
+input.highlighted {
+  background-color: #FFF1A8;
+}
+
 table.table {
   padding: 0px;
   border: 0px;
+}
+
+.table tr.ao {
+  color: #006;
+}
+
+.table tr.at {
+  color: black;
 }
 
 .table td {
   border: 0px;
   padding: 1px;
   background-color: #EFEFEF;
+}
+
+.table tr.even td {
+  background-color: #EFEFEF;
+}
+
+.table tr.odd td {
+  background-color: #DADADA;
 }
 
 .table th  {
@@ -123,6 +143,7 @@ acronym {
   color: blue;
   font-weight:bold;
   font-size: 20px;
+  text-decoration: none;
 }
 
 #toolbar {

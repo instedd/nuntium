@@ -5,7 +5,37 @@ custom_attributes = entity.nil? ? {} : (as_restriction ? entity.restrictions : e
 show_accept_when_not_specified_option = defined?(accept_when_not_specified_option) ? accept_when_not_specified_option : true
 %>
 
-<h5><%= as_restriction ? 'Restrictions' : 'Custom Attributes' %></h5>
+<%
+if as_restriction
+  %>
+  <h5>Restrictions</h5>
+  
+  <p>
+  An AO message will not be routed to this channel if its fields or custom attributes do not match those of this channel's restrictions.
+  <a href="http://code.google.com/p/nuntium/wiki/Channels#Channel_Filter_Phase" target="_blank">Learn more...</a>
+  </p>  
+  <%
+else
+  %>
+  <h5>Custom Attributes</h5>
+  
+  <p>
+  <%
+  if @kind == 'ao'
+    %>
+    Used by channels' restrictions. Can also override the routing strategy or specify the channel to be routed to.
+    <%
+  else
+    %>
+    Can override the application this message will be routed to.
+    <%
+  end
+  %>
+  <a href="http://code.google.com/p/nuntium/wiki/Messages#Custom_attributes" target="_blank">Learn more...</a>
+  </p>
+  <%
+end
+%>
 
 <%
 # Write the applications in javascript so we can fill the combobox without
@@ -22,13 +52,6 @@ var show_accept_when_not_specified_option = <%= show_accept_when_not_specified_o
 </script>
 
 <div>
-<%
-if custom_attributes.empty?
-  %>
-  <div id="no_custom_attributes">No <%= as_restriction ? 'restrictions' : 'custom attributes' %>.</div>
-  <%
-end
-%>
 <ul id="custom_attributes">
   <%
   countries = Country.all

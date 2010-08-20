@@ -38,8 +38,8 @@ class ActiveSupport::TestCase
 
   setup do
     Rails.cache.clear
-    Country.delete_all
-    Carrier.delete_all
+    Country.clear_cache
+    Carrier.clear_cache
     Sham.reset
     WorkerQueue.publish_notification_delay = 0
   end

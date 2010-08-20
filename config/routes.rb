@@ -1,8 +1,7 @@
 ActionController::Routing::Routes.draw do |map|
   # Home
   map.root :controller => 'home'
-  map.home '/home', :controller => 'home', :action => :home
-
+  
   # Interfaces
   map.resources :rss, :path_prefix => '/:account_name/:application_name', :only => [:index, :create]
   map.send_ao '/:account_name/:application_name/send_ao', :controller => 'send_ao', :action => :create
@@ -47,6 +46,9 @@ ActionController::Routing::Routes.draw do |map|
   map.edit_application '/application/edit/:id', :controller => 'home', :action => :edit_application
   map.update_application '/application/update/:id', :controller => 'home', :action => :update_application
   map.delete_application '/application/delete/:id', :controller => 'home', :action => :delete_application
+  
+  # Messages
+  map.view_thread '/message/thread', :controller => 'message', :action => :view_thread
   
   # AO messages
   map.new_ao_message '/message/ao/new', :controller => 'message', :action => :new_ao_message

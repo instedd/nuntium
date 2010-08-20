@@ -1,4 +1,5 @@
 require 'xmpp4r/client'
+require 'xmpp4r/roster'
 
 class XmppService < Service
 
@@ -27,6 +28,7 @@ class XmppService < Service
     
     handle_exceptions
     receive_messages
+    receive_subscriptions
     subscribe_queue
     keep_me_alive
   end
@@ -37,7 +39,7 @@ class XmppService < Service
       @client.connect server, @channel.configuration[:port]
       @client.auth @channel.configuration[:password]
       
-      presence = Jabber::Presence.new.set_show(:chat)
+      presence = Presence.new.set_show(:chat)
       presence.set_status @channel.configuration[:status] if @channel.configuration[:status].present?      
       @client.send presence
       true
@@ -103,12 +105,26 @@ class XmppService < Service
       
       at = ATMessage.new
       at.channel_relative_id = msg.id
-      at.from = msg.from.to_s.with_protocol 'xmpp'
-      at.to = msg.to.to_s.with_protocol 'xmpp'
+      at.from = msg.from.bare.to_s.with_protocol 'xmpp'
+      at.to = msg.to.bare.to_s.with_protocol 'xmpp'
       at.subject = msg.subject
       at.body = msg.body
       
       @channel.route_at at
+    end
+  end
+  
+  def receive_subscriptions
+    @roster = Roster::Helper.new(@client)
+    @roster.add_subscription_request_callback do |item, pres|
+      @channel.logger.info :message => "Accepting subscription from #{pres.from}", :application_id => @channel.application_id, :channel_id => @channel.id 
+    
+      # we accept everyone 
+      @roster.accept_subscription(pres.from)
+ 
+      # Now it's our turn to send a subscription request  
+      presence = Presence.new.set_type(:subscribe).set_to(pres.from)  
+      @client.send presence
     end
   end
   

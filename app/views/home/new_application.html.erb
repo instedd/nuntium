@@ -64,7 +64,6 @@ var applications = <%= applications.to_json %>;
   <%= f.password_field :password_confirmation, :value => '', :autocomplete => :off %>
   </p>
   
-  <p>
   <%= f.label :interface %><br/>
   <%= f.radio_button :interface, 'rss', :onclick => "interface_rss();" %> <%= f.label :interface, 'Rss', :value => 'rss' %><br/>
   <%= f.radio_button :interface, 'qst_client', :onclick => "interface_qst_client();"%> <%= f.label :interface, 'QST client', :value => 'qst_client' %><br/>
@@ -106,6 +105,10 @@ var applications = <%= applications.to_json %>;
     <h5>Delivery acknowledgement:</h5>
     
     <p>
+    This callback will be invoked when an AO message's state changes to either 'failed', 'delivered' or 'confirmed'.
+    </p>
+    
+    <p>
     Method:<br/>
     <% ['none', 'get', 'post'].each do |method| %>
       <%= c.radio_button :delivery_ack_method, method, :checked => @application.delivery_ack_method == method, :onclick => "delivery_ack_#{method}();" %> <%= f.label :strategy, Application.delivery_ack_method_description(method), :value => method %><br/>
@@ -127,24 +130,24 @@ var applications = <%= applications.to_json %>;
     </p>
     </div>
     
+  <% end %>
+    
 	<h5>AO Rules</h5>
 	
+	<p>
+	These rules will be executed when an AO message is received via this application.
+	<a href="http://code.google.com/p/nuntium/wiki/Rules" target="_blank">Learn more...</a>
+	</p>
+	
 	<div class="aorules"></div>
-	<i>
-		Available context for matching are: from, to, subject, body, subject_and_body and any custom attribute like country (iso2) or carrier (guid).<br>
-		Rules may complete custom attributes for later routing or mangle the message.
-	</i>
 	
 	<script type="text/javascript">	
 	jQuery(function(){
 		init_rules(jQuery('.aorules'), 'aorules', <%= @application.ao_rules.to_json %>);
 	});
 	</script>
-    
-  <% end %>
-  </p>
   
   <%= submit_tag (@application.new_record? ? 'Create Application' : 'Update Application') %>
 <% end %>
 
-<%= link_to 'Go back', :controller => :home, :action => :home %>
+<%= go_back_link %>

@@ -16,33 +16,38 @@
   <%= f.label :password_confirmation %><br/>
   <%= f.password_field :password_confirmation, :value => '', :autocomplete => :off %>
   </p>
-  <hr />
+  
+  <h5>Application Routing Rules</h5>
   
   <%
-  # Write the applications in javascript so we can fill the combobox without
-  # going to the server...
   applications = @account.applications.map(&:name).sort!
+  if applications.length < 2
+    %>
+    <p>
+    No need to specify these rules right now since you do not have more than one application.
+    </p>
+    <%
+  else
+    %>
+    <p>
+    Specify here rules to route AT messages to specific applications.<br/>
+    These rules will not be executed if an AT message is received via a channel that belongs to an application<br/>
+    or when a message specifies the custom attribute "application".
+    <a href="http://code.google.com/p/nuntium/wiki/Rules" target="_blank">Learn more...</a>
+    </p>
+    
+    <div class="apprules"></div>
+
+    <script type="text/javascript">
+    var applications = <%= applications.to_json %>;	
+    jQuery(function(){
+	    init_rules(jQuery('.apprules'), 'apprules', <%= @account.app_routing_rules.to_json %>, null, ['application']);
+    });
+    </script>
+  <%
+  end
   %>
-  <script type="text/javascript">
-  var applications = <%= applications.to_json %>;
-  </script>
-  
-  <p>
-	<h5>App Routing Rules</h5>
-
-	<div class="apprules"></div>
-	<i>
-		Available context for matching are: from, to, subject, body, subject_and_body and any custom attribute like country (iso2) or carrier (guid).<br>
-		Rules need to determine the application (by name) that will be used as target of the message.
-	</i>
-
-	<script type="text/javascript">	
-	jQuery(function(){
-		init_rules(jQuery('.apprules'), 'apprules', <%= @account.app_routing_rules.to_json %>);
-	});
-	</script>
-  </p>
   <%= submit_tag 'Update' %>
 <% end %>
 
-<%= link_to 'Go back', :controller => :home, :action => :home %>
+<%= go_back_link %>

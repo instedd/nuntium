@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100804032418) do
+ActiveRecord::Schema.define(:version => 20100813154025) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -22,6 +22,10 @@ ActiveRecord::Schema.define(:version => 20100804032418) do
     t.integer  "severity"
     t.integer  "application_id"
   end
+
+  add_index "account_logs", ["account_id", "ao_message_id"], :name => "index_account_logs_on_account_id_and_ao_message_id"
+  add_index "account_logs", ["account_id", "at_message_id"], :name => "index_account_logs_on_account_id_and_at_message_id"
+  add_index "account_logs", ["account_id", "id"], :name => "index_account_logs_on_account_id_and_id"
 
   create_table "accounts", :force => true do |t|
     t.string   "name"
@@ -43,7 +47,7 @@ ActiveRecord::Schema.define(:version => 20100804032418) do
     t.integer  "application_id"
   end
 
-  add_index "address_sources", ["application_id", "address"], :name => "index_address_sources_on_application_id_and_address"
+  add_index "address_sources", ["application_id", "address", "channel_id"], :name => "address_sources_idx", :unique => true
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"
@@ -64,6 +68,7 @@ ActiveRecord::Schema.define(:version => 20100804032418) do
     t.integer  "parent_id"
   end
 
+  add_index "ao_messages", ["account_id", "to", "id"], :name => "index_ao_messages_on_account_id_and_to_and_id"
   add_index "ao_messages", ["channel_id", "channel_relative_id"], :name => "index_ao_messages_on_channel_id_and_channel_relative_id"
   add_index "ao_messages", ["guid"], :name => "index_ao_messages_on_guid"
 
@@ -96,6 +101,8 @@ ActiveRecord::Schema.define(:version => 20100804032418) do
     t.text     "custom_attributes"
     t.integer  "application_id"
   end
+
+  add_index "at_messages", ["account_id", "from", "id"], :name => "index_at_messages_on_account_id_and_from_and_id"
 
   create_table "carriers", :force => true do |t|
     t.integer  "country_id"

@@ -78,7 +78,7 @@ class Application < ActiveRecord::Base
     end
     
     # Save mobile number information
-    mob = MobileNumber.update(msg.to.mobile_number, msg.country, msg.carrier, options) if not simulate and protocol == 'sms'
+    mob = MobileNumber.update(msg.to.mobile_number, msg.country, msg.carrier, options) if protocol == 'sms'
     
     # Get the list of candidate channels
     channels = candidate_channels_for_ao msg, :mobile_number => mob
@@ -100,7 +100,8 @@ class Application < ActiveRecord::Base
     
     # Route to the only channel if that's the case
     if channels.length == 1
-      channels.first.route_ao msg, via_interface, options
+      channel = channels.first
+      channel.route_ao msg, via_interface, options
       if simulate
         return {:strategy => 'single_priority', :channel => channel, :log => ThreadLocalLogger.result}
       else

@@ -51,11 +51,6 @@ class SendPostCallbackMessageJob
         raise res.error!
     end
   end
-  
-  def encode(str)
-    str = CGI.escape(str) if str
-    str
-  end
 
   def to_s
     "<SendPostCallbackMessageJob:#{@message_id}>"

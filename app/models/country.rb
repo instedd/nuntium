@@ -5,18 +5,18 @@ class Country < ActiveRecord::Base
   before_destroy :clear_cache 
   after_save :clear_cache
   
+  @@countries = nil
+  
   def self.all
-    countries = Rails.cache.read 'countries'
-    if not countries
-      countries = super
-      countries.sort!{|x, y| x.name <=> y.name}
-      Rails.cache.write 'countries', countries
-    end
-    countries
+    return @@countries if @@countries
+    
+    @@countries = super
+    @@countries.sort!{|x, y| x.name <=> y.name}
+    @@countries
   end
   
-  def self.find_by_id(id, countries = all)
-    countries.select{|c| c.id == id}.first
+  def self.find_by_id(id)
+    all.select{|c| c.id == id}.first
   end
   
   def self.find_by_iso2(iso2)
@@ -38,9 +38,13 @@ class Country < ActiveRecord::Base
     xml.country :name => name, :iso2 => iso2, :iso3 => iso3, :phone_prefix => phone_prefix
   end
   
+  def self.clear_cache
+    @@countries = nil
+  end
+  
   private
   
   def clear_cache
-    Rails.cache.delete 'countries'
+    @@countries = nil
   end
 end

@@ -26,7 +26,7 @@ class MessageController < AccountAuthenticatedController
     
     application.route_ao msg, 'user'
     
-    redirect_to_home "AO Message was created with id <a href=\"/message/ao/#{msg.id}\" onclick=\"window.open(this.href,'log','width=640,height=480,scrollbars=yes');return false;\">#{msg.id}</a>"
+    redirect_to_home "AO Message was created with id #{msg.id} <a href=\"/message/ao/#{msg.id}\" target=\"_blank\">view log</a> <a href=\"/message/thread?address=#{msg.to}\" target=\"_blank\">view thread</a>"
   end
   
   def create_at_message
@@ -36,7 +36,7 @@ class MessageController < AccountAuthenticatedController
     channel = @account.find_channel params[:message][:channel_id]
     @account.route_at msg, channel
     
-    redirect_to_home "AT Message was created with id <a href=\"/message/at/#{msg.id}\" onclick=\"window.open(this.href,'log','width=640,height=480,scrollbars=yes');return false;\">#{msg.id}</a>"
+    redirect_to_home "AT Message was created with id #{msg.id} <a href=\"/message/at/#{msg.id}\" target=\"_blank\">view log</a> <a href=\"/message/thread?address=#{msg.from}\" target=\"_blank\">view thread</a>"
   end
   
   def simulate_route_ao
@@ -105,7 +105,7 @@ class MessageController < AccountAuthenticatedController
     flash[:notice] = "#{affected} Application #{k} messages #{affected == 1 ? 'was' : 'were'} marked as cancelled"    
     
     params[:controller] = :home
-    params[:action] = :home
+    params[:action] = :index
     redirect_to params
   end
   
@@ -127,17 +127,17 @@ class MessageController < AccountAuthenticatedController
       application.reroute_ao msg if application
     end
     
-    flash[:notice] = "#{msgs.length} Application Originated messages #{msgs.length == 1 ? 'was' : 'were'} re-routed"
+    flash[:notice] = "#{msgs.length} Application Originated #{msgs.length == 1 ? 'message was' : 'messages were'} re-routed"
     
     params[:controller] = :home
-    params[:action] = :home
+    params[:action] = :index
     redirect_to params
   end
   
   def view_ao_message
     @id = params[:id]
     @msg = AOMessage.find_by_id @id
-    redirect_to_home if @msg.nil? || @msg.account_id != @account.id
+    return redirect_to_home if @msg.nil? || @msg.account_id != @account.id
     @hide_title = true
     @logs = AccountLog.find_all_by_ao_message_id(@id, :order => :created_at)
     @kind = 'ao'
@@ -147,11 +147,36 @@ class MessageController < AccountAuthenticatedController
   def view_at_message
     @id = params[:id]
     @msg = ATMessage.find_by_id @id
-    redirect_to_home if @msg.nil? || @msg.account_id != @account.id
+    return redirect_to_home if @msg.nil? || @msg.account_id != @account.id
     @hide_title = true
     @logs = AccountLog.find_all_by_at_message_id(@id, :order => :created_at)
     @kind = 'at'
     render "message.html.erb"
+  end
+  
+  def view_thread
+    def esc(name)
+      ActiveRecord::Base.connection.quote_column_name(name)
+    end
+  
+    @address = params[:address]
+    @page = (params[:page] || '1').to_i
+    @hide_title = true
+    
+    @applications = @account.applications
+    @channels = @account.channels
+    
+    limit = @page * 5
+    aos = AOMessage.all :conditions => ["account_id = ? AND #{esc('to')} = ? AND parent_id IS NULL", @account.id, @address], :order => 'id DESC', :limit => limit 
+    ats = ATMessage.all :conditions => ["account_id = ? AND #{esc('from')} = ?", @account.id, @address], :order => 'id DESC', :limit => limit
+    
+    @has_more = aos.length == limit || ats.length == limit
+    
+    @msgs = []
+    aos.each {|x| @msgs << x}
+    ats.each {|x| @msgs << x}
+    
+    sort_for_broadcasted @msgs
   end
 
 end

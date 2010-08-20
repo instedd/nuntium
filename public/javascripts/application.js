@@ -403,29 +403,29 @@ function accept_when_not_specified_checkbox(checked) {
 var rules_nextId = 0;
 function rules_newId() { rules_nextId++; return rules_nextId; }
 
-function add_rule_ui(ctx, prefix, rule) {
+function add_rule_ui(ctx, prefix, rule, matchings, actions) {
 	var table = jQuery('table', ctx);
 	
 	var rule_id = rules_newId();
 	var rule_prefix = prefix + '[' + rule_id + ']'
 	
-	var row = jQuery('<tr><td><a href="#" class="remove-rule">[x]</a></td><td><a href="#" class="add-matching">add matching</a></td><td><a href="#" class="add-action">add action</a></td><td><input type="checkbox" name="' + rule_prefix +'[stop]" value="yes"></td></tr>');
+	var row = jQuery('<tr><td><a href="#" class="remove-rule">[x]</a></td><td><a href="#" class="add-matching">add condition</a></td><td><a href="#" class="add-action">add action</a></td><td><input type="checkbox" name="' + rule_prefix +'[stop]" value="yes"></td></tr>');
 	table.append(row);
 	var add_matching = jQuery('.add-matching', row);
 	var add_action = jQuery('.add-action', row);
 	
 	jQuery('.remove-rule', row).click(function(){ row.remove(); return false; });
-	add_matching.click(function(){ add_matching_ui(rule_id, add_matching, rule_prefix, null); return false; });
-	add_action.click(function(){ add_action_ui(rule_id, add_action, rule_prefix, null); return false; });
+	add_matching.click(function(){ add_matching_ui(rule_id, add_matching, rule_prefix, null, matchings); return false; });
+	add_action.click(function(){  add_action_ui(rule_id, add_action, rule_prefix, null, actions); return false; });
 	
 	if (rule != null) {		
 		// load existing matchings
 		jQuery(rule.matchings).each(function(_, matching){
-			add_matching_ui(rule_id, add_matching, rule_prefix, matching);
+			add_matching_ui(rule_id, add_matching, rule_prefix, matching, matchings);
 		});
 		// load existing actions
 		jQuery(rule.actions).each(function(_, action){
-			add_action_ui(rule_id, add_action, rule_prefix, action);
+			add_action_ui(rule_id, add_action, rule_prefix, action, actions);
 		});
 		// load stop value
 		if (rule.stop) {
@@ -434,15 +434,24 @@ function add_rule_ui(ctx, prefix, rule) {
 	}
 }
 
-function add_matching_ui(rule_id, add_matching, prefix, matching) {
+function add_matching_ui(rule_id, add_matching, prefix, matching, matchings) {
 	// add matching ui
 	var matching_id = rules_newId();
 	var matching_ui = jQuery('<div/>');
 	add_matching.before(matching_ui);
 	
 	// fill matching ui
+	if (!matchings) {
+	  matchings = ['application', 'body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other']; 
+	}
+	
 	var name_prefix = prefix + '[matchings][' + matching_id + ']';
-	matching_ui.append('<span class="property"><select name="' + name_prefix +'[property]"><option value="application">Application</option><option value="country">Country</option><option value="carrier">Carrier</option><option value="other">Other...</option></select></span>');
+	var matching_ui_str = '';
+	matching_ui_str += '<span class="property"><select name="' + name_prefix +'[property]">';
+	matching_ui_str += property_combo_string(matchings);
+	matching_ui_str += '</select></span>';
+	
+	matching_ui.append(matching_ui_str);
 	matching_ui.append('<select class="operator" name="' + name_prefix +'[operator]"><option value="equals">equals</option><option value="not_equals">not equals</option><option value="starts_with">starts with</option><option value="regex">regex</option></select>');
 	matching_ui.append('<span class="value"><input type="text" name="' + name_prefix +'[value]"/></span>');
 	matching_ui.append('<a href="#" class="remove-matching">[x]</a>');
@@ -460,15 +469,26 @@ function add_matching_ui(rule_id, add_matching, prefix, matching) {
 	}
 }
 
-function add_action_ui(rule_id, add_action, prefix, action) {
+function add_action_ui(rule_id, add_action, prefix, action, actions) {
 	// add action ui
 	var action_id = rules_newId();
 	var action_ui = jQuery('<div/>');
 	add_action.before(action_ui);
 	
+	alert(actions);
+	
 	// fill action ui
+	if (!actions) {
+	  actions = ['application', 'body', 'country', 'carrier', 'from', 'subject', 'to', 'other'];
+	}
+	
 	var name_prefix = prefix + '[actions][' + action_id + ']';
-	action_ui.append('<span class="property"><select name="' + name_prefix +'[property]"><option value="application">Application</option><option value="country">Country</option><option value="carrier">Carrier</option><option value="other">Other...</option></select></span>');
+	var action_ui_str = '';
+	action_ui_str += '<span class="property"><select name="' + name_prefix +'[property]">';
+	action_ui_str += property_combo_string(actions);
+	action_ui_str += '</span>';
+	
+	action_ui.append(action_ui_str);
 	action_ui.append(' = ');
 	action_ui.append('<span class="value"><input type="text" name="' + name_prefix +'[value]"/></span>');
 	action_ui.append('<a href="#" class="remove-action">[x]</a>');
@@ -485,20 +505,20 @@ function add_action_ui(rule_id, add_action, prefix, action) {
 	}
 }
 
-function init_rules(ctx, prefix, rules) {
+function init_rules(ctx, prefix, rules, matchings, actions) {
 	// initial ui
-	ctx.append('<table class="table"><tr><th>&nbsp;</th><th>Matching</th><th>Action</th><th>Stop</th></tr></table>');
+	ctx.append('<table class="table"><tr><th>&nbsp;</th><th>Condition</th><th>Action</th><th>Stop</th></tr></table>');
 	ctx.append('<div><a href="#" class="add-rule">add rule</a></div><br/>');
 		
 	jQuery('.add-rule', ctx).click(function(){
-		add_rule_ui(ctx, prefix, null);				
+		add_rule_ui(ctx, prefix, null, matchings, actions);				
 		return false;
 	});
 	
 	// load existing rules
 	if (rules != null) {
 		jQuery(rules).each(function(_, rule){
-			add_rule_ui(ctx, prefix, rule);
+			add_rule_ui(ctx, prefix, rule, matchings, actions);
 		});
 	}
 }
@@ -518,6 +538,9 @@ function init_properties(name_prefix, property, propertyDiv, valueDiv, operatorS
       break;
 	  case 'other':
 	    init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect);
+	    break;
+	  default:
+	    init_property_field(name_prefix, propertyDiv, valueDiv, operatorSelect);
 	    break;
 	  }
 	};
@@ -619,7 +642,22 @@ function init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect,
       operatorSelect.val(existing.operator);
     }
   }
-} 
+}
+
+function init_property_field(name_prefix, propertyDiv, valueDiv, operatorSelect, existing) {
+  if (operatorSelect) {
+    operatorSelect.html(op_all());
+  }
+  valueDiv.html('<input type="text" name="' + name_prefix +'[value]"/>');
+  
+  if (existing) {
+    jQuery('input', propertyDiv).val(existing.property);
+    jQuery('input', valueDiv).val(existing.value);
+    if (operatorSelect) {
+      operatorSelect.val(existing.operator);
+    }
+  }
+}
 
 function init_existing_property(existing, name_prefix, property, propertyDiv, valueDiv, operatorSelect) {
   property.val(existing.property);
@@ -633,6 +671,13 @@ function init_existing_property(existing, name_prefix, property, propertyDiv, va
   case 'carrier':
     init_property_carrier(name_prefix, valueDiv, operatorSelect, existing);
     break;
+  case 'from':
+  case 'to':
+  case 'subject':
+  case 'body':
+  case 'subject_and_body':
+    init_property_field(name_prefix, propertyDiv, valueDiv, operatorSelect, existing);
+    break;
   default:
     init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect, existing);
     break;
@@ -640,9 +685,45 @@ function init_existing_property(existing, name_prefix, property, propertyDiv, va
 }
 
 function op_equals_not_equals() {
-  return '<option value="equals">equals</option><option value="not_equals">not equals</option>';
+  return '<option value="equals">is</option><option value="not_equals">is not</option>';
 }
 
 function op_all() {
-  return '<option value="equals">equals</option><option value="not_equals">not equals</option><option value="starts_with">starts with</option><option value="regex">regex</option>';
+  return '<option value="equals">is</option><option value="not_equals">is not</option><option value="starts_with">starts with</option><option value="regex">regex</option>';
+}
+
+function property_combo_string(actions) {
+  str = '';
+  for(var i = 0; i < actions.length; i++) {
+	  switch(actions[i]) {
+	  case 'application':
+	    str += '<option value="application">Application</option>';
+	    break;
+	  case 'body':
+	    str += '<option value="body">Body</option>';
+	    break;
+	  case 'country':
+	    str += '<option value="country">Country</option>';
+	    break;
+    case 'carrier':
+	    str += '<option value="carrier">Carrier</option>';
+	    break;
+	  case 'from':
+	    str += '<option value="from">From</option>';
+	    break;
+    case 'subject':
+	    str += '<option value="subject">Subject</option>';
+	    break;
+	  case 'subject_and_body':
+	    str += '<option value="subject_and_body">Subject and Body</option>';
+	    break;
+	  case 'to':
+	    str += '<option value="to">To</option>';
+	    break;
+    case 'other':
+      str += '<option value="other">Other...</option></select>';
+      break;
+	  }
+	}
+	return str;
 }

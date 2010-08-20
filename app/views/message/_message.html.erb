@@ -37,6 +37,10 @@
     <td><%= msg.body %></td>
   </tr>
   <tr valign="baseline">
+    <td><b>Application:</b></td>
+    <td><%= msg.application.name rescue '' %></td>
+  </tr>
+  <tr valign="baseline">
     <td><b>In channel:</b></td>
     <td><%= msg.channel.name rescue '' %></td>
   </tr>

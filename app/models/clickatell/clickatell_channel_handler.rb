@@ -21,16 +21,14 @@ class ClickatellChannelHandler < GenericChannelHandler
     
     # since restriction is modified inplace, clone it.
     res = res.clone
-    countries = Country.all
-    carriers = Carrier.all
 
     ClickatellCoverageMO.find_all_by_network(network).each do |coverage|
       # coverage applied to countries
-      add_restriction res, 'country', Country.find_by_id(coverage.country_id, countries).iso2
+      add_restriction res, 'country', coverage.country.iso2
 
       if not coverage.carrier_id.nil? then
         # coverage applied to carriers
-        add_restriction res, 'carrier', Carrier.find_by_id(coverage.carrier_id, carriers).guid
+        add_restriction res, 'carrier', coverage.carrier.guid
       end
     end
     
