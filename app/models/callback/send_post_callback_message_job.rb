@@ -36,6 +36,13 @@ class SendPostCallbackMessageJob
       when Net::HTTPSuccess, Net::HTTPRedirection
         ATMessage.update_tries([msg.id],'delivered')
         ATMessage.log_delivery([msg], account, 'http_post_callback')
+        
+        # If the response includes a body, create an AO message from it
+        if res.body.present?
+          reply = AOMessage.new :from => msg.to, :to => msg.from, :body => res.body
+          app.route_ao reply, 'http post callback'
+        end
+        
         return true
         
       when Net::HTTPUnauthorized

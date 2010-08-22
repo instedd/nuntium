@@ -69,4 +69,27 @@ class SendPostCallbackMessageJobTest < ActiveSupport::TestCase
     job = SendPostCallbackMessageJob.new @application.account_id, @application.id, @msg.id
     assert_true job.perform
   end
+  
+  test "post response is a text, route it back" do
+    @application.interface_url = 'http://www.domain.com'
+    @application.save!
+    
+    expect_post :url => @application.interface_url,
+      :data => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPSuccess,
+      :returns_body => 'foo'
+  
+    job = SendPostCallbackMessageJob.new @application.account_id, @application.id, @msg.id
+    job.perform
+    
+    msgs = AOMessage.all
+    assert_equal 1, msgs.count
+    assert_equal @application.account_id, msgs[0].account_id
+    assert_equal @application.id, msgs[0].application_id
+    assert_equal @chan.id, msgs[0].channel_id
+    assert_equal @msg.to, msgs[0].from
+    assert_equal @msg.from, msgs[0].to
+    assert_equal 'foo', msgs[0].body      
+  end
 end
