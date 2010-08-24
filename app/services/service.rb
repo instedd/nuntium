@@ -33,7 +33,7 @@ class Service
         begin
           instance_eval(&block)
         rescue Exception => err
-          logger.error "Daemon failure: #{err} #{err.backtrace}"
+          Rails.logger.error "Daemon failure: #{err} #{err.backtrace}"
         end
         sleep sleep_seconds
       end
