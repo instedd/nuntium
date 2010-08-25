@@ -176,7 +176,15 @@ class MessageController < AccountAuthenticatedController
     aos.each {|x| @msgs << x}
     ats.each {|x| @msgs << x}
     
-    sort_for_broadcasted @msgs
+    @msgs.sort!{|x, y| y.created_at <=> x.created_at}
+  end
+  
+  def ao_rgviz
+    render :rgviz => AOMessage, :conditions => ['ao_messages.account_id = ?', @account.id], :extensions => true
+  end
+  
+  def at_rgviz
+    render :rgviz => ATMessage, :conditions => ['at_messages.account_id = ?', @account.id], :extensions => true
   end
 
 end
