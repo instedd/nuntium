@@ -139,7 +139,7 @@ class MessageController < AccountAuthenticatedController
     @msg = AOMessage.find_by_id @id
     return redirect_to_home if @msg.nil? || @msg.account_id != @account.id
     @hide_title = true
-    @logs = AccountLog.find_all_by_ao_message_id(@id, :order => :created_at)
+    @logs = AccountLog.find_all_by_account_id_and_ao_message_id(@account.id, @id, :order => :created_at)
     @kind = 'ao'
     render "message.html.erb"
   end
@@ -149,7 +149,7 @@ class MessageController < AccountAuthenticatedController
     @msg = ATMessage.find_by_id @id
     return redirect_to_home if @msg.nil? || @msg.account_id != @account.id
     @hide_title = true
-    @logs = AccountLog.find_all_by_at_message_id(@id, :order => :created_at)
+    @logs = AccountLog.find_all_by_account_id_and_at_message_id(@account.id, @id, :order => :created_at)
     @kind = 'at'
     render "message.html.erb"
   end
