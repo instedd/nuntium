@@ -12,7 +12,7 @@ class ApiTwitterChannelController < ApiAuthenticatedController
     
     begin
       result = channel.handler.friendship_create user, follow
-    rescue Twitter::TwitterError => e
+    rescue Twitter::TwitterError, Twitter::NotFound, Twitter::InformTwitter, Twitter::Unavailable => e
       index = e.message.index '):'
       code = e.message[1 .. index].to_i
       msg = e.message[index + 2 .. -1].strip

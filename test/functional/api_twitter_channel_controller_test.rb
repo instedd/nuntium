@@ -77,20 +77,22 @@ class ApiTwitterChannelControllerTest < ActionController::TestCase
     assert_response :bad_request
   end
   
-  test "twitter error" do
-    @account = Account.make :password => 'secret'    
-    @channel = Channel.make :twitter, :account => @account
-    
-    client = mock('client')
-    client.expects(:friendship_create).with('foo', true).raises(Twitter::General.new('foo'), '(403): Forbidden - Could not follow user: foo is already on your list')
-    
-    TwitterChannelHandler.expects(:new_client).with(@channel.configuration).returns(client)
-    
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(@account.name, 'secret')
-    get :friendship_create, :name => @channel.name, :user => 'foo', :follow => true
-    
-    assert_response 403
-    assert_equal 'Forbidden - Could not follow user: foo is already on your list', @response.body
+  [Twitter::General, Twitter::NotFound, Twitter::InformTwitter, Twitter::Unavailable].each do |ex|
+    test "twitter error #{ex}" do
+      @account = Account.make :password => 'secret'    
+      @channel = Channel.make :twitter, :account => @account
+      
+      client = mock('client')
+      client.expects(:friendship_create).with('foo', true).raises(ex.new('foo'), '(403): Forbidden - Could not follow user: foo is already on your list')
+      
+      TwitterChannelHandler.expects(:new_client).with(@channel.configuration).returns(client)
+      
+      @request.env['HTTP_AUTHORIZATION'] = http_auth(@account.name, 'secret')
+      get :friendship_create, :name => @channel.name, :user => 'foo', :follow => true
+      
+      assert_response 403
+      assert_equal 'Forbidden - Could not follow user: foo is already on your list', @response.body
+    end
   end
   
 end
