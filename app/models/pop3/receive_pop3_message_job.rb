@@ -2,6 +2,7 @@ require 'net/pop'
 require 'tmail'
 
 class ReceivePop3MessageJob
+
   attr_accessor :account_id, :channel_id
 
   include CronTask::QuotedTask
@@ -47,6 +48,18 @@ class ReceivePop3MessageJob
       end
       msg.channel_relative_id = tmail.message_id
       msg.timestamp = tmail.date
+      
+      # Process references to set the thread and reply_to
+      if tmail.references
+        tmail.references.each do |ref|
+          next unless ref.start_with?('<')
+          if ref.end_with?('@nuntium>')
+            msg.custom_attributes.store_multivalue 'reply_to', ref[1 .. -10]
+          elsif ref.end_with?('@nuntium-thread>')
+            msg.custom_attributes.store_multivalue 'thread', ref[1 .. -17]
+          end
+        end
+      end
       
       account.route_at msg, @channel
       

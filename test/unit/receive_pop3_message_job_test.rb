@@ -58,6 +58,16 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     expect_at_message :body => "Hello"
   end
   
+  should "perform set thread" do
+    mail = mock('Net::POPMail')
+    mail.stubs :pop => msg_as_email(@email, :references => '<a@foo.bar>, <b@nuntium>, <c@nuntium-thread>')
+    
+    expect_connection @chan, mail
+    
+    receive
+    expect_at_message :reply_to => 'b', :thread => 'c'
+  end
+  
   should "remove quoted text or text after first empty line, case quoted text" do
     original = "Hello\n>One\n>Two\n>Three"
     result = ReceivePop3MessageJob.remove_quoted_text_or_text_after_first_empty_line original
@@ -104,13 +114,14 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     assert_equal 1, ATMessage.count
   end
   
-  def msg_as_email(email)
+  def msg_as_email(email, options = {})
     msg = ""
     msg << "From: #{email.from.without_protocol}\n" if email.from
     msg << "To: #{email.to.without_protocol}\n" if email.to
     msg << "Subject: #{email.subject}\n"
     msg << "Date: Thu, 5 Nov 2009 14:52:54 +0100\n"
     msg << "Message-ID: <#{email.guid}@baci.local.tmail>\n" unless email.guid.blank?
+    msg << "References: #{options[:references]}\n" if options[:references]
     msg << "\n"
     msg << email.body
     msg
@@ -141,6 +152,9 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
       assert_equal (options[field] || @email.send(field).strip), msg.send(field).strip
     end
     assert_equal "<#{@email.guid}@baci.local.tmail>", msg.channel_relative_id if @email.guid.present?
+    assert_equal options[:reply_to], msg.custom_attributes['reply_to'] if options[:reply_to]
+    assert_equal options[:thread], msg.custom_attributes['thread'] if options[:thread]
+    
     assert_not_nil msg.guid
     assert_equal Time.parse('Thu, 5 Nov 2009 14:52:54 +0100'), msg.timestamp
   end
