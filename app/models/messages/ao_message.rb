@@ -6,6 +6,7 @@ class AOMessage < ActiveRecord::Base
   serialize :custom_attributes, Hash
   
   after_save :send_delivery_ack
+  after_save :update_queued_ao_messages_count
   
   include MessageCommon
   include MessageGetter
@@ -50,6 +51,18 @@ class AOMessage < ActiveRecord::Base
     
     Queues.publish_application app, SendDeliveryAckJob.new(account_id, application_id, id, state) 
     true
+  end
+  
+  def update_queued_ao_messages_count
+    if channel_id
+      if state_was != 'queued' && state == 'queued'
+        found = Rails.cache.increment Channel.queued_ao_messages_count_cache_key(channel_id)
+        Channel.initialize_queued_ao_messages_count channel_id unless found
+      elsif state_was == 'queued' && state != 'queued'
+        found = Rails.cache.decrement Channel.queued_ao_messages_count_cache_key(channel_id)
+        Channel.initialize_queued_ao_messages_count channel_id unless found
+      end
+    end
   end
 
 end
