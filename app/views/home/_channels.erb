@@ -49,7 +49,7 @@ channel_kinds[1..-1].map!{|x| x[0] << ' channel'}
         <td><%= chan.priority %></td>
         <td><%= @applications.select{|x| x.id == chan.application_id}.first.name rescue nil %></td>
         <%
-        queued = @channels_queued_count[chan.id]
+        queued = chan.queued_ao_messages_count
         if queued > 0
           %>
           <td align="right"><%= link_to queued, :controller => :home, :action => :index, :ao_search => "channel:#{chan.name} state:queued" %></td>

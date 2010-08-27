@@ -48,7 +48,7 @@ module MessageFilters
   
     search = Search.new(search)
     conds = ['account_id = :account_id', { :account_id => @account.id }]
-    if !search.search.nil?
+    if search.search
       conds[0] << ' AND ('
       # Add id condition only if searching a number
       if search.search.integer?
@@ -61,7 +61,7 @@ module MessageFilters
     end
     
     [:id, :tries].each do |sym|
-      if !search[sym].nil?
+      if search[sym]
         op, val = get_op_and_val search[sym]
         if val.integer?
           conds[0] << " AND #{sym} #{op} :#{sym}"
@@ -72,32 +72,41 @@ module MessageFilters
       end
     end
     [:guid, :channel_relative_id, :from, :to, :subject, :body, :state].each do |sym|
-      if !search[sym].nil?
+      if search[sym]
         conds[0] << " AND #{esc(sym)} LIKE :#{sym}"
         conds[1][sym] = "%#{search[sym]}%"
       end
     end
-    if !search[:after].nil?
+    if search[:after]
       after = parse_time(search[:after])
-      if !after.nil?
+      if after
         conds[0] << " AND #{esc('timestamp')} >= :after"
         conds[1][:after] = after
       end
     end
-    if !search[:before].nil?
+    if search[:before]
       before = parse_time(search[:before])
-      if !before.nil?
+      if before
         conds[0] << " AND #{esc('timestamp')} <= :before"
         conds[1][:before] = before
       end
     end
-    if !search[:channel].nil?
+    if search[:channel]
       channel = @account.find_channel search[:channel]
-      if !channel.nil?
+      if channel
         conds[0] << ' AND channel_id = :channel_id'
         conds[1][:channel_id] = channel.id
       else
         conds[0] << ' AND channel_id = 0'
+      end
+    end
+    if search[:application]
+      app = @account.find_application search[:application]
+      if app
+        conds[0] << ' AND application_id = :application_id'
+        conds[1][:application_id] = app.id
+      else
+        conds[0] << ' AND application_id = 0'
       end
     end
     conds
@@ -118,7 +127,7 @@ module MessageFilters
   def build_log_filter(search)
     search = Search.new(search)
     conds = ['account_id = :account_id', { :account_id => @account.id }]
-    if !search.search.nil?
+    if search.search
       conds[0] << ' AND ('
       conds[0] << 'message LIKE :search'
       
@@ -131,13 +140,13 @@ module MessageFilters
       conds[0] << ') '
       conds[1][:search] = "%#{search.search}%"
     end
-    if !search[:severity].nil?
+    if search[:severity]
       op, val = get_op_and_val search[:severity]
       conds[0] << " AND severity #{op} :severity"
       conds[1][:severity] = AccountLog.severity_from_text val
     end
     [:ao, :ao_message_id, :ao_message].each do |sym|
-      if !search[sym].nil?
+      if search[sym]
         op, val = get_op_and_val search[sym]
         if val.integer?
           conds[0] << " AND ao_message_id #{op} :#{sym}"
@@ -148,7 +157,7 @@ module MessageFilters
       end
     end
     [:at, :at_message_id, :at_message].each do |sym|
-      if !search[sym].nil?
+      if search[sym]
         op, val = get_op_and_val search[sym]
         if val.integer?
           conds[0] << " AND at_message_id #{op} :#{sym}"
@@ -158,27 +167,36 @@ module MessageFilters
         end
       end
     end
-    if !search[:after].nil?
+    if search[:after]
       after = parse_time(search[:after])
-      if !after.nil?
+      if after
         conds[0] << ' AND created_at >= :after'
         conds[1][:after] = after
       end
     end
-    if !search[:before].nil?
+    if search[:before]
       before = parse_time(search[:before])
-      if !before.nil?
+      if before
         conds[0] << ' AND created_at <= :before'
         conds[1][:before] = before
       end
     end
-    if !search[:channel].nil?
+    if search[:channel]
       channel = @account.find_channel search[:channel]
-      if !channel.nil?
+      if channel
         conds[0] << ' AND channel_id = :channel_id'
         conds[1][:channel_id] = channel.id
       else
         conds[0] << ' AND channel_id = 0'
+      end
+    end
+    if search[:application]
+      app = @account.find_application search[:application]
+      if app
+        conds[0] << ' AND application_id = :application_id'
+        conds[1][:application_id] = app.id
+      else
+        conds[0] << ' AND application_id = 0'
       end
     end
     conds

@@ -7,6 +7,7 @@ class TwitterChannelHandler < GenericChannelHandler
   end
   
   def update(params)
+    super
     @channel.configuration[:welcome_message] = params[:configuration][:welcome_message]
   end
   

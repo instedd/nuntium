@@ -30,12 +30,19 @@ class SendPostCallbackMessageJob
     end
     
     res = RestClient::Resource.new(app.interface_url, options).post data
-    res = res.net_http_res
+    netres = res.net_http_res
     
-    case res
+    case netres
       when Net::HTTPSuccess, Net::HTTPRedirection
         ATMessage.update_tries([msg.id],'delivered')
         ATMessage.log_delivery([msg], account, 'http_post_callback')
+        
+        # If the response includes a body, create an AO message from it
+        if res.body.present?
+          reply = AOMessage.new :from => msg.to, :to => msg.from, :body => res.body
+          app.route_ao reply, 'http post callback'
+        end
+        
         return true
         
       when Net::HTTPUnauthorized
@@ -47,8 +54,8 @@ class SendPostCallbackMessageJob
       else
         ATMessage.update_tries([msg.id],'failed')
         #TODO check if this error is logged
-        account.logger.error :at_message_id => @message_id, :message => "HTTP POST callback failed #{res.error!}"
-        raise res.error!
+        account.logger.error :at_message_id => @message_id, :message => "HTTP POST callback failed #{netres.error!}"
+        raise netres.error!
     end
   end
 

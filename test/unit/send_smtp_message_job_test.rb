@@ -26,13 +26,33 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
     expect_ao_message_was_delivered
   end
   
+  should "perform with thread" do
+    msg = AOMessage.make :account => @chan.account, :channel => @chan
+    msg.custom_attributes['thread'] = 'foo'
+    msg.save!
+    
+    msgstr = msg_as_email msg    
+    expect_smtp msg, msgstr
+    assert_true (deliver msg)
+    expect_ao_message_was_delivered
+  end
+  
   def msg_as_email(msg)
     s = ""
     s << "From: #{msg.from.without_protocol}\n"
     s << "To: #{msg.to.without_protocol}\n"
     s << "Subject: #{msg.subject}\n"
     s << "Date: #{msg.timestamp}\n"
-    s << "Message-Id: <#{msg.guid}@nuntium.instedd.org>\n"
+    s << "Message-Id: <#{msg.guid}@nuntium>\n"
+    s << "References: <#{msg.guid}@nuntium>"
+    if msg.custom_attributes['thread']
+      threads = msg.custom_attributes['thread']
+      threads = [threads] unless threads.kind_of?(Array)
+      threads.each do |thread|
+        s << ", <#{thread}@nuntium-thread>"
+      end
+    end 
+    s << "\n"
     s << "\n"
     s << msg.body
     s.strip

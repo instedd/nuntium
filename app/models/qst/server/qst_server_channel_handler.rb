@@ -38,6 +38,7 @@ class QstServerChannelHandler < ChannelHandler
     @channel.protocol = params[:protocol]
     @channel.direction = params[:direction]
     @channel.priority = params[:priority]
+    @channel.address = params[:address]
     @channel.application_id = params[:application_id]
     
     if !params[:configuration][:password].blank?

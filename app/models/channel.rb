@@ -31,8 +31,11 @@ class Channel < ActiveRecord::Base
   after_update :handler_after_update
   before_destroy :handler_before_destroy
   
-  before_destroy :clear_cache 
+  before_destroy :clear_cache
   after_save :clear_cache
+  
+  before_destroy :clear_queued_ao_messages_count_cache
+  after_save :initialize_queued_ao_messages_count_cache
 
   include(CronTask::CronTaskOwner)
   
@@ -261,6 +264,22 @@ class Channel < ActiveRecord::Base
     end
   end
   
+  def queued_ao_messages_count
+    count = Rails.cache.read Channel.queued_ao_messages_count_cache_key(id), :raw => true
+    count = Channel.initialize_queued_ao_messages_count(id) unless count
+    count.to_i
+  end
+  
+  def self.initialize_queued_ao_messages_count(channel_id)
+    count = AOMessage.count :conditions => ['channel_id = ? and state = ?', channel_id, 'queued']
+    Rails.cache.write Channel.queued_ao_messages_count_cache_key(channel_id), count, :raw => true
+    count
+  end
+  
+  def self.queued_ao_messages_count_cache_key(channel_id)
+    "channel.#{channel_id}.queued_ao_messages_count"
+  end
+  
   private
   
   def handler_check_valid
@@ -304,6 +323,15 @@ class Channel < ActiveRecord::Base
   def clear_cache
     Rails.cache.delete Channel.cache_key(account_id)
     true
+  end
+  
+  def clear_queued_ao_messages_count_cache
+    Rails.cache.delete Channel.queued_ao_messages_count_cache_key(id)
+    true
+  end
+  
+  def initialize_queued_ao_messages_count_cache
+    Rails.cache.write(Channel.queued_ao_messages_count_cache_key(id), 0, :raw => true) unless id_was
   end
   
   def self.cache_key(account_id)
