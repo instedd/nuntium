@@ -32,7 +32,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
     s << "To: #{msg.to.without_protocol}\n"
     s << "Subject: #{msg.subject}\n"
     s << "Date: #{msg.timestamp}\n"
-    s << "Message-Id: <#{msg.guid}@nuntium.instedd.org>\n"
+    s << "Message-Id: <#{msg.guid}@nuntium>\n"
     s << "\n"
     s << msg.body
     s.strip

@@ -2,7 +2,7 @@ require 'net/smtp'
 
 class SendSmtpMessageJob < SendMessageJob
   def managed_perform
-    channel_relative_id = "<#{@msg.guid}@nuntium.instedd.org>"
+    channel_relative_id = "<#{@msg.guid}@nuntium>"
     
 msgstr = <<-END_OF_MESSAGE
 From: #{@msg.from.without_protocol}
