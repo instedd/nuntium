@@ -60,7 +60,7 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
   
   should "perform set thread" do
     mail = mock('Net::POPMail')
-    mail.stubs :pop => msg_as_email(@email, :references => '<a@foo.bar>, <b@nuntium>, <c@nuntium-thread>')
+    mail.stubs :pop => msg_as_email(@email, :references => '<a@foo.bar>, <b@nuntium>, <b@nuntium>, <c@nuntium-thread>, <c@nuntium-thread>')
     
     expect_connection @chan, mail
     

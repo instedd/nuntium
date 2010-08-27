@@ -54,9 +54,9 @@ class ReceivePop3MessageJob
         tmail.references.each do |ref|
           next unless ref.start_with?('<')
           if ref.end_with?('@nuntium>')
-            msg.custom_attributes.store_multivalue 'reply_to', ref[1 .. -10]
+            msg.custom_attributes['reply_to'] = ref[1 .. -10]
           elsif ref.end_with?('@nuntium-thread>')
-            msg.custom_attributes.store_multivalue 'thread', ref[1 .. -17]
+            msg.custom_attributes['thread'] = ref[1 .. -17]
           end
         end
       end
