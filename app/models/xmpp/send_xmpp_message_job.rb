@@ -18,14 +18,9 @@ class SendXmppMessageJob
     body = msg.body
     
     begin
-      error_or_nil = delegate.send_message(msg.id, from, to, subject, body)
-      msg.send_succeeed account, channel
+      delegate.send_message(msg.id, from, to, subject, body)
     rescue => e
       msg.send_failed account, channel, e
-    else
-      if !error_or_nil.nil?
-        msg.send_failed account, channel, error_or_nil
-      end
     end
   end
   
