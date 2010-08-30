@@ -30,7 +30,7 @@ Rails::Initializer.run do |config|
   config.gem 'amqp'
   config.gem 'memcached'
   config.gem 'xmpp4r'
-  config.gem 'rest-client', :lib => 'rest_client', :source => 'http://gems.github.com'
+  config.gem 'rest-client', :lib => 'rest_client'
   config.gem 'qst_client'
   config.gem 'nokogiri'
   config.gem 'daemon_controller'
