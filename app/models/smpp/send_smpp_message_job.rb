@@ -12,20 +12,17 @@ class SendSmppMessageJob
     channel = account.find_channel @channel_id
     msg = AOMessage.find @message_id
     
-    return if msg.state != 'queued' or msg.channel_id != @channel_id
+    return false if msg.state != 'queued' or msg.channel_id != @channel_id
     
     from = msg.from.without_protocol
     to = msg.to.without_protocol
     sms = msg.subject_and_body
     
     begin
-      error_or_nil = delegate.send_message(msg.id, from, to, sms)
+      return delegate.send_message(msg.id, from, to, sms)
     rescue => e
       msg.send_failed account, channel, e
-    else
-      if !error_or_nil.nil?
-        msg.send_failed account, channel, error_or_nil
-      end
+      return false
     end
   end
   

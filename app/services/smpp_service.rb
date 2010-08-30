@@ -140,8 +140,11 @@ class SmppGateway < SmppTransceiverDelegate
     
     Queues.subscribe_ao(@channel, @mq) do |header, job|
       begin
-        job.perform self
-        @pending_headers[job.message_id] = header
+        if job.perform(self)
+          @pending_headers[job.message_id] = header
+        else
+          header.ack
+        end
       rescue Exception => e
         Rails.logger.error "Error when performing job. Exception: #{e.class} #{e}"
       end

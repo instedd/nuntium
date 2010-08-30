@@ -29,8 +29,8 @@ class SmppTransceiverDelegate
     end
     
     if msg_text.nil?
-      logger.warning "Could not find suitable encoding for AOMessage with id #{id}" 
-      return "Could not find suitable encoding"
+      logger.warning "Could not find suitable encoding for AOMessage with id #{id}"
+      return false
     end
     
     if msg_text.length > @mt_max_length
@@ -45,10 +45,8 @@ class SmppTransceiverDelegate
     else
       send_mt(id, from, to, msg_text, {:data_coding => msg_coding})
     end
-    
-    return nil
-  rescue Exception => e
-    return "#{e.class} #{e.message}"
+
+    return true
   end
   
   def send_csms_using_udh(id, from, to, msg_coding, msg_text)
