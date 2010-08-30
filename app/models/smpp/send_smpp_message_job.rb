@@ -18,11 +18,12 @@ class SendSmppMessageJob
     to = msg.to.without_protocol
     sms = msg.subject_and_body
     
-    begin
-      return delegate.send_message(msg.id, from, to, sms)
-    rescue => e
-      msg.send_failed account, channel, e
-      return false
+    error = delegate.send_message(msg.id, from, to, sms)
+    if error
+      msg.send_failed account, channel, error
+      false
+    else
+      true
     end
   end
   
