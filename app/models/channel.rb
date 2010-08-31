@@ -280,6 +280,10 @@ class Channel < ActiveRecord::Base
     "channel.#{channel_id}.queued_ao_messages_count"
   end
   
+  def invalidate_queued_ao_messages_count
+    Rails.cache.delete Channel.queued_ao_messages_count_cache_key(id)
+  end
+  
   private
   
   def handler_check_valid

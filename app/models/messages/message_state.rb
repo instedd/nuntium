@@ -13,19 +13,19 @@ module MessageState
     # * success of the process is determined by whether last guid is nil or not
     def update_msgs_status(msgs, max_tries, last_guid)
       if not last_guid.nil?
-        delivered_msgs = []
-        confirmed_msgs = []
-        current = confirmed_msgs
+        delivered_msgs_id = []
+        confirmed_msgs_id = []
+        current = confirmed_msgs_id
         msgs.each do |m| 
-          current << m
-          current = delivered_msgs if last_guid == m.guid
+          current << m.id
+          current = delivered_msgs_id if last_guid == m.guid
         end
-        self.update_tries(confirmed_msgs, 'confirmed')
-        self.update_tries(delivered_msgs, 'delivered')
+        self.update_tries(confirmed_msgs_id, 'confirmed')
+        self.update_tries(delivered_msgs_id, 'delivered')
       else
         valid_msgs, invalid_msgs= msgs.partition {|m| m.tries < max_tries}
-        self.update_tries(valid_msgs)
-        self.update_tries(invalid_msgs, 'failed')
+        self.update_tries(valid_msgs.map(&:id))
+        self.update_tries(invalid_msgs.map(&:id), 'failed')
       end
     end
   
@@ -33,19 +33,11 @@ module MessageState
     def update_tries(ids, state=nil)
       return if ids.empty?
 
-			if ids[0].kind_of?(ActiveRecord::Base) && state
-				ids.each do |msg|
-					msg.tries = msg.tries + 1
-					msg.state = state
-					msg.save!
-				end
-			else
-		    if state.nil?
-		      self.update_all("tries = tries + 1", ['id IN (?)', ids])
-		    else
-		      self.update_all("state = '#{state}', tries = tries + 1", ['id IN (?)', ids])
-		    end
-			end
+	    if state.nil?
+	      self.update_all("tries = tries + 1", ['id IN (?)', ids])
+	    else
+	      self.update_all("state = '#{state}', tries = tries + 1", ['id IN (?)', ids])
+	    end
     end
     
     # Marks all older messages as confirmed
