@@ -16,7 +16,7 @@ class OutgoingControllerTest < ActionController::TestCase
   end
   
   def create_qst_ao(account, channel)
-    msg = AOMessage.make :account => account, :state => 'queued'
+    msg = AOMessage.make :account => account, :channel => channel, :state => 'queued'
     QSTOutgoingMessage.create! :channel => channel, :ao_message_id => msg.id
     msg
   end
@@ -231,6 +231,18 @@ class OutgoingControllerTest < ActionController::TestCase
     get 'index', :account_id => @account.name
     
     assert_equal original_state, AOMessage.find(msg2.id).state
+  end
+  
+  test "get one decrements queued ao count" do
+    msg = create_qst_ao @account, @chan
+    
+    assert_equal 1, @chan.queued_ao_messages_count
+    
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
+    @request.env["HTTP_IF_NONE_MATCH"] = msg.guid    
+    get 'index', :account_id => @account.name
+    
+    assert_equal 0, @chan.queued_ao_messages_count
   end
   
   def assert_shows_message(msg)

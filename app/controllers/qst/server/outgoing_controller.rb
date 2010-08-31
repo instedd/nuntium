@@ -69,7 +69,9 @@ class OutgoingController < QSTServerController
       end
       
       @ao_messages.sort! {|x,y| x.timestamp <=> y.timestamp}
-    end 
+    end
+    
+    @channel.invalidate_queued_ao_messages_count
     
     response.headers['ETag'] = @ao_messages.last.id.to_s if !@ao_messages.empty?
     response.headers["Content-Type"] = "application/xml; charset=utf-8"
