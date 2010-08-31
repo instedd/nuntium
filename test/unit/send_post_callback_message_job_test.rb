@@ -92,4 +92,24 @@ class SendPostCallbackMessageJobTest < ActiveSupport::TestCase
     assert_equal @msg.from, msgs[0].to
     assert_equal 'foo', msgs[0].body      
   end
+  
+  test "post with custom attributes" do
+    @application.interface_url = 'http://www.domain.com'
+    @application.save!
+    
+    @msg.country = 'ar'
+    @msg.carrier = 'some_guid'
+    @msg.save!
+    
+    @query['country'] = 'ar'
+    @query['carrier'] = 'some_guid'
+    
+    expect_post :url => @application.interface_url,
+      :data => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPSuccess
+  
+    job = SendPostCallbackMessageJob.new @application.account_id, @application.id, @msg.id
+    job.perform
+  end
 end
