@@ -19,7 +19,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPSuccess
   
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
-    job.perform
+    assert_true job.perform
   end
   
   test "get with auth" do
@@ -35,7 +35,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPSuccess
     
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
-    job.perform
+    assert_true job.perform
   end
   
   test "get with custom attributes" do
@@ -52,7 +52,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPSuccess
   
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
-    job.perform
+    assert_true job.perform
   end
   
   test "post" do
@@ -66,7 +66,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPSuccess
   
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
-    job.perform
+    assert_true job.perform
   end
 
   test "post with auth" do
@@ -82,7 +82,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPSuccess
   
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
-    job.perform
+    assert_true job.perform
   end
 
   test "get unauthorized" do
@@ -96,7 +96,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPUnauthorized
   
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
-    job.perform
+    assert_false job.perform
     
     @application.reload
     assert_equal 'none', @application.delivery_ack_method
