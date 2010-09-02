@@ -34,12 +34,12 @@ class SendDeliveryAckJob
     
     case res
       when Net::HTTPSuccess, Net::HTTPRedirection
-        return
+        return true
       when Net::HTTPUnauthorized
         app.alert "Sending HTTP delivery ack received unauthorized: invalid credentials"
         app.delivery_ack_method = 'none'
         app.save!
-        return
+        return false
       else
         account.logger.error :ao_message_id => @message_id, :message => "HTTP delivery ack failed #{res.error!}"
         raise res.error!
