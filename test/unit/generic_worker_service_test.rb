@@ -21,7 +21,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 	end
 
   test "should subscribe to enabled channels" do
-    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, kind_of(MQ))
+    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(MQ))
     
     @service.start
   end
@@ -46,7 +46,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     job = mock('job')
     job.expects(:perform).returns(true)
     
-    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, kind_of(MQ)).yields(header, job)
+    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(MQ)).yields(header, job)
     @service.start
   end
   
@@ -64,7 +64,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     job = mock('job')
     job.expects(:perform).raises(Exception.new)
     
-    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, kind_of(MQ)).yields(header, job)
+    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(MQ)).yields(header, job)
     
     jobs = []
     Queues.expects(:publish_notification).times(2).with do |job, working_group, mq|
@@ -96,7 +96,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     @service.start
     @service.unsubscribe_from_queue Queues.ao_queue_name_for(@chan)
     
-    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, kind_of(MQ))
+    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(MQ))
     
     @service.subscribe_to_queue Queues.ao_queue_name_for(@chan)
   end

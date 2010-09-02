@@ -37,7 +37,7 @@ class GenericWorkerService < Service
     mq.prefetch PrefetchCount    
     @sessions[wq.queue_name] = mq
   
-    Queues.subscribe(wq.queue_name, wq.ack, mq) do |header, job|
+    Queues.subscribe(wq.queue_name, wq.ack, wq.durable, mq) do |header, job|
       begin
         Rails.logger.debug "Executing job #{job} for queue #{wq.queue_name}"
         success = job.perform
