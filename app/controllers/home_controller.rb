@@ -55,7 +55,7 @@ class HomeController < AccountAuthenticatedController
     
     @account = Account.find_by_name account[:name]
     if @account.nil? || !@account.authenticate(account[:password])
-      @account.clear_password unless @account.nil?
+      @account = Account.new :name => account[:name]
       flash[:notice] = 'Invalid name/password'
       return render :index
     end
