@@ -57,7 +57,7 @@ module Queues
     end
     
     def subscribe(queue_name, ack, durable, mq = MQ)
-      mq.queue(queue_name).subscribe(:ack => ack, :durable => durable) do |header, job|
+      mq.queue(queue_name, :durable => durable).subscribe(:ack => ack) do |header, job|
         yield header, deserialize(job)
       end
     end

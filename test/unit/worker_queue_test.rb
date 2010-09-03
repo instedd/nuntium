@@ -22,7 +22,7 @@ class WorkerQueueTest < ActiveSupport::TestCase
   
     WorkerQueue.create! :queue_name => 'queue_1', :working_group => 'wk', :ack => true
     
-    sleep 0.6
+    sleep 1
   end
   
   test "publish notification after create check delay" do
