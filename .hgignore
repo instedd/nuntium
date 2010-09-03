@@ -4,6 +4,7 @@ syntax: glob
 *.tmp*~
 *.orig
 *.lock
+*.pid
 *.*~
 sqlite3.dll
 vendor
