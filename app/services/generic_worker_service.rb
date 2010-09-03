@@ -31,7 +31,7 @@ class GenericWorkerService < Service
     return unless wq and wq.enabled
     return if @sessions.include? wq.queue_name
     
-    Rails.logger.info "Subscribing to queue #{wq.queue_name} with ack #{wq.ack}"
+    Rails.logger.info "Subscribing to queue #{wq.queue_name} with ack #{wq.ack} and durable #{wq.durable}"
   
     mq = MQ.new
     mq.prefetch PrefetchCount    
