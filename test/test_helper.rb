@@ -41,7 +41,6 @@ class ActiveSupport::TestCase
     Country.clear_cache
     Carrier.clear_cache
     Sham.reset
-    WorkerQueue.publish_notification_delay = 0
   end
   
   def expect_get(options = {})
@@ -158,3 +157,7 @@ class ActiveSupport::TestCase
     assert_equal msg.id, jobs[0].message_id
   end
 end
+
+# This is for after_create to work in tests
+ActiveRecord::Base.send(:include, AfterCommit::AfterSavepoint)
+ActiveRecord::Base.include_after_savepoint_extensions
