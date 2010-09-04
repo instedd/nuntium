@@ -73,7 +73,7 @@ function select_all_at_messages() {
   select_all('at_messages[]');
   if (total_at_messages > current_at_messages) {
     var e = $('#all_at_messages_text');
-    e.show();// === address source ===
+    e.show();
     e.html('' + current_at_messages + ' messages are selected. <a href="javascript:void(0)" onclick="select_all_pages_at_messages()">Select all ' + total_at_messages + ' messages</a>.');
   }
 }

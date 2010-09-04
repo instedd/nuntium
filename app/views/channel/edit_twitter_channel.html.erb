@@ -10,7 +10,6 @@
   <%= render :partial => 'edit_protocol', :locals => {:f => f} %>
   <%= render :partial => 'edit_priority', :locals => {:f => f} %>
   <%= render :partial => 'edit_application', :locals => {:f => f} %>
-  <%= render :partial => 'edit_address', :locals => {:f => f} %>
   <% f.fields_for :configuration do |c| %>
     <p>
     <%= c.label :screen_name %><br/>
