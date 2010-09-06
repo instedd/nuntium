@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100902200527) do
+ActiveRecord::Schema.define(:version => 20100906185203) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -137,7 +137,7 @@ ActiveRecord::Schema.define(:version => 20100902200527) do
     t.integer  "country_id"
     t.integer  "carrier_id"
     t.string   "network"
-    t.integer  "cost",       :limit => 10, :precision => 10, :scale => 0
+    t.decimal  "cost",       :precision => 10, :scale => 2
     t.datetime "created_at"
     t.datetime "updated_at"
   end

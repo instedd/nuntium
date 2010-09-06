@@ -102,6 +102,14 @@ class ClickatellChannelHandler < GenericChannelHandler
     Clickatell.get_status :api_id => cfg[:api_id], :user => cfg[:user], :password => cfg[:password], :apimsgid => ao_msg.channel_relative_id
   end
   
+  def restrictions_cache_key
+    "channel_restrictions.#{@channel.id}"
+  end
+  
+  def clear_restrictions_cache
+    Rails.cache.delete restrictions_cache_key
+  end
+  
   CLICKATELL_NETWORKS = {
     '61' => '+61',
     '44a' => '+44 [A]', 
@@ -177,14 +185,6 @@ class ClickatellChannelHandler < GenericChannelHandler
     else
       res[key] << value unless res[key].include? value
     end
-  end
-  
-  def clear_restrictions_cache
-    Rails.cache.delete restrictions_cache_key
-  end
-  
-  def restrictions_cache_key
-    "channel_restrictions.#{@channel.id}"
   end
   
 end
