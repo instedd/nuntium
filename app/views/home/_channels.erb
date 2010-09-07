@@ -52,7 +52,7 @@ channel_kinds[1..-1].map!{|x| x[0] << ' channel'}
         queued = chan.queued_ao_messages_count
         if queued > 0
           %>
-          <td align="right"><%= link_to queued, :controller => :home, :action => :index, :ao_search => "channel:#{chan.name} state:queued" %></td>
+          <td align="right"><%= link_to queued, :controller => :home, :action => :index, :ao_search => "channel:#{chan.name} state:queued", :anchor => 'ao' %></td>
           <%
         else
           %>
