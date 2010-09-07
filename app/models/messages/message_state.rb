@@ -32,12 +32,13 @@ module MessageState
     # Increases try count for all messages in ids collection, optionally also modifies state
     def update_tries(ids, state=nil)
       return if ids.empty?
-
-	    if state.nil?
-	      self.update_all("tries = tries + 1", ['id IN (?)', ids])
-	    else
-	      self.update_all("state = '#{state}', tries = tries + 1", ['id IN (?)', ids])
-	    end
+      
+      stm = "tries = tries + 1"
+      stm += ", state = '#{state}'" if state
+      
+      ids.each do |id|
+        self.update_all(stm, ['id = ?', id])
+      end
     end
     
     # Marks all older messages as confirmed
