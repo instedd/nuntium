@@ -11,6 +11,10 @@ class SendSmtpMessageJob < SendMessageJob
         references += ", <#{thread}@nuntium-thread>"
       end
     end
+    @msg.custom_attributes.each do |key, value|
+      next unless key.start_with?('references_')
+      references += ", <#{value}@#{key[11 .. -1]}.nuntium>"
+    end
     
 msgstr = <<-END_OF_MESSAGE
 From: #{@msg.from.without_protocol}

@@ -37,6 +37,18 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
     expect_ao_message_was_delivered
   end
   
+  should "perform with references" do
+    msg = AOMessage.make :account => @chan.account, :channel => @chan
+    msg.custom_attributes['references_foo'] = 'a'
+    msg.custom_attributes['references_bar'] = 'b'
+    msg.save!
+    
+    msgstr = msg_as_email msg    
+    expect_smtp msg, msgstr
+    assert_true (deliver msg)
+    expect_ao_message_was_delivered
+  end
+  
   def msg_as_email(msg)
     s = ""
     s << "From: #{msg.from.without_protocol}\n"
@@ -51,7 +63,11 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
       threads.each do |thread|
         s << ", <#{thread}@nuntium-thread>"
       end
-    end 
+    end
+    msg.custom_attributes.each do |key, value|
+      next unless key.start_with?('references_')
+      s << ", <#{value}@#{key[11 .. -1]}.nuntium>"
+    end
     s << "\n"
     s << "\n"
     s << msg.body
