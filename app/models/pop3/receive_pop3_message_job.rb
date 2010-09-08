@@ -54,10 +54,8 @@ class ReceivePop3MessageJob
         tmail.references.each do |ref|
           at_index = ref.index('@')
           next unless ref.start_with?('<') || !at_index
-          if ref.end_with?('@nuntium>')
-            msg.custom_attributes['reply_to'] = ref[1 .. -10]
-          elsif ref.end_with?('@thread.nuntium>')
-            msg.custom_attributes['thread'] = ref[1 .. -17]
+          if ref.end_with?('@message_id.nuntium>')
+            msg.custom_attributes['reply_to'] = ref[1 .. -21]
           elsif ref.end_with?('.nuntium>')
             msg.custom_attributes["references_#{ref[at_index + 1 .. -10]}"] = ref[1 ... at_index]
           end

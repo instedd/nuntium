@@ -65,12 +65,12 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     expect_connection @chan, mail
     
     receive
-    expect_at_message :custom_attributes => {'thread' => 'c'}
+    expect_at_message :custom_attributes => {'references_thread' => 'c'}
   end
   
   should "perform set reply to" do
     mail = mock('Net::POPMail')
-    mail.stubs :pop => msg_as_email(@email, :references => '<b@nuntium>, <b@nuntium>')
+    mail.stubs :pop => msg_as_email(@email, :references => '<b@message_id.nuntium>, <b@message_id.nuntium>')
     
     expect_connection @chan, mail
     
