@@ -93,13 +93,8 @@ class SmppGateway < SmppTransceiverDelegate
     # Queue full
     when Smpp::Pdu::Base::ESME_RMSGQFUL,
          Smpp::Pdu::Base::ESME_RTHROTTLED
-      Rails.logger.info "Received ESME_RMSGQFUL or ESME_RHTORTTLED (#{pdu.command_status})"  
-
-      # Stop sending messages for a while
-      if @subscribed
-        unsubscribe_queue
-        EM.add_timer(5) { subscribe_queue }
-      end
+      Rails.logger.info "Received ESME_RMSGQFUL or ESME_RHTORTTLED (#{pdu.command_status})"
+      unsubscribe_temporarily
       
     # Message source or address not valid
     when Smpp::Pdu::Base::ESME_RINVSRCADR,
@@ -140,10 +135,14 @@ class SmppGateway < SmppTransceiverDelegate
     
     Queues.subscribe_ao(@channel, @mq) do |header, job|
       begin
-        job.perform self
-        @pending_headers[job.message_id] = header
+        if job.perform(self)
+          @pending_headers[job.message_id] = header
+        else
+          header.ack
+        end
       rescue Exception => e
         Rails.logger.error "Error when performing job. Exception: #{e.class} #{e}"
+        unsubscribe_temporarily
       end
       
       sleep_time
@@ -159,6 +158,13 @@ class SmppGateway < SmppTransceiverDelegate
     @mq.prefetch PrefetchCount
     
     @subscribed = false
+  end
+
+  def unsubscribe_temporarily
+    if @subscribed
+      unsubscribe_queue
+      EM.add_timer(5) { subscribe_queue }
+    end
   end
   
   def send_ack(message_id)

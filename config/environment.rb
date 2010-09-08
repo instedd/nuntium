@@ -30,10 +30,12 @@ Rails::Initializer.run do |config|
   config.gem 'amqp'
   config.gem 'memcached'
   config.gem 'xmpp4r'
-  config.gem 'rest-client', :lib => 'rest_client', :source => 'http://gems.github.com'
+  config.gem 'rest-client', :lib => 'rest_client'
   config.gem 'qst_client'
   config.gem 'nokogiri'
   config.gem 'daemon_controller'
+  config.gem 'ruby-cache', :lib => 'cache'
+  config.gem 'after_commit'
 
   # Only load the plugins named here, in the order given (default is alphabetical).
   # :all can be used as a placeholder for all plugins not explicitly named

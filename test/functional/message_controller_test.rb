@@ -5,7 +5,7 @@ class MessageControllerTest < ActionController::TestCase
   def setup
     @account = Account.make
     @application = Application.make :account => @account
-    Channel.make :account => @account
+    @chan = Channel.make :account => @account
     
     @ao_msg1 = AOMessage.create!(:account_id => @account.id, :application_id => @application.id, :state => 'pending', :body => 'one', :to => 'sms://1')
     @ao_msg2 = AOMessage.create!(:account_id => @account.id, :application_id => @application.id, :state => 'pending', :body => 'one', :to => 'sms://1')
@@ -78,6 +78,30 @@ class MessageControllerTest < ActionController::TestCase
     
     assert_fields :ao, :state, 'queued', 'queued', 'pending'
     assert_fields :ao, :tries, 0, 0, 3
+  end
+
+	test "mark ao messages as cancelled decrements queued count" do
+		@ao_msg1.channel = @chan
+		@ao_msg1.state = 'queued'
+		@ao_msg1.save!
+
+		assert_equal 1, @chan.queued_ao_messages_count
+
+    get :mark_ao_messages_as_cancelled, {:ao_messages => [@ao_msg1.id, @ao_msg2.id]}, {:account_id => @account.id}
+
+		assert_equal 0, @chan.queued_ao_messages_count
+  end
+  
+  test "mark ao messages as cancelled using search decrements queued count" do
+		@ao_msg1.channel = @chan
+		@ao_msg1.state = 'queued'
+		@ao_msg1.save!
+
+		assert_equal 1, @chan.queued_ao_messages_count
+
+    get :mark_ao_messages_as_cancelled, {:ao_all => 1, :ao_search => 'one'}, {:account_id => @account.id}
+    
+    assert_equal 0, @chan.queued_ao_messages_count
   end
 
 end

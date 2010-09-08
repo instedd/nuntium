@@ -28,6 +28,7 @@ class PushQstChannelMessageJob
       AOMessage.update_msgs_status msgs, @account.max_tries, last_id
       AOMessage.log_delivery msgs, @account, 'qst_client'
       
+      @channel.invalidate_queued_ao_messages_count
       @channel.configuration[:last_ao_guid] = last_id
       @channel.save!
       

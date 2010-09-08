@@ -90,16 +90,18 @@ class MessageController < AccountAuthenticatedController
     if params[all].to_b
       kind == AOMessage ? build_ao_messages_filter : build_at_messages_filter
       conditions = kind == AOMessage ? @ao_conditions : @at_conditions
-      kind.update_all("state = 'cancelled'", conditions)
-      affected = kind.count(:conditions => conditions)
     else
       msgs = kind == AOMessage ? :ao_messages : :at_messages
-      ids = params[msgs]
-      
-      kind.update_all("state = 'cancelled'", ['id IN (?)', ids])
-      
-      affected = ids.length
+			conditions = ['id IN (?)', params[msgs]]
     end
+
+		affected = kind.all(:conditions => conditions)
+		affected.each do |msg|
+			msg.state = 'cancelled'
+			msg.save!
+		end
+
+		affected = affected.length
     
     k = kind == AOMessage ? 'Originated' : 'Terminated'
     flash[:notice] = "#{affected} Application #{k} messages #{affected == 1 ? 'was' : 'were'} marked as cancelled"    

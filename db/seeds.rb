@@ -7,7 +7,7 @@
 #   Major.create(:name => 'Daley', :city => cities.first)
 
 # Create the worker queue for cron tasks
-WorkerQueue.create!(:queue_name => 'cron_tasks_queue', :working_group => 'slow', :ack => false)
+WorkerQueue.create!(:queue_name => 'cron_tasks_queue', :working_group => 'slow', :ack => false, :durable => false)
 
 load "#{RAILS_ROOT}/db/seeds-countries.rb"
 load "#{RAILS_ROOT}/db/seeds-carriers.rb"

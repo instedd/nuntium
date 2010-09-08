@@ -22,6 +22,10 @@ class SendPostCallbackMessageJob
       :guid => msg.guid,
       :channel => msg.channel.name 
     }
+    
+    msg.custom_attributes.each do |key, values|
+      data[key] = values
+    end
 
     options = {:headers => {:content_type => "application/x-www-form-urlencoded"}}
     if app.interface_user.present?

@@ -398,7 +398,7 @@ class Application < ActiveRecord::Base
   end
   
   def create_worker_queue
-    WorkerQueue.create!(:queue_name => Queues.application_queue_name_for(self), :working_group => 'fast', :ack => true)
+    WorkerQueue.create!(:queue_name => Queues.application_queue_name_for(self), :working_group => 'fast', :ack => true, :durable => true)
   end
   
   def bind_queue

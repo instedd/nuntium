@@ -273,11 +273,15 @@ class Channel < ActiveRecord::Base
   def self.initialize_queued_ao_messages_count(channel_id)
     count = AOMessage.count :conditions => ['channel_id = ? and state = ?', channel_id, 'queued']
     Rails.cache.write Channel.queued_ao_messages_count_cache_key(channel_id), count, :raw => true
-    count
+		count
   end
   
   def self.queued_ao_messages_count_cache_key(channel_id)
     "channel.#{channel_id}.queued_ao_messages_count"
+  end
+  
+  def invalidate_queued_ao_messages_count
+    Rails.cache.delete Channel.queued_ao_messages_count_cache_key(id)
   end
   
   private

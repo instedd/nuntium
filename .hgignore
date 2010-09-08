@@ -4,8 +4,12 @@ syntax: glob
 *.tmp*~
 *.orig
 *.lock
+*.pid
 *.*~
 sqlite3.dll
 vendor
 twitter_oauth_consumer.yml
 .loadpath
+erl_crash.dump
+nohup.out
+

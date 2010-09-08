@@ -111,4 +111,17 @@ class PushQstChannelMessageJobTest < ActiveSupport::TestCase
     @job.perform
   end
 
+	test "one message no previous last id correct queued count" do
+    @msg = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued'
+
+		assert_equal 1, @channel.queued_ao_messages_count
+    
+    @client.expects(:get_last_id).returns(nil)
+    @client.expects(:put_messages).with([@msg.to_qst]).returns(@msg.guid)
+    
+    @job.perform
+
+		assert_equal 0, @channel.queued_ao_messages_count
+  end
+
 end

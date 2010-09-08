@@ -13,15 +13,15 @@ module MessageState
     # * success of the process is determined by whether last guid is nil or not
     def update_msgs_status(msgs, max_tries, last_guid)
       if not last_guid.nil?
-        delivered_msgs_ids = []
-        confirmed_msgs_ids = []
-        current = confirmed_msgs_ids
+        delivered_msgs_id = []
+        confirmed_msgs_id = []
+        current = confirmed_msgs_id
         msgs.each do |m| 
           current << m.id
-          current = delivered_msgs_ids if last_guid == m.guid
+          current = delivered_msgs_id if last_guid == m.guid
         end
-        self.update_tries(confirmed_msgs_ids, 'confirmed')
-        self.update_tries(delivered_msgs_ids, 'delivered')
+        self.update_tries(confirmed_msgs_id, 'confirmed')
+        self.update_tries(delivered_msgs_id, 'delivered')
       else
         valid_msgs, invalid_msgs= msgs.partition {|m| m.tries < max_tries}
         self.update_tries(valid_msgs.map(&:id))
@@ -31,11 +31,13 @@ module MessageState
   
     # Increases try count for all messages in ids collection, optionally also modifies state
     def update_tries(ids, state=nil)
-      return if ids.empty? 
-      if state.nil?
-        self.update_all("tries = tries + 1", ['id IN (?)', ids])
-      else
-        self.update_all("state = '#{state}', tries = tries + 1", ['id IN (?)', ids])
+      return if ids.empty?
+      
+      stm = "tries = tries + 1"
+      stm += ", state = '#{state}'" if state
+      
+      ids.each do |id|
+        self.update_all(stm, ['id = ?', id])
       end
     end
     

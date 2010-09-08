@@ -44,15 +44,17 @@ class RssController < ApplicationAuthenticatedController
     at_messages_ids = @at_messages.collect {|x| x.id}
     
     # And increment their tries
-    ATMessage.update_all("state = 'delivered', tries = tries + 1", ['id IN (?)', at_messages_ids])
+    at_messages_ids.each do |at_message_id|
+      ATMessage.update_all("state = 'delivered', tries = tries + 1", ['id = ?', at_message_id])
+    end
     
     # Separate messages into ones that have their tries
     # over max_tries and those still valid.
     valid_messages, invalid_messages = filter_tries_exceeded_and_not_exceeded @at_messages, @account
     
     # Mark as failed messages that have their tries over max_tries
-    if !invalid_messages.empty?
-      ATMessage.update_all(['state = ?', 'failed'], ['id IN (?)', invalid_messages.map(&:id)])
+    invalid_messages.each do |invalid_message|
+      ATMessage.update_all("state = 'failed'", ['id = ?', invalid_message.id])
     end
     
     # Logging: say that valid messages were returned and invalid no
