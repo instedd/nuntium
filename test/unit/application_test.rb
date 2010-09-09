@@ -368,4 +368,22 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal 'broadcasted', msg.state
   end
   
+  test "application at rules" do
+    app = Application.make
+    app.at_rules = [
+      RulesEngine.rule([
+        RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1')
+      ],[
+        RulesEngine.action('from','sms://2')
+      ])
+    ]
+    chan = Channel.make :account_id => app.id
+    
+    msg = ATMessage.make_unsaved :from => 'sms://1', :account_id => app.account_id
+    
+    app.route_at msg, chan
+    
+    assert_equal 'sms://2', msg.from
+  end
+  
 end

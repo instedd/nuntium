@@ -15,8 +15,8 @@ Messages sent from the world into Nuntium and then into your application are cal
 <input type="hidden" name="log_search" value="<%= @log_search %>" />
 <input type="hidden" id="at_all" name="at_all" value="0" />
 
-<% if @channels.empty? %>
-  Create a Channel to create AT Messages.
+<% if @channels.select{|x| x.direction == Channel::Incoming || x.direction == Channel::Bidirectional}.empty? %>
+  Create an incoming or bidirectional Channel to create AT Messages.<br/><br/>
 <% else %>
   <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AT Message">Create new AT Message', :controller => :message, :action => :new_at_message %> &nbsp; &nbsp;
 <% end %>
