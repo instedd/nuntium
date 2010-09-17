@@ -17,6 +17,24 @@ class SendMessageJobTest < ActiveSupport::TestCase
     assert_false channel.enabled
   end
   
+  test "should increment tries on temporary exception" do
+    account = Account.make
+    channel = Channel.make :account => account
+    msg = AOMessage.make :account => account, :channel => channel, :state => 'queued'
+  
+    job = SendMessageJob.new account.id, channel.id, msg.id
+    job.expects(:managed_perform).raises(Exception.new('ex'))
+    
+    begin
+      job.perform
+      fail 'Should have re-thrown the exception'
+    rescue Exception => ex
+    end
+    
+    msg.reload
+    assert_equal 1, msg.tries
+  end
+  
   test "should not execute if the message is queued on a different channel" do
     account = Account.make
     channel1 = Channel.make :account => account

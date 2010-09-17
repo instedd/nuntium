@@ -384,8 +384,10 @@ class Application < ActiveRecord::Base
     end
   end
   
-  def alert(alert_msg)
-    account.alert alert_msg
+  def alert(message)
+    return if account.alert_emails.blank?
+    
+    AlertMailer.deliver_error account, "Error in account #{account.name}, application #{self.name}", message
   end
   
   def logger

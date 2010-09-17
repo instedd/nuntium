@@ -91,6 +91,7 @@ class HomeController < AccountAuthenticatedController
     return redirect_to_home if account.nil?
     
     @account.max_tries = account[:max_tries]
+    @account.alert_emails = account[:alert_emails]
       
     if !account[:password].blank?
       @account.salt = nil

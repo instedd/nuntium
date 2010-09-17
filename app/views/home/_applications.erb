@@ -5,7 +5,7 @@
 <%
 if @applications.length > 1 && @account.app_routing_rules.blank?
   %>
-  <p id="errorExplanation">
+  <p id="errorNotice">
   Now that you have more than one application you should configure rules
   to determine the application an AT message is routed to.
   <%= link_to "Do this now", :controller => :home, :action => :edit_account %>  

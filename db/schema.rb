@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100909194446) do
+ActiveRecord::Schema.define(:version => 20100917194441) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -35,6 +35,7 @@ ActiveRecord::Schema.define(:version => 20100909194446) do
     t.string   "salt"
     t.integer  "max_tries",         :default => 3, :null => false
     t.text     "app_routing_rules"
+    t.text     "alert_emails"
   end
 
   create_table "address_sources", :force => true do |t|
