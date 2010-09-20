@@ -25,7 +25,7 @@ class SendMessageJob
       @msg.send_failed @account, @channel, ex.inner
       true
     rescue PermanentException => ex
-      alert_msg = "Permanent exception executing #{self}: #{ex.class} #{ex} #{ex.backtrace}"
+      alert_msg = "Permanent exception in #{self} when trying to send message with id #{@msg.id}: #{ex.class} #{ex} #{ex.backtrace}"
     
       Rails.logger.warn alert_msg
       @channel.alert alert_msg
@@ -35,7 +35,12 @@ class SendMessageJob
       
       false
     rescue Exception => ex
-      @channel.alert "Temporary exception executing #{self}: #{ex.class} #{ex} #{ex.backtrace}"
+      @msg.tries += 1
+      @msg.save!
+      
+      if @msg.tries >= @account.max_tries
+        @channel.alert "Temporary exception in #{self} when trying to send message with id #{@msg.id}: #{ex.class} #{ex} #{ex.backtrace}"
+      end
       
       raise ex
     end

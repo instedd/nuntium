@@ -2,14 +2,11 @@ require 'net/smtp'
 
 class SendSmtpMessageJob < SendMessageJob
   def managed_perform
-    channel_relative_id = "<#{@msg.guid}@nuntium>"
+    channel_relative_id = "<#{@msg.guid}@message_id.nuntium>"
     references = channel_relative_id
-    if @msg.custom_attributes['thread']
-      threads = @msg.custom_attributes['thread']
-      threads = [threads] unless threads.kind_of?(Array)
-      threads.each do |thread|
-        references += ", <#{thread}@nuntium-thread>"
-      end
+    @msg.custom_attributes.each do |key, value|
+      next unless key.start_with?('references_')
+      references += ", <#{value}@#{key[11 .. -1]}.nuntium>"
     end
     
 msgstr = <<-END_OF_MESSAGE

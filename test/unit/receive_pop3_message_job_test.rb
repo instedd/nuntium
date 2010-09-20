@@ -60,12 +60,32 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
   
   should "perform set thread" do
     mail = mock('Net::POPMail')
-    mail.stubs :pop => msg_as_email(@email, :references => '<a@foo.bar>, <b@nuntium>, <b@nuntium>, <c@nuntium-thread>, <c@nuntium-thread>')
+    mail.stubs :pop => msg_as_email(@email, :references => '<c@thread.nuntium>, <c@thread.nuntium>')
     
     expect_connection @chan, mail
     
     receive
-    expect_at_message :reply_to => 'b', :thread => 'c'
+    expect_at_message :custom_attributes => {'references_thread' => 'c'}
+  end
+  
+  should "perform set reply to" do
+    mail = mock('Net::POPMail')
+    mail.stubs :pop => msg_as_email(@email, :references => '<b@message_id.nuntium>, <b@message_id.nuntium>')
+    
+    expect_connection @chan, mail
+    
+    receive
+    expect_at_message :custom_attributes => {'reply_to' => 'b'}
+  end
+  
+  should "perform set references" do
+    mail = mock('Net::POPMail')
+    mail.stubs :pop => msg_as_email(@email, :references => '<a@foo.nuntium>, <b@bar.nuntium>')
+    
+    expect_connection @chan, mail
+    
+    receive
+    expect_at_message :custom_attributes => {'references_foo' => 'a', 'references_bar' => 'b'}
   end
   
   should "remove quoted text or text after first empty line, case quoted text" do
@@ -152,8 +172,11 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
       assert_equal (options[field] || @email.send(field).strip), msg.send(field).strip
     end
     assert_equal "<#{@email.guid}@baci.local.tmail>", msg.channel_relative_id if @email.guid.present?
-    assert_equal options[:reply_to], msg.custom_attributes['reply_to'] if options[:reply_to]
-    assert_equal options[:thread], msg.custom_attributes['thread'] if options[:thread]
+    if options[:custom_attributes]
+      options[:custom_attributes].each do |key, value|
+        assert_equal value, msg.custom_attributes[key]
+      end
+    end
     
     assert_not_nil msg.guid
     assert_equal Time.parse('Thu, 5 Nov 2009 14:52:54 +0100'), msg.timestamp

@@ -52,11 +52,12 @@ class ReceivePop3MessageJob
       # Process references to set the thread and reply_to
       if tmail.references
         tmail.references.each do |ref|
-          next unless ref.start_with?('<')
-          if ref.end_with?('@nuntium>')
-            msg.custom_attributes['reply_to'] = ref[1 .. -10]
-          elsif ref.end_with?('@nuntium-thread>')
-            msg.custom_attributes['thread'] = ref[1 .. -17]
+          at_index = ref.index('@')
+          next unless ref.start_with?('<') || !at_index
+          if ref.end_with?('@message_id.nuntium>')
+            msg.custom_attributes['reply_to'] = ref[1 .. -21]
+          elsif ref.end_with?('.nuntium>')
+            msg.custom_attributes["references_#{ref[at_index + 1 .. -10]}"] = ref[1 ... at_index]
           end
         end
       end

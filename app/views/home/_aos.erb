@@ -14,7 +14,7 @@ Messages sent from your application into Nuntium and then into the world are cal
 <input type="hidden" id="ao_all" name="ao_all" value="0" />
 
 <% if @applications.empty? %>
-  <%= link_to 'Create an Application', :controller => :home, :action => :new_application %> to create AO Messages.
+  <%= link_to 'Create an Application', :controller => :home, :action => :new_application %> to create AO Messages.<br/><br/>
 <% else %>
   <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AO Message">Create new AO Message', :controller => :message, :action => :new_ao_message %> &nbsp; &nbsp;
 <% end %>

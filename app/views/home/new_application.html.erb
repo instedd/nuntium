@@ -67,7 +67,7 @@ var applications = <%= applications.to_json %>;
   <%= f.label :interface %><br/>
   <%= f.radio_button :interface, 'rss', :onclick => "interface_rss();" %> <%= f.label :interface, 'Rss', :value => 'rss' %><br/>
   <%= f.radio_button :interface, 'qst_client', :onclick => "interface_qst_client();"%> <%= f.label :interface, 'QST client', :value => 'qst_client' %><br/>
-  <%= f.radio_button :interface, 'http_post_callback', :onclick => "interface_http_post_callback();"%> <%= f.label :interface, 'HTTP POST callack', :value => 'http_post_callback' %><br/>
+  <%= f.radio_button :interface, 'http_post_callback', :onclick => "interface_http_post_callback();"%> <%= f.label :interface, 'HTTP POST callback', :value => 'http_post_callback' %><br/>
   
   <% f.fields_for :configuration do |c| %>
   
@@ -143,7 +143,22 @@ var applications = <%= applications.to_json %>;
 	
 	<script type="text/javascript">	
 	jQuery(function(){
-		init_rules(jQuery('.aorules'), 'aorules', <%= @application.ao_rules.to_json %>);
+		init_rules(jQuery('.aorules'), 'aorules', <%= @application.ao_rules.to_json %>, ['body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'], ['body', 'country', 'carrier', 'from', 'subject', 'to', 'other']);
+	});
+	</script>
+	
+	<h5>AT Rules</h5>
+	
+	<p>
+	These rules will be executed when an AT message is sent to this application.
+	<a href="http://code.google.com/p/nuntium/wiki/Rules" target="_blank">Learn more...</a>
+	</p>
+	
+	<div class="atrules"></div>
+	
+	<script type="text/javascript">	
+	jQuery(function(){
+		init_rules(jQuery('.atrules'), 'atrules', <%= @application.at_rules.to_json %>, ['body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'], ['body', 'country', 'carrier', 'from', 'subject', 'to', 'other']);
 	});
 	</script>
   

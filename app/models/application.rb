@@ -19,6 +19,7 @@ class Application < ActiveRecord::Base
   
   serialize :configuration, Hash
   serialize :ao_rules
+  serialize :at_rules
   
   before_save :hash_password
   
@@ -201,15 +202,25 @@ class Application < ActiveRecord::Base
       end
     end
     
+    # Apply AT Rules
+    at_routing_res = RulesEngine.apply(msg.rules_context, self.at_rules)
+    if at_routing_res.present?
+      ThreadLocalLogger << "Applying channel at rules..."
+      msg.merge at_routing_res
+    end
+    
     # save the message here so we have and id for the later job
-    unless simulate
-      msg.save!
+    msg.save! unless simulate
       
-      # Check if callback interface is configured
-      if self.interface == 'http_post_callback'
+    # Check if callback interface is configured
+    if self.interface == 'http_post_callback'
+      unless simulate
         Queues.publish_application self, SendPostCallbackMessageJob.new(msg.account_id, msg.application_id, msg.id)
       end
-          
+      ThreadLocalLogger << "Enqueued POST callback"
+    end
+
+    unless simulate          
       logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => ThreadLocalLogger.result
     end
   end
@@ -373,8 +384,10 @@ class Application < ActiveRecord::Base
     end
   end
   
-  def alert(alert_msg)
-    account.alert alert_msg
+  def alert(message)
+    return if account.alert_emails.blank?
+    
+    AlertMailer.deliver_error account, "Error in account #{account.name}, application #{self.name}", message
   end
   
   def logger

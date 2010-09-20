@@ -19,6 +19,7 @@ class SendXmppMessageJob
     
     begin
       delegate.send_message(msg.id, from, to, subject, body)
+      msg.send_succeeed account, channel
     rescue => e
       msg.send_failed account, channel, e
     end
