@@ -130,9 +130,9 @@ class Account < ActiveRecord::Base
   end
   
   def alert(message)
-    # TODO send an email somehow...
-    Rails.logger.info "Received alert for account #{self.name}: #{message}"
-    logger.error message.to_s
+    return if self.alert_emails.blank?
+    
+    AlertMailer.deliver_error self, "Error in account #{self.name}", message
   end
   
   def logger

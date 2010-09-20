@@ -129,9 +129,9 @@ class Channel < ActiveRecord::Base
   end
   
   def alert(message)
-    # TODO send an email somehow...
-    Rails.logger.info "Received alert for channel #{self.name} in account #{self.account.name}: #{message}"
-    AccountLogger.exception_in_channel self, message
+    return if account.alert_emails.blank?
+    
+    AlertMailer.deliver_error account, "Error in account #{account.name}, channel #{self.name}", message
   end
   
   def handler

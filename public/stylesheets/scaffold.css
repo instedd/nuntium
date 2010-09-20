@@ -160,6 +160,19 @@ acronym {
   margin-top:8px;
 }
 
+#errorNotice {
+  border:1px solid black;
+  color:white;
+  background:red;
+  padding:4px;
+  font-weight:bold;
+  margin-top:8px;
+}
+
+#errorNotice a {
+  color:yellow;
+}
+
 .not_present_in_this_query td {
   color: #999
 }

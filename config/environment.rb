@@ -76,6 +76,8 @@ Rails::Initializer.run do |config|
   
 end
 
+ActionMailer::Base.delivery_method = :sendmail
+
 # Twitter OAuth configuration
 if File.exists?(Rails.root + 'config/twitter_oauth_consumer.yml')
   TwitterConsumerConfig = YAML.load(File.read(Rails.root + 'config/twitter_oauth_consumer.yml'))

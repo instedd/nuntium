@@ -6,7 +6,13 @@
   <%= f.label :max_tries %><br/>
   <%= f.text_field :max_tries %>
   </p>
-  <hr />
+  <h5>Alerts</h5>
+  <p>Specify here a comma separated list of emails that will receive error alerts.</p>
+  <p>
+  <%= f.label :alert_emails %><br/>
+  <%= f.text_field :alert_emails, :size => 100 %>
+  </p>
+  <h5>Password</h5>
   <p>
   <b>Leave blank if you don't want to change the password</b><br/>
   <%= f.label :password %><br/>
@@ -34,6 +40,11 @@
     These rules will not be executed if an AT message is received via a channel that belongs to an application<br/>
     or when a message specifies the custom attribute "application".
     <a href="http://code.google.com/p/nuntium/wiki/Rules" target="_blank">Learn more...</a>
+    </p>
+    
+    <p>
+    <b>Here you can only determine the target application. To change an AT message's attributes specify
+    AT rules for each application.</b>
     </p>
     
     <div class="apprules"></div>
