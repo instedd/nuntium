@@ -41,7 +41,10 @@ class SendDeliveryAckJob
         app.save!
         return false
       else
-        account.logger.error :ao_message_id => @message_id, :message => "HTTP delivery ack failed #{res.error!}"
+        alert_msg = "HTTP delivery ack failed #{res.error!}"
+        app.alert alert_msg
+      
+        account.logger.error :ao_message_id => @message_id, :message => alert_msg
         raise res.error!
     end
   end
