@@ -67,7 +67,7 @@ var applications = <%= applications.to_json %>;
   <%= f.label :interface %><br/>
   <%= f.radio_button :interface, 'rss', :onclick => "interface_rss();" %> <%= f.label :interface, 'Rss', :value => 'rss' %><br/>
   <%= f.radio_button :interface, 'qst_client', :onclick => "interface_qst_client();"%> <%= f.label :interface, 'QST client', :value => 'qst_client' %><br/>
-  <%= f.radio_button :interface, 'http_post_callback', :onclick => "interface_http_post_callback();"%> <%= f.label :interface, 'HTTP POST callack', :value => 'http_post_callback' %><br/>
+  <%= f.radio_button :interface, 'http_post_callback', :onclick => "interface_http_post_callback();"%> <%= f.label :interface, 'HTTP POST callback', :value => 'http_post_callback' %><br/>
   
   <% f.fields_for :configuration do |c| %>
   
