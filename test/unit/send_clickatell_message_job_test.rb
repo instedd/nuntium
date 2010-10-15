@@ -80,6 +80,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :to => msg.to.without_protocol,
       :text => msg.subject_and_body,
       :climsgid => msg.guid.gsub('-', ''),
+      :callback => '3'
     }
     
     Clickatell.expects(:send_message).with(params).returns(response)

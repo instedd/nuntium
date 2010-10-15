@@ -62,6 +62,7 @@ class RoutesTest < ActionController::TestCase
   test "clickatell" do
     assert_routing({:path => "/clickatell/view_credit"}, { :controller => "clickatell", :action => "view_credit" })
     assert_routing({:path => "/some_account/clickatell/incoming"}, { :controller => "clickatell", :action => "index", :account_id => "some_account" })
+    assert_routing({:path => "/some_account/clickatell/ack"}, { :controller => "clickatell", :action => "ack", :account_id => "some_account" })
   end
   
   test "dtac" do

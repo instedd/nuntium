@@ -161,16 +161,16 @@ function clickatell_channel_direction_changed() {
   
   // incoming
   if (dir & 1) {
-    show('incoming_password_container', 'callback_urls');
+    show('incoming_password_container', 'callback_incoming');
   } else {
-    hide('incoming_password_container', 'callback_urls');
+    hide('incoming_password_container', 'callback_incoming');
   }
   
   // outgoing
   if (dir & 2) { 
-    show('user_container', 'password_container', 'from_container');
+    show('user_container', 'password_container', 'from_container', 'callback_ack');
   } else {
-    hide('user_container', 'password_container', 'from_container');
+    hide('user_container', 'password_container', 'from_container', 'callback_ack');
   }
 }
 

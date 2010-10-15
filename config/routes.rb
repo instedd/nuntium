@@ -14,6 +14,7 @@ ActionController::Routing::Routes.draw do |map|
   # Clickatell
   map.clickatel_credit '/clickatell/view_credit', :controller => 'clickatell', :action => :view_credit
   map.clickatel '/:account_id/clickatell/incoming', :controller => 'clickatell', :action => :index
+  map.clickatel_ack '/:account_id/clickatell/ack', :controller => 'clickatell', :action => :ack
   
   # Dtac
   map.dtac '/:account_id/dtac/incoming', :controller => 'dtac', :action => :index

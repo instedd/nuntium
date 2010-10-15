@@ -50,9 +50,11 @@ class ClickatellChannelHandler < GenericChannelHandler
   
   def check_valid
     check_config_not_blank :api_id
+    check_config_not_blank :incoming_password
+    check_config_not_blank :cost_per_credit
     
-    if (@channel.direction & Channel::Incoming) != 0    
-      check_config_not_blank :incoming_password
+    if (@channel.configuration[:cost_per_credit].to_f <= 0)
+      @channel.errors.add(:cost_per_credit, "must be a positive number")
     end
     
     if (@channel.direction & Channel::Outgoing) != 0
@@ -77,7 +79,7 @@ class ClickatellChannelHandler < GenericChannelHandler
         {'Clickatell status' => status}
       else
         status = status[idx + 7 .. -1].strip
-        codes = @@clickatell_statuses[status]
+        codes = CLICKATELL_STATUSES[status]
         if codes.nil?
           {'Clickatell status' => status}
         else
@@ -120,7 +122,7 @@ class ClickatellChannelHandler < GenericChannelHandler
     'usa' => 'USA Shortcode'
   }
   
-  @@clickatell_statuses = {
+  CLICKATELL_STATUSES = {
     '001' => ['Message unknown', 'The message ID is incorrect or reporting is delayed.'],
     '002' => ['Message queued', 'The message could not be delivered and has been queued for attempted redelivery.'],
     '003' => ['Delivered to gateway', 'Delivered to the upstream gateway or network (delivered to the recipient).'],

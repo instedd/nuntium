@@ -15,7 +15,7 @@
     <%= c.text_field :user, :autocomplete => :off, :value => @channel[:configuration][:user] %>
     </p>
     <p id="password_container">
-    <%= c.label :password %><br/>
+    <%= c.label :password %> (this is the password of your account)<br/>
     <%= c.password_field :password, :autocomplete => :off, :value => @channel[:configuration][:password] %>
     </p>
     <p>
@@ -26,22 +26,29 @@
     <%= c.label :from %><br/>
     <%= c.text_field :from, :value => @channel[:configuration][:from] %>
     </p>
-	<p id="network">
-	<%= c.label :network %><br/>
-	<%= c.select :network, options_for_select(ClickatellChannelHandler::CLICKATELL_NETWORKS.map {|v,d| [d,v]}, @channel[:configuration][:network])%>
-	</p>
+	  <p id="network">
+	  <%= c.label :network %><br/>
+	  <%= c.select :network, options_for_select(ClickatellChannelHandler::CLICKATELL_NETWORKS.map {|v,d| [d,v]}, @channel[:configuration][:network])%>
+	  </p>
     <p id="concat_container">
     <%= c.label :concatenation %><br/>
     <%= c.text_field :concat, :value => @channel[:configuration][:concat] || 3 %>
     </p>
-    <p id="incoming_password_container">
-    <%= c.label :incoming_password %><br/>
+    <p id="callback_incoming">
+    Callback urls for incoming messages (use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Basic Http Authentication</a> with channel name and incoming password):<br/>
+    <code><%= url_for :controller => :clickatell, :action => :index, :account_id => @account.name, :only_path => false %></code><br/>
+    </p>
+    <p id="callback_ack">
+    Callback urls for status notification (use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Basic Http Authentication</a> with channel name and incoming password):<br/>
+    <code><%= url_for :controller => :clickatell, :action => :ack, :account_id => @account.name, :only_path => false %></code><br/>
+    </p>
+    <p>
+    <%= c.label :incoming_password %> (to use for the callback urls)<br/>
     <%= c.password_field :incoming_password, :value => @channel[:configuration][:incoming_password] %>
     </p>
-    <p id="callback_urls">
-    Callback urls for incoming messages (use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Basic Http Authentication</a> with channel name and incoming password):<br/>
-    <code>/clickatell/<%= @account.name %>/incoming</code><br/>
-    <code>/clickatell/<%= @account.id %>/incoming</code>
+    <p>
+    <%= c.label :cost_per_credit %> (messages will get a 'cost' custom attribute with the value <code>charge * cost_per_credit</code>)<br/>
+    <%= c.text_field :cost_per_credit, :value => @channel[:configuration][:cost_per_credit] || 1 %>
     </p>
   <% end %>
   <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} %>

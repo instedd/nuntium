@@ -1,7 +1,7 @@
 require 'iconv'
 
 class ClickatellController < AccountAuthenticatedController
-  before_filter :authenticate, :only => :index
+  before_filter :authenticate, :only => [:index, :ack]
   before_filter :check_login, :only => :view_credit
 
   @@clickatell_timezone = ActiveSupport::TimeZone.new 2.hours
@@ -14,6 +14,34 @@ class ClickatellController < AccountAuthenticatedController
     end
     
     index_single_message
+  end
+  
+  # GET /clickatell/:account_id/ack
+  def ack
+    # This is the case when clickatell verifies this URL
+    return head :ok unless params[:apiMsgId]
+    
+    msg = AOMessage.find_by_channel_id_and_channel_relative_id @channel.id, params[:apiMsgId]
+    return head :ok unless msg
+    
+    case params[:status].to_i
+    when 4
+      msg.state = 'confirmed'
+    when 5, 6, 7, 12
+      msg.state = 'failed'
+    end
+    
+    unless msg.custom_attributes[:cost]
+      cost_per_credit = (@channel.configuration[:cost_per_credit] || '1').to_f
+      msg.custom_attributes[:cost] = (cost_per_credit * params[:charge].to_f).round 2
+    end
+    msg.save!
+    
+    status_message = ClickatellChannelHandler::CLICKATELL_STATUSES[params[:status]][0]
+    @account.logger.info :channel_id => @channel.id, :ao_message_id => msg.id,
+      :message => "Recieved status notification with status #{params[:status]} (#{status_message}) and credit #{params[:charge]} (cost #{msg.custom_attributes[:cost]})"
+    
+    head :ok
   end
   
   def view_credit
@@ -84,8 +112,7 @@ class ClickatellController < AccountAuthenticatedController
         @channel = @account.channels.select{|c| 
           c.kind == 'clickatell' && 
           c.name == username && 
-          c.configuration[:incoming_password] == password && 
-          c.configuration[:api_id] == params[:api_id]
+          c.configuration[:incoming_password] == password
         }.first
       else
         false

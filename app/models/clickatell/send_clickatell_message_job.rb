@@ -18,7 +18,7 @@ class SendClickatellMessageJob < SendMessageJob
       raise code_with_description
     else
       raise response.body
-    end   
+    end
   end
   
   def query_parameters
@@ -39,6 +39,7 @@ class SendClickatellMessageJob < SendMessageJob
     end
     params[:climsgid] = @msg.guid.gsub('-', '')
     params[:concat] = @config[:concat] unless @config[:concat].blank?
+    params[:callback] = '3'
     params
   end
   
