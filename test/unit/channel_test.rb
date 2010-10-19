@@ -88,6 +88,14 @@ class ChannelTest < ActiveSupport::TestCase
     assert_equal 'sms://2', msg.from
   end
   
+  test "route ao discards message with same from and to" do
+    msg = AOMessage.make_unsaved :from => 'sms://123', :to => 'sms://123', :account => @chan.account, :application => @chan.application
+    @chan.expects(:handle).never
+    @chan.route_ao msg, 'test'
+    
+    assert_equal 'failed', msg.state
+  end
+  
   test "to xml" do
     xml = Hash.from_xml(@chan.to_xml).with_indifferent_access
     chan = xml[:channel]
