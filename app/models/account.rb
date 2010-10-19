@@ -63,6 +63,17 @@ class Account < ActiveRecord::Base
     msg.channel = via_channel
     msg.state = 'queued'
     
+    # Discard the message if the 'from' and 'to are the same
+    if msg.from == msg.to
+      msg.state = 'failed'
+      msg.save! unless simulate
+      
+      ThreadLocalLogger << "Message 'from' and 'to' addresses are the same. The message will be discarded."
+      return ThreadLocalLogger.result if simulate
+      logger.warning :at_message_id => msg.id, :channel_id => via_channel.id, :message => ThreadLocalLogger.result
+      return
+    end
+    
     # Set application custom attribute if the channel belongs to an application
     if via_channel.application_id
       msg.custom_attributes['application'] = find_application(via_channel.application_id).name rescue nil
