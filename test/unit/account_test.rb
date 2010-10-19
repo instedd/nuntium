@@ -213,4 +213,12 @@ class AccountTest < ActiveSupport::TestCase
     
     assert_equal app2.id, msg.application_id
   end
+  
+  test "at routing discards messages with same from and to addresses" do
+    msg = ATMessage.make_unsaved :from => 'sms://123', :to => 'sms://123'
+    
+    @account.route_at msg, @chan
+    
+    assert_equal 'failed', msg.state
+  end
 end
