@@ -4,6 +4,7 @@ class AOMessage < ActiveRecord::Base
   belongs_to :channel
   validates_presence_of :account
   serialize :custom_attributes, Hash
+  serialize :original, Hash
 
   after_save :send_delivery_ack
   after_save :update_queued_ao_messages_count
@@ -83,6 +84,18 @@ class AOMessage < ActiveRecord::Base
 
     chan = account.find_channel chans[0]
     return unless chan
+
+    # Restore original attributes
+    if original.present?
+      original.each do |key, value|
+        if ['from', 'to', 'subject', 'body'].include? key.to_s
+          self.send "#{key}=", value
+        else
+          self.custom_attributes[key.to_s] = value
+        end
+      end
+      self.original = nil
+    end
 
     ThreadLocalLogger.reset
     ThreadLocalLogger << "Re-route failover"

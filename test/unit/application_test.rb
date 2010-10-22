@@ -431,4 +431,71 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal nil, msg.candidate_channels
   end
 
+  test "route ao failover resets to original before rerouting" do
+    app = Application.make
+    chans = 2.times.map {|i| Channel.make_unsaved :account_id => app.account_id, :priority => i }
+    chans.each_with_index do |chan, i|
+      chan.ao_rules = [
+        RulesEngine.rule([
+          RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1')
+        ],[
+          RulesEngine.action('from',"sms://#{i + 2}")
+        ])
+      ]
+    end
+    chans.each &:'save!'
+
+    msg = AOMessage.make_unsaved :account_id => app.account_id, :from => 'sms://1'
+    app.route_ao msg, 'test'
+
+    msg.reload
+
+    assert_equal chans[0].id, msg.channel_id
+    assert_equal 'sms://2', msg.from
+
+    msg.state = 'failed'
+    msg.save!
+
+    msg.reload
+
+    assert_equal chans[1].id, msg.channel_id
+    assert_equal 'sms://3', msg.from
+  end
+
+  test "route ao failover resets to original before rerouting using custom attributes" do
+    app = Application.make
+    chans = 2.times.map {|i| Channel.make_unsaved :account_id => app.account_id, :priority => i }
+    chans[0].ao_rules = [
+      RulesEngine.rule([
+        RulesEngine.matching('cust', RulesEngine::OP_EQUALS, 'foo')
+      ],[
+        RulesEngine.action('cust',"bar")
+      ])
+    ]
+    chans[1].ao_rules = [
+      RulesEngine.rule([
+        RulesEngine.matching('cust', RulesEngine::OP_EQUALS, 'foo')
+      ],[
+        RulesEngine.action('cust',"baz")
+      ])
+    ]
+    chans.each &:'save!'
+
+    msg = AOMessage.make_unsaved :account_id => app.account_id, :from => 'sms://1'
+    msg.custom_attributes['cust'] = 'foo'
+    app.route_ao msg, 'test'
+
+    msg.reload
+
+    assert_equal chans[0].id, msg.channel_id
+    assert_equal 'bar', msg.custom_attributes['cust']
+
+    msg.state = 'failed'
+    msg.save!
+
+    msg.reload
+
+    assert_equal chans[1].id, msg.channel_id
+    assert_equal 'baz', msg.custom_attributes['cust']
+  end
 end

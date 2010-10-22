@@ -90,7 +90,7 @@ class Channel < ActiveRecord::Base
     ao_routing_res = RulesEngine.apply(msg.rules_context, self.ao_rules)
     if ao_routing_res.present?
       ThreadLocalLogger << "Applying channel ao rules..."
-      msg.merge ao_routing_res
+      msg.original = msg.merge ao_routing_res
     end
   end
 
