@@ -55,6 +55,7 @@ class Channel < ActiveRecord::Base
 
   def route_ao(msg, via_interface, options = {})
     simulate = options[:simulate]
+    dont_save = options[:dont_save]
 
     ThreadLocalLogger << "Message routed to channel '#{name}'"
 
@@ -65,7 +66,7 @@ class Channel < ActiveRecord::Base
     if msg.from == msg.to
       msg.channel = self
       msg.state = 'failed'
-      msg.save! unless simulate
+      msg.save! unless simulate || dont_save
 
       ThreadLocalLogger << "Message 'from' and 'to' addresses are the same. The message will be discarded."
       logger.warning :application_id => msg.application_id, :channel_id => self.id, :ao_message_id => msg.id, :message => ThreadLocalLogger.result unless simulate
@@ -75,7 +76,7 @@ class Channel < ActiveRecord::Base
     # Save the message
     msg.channel = self
     msg.state = 'queued'
-    msg.save! unless simulate
+    msg.save! unless simulate || dont_save
 
     unless simulate
       logger.info :application_id => msg.application_id, :channel_id => self.id, :ao_message_id => msg.id, :message => ThreadLocalLogger.result
