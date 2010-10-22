@@ -84,6 +84,8 @@ class AOMessage < ActiveRecord::Base
     chan = account.find_channel chans[0]
     return unless chan
 
+    ThreadLocalLogger.reset
+    ThreadLocalLogger << "Re-route failover"
     chan.route_ao self, 're-route', :dont_save => true
   end
 
