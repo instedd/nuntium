@@ -61,6 +61,17 @@ class Channel < ActiveRecord::Base
     # Apply AO Rules
     apply_ro_rules msg
 
+    # Discard the message if the 'from' and 'to' are the same
+    if msg.from == msg.to
+      msg.channel = self
+      msg.state = 'failed'
+      msg.save! unless simulate
+
+      ThreadLocalLogger << "Message 'from' and 'to' addresses are the same. The message will be discarded."
+      logger.warning :application_id => msg.application_id, :channel_id => self.id, :ao_message_id => msg.id, :message => ThreadLocalLogger.result unless simulate
+      return
+    end
+
     # Save the message
     msg.channel = self
     msg.state = 'queued'
