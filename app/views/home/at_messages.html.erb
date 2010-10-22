@@ -1,7 +1,3 @@
-<h4><%= link_to_function 'Last Application Terminated Messages', "toggle('last_at_messages')", :name => 'at' %></h4>
-
-<div id="last_at_messages">
-
 <p>
 Messages sent from the world into Nuntium and then into your application are called Application Terminated messages. <a href="http://code.google.com/p/nuntium/wiki/Messages#Application_Terminated_messages" target="_blank">Learn more...</a>
 </p>
@@ -9,14 +5,12 @@ Messages sent from the world into Nuntium and then into your application are cal
 <form id="at_messages_form" action="#at">
 <input type="hidden" name="at_page" value="<%= @at_page %>" />
 <input type="hidden" name="at_previous_search" value="<%= @at_search %>" />
-<input type="hidden" name="ao_page" value="<%= @ao_page %>" />
-<input type="hidden" name="ao_search" value="<%= @ao_search %>" />
-<input type="hidden" name="log_page" value="<%= @log_page %>" />
-<input type="hidden" name="log_search" value="<%= @log_search %>" />
 <input type="hidden" id="at_all" name="at_all" value="0" />
 
 <% if @channels.select{|x| x.direction == Channel::Incoming || x.direction == Channel::Bidirectional}.empty? %>
-  Create an incoming or bidirectional Channel to create AT Messages.<br/><br/>
+  Create an incoming or bidirectional Channel to create AT Messages:<br/>
+  <%= render :partial => 'shared/create_channel' %>
+  <br/>
 <% else %>
   <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AT Message">Create new AT Message', :controller => :message, :action => :new_at_message %> &nbsp; &nbsp;
 <% end %>
@@ -75,4 +69,15 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelle
 
 <%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_search => @at_search, :anchor => 'at' } %>
 </form>
-</div>
+
+<script>
+var total_at_messages = <%= @at_messages.total_entries %>;
+var current_at_messages = <%= @at_messages.length %>;
+<%
+if !params[:at_all].nil? && params[:at_all].to_b
+  %>
+  select_all_pages_at_messages();
+  <%
+end
+%>
+</script>

@@ -43,4 +43,4 @@ function simulate_route() {
 }
 </script>
 
-<%= go_back_link %>
+<%= link_to 'Go back', :controller => :home, :action => "#{@kind}_messages" %>

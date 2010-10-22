@@ -9,7 +9,7 @@
 	function interface_http_post_callback() {
 	  $('#config').show();
 	}
-	
+
 	function delivery_ack_none() {
 	  $('#delivery_ack_config').hide();
 	}
@@ -19,7 +19,7 @@
 	function delivery_ack_post() {
 	  $('#delivery_ack_config').show();
 	}
-	
+
 	$(function() {
 	  interface_<%= @application.interface || 'rss' %>();
 	  delivery_ack_<%= @application.delivery_ack_method %>();
@@ -44,14 +44,14 @@ var applications = <%= applications.to_json %>;
 
 <% form_for :application, :url => { :controller => 'home', :action => @application.new_record? ? :create_application : :update_application} do |f| %>
   <%= f.error_messages %>
-  
+
   <% if @application.new_record? %>
     <p>
     <%= f.label :name %><br/>
     <%= f.text_field :name %>
     </p>
   <% end %>
-  
+
   <p>
   <% if !@application.new_record? and @application.interface == 'rss' %>
     <b>Leave blank if you don't want to change the password</b><br/>
@@ -63,14 +63,14 @@ var applications = <%= applications.to_json %>;
   <%= f.label :password_confirmation %><br/>
   <%= f.password_field :password_confirmation, :value => '', :autocomplete => :off %>
   </p>
-  
+
   <%= f.label :interface %><br/>
   <%= f.radio_button :interface, 'rss', :onclick => "interface_rss();" %> <%= f.label :interface, 'Rss', :value => 'rss' %><br/>
   <%= f.radio_button :interface, 'qst_client', :onclick => "interface_qst_client();"%> <%= f.label :interface, 'QST client', :value => 'qst_client' %><br/>
   <%= f.radio_button :interface, 'http_post_callback', :onclick => "interface_http_post_callback();"%> <%= f.label :interface, 'HTTP POST callback', :value => 'http_post_callback' %><br/>
-  
+
   <% f.fields_for :configuration do |c| %>
-  
+
     <div id="config">
       <h5>Interface configuration:</h5>
 	    <p>
@@ -86,35 +86,35 @@ var applications = <%= applications.to_json %>;
       <%= c.password_field :interface_password, :value => @application.interface_password, :autocomplete => :off, :class => 'configurl' %>
       </p>
     </div>
-    
+
     <h5>Routing configuration:</h5>
-  
+
     <p>
     Route via last AT channel used <acronym title="When an AO message needs to be routed, if it's 'to' field matches the 'from' field of the last AT message received, the channel used to receieve that AT message will be used.">?</acronym><br/>
     <%= c.radio_button :use_address_source, 0, :checked => !@application.use_address_source? %> <%= c.label :use_address_source, 'No', :value => 0 %><br/>
     <%= c.radio_button :use_address_source, 1, :checked => @application.use_address_source? %> <%= c.label :use_address_source, 'Yes', :value => 1 %>
     </p>
-    
+
     <p>
     Strategy:<br/>
     <% ['broadcast', 'single_priority'].each do |strategy| %>
       <%= c.radio_button :strategy, strategy, :checked => @application.strategy == strategy %> <%= f.label :strategy, Application.strategy_description(strategy), :value => strategy %><br/>
     <% end %>
     </p>
-    
+
     <h5>Delivery acknowledgement:</h5>
-    
+
     <p>
     This callback will be invoked when an AO message's state changes to either 'failed', 'delivered' or 'confirmed'.
     </p>
-    
+
     <p>
     Method:<br/>
     <% ['none', 'get', 'post'].each do |method| %>
       <%= c.radio_button :delivery_ack_method, method, :checked => @application.delivery_ack_method == method, :onclick => "delivery_ack_#{method}();" %> <%= f.label :strategy, Application.delivery_ack_method_description(method), :value => method %><br/>
     <% end %>
     </p>
-    
+
     <div id="delivery_ack_config">
     <p>
     <%= c.label :url %>:<br/>
@@ -129,40 +129,40 @@ var applications = <%= applications.to_json %>;
     <%= c.password_field :delivery_ack_password, :value => @application.delivery_ack_password %>
     </p>
     </div>
-    
+
   <% end %>
-    
+
 	<h5>AO Rules</h5>
-	
+
 	<p>
 	These rules will be executed when an AO message is received via this application.
 	<a href="http://code.google.com/p/nuntium/wiki/Rules" target="_blank">Learn more...</a>
 	</p>
-	
+
 	<div class="aorules"></div>
-	
-	<script type="text/javascript">	
+
+	<script type="text/javascript">
 	jQuery(function(){
 		init_rules(jQuery('.aorules'), 'aorules', <%= @application.ao_rules.to_json %>, ['body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'], ['body', 'country', 'carrier', 'from', 'subject', 'to', 'other']);
 	});
 	</script>
-	
+
 	<h5>AT Rules</h5>
-	
+
 	<p>
 	These rules will be executed when an AT message is sent to this application.
 	<a href="http://code.google.com/p/nuntium/wiki/Rules" target="_blank">Learn more...</a>
 	</p>
-	
+
 	<div class="atrules"></div>
-	
-	<script type="text/javascript">	
+
+	<script type="text/javascript">
 	jQuery(function(){
 		init_rules(jQuery('.atrules'), 'atrules', <%= @application.at_rules.to_json %>, ['body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'], ['body', 'country', 'carrier', 'from', 'subject', 'to', 'other']);
 	});
 	</script>
-  
+
   <%= submit_tag (@application.new_record? ? 'Create Application' : 'Update Application') %>
 <% end %>
 
-<%= go_back_link %>
+<%= link_to 'Go back', :controller => :home, :action => :applications %>

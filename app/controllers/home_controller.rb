@@ -6,175 +6,206 @@ class HomeController < AccountAuthenticatedController
   include RulesControllerCommon
 
   before_filter :check_login, :except => [:login, :create_account]
-  after_filter :compress, :only => [:index, :login, :edit_account, :new_application, :edit_application]
-  
+  before_filter :load_channels_and_applications, :only => [:interactions, :applications, :channels, :ao_messages, :at_messages, :logs]
+
   before_filter :check_application, :only => [:edit_application, :update_application, :delete_application]
 
+  ResultsPerPage = 10
+
   def index
-    @results_per_page = 10
-  
+    redirect_to :applications
+  end
+
+  def interactions
+  end
+
+  def settings
+  end
+
+  def applications
+  end
+
+  def channels
+  end
+
+  def ao_messages
     build_ao_messages_filter
-    
+
     @ao_messages = AOMessage.paginate(
       :conditions => @ao_conditions,
       :order => 'id DESC',
       :page => @ao_page,
-      :per_page => @results_per_page
+      :per_page => ResultsPerPage
       )
-    
-    sort_for_broadcasted @ao_messages
-    
+  end
+
+  def at_messages
     build_at_messages_filter
-      
+
     @at_messages = ATMessage.paginate(
       :conditions => @at_conditions,
       :order => 'id DESC',
       :page => @at_page,
-      :per_page => @results_per_page
+      :per_page => ResultsPerPage
       )
-      
+  end
+
+  def logs
     build_logs_filter
-      
+
     @logs = AccountLog.paginate(
       :conditions => @log_conditions,
       :order => 'id DESC',
       :page => params[:logs_page],
-      :per_page => @results_per_page
+      :per_page => ResultsPerPage
       )
-      
-    @channels = @account.channels
-    
-    @applications = @account.applications
-    
-    render :template => 'home/home'
   end
-  
+
   def login
     account = params[:account]
     return redirect_to_home if account.nil?
-    
+
     @account = Account.find_by_name account[:name]
     if @account.nil? || !@account.authenticate(account[:password])
       @account = Account.new :name => account[:name]
       flash[:notice] = 'Invalid name/password'
       return render :index
     end
-    
+
     flash[:notice] = nil
     session[:account_id] = @account.id
     redirect_to_home
   end
-  
+
   def create_account
     return render :text => 'This funcionality has been disabled, contact the system administrator' if AccountCreationDisabled
-  
+
     account = params[:new_account]
     return redirect_to_home if account.nil?
-    
+
     flash[:notice] = nil
-    
+
     @new_account = Account.new(account)
     if !@new_account.save
       @new_account.clear_password
       return render :index
     end
-    
+
     session[:account_id] = @new_account.id
     redirect_to_home
   end
-  
-  def edit_account
-  end
-  
+
   def update_account
     account = params[:account]
     return redirect_to_home if account.nil?
-    
+
     @account.max_tries = account[:max_tries]
     @account.alert_emails = account[:alert_emails]
-      
+
     if !account[:password].blank?
       @account.salt = nil
       @account.password = account[:password]
       @account.password_confirmation = account[:password_confirmation]
     end
-    
-    @account.app_routing_rules = get_rules :apprules
-    
+
+    Rails.logger.info @account
     if !@account.save
       @account.clear_password
-      render :edit_account
+      render :settings
     else
-      redirect_to_home 'Account was changed'
+      flash[:notice] = 'Settings were changed'
+      redirect_to :settings
     end
   end
-  
+
+  def update_application_routing_rules
+    @account.app_routing_rules = get_rules :apprules
+
+    if !@account.save
+      render :applications
+    else
+      flash[:notice] = 'Application Routing Rules were changed'
+      redirect_to :applications
+    end
+  end
+
   def new_application
     @application = Application.new unless @application
+    @selected_tab = :applications
   end
-  
+
   def create_application
     app = params[:application]
     return redirect_to_home if app.nil?
-    
+
     @application = Application.new(app)
     @application.account_id = @account.id
-    
+
     cfg = app[:configuration]
-    @application.use_address_source = cfg[:use_address_source] 
+    @application.use_address_source = cfg[:use_address_source]
     @application.ao_rules = get_rules :aorules
     @application.at_rules = get_rules :atrules
     @application.strategy = cfg[:strategy]
-    
+
     if !@application.save
       return render :new_application
     end
-    
-    redirect_to_home 'Application was created'
+
+    flash[:notice] = 'Application was created'
+    redirect_to :applications
   end
-  
+
   def edit_application
     render :new_application
   end
-  
+
   def update_application
     app = params[:application]
     return redirect_to_home if app.nil?
-    
+
     @application.interface = app[:interface]
-    
+
     @application.configuration = app[:configuration]
-    @application.use_address_source = false if @application.configuration[:use_address_source] != '1' 
+    @application.use_address_source = false if @application.configuration[:use_address_source] != '1'
     @application.ao_rules = get_rules :aorules
     @application.at_rules = get_rules :atrules
-    
+
     if app[:password].present?
       @application.salt = nil
       @application.password = app[:password]
       @application.password_confirmation = app[:password_confirmation]
     end
-    
+
     if !@application.save
       return render :new_application
     end
-    
-    redirect_to_home "Application #{@application.name} was changed"
+
+    flash[:notice] = "Application #{@application.name} was changed"
+    redirect_to :applications
   end
-  
+
   def delete_application
     @application.destroy
-    
-    redirect_to_home 'Application was deleted'
+
+    flash[:notice] = 'Application was deleted'
+    redirect_to :applications
   end
-  
+
   def check_application
     @application = @account.find_application params[:id]
     redirect_to_home if @application.nil?
   end
-  
+
   def logoff
     session[:account_id] = nil
     redirect_to :action => :index
+  end
+
+  private
+
+  def load_channels_and_applications
+    @channels = @account.channels
+    @applications = @account.applications
   end
 
 end

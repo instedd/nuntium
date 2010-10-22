@@ -1,7 +1,3 @@
-<h4><%= link_to_function 'Last Application Originated Messages', "toggle('last_ao_messages')", :name => 'ao' %></h4>
-
-<div id="last_ao_messages">
-
 <p>
 Messages sent from your application into Nuntium and then into the world are called Application Originated messages. <a href="http://code.google.com/p/nuntium/wiki/Messages#Application_Originated_messages" target="_blank">Learn more...</a>
 </p>
@@ -9,8 +5,6 @@ Messages sent from your application into Nuntium and then into the world are cal
 <form id="ao_messages_form" action="#ao">
 <input type="hidden" name="ao_page" value="<%= @ao_page %>" />
 <input type="hidden" name="ao_previous_search" value="<%= @ao_search %>" />
-<input type="hidden" name="at_page" value="<%= @at_page %>" />
-<input type="hidden" name="at_search" value="<%= @at_search %>" />
 <input type="hidden" id="ao_all" name="ao_all" value="0" />
 
 <% if @applications.empty? %>
@@ -29,10 +23,6 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
 
 <input type="hidden" name="ao_page" value="<%= @ao_page %>" />
 <input type="hidden" name="ao_previous_search" value="<%= @ao_search %>" />
-<input type="hidden" name="at_page" value="<%= @at_page %>" />
-<input type="hidden" name="at_search" value="<%= @at_search %>" />
-<input type="hidden" name="log_page" value="<%= @log_page %>" />
-<input type="hidden" name="log_search" value="<%= @log_search %>" />
 
 <% if !@ao_messages.empty? %>
   <table border="1" class="table">
@@ -54,7 +44,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
     </tr>
     <tr>
     <% @ao_messages.each_with_index do |msg, i| %>
-      <% 
+      <%
       chan = @channels.select{|x| msg.channel_id == x.id}.first
       app = @applications.select{|x| msg.application_id == x.id}.first
       %>
@@ -89,4 +79,15 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
 
 <%= will_paginate @ao_messages, :param_name => 'ao_page', :params => { :ao_previous_search => @ao_search, :anchor => 'ao' } %>
 </form>
-</div>
+
+<script>
+var total_ao_messages = <%= @ao_messages.total_entries %>;
+var current_ao_messages = <%= @ao_messages.length %>;
+<%
+if !params[:ao_all].nil? && params[:ao_all].to_b
+  %>
+  select_all_pages_ao_messages();
+  <%
+end
+%>
+</script>

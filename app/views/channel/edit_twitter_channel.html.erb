@@ -17,7 +17,7 @@
     </p>
     <p>
     Welcome message for new followers (leave blank if not desired)<br/>
-    <%= c.text_field :welcome_message, 
+    <%= c.text_field :welcome_message,
       :id => 'twitter_welcome_message',
       :value => @channel.configuration[:welcome_message]
       %>
@@ -55,4 +55,4 @@ document.getElementById('twitter_welcome_message').onkeydown = function(e) {
 
 <% end %>
 
-<%= go_back_link %>
+<%= link_to 'Go back', :controller => :home, :action => :channels %>

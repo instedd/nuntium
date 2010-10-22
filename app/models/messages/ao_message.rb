@@ -43,6 +43,8 @@ class AOMessage < ActiveRecord::Base
   private
   
   def send_delivery_ack
+    return unless changed?
+  
     return true unless state == 'failed' || state == 'delivered' || state == 'confirmed'
     return true unless channel_id
     

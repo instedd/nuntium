@@ -1,0 +1,16 @@
+<%
+channel_kinds = [
+  ['Create new...', ''],
+  ['Clickatell', 'clickatell'],
+  ['DTAC', 'dtac'],
+  ['POP3', 'pop3'],
+  ['QST client', 'qst_client'],
+  ['QST server (local gateway)', 'qst_server'],
+  ['SMPP', 'smpp'],
+  ['SMTP', 'smtp'],
+  ['Twitter', 'twitter'],
+  ['XMPP', 'xmpp'],
+  ]
+channel_kinds[1..-1].map!{|x| x[0] << ' channel'}
+%>
+<p><%= select_tag('new_channel', options_for_select(channel_kinds), :onchange => 'create_channel(this)') %></p>
