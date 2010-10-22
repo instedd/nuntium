@@ -12,4 +12,5 @@ twitter_oauth_consumer.yml
 .loadpath
 erl_crash.dump
 nohup.out
+tags
 
