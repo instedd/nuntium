@@ -3,10 +3,23 @@ A channel lets Nuntium communicate with the world.<br/>
 By "the world" we mean anything that's not your particular application. For example: cellphone companies, email clients and twitter. <a href="http://code.google.com/p/nuntium/wiki/Channels" target="_blank">Learn more...</a>
 </p>
 
-<%= render :partial => 'shared/create_channel' %>
-
-<% unless @channels.empty? %>
-  <table class="table" cellspacing="4">
+<table class="table" cellspacing="4" id="channels">
+  <tr>
+    <td colspan="7" style="background:white"><%= render :partial => 'shared/create_channel' %></td>
+    <% unless @channels.empty? %>
+      <%
+      channel_kinds = [['All', '']] + Channel.kinds
+      channel_kinds.map!{|x| x[0] << ' channels'; x}
+      channel_kinds = channel_kinds.select{|x| x[1] == '' || @channels.any?{|c| c.kind == x[1]}}
+      %>
+      <% if channel_kinds.length > 2 %>
+        <td colspan="3" align="right" style="background:white">Show:
+          <%= select_tag('kind', options_for_select(channel_kinds), :onchange => 'filter_channels_by_kind(this)') %>
+        </td>
+      <% end %>
+    <% end %>
+  </tr>
+  <% unless @channels.empty? %>
     <tr>
       <th>Name</th>
       <th>Kind</th>
@@ -52,5 +65,5 @@ By "the world" we mean anything that's not your particular application. For exam
         </td>
       </tr>
     <% end %>
-  </table>
-<% end %>
+  <% end %>
+</table>
