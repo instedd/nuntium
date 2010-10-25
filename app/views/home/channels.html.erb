@@ -56,6 +56,7 @@ By "the world" we mean anything that's not your particular application. For exam
         end
         %>
         <td>
+          <%= link_to "view log", :controller => :home, :action => :logs, :log_search => "channel:#{chan.name}" %>
           <% if chan.paused %>
               <%= link_to "unpause", {:controller => :channel, :action => :unpause_channel, :id => chan.id}, :confirm => "Are you sure you want to unpause the channel #{chan.name}?" %>
           <% else %>
