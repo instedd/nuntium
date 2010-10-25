@@ -6,11 +6,11 @@ class ServiceChannelHandler < ChannelHandler
   def handle(msg)
     Queues.publish_ao msg, create_job(msg)
   end
-  
+
   def create_job(msg)
     job_class.new(@channel.account_id, @channel.id, msg.id)
   end
-  
+
   def on_enable
     ManagedProcess.create!(
       :account_id => @channel.account.id,
@@ -23,17 +23,33 @@ class ServiceChannelHandler < ChannelHandler
     )
     Queues.bind_ao @channel
   end
-  
+
   def on_disable
     proc = ManagedProcess.find_by_account_id_and_name @channel.account.id, managed_process_name
     proc.destroy if proc
   end
-  
+
   def on_changed
     proc = ManagedProcess.find_by_account_id_and_name @channel.account.id, managed_process_name
     proc.touch if proc
   end
-  
+
+  def on_pause
+    proc = ManagedProcess.find_by_account_id_and_name @channel.account.id, managed_process_name
+    return unless proc
+
+    proc.enabled = false
+    proc.save!
+  end
+
+  def on_unpause
+    proc = ManagedProcess.find_by_account_id_and_name @channel.account.id, managed_process_name
+    return unless proc
+
+    proc.enabled = true
+    proc.save!
+  end
+
   def on_destroy
     on_disable
   end
@@ -41,11 +57,11 @@ class ServiceChannelHandler < ChannelHandler
   def job_class
     raise "The job_class method must be defined for #{self.class}"
   end
-  
+
   def service_name
     raise "The service_name method must be defined for #{self.class}"
   end
-  
+
   def managed_process_name
     "#{service_name} #{@channel.name}"
   end
