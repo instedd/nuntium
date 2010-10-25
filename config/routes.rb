@@ -43,6 +43,8 @@ ActionController::Routing::Routes.draw do |map|
   map.delete_channel '/channel/delete/:id', :controller => 'channel', :action => :delete_channel
   map.enable_channel '/channel/enable/:id', :controller => 'channel', :action => :enable_channel
   map.disable_channel '/channel/disable/:id', :controller => 'channel', :action => :disable_channel
+  map.pause_channel '/channel/pause/:id', :controller => 'channel', :action => :pause_channel
+  map.unpause_channel '/channel/unpause/:id', :controller => 'channel', :action => :unpause_channel
 
   # Applications
   map.new_application '/application/new', :controller => 'home', :action => :new_application

@@ -92,6 +92,20 @@ class ChannelControllerTest < ActionController::TestCase
     assert_template "channel/edit_qst_server_channel.html.erb"
   end
 
+  test "enable channel" do
+    chan = Channel.make :qst_server, :account => @account, :enabled => false
+
+    get :enable_channel, {:id => chan.id}, {:account_id => @account.id}
+
+    # Go to channels page
+    assert_redirected_to(:controller => 'home', :action => 'channels')
+    assert_equal "Channel #{chan.name} was enabled", flash[:notice]
+
+    # The channel was enabled
+    chans = Channel.all
+    assert_true chans[0].enabled
+  end
+
   test "disable channel re-routes" do
     chan1 = Channel.make :qst_server, :account => @account
     chan2 = Channel.make :qst_server, :account => @account
@@ -110,4 +124,31 @@ class ChannelControllerTest < ActionController::TestCase
     assert_equal chan2.id, msg.channel_id
   end
 
+  test "pause channel" do
+    chan = Channel.make :qst_server, :account => @account
+
+    get :pause_channel, {:id => chan.id}, {:account_id => @account.id}
+
+    # Go to channels page
+    assert_redirected_to(:controller => 'home', :action => 'channels')
+    assert_equal "Channel #{chan.name} was paused", flash[:notice]
+
+    # The channel was paused
+    chans = Channel.all
+    assert_true chans[0].paused
+  end
+
+  test "unpause channel" do
+    chan = Channel.make :qst_server, :account => @account, :paused => true
+
+    get :unpause_channel, {:id => chan.id}, {:account_id => @account.id}
+
+    # Go to channels page
+    assert_redirected_to(:controller => 'home', :action => 'channels')
+    assert_equal "Channel #{chan.name} was unpaused", flash[:notice]
+
+    # The channel was unpaused
+    chans = Channel.all
+    assert_false chans[0].paused
+  end
 end

@@ -113,6 +113,22 @@ class ChannelController < AccountAuthenticatedController
     redirect_to :controller => :home, :action => :channels
   end
 
+  def pause_channel
+    @channel.paused = true
+    @channel.save!
+
+    flash[:notice] = "Channel #{@channel.name} was paused"
+    redirect_to :controller => :home, :action => :channels
+  end
+
+  def unpause_channel
+    @channel.paused = false
+    @channel.save!
+
+    flash[:notice] = "Channel #{@channel.name} was unpaused"
+    redirect_to :controller => :home, :action => :channels
+  end
+
   protected
 
   def check_channel
