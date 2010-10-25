@@ -57,7 +57,7 @@ class Application < ActiveRecord::Base
     return if not simulate and duplicated?(msg)
 
     ThreadLocalLogger.reset
-    ThreadLocalLogger << "Received via interface '#{via_interface}' logged in as '#{account.name}/#{name}'"
+    ThreadLocalLogger << "Received via #{via_interface} interface logged in as '#{account.name}/#{name}'"
 
     # Fill some fields
     fill_common_message_properties msg

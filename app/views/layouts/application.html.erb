@@ -9,11 +9,15 @@
 <body>
 
 <% if @hide_title.nil? %>
-  <%= link_to 'Nuntium', {:controller => :home, :action => :index}, :id => 'title' %>
-  <% if !@account.nil? && !@account.id.nil? %>
-    <span id="toolbar"><%= @account.name %> | <%= link_to 'Help', 'http://code.google.com/p/nuntium/', :target => '_blank' %> | <%= link_to 'Logoff', :controller => :home, :action => :logoff %></span>
-    <%= render :partial => 'shared/tabs' %>
-  <% end %>
+  <div id="header">
+    <%= link_to 'Nuntium', {:controller => :home, :action => :index}, :id => 'title' %>
+    <% if !@account.nil? && !@account.id.nil? %>
+      <span id="toolbar"><%= @account.name %> | <%= link_to 'Help', 'http://code.google.com/p/nuntium/', :target => '_blank' %> | <%= link_to 'Logoff', :controller => :home, :action => :logoff %></span>
+      </div>
+      <%= render :partial => 'shared/tabs' %>
+    <% else %>
+      </div>
+    <% end %>
 <% end %>
 
 <% if @account && @account.alert_emails.blank? && params[:action].to_sym != :settings %>
@@ -26,7 +30,9 @@
   <div id="notice"><%= flash[:notice] %></div>
 <% end %>
 
+<div id="main">
 <%= yield %>
+</div>
 
 <div id="version">Version: <%= nuntium_version %></div>
 

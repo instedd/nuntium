@@ -1,4 +1,4 @@
-body { background-color: #fff; color: #333; }
+body { background-color: #fff; color: #333; margin: 0px; }
 
 body, p, ol, ul, td {
   font-family: verdana, arial, helvetica, sans-serif;
@@ -95,6 +95,14 @@ input.highlighted {
   background-color: #FFF1A8;
 }
 
+#main {
+  padding: 8px;
+}
+
+#header {
+  padding: 8px;
+}
+
 table.table {
   padding: 0px;
   border: 0px;
@@ -141,7 +149,7 @@ acronym {
 }
 
 #title {
-  color: blue;
+  color: #006;
   font-weight:bold;
   font-size: 20px;
   text-decoration: none;
@@ -158,7 +166,7 @@ acronym {
   background:#FFF1A8;
   padding:4px;
   font-weight:bold;
-  margin-top:8px;
+  margin:8px;
   clear: both;
 }
 
@@ -168,7 +176,7 @@ acronym {
   padding: 4px;
   background:red;
   font-weight:bold;
-  margin-top:8px;
+  margin:8px;
   clear: both;
 }
 
@@ -182,8 +190,9 @@ acronym {
   list-style: none;
   width: 100%;
   display: block;
-  margin: 10px 0px 10px 0px;
+  margin: 0px 0px 10px 0px;
   padding: 0px;
+  padding-top: 10px;
   border-bottom: 1px solid black;
 }
 
