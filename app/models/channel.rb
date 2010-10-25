@@ -339,6 +339,12 @@ class Channel < ActiveRecord::Base
       else
         self.handler.on_disable
       end
+    elsif self.paused_changed?
+      if self.paused
+        self.handler.on_pause
+      else
+        self.handler.on_unpause
+      end
     else
       self.handler.on_changed
     end

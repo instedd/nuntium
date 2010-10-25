@@ -12,43 +12,49 @@ class ChannelHandler
   def initialize(channel)
     @channel = channel
   end
-  
+
   def update(params)
     @channel.attributes = params
   end
-  
+
   def before_save
   end
-  
+
   def on_changed
   end
-  
+
   def on_enable
   end
 
   def on_disable
   end
-  
+
+  def on_pause
+  end
+
+  def on_unpause
+  end
+
   def on_destroy
   end
-  
+
   # Returns additional info for the given ao_msg in a hash, to be
   # displayed in the message view
   def more_info(ao_msg)
     {}
   end
-  
+
   # Returns restrictions of the channel to be used to route AOs
   def restrictions
     @channel.restrictions
   end
-  
+
   protected
-  
+
   def check_config_not_blank(*keys)
     keys.each do |key|
       @channel.errors.add(key, "can't be blank") if @channel.configuration[key].blank?
     end
   end
-  
+
 end

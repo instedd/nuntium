@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101022212531) do
+ActiveRecord::Schema.define(:version => 20101025133252) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -135,6 +135,7 @@ ActiveRecord::Schema.define(:version => 20101022212531) do
     t.integer  "application_id"
     t.string   "address"
     t.text     "ao_rules"
+    t.boolean  "paused",         :default => false
   end
 
   create_table "clickatell_coverage_mos", :force => true do |t|
