@@ -15,7 +15,7 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
 
       @log = check_log :simulate => simulate
 
-      assert_in_log "Received via interface 'test' logged in as '#{@app.account.name}/#{@app.name}'"
+      assert_in_log "Received via test interface logged in as '#{@app.account.name}/#{@app.name}'"
     end
 
     test "protocol not found simulate = #{simulate}" do
