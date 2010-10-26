@@ -4,16 +4,8 @@ class XmppChannelHandler < ServiceChannelHandler
 
   include Jabber
 
-  def job_class
-    SendXmppMessageJob
-  end
-
   def self.title
     "XMPP"
-  end
-
-  def service_name
-    'xmpp_daemon'
   end
 
   def check_valid

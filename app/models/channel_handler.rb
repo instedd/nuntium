@@ -21,7 +21,19 @@ class ChannelHandler
   end
 
   def self.kind
-    ActiveSupport::Inflector.underscore(/(.*?)ChannelHandler/.match(self.name)[1])
+    ActiveSupport::Inflector.underscore self.identifier
+  end
+
+  def self.identifier
+    /(.*?)ChannelHandler/.match(self.name)[1]
+  end
+
+  def job_class
+    eval("Send#{self.class.identifier}MessageJob")
+  end
+
+  def create_job(msg)
+    job_class.new(@channel.account_id, @channel.id, msg.id)
   end
 
   def update(params)

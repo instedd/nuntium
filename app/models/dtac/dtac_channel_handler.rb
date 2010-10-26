@@ -1,9 +1,4 @@
 class DtacChannelHandler < GenericChannelHandler
-
-  def job_class
-    SendDtacMessageJob
-  end
-
   def self.title
     "DTAC"
   end

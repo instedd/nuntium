@@ -7,18 +7,14 @@ class ServiceChannelHandler < ChannelHandler
     Queues.publish_ao msg, create_job(msg)
   end
 
-  def create_job(msg)
-    job_class.new(@channel.account_id, @channel.id, msg.id)
-  end
-
   def on_enable
     ManagedProcess.create!(
       :account_id => @channel.account.id,
       :name => managed_process_name,
-      :start_command => "#{service_name}_ctl.rb start -- #{ENV["RAILS_ENV"]} #{@channel.id}",
-      :stop_command => "#{service_name}_ctl.rb stop -- #{ENV["RAILS_ENV"]} #{@channel.id}",
-      :pid_file => "#{service_name}.#{@channel.id}.pid",
-      :log_file => "#{service_name}_#{@channel.id}.log",
+      :start_command => "#{self.class.service_name}_ctl.rb start -- #{ENV["RAILS_ENV"]} #{@channel.id}",
+      :stop_command => "#{self.class.service_name}_ctl.rb stop -- #{ENV["RAILS_ENV"]} #{@channel.id}",
+      :pid_file => "#{self.class.service_name}.#{@channel.id}.pid",
+      :log_file => "#{self.class.service_name}_#{@channel.id}.log",
       :enabled => true
     )
     Queues.bind_ao @channel
@@ -54,15 +50,11 @@ class ServiceChannelHandler < ChannelHandler
     on_disable
   end
 
-  def job_class
-    raise "The job_class method must be defined for #{self.class}"
-  end
-
-  def service_name
-    raise "The service_name method must be defined for #{self.class}"
+  def self.service_name
+    "#{kind}_daemon"
   end
 
   def managed_process_name
-    "#{service_name} #{@channel.name}"
+    "#{self.class.service_name} #{@channel.name}"
   end
 end

@@ -1,11 +1,6 @@
 require 'net/smtp'
 
 class SmtpChannelHandler < GenericChannelHandler
-
-  def job_class
-    SendSmtpMessageJob
-  end
-
   def self.title
     "SMTP"
   end

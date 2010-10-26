@@ -1,11 +1,6 @@
 require 'twitter'
 
 class TwitterChannelHandler < GenericChannelHandler
-
-  def job_class
-    SendTwitterMessageJob
-  end
-
   def update(params)
     super
     @channel.configuration[:welcome_message] = params[:configuration][:welcome_message]

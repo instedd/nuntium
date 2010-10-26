@@ -1,14 +1,6 @@
 class SmppChannelHandler < ServiceChannelHandler
-  def job_class
-    SendSmppMessageJob
-  end
-
   def self.title
     "SMPP"
-  end
-
-  def service_name
-    'smpp_daemon'
   end
 
   def check_valid
