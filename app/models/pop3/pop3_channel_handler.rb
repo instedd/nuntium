@@ -1,6 +1,10 @@
 require 'net/pop'
 
 class Pop3ChannelHandler < ChannelHandler
+  def self.title
+    "POP3"
+  end
+
   def check_valid
     check_config_not_blank :host, :user, :password
 

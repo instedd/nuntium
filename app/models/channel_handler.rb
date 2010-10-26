@@ -13,6 +13,17 @@ class ChannelHandler
     @channel = channel
   end
 
+  # The title of this channel. Can be overriden by subclasses.
+  # By default it's the titelize name of this class' name without
+  # the "ChannelHandler" part.
+  def self.title
+    /(.*?)ChannelHandler/.match(self.name)[1].titleize
+  end
+
+  def self.kind
+    ActiveSupport::Inflector.underscore(/(.*?)ChannelHandler/.match(self.name)[1])
+  end
+
   def update(params)
     @channel.attributes = params
   end

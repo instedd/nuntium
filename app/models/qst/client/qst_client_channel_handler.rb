@@ -1,4 +1,8 @@
 class QstClientChannelHandler < ChannelHandler
+  def self.title
+    "QST client"
+  end
+
   def handle(msg)
     # AO Message should be queued, we just query them
   end

@@ -2,14 +2,18 @@ class SmppChannelHandler < ServiceChannelHandler
   def job_class
     SendSmppMessageJob
   end
-  
+
+  def self.title
+    "SMPP"
+  end
+
   def service_name
     'smpp_daemon'
   end
-  
+
   def check_valid
     check_config_not_blank :host, :system_type
-    
+
     if @channel.configuration[:port].nil?
       @channel.errors.add(:port, "can't be blank")
     else
@@ -18,7 +22,7 @@ class SmppChannelHandler < ServiceChannelHandler
         @channel.errors.add(:port, "must be a positive number")
       end
     end
-    
+
     [:source_ton, :source_npi, :destination_ton, :destination_npi].each do |sym|
       if @channel.configuration[sym].nil?
         @channel.errors.add(sym, "can't be blank")
@@ -29,18 +33,18 @@ class SmppChannelHandler < ServiceChannelHandler
         end
       end
     end
-  
+
     check_config_not_blank :user, :password, :default_mo_encoding, :mt_encodings, :mt_csms_method
   end
-  
+
   def check_valid_in_ui
     config = @channel.configuration
-    
+
     # what kind of validation should we put here?
     # what if the smpp connection require a vpn?
 
   end
-  
+
   def info
     c = @channel.configuration
     s = "#{c[:user]}@#{c[:host]}:#{c[:port]}"

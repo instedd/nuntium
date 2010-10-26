@@ -8,17 +8,21 @@ class Channel < ActiveRecord::Base
   Bidirectional = Incoming + Outgoing
 
   def self.kinds
-    [
-      ['Clickatell', 'clickatell'],
-      ['DTAC', 'dtac'],
-      ['POP3', 'pop3'],
-      ['QST client', 'qst_client'],
-      ['QST server (local gateway)', 'qst_server'],
-      ['SMPP', 'smpp'],
-      ['SMTP', 'smtp'],
-      ['Twitter', 'twitter'],
-      ['XMPP', 'xmpp']
-    ]
+    @@kinds ||= begin
+      # Load all channel handlers
+      Dir.glob("#{RAILS_ROOT}/app/models/**/*_channel_handler.rb").each { |file| require file }
+
+      Object.subclasses_of(ChannelHandler).select do |clazz|
+        # Skip some abstract ones
+        clazz.name != 'GenericChannelHandler' && clazz.name != 'ServiceChannelHandler'
+      end.map do |clazz|
+        # Put the title and kind in array
+        [clazz.title, clazz.kind]
+      end.sort do |a1, a2|
+        # And sort by title
+        a1[0] <=> a2[0]
+      end
+    end
   end
 
   belongs_to :account
