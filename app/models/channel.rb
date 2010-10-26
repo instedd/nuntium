@@ -10,7 +10,9 @@ class Channel < ActiveRecord::Base
   def self.kinds
     @@kinds ||= begin
       # Load all channel handlers
-      Dir.glob("#{RAILS_ROOT}/app/models/**/*_channel_handler.rb").each { |file| require file }
+      Dir.glob("#{RAILS_ROOT}/app/models/**/*_channel_handler.rb").each do |file|
+        eval(ActiveSupport::Inflector.camelize(file[file.rindex('/') + 1 .. -4]))
+      end
 
       Object.subclasses_of(ChannelHandler).select do |clazz|
         # Skip some abstract ones
