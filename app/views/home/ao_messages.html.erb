@@ -21,9 +21,6 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
 
 <div id="all_ao_messages_text" style="display:none"></div>
 
-<input type="hidden" name="ao_page" value="<%= @ao_page %>" />
-<input type="hidden" name="ao_previous_search" value="<%= @ao_search %>" />
-
 <% if !@ao_messages.empty? %>
   <table border="1" class="table">
     <tr>
