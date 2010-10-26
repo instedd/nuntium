@@ -64,7 +64,7 @@ class Channel < ActiveRecord::Base
     ThreadLocalLogger << "Message routed to channel '#{name}'"
 
     # Apply AO Rules
-    apply_ro_rules msg
+    apply_ao_rules msg
 
     # Discard the message if the 'from' and 'to' are the same
     if msg.from == msg.to
@@ -90,7 +90,7 @@ class Channel < ActiveRecord::Base
     end
   end
 
-  def apply_ro_rules(msg)
+  def apply_ao_rules(msg)
     ao_routing_res = RulesEngine.apply(msg.rules_context, self.ao_rules)
     if ao_routing_res.present?
       ThreadLocalLogger << "Applying channel ao rules..."
