@@ -91,6 +91,11 @@ Channel.blueprint :dtac do
   configuration { {:user => Sham.username, :password => Sham.password } }
 end
 
+Channel.blueprint :multimodem_isms do
+  kind { "multimodem_isms" }
+  configuration {{:host => Sham.url, :port => rand(1000) + 1, :user => Sham.username, :password => Sham.password}}
+end
+
 [[:pop3, Channel::Incoming], [:smtp, Channel::Outgoing]].each do |k, d|
   Channel.blueprint k do
     kind { k.to_s }
