@@ -93,7 +93,7 @@ end
 
 Channel.blueprint :multimodem_isms do
   kind { "multimodem_isms" }
-  configuration {{:host => Sham.url, :port => rand(1000) + 1, :user => Sham.username, :password => Sham.password}}
+  configuration {{:host => Sham.url, :port => rand(1000) + 1, :user => Sham.username, :password => Sham.password, :time_zone => ActiveSupport::TimeZone.all.rand.name}}
 end
 
 [[:pop3, Channel::Incoming], [:smtp, Channel::Outgoing]].each do |k, d|

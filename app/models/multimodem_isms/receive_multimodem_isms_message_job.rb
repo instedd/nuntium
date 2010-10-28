@@ -40,7 +40,15 @@ class ReceiveMultimodemIsmsMessageJob
       msg.to = modem.with_protocol @channel.protocol
 
       msg.body = CGI.unescape notif['Message']
-      msg.channel_relative_id = notif['Message_Index']
+
+      begin
+        date = notif['Date'].split '/'
+        date[0], date[1], date[2] = date[2], date[1], date[0]
+        date = date.join '-'
+        date << " #{notif['Time']}"
+        msg.timestamp = ActiveSupport::TimeZone[@config[:time_zone]].parse date
+      rescue => e
+      end
       account.route_at msg, @channel
     end
   rescue => ex
