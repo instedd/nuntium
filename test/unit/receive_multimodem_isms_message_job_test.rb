@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ReceivePop3MessageJobTest < ActiveSupport::TestCase
+class ReceiveMultimodemIsmsMessageJobTest < ActiveSupport::TestCase
   def setup
     @chan = Channel.make :multimodem_isms
   end

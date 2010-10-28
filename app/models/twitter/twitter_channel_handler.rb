@@ -58,7 +58,8 @@ class TwitterChannelHandler < GenericChannelHandler
   end
 
   def on_destroy
-    on_disable
+    super
+    @channel.drop_task('twitter-receive')
   end
 
 end
