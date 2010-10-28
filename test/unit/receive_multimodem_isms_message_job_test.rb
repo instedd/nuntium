@@ -71,6 +71,7 @@ END_OF_MESSAGE
     assert_equal 1, msgs.length
 
     assert_equal "sms://+93774494364", msgs[0].from
+    assert_equal "sms://0774494369", msgs[0].to
     assert_equal "This is a test message", msgs[0].body
     assert_equal "1", msgs[0].channel_relative_id
     assert_equal @chan.id, msgs[0].channel_id

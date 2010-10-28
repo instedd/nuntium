@@ -29,11 +29,18 @@ class ReceiveMultimodemIsmsMessageJob
     notifs.each do |notif|
       msg = ATMessage.new
       msg.from = notif['SenderNumber'].with_protocol @channel.protocol
+
+      modem = notif['ModemNumber'] || ''
+      index = modem.index ':'
+      modem = modem[index + 1 .. -1] if index
+      msg.to = modem.with_protocol @channel.protocol
+
       msg.body = CGI.unescape notif['Message']
       msg.channel_relative_id = notif['Message_Index']
       account.route_at msg, @channel
     end
   rescue => ex
+    p ex
     AccountLogger.exception_in_channel @channel, ex if @channel
   end
 
