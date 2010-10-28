@@ -21,6 +21,26 @@ class MultimodemIsmsChannelHandler < GenericChannelHandler
     end
   end
 
+  def on_enable
+    @channel.create_task('multimodem-isms-receive', MULTIMODEM_ISMS_RECEIVE_INTERVAL, ReceiveMultimodemIsmsMessageJob.new(@channel.account_id, @channel.id))
+  end
+
+  def on_disable
+    @channel.drop_task('multimodem-isms-receive')
+  end
+
+  def on_pause
+    on_disable
+  end
+
+  def on_unpause
+    on_enable
+  end
+
+  def on_destroy
+    on_disable
+  end
+
   ERRORS = {
     601 => { :kind => :fatal, :description => 'Authentication Failed Send API, Query API'},
     602 => { :kind => :fatal, :description => 'Parse Error Send API, Query API'},

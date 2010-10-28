@@ -1,7 +1,5 @@
 class SendMultimodemIsmsMessageJob < SendMessageJob
   def managed_perform
-    params = ""
-
     url = "http://#{@config[:host]}"
     url << ":#{@config[:port]}" if @config[:port].present?
     url << "/sendmsg?"
