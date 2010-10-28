@@ -11,6 +11,7 @@ class ChannelController < AccountAuthenticatedController
   def new_channel
     @channel = Channel.new :configuration => {} unless @channel
     kind = params[:kind]
+    @channel.kind = kind
     render "new_#{kind}_channel"
   end
 
