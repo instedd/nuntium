@@ -70,10 +70,9 @@ END_OF_MESSAGE
     msgs = ATMessage.all
     assert_equal 1, msgs.length
 
-    assert_equal "sms://+93774494364", msgs[0].from
+    assert_equal "sms://93774494364", msgs[0].from
     assert_equal "sms://0774494369", msgs[0].to
     assert_equal "This is a test message", msgs[0].body
-    assert_equal "1", msgs[0].channel_relative_id
     assert_equal @chan.id, msgs[0].channel_id
   end
 
@@ -122,14 +121,12 @@ END_OF_MESSAGE
     msgs = ATMessage.all
     assert_equal 2, msgs.length
 
-    assert_equal "sms://+93774494364", msgs[0].from
+    assert_equal "sms://93774494364", msgs[0].from
     assert_equal "This is a test message", msgs[0].body
-    assert_equal "1", msgs[0].channel_relative_id
     assert_equal @chan.id, msgs[0].channel_id
 
-    assert_equal "sms://+93774494364", msgs[1].from
+    assert_equal "sms://93774494364", msgs[1].from
     assert_equal "Another+one", msgs[1].body
-    assert_equal "2", msgs[1].channel_relative_id
     assert_equal @chan.id, msgs[1].channel_id
   end
 

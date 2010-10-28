@@ -28,11 +28,15 @@ class ReceiveMultimodemIsmsMessageJob
     notifs = [notifs] unless notifs.kind_of? Array
     notifs.each do |notif|
       msg = ATMessage.new
-      msg.from = notif['SenderNumber'].with_protocol @channel.protocol
+
+      from = notif['SenderNumber'] || ''
+      from = from[1 .. -1] if from.start_with? '+'
+      msg.from = from.with_protocol @channel.protocol
 
       modem = notif['ModemNumber'] || ''
       index = modem.index ':'
       modem = modem[index + 1 .. -1] if index
+      modem = modem[1 .. -1] if modem.start_with? '+'
       msg.to = modem.with_protocol @channel.protocol
 
       msg.body = CGI.unescape notif['Message']
