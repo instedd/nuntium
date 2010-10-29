@@ -25,6 +25,7 @@ class Channel < ActiveRecord::Base
         a1[0] <=> a2[0]
       end
     end
+    @@kinds.map{|x| [x[0].dup, x[1].dup]}
   end
 
   belongs_to :account
