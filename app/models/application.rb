@@ -173,6 +173,7 @@ class Application < ActiveRecord::Base
   def reroute_ao(msg)
     msg.tries = 0
     msg.state = 'pending'
+    msg.reset_to_original
     self.route_ao msg, 're-route'
   end
 

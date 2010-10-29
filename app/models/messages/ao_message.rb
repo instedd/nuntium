@@ -42,6 +42,17 @@ class AOMessage < ActiveRecord::Base
     account.logger.exception_in_channel_and_ao_message channel, self, exception
   end
 
+  def reset_to_original
+    return unless original.present?
+    original.each do |key, value|
+      if ['from', 'to', 'subject', 'body'].include? key.to_s
+        self.send "#{key}=", value
+      else
+        self.custom_attributes[key.to_s] = value
+      end
+    end
+  end
+
   private
 
   def send_delivery_ack
@@ -85,17 +96,7 @@ class AOMessage < ActiveRecord::Base
     chan = account.find_channel chans[0]
     return unless chan
 
-    # Restore original attributes
-    if original.present?
-      original.each do |key, value|
-        if ['from', 'to', 'subject', 'body'].include? key.to_s
-          self.send "#{key}=", value
-        else
-          self.custom_attributes[key.to_s] = value
-        end
-      end
-      self.original = nil
-    end
+    reset_to_original
 
     ThreadLocalLogger.reset
     ThreadLocalLogger << "Re-route failover"
