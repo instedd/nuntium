@@ -11,10 +11,10 @@ class ServiceChannelHandler < ChannelHandler
     ManagedProcess.create!(
       :account_id => @channel.account.id,
       :name => managed_process_name,
-      :start_command => "#{self.class.service_name}_ctl.rb start -- #{ENV["RAILS_ENV"]} #{@channel.id}",
-      :stop_command => "#{self.class.service_name}_ctl.rb stop -- #{ENV["RAILS_ENV"]} #{@channel.id}",
-      :pid_file => "#{self.class.service_name}.#{@channel.id}.pid",
-      :log_file => "#{self.class.service_name}_#{@channel.id}.log",
+      :start_command => "service_daemon_ctl.rb start -- #{ENV["RAILS_ENV"]} #{@channel.id}",
+      :stop_command => "service_daemon_ctl.rb stop -- #{ENV["RAILS_ENV"]} #{@channel.id}",
+      :pid_file => "service_daemon_#{@channel.id}.pid",
+      :log_file => "service_daemon_#{@channel.id}.log",
       :enabled => true
     )
     Queues.bind_ao @channel
@@ -50,11 +50,7 @@ class ServiceChannelHandler < ChannelHandler
     on_disable
   end
 
-  def self.service_name
-    "#{kind}_daemon"
-  end
-
   def managed_process_name
-    "#{self.class.service_name} #{@channel.name}"
+    "#{@channel.kind}_daemon #{@channel.name}"
   end
 end

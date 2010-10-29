@@ -24,10 +24,10 @@ class XmppChannelHandlerTest < ActiveSupport::TestCase
     proc = procs[0]
     assert_equal @chan.account.id, proc.account_id
     assert_equal "xmpp_daemon #{@chan.name}", proc.name
-    assert_equal "xmpp_daemon_ctl.rb start -- test #{@chan.id}", proc.start_command
-    assert_equal "xmpp_daemon_ctl.rb stop -- test #{@chan.id}", proc.stop_command
-    assert_equal "xmpp_daemon.#{@chan.id}.pid", proc.pid_file
-    assert_equal "xmpp_daemon_#{@chan.id}.log", proc.log_file
+    assert_equal "service_daemon_ctl.rb start -- test #{@chan.id}", proc.start_command
+    assert_equal "service_daemon_ctl.rb stop -- test #{@chan.id}", proc.stop_command
+    assert_equal "service_daemon_#{@chan.id}.pid", proc.pid_file
+    assert_equal "service_daemon_#{@chan.id}.log", proc.log_file
   end
 
   test "on enable binds queue" do
