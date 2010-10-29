@@ -17,7 +17,7 @@ Examples of messages are sms, emails and twitter direct messages. <a href="http:
   <%= f.label :password -%><br/>
   <%= f.password_field :password -%>
   </p>
-  <p style="color:red"><%= flash[:notice] -%></p>
+  <p style="color:red"><%= flash[:login_error] -%></p>
   <%= submit_tag 'Login' -%>
 <%- end -%>
 

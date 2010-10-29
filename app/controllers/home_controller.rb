@@ -69,11 +69,11 @@ class HomeController < AccountAuthenticatedController
     @account = Account.find_by_name account[:name]
     if @account.nil? || !@account.authenticate(account[:password])
       @account = Account.new :name => account[:name]
-      flash[:notice] = 'Invalid name/password'
+      flash[:login_error] = 'Invalid name/password'
       return render :index
     end
 
-    flash[:notice] = nil
+    flash[:login_error] = nil
     session[:account_id] = @account.id
     redirect_to_home
   end
@@ -84,7 +84,7 @@ class HomeController < AccountAuthenticatedController
     account = params[:new_account]
     return redirect_to_home if account.nil?
 
-    flash[:notice] = nil
+    flash[:login_error] = nil
 
     @new_account = Account.new(account)
     if !@new_account.save

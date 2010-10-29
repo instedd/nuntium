@@ -34,7 +34,7 @@ class ChannelController < AccountAuthenticatedController
     @channel.check_valid_in_ui
     if !@channel.save
       @channel.clear_password
-      return render "new_#{@channel.kind}_channel"
+      render "new_#{@channel.kind}_channel"
     end
 
     flash[:notice] = "Channel #{@channel.name} was created"
