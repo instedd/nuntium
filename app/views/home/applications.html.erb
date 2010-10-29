@@ -1,12 +1,11 @@
-
 <p>
 A Nuntium Application simply represents your application.<br/>
 If you have many applications you would create many Nuntium Applications, and you can choose to interface with each of them in a different way.
 </p>
 
-<p><%= link_to 'Create new Application', :controller => :home, :action => :new_application %></p>
+<p><%= link_to 'Create new Application', :controller => :home, :action => :new_application -%></p>
 
-<% unless @applications.empty? %>
+<%- unless @applications.empty? -%>
   <table class="table" cellspacing="4">
     <tr>
       <th>Name</th>
@@ -16,45 +15,44 @@ If you have many applications you would create many Nuntium Applications, and yo
       <th>Delivery ACK</th>
       <th></th>
     </tr>
-    <% @applications.each_with_index do |app, i| %>
-      <tr class="<%= i.even_to_s %>">
-        <td><%= app.name %></td>
-        <td><%= app.interface_description %></td>
-        <td><%= app.use_address_source? ? 'Yes' : 'No' %></td>
-        <td><%= app.strategy_description %></td>
-        <td><%= app.delivery_ack_method_description %></td>
+    <%- @applications.each_with_index do |app, i| -%>
+      <tr class="<%= i.even_to_s -%>">
+        <td><%= app.name -%></td>
+        <td><%= app.interface_description -%></td>
+        <td><%= app.use_address_source? ? 'Yes' : 'No' -%></td>
+        <td><%= app.strategy_description -%></td>
+        <td><%= app.delivery_ack_method_description -%></td>
         <td>
-          <%= link_to "view log", :controller => :home, :action => :logs, :log_search => "application:#{app.name}" %>
-          <%= link_to "edit", :controller => :home, :action => :edit_application, :id => app.id %>
-          <%= link_to "delete", {:controller => :home, :action => :delete_application, :id => app.id}, :confirm => "Are you sure you want to delete the application #{app.name}?" %>
+          <%= link_to "view log", :controller => :home, :action => :logs, :log_search => "application:#{app.name}" -%>
+          <%= link_to "edit", :controller => :home, :action => :edit_application, :id => app.id -%>
+          <%= link_to "delete", {:controller => :home, :action => :delete_application, :id => app.id}, :confirm => "Are you sure you want to delete the application #{app.name}?" -%>
         </td>
       </tr>
-    <% end %>
+    <%- end -%>
   </table>
-<% end %>
+<%- end -%>
 
 <h5>Application Routing Rules</h5>
-
-<%
+<%-
 applications = @account.applications.map(&:name).sort!
 if applications.length < 2
-  %>
+  -%>
   <p>
   No need to specify these rules right now since you don't have more than one application.
   </p>
-  <%
+  <%-
 else
   if @account.app_routing_rules.blank?
-    %>
+    -%>
     <p id="errorNotice">
     Now that you have more than one application you should configure rules
     to determine the application an AT message is routed to.
     </p>
-    <%
+    <%-
   end
-  %>
-  <% form_for :account, :url => { :controller => 'home', :action => :update_application_routing_rules } do |f| %>
-    <%= f.error_messages %>
+  -%>
+  <%- form_for :account, :url => { :controller => 'home', :action => :update_application_routing_rules } do |f| -%>
+    <%= f.error_messages -%>
     <p>
     Specify here rules to route AT messages to specific applications.<br/>
     These rules will not be executed if an AT message is received via a channel that belongs to an application<br/>
@@ -70,14 +68,14 @@ else
     <div class="apprules"></div>
 
     <script type="text/javascript">
-    var applications = <%= applications.to_json %>;
+    var applications = <%= applications.to_json -%>;
     jQuery(function(){
-      init_rules(jQuery('.apprules'), 'apprules', <%= @account.app_routing_rules.to_json %>, null, ['application']);
+      init_rules(jQuery('.apprules'), 'apprules', <%= @account.app_routing_rules.to_json -%>, null, ['application']);
     });
     </script>
 
-    <%= submit_tag 'Update rules' %>
-  <% end %>
-<%
+    <%= submit_tag 'Update rules' -%>
+  <%- end -%>
+<%-
 end
-%>
+-%>

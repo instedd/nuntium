@@ -1,5 +1,5 @@
 <ul id="tabs">
-  <%
+  <%-
     selected_tab = @selected_tab || params[:action].to_sym
     [
       ['Applications', :applications],
@@ -10,10 +10,9 @@
       ['Interactions', :interactions],
       ['Settings', :settings]
     ].each do |name, action|
-    %>
-    <li <%= selected_tab == action ? 'class="selected"' : ''%>><%= link_to name, :controller => :home, :action => action %></li>
-    <%
+    -%>
+    <li<%= selected_tab == action ? ' class="selected"' : ''%>><%= link_to name, :controller => :home, :action => action -%></li>
+    <%-
   end
-  %>
+  -%>
 </ul>
-

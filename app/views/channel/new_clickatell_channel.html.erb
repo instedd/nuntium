@@ -1,63 +1,63 @@
-<%= render :partial => 'edit_channel_header' %>
+<%= render :partial => 'edit_channel_header' -%>
 
-<% form_for_channel do |f| %>
-  <%= f.error_messages %>
-  <%= f.hidden_field :direction, :value => Channel::Bidirectional %>
-  <%= render :partial => 'edit_name', :locals => {:f => f} %>
-  <%= render :partial => 'edit_protocol', :locals => {:f => f, :default => 'sms'} %>
-  <%= render :partial => 'edit_priority', :locals => {:f => f} %>
-  <%= render :partial => 'edit_application', :locals => {:f => f} %>
-  <%= render :partial => 'edit_direction', :locals => {:on_change => "clickatell_channel_direction_changed()"} %>
-  <%= render :partial => 'edit_address', :locals => {:f => f} %>
-  <% f.fields_for :configuration do |c| %>
+<%- form_for_channel do |f| -%>
+  <%= f.error_messages -%>
+  <%= f.hidden_field :direction, :value => Channel::Bidirectional -%>
+  <%= render :partial => 'edit_name', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_protocol', :locals => {:f => f, :default => 'sms'} -%>
+  <%= render :partial => 'edit_priority', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_application', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_direction', :locals => {:on_change => "clickatell_channel_direction_changed()"} -%>
+  <%= render :partial => 'edit_address', :locals => {:f => f} -%>
+  <%- f.fields_for :configuration do |c| -%>
     <p id="user_container">
-    <%= c.label :user %><br/>
-    <%= c.text_field :user, :autocomplete => :off, :value => @channel[:configuration][:user] %>
+    <%= c.label :user -%><br/>
+    <%= c.text_field :user, :autocomplete => :off, :value => @channel[:configuration][:user] -%>
     </p>
     <p id="password_container">
-    <%= c.label :password %> (this is the password of your account)<br/>
-    <%= c.password_field :password, :autocomplete => :off, :value => @channel[:configuration][:password] %>
+    <%= c.label :password -%> (this is the password of your account)<br/>
+    <%= c.password_field :password, :autocomplete => :off, :value => @channel[:configuration][:password] -%>
     </p>
     <p>
-    <%= c.label :api_ID %><br/>
-    <%= c.text_field :api_id, :value => @channel[:configuration][:api_id] %>
+    <%= c.label :api_ID -%><br/>
+    <%= c.text_field :api_id, :value => @channel[:configuration][:api_id] -%>
     </p>
     <p id="from_container">
-    <%= c.label :from %><br/>
-    <%= c.text_field :from, :value => @channel[:configuration][:from] %>
+    <%= c.label :from -%><br/>
+    <%= c.text_field :from, :value => @channel[:configuration][:from] -%>
     </p>
 	  <p id="network">
-	  <%= c.label :network %><br/>
+	  <%= c.label :network -%><br/>
 	  <%= c.select :network, options_for_select(ClickatellChannelHandler::CLICKATELL_NETWORKS.map {|v,d| [d,v]}, @channel[:configuration][:network])%>
 	  </p>
     <p id="concat_container">
-    <%= c.label :concatenation %><br/>
-    <%= c.text_field :concat, :value => @channel[:configuration][:concat] || 3 %>
+    <%= c.label :concatenation -%><br/>
+    <%= c.text_field :concat, :value => @channel[:configuration][:concat] || 3 -%>
     </p>
     <p id="callback_incoming">
     Callback urls for incoming messages (use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Basic Http Authentication</a> with channel name and incoming password):<br/>
-    <code><%= url_for :controller => :clickatell, :action => :index, :account_id => @account.name, :only_path => false %></code><br/>
+    <code><%= url_for :controller => :clickatell, :action => :index, :account_id => @account.name, :only_path => false -%></code><br/>
     </p>
     <p id="callback_ack">
     Callback urls for status notification (use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Basic Http Authentication</a> with channel name and incoming password):<br/>
-    <code><%= url_for :controller => :clickatell, :action => :ack, :account_id => @account.name, :only_path => false %></code><br/>
+    <code><%= url_for :controller => :clickatell, :action => :ack, :account_id => @account.name, :only_path => false -%></code><br/>
     </p>
     <p>
-    <%= c.label :incoming_password %> (to use for the callback urls)<br/>
-    <%= c.password_field :incoming_password, :value => @channel[:configuration][:incoming_password] %>
+    <%= c.label :incoming_password -%> (to use for the callback urls)<br/>
+    <%= c.password_field :incoming_password, :value => @channel[:configuration][:incoming_password] -%>
     </p>
     <p>
-    <%= c.label :cost_per_credit %> (messages will get a 'cost' custom attribute with the value <code>charge * cost_per_credit</code>)<br/>
-    <%= c.text_field :cost_per_credit, :value => @channel[:configuration][:cost_per_credit] || 1 %>
+    <%= c.label :cost_per_credit -%> (messages will get a 'cost' custom attribute with the value <code>charge * cost_per_credit</code>)<br/>
+    <%= c.text_field :cost_per_credit, :value => @channel[:configuration][:cost_per_credit] || 1 -%>
     </p>
-  <% end %>
-  <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} %>
-  <%= render :partial => 'edit_ao_rules', :locals => {:f => f} %>
-  <%= render :partial => 'edit_at_rules', :locals => {:f => f} %>
-  <%= channel_submit_tag %>
-<% end %>
+  <%- end -%>
+  <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} -%>
+  <%= render :partial => 'edit_ao_rules', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_at_rules', :locals => {:f => f} -%>
+  <%= channel_submit_tag -%>
+<%- end -%>
 
-<%= link_to 'Go back', :controller => :home, :action => :channels %>
+<%= link_to 'Go back', :controller => :home, :action => :channels -%>
 
 <script>
 clickatell_channel_direction_changed();

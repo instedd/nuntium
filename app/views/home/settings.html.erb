@@ -1,24 +1,24 @@
-<% form_for :account, :url => { :controller => 'home', :action => :update_account } do |f| %>
-  <%= f.error_messages %>
+<%- form_for :account, :url => { :controller => 'home', :action => :update_account } do |f| -%>
+  <%= f.error_messages -%>
   <p>
-  <%= f.label :max_tries %><br/>
-  <%= f.text_field :max_tries %>
+  <%= f.label :max_tries -%><br/>
+  <%= f.text_field :max_tries -%>
   </p>
   <h5>Alerts</h5>
   <p>Specify here a comma separated list of emails that will receive error alerts.</p>
   <p>
-  <%= f.label :alert_emails %><br/>
-  <%= f.text_field :alert_emails, :size => 100 %>
+  <%= f.label :alert_emails -%><br/>
+  <%= f.text_field :alert_emails, :size => 100 -%>
   </p>
   <h5>Password</h5>
   <p>
   <b>Leave blank if you don't want to change the password</b><br/>
-  <%= f.label :password %><br/>
-  <%= f.password_field :password, :value => '', :autocomplete => :off %>
+  <%= f.label :password -%><br/>
+  <%= f.password_field :password, :value => '', :autocomplete => :off -%>
   </p>
   <p>
-  <%= f.label :password_confirmation %><br/>
-  <%= f.password_field :password_confirmation, :value => '', :autocomplete => :off %>
+  <%= f.label :password_confirmation -%><br/>
+  <%= f.password_field :password_confirmation, :value => '', :autocomplete => :off -%>
   </p>
-  <%= submit_tag 'Update' %>
-<% end %>
+  <%= submit_tag 'Update' -%>
+<%- end -%>

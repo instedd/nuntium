@@ -1,86 +1,86 @@
-<h4><%= link_to_function title, "toggle('details_#{@msg.guid}')" %></h4>
+<h4><%= link_to_function title, "toggle('details_#{@msg.guid}')" -%></h4>
 
-<div id="details_<%= msg.guid %>">
+<div id="details_<%= msg.guid -%>">
 <table class="table">
-  <% if msg.id %>
+  <%- if msg.id -%>
     <tr valign="baseline">
       <td><b>Id:</b></td>
-      <td><%= msg.id %></tmsg.channeld>
+      <td><%= msg.id -%></tmsg.channeld>
     </tr>
-  <% end %>
+  <%- end -%>
   <tr valign="baseline">
     <td><b>Guid:</b></td>
-    <td><%= msg.guid %></td>
+    <td><%= msg.guid -%></td>
   </tr>
   <tr valign="baseline">
     <td><b>When:</b></td>
-    <td><%= time_ago msg.timestamp %></td>
+    <td><%= time_ago msg.timestamp -%></td>
   </tr>
   <tr valign="baseline">
     <td><b>Channel relative id:</b></td>
-    <td><%= msg.channel_relative_id %></td>
+    <td><%= msg.channel_relative_id -%></td>
   </tr>
   <tr valign="baseline">
     <td><b>From:</b></td>
-    <td><%= msg.from %></td>
+    <td><%= msg.from -%></td>
   </tr>
   <tr valign="baseline">
     <td><b>To:</b></td>
-    <td><%= msg.to %></td>
+    <td><%= msg.to -%></td>
   </tr>
   <tr valign="baseline">
     <td><b>Subject:</b></td>
-    <td><%= msg.subject %></td>
+    <td><%= msg.subject -%></td>
   </tr>
   <tr valign="baseline">
     <td><b>Body:</b></td>
-    <td><%= msg.body %></td>
+    <td><%= msg.body -%></td>
   </tr>
   <tr valign="baseline">
     <td><b>Application:</b></td>
-    <td><%= msg.application.name rescue '' %></td>
+    <td><%= msg.application.name rescue '' -%></td>
   </tr>
   <tr valign="baseline">
     <td><b>In channel:</b></td>
-    <td><%= msg.channel.name rescue '' %></td>
+    <td><%= msg.channel.name rescue '' -%></td>
   </tr>
   <tr valign="baseline">
     <td><b>Tries:</b></td>
-    <td><%= msg.tries %></td>
+    <td><%= msg.tries -%></td>
   </tr>
   <tr valign="baseline">
     <td><b>State:</b></td>
-    <td><%= msg.state %></td>
+    <td><%= msg.state -%></td>
   </tr>
-  <% if msg.state == 'broadcasted' %>
-    <% copies_str = AOMessage.all(:conditions => ['parent_id = ?', msg.id]).map do |b|
+  <%- if msg.state == 'broadcasted' -%>
+    <%- copies_str = AOMessage.all(:conditions => ['parent_id = ?', msg.id]).map do |b|
           link_to b.id, {:controller => :message, :action => :view_ao_message, :id => b.id}, :target => '_blank'
-        end.join(', ') %>
-    <% if copies_str.present? %>
+        end.join(', ') -%>
+    <%- if copies_str.present? -%>
       <tr valign="baseline">
         <td><b>Broadcasted copies:</b></td>
         <td>
-          <%= copies_str %>
+          <%= copies_str -%>
         </td>
       </tr>
-    <% end %>
-  <% end %>
-  <% if msg.class == AOMessage and msg.parent_id and parent = msg.class.find_by_id(msg.parent_id)%>
+    <%- end -%>
+  <%- end -%>
+  <%- if msg.class == AOMessage and msg.parent_id and parent = msg.class.find_by_id(msg.parent_id)%>
     <tr valign="baseline">
       <td><b>Original:</b></td>
-      <td><%= link_to parent.id, {:controller => :message, :action => :view_ao_message, :id => parent.id}, :target => '_blank' %></td>
+      <td><%= link_to parent.id, {:controller => :message, :action => :view_ao_message, :id => parent.id}, :target => '_blank' -%></td>
     </tr>
-  <% end %>
-  <% unless msg.custom_attributes.empty?
+  <%- end -%>
+  <%- unless msg.custom_attributes.empty?
     countries = Country.all
     carriers = Carrier.all
-    %>
-    <% msg.custom_attributes.each_multivalue do |key, values|
+    -%>
+    <%- msg.custom_attributes.each_multivalue do |key, values|
       values.map! do |value|
         case key
         when 'country'
           result = countries.select{|x| x.iso2.casecmp(value) == 0}.first
-          result ? result.name : value 
+          result ? result.name : value
         when 'carrier'
           result = carriers.select{|x| x.guid == value}.first
           result ? result.name : value
@@ -89,30 +89,30 @@
         end
       end
       values = values.join(', ')
-      %>
+      -%>
       <tr valign="baseline">
-        <td><b style="color:#464984"><%= key %>:</b></td>
-        <td><%= values %></td>
+        <td><b style="color:#464984"><%= key -%>:</b></td>
+        <td><%= values -%></td>
       </tr>
-    <% end %>
-  <% end %>
-  <% if msg.class == AOMessage && !msg.channel.nil?
+    <%- end -%>
+  <%- end -%>
+  <%- if msg.class == AOMessage && !msg.channel.nil?
     hash = msg.channel.handler.more_info(msg)
     hash.each_pair do |key, value|
-      %>
+      -%>
       <tr valign="baseline">
-        <td><b style="color:#232CEF"><%= key %>:</b></td>
-        <td><%= value %></td>
+        <td><b style="color:#232CEF"><%= key -%>:</b></td>
+        <td><%= value -%></td>
       </tr>
-      <%
+      <%-
     end
-  end 
-  %>
-  <% if log.present? %>
+  end
+  -%>
+  <%- if log.present? -%>
     <tr valign="baseline">
       <td><b>Log:</b></td>
-      <td><%= log.gsub("\n", "<br/>") %></td>
+      <td><%= log.gsub("\n", "<br/>") -%></td>
     </tr>
-  <% end %>
+  <%- end -%>
 </table>
 </div>

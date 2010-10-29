@@ -1,46 +1,46 @@
-<%= render :partial => 'edit_channel_header' %>
+<%= render :partial => 'edit_channel_header' -%>
 
-<% if TwitterConsumerConfig.nil? %>
-  <%= render :partial => 'twitter_configuration_missing' %>
-<% else %>
+<%- if TwitterConsumerConfig.nil? -%>
+  <%= render :partial => 'twitter_configuration_missing' -%>
+<%- else -%>
 
-<% form_for :channel, :html => { :id => 'edit_twitter_channel_form' } do |f| %>
-  <%= f.error_messages %>
-  <%= render :partial => 'edit_name', :locals => {:f => f} %>
-  <%= render :partial => 'edit_protocol', :locals => {:f => f} %>
-  <%= render :partial => 'edit_priority', :locals => {:f => f} %>
-  <%= render :partial => 'edit_application', :locals => {:f => f} %>
-  <% f.fields_for :configuration do |c| %>
+<%- form_for :channel, :html => { :id => 'edit_twitter_channel_form' } do |f| -%>
+  <%= f.error_messages -%>
+  <%= render :partial => 'edit_name', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_protocol', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_priority', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_application', :locals => {:f => f} -%>
+  <%- f.fields_for :configuration do |c| -%>
     <p>
-    <%= c.label :screen_name %><br/>
-    <%= c.text_field :screen_name, :value => @channel.configuration[:screen_name], :readonly => 'readonly' %>
+    <%= c.label :screen_name -%><br/>
+    <%= c.text_field :screen_name, :value => @channel.configuration[:screen_name], :readonly => 'readonly' -%>
     </p>
     <p>
     Welcome message for new followers (leave blank if not desired)<br/>
     <%= c.text_field :welcome_message,
       :id => 'twitter_welcome_message',
       :value => @channel.configuration[:welcome_message]
-      %>
+      -%>
     </p>
-  <% end %>
-  <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} %>
-  <%= render :partial => 'edit_ao_rules', :locals => {:f => f} %>
-  <%= render :partial => 'edit_at_rules', :locals => {:f => f} %>
+  <%- end -%>
+  <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} -%>
+  <%= render :partial => 'edit_ao_rules', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_at_rules', :locals => {:f => f} -%>
   <button onClick="twitter_channel_update()">Update channel</button>
   or
   <button onClick="twitter_channel_update_user()">Update channel and also change Twitter account</button>
-<% end %>
+<%- end -%>
 
 <script>
 function twitter_channel_update() {
   var f = document.getElementById('edit_twitter_channel_form');
-  f.action = '<%= url_for :controller => :channel, :action => :update_channel %>';
+  f.action = '<%= url_for :controller => :channel, :action => :update_channel -%>';
   f.submit();
 }
 
 function twitter_channel_update_user() {
   var f = document.getElementById('edit_twitter_channel_form');
-  f.action = '<%= url_for :controller => :twitter, :action => :update_twitter_channel %>';
+  f.action = '<%= url_for :controller => :twitter, :action => :update_twitter_channel -%>';
   f.submit();
 }
 
@@ -52,7 +52,6 @@ document.getElementById('twitter_welcome_message').onkeydown = function(e) {
   return true;
 };
 </script>
+<%- end -%>
 
-<% end %>
-
-<%= link_to 'Go back', :controller => :home, :action => :channels %>
+<%= link_to 'Go back', :controller => :home, :action => :channels -%>

@@ -1,13 +1,13 @@
 <form id="logs_form" action="#logs">
-<input type="hidden" name="log_page" value="<%= @log_page %>" />
-<input type="hidden" name="log_previous_search" value="<%= @log_search %>" />
+<input type="hidden" name="log_page" value="<%= @log_page -%>" />
+<input type="hidden" name="log_previous_search" value="<%= @log_search -%>" />
 
-Search: <input type="text" name="log_search" value="<%= h @log_search %>" size= "50" /> <a href="http://code.google.com/p/nuntium/wiki/AdvancedSearch" target="_blank" title="You can filter by field like 'severity:warning', 'before:&quot;20 minutes ago&quot;' etc.">?</a> &nbsp; &nbsp;
+Search: <input type="text" name="log_search" value="<%= h @log_search -%>" size= "50" /> <a href="http://code.google.com/p/nuntium/wiki/AdvancedSearch" target="_blank" title="You can filter by field like 'severity:warning', 'before:&quot;20 minutes ago&quot;' etc.">?</a> &nbsp; &nbsp;
 
-<div><%= page_entries_info @logs, :entry_name => 'log entry' %></div>
-<%= will_paginate @logs, :param_name => 'logs_page', :params => { :log_previous_search => @log_search, :anchor => 'logs' } %>
+<div><%= page_entries_info @logs, :entry_name => 'log entry' -%></div>
+<%= will_paginate @logs, :param_name => 'logs_page', :params => { :log_previous_search => @log_search, :anchor => 'logs' } -%>
 
-<% if !@logs.empty? %>
+<%- if !@logs.empty? -%>
   <table border="1" class="table">
     <tr>
       <th>When</th>
@@ -19,23 +19,23 @@ Search: <input type="text" name="log_search" value="<%= h @log_search %>" size= 
       <th>Text</th>
     </tr>
     <tr>
-    <% @logs.each_with_index do |log, i| %>
-      <%
+    <%- @logs.each_with_index do |log, i| -%>
+      <%-
       chan = @channels.select{|x| log.channel_id == x.id}
       app = @applications.select{|x| log.application_id == x.id}
-      %>
-      <tr class="<%= i.even_to_s %>">
-        <td><%= time_ago log.created_at %></td>
-        <td><%= log.severity_html %></td>
-        <td><%= app.length > 0 ? app[0].name : '' %></td>
-        <td><%= chan.length > 0 ? chan[0].name : '' %></td>
-        <td><%= link_to "#{log.ao_message_id}", {:controller => :message, :action => :view_ao_message, :id => log.ao_message_id}, :target => '_blank' if !log.ao_message_id.nil? %></td>
-        <td><%= link_to "#{log.at_message_id}", {:controller => :message, :action => :view_at_message, :id => log.at_message_id}, :target => '_blank' if !log.at_message_id.nil? %></td>
-        <td><%= short_html log.message, 100 %></td>
+      -%>
+      <tr class="<%= i.even_to_s -%>">
+        <td><%= time_ago log.created_at -%></td>
+        <td><%= log.severity_html -%></td>
+        <td><%= app.length > 0 ? app[0].name : '' -%></td>
+        <td><%= chan.length > 0 ? chan[0].name : '' -%></td>
+        <td><%= link_to "#{log.ao_message_id}", {:controller => :message, :action => :view_ao_message, :id => log.ao_message_id}, :target => '_blank' if !log.ao_message_id.nil? -%></td>
+        <td><%= link_to "#{log.at_message_id}", {:controller => :message, :action => :view_at_message, :id => log.at_message_id}, :target => '_blank' if !log.at_message_id.nil? -%></td>
+        <td><%= short_html log.message, 100 -%></td>
       </tr>
-    <% end %>
+    <%- end -%>
   </table>
-<% end %>
+<%- end -%>
 
-<%= will_paginate @logs, :param_name => 'logs_page', :params => { :log_previous_search => @log_search, :anchor => 'logs' } %>
+<%= will_paginate @logs, :param_name => 'logs_page', :params => { :log_previous_search => @log_search, :anchor => 'logs' } -%>
 </form>
