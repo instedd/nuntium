@@ -200,10 +200,12 @@ acronym {
   float: left;
   display: block;
   padding: 2 8 2 8;
-  margin-left: 10px;
-  border-top: 1px solid black;
-  border-left: 1px solid black;
-  border-right: 1px solid black;
+  margin-left: 4px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  -moz-border-radius-topleft: 8px;
+  -moz-border-radius-topright: 8px;
+  border: 1px solid black;
   position: relative;
   top: 1px;
   background: #efefef;
