@@ -164,6 +164,7 @@ class Channel < ActiveRecord::Base
   def alert(message)
     return if account.alert_emails.blank?
 
+    logger.error :channel_id => self.id, :message => message
     AlertMailer.deliver_error account, "Error in account #{account.name}, channel #{self.name}", message
   end
 
