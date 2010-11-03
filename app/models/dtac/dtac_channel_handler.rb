@@ -1,21 +1,20 @@
 class DtacChannelHandler < GenericChannelHandler
-
-  def job_class
-    SendDtacMessageJob
+  def self.title
+    "DTAC"
   end
-  
+
   def check_valid
     check_config_not_blank :user, :password
   end
-  
+
   def info
     @channel.configuration[:user]
   end
-  
+
 =begin
   Dtac errors are mapped as fatal, temporary, message or unexpected.
   These categories are used to trap exceptions for SendMessageJob.
-=end  
+=end
   DTAC_ERRORS = {
     -1    => { :kind => :temporary, :description => 'System is not ready: System Error now, please try to post message to DTAC later'},
     -101  => { :kind => :fatal, :description => 'Invalid CP: This Corporate cannot be found on DTAC'},
@@ -55,5 +54,5 @@ class DtacChannelHandler < GenericChannelHandler
     -136 => { :kind => :message, :description => 'Sno is not number: Parameter "Sno" is not a number'},
     -501 => { :kind => :temporary, :description => 'Database is not ready. Please try to post again later.'}
   }
-  
+
 end

@@ -1,46 +1,46 @@
-<h4>Create new <%= @kind == 'ao' ? 'Application Originated' : 'Application Terminated' %> Message</h4>
+<h4>Create new <%= @kind == 'ao' ? 'Application Originated' : 'Application Terminated' -%> Message</h4>
 
-<% form_for :message, :html => {:id => :new_message_form} do |f| %>
-  <% [:from, :to, :subject].each do |field| %>
+<%- form_for :message, :html => {:id => :new_message_form} do |f| -%>
+  <%- [:from, :to, :subject].each do |field| -%>
     <p>
-    <%= f.label field %><br/>
-    <%= f.text_field field, :style => 'width:250px' %>
+    <%= f.label field -%><br/>
+    <%= f.text_field field, :style => 'width:250px' -%>
     </p>
-  <% end %>
+  <%- end -%>
   <p>
-  <%= f.label :body %><br/>
-  <%= f.text_area :body, :rows => 5, :cols => 50 %>
+  <%= f.label :body -%><br/>
+  <%= f.text_area :body, :rows => 5, :cols => 50 -%>
   </p>
-  <% if @kind == 'ao' %>
+  <%- if @kind == 'ao' -%>
     <p>
-    <%= f.label :application %><br/>
-    <%= f.select :application_id, @account.applications.map{|x| [x.name, x.id]} %>
+    <%= f.label :application -%><br/>
+    <%= f.select :application_id, @account.applications.map{|x| [x.name, x.id]} -%>
     </p>
-  <% else %>
+  <%- else -%>
     <p>
-    <%= f.label :channel %><br/>
-    <%= f.select :channel_id, @account.channels.select{|x| x.direction == Channel::Incoming || x.direction == Channel::Bidirectional}.map{|x| [x.name, x.id]} %>
+    <%= f.label :channel -%><br/>
+    <%= f.select :channel_id, @account.channels.select{|x| x.direction == Channel::Incoming || x.direction == Channel::Bidirectional}.map{|x| [x.name, x.id]} -%>
     </p>
-  <% end %>
-  <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @message, :include_channels => @kind == 'ao', :accept_when_not_specified_option => false} %>
+  <%- end -%>
+  <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @message, :include_channels => @kind == 'ao', :accept_when_not_specified_option => false} -%>
   <button onClick="create_message()">Create Message</button>
   or <button onClick="simulate_route()">Simulate Route</button>
-<% end %>
+<%- end -%>
 
 <script>
 function create_message() {
   var f = document.getElementById('new_message_form');
-  f.action = '<%= url_for :controller => 'message', :action => (@kind == 'ao' ? :create_ao_message : :create_at_message) %>';
+  f.action = '<%= url_for :controller => 'message', :action => (@kind == 'ao' ? :create_ao_message : :create_at_message) -%>';
   f.target = '_self';
   f.submit();
 }
 
 function simulate_route() {
   var f = document.getElementById('new_message_form');
-  f.action = '<%= url_for :controller => :message, :action => "simulate_route_#{@kind}" %>';
+  f.action = '<%= url_for :controller => :message, :action => "simulate_route_#{@kind}" -%>';
   f.target = '_blank';
   f.submit();
 }
 </script>
 
-<%= go_back_link %>
+<%= link_to 'Go back', :controller => :home, :action => "#{@kind}_messages" -%>

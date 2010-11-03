@@ -203,4 +203,35 @@ class AOMessageTest < ActiveSupport::TestCase
     msg.state = 'failed'
     msg.save!
   end
+  
+  test "delivery ack when changed" do
+    account = Account.make
+    app = Application.make_unsaved :account => account
+    app.delivery_ack_method = 'get'
+    app.delivery_ack_url = 'foo'
+    app.save!
+    chan = Channel.make :account => account
+    
+    Queues.expects(:publish_application).times(2)
+    
+    msg = AOMessage.make :account => account, :application => app, :channel => chan, :state => 'delivered'
+    
+    msg.custom_attributes[:cost] = '1'
+    msg.save!
+  end
+  
+  test "don't delivery ack when not changed" do
+    account = Account.make
+    app = Application.make_unsaved :account => account
+    app.delivery_ack_method = 'get'
+    app.delivery_ack_url = 'foo'
+    app.save!
+    chan = Channel.make :account => account
+    
+    Queues.expects(:publish_application).times(1)
+    
+    msg = AOMessage.make :account => account, :application => app, :channel => chan, :state => 'delivered'
+    
+    msg.save!
+  end
 end

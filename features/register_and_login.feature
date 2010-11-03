@@ -15,8 +15,8 @@ Should be able to create an account and login into nuntium
       And I should see "Settings"
       And I should see "Channels"
       And I should see "Applications"
-      And I should see "Last Application Originated Messages"
-      And I should see "Last Application Terminated Messages"
+      And I should see "AO messages"
+      And I should see "AT messages"
       And I should see "Logs"
 
   Scenario: User logs into his account
@@ -29,11 +29,11 @@ Should be able to create an account and login into nuntium
         | Name      | nunt    |
         | Password  | secret  |
       And I press "Login"
-      
+
     Then I should see "Interactions"
       And I should see "Settings"
       And I should see "Channels"
       And I should see "Applications"
-      And I should see "Last Application Originated Messages"
-      And I should see "Last Application Terminated Messages"
+      And I should see "AO messages"
+      And I should see "AT messages"
       And I should see "Logs"

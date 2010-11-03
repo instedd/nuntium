@@ -83,12 +83,17 @@ end
 
 Channel.blueprint :clickatell do
   kind { "clickatell" }
-  configuration { {:user => Sham.username, :password => Sham.password, :api_id => Sham.guid, :from => Sham.number8, :incoming_password => Sham.password }}
+  configuration { {:user => Sham.username, :password => Sham.password, :api_id => Sham.guid, :from => Sham.number8, :incoming_password => Sham.password, :cost_per_credit => rand }}
 end
 
 Channel.blueprint :dtac do
   kind { "dtac" }
   configuration { {:user => Sham.username, :password => Sham.password } }
+end
+
+Channel.blueprint :multimodem_isms do
+  kind { "multimodem_isms" }
+  configuration {{:host => Sham.url, :port => rand(1000) + 1, :user => Sham.username, :password => Sham.password, :time_zone => ActiveSupport::TimeZone.all.rand.name}}
 end
 
 [[:pop3, Channel::Incoming], [:smtp, Channel::Outgoing]].each do |k, d|

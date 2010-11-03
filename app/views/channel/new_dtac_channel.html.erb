@@ -1,32 +1,32 @@
-<%= render :partial => 'edit_channel_header' %>
+<%= render :partial => 'edit_channel_header' -%>
 
-<% form_for_channel do |f| %>
-  <%= f.error_messages %>
-  <%= f.hidden_field :direction, :value => Channel::Bidirectional %>
-  <%= render :partial => 'edit_name', :locals => {:f => f} %>
-  <%= render :partial => 'edit_protocol', :locals => {:f => f, :default => 'sms'} %>
-  <%= render :partial => 'edit_priority', :locals => {:f => f} %>
-  <%= render :partial => 'edit_application', :locals => {:f => f} %>
-  <%= render :partial => 'edit_address', :locals => {:f => f} %>
-  <% f.fields_for :configuration do |c| %>
+<%- form_for_channel do |f| -%>
+  <%= f.error_messages -%>
+  <%= f.hidden_field :direction, :value => Channel::Bidirectional -%>
+  <%= render :partial => 'edit_name', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_protocol', :locals => {:f => f, :default => 'sms'} -%>
+  <%= render :partial => 'edit_priority', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_application', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_address', :locals => {:f => f} -%>
+  <%- f.fields_for :configuration do |c| -%>
     <p>
-    <%= c.label :user %><br/>
-    <%= c.text_field :user, :autocomplete => :off, :value => @channel[:configuration][:user] %>
+    <%= c.label :user -%><br/>
+    <%= c.text_field :user, :autocomplete => :off, :value => @channel[:configuration][:user] -%>
     </p>
     <p>
-    <%= c.label :password %><br/>
-    <%= c.password_field :password, :autocomplete => :off, :value => @channel[:configuration][:password] %>
+    <%= c.label :password -%><br/>
+    <%= c.password_field :password, :autocomplete => :off, :value => @channel[:configuration][:password] -%>
     </p>
     <p>
     Callback urls for incoming messages:<br/>
-    <code>/dtac/<%= @account.name %>/incoming</code><br/>
-    <code>/dtac/<%= @account.id %>/incoming</code>
+    <code>/dtac/<%= @account.name -%>/incoming</code><br/>
+    <code>/dtac/<%= @account.id -%>/incoming</code>
     </p>
-  <% end %>
-  <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} %>
-  <%= render :partial => 'edit_ao_rules', :locals => {:f => f} %>
-  <%= render :partial => 'edit_at_rules', :locals => {:f => f} %>
-  <%= channel_submit_tag %>
-<% end %>
+  <%- end -%>
+  <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} -%>
+  <%= render :partial => 'edit_ao_rules', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_at_rules', :locals => {:f => f} -%>
+  <%= channel_submit_tag -%>
+<%- end -%>
 
-<%= go_back_link %>
+<%= link_to 'Go back', :controller => :home, :action => :channels -%>

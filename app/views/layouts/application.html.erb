@@ -1,19 +1,34 @@
 <html>
 <head>
-  <title>nuntium<%= ' - ' + @account.name if !@account.nil? && !@account.id.nil? %></title>
-  <link rel="stylesheet" href="/stylesheets/scaffold.css" type="text/css"/>
-  <script src="/javascripts/jquery-1.3.2.js" type="text/javascript"></script>
-  <script src="/javascripts/application.js" type="text/javascript"></script>
-  <%= yield :head%>
+<title>nuntium<%= ' - ' + @account.name if !@account.nil? && !@account.id.nil? -%></title>
+<%= stylesheet_link_tag 'scaffold' -%>
+<%= javascript_include_tag 'jquery-1.3.2' -%>
+<%= javascript_include_tag 'application' -%>
+<%= yield :head%>
 </head>
 <body>
-<% if @hide_title.nil? %>
-  <%= link_to 'Nuntium', {:controller => :home, :action => :index}, :id => 'title' %>
-  <% if !@account.nil? && !@account.id.nil? %>
-    <span id="toolbar"><%= @account.name %> | <%= link_to 'Help', 'http://code.google.com/p/nuntium/', :target => '_blank' %> | <%= link_to 'Logoff', :controller => :home, :action => :logoff %></span>
-  <% end %>
-<% end %>
-<%= yield %>
-<div id="version">Version: <%= nuntium_version %></div>
+<%- if @hide_title.nil? -%>
+  <div id="header">
+    <%= link_to 'Nuntium', {:controller => :home, :action => :index}, :id => 'title' -%>
+    <%- if @account && @account.id -%>
+      <span id="toolbar"><%= @account.name -%> | <%= link_to 'Help', 'http://code.google.com/p/nuntium/', :target => '_blank' -%> | <%= link_to 'Logoff', :controller => :home, :action => :logoff -%></span>
+      </div>
+      <%= render :partial => 'shared/tabs' -%>
+    <%- else -%>
+      </div>
+    <%- end -%>
+<%- end -%>
+<%- if @account && @account.id && @account.alert_emails.blank? && params[:action].to_sym != :settings -%>
+    <div id="errorNotice">
+    You don't have email alerts configured. <%= link_to "Do this now", :controller => :home, :action => :settings -%>
+  </div>
+<%- end -%>
+<%- if !flash[:notice].nil? -%>
+  <div id="notice"><%= flash[:notice] -%></div>
+<%- end -%>
+<div id="main">
+<%= yield -%>
+</div>
+<div id="version">Version: <%= nuntium_version -%></div>
 </body>
 </html>

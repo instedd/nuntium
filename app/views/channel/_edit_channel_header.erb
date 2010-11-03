@@ -1,5 +1,5 @@
-<% if @channel.new_record? %>
-  <h4>Create new <%= params[:kind].gsub('_', ' ') %> channel</h4>
-<% else %>
-  <h4>Edit <%= @channel.name %> channel</h4>
-<% end %>
+<%- if @channel.new_record? -%>
+  <h4>Create new <%= @channel.handler.class.title  -%> channel</h4>
+<%- else -%>
+  <h4>Edit <%= @channel.name -%> channel</h4>
+<%- end -%>

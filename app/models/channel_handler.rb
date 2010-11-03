@@ -12,43 +12,72 @@ class ChannelHandler
   def initialize(channel)
     @channel = channel
   end
-  
+
+  # The title of this channel. Can be overriden by subclasses.
+  # By default it's the titelize name of this class' name without
+  # the "ChannelHandler" part.
+  def self.title
+    /(.*?)ChannelHandler/.match(self.name)[1].titleize
+  end
+
+  def self.kind
+    ActiveSupport::Inflector.underscore self.identifier
+  end
+
+  def self.identifier
+    /(.*?)ChannelHandler/.match(self.name)[1]
+  end
+
+  def job_class
+    eval("Send#{self.class.identifier}MessageJob")
+  end
+
+  def create_job(msg)
+    job_class.new(@channel.account_id, @channel.id, msg.id)
+  end
+
   def update(params)
     @channel.attributes = params
   end
-  
+
   def before_save
   end
-  
+
   def on_changed
   end
-  
+
   def on_enable
   end
 
   def on_disable
   end
-  
+
+  def on_pause
+  end
+
+  def on_unpause
+  end
+
   def on_destroy
   end
-  
+
   # Returns additional info for the given ao_msg in a hash, to be
   # displayed in the message view
   def more_info(ao_msg)
     {}
   end
-  
+
   # Returns restrictions of the channel to be used to route AOs
   def restrictions
     @channel.restrictions
   end
-  
+
   protected
-  
+
   def check_config_not_blank(*keys)
     keys.each do |key|
       @channel.errors.add(key, "can't be blank") if @channel.configuration[key].blank?
     end
   end
-  
+
 end

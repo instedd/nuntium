@@ -1,4 +1,4 @@
-<%
+<%-
 require 'builder'
 response.headers["Content-Type"] = "application/xml; charset=utf-8"
 
@@ -18,7 +18,7 @@ xml.rss "version" => "2.0" do
             xml.title msg.subject
             xml.description msg.body
           end
-          
+
           xml.author msg.from
           xml.to msg.to
           xml.guid msg.guid
@@ -27,4 +27,4 @@ xml.rss "version" => "2.0" do
       end
    end
 end
-%><%= xml.target! %>
+-%><%= xml.target! -%>

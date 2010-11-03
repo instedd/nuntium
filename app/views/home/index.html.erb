@@ -1,4 +1,4 @@
-<p>Nuntium is an open source and free platform
+<p style="margin:0px;">Nuntium is an open source and free platform
 -developed by <a href="http://www.instedd.org/" target="_blank">InSTEDD</a>-
 that allows applications to send and receive all type of messages.<br/>
 Examples of messages are sms, emails and twitter direct messages. <a href="http://code.google.com/p/nuntium/" target="_blank">Learn more...</a>
@@ -8,38 +8,38 @@ Examples of messages are sms, emails and twitter direct messages. <a href="http:
 
 <h3>Login to your account:</h3>
 
-<% form_for :account, :url => { :controller => 'home', :action => :login }, :html => {:id => 'login'} do |f| %>
+<%- form_for :account, :url => { :controller => 'home', :action => :login }, :html => {:id => 'login'} do |f| -%>
   <p>
-  <%= f.label :name %><br/>
-  <%= f.text_field :name %>
+  <%= f.label :name -%><br/>
+  <%= f.text_field :name -%>
   </p>
   <p>
-  <%= f.label :password %><br/>
-  <%= f.password_field :password %>
+  <%= f.label :password -%><br/>
+  <%= f.password_field :password -%>
   </p>
-  <p style="color:red"><%= flash[:notice] %></p>
-  <%= submit_tag 'Login' %>
-<% end %>
+  <p style="color:red"><%= flash[:login_error] -%></p>
+  <%= submit_tag 'Login' -%>
+<%- end -%>
 
-<% unless AccountCreationDisabled %>
+<%- unless AccountCreationDisabled -%>
 
 <h3>Or create a new one:</h3>
 
-<% form_for :new_account, :url => { :controller => 'home', :action => :create_account }, :html => {:id => 'new_account'} do |f| %>
-  <%= f.error_messages %>
+<%- form_for :new_account, :url => { :controller => 'home', :action => :create_account }, :html => {:id => 'new_account'} do |f| -%>
+  <%= f.error_messages -%>
   <p>
-  <%= f.label :name %><br/>
-  <%= f.text_field :name, :autocomplete => :off %>
+  <%= f.label :name -%><br/>
+  <%= f.text_field :name, :autocomplete => :off -%>
   </p>
   <p>
-  <%= f.label :password %><br/>
-  <%= f.password_field :password, :autocomplete => :off  %>
+  <%= f.label :password -%><br/>
+  <%= f.password_field :password, :autocomplete => :off  -%>
   </p>
   <p>
-  <%= f.label :password_confirmation %><br/>
-  <%= f.password_field :password_confirmation, :autocomplete => :off  %>
+  <%= f.label :password_confirmation -%><br/>
+  <%= f.password_field :password_confirmation, :autocomplete => :off  -%>
   </p>
-  <%= submit_tag 'Create Account' %>
-<% end %>
+  <%= submit_tag 'Create Account' -%>
+<%- end -%>
 
-<% end %>
+<%- end -%>

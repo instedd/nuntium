@@ -30,7 +30,7 @@ class ClickatellControllerTest < ActionController::TestCase
 
   test "index" do
     api_id, from, to, timestamp, charset, udh, text, mo_msg_id = @chan.configuration[:api_id],  '442345235413', '61234234231', '2009-12-16 19:34:40', 'ISO-8859-1', '', 'some text', '5223433'
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'incoming')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])
     
     get :index, :account_id => @account.name, :api_id => api_id, :from => from, :to => to, :text => text, :timestamp => timestamp, :charset => charset, :moMsgId => mo_msg_id, :udh => udh
     assert_response :ok
@@ -41,7 +41,7 @@ class ClickatellControllerTest < ActionController::TestCase
   [:normal_order, :inverted_order].each do |order|
     test "two parts #{order}" do
       from, to = '442345235413', '61234234231'
-      @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'incoming')
+      @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])
       
       2.times do |time|
         if (time == 0 and order == :normal_order) or (time == 1 and order == :inverted_order) 
@@ -61,7 +61,7 @@ class ClickatellControllerTest < ActionController::TestCase
   
   test "ignore message headers" do
     api_id, from, to, timestamp, charset, udh, text, mo_msg_id = @chan.configuration[:api_id],  '442345235413', '61234234231', '2009-12-16 19:34:40', 'ISO-8859-1', '050103050202', 'Hello ', '1'
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'incoming')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])
     get :index, :account_id => @account.name, :api_id => api_id, :from => from, :to => to, :text => text, :timestamp => timestamp, :charset => charset, :moMsgId => mo_msg_id, :udh => udh
     assert_response :ok
 
@@ -76,7 +76,7 @@ class ClickatellControllerTest < ActionController::TestCase
   end
   
   test "fails authorization because of account" do
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'incoming')
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])
     get :index, :account_id => 'another', :api_id => @chan.configuration[:api_id], :from => 'from1', :to => 'to1', :text => 'some text', :timestamp => '1218007814', :charset => 'UTF-8', :moMsgId => 'someid'
     assert_response 401
     
@@ -89,6 +89,53 @@ class ClickatellControllerTest < ActionController::TestCase
     assert_response 401
     
     assert_equal 0, ATMessage.count
+  end
+  
+  test "ack just to verify" do
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])    
+    get :ack, :account_id => @account.name
+    assert_response :ok
+  end
+  
+  test "ack 003 (delivered to gateway)" do
+    @msg = AOMessage.make :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'foo'
+  
+    charge = 0.3
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])    
+    get :ack, :account_id => @account.name, :apiMsgId => @msg.channel_relative_id, :charge => charge, :status => '003'
+    assert_response :ok
+    
+    @msg.reload
+    
+    assert_equal (@chan.configuration[:cost_per_credit].to_f * charge).round(2), @msg.custom_attributes[:cost].to_f
+  end
+  
+  test "ack 004 (received by recipient)" do
+    @msg = AOMessage.make :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'foo'
+  
+    charge = 0.3
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])    
+    get :ack, :account_id => @account.name, :apiMsgId => @msg.channel_relative_id, :charge => charge, :status => '004'
+    assert_response :ok
+    
+    @msg.reload
+    
+    assert_equal 'confirmed', @msg.state
+  end
+  
+  ['005', '006', '007', '012'].each do |status|
+    test "ack #{status} (failed)" do
+      @msg = AOMessage.make :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'foo'
+  
+      charge = 0.3
+      @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])    
+      get :ack, :account_id => @account.name, :apiMsgId => @msg.channel_relative_id, :charge => charge, :status => status
+      assert_response :ok
+      
+      @msg.reload
+      
+      assert_equal 'failed', @msg.state
+    end
   end
 
 end

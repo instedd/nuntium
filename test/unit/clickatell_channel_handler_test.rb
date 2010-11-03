@@ -7,10 +7,20 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
     @chan = Channel.make :clickatell
   end
   
-  [:user, :password, :from, :api_id, :incoming_password].each do |field|
+  [:user, :password, :from, :api_id, :incoming_password, :cost_per_credit].each do |field|
     test "should validate configuration presence of #{field}" do
       assert_validates_configuration_presence_of @chan, field
     end
+  end
+  
+  test "should validate cost per credit is decimal" do
+    @chan.configuration[:cost_per_credit] = 'hello'
+    assert_false @chan.save
+  end
+  
+  test "should validate cost per credit is positive" do
+    @chan.configuration[:cost_per_credit] = -1
+    assert_false @chan.save
   end
   
   test "should enqueue" do

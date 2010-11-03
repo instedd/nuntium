@@ -5,17 +5,17 @@ class PermanentException < StandardError
   def initialize(exception)
     @inner = exception
   end
-  
+
   def message
-    "#{self.class.name}: #{@inner.message}"
+    "#{@inner.class.name}: #{@inner.message}"
   end
-  
+
   def inspect
-    "#{self.class.name}: #{@inner.inspect}"
+    "#{@inner.class.name}: #{@inner.inspect}"
   end
-  
+
   def to_s
-    "#{self.class.name}: #{@inner.to_s}"
+    "#{@inner.class.name}: #{@inner.to_s}"
   end
 
 end

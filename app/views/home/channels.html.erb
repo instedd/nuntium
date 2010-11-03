@@ -1,0 +1,76 @@
+<p>
+A channel lets Nuntium communicate with the world.<br/>
+By "the world" we mean anything that's not your particular application. For example: cellphone companies, email clients and twitter. <a href="http://code.google.com/p/nuntium/wiki/Channels" target="_blank">Learn more...</a>
+</p>
+
+<table class="table" cellspacing="4" id="channels" width="100%">
+  <tr>
+    <td colspan="7" style="background:white"><%= render :partial => 'shared/create_channel' -%></td>
+    <%- unless @channels.empty? -%>
+      <%
+      channel_kinds = [['All', '']] + Channel.kinds
+      channel_kinds.map!{|x| x[0] << ' channels'; x}
+      channel_kinds = channel_kinds.select{|x| x[1] == '' || @channels.any?{|c| c.kind == x[1]}}
+      -%>
+      <%- if channel_kinds.length > 2 -%>
+        <td colspan="3" align="right" style="background:white">Show:
+          <%= select_tag('kind', options_for_select(channel_kinds), :onchange => 'filter_channels_by_kind(this)') -%>
+        </td>
+      <%- end -%>
+    <%- end -%>
+  </tr>
+  <%- unless @channels.empty? -%>
+    <tr>
+      <th>Name</th>
+      <th>Kind</th>
+      <th>Direction</th>
+      <th>Protocol</th>
+      <th>Info</th>
+      <th>Priority</th>
+      <th>Application</th>
+      <th>Queued AO Messages</th>
+      <th></th>
+    </tr>
+    <%- @channels.each_with_index do |chan, i| -%>
+      <tr class="<%= i.even_to_s -%>">
+        <td>
+          <%- status = chan.paused ? 'paused' : (chan.enabled ? 'enabled' : 'disabled') -%>
+          <%= image_tag "#{status}.png", :size => '16x16', :style => 'position:relative; top:4px', :title => "This channel is #{status}" -%>
+          <b><%= chan.name -%></b></td>
+        <td><%= chan.kind -%></td>
+        <td><%= chan.direction_text -%></td>
+        <td><%= chan.protocol -%></td>
+        <td><%= chan.info.blank? ? '' : chan.info -%></td>
+        <td><%= chan.priority -%></td>
+        <td><%= @applications.select{|x| x.id == chan.application_id}.first.name rescue nil -%></td>
+        <%-
+        queued = chan.queued_ao_messages_count
+        if queued > 0
+          -%>
+          <td align="right"><%= link_to queued, :controller => :home, :action => :ao_messages, :ao_search => "channel:#{chan.name} state:queued", :anchor => 'ao' -%></td>
+          <%-
+        else
+          -%>
+          <td align="right">0</td>
+          <%-
+        end
+        -%>
+        <td>
+          <%= link_to "view log", :controller => :home, :action => :logs, :log_search => "channel:#{chan.name}" -%>
+          <%- if chan.paused -%>
+              <%= link_to "unpause", {:controller => :channel, :action => :unpause_channel, :id => chan.id}, :confirm => "Are you sure you want to unpause the channel #{chan.name}?" -%>
+          <%- else -%>
+            <%- if chan.enabled -%>
+              <%= link_to "disable", {:controller => :channel, :action => :disable_channel, :id => chan.id}, :confirm => "Are you sure you want to disable the channel #{chan.name}?" -%>
+              <%= link_to "pause", {:controller => :channel, :action => :pause_channel, :id => chan.id}, :confirm => "Are you sure you want to pause the channel #{chan.name}?" -%>
+            <%- else -%>
+              <%= link_to "enable", :controller => :channel, :action => :enable_channel, :id => chan.id -%>
+            <%- end -%>
+          <%- end -%>
+          <%= link_to "edit", :controller => :channel, :action => :edit_channel, :id => chan.id -%>
+          <%= link_to "delete", {:controller => :channel, :action => :delete_channel, :id => chan.id}, :confirm => "Are you sure you want to delete the channel #{chan.name}?" -%>
+        </td>
+      </tr>
+    <%- end -%>
+  <%- end -%>
+</table>

@@ -56,9 +56,12 @@ class SendPostCallbackMessageJob
         app.save!
         return false
       else
+        alert_msg = "HTTP POST callback failed #{netres.error!}" 
+        app.alert alert_msg
+      
         ATMessage.update_tries([msg.id],'failed')
         #TODO check if this error is logged
-        account.logger.error :at_message_id => @message_id, :message => "HTTP POST callback failed #{netres.error!}"
+        account.logger.error :at_message_id => @message_id, :message => alert_msg
         raise netres.error!
     end
   end

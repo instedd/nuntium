@@ -11,129 +11,129 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
   should "perform no ssl" do
     mail = mock('Net::POPMail')
     mail.stubs :pop => msg_as_email(@email)
-    
+
     expect_connection @chan, mail
-    
+
     receive
     expect_at_message
   end
-  
+
   should "perform ssl" do
     @chan.configuration[:use_ssl] = '1'
     @chan.save!
-      
+
     mail = mock('Net::POPMail')
     mail.stubs :pop => msg_as_email(@email)
-    
+
     expect_connection @chan, mail
-    
+
     receive
     expect_at_message
   end
-  
+
   should "perform no message id" do
     @email.guid = nil
-  
+
     mail = mock('Net::POPMail')
     mail.stubs :pop => msg_as_email(@email)
-      
+
     expect_connection @chan, mail
-    
+
     receive
     expect_at_message
   end
-  
+
   should "perform no ssl removing quoted text" do
     @chan.configuration[:remove_quoted_text_or_text_after_first_empty_line] = '1'
     @chan.save!
-    
+
     @email.body = "Hello\n\nGoodbye"
-  
+
     mail = mock('Net::POPMail')
     mail.stubs :pop => msg_as_email(@email)
-    
+
     expect_connection @chan, mail
-    
+
     receive
     expect_at_message :body => "Hello"
   end
-  
+
   should "perform set thread" do
     mail = mock('Net::POPMail')
     mail.stubs :pop => msg_as_email(@email, :references => '<c@thread.nuntium>, <c@thread.nuntium>')
-    
+
     expect_connection @chan, mail
-    
+
     receive
     expect_at_message :custom_attributes => {'references_thread' => 'c'}
   end
-  
+
   should "perform set reply to" do
     mail = mock('Net::POPMail')
     mail.stubs :pop => msg_as_email(@email, :references => '<b@message_id.nuntium>, <b@message_id.nuntium>')
-    
+
     expect_connection @chan, mail
-    
+
     receive
     expect_at_message :custom_attributes => {'reply_to' => 'b'}
   end
-  
+
   should "perform set references" do
     mail = mock('Net::POPMail')
     mail.stubs :pop => msg_as_email(@email, :references => '<a@foo.nuntium>, <b@bar.nuntium>')
-    
+
     expect_connection @chan, mail
-    
+
     receive
     expect_at_message :custom_attributes => {'references_foo' => 'a', 'references_bar' => 'b'}
   end
-  
+
   should "remove quoted text or text after first empty line, case quoted text" do
     original = "Hello\n>One\n>Two\n>Three"
     result = ReceivePop3MessageJob.remove_quoted_text_or_text_after_first_empty_line original
     assert_equal "Hello", result
   end
-  
+
   should "remove quoted text or text after first empty line, case On...:" do
     original = "Hello\n\nOn some date someone wrote:\n>One\n>Two\n>Three"
     result = ReceivePop3MessageJob.remove_quoted_text_or_text_after_first_empty_line original
     assert_equal "Hello", result
   end
-  
+
   should "remove quoted text or text after first empty line, case empty line:" do
     original = "Hello\n\nGoodbye"
     result = ReceivePop3MessageJob.remove_quoted_text_or_text_after_first_empty_line original
     assert_equal "Hello", result
   end
-  
+
   should "not throw if mail has no to field" do
     @email.to = nil
-  
+
     AccountLogger.expects(:exception_in_channel).never
-    
+
     mail = mock('Net::POPMail')
     mail.stubs :pop => msg_as_email(@email)
-    
+
     expect_connection @chan, mail
     receive
-    
+
     assert_equal 1, ATMessage.count
   end
-  
+
   should "not throw if mail has no from field" do
     @email.from = nil
-  
+
     AccountLogger.expects(:exception_in_channel).never
-    
+
     mail = mock('Net::POPMail')
     mail.stubs :pop => msg_as_email(@email)
-    
+
     expect_connection @chan, mail
     receive
-    
+
     assert_equal 1, ATMessage.count
   end
-  
+
   def msg_as_email(email, options = {})
     msg = ""
     msg << "From: #{email.from.without_protocol}\n" if email.from
@@ -146,7 +146,7 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     msg << email.body
     msg
   end
-  
+
   def expect_connection(chan, mail)
     pop = mock('Net::Pop3')
     Net::POP3.expects(:new).with(chan.configuration[:host], chan.configuration[:port]).returns(pop)
@@ -156,16 +156,16 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     mail.expects(:delete)
     pop.expects(:finish)
   end
-  
+
   def receive
     job = ReceivePop3MessageJob.new(@chan.account.id, @chan.id)
     job.perform
   end
-  
+
   def expect_at_message(options = {})
     msgs = ATMessage.all
     assert_equal 1, msgs.length
-    
+
     msg = msgs[0]
     assert_equal @chan.account.id, msg.account_id
     [:from, :to, :subject, :body].each do |field|
@@ -177,7 +177,7 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
         assert_equal value, msg.custom_attributes[key]
       end
     end
-    
+
     assert_not_nil msg.guid
     assert_equal Time.parse('Thu, 5 Nov 2009 14:52:54 +0100'), msg.timestamp
   end

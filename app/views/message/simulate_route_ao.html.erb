@@ -1,20 +1,20 @@
 <h4>Route simulation</h4>
 
-<% if @strategy == 'broadcast' %>
+<%- if @strategy == 'broadcast' -%>
   <div>Message was broadcasted.</div>
-  <% i = 0 %>
-  <% @messages.each do |msg| %>
-    <%= render :partial => 'message', :locals => {:msg => msg, :title => (i == 0 ? 'Original copy' : "Broadcasted copy #{i}"), :log => @logs[i]} %>
-    <% i += 1 %>
-  <% end %>
-<% elsif @strategy == 'single_priority' %>
+  <%- i = 0 -%>
+  <%- @messages.each do |msg| -%>
+    <%= render :partial => 'message', :locals => {:msg => msg, :title => (i == 0 ? 'Original copy' : "Broadcasted copy #{i}"), :log => @logs[i]} -%>
+    <%- i += 1 -%>
+  <%- end -%>
+<%- elsif @strategy == 'single_priority' -%>
   <div id="route_simulation">
-  <%= @channel.name %>
+  <%= @channel.name -%>
   </div>
-  <%= render :partial => 'message', :locals => {:msg => @msg, :title => 'Details', :log => @log} %>
-<% else %>
+  <%= render :partial => 'message', :locals => {:msg => @msg, :title => 'Details', :log => @log} -%>
+<%- else -%>
    <div id="route_simulation">
    No channel for the given message.
    </div>
-   <%= render :partial => 'message', :locals => {:msg => @msg, :title => 'Details', :log => @log} %>
-<% end %>
+   <%= render :partial => 'message', :locals => {:msg => @msg, :title => 'Details', :log => @log} -%>
+<%- end -%>

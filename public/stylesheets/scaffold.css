@@ -1,4 +1,4 @@
-body { background-color: #fff; color: #333; }
+body { background-color: #fff; color: #333; margin: 0px; }
 
 body, p, ol, ul, td {
   font-family: verdana, arial, helvetica, sans-serif;
@@ -63,6 +63,7 @@ h4 {
   border-top: 2px solid #3C5768;
   font-weight: bold;
   padding: 2px;
+  clear: both;
 }
 
 h4 a {
@@ -92,6 +93,14 @@ h5 {
 
 input.highlighted {
   background-color: #FFF1A8;
+}
+
+#main {
+  padding: 8px;
+}
+
+#header {
+  padding: 8px;
 }
 
 table.table {
@@ -140,7 +149,7 @@ acronym {
 }
 
 #title {
-  color: blue;
+  color: #006;
   font-weight:bold;
   font-size: 20px;
   text-decoration: none;
@@ -157,20 +166,62 @@ acronym {
   background:#FFF1A8;
   padding:4px;
   font-weight:bold;
-  margin-top:8px;
+  margin:8px;
+  clear: both;
 }
 
 #errorNotice {
   border:1px solid black;
   color:white;
+  padding: 4px;
   background:red;
-  padding:4px;
   font-weight:bold;
-  margin-top:8px;
+  margin:8px;
+  clear: both;
 }
 
 #errorNotice a {
   color:yellow;
+}
+
+#tabs {
+  float: left;
+  position: relative;
+  list-style: none;
+  width: 100%;
+  display: block;
+  margin: 0px 0px 10px 0px;
+  padding: 0px;
+  padding-top: 10px;
+  border-bottom: 1px solid black;
+}
+
+#tabs li {
+  float: left;
+  display: block;
+  padding: 2 8 2 8;
+  margin-left: 4px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  -moz-border-radius-topleft: 8px;
+  -moz-border-radius-topright: 8px;
+  border: 1px solid black;
+  position: relative;
+  top: 1px;
+  background: #efefef;
+}
+
+#tabs li a {
+  text-decoration: none;
+}
+
+#tabs li.selected {
+  border-bottom: 1px solid white;
+  background: white;
+}
+
+#tabs li.selected a {
+  text-decoration: none;
 }
 
 .not_present_in_this_query td {
