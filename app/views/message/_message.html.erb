@@ -1,11 +1,15 @@
 <h4><%= link_to_function title, "toggle('details_#{@msg.guid}')" -%></h4>
 
+<%
+application = @account.find_application(msg.application_id)
+channel = @account.find_channel(msg.channel_id)
+%>
 <div id="details_<%= msg.guid -%>">
 <table class="table">
   <%- if msg.id -%>
     <tr valign="baseline">
       <td><b>Id:</b></td>
-      <td><%= msg.id -%></tmsg.channeld>
+      <td><%= msg.id -%></td>
     </tr>
   <%- end -%>
   <tr valign="baseline">
@@ -38,11 +42,11 @@
   </tr>
   <tr valign="baseline">
     <td><b>Application:</b></td>
-    <td><%= msg.application.name rescue '' -%></td>
+    <td><%= application.name rescue '' -%></td>
   </tr>
   <tr valign="baseline">
     <td><b>In channel:</b></td>
-    <td><%= msg.channel.name rescue '' -%></td>
+    <td><%= channel.name rescue '' -%></td>
   </tr>
   <tr valign="baseline">
     <td><b>Tries:</b></td>
@@ -96,8 +100,8 @@
       </tr>
     <%- end -%>
   <%- end -%>
-  <%- if msg.class == AOMessage && !msg.channel.nil?
-    hash = msg.channel.handler.more_info(msg)
+  <%- if msg.class == AOMessage && channel
+    hash = channel.handler.more_info(msg)
     hash.each_pair do |key, value|
       -%>
       <tr valign="baseline">
