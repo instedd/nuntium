@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101029173503) do
+ActiveRecord::Schema.define(:version => 20101104143740) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -127,15 +127,17 @@ ActiveRecord::Schema.define(:version => 20101029173503) do
     t.text     "configuration"
     t.string   "protocol"
     t.integer  "direction"
-    t.boolean  "enabled",        :default => true
-    t.integer  "priority",       :default => 100
+    t.boolean  "enabled",                                       :default => true
+    t.integer  "priority",                                      :default => 100
     t.integer  "throttle"
     t.text     "restrictions"
     t.text     "at_rules"
     t.integer  "application_id"
     t.string   "address"
     t.text     "ao_rules"
-    t.boolean  "paused",         :default => false
+    t.boolean  "paused",                                        :default => false
+    t.decimal  "ao_cost",        :precision => 10, :scale => 2
+    t.decimal  "at_cost",        :precision => 10, :scale => 2
   end
 
   create_table "clickatell_coverage_mos", :force => true do |t|

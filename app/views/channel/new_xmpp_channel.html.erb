@@ -37,6 +37,7 @@
     <%= c.text_field :status, :value => @channel[:configuration][:status] -%>
     </p>
   <%- end -%>
+  <%= render :partial => 'edit_costs', :locals => {:f => f} -%>
   <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} -%>
   <%= render :partial => 'edit_ao_rules', :locals => {:f => f} -%>
   <%= render :partial => 'edit_at_rules', :locals => {:f => f} -%>

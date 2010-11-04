@@ -30,6 +30,8 @@ class TwitterController < AccountAuthenticatedController
     session['twitter_channel_application_id'] = @channel.application_id
     session['twitter_channel_address'] = @channel.address
     session['twitter_channel_welcome_message'] = @channel.configuration[:welcome_message]
+    session['twitter_channel_ao_cost'] = @channel.ao_cost
+    session['twitter_channel_at_cost'] = @channel.at_cost
     session['twitter_channel_custom_attributes'] = get_custom_attributes
     session['twitter_channel_ao_rules'] = get_rules :aorules
     session['twitter_channel_at_rules'] = get_rules :atrules
@@ -49,6 +51,8 @@ class TwitterController < AccountAuthenticatedController
     session['twitter_channel_application_id'] = params[:channel][:application_id]
     session['twitter_channel_address'] = params[:channel][:address]
     session['twitter_channel_welcome_message'] = params[:channel][:configuration][:welcome_message]
+    session['twitter_channel_ao_cost'] = params[:channel][:ao_cost]
+    session['twitter_channel_at_cost'] = params[:channel][:at_cost]
     session['twitter_channel_custom_attributes'] = get_custom_attributes
     session['twitter_channel_ao_rules'] = get_rules :aorules
     session['twitter_channel_at_rules'] = get_rules :atrules
@@ -84,6 +88,8 @@ class TwitterController < AccountAuthenticatedController
     @channel.priority = session['twitter_channel_priority']
     @channel.application_id = session['twitter_channel_application_id']
     @channel.address = session['twitter_channel_address']
+    @channel.ao_cost = session['twitter_channel_ao_cost']
+    @channel.at_cost = session['twitter_channel_at_cost']
     @channel.restrictions = session['twitter_channel_custom_attributes']
     @channel.ao_rules = session['twitter_channel_ao_rules']
     @channel.at_rules = session['twitter_channel_at_rules']
@@ -96,6 +102,8 @@ class TwitterController < AccountAuthenticatedController
     session['twitter_channel_application_id'] = nil
     session['twitter_channel_address'] = nil
     session['twitter_channel_welcome_message'] = nil
+    session['twitter_channel_ao_cost'] = nil
+    session['twitter_channel_at_cost'] = nil
     session['twitter_channel_custom_attributes'] = nil
     session['twitter_channel_ao_rules'] = nil
     session['twitter_channel_at_rules'] = nil

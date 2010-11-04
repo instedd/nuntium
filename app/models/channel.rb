@@ -45,6 +45,8 @@ class Channel < ActiveRecord::Base
   validates_uniqueness_of :name, :scope => :account_id, :message => 'has already been used by another channel in the account'
   validates_inclusion_of :direction, :in => [Incoming, Outgoing, Bidirectional], :message => "must be 'incoming', 'outgoing' or 'bidirectional'"
   validates_numericality_of :throttle, :allow_nil => true, :only_integer => true, :greater_than_or_equal_to => 0
+  validates_numericality_of :ao_cost, :greater_than_or_equal_to => 0, :allow_nil => true
+  validates_numericality_of :at_cost, :greater_than_or_equal_to => 0, :allow_nil => true
 
   validate :handler_check_valid
   before_save :handler_before_save
@@ -293,7 +295,7 @@ class Channel < ActiveRecord::Base
   end
 
   def merge(other)
-    [:name, :kind, :protocol, :direction, :enabled, :priority, :configuration, :restrictions, :address].each do |sym|
+    [:name, :kind, :protocol, :direction, :enabled, :priority, :configuration, :restrictions, :address, :ao_cost, :at_cost].each do |sym|
       write_attribute sym, other.read_attribute(sym) if !other.read_attribute(sym).nil?
     end
   end
@@ -384,24 +386,21 @@ class Channel < ActiveRecord::Base
 
   def common_to_x_attributes
     attributes = {}
-    [:name, :kind, :protocol, :enabled, :priority].each do |sym|
-      attributes[sym] = send(sym) unless send(sym).blank?
+    [:name, :kind, :protocol, :enabled, :priority, :address, :ao_cost, :at_cost].each do |sym|
+      attributes[sym] = send(sym) if send(sym).present?
     end
     attributes[:direction] = direction_text unless direction_text == 'unknown'
     attributes[:application] = application.name if application_id
-    attributes[:address] = address if address.present?
     attributes
   end
 
   def self.from_hash(hash, format)
     chan = Channel.new
-    chan.name = hash[:name]
-    chan.kind = hash[:kind]
-    chan.protocol = hash[:protocol]
-    chan.priority = hash[:priority]
+    [:name, :kind, :protocol, :priority, :address, :ao_cost, :at_cost].each do |sym|
+      chan.send "#{sym}=", hash[sym]
+    end
     chan.enabled = hash[:enabled].to_b
     chan.direction = hash[:direction] if hash[:direction]
-    chan.address = hash[:address] if hash[:address]
 
     hash_config = hash[:configuration] || {}
     hash_config = hash_config[:property] || [] if format == :xml and hash_config[:property]

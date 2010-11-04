@@ -7,16 +7,16 @@ When /^the following (.+) exists?:$/ do |model_name, table|
   model_name = "#{model_name[0].chr.upcase}#{model_name[1..-1]}"
   model_name_singular = model_name.singularize
   model = eval(model_name_singular)
-  
+
   hashes = model_name_singular == model_name ? [table.rows_hash] : table.hashes.each
-  
+
   hashes.each do |hash|
     obj = model.new
     hash.each do |name, value|
       if name.include? ' '
         submodel_name, field = name.split(' ', 2)
         submodel_name_downcase = submodel_name.downcase
-        
+
         if obj.send(submodel_name_downcase).kind_of? Hash
           obj.send(submodel_name_downcase).send("[]=", field.to_sym, value)
         else
@@ -30,7 +30,7 @@ When /^the following (.+) exists?:$/ do |model_name, table|
         obj.send "#{name}=", value
       end
     end
-    
+
     obj.save!
   end
 end
@@ -40,11 +40,11 @@ When /^the (.+) with the (.+) "([^\"]*)" should have the following properties:$/
   assert_not_nil obj
   table.rows_hash.each do |name, value|
     actual = nil
-  
+
     if name.include? ' '
       submodel_name, field = name.split(' ', 2)
       submodel_name_downcase = submodel_name.downcase
-      
+
       if obj.send(submodel_name_downcase).kind_of? Hash
         actual = obj.send(submodel_name_downcase).send("[]", field.to_sym)
       else
@@ -53,13 +53,13 @@ When /^the (.+) with the (.+) "([^\"]*)" should have the following properties:$/
     else
       actual = obj.send(name)
     end
-    
+
     value = value.to_i if actual.kind_of? Integer
     if value == 'nil'
       assert_nil actual
     else
-      assert_equal value, actual
-    end 
+      assert_equal value.to_s, actual.to_s
+    end
   end
 end
 
