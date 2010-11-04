@@ -493,7 +493,7 @@ function add_action_ui(rule_id, add_action, prefix, action, actions) {
 
 	// fill action ui
 	if (!actions) {
-	  actions = ['application', 'body', 'country', 'carrier', 'from', 'subject', 'to', 'other'];
+	  actions = ['application', 'body', 'cost', 'country', 'carrier', 'from', 'subject', 'to', 'other'];
 	}
 
 	var name_prefix = prefix + '[actions][' + action_id + ']';
@@ -690,6 +690,7 @@ function init_existing_property(existing, name_prefix, property, propertyDiv, va
   case 'subject':
   case 'body':
   case 'subject_and_body':
+  case 'cost':
     init_property_field(name_prefix, propertyDiv, valueDiv, operatorSelect, existing);
     break;
   default:
@@ -715,6 +716,9 @@ function property_combo_string(actions) {
 	    break;
 	  case 'body':
 	    str += '<option value="body">Body</option>';
+	    break;
+	  case 'cost':
+	    str += '<option value="cost">Cost</option>';
 	    break;
 	  case 'country':
 	    str += '<option value="country">Country</option>';

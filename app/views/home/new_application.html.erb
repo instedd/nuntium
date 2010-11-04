@@ -141,7 +141,7 @@ var applications = <%= applications.to_json -%>;
 
 	<script type="text/javascript">
 	jQuery(function(){
-		init_rules(jQuery('.aorules'), 'aorules', <%= @application.ao_rules.to_json -%>, ['body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'], ['body', 'country', 'carrier', 'from', 'subject', 'to', 'other']);
+		init_rules(jQuery('.aorules'), 'aorules', <%= @application.ao_rules.to_json -%>, ['body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'], ['body', 'cost', 'country', 'carrier', 'from', 'subject', 'to', 'other']);
 	});
 	</script>
 
@@ -156,7 +156,7 @@ var applications = <%= applications.to_json -%>;
 
 	<script type="text/javascript">
 	jQuery(function(){
-		init_rules(jQuery('.atrules'), 'atrules', <%= @application.at_rules.to_json -%>, ['body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'], ['body', 'country', 'carrier', 'from', 'subject', 'to', 'other']);
+		init_rules(jQuery('.atrules'), 'atrules', <%= @application.at_rules.to_json -%>, ['body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'], ['body', 'cost', 'country', 'carrier', 'from', 'subject', 'to', 'other']);
 	});
 	</script>
 
