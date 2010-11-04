@@ -13,7 +13,8 @@ class ServiceChannelHandler < ChannelHandler
       :name => managed_process_name,
       :start_command => "service_daemon_ctl.rb start -- #{ENV["RAILS_ENV"]} #{@channel.id}",
       :stop_command => "service_daemon_ctl.rb stop -- #{ENV["RAILS_ENV"]} #{@channel.id}",
-      :pid_file => "service_daemon_#{@channel.id}.pid",
+      # The dot after service_daemon is important: do not change it (the service won't start)
+      :pid_file => "service_daemon.#{@channel.id}.pid",
       :log_file => "service_daemon_#{@channel.id}.log",
       :enabled => true
     )
