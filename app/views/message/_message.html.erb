@@ -48,7 +48,6 @@ channel = @account.find_channel(msg.channel_id)
     <td><b>In channel:</b></td>
     <td><%= channel.name rescue '' -%></td>
   </tr>
-  <%= msg.candidate_channels %>
   <% if msg.class == AOMessage && msg.candidate_channels.present? %>
     <%
     chans = msg.candidate_channels.split ','
