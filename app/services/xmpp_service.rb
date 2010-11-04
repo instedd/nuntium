@@ -20,8 +20,6 @@ class XmppService < Service
   end
 
   def start
-    @client = Client.new(@jid)
-
     if !connect
       return stop
     end
@@ -36,6 +34,7 @@ class XmppService < Service
   def connect
     begin
       server = @channel.configuration[:server].blank? ? nil : @channel.configuration[:server]
+      @client = Client.new(@jid)
       @client.connect server, @channel.configuration[:port]
       @client.auth @channel.configuration[:password]
 
