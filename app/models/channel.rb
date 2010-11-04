@@ -68,6 +68,9 @@ class Channel < ActiveRecord::Base
 
     ThreadLocalLogger << "Message routed to channel '#{name}'"
 
+    # Assign cost
+    msg.cost = ao_cost if ao_cost.present?
+
     # Apply AO Rules
     apply_ao_rules msg
 

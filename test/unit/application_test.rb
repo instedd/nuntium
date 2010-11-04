@@ -498,4 +498,16 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal chans[1].id, msg.channel_id
     assert_equal 'baz', msg.custom_attributes['cust']
   end
+
+  test "route ao assigns cost" do
+    app = Application.make
+    chan = Channel.make :account_id => app.account_id, :ao_cost => 1.2
+
+    msg = AOMessage.make_unsaved :account_id => app.account_id
+    app.route_ao msg, 'test'
+
+    msg.reload
+
+    assert_equal 1.2, msg.cost
+  end
 end
