@@ -82,18 +82,14 @@ class AOMessage < ActiveRecord::Base
 
   def route_failover
     return unless state_was != 'failed' && state == 'failed'
-    return unless self.candidate_channels.present?
+    return unless self.failover_channels.present?
 
-    chans = self.candidate_channels.split(',')
-    return unless chans.present?
-
-    chans = chans[1 .. -1]
-    self.candidate_channels = chans.join(',')
-    self.candidate_channels = nil if self.candidate_channels.empty?
-
-    return unless self.candidate_channels
-
+    chans = self.failover_channels.split(',')
     chan = account.find_channel chans[0]
+
+    self.failover_channels = chans[1 .. -1].join(',')
+    self.failover_channels = nil if self.failover_channels.empty?
+
     return unless chan
 
     reset_to_original

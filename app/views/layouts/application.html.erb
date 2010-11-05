@@ -19,8 +19,9 @@
     <%- end -%>
 <%- end -%>
 <%- if @account && @account.id && @account.alert_emails.blank? && params[:action].to_sym != :settings -%>
-    <div id="errorNotice">
-    You don't have email alerts configured. <%= link_to "Do this now", :controller => :home, :action => :settings -%>
+  <div id="errorNotice">
+    You don't have email alerts configured.<br/>
+    <%= link_to "Do this now", :controller => :home, :action => :settings -%>
   </div>
 <%- end -%>
 <%- if !flash[:notice].nil? -%>

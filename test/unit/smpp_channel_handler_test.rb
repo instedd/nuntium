@@ -28,7 +28,7 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
     assert_equal "smpp_daemon #{@chan.name}", proc.name
     assert_equal "service_daemon_ctl.rb start -- test #{@chan.id}", proc.start_command
     assert_equal "service_daemon_ctl.rb stop -- test #{@chan.id}", proc.stop_command
-    assert_equal "service_daemon_#{@chan.id}.pid", proc.pid_file
+    assert_equal "service_daemon.#{@chan.id}.pid", proc.pid_file
     assert_equal "service_daemon_#{@chan.id}.log", proc.log_file
   end
 

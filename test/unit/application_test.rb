@@ -395,7 +395,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert_equal 'queued', msg.state
     assert_equal chans[0].id, msg.channel_id
-    assert_equal ids.join(','), msg.candidate_channels
+    assert_equal ids[1 .. -1].join(','), msg.failover_channels
 
     msg.reload
 
@@ -406,7 +406,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert_equal 'queued', msg.state
     assert_equal chans[1].id, msg.channel_id
-    assert_equal ids[1..-1].join(','), msg.candidate_channels
+    assert_equal ids[2..-1].join(','), msg.failover_channels
 
     msg.reload
 
@@ -417,7 +417,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert_equal 'queued', msg.state
     assert_equal chans[2].id, msg.channel_id
-    assert_equal ids[2..-1].join(','), msg.candidate_channels
+    assert_nil msg.failover_channels
 
     msg.reload
 
@@ -428,7 +428,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert_equal 'failed', msg.state
     assert_equal chans[2].id, msg.channel_id
-    assert_equal nil, msg.candidate_channels
+    assert_nil msg.failover_channels
   end
 
   test "route ao failover resets to original before rerouting" do
@@ -497,5 +497,17 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert_equal chans[1].id, msg.channel_id
     assert_equal 'baz', msg.custom_attributes['cust']
+  end
+
+  test "route ao assigns cost" do
+    app = Application.make
+    chan = Channel.make :account_id => app.account_id, :ao_cost => 1.2
+
+    msg = AOMessage.make_unsaved :account_id => app.account_id
+    app.route_ao msg, 'test'
+
+    msg.reload
+
+    assert_equal 1.2, msg.cost
   end
 end

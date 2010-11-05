@@ -48,6 +48,7 @@ module MessageCommon
   custom_attributes_accessor :carrier
   custom_attributes_accessor :strategy
   custom_attributes_accessor :suggested_channel
+  custom_attributes_accessor :cost
 
   # Optimizations can be:
   #  - :mobile_number => associated to the message, so that it does not need to

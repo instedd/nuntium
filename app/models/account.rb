@@ -82,6 +82,9 @@ class Account < ActiveRecord::Base
       end
     end
 
+    # Assign cost
+    msg.cost = via_channel.at_cost if via_channel && via_channel.at_cost.present?
+
     # Apply AT Rules
     at_routing_res = RulesEngine.apply(msg.rules_context, via_channel.at_rules)
     if at_routing_res.present?

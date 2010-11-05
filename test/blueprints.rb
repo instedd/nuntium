@@ -119,7 +119,7 @@ end
 Channel.blueprint :xmpp do
   kind { "xmpp" }
   protocol { "xmpp" }
-  configuration { {:user => Sham.username, :domain => Sham.url, :password => Sham.password, :server => Sham.url, :port => rand(1000), :resource => Sham.username} }
+  configuration { {:user => Sham.username, :domain => Sham.url, :password => Sham.password, :server => Sham.url, :port => 1 + rand(1000), :resource => Sham.username} }
 end
 
 Country.blueprint do
