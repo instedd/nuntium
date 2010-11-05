@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101104143740) do
+ActiveRecord::Schema.define(:version => 20101105132544) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -67,7 +67,7 @@ ActiveRecord::Schema.define(:version => 20101104143740) do
     t.text     "custom_attributes"
     t.integer  "application_id"
     t.integer  "parent_id"
-    t.text     "candidate_channels"
+    t.text     "failover_channels"
     t.text     "original"
   end
 

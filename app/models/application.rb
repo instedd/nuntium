@@ -148,7 +148,9 @@ class Application < ActiveRecord::Base
         return {:strategy => 'broadcast', :messages => msgs, :logs => logs}
       end
     else
-      msg.candidate_channels = channels.map(&:id).join(',')
+      # Save failover channels
+      msg.failover_channels = channels.map(&:id)[1 .. -1].join(',')
+      msg.failover_channels = nil if msg.failover_channels.empty?
 
       # Select the first one and route to it
       channel = channels.first

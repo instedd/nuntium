@@ -395,7 +395,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert_equal 'queued', msg.state
     assert_equal chans[0].id, msg.channel_id
-    assert_equal ids.join(','), msg.candidate_channels
+    assert_equal ids[1 .. -1].join(','), msg.failover_channels
 
     msg.reload
 
@@ -406,7 +406,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert_equal 'queued', msg.state
     assert_equal chans[1].id, msg.channel_id
-    assert_equal ids[1..-1].join(','), msg.candidate_channels
+    assert_equal ids[2..-1].join(','), msg.failover_channels
 
     msg.reload
 
@@ -417,7 +417,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert_equal 'queued', msg.state
     assert_equal chans[2].id, msg.channel_id
-    assert_equal ids[2..-1].join(','), msg.candidate_channels
+    assert_nil msg.failover_channels
 
     msg.reload
 
@@ -428,7 +428,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert_equal 'failed', msg.state
     assert_equal chans[2].id, msg.channel_id
-    assert_equal nil, msg.candidate_channels
+    assert_nil msg.failover_channels
   end
 
   test "route ao failover resets to original before rerouting" do
