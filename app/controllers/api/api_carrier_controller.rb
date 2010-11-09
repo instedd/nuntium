@@ -2,42 +2,32 @@ class ApiCarrierController < ApplicationController
 
   # GET /api/carriers.:format?country_id=:country_id
   def index
-    country_id = params[:country_id]
-    
-    country = nil
-    if country_id.nil?
-      # Nothing
-    elsif country_id.length == 2
-      country = Country.find_by_iso2 country_id
+    if params[:country_id]
+      country = Country.find_by_iso2_or_iso3 params[:country_id]
       return head :not_found unless country
-    elsif country_id.length == 3
-      country = Country.find_by_iso3 country_id
-      return head :not_found unless country
-    else
-      return head :not_found
     end
-    
+
     respond_to do |format|
       format.xml { render :xml => (carriers_for country).to_xml(:root => 'carriers', :skip_types => true) }
       format.json { render :json => (carriers_for country).to_json }
     end
   end
-  
+
   # GET /api/carriers/:guid.:format
   def show
     guid = params[:guid]
     carrier = Carrier.find_by_guid guid
-    
+
     return head :not_found unless carrier
-    
+
     respond_to do |format|
       format.xml { render :xml => carrier.to_xml(:skip_types => true) }
       format.json { render :json => carrier.to_json }
     end
   end
-  
+
   private
-  
+
   def carriers_for(country)
     if country.nil?
       Carrier.all_with_countries
