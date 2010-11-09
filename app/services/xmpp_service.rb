@@ -9,12 +9,6 @@ class XmppService < Service
 
   def initialize(channel)
     @channel = channel
-    c = @channel.configuration
-
-    jid_str = "#{c[:user]}@#{c[:domain]}"
-    jid_str << "/#{c[:resource]}" unless c[:resource].blank?
-    @jid = JID.new(jid_str)
-
     @mq = MQ.new
     @mq.prefetch PrefetchCount
   end
@@ -33,9 +27,8 @@ class XmppService < Service
 
   def connect
     begin
-      server = @channel.configuration[:server].blank? ? nil : @channel.configuration[:server]
-      @client = Client.new(@jid)
-      @client.connect server, @channel.configuration[:port]
+      @client = Client.new(@channel.handler.jid)
+      @client.connect @channel.handler.server, @channel.configuration[:port]
       @client.auth @channel.configuration[:password]
 
       presence = Presence.new.set_show(:chat)

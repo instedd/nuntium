@@ -8,21 +8,25 @@ class XmppChannelHandler < ServiceChannelHandler
     "XMPP"
   end
 
+  def jid
+    c = @channel.configuration
+    jid_str = "#{c[:user]}@#{c[:domain]}"
+    jid_str << "/#{c[:resource]}" unless c[:resource].blank?
+    JID::new(jid_str)
+  end
+
+  def server
+    @channel.configuration[:server].blank? ? nil : @channel.configuration[:server]
+  end
+
   def check_valid
     check_config_not_blank :user, :domain, :password
     check_config_port
   end
 
   def check_valid_in_ui
-    c = @channel.configuration
-
-    jid_str = "#{c[:user]}@#{c[:domain]}"
-    jid_str << "/#{c[:resource]}" unless c[:resource].blank?
-    jid = JID::new(jid_str)
-
     begin
       client = Client::new(jid)
-      server = @channel.configuration[:server].blank? ? nil : @channel.configuration[:server]
       client.connect server, @channel.configuration[:port]
       client.auth @channel.configuration[:password]
     rescue => e
