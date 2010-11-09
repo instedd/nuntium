@@ -10,15 +10,7 @@ class XmppChannelHandler < ServiceChannelHandler
 
   def check_valid
     check_config_not_blank :user, :domain, :password
-
-    if @channel.configuration[:port].nil?
-      @channel.errors.add(:port, "can't be blank")
-    else
-      port_num = @channel.configuration[:port].to_i
-      if port_num <= 0
-        @channel.errors.add(:port, "must be a positive number")
-      end
-    end
+    check_config_port
   end
 
   def check_valid_in_ui

@@ -80,4 +80,15 @@ class ChannelHandler
     end
   end
 
+  def check_config_port(options = {})
+    if @channel.configuration[:port].nil?
+      @channel.errors.add(:port, "can't be blank") unless options[:required] == false
+    else
+      port_num = @channel.configuration[:port].to_i
+      if port_num <= 0
+        @channel.errors.add(:port, "must be a positive number")
+      end
+    end
+  end
+
 end

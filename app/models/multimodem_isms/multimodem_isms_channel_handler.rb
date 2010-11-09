@@ -5,11 +5,7 @@ class MultimodemIsmsChannelHandler < GenericChannelHandler
 
   def check_valid
     check_config_not_blank :host, :user, :password
-
-    port = @channel.configuration[:port]
-    if port.present? && port.to_i <= 0
-      @channel.errors.add(:port, "must be a positive number")
-    end
+    check_config_port :required => false
   end
 
   def info
