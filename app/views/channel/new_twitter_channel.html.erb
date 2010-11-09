@@ -1,4 +1,4 @@
-<%= render :partial => 'edit_channel_header' -%>
+<%= render :partial => 'channel/edit_channel_header' -%>
 
 <%- if TwitterConsumerConfig.nil? -%>
   <%= render :partial => 'twitter_configuration_missing' -%>
@@ -7,20 +7,20 @@
 <%- form_for :channel, :url => { :controller => 'twitter', :action => :create_twitter_channel } do |f| -%>
   <%= f.error_messages -%>
   <%= f.hidden_field :direction, :value => Channel::Bidirectional -%>
-  <%= render :partial => 'edit_name', :locals => {:f => f} -%>
-  <%= render :partial => 'edit_protocol', :locals => {:f => f, :default => 'twitter'} -%>
-  <%= render :partial => 'edit_priority', :locals => {:f => f} -%>
-  <%= render :partial => 'edit_application', :locals => {:f => f} -%>
+  <%= render :partial => 'channel/edit_name', :locals => {:f => f} -%>
+  <%= render :partial => 'channel/edit_protocol', :locals => {:f => f, :default => 'twitter'} -%>
+  <%= render :partial => 'channel/edit_priority', :locals => {:f => f} -%>
+  <%= render :partial => 'channel/edit_application', :locals => {:f => f} -%>
   <%- f.fields_for :configuration do |c| -%>
     <p>
     Welcome message for new followers (leave blank if not desired)<br/>
     <%= c.text_field :welcome_message, :value => @channel.configuration[:welcome_message] -%>
     </p>
   <%- end -%>
-  <%= render :partial => 'edit_costs', :locals => {:f => f} -%>
+  <%= render :partial => 'channel/edit_costs', :locals => {:f => f} -%>
   <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} -%>
-  <%= render :partial => 'edit_ao_rules', :locals => {:f => f} -%>
-  <%= render :partial => 'edit_at_rules', :locals => {:f => f} -%>
+  <%= render :partial => 'channel/edit_ao_rules', :locals => {:f => f} -%>
+  <%= render :partial => 'channel/edit_at_rules', :locals => {:f => f} -%>
   <p>
   After clicking "Create Channel" you'll be prompted to login with a Twitter account
   to authorize access to nuntium.

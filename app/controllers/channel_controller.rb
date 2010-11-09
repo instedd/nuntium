@@ -24,8 +24,6 @@ class ChannelController < AccountAuthenticatedController
     @channel = Channel.new(chan)
     @channel.account_id = @account.id
     @channel.kind = params[:kind]
-    @channel.direction = chan[:direction]
-    @channel.priority = chan[:priority]
     @channel.throttle = throttle_opt == 'on' ? chan[:throttle].to_i : nil
     @channel.restrictions = get_custom_attributes
     @channel.ao_rules = get_rules :aorules
