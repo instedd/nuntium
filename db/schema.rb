@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101105132544) do
+ActiveRecord::Schema.define(:version => 20101110175302) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -168,6 +168,7 @@ ActiveRecord::Schema.define(:version => 20101105132544) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "clickatell_name"
+    t.text     "area_codes"
   end
 
   create_table "cron_tasks", :force => true do |t|

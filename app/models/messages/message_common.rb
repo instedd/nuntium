@@ -63,6 +63,21 @@ module MessageCommon
     if not self.country
       countries = Country.all.select{|x| number.start_with? x.phone_prefix}
       if countries.length > 0
+        match = []
+        countries.each do |x|
+          if x.area_codes.present?
+            codes = x.area_codes.split(',')
+            if codes.any?{|y| number.start_with?(x.phone_prefix + y.strip)}
+              match = [x]
+              break
+            end
+          else
+            match << x
+          end
+        end
+
+        countries = match
+
         if countries.length == 1
           ThreadLocalLogger << "Country #{countries[0].name} (#{countries[0].iso2}) was inferred from prefix"
           self.country = countries[0].iso2
