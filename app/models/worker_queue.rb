@@ -7,6 +7,10 @@ class WorkerQueue < ActiveRecord::Base
   before_update :record_enabled_changed
   after_commit_on_update :publish_notification_if_enabled_changed
 
+  def self.for_channel(channel)
+    find_by_queue_name Queues.ao_queue_name_for(channel)
+  end
+
   private
 
   def publish_subscribe_notification

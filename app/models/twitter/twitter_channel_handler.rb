@@ -35,6 +35,14 @@ class TwitterChannelHandler < GenericChannelHandler
     "Hourly limit: #{stat.hourly_limit}, Remaining hits for this hour: #{stat.remaining_hits}"
   end
 
+  def on_create
+    super
+    if @channel.enabled
+      @channel.create_task 'twitter-receive', TWITTER_RECEIVE_INTERVAL,
+        ReceiveTwitterMessageJob.new(@channel.account_id, @channel.id)
+    end
+  end
+
   def on_enable
     super
     @channel.create_task 'twitter-receive', TWITTER_RECEIVE_INTERVAL,
@@ -59,7 +67,9 @@ class TwitterChannelHandler < GenericChannelHandler
 
   def on_destroy
     super
-    @channel.drop_task('twitter-receive')
+    if @channel.enabled
+      @channel.drop_task('twitter-receive')
+    end
   end
 
 end

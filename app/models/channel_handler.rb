@@ -46,6 +46,9 @@ class ChannelHandler
   def on_changed
   end
 
+  def on_create
+  end
+
   def on_enable
   end
 

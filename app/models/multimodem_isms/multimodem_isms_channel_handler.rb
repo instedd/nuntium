@@ -17,6 +17,13 @@ class MultimodemIsmsChannelHandler < GenericChannelHandler
     end
   end
 
+  def on_create
+    super
+    if @channel.enabled
+      @channel.create_task('multimodem-isms-receive', MULTIMODEM_ISMS_RECEIVE_INTERVAL, ReceiveMultimodemIsmsMessageJob.new(@channel.account_id, @channel.id))
+    end
+  end
+
   def on_enable
     super
     @channel.create_task('multimodem-isms-receive', MULTIMODEM_ISMS_RECEIVE_INTERVAL, ReceiveMultimodemIsmsMessageJob.new(@channel.account_id, @channel.id))
@@ -39,7 +46,9 @@ class MultimodemIsmsChannelHandler < GenericChannelHandler
 
   def on_destroy
     super
-    @channel.drop_task('multimodem-isms-receive')
+    if @channel.enabled
+      @channel.drop_task('multimodem-isms-receive')
+    end
   end
 
   ERRORS = {

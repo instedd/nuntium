@@ -338,11 +338,7 @@ class Channel < ActiveRecord::Base
   end
 
   def handler_after_create
-    if self.enabled
-      self.handler.on_enable
-    else
-      self.handler.on_disable
-    end
+    self.handler.on_create
   end
 
   def handler_after_update
