@@ -44,7 +44,7 @@ module GenericChannelHandlerTest
     assert_false WorkerQueue.first(:conditions => ['queue_name = ?', Queues.ao_queue_name_for(@chan)]).enabled
   end
 
-  def eest_on_destroy_destroys_worker_queue
+  def test_on_destroy_destroys_worker_queue
     @chan.destroy
 
     assert_equal 0, WorkerQueue.count(:conditions => ['queue_name = ?', Queues.ao_queue_name_for(@chan)])
