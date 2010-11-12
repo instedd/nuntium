@@ -51,7 +51,7 @@ class TwitterChannelHandler < GenericChannelHandler
     @channel.drop_task('twitter-receive')
   end
 
-  def on_unpause
+  def on_resume
     super
     @channel.create_task 'twitter-receive', TWITTER_RECEIVE_INTERVAL,
       ReceiveTwitterMessageJob.new(@channel.account_id, @channel.id)

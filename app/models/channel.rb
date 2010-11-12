@@ -356,7 +356,7 @@ class Channel < ActiveRecord::Base
       if self.paused
         self.handler.on_pause
       else
-        self.handler.on_unpause
+        self.handler.on_resume
       end
     else
       self.handler.on_changed

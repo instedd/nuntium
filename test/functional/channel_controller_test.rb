@@ -138,16 +138,16 @@ class ChannelControllerTest < ActionController::TestCase
     assert_true chans[0].paused
   end
 
-  test "unpause channel" do
+  test "resume channel" do
     chan = Channel.make :qst_server, :account => @account, :paused => true
 
-    get :unpause_channel, {:id => chan.id}, {:account_id => @account.id}
+    get :resume_channel, {:id => chan.id}, {:account_id => @account.id}
 
     # Go to channels page
     assert_redirected_to(:controller => 'home', :action => 'channels')
-    assert_equal "Channel #{chan.name} was unpaused", flash[:notice]
+    assert_equal "Channel #{chan.name} was resumed", flash[:notice]
 
-    # The channel was unpaused
+    # The channel was resumed
     chans = Channel.all
     assert_false chans[0].paused
   end

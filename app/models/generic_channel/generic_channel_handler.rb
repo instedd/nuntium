@@ -27,7 +27,7 @@ class GenericChannelHandler < ChannelHandler
     wq.save!
   end
 
-  def on_unpause
+  def on_resume
     wq = WorkerQueue.find_by_queue_name Queues.ao_queue_name_for(@channel)
     return unless wq
 

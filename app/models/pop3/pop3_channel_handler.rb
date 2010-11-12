@@ -41,7 +41,7 @@ class Pop3ChannelHandler < ChannelHandler
     on_disable
   end
 
-  def on_unpause
+  def on_resume
     on_enable
   end
 

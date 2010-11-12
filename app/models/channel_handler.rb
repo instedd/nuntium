@@ -55,7 +55,7 @@ class ChannelHandler
   def on_pause
   end
 
-  def on_unpause
+  def on_resume
   end
 
   def on_destroy

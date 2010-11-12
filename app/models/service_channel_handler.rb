@@ -39,7 +39,7 @@ class ServiceChannelHandler < ChannelHandler
     proc.save!
   end
 
-  def on_unpause
+  def on_resume
     proc = ManagedProcess.find_by_account_id_and_name @channel.account.id, managed_process_name
     return unless proc
 

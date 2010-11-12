@@ -32,7 +32,7 @@ class MultimodemIsmsChannelHandler < GenericChannelHandler
     @channel.drop_task('multimodem-isms-receive')
   end
 
-  def on_unpause
+  def on_resume
     super
     @channel.create_task('multimodem-isms-receive', MULTIMODEM_ISMS_RECEIVE_INTERVAL, ReceiveMultimodemIsmsMessageJob.new(@channel.account_id, @channel.id))
   end

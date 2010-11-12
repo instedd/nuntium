@@ -64,7 +64,7 @@ class XmppChannelHandlerTest < ActiveSupport::TestCase
     assert_false proc.enabled
   end
 
-  test "on unpause enables managed process" do
+  test "on resume enables managed process" do
     @chan.save!
 
     @chan.paused = true

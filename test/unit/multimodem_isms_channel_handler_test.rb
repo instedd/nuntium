@@ -55,7 +55,7 @@ class MultimodemIsmsChannelHandlerTest < ActiveSupport::TestCase
     assert_false wqs[0].enabled
   end
 
-  test "on unpause enables worker queue" do
+  test "on resume enables worker queue" do
     @chan.paused = true
     @chan.save!
 
