@@ -28,6 +28,7 @@ class Application < ActiveRecord::Base
   after_save :bind_queue
 
   before_destroy :clear_cache
+  before_destroy :delete_worker_queue
   after_save :clear_cache
 
   after_save :restart_channel_processes
@@ -411,6 +412,12 @@ class Application < ActiveRecord::Base
 
   def create_worker_queue
     WorkerQueue.create!(:queue_name => Queues.application_queue_name_for(self), :working_group => 'fast', :ack => true, :durable => true)
+  end
+  
+  def delete_worker_queue
+    wq = WorkerQueue.for_application self
+    wq.destroy if wq
+    true
   end
 
   def bind_queue

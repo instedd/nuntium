@@ -10,6 +10,10 @@ class WorkerQueue < ActiveRecord::Base
   def self.for_channel(channel)
     find_by_queue_name Queues.ao_queue_name_for(channel)
   end
+  
+  def self.for_application(app)
+    find_by_queue_name Queues.application_queue_name_for(app)
+  end
 
   private
 

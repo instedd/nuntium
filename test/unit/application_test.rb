@@ -29,6 +29,13 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_true wqs[0].enabled
   end
 
+  test "should destroy worker queue on destroy" do
+    app = Application.make
+    app.destroy
+
+    assert_equal 0, WorkerQueue.count
+  end
+
   test "should bind queue on create" do
     binded = nil
 
