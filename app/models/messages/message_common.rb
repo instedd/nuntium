@@ -2,6 +2,8 @@ require 'guid'
 
 module MessageCommon
 
+  Fields = ['from', 'to', 'subject', 'body']
+
   def self.included(base)
     base.extend(ClassMethods)
     base.before_save :generate_guid
@@ -163,7 +165,7 @@ module MessageCommon
 
     original = {}
 
-    ['from', 'to', 'subject', 'body'].each do |sym|
+    Fields.each do |sym|
       if attributes.has_key? sym
         old = send sym
         send "#{sym}=", attributes[sym]
@@ -172,7 +174,7 @@ module MessageCommon
       end
     end
 
-    other_attributes = attributes.reject { |k,v| ["from","to","subject","body"].include?(k) }
+    other_attributes = attributes.reject { |k,v| Fields.include?(k) }
     other_attributes.each do |key, value|
       old = custom_attributes[key]
       custom_attributes[key] = value

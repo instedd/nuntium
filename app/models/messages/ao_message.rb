@@ -45,7 +45,7 @@ class AOMessage < ActiveRecord::Base
   def reset_to_original
     return unless original.present?
     original.each do |key, value|
-      if ['from', 'to', 'subject', 'body'].include? key.to_s
+      if Fields.include? key.to_s
         self.send "#{key}=", value
       else
         self.custom_attributes[key.to_s] = value
