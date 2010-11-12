@@ -7,27 +7,6 @@ class Channel < ActiveRecord::Base
   Outgoing = 2
   Bidirectional = Incoming + Outgoing
 
-  def self.kinds
-    @@kinds ||= begin
-      # Load all channel handlers
-      Dir.glob("#{RAILS_ROOT}/app/models/**/*_channel_handler.rb").each do |file|
-        eval(ActiveSupport::Inflector.camelize(file[file.rindex('/') + 1 .. -4]))
-      end
-
-      Object.subclasses_of(ChannelHandler).select do |clazz|
-        # Skip some abstract ones
-        clazz.name != 'GenericChannelHandler' && clazz.name != 'ServiceChannelHandler'
-      end.map do |clazz|
-        # Put the title and kind in array
-        [clazz.title, clazz.kind]
-      end.sort do |a1, a2|
-        # And sort by title
-        a1[0] <=> a2[0]
-      end
-    end
-    @@kinds.map{|x| [x[0].dup, x[1].dup]}
-  end
-
   belongs_to :account
   belongs_to :application
 
@@ -61,6 +40,37 @@ class Channel < ActiveRecord::Base
   after_save :initialize_queued_ao_messages_count_cache
 
   include(CronTask::CronTaskOwner)
+
+  def self.kinds
+    @@kinds ||= begin
+      # Load all channel handlers
+      Dir.glob("#{RAILS_ROOT}/app/models/**/*_channel_handler.rb").each do |file|
+        eval(ActiveSupport::Inflector.camelize(file[file.rindex('/') + 1 .. -4]))
+      end
+
+      Object.subclasses_of(ChannelHandler).select do |clazz|
+        # Skip some abstract ones
+        clazz.name != 'GenericChannelHandler' && clazz.name != 'ServiceChannelHandler'
+      end.map do |clazz|
+        # Put the title and kind in array
+        [clazz.title, clazz.kind]
+      end.sort do |a1, a2|
+        # And sort by title
+        a1[0] <=> a2[0]
+      end
+    end
+    @@kinds.map{|x| [x[0].dup, x[1].dup]}
+  end
+
+  def self.sort_candidate!(chans)
+    chans.each{|x| x.priority += rand}
+    chans.sort! do |x, y|
+      result = (x.priority || 100) <=> (y.priority || 100)
+      result = ((x.paused ? 1 : 0) <=> (y.paused ? 1 : 0)) if result == 0
+      result
+    end
+    chans.each{|x| x.priority = x.priority.floor}
+  end
 
   def route_ao(msg, via_interface, options = {})
     simulate = options[:simulate]

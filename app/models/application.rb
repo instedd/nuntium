@@ -149,6 +149,9 @@ class Application < ActiveRecord::Base
         return {:strategy => 'broadcast', :messages => msgs, :logs => logs}
       end
     else
+      # Sort them first on priority, then on paused
+      Channel.sort_candidate! channels
+
       # Save failover channels
       msg.failover_channels = channels.map(&:id)[1 .. -1].join(',')
       msg.failover_channels = nil if msg.failover_channels.empty?
@@ -413,7 +416,7 @@ class Application < ActiveRecord::Base
   def create_worker_queue
     WorkerQueue.create!(:queue_name => Queues.application_queue_name_for(self), :working_group => 'fast', :ack => true, :durable => true)
   end
-  
+
   def delete_worker_queue
     wq = WorkerQueue.for_application self
     wq.destroy if wq
