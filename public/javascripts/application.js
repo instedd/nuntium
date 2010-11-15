@@ -336,7 +336,7 @@ function get_countries(map) {
     url: '/api/countries.json',
     dataType: 'json',
     success: map.success,
-    error: map.error,
+    error: map.error
   });
 }
 
@@ -346,7 +346,7 @@ function get_carriers(country_id, map) {
     url: '/api/carriers.json?country_id=' + country_id,
     dataType: 'json',
     success: map.success,
-    error: map.error,
+    error: map.error
   });
 }
 
@@ -356,7 +356,7 @@ function get_carrier(carrier_id, map) {
     url: '/api/carriers/' + carrier_id + '.json',
     dataType: 'json',
     success: map.success,
-    error: map.error,
+    error: map.error
   });
 }
 
