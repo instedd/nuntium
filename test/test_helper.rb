@@ -49,6 +49,7 @@ class ActiveSupport::TestCase
   def expect_get(options = {})
     response = mock('RestClient::Response')
     response.expects('net_http_res').returns(options[:returns].new 'x', 'x', 'x')
+    response.stubs(:body => options[:returns_body])
 
     resource2 = mock('RestClient::Resource')
     resource2.expects('get').returns(response)

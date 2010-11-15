@@ -13,7 +13,7 @@ class Application < ActiveRecord::Base
   validates_presence_of :name, :password, :interface
   validates_confirmation_of :password
   validates_uniqueness_of :name, :scope => :account_id, :message => 'has already been used by another application in the account'
-  validates_inclusion_of :interface, :in => ['rss', 'qst_client', 'http_post_callback']
+  validates_inclusion_of :interface, :in => ['rss', 'qst_client', 'http_get_callback', 'http_post_callback']
   validates_presence_of :interface_url, :unless => Proc.new {|app| app.interface == 'rss'}
   validates_presence_of :delivery_ack_url, :unless => Proc.new {|app| app.delivery_ack_method == 'none'}
 
@@ -215,11 +215,15 @@ class Application < ActiveRecord::Base
     msg.save! unless simulate
 
     # Check if callback interface is configured
-    if self.interface == 'http_post_callback'
+    if self.interface == 'http_get_callback' || self.interface == 'http_post_callback'
       unless simulate
-        Queues.publish_application self, SendPostCallbackMessageJob.new(msg.account_id, msg.application_id, msg.id)
+        Queues.publish_application self, SendInterfaceCallbackJob.new(msg.account_id, msg.application_id, msg.id)
       end
-      ThreadLocalLogger << "Enqueued POST callback"
+      if self.interface == 'http_get_callback'
+        ThreadLocalLogger << "Enqueued GET callback"
+      else
+        ThreadLocalLogger << "Enqueued POST callback"
+      end
     end
 
     unless simulate
@@ -381,6 +385,8 @@ class Application < ActiveRecord::Base
       return 'Rss'
     when 'qst_client'
       return "QST client: #{interface_url}"
+    when 'http_get_callback'
+      return "HTTP GET callback: #{interface_url}"
     when 'http_post_callback'
       return "HTTP POST callback: #{interface_url}"
     end

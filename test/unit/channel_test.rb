@@ -238,7 +238,6 @@ class ChannelTest < ActiveSupport::TestCase
     chans << Channel.make_unsaved(:name => '5', :priority => 2, :paused => true)
 
     names = chans.map &:name
-    p names
 
     chans.shuffle!
 
@@ -252,7 +251,6 @@ class ChannelTest < ActiveSupport::TestCase
     end
 
     chans.map! &:name
-    p chans
 
     [0, 1].each do |less|
       [2, 3, 4, 5].each do |great|

@@ -33,7 +33,7 @@ Application.blueprint :broadcast do
   configuration { {:strategy => 'broadcast'} }
 end
 
-[:http_post_callback, :qst_client].each do |kind|
+[:http_get_callback, :http_post_callback, :qst_client].each do |kind|
   Application.blueprint kind do
     interface { kind.to_s }
     configuration { {:interface_url => Sham.url, :interface_user => Sham.username, :interface_password => Sham.password} }

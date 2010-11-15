@@ -48,20 +48,22 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_same app, binded
   end
 
-  test "should enqueue http post callback" do
-    app = Application.make :http_post_callback
+  ['get', 'post'].each do |method|
+    test "should enqueue http #{method} callback" do
+      app = Application.make :"http_#{method}_callback"
 
-    msg = ATMessage.create!(:account => app.account, :subject => 'foo')
+      msg = ATMessage.create!(:account => app.account, :subject => 'foo')
 
-    Queues.expects(:publish_application).with do |a, j|
-      a.id == app.id and
-        j.kind_of?(SendPostCallbackMessageJob) and
-        j.account_id == app.account.id and
-        j.application_id == app.id and
-        j.message_id == msg.id
+      Queues.expects(:publish_application).with do |a, j|
+        a.id == app.id and
+          j.kind_of?(SendInterfaceCallbackJob) and
+          j.account_id == app.account.id and
+          j.application_id == app.id and
+          j.message_id == msg.id
+      end
+
+      app.route_at msg, (Channel.make :account_id => app.account_id)
     end
-
-    app.route_at msg, (Channel.make :account_id => app.account_id)
   end
 
   test "route ao protocol not found in message" do
