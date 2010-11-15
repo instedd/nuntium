@@ -211,7 +211,7 @@ class Application < ActiveRecord::Base
       msg.merge at_routing_res
     end
 
-    # save the message here so we have and id for the later job
+    # save the message here so we have an id for the later job
     msg.save! unless simulate
 
     # Check if callback interface is configured

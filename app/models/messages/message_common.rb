@@ -65,20 +65,12 @@ module MessageCommon
     if not self.country
       countries = Country.all.select{|x| number.start_with? x.phone_prefix}
       if countries.length > 0
-        match = []
-        countries.each do |x|
-          if x.area_codes.present?
-            codes = x.area_codes.split(',')
-            if codes.any?{|y| number.start_with?(x.phone_prefix + y.strip)}
-              match = [x]
-              break
-            end
-          else
-            match << x
-          end
-        end
-
-        countries = match
+        # Slipt countries with and without area codes
+        with_area_codes, without_area_codes = countries.partition{|x| x.area_codes.present?}
+        # From those with area codes, select only the ones for which the number start with them
+        with_area_codes = with_area_codes.select{|x| x.area_codes.split(',').any?{|y| number.start_with?(x.phone_prefix + y.strip)}}
+        # If we find matches with area codes, use them. Otherwise, use those without area codes
+        countries = with_area_codes.present? ? with_area_codes : without_area_codes
 
         if countries.length == 1
           ThreadLocalLogger << "Country #{countries[0].name} (#{countries[0].iso2}) was inferred from prefix"
