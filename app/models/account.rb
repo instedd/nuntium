@@ -184,9 +184,3 @@ class Account < ActiveRecord::Base
   end
 
 end
-
-# If many dots are sent to a validation error, an "interning empty string" error
-# happens. This is a hack/fix for this.
-def fix_error(msg)
-  msg.gsub('.', ' ')
-end
