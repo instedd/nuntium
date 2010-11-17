@@ -87,10 +87,32 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPUnauthorized
 
     job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
-    job.perform
+    assert_false job.perform
 
     @application.reload
     assert_equal 'rss', @application.interface
+  end
+
+  test "post bad request" do
+    @application.interface = 'http_post_callback'
+    @application.interface_url = 'http://www.domain.com'
+    @application.save!
+
+    expect_post :url => @application.interface_url,
+      :data => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPBadRequest
+
+    job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
+    assert_true job.perform
+
+    @application.reload
+    assert_equal 'http_post_callback', @application.interface
+
+    @msg.reload
+
+    assert_equal 'failed', @msg.state
+    assert_equal 1, @msg.tries
   end
 
   test "discard not queued messages" do

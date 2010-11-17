@@ -49,7 +49,9 @@ class SendInterfaceCallbackJob
         end
 
         return true
-
+      when Net::HTTPBadRequest
+        msg.send_failed account, app, "Received HTTP Bad Request (404)"
+        return true
       when Net::HTTPUnauthorized
         app.alert "Sending HTTP POST callback received unauthorized: invalid credentials"
 
