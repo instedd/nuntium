@@ -143,6 +143,7 @@ class HomeController < AccountAuthenticatedController
     @application.account_id = @account.id
 
     cfg = app[:configuration]
+    @application.configuration = app[:configuration]
     @application.use_address_source = cfg[:use_address_source]
     @application.ao_rules = get_rules :aorules
     @application.at_rules = get_rules :atrules

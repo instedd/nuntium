@@ -88,6 +88,10 @@ var applications = <%= applications.to_json -%>;
       <%= c.label :password -%><br/>
       <%= c.password_field :interface_password, :value => @application.interface_password, :autocomplete => :off, :class => 'configurl' -%>
       </p>
+      <p>
+      <%= c.label :custom_format, "Custom GET query string or POST body format (leave blank for default) <a href=\"http://code.google.com/p/nuntium/wiki/Interfaces#Custom_formats\" target=\"_blank\">Learn more...</a>" -%><br/>
+      <%= c.text_area :interface_custom_format, :rows => 3, :cols => 80, :value => @application.interface_custom_format -%>
+      </p>
     </div>
 
     <h5>Routing configuration:</h5>

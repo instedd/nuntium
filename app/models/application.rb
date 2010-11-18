@@ -327,6 +327,7 @@ class Application < ActiveRecord::Base
   configuration_accessor :interface_url
   configuration_accessor :interface_user
   configuration_accessor :interface_password
+  configuration_accessor :interface_custom_format
   configuration_accessor :strategy, 'single_priority'
   configuration_accessor :delivery_ack_method, 'none'
   configuration_accessor :delivery_ack_url

@@ -47,29 +47,42 @@ class ActiveSupport::TestCase
   end
 
   def expect_get(options = {})
-    response = mock('RestClient::Response')
-    response.expects('net_http_res').returns(options[:returns].new 'x', 'x', 'x')
-    response.stubs(:body => options[:returns_body])
-
     resource2 = mock('RestClient::Resource')
-    resource2.expects('get').returns(response)
+
+    query_params = options[:query_params]
+    query_params = query_params.to_query if query_params.kind_of? Hash
+
+    if options[:returns] == Net::HTTPBadRequest
+      resource2.expects('get').raises RestClient::BadRequest
+    else
+      response = mock('RestClient::Response')
+      response.expects('net_http_res').returns(options[:returns].new 'x', 'x', 'x')
+      response.stubs(:body => options[:returns_body])
+
+      resource2.expects('get').returns(response)
+    end
 
     resource = mock('RestClient::Resource')
-    resource.expects('[]').with("?#{options[:query_params].to_query}").returns(resource2)
+    resource.expects('[]').with("?#{query_params}").returns(resource2)
 
     RestClient::Resource.expects('new').with(options[:url], options[:options]).returns(resource)
   end
 
   def expect_post(options = {})
-    ret = options[:returns].new 'x', 'x', 'x'
-
-    response = mock('RestClient::Response')
-    response.expects('net_http_res').returns(ret)
-    response.stubs(:body => options[:returns_body])
-    response.stubs(:content_type => options[:returns_content_type])
-
     resource = mock('RestClient::Resource')
-    resource.expects('post').with(options[:data]).returns(response)
+
+    if options[:returns] == Net::HTTPBadRequest
+      resource.expects('post').raises RestClient::BadRequest
+    else
+      ret = options[:returns].new 'x', 'x', 'x'
+
+      response = mock('RestClient::Response')
+      response.expects('net_http_res').returns(ret)
+      response.stubs(:body => options[:returns_body])
+      response.stubs(:content_type => options[:returns_content_type])
+
+      resource.expects('post').with(options[:data]).returns(response)
+    end
 
     RestClient::Resource.expects('new').with(options[:url], options[:options]).returns(resource)
   end

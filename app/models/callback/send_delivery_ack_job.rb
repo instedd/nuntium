@@ -24,31 +24,29 @@ class SendDeliveryAckJob
       options[:password] = app.delivery_ack_password
     end
 
-    res = RestClient::Resource.new app.delivery_ack_url, options
-    res = if app.delivery_ack_method == 'get'
-      res["?#{data.to_query}"].get
-    else
-      res.post data
-    end
-    res = res.net_http_res
+    begin
+      res = RestClient::Resource.new app.delivery_ack_url, options
+      res = app.delivery_ack_method == 'get' ? res["?#{data.to_query}"].get : res.post(data)
+      res = res.net_http_res
 
-    case res
-      when Net::HTTPSuccess, Net::HTTPRedirection
-        return true
-      when Net::HTTPBadRequest
-        app.logger.warning :ao_message_id => @message_id, :message => "Received HTTP Bad Request (404) for delivery ack"
-        return true
-      when Net::HTTPUnauthorized
-        app.alert "Sending HTTP delivery ack received unauthorized: invalid credentials"
-        app.delivery_ack_method = 'none'
-        app.save!
-        return false
-      else
-        alert_msg = "HTTP delivery ack failed #{res.error!}"
-        app.alert alert_msg
+      case res
+        when Net::HTTPSuccess, Net::HTTPRedirection
+          return true
+        when Net::HTTPUnauthorized
+          app.alert "Sending HTTP delivery ack received unauthorized: invalid credentials"
+          app.delivery_ack_method = 'none'
+          app.save!
+          return false
+        else
+          alert_msg = "HTTP delivery ack failed #{res.error!}"
+          app.alert alert_msg
 
-        account.logger.error :ao_message_id => @message_id, :message => alert_msg
-        raise res.error!
+          account.logger.error :ao_message_id => @message_id, :message => alert_msg
+          raise res.error!
+      end
+    rescue RestClient::BadRequest
+      app.logger.warning :ao_message_id => @message_id, :message => "Received HTTP Bad Request (404) for delivery ack"
+      return true
     end
   end
 end

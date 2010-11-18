@@ -2,7 +2,7 @@ require 'guid'
 
 module MessageCommon
 
-  Fields = ['from', 'to', 'subject', 'body']
+  Fields = ['from', 'to', 'subject', 'body', 'guid']
 
   def self.included(base)
     base.extend(ClassMethods)
