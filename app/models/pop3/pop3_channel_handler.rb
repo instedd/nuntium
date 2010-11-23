@@ -7,15 +7,7 @@ class Pop3ChannelHandler < ChannelHandler
 
   def check_valid
     check_config_not_blank :host, :user, :password
-
-    if @channel.configuration[:port].nil?
-      @channel.errors.add(:port, "can't be blank")
-    else
-      port_num = @channel.configuration[:port].to_i
-      if port_num <= 0
-        @channel.errors.add(:port, "must be a positive number")
-      end
-    end
+    check_config_port
   end
 
   def check_valid_in_ui
@@ -37,6 +29,12 @@ class Pop3ChannelHandler < ChannelHandler
     "#{c[:user]}@#{c[:host]}:#{c[:port]}"
   end
 
+  def on_create
+    if @channel.enabled
+      @channel.create_task('pop3-receive', POP3_RECEIVE_INTERVAL, ReceivePop3MessageJob.new(@channel.account_id, @channel.id))
+    end
+  end
+
   def on_enable
     @channel.create_task('pop3-receive', POP3_RECEIVE_INTERVAL, ReceivePop3MessageJob.new(@channel.account_id, @channel.id))
   end
@@ -49,12 +47,14 @@ class Pop3ChannelHandler < ChannelHandler
     on_disable
   end
 
-  def on_unpause
+  def on_resume
     on_enable
   end
 
   def on_destroy
-    on_disable
+    if @channel.enabled
+      on_disable
+    end
   end
 
 end

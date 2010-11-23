@@ -8,7 +8,7 @@ class ATMessage < ActiveRecord::Base
   include MessageCommon
   include MessageGetter
   include MessageState
-  
+
   # Logs that each message was delivered/not delivered through the given interface
   def self.log_delivery(msgs, account, interface)
     msgs.each do |msg|
@@ -19,5 +19,13 @@ class ATMessage < ActiveRecord::Base
       end
     end
   end
-  
+
+  def send_failed(account, application, exception)
+    self.tries += 1
+    self.state = 'failed'
+    self.save!
+
+    account.logger.exception_in_application_and_at_message application, self, exception
+  end
+
 end

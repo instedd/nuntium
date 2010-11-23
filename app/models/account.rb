@@ -82,6 +82,9 @@ class Account < ActiveRecord::Base
       end
     end
 
+    # Assign cost
+    msg.cost = via_channel.at_cost if via_channel && via_channel.at_cost.present?
+
     # Apply AT Rules
     at_routing_res = RulesEngine.apply(msg.rules_context, via_channel.at_rules)
     if at_routing_res.present?
@@ -180,10 +183,4 @@ class Account < ActiveRecord::Base
     msg.class.exists?(['account_id = ? and guid = ?', self.id, msg.guid])
   end
 
-end
-
-# If many dots are sent to a validation error, an "interning empty string" error
-# happens. This is a hack/fix for this.
-def fix_error(msg)
-  msg.gsub('.', ' ')
 end

@@ -106,6 +106,12 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     assert_equal "Hello", result
   end
 
+  should "remove quoted text or text after first empty line, case first line is empty:" do
+    original = "\nHello\n\nGoodbye"
+    result = ReceivePop3MessageJob.remove_quoted_text_or_text_after_first_empty_line original
+    assert_equal "Hello", result
+  end
+
   should "not throw if mail has no to field" do
     @email.to = nil
 

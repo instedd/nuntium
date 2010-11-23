@@ -13,7 +13,7 @@ class Application < ActiveRecord::Base
   validates_presence_of :name, :password, :interface
   validates_confirmation_of :password
   validates_uniqueness_of :name, :scope => :account_id, :message => 'has already been used by another application in the account'
-  validates_inclusion_of :interface, :in => ['rss', 'qst_client', 'http_post_callback']
+  validates_inclusion_of :interface, :in => ['rss', 'qst_client', 'http_get_callback', 'http_post_callback']
   validates_presence_of :interface_url, :unless => Proc.new {|app| app.interface == 'rss'}
   validates_presence_of :delivery_ack_url, :unless => Proc.new {|app| app.delivery_ack_method == 'none'}
 
@@ -28,6 +28,7 @@ class Application < ActiveRecord::Base
   after_save :bind_queue
 
   before_destroy :clear_cache
+  before_destroy :delete_worker_queue
   after_save :clear_cache
 
   after_save :restart_channel_processes
@@ -148,7 +149,12 @@ class Application < ActiveRecord::Base
         return {:strategy => 'broadcast', :messages => msgs, :logs => logs}
       end
     else
-      msg.candidate_channels = channels.map(&:id).join(',')
+      # Sort them first on priority, then on paused
+      Channel.sort_candidate! channels
+
+      # Save failover channels
+      msg.failover_channels = channels.map(&:id)[1 .. -1].join(',')
+      msg.failover_channels = nil if msg.failover_channels.empty?
 
       # Select the first one and route to it
       channel = channels.first
@@ -205,15 +211,19 @@ class Application < ActiveRecord::Base
       msg.merge at_routing_res
     end
 
-    # save the message here so we have and id for the later job
+    # save the message here so we have an id for the later job
     msg.save! unless simulate
 
     # Check if callback interface is configured
-    if self.interface == 'http_post_callback'
+    if self.interface == 'http_get_callback' || self.interface == 'http_post_callback'
       unless simulate
-        Queues.publish_application self, SendPostCallbackMessageJob.new(msg.account_id, msg.application_id, msg.id)
+        Queues.publish_application self, SendInterfaceCallbackJob.new(msg.account_id, msg.application_id, msg.id)
       end
-      ThreadLocalLogger << "Enqueued POST callback"
+      if self.interface == 'http_get_callback'
+        ThreadLocalLogger << "Enqueued GET callback"
+      else
+        ThreadLocalLogger << "Enqueued POST callback"
+      end
     end
 
     unless simulate
@@ -317,6 +327,7 @@ class Application < ActiveRecord::Base
   configuration_accessor :interface_url
   configuration_accessor :interface_user
   configuration_accessor :interface_password
+  configuration_accessor :interface_custom_format
   configuration_accessor :strategy, 'single_priority'
   configuration_accessor :delivery_ack_method, 'none'
   configuration_accessor :delivery_ack_url
@@ -375,6 +386,8 @@ class Application < ActiveRecord::Base
       return 'Rss'
     when 'qst_client'
       return "QST client: #{interface_url}"
+    when 'http_get_callback'
+      return "HTTP GET callback: #{interface_url}"
     when 'http_post_callback'
       return "HTTP POST callback: #{interface_url}"
     end
@@ -409,6 +422,12 @@ class Application < ActiveRecord::Base
 
   def create_worker_queue
     WorkerQueue.create!(:queue_name => Queues.application_queue_name_for(self), :working_group => 'fast', :ack => true, :durable => true)
+  end
+
+  def delete_worker_queue
+    wq = WorkerQueue.for_application self
+    wq.destroy if wq
+    true
   end
 
   def bind_queue

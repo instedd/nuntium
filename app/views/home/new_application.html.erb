@@ -5,9 +5,17 @@
 	}
 	function interface_qst_client() {
 	  $('#config').show();
+	  $('#custom_format').hide();
+	}
+	function interface_http_get_callback() {
+	  $('#config').show();
+	  $('#custom_format').show();
+	  $('#custom_format_desc').html("Custom HTTP GET format");
 	}
 	function interface_http_post_callback() {
 	  $('#config').show();
+	  $('#custom_format').show();
+	  $('#custom_format_desc').html("Custom HTTP POST format");
 	}
 
 	function delivery_ack_none() {
@@ -67,6 +75,7 @@ var applications = <%= applications.to_json -%>;
   <%= f.label :interface -%><br/>
   <%= f.radio_button :interface, 'rss', :onclick => "interface_rss();" -%> <%= f.label :interface, 'Rss', :value => 'rss' -%><br/>
   <%= f.radio_button :interface, 'qst_client', :onclick => "interface_qst_client();"%> <%= f.label :interface, 'QST client', :value => 'qst_client' -%><br/>
+  <%= f.radio_button :interface, 'http_get_callback', :onclick => "interface_http_get_callback();"%> <%= f.label :interface, 'HTTP GET callback', :value => 'http_get_callback' -%><br/>
   <%= f.radio_button :interface, 'http_post_callback', :onclick => "interface_http_post_callback();"%> <%= f.label :interface, 'HTTP POST callback', :value => 'http_post_callback' -%><br/>
 
   <%- f.fields_for :configuration do |c| -%>
@@ -83,6 +92,10 @@ var applications = <%= applications.to_json -%>;
       <p>
       <%= c.label :password -%><br/>
       <%= c.password_field :interface_password, :value => @application.interface_password, :autocomplete => :off, :class => 'configurl' -%>
+      </p>
+      <p id="custom_format">
+      <%= c.label :custom_format, '<span id="custom_format_desc" /></span> (leave blank for default) <a href="http://code.google.com/p/nuntium/wiki/Interfaces#Custom_formats" target="_blank">Learn more...</a>' -%><br/>
+      <%= c.text_area :interface_custom_format, :rows => 3, :cols => 80, :value => @application.interface_custom_format -%>
       </p>
     </div>
 
@@ -141,7 +154,7 @@ var applications = <%= applications.to_json -%>;
 
 	<script type="text/javascript">
 	jQuery(function(){
-		init_rules(jQuery('.aorules'), 'aorules', <%= @application.ao_rules.to_json -%>, ['body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'], ['body', 'country', 'carrier', 'from', 'subject', 'to', 'other']);
+		init_rules(jQuery('.aorules'), 'aorules', <%= @application.ao_rules.to_json -%>, ['body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'], ['body', 'cost', 'country', 'carrier', 'from', 'subject', 'to', 'other']);
 	});
 	</script>
 
@@ -156,7 +169,7 @@ var applications = <%= applications.to_json -%>;
 
 	<script type="text/javascript">
 	jQuery(function(){
-		init_rules(jQuery('.atrules'), 'atrules', <%= @application.at_rules.to_json -%>, ['body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'], ['body', 'country', 'carrier', 'from', 'subject', 'to', 'other']);
+		init_rules(jQuery('.atrules'), 'atrules', <%= @application.at_rules.to_json -%>, ['body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'], ['body', 'cost', 'country', 'carrier', 'from', 'subject', 'to', 'other']);
 	});
 	</script>
 

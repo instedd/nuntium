@@ -162,21 +162,28 @@ acronym {
 }
 
 #notice {
-  border:1px solid black;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
   background:#FFF1A8;
-  padding:4px;
+  padding:4px 10px 4px 10px;
   font-weight:bold;
-  margin:8px;
+  margin-left:35%;
+  display:inline-block;
+  text-align:center;
   clear: both;
 }
 
 #errorNotice {
-  border:1px solid black;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
   color:white;
-  padding: 4px;
+  padding:4px 10px 4px 10px;
   background:red;
   font-weight:bold;
-  margin:8px;
+  margin-left:35%;
+  margin-right:35%;
+  display:inline-block;
+  text-align:center;
   clear: both;
 }
 
@@ -232,4 +239,9 @@ acronym {
   color: #bbbbbb;
   text-align: right;
   font-size: 8pt;
+}
+
+.url {
+  font-family: monospace;
+  font-weight: bold;
 }

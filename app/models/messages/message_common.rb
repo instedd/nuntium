@@ -2,6 +2,8 @@ require 'guid'
 
 module MessageCommon
 
+  Fields = ['from', 'to', 'subject', 'body', 'guid']
+
   def self.included(base)
     base.extend(ClassMethods)
     base.before_save :generate_guid
@@ -48,6 +50,7 @@ module MessageCommon
   custom_attributes_accessor :carrier
   custom_attributes_accessor :strategy
   custom_attributes_accessor :suggested_channel
+  custom_attributes_accessor :cost
 
   # Optimizations can be:
   #  - :mobile_number => associated to the message, so that it does not need to
@@ -62,6 +65,13 @@ module MessageCommon
     if not self.country
       countries = Country.all.select{|x| number.start_with? x.phone_prefix}
       if countries.length > 0
+        # Slipt countries with and without area codes
+        with_area_codes, without_area_codes = countries.partition{|x| x.area_codes.present?}
+        # From those with area codes, select only the ones for which the number start with them
+        with_area_codes = with_area_codes.select{|x| x.area_codes.split(',').any?{|y| number.start_with?(x.phone_prefix + y.strip)}}
+        # If we find matches with area codes, use them. Otherwise, use those without area codes
+        countries = with_area_codes.present? ? with_area_codes : without_area_codes
+
         if countries.length == 1
           ThreadLocalLogger << "Country #{countries[0].name} (#{countries[0].iso2}) was inferred from prefix"
           self.country = countries[0].iso2
@@ -147,7 +157,7 @@ module MessageCommon
 
     original = {}
 
-    ['from', 'to', 'subject', 'body'].each do |sym|
+    Fields.each do |sym|
       if attributes.has_key? sym
         old = send sym
         send "#{sym}=", attributes[sym]
@@ -156,7 +166,7 @@ module MessageCommon
       end
     end
 
-    other_attributes = attributes.reject { |k,v| ["from","to","subject","body"].include?(k) }
+    other_attributes = attributes.reject { |k,v| Fields.include?(k) }
     other_attributes.each do |key, value|
       old = custom_attributes[key]
       custom_attributes[key] = value

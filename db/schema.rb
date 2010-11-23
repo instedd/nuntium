@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101029173503) do
+ActiveRecord::Schema.define(:version => 20101123173500) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -67,7 +67,7 @@ ActiveRecord::Schema.define(:version => 20101029173503) do
     t.text     "custom_attributes"
     t.integer  "application_id"
     t.integer  "parent_id"
-    t.text     "candidate_channels"
+    t.text     "failover_channels"
     t.text     "original"
   end
 
@@ -127,15 +127,17 @@ ActiveRecord::Schema.define(:version => 20101029173503) do
     t.text     "configuration"
     t.string   "protocol"
     t.integer  "direction"
-    t.boolean  "enabled",        :default => true
-    t.integer  "priority",       :default => 100
+    t.boolean  "enabled",                                       :default => true
+    t.integer  "priority",                                      :default => 100
     t.integer  "throttle"
     t.text     "restrictions"
     t.text     "at_rules"
     t.integer  "application_id"
     t.string   "address"
     t.text     "ao_rules"
-    t.boolean  "paused",         :default => false
+    t.boolean  "paused",                                        :default => false
+    t.decimal  "ao_cost",        :precision => 10, :scale => 2
+    t.decimal  "at_cost",        :precision => 10, :scale => 2
   end
 
   create_table "clickatell_coverage_mos", :force => true do |t|
@@ -166,6 +168,7 @@ ActiveRecord::Schema.define(:version => 20101029173503) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "clickatell_name"
+    t.text     "area_codes"
   end
 
   create_table "cron_tasks", :force => true do |t|

@@ -33,7 +33,7 @@ Application.blueprint :broadcast do
   configuration { {:strategy => 'broadcast'} }
 end
 
-[:http_post_callback, :qst_client].each do |kind|
+[:http_get_callback, :http_post_callback, :qst_client].each do |kind|
   Application.blueprint kind do
     interface { kind.to_s }
     configuration { {:interface_url => Sham.url, :interface_user => Sham.username, :interface_password => Sham.password} }
@@ -119,7 +119,7 @@ end
 Channel.blueprint :xmpp do
   kind { "xmpp" }
   protocol { "xmpp" }
-  configuration { {:user => Sham.username, :domain => Sham.url, :password => Sham.password, :server => Sham.url, :port => rand(1000), :resource => Sham.username} }
+  configuration { {:user => Sham.username, :domain => Sham.url, :password => Sham.password, :server => Sham.url, :port => 1 + rand(1000), :resource => Sham.username} }
 end
 
 Country.blueprint do

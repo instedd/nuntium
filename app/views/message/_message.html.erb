@@ -48,6 +48,12 @@ channel = @account.find_channel(msg.channel_id)
     <td><b>In channel:</b></td>
     <td><%= channel.name rescue '' -%></td>
   </tr>
+  <% if msg.class == AOMessage && msg.failover_channels.present? %>
+    <tr valign="baseline">
+      <td><b>Failover channels:</b></td>
+      <td><%= msg.failover_channels.split(',').map{|x| @account.find_channel(x).name rescue ''}.join ', ' -%></td>
+    </tr>
+  <% end %>
   <tr valign="baseline">
     <td><b>Tries:</b></td>
     <td><%= msg.tries -%></td>

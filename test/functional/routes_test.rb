@@ -21,7 +21,7 @@ class RoutesTest < ActionController::TestCase
   end
 
   test "channels" do
-    ["edit", "update", "delete", "enable", "disable", "pause", "unpause"].each do |op|
+    ["edit", "update", "delete", "enable", "disable", "pause", "resume"].each do |op|
       assert_routing({:path => "/channel/#{op}/10"}, { :controller => "channel", :action => "#{op}_channel", :id => '10' })
     end
   end

@@ -51,4 +51,14 @@ class WorkerQueueTest < ActiveSupport::TestCase
     wq.enabled = true
     wq.save!
   end
+
+  test "delete worker queue on destroy" do
+    wq = WorkerQueue.create! :queue_name => 'queue_1', :working_group => 'wk', :ack => true, :enabled => false
+
+    Queues.expects(:delete).with do |name, mq|
+      name == 'queue_1'
+    end
+
+    wq.destroy
+  end
 end

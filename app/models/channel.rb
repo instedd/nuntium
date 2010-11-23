@@ -7,6 +7,40 @@ class Channel < ActiveRecord::Base
   Outgoing = 2
   Bidirectional = Incoming + Outgoing
 
+  belongs_to :account
+  belongs_to :application
+
+  has_many :qst_outgoing_messages
+  has_many :address_sources
+  has_many :cron_tasks, :as => :parent, :dependent => :destroy # TODO: Tasks are not being destroyed
+
+  serialize :configuration, Hash
+  serialize :restrictions
+  serialize :ao_rules
+  serialize :at_rules
+
+  validates_presence_of :name, :protocol, :kind, :account
+  validates_format_of :name, :with => /^[a-zA-Z0-9\-_]+$/, :message => "can only contain alphanumeric characters, '_' or '-' (no spaces allowed)", :unless => proc {|c| c.name.blank?}
+  validates_uniqueness_of :name, :scope => :account_id, :message => 'has already been used by another channel in the account'
+  validates_inclusion_of :direction, :in => [Incoming, Outgoing, Bidirectional], :message => "must be 'incoming', 'outgoing' or 'bidirectional'"
+  validates_numericality_of :throttle, :allow_nil => true, :only_integer => true, :greater_than_or_equal_to => 0
+  validates_numericality_of :ao_cost, :greater_than_or_equal_to => 0, :allow_nil => true
+  validates_numericality_of :at_cost, :greater_than_or_equal_to => 0, :allow_nil => true
+
+  validate :handler_check_valid
+  before_save :handler_before_save
+  after_create :handler_after_create
+  after_update :handler_after_update
+  before_destroy :handler_before_destroy
+
+  before_destroy :clear_cache
+  after_save :clear_cache
+
+  before_destroy :clear_queued_ao_messages_count_cache
+  after_save :initialize_queued_ao_messages_count_cache
+
+  include(CronTask::CronTaskOwner)
+
   def self.kinds
     @@kinds ||= begin
       # Load all channel handlers
@@ -28,43 +62,24 @@ class Channel < ActiveRecord::Base
     @@kinds.map{|x| [x[0].dup, x[1].dup]}
   end
 
-  belongs_to :account
-  belongs_to :application
-
-  has_many :qst_outgoing_messages
-  has_many :address_sources
-  has_many :cron_tasks, :as => :parent, :dependent => :destroy # TODO: Tasks are not being destroyed
-
-  serialize :configuration, Hash
-  serialize :restrictions
-  serialize :ao_rules
-  serialize :at_rules
-
-  validates_presence_of :name, :protocol, :kind, :account
-  validates_format_of :name, :with => /^[a-zA-Z0-9\-_]+$/, :message => "can only contain alphanumeric characters, '_' or '-' (no spaces allowed)", :unless => proc {|c| c.name.blank?}
-  validates_uniqueness_of :name, :scope => :account_id, :message => 'has already been used by another channel in the account'
-  validates_inclusion_of :direction, :in => [Incoming, Outgoing, Bidirectional], :message => "must be 'incoming', 'outgoing' or 'bidirectional'"
-  validates_numericality_of :throttle, :allow_nil => true, :only_integer => true, :greater_than_or_equal_to => 0
-
-  validate :handler_check_valid
-  before_save :handler_before_save
-  after_create :handler_after_create
-  after_update :handler_after_update
-  before_destroy :handler_before_destroy
-
-  before_destroy :clear_cache
-  after_save :clear_cache
-
-  before_destroy :clear_queued_ao_messages_count_cache
-  after_save :initialize_queued_ao_messages_count_cache
-
-  include(CronTask::CronTaskOwner)
+  def self.sort_candidate!(chans)
+    chans.each{|x| x.priority += rand}
+    chans.sort! do |x, y|
+      result = (x.priority || 100) <=> (y.priority || 100)
+      result = ((x.paused ? 1 : 0) <=> (y.paused ? 1 : 0)) if result == 0
+      result
+    end
+    chans.each{|x| x.priority = x.priority.floor}
+  end
 
   def route_ao(msg, via_interface, options = {})
     simulate = options[:simulate]
     dont_save = options[:dont_save]
 
     ThreadLocalLogger << "Message routed to channel '#{name}'"
+
+    # Assign cost
+    msg.cost = ao_cost if ao_cost.present?
 
     # Apply AO Rules
     apply_ao_rules msg
@@ -293,7 +308,7 @@ class Channel < ActiveRecord::Base
   end
 
   def merge(other)
-    [:name, :kind, :protocol, :direction, :enabled, :priority, :configuration, :restrictions, :address].each do |sym|
+    [:name, :kind, :protocol, :direction, :enabled, :priority, :configuration, :restrictions, :address, :ao_cost, :at_cost].each do |sym|
       write_attribute sym, other.read_attribute(sym) if !other.read_attribute(sym).nil?
     end
   end
@@ -333,11 +348,7 @@ class Channel < ActiveRecord::Base
   end
 
   def handler_after_create
-    if self.enabled
-      self.handler.on_enable
-    else
-      self.handler.on_disable
-    end
+    self.handler.on_create
   end
 
   def handler_after_update
@@ -351,7 +362,7 @@ class Channel < ActiveRecord::Base
       if self.paused
         self.handler.on_pause
       else
-        self.handler.on_unpause
+        self.handler.on_resume
       end
     else
       self.handler.on_changed
@@ -384,24 +395,21 @@ class Channel < ActiveRecord::Base
 
   def common_to_x_attributes
     attributes = {}
-    [:name, :kind, :protocol, :enabled, :priority].each do |sym|
-      attributes[sym] = send(sym) unless send(sym).blank?
+    [:name, :kind, :protocol, :enabled, :priority, :address, :ao_cost, :at_cost].each do |sym|
+      attributes[sym] = send(sym) if send(sym).present?
     end
     attributes[:direction] = direction_text unless direction_text == 'unknown'
     attributes[:application] = application.name if application_id
-    attributes[:address] = address if address.present?
     attributes
   end
 
   def self.from_hash(hash, format)
     chan = Channel.new
-    chan.name = hash[:name]
-    chan.kind = hash[:kind]
-    chan.protocol = hash[:protocol]
-    chan.priority = hash[:priority]
+    [:name, :kind, :protocol, :priority, :address, :ao_cost, :at_cost].each do |sym|
+      chan.send "#{sym}=", hash[sym]
+    end
     chan.enabled = hash[:enabled].to_b
     chan.direction = hash[:direction] if hash[:direction]
-    chan.address = hash[:address] if hash[:address]
 
     hash_config = hash[:configuration] || {}
     hash_config = hash_config[:property] || [] if format == :xml and hash_config[:property]

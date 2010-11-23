@@ -29,6 +29,13 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_true wqs[0].enabled
   end
 
+  test "should destroy worker queue on destroy" do
+    app = Application.make
+    app.destroy
+
+    assert_equal 0, WorkerQueue.count
+  end
+
   test "should bind queue on create" do
     binded = nil
 
@@ -41,20 +48,22 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_same app, binded
   end
 
-  test "should enqueue http post callback" do
-    app = Application.make :http_post_callback
+  ['get', 'post'].each do |method|
+    test "should enqueue http #{method} callback" do
+      app = Application.make :"http_#{method}_callback"
 
-    msg = ATMessage.create!(:account => app.account, :subject => 'foo')
+      msg = ATMessage.create!(:account => app.account, :subject => 'foo')
 
-    Queues.expects(:publish_application).with do |a, j|
-      a.id == app.id and
-        j.kind_of?(SendPostCallbackMessageJob) and
-        j.account_id == app.account.id and
-        j.application_id == app.id and
-        j.message_id == msg.id
+      Queues.expects(:publish_application).with do |a, j|
+        a.id == app.id and
+          j.kind_of?(SendInterfaceCallbackJob) and
+          j.account_id == app.account.id and
+          j.application_id == app.id and
+          j.message_id == msg.id
+      end
+
+      app.route_at msg, (Channel.make :account_id => app.account_id)
     end
-
-    app.route_at msg, (Channel.make :account_id => app.account_id)
   end
 
   test "route ao protocol not found in message" do
@@ -395,7 +404,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert_equal 'queued', msg.state
     assert_equal chans[0].id, msg.channel_id
-    assert_equal ids.join(','), msg.candidate_channels
+    assert_equal ids[1 .. -1].join(','), msg.failover_channels
 
     msg.reload
 
@@ -406,7 +415,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert_equal 'queued', msg.state
     assert_equal chans[1].id, msg.channel_id
-    assert_equal ids[1..-1].join(','), msg.candidate_channels
+    assert_equal ids[2..-1].join(','), msg.failover_channels
 
     msg.reload
 
@@ -417,7 +426,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert_equal 'queued', msg.state
     assert_equal chans[2].id, msg.channel_id
-    assert_equal ids[2..-1].join(','), msg.candidate_channels
+    assert_nil msg.failover_channels
 
     msg.reload
 
@@ -428,7 +437,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert_equal 'failed', msg.state
     assert_equal chans[2].id, msg.channel_id
-    assert_equal nil, msg.candidate_channels
+    assert_nil msg.failover_channels
   end
 
   test "route ao failover resets to original before rerouting" do
@@ -497,5 +506,17 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert_equal chans[1].id, msg.channel_id
     assert_equal 'baz', msg.custom_attributes['cust']
+  end
+
+  test "route ao assigns cost" do
+    app = Application.make
+    chan = Channel.make :account_id => app.account_id, :ao_cost => 1.2
+
+    msg = AOMessage.make_unsaved :account_id => app.account_id
+    app.route_ao msg, 'test'
+
+    msg.reload
+
+    assert_equal 1.2, msg.cost
   end
 end

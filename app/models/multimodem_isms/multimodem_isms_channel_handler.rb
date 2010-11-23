@@ -5,11 +5,7 @@ class MultimodemIsmsChannelHandler < GenericChannelHandler
 
   def check_valid
     check_config_not_blank :host, :user, :password
-
-    port = @channel.configuration[:port]
-    if port.present? && port.to_i <= 0
-      @channel.errors.add(:port, "must be a positive number")
-    end
+    check_config_port :required => false
   end
 
   def info
@@ -18,6 +14,13 @@ class MultimodemIsmsChannelHandler < GenericChannelHandler
       "#{config[:user]}@#{config[:host]}:#{config[:port]}"
     else
       "#{config[:user]}@#{config[:host]}"
+    end
+  end
+
+  def on_create
+    super
+    if @channel.enabled
+      @channel.create_task('multimodem-isms-receive', MULTIMODEM_ISMS_RECEIVE_INTERVAL, ReceiveMultimodemIsmsMessageJob.new(@channel.account_id, @channel.id))
     end
   end
 
@@ -36,14 +39,16 @@ class MultimodemIsmsChannelHandler < GenericChannelHandler
     @channel.drop_task('multimodem-isms-receive')
   end
 
-  def on_unpause
+  def on_resume
     super
     @channel.create_task('multimodem-isms-receive', MULTIMODEM_ISMS_RECEIVE_INTERVAL, ReceiveMultimodemIsmsMessageJob.new(@channel.account_id, @channel.id))
   end
 
   def on_destroy
     super
-    @channel.drop_task('multimodem-isms-receive')
+    if @channel.enabled
+      @channel.drop_task('multimodem-isms-receive')
+    end
   end
 
   ERRORS = {
