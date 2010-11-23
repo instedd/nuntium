@@ -15,7 +15,7 @@
     </p>
     <p>
     <%= c.label :port -%><br/>
-    <%= c.text_field :port, :value => @channel[:configuration][:port] -%>
+    <%= c.text_field :port, :value => @channel[:configuration][:port] || '81' -%>
     </p>
     <p>
     <%= c.label :user -%><br/>
