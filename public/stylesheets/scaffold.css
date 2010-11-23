@@ -240,3 +240,8 @@ acronym {
   text-align: right;
   font-size: 8pt;
 }
+
+.url {
+  font-family: monospace;
+  font-weight: bold;
+}
