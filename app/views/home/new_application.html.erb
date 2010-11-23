@@ -5,12 +5,17 @@
 	}
 	function interface_qst_client() {
 	  $('#config').show();
+	  $('#custom_format').hide();
 	}
 	function interface_http_get_callback() {
 	  $('#config').show();
+	  $('#custom_format').show();
+	  $('#custom_format_desc').html("Custom HTTP GET format");
 	}
 	function interface_http_post_callback() {
 	  $('#config').show();
+	  $('#custom_format').show();
+	  $('#custom_format_desc').html("Custom HTTP POST format");
 	}
 
 	function delivery_ack_none() {
@@ -88,8 +93,8 @@ var applications = <%= applications.to_json -%>;
       <%= c.label :password -%><br/>
       <%= c.password_field :interface_password, :value => @application.interface_password, :autocomplete => :off, :class => 'configurl' -%>
       </p>
-      <p>
-      <%= c.label :custom_format, "Custom GET query string or POST body format (leave blank for default) <a href=\"http://code.google.com/p/nuntium/wiki/Interfaces#Custom_formats\" target=\"_blank\">Learn more...</a>" -%><br/>
+      <p id="custom_format">
+      <%= c.label :custom_format, '<span id="custom_format_desc" /></span> (leave blank for default) <a href="http://code.google.com/p/nuntium/wiki/Interfaces#Custom_formats" target="_blank">Learn more...</a>' -%><br/>
       <%= c.text_area :interface_custom_format, :rows => 3, :cols => 80, :value => @application.interface_custom_format -%>
       </p>
     </div>

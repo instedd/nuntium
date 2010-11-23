@@ -205,4 +205,23 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
     job.perform
   end
+
+  test "post with custom format is xml" do
+    @msg.body = '<hello>'
+    @msg.country = 'ar'
+    @msg.save!
+
+    @application.interface = 'http_post_callback'
+    @application.interface_url = 'http://www.domain.com'
+    @application.interface_custom_format = "<foo>${body}</foo>"
+    @application.save!
+
+    expect_post :url => @application.interface_url,
+      :data => "<foo>#{@msg.body.to_xs}</foo>",
+      :options => {:headers => {:content_type => "application/xml"}},
+      :returns => Net::HTTPSuccess
+
+    job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
+    job.perform
+  end
 end

@@ -13,8 +13,14 @@ class SendInterfaceCallbackJob
     msg = ATMessage.get_message @message_id
     return true if msg.state != 'queued'
 
+    content_type = "application/x-www-form-urlencoded"
+
     if app.interface_custom_format.present?
-      data = apply_custom_format msg, app, (app.interface == 'http_get_callback')
+      looks_like_xml = looks_like_xml?(app.interface_custom_format)
+      if app.interface == 'http_post_callback' && looks_like_xml
+        content_type = 'application/xml'
+      end
+      data = apply_custom_format msg, app, looks_like_xml
     else
       data = {
         :application => app.name,
@@ -28,7 +34,7 @@ class SendInterfaceCallbackJob
       data = data.to_query if app.interface == 'http_get_callback'
     end
 
-    options = {:headers => {:content_type => "application/x-www-form-urlencoded"}}
+    options = {:headers => {:content_type => content_type}}
     if app.interface_user.present?
       options[:user] = app.interface_user
       options[:password] = app.interface_password
@@ -78,7 +84,8 @@ class SendInterfaceCallbackJob
 
   private
 
-  def apply_custom_format(msg, app, escape = false)
+  def apply_custom_format(msg, app, looks_like_xml)
+    escape = app.interface == 'http_get_callback'
     app.interface_custom_format.gsub(%r(\$\{(.*?)\})) do |match|
       # Remove the ${ from the beginning and the } from the end
       match = match[2 .. -2]
@@ -97,8 +104,17 @@ class SendInterfaceCallbackJob
       else
         match = msg.custom_attributes[match]
       end
-      match = CGI.escape(match || '') if escape
+      match ||= ''
+      if looks_like_xml
+        match = match.to_xs
+      elsif escape
+        match = CGI.escape(match || '')
+      end
       match
     end
+  end
+
+  def looks_like_xml?(string)
+    string =~ %r(</(.*?)>) && %r(<#{$1})
   end
 end
