@@ -33,7 +33,7 @@ class RoutesTest < ActionController::TestCase
   end
 
   test "home" do
-    ['interactions', 'settings', 'applications', 'channels', 'ao_messages', 'at_messages', 'logs'].each do |name|
+    ['interactions', 'settings', 'applications', 'channels', 'ao_messages', 'at_messages', 'logs', 'visualizations'].each do |name|
       assert_routing({:path => "/#{name}"}, { :controller => "home", :action => name })
     end
   end

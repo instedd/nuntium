@@ -62,6 +62,9 @@ class HomeController < AccountAuthenticatedController
       )
   end
 
+  def visualizations
+  end
+
   def login
     account = params[:account]
     return redirect_to_home if account.nil?

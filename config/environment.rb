@@ -13,9 +13,9 @@ Rails::Initializer.run do |config|
 
   # Add additional load paths for your own custom dirs
   # config.load_paths += %W( #{RAILS_ROOT}/extras )
-  config.load_paths += Dir["#{RAILS_ROOT}/app/controllers/**/**"] 
+  config.load_paths += Dir["#{RAILS_ROOT}/app/controllers/**/**"]
   config.load_paths += Dir["#{RAILS_ROOT}/app/models/**/**"]
-  config.load_paths += Dir["#{RAILS_ROOT}/app/services/**/**"] 
+  config.load_paths += Dir["#{RAILS_ROOT}/app/services/**/**"]
 
   # Specify gems that this application depends on and have them installed with rake gems:install
   # config.gem "bj"
@@ -24,7 +24,7 @@ Rails::Initializer.run do |config|
   config.gem "tmail"
   config.gem 'mislav-will_paginate', :lib => 'will_paginate', :source => 'http://gems.github.com'
   config.gem "guid"
-  config.gem 'twitter'  
+  config.gem 'twitter'
   config.gem 'ruby-smpp', :lib => 'smpp', :version => '0.2.1'
   config.gem "eventmachine"
   config.gem 'amqp'
@@ -37,6 +37,8 @@ Rails::Initializer.run do |config|
   config.gem 'ruby-cache', :lib => 'cache'
   config.gem 'after_commit'
   config.gem 'json'
+  config.gem 'rgviz'
+  config.gem 'rgviz-rails', :lib => 'rgviz_rails'
 
   # Only load the plugins named here, in the order given (default is alphabetical).
   # :all can be used as a placeholder for all plugins not explicitly named
@@ -56,25 +58,25 @@ Rails::Initializer.run do |config|
   # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
   # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}')]
   # config.i18n.default_locale = :de
-    
+
   $log_path = "#{RAILS_ROOT}/log/#{ENV['RAILS_ENV'] || 'development'}.log" if $log_path.nil?
-  
+
   config.log_path = $log_path
   config.logger = Logger.new($log_path)
   config.logger.level = Logger.const_get(config.log_level.to_s.upcase)
   config.logger.formatter = Logger::Formatter.new
-  
+
   # Start AMQP after rails loads:
   config.after_initialize {
     Thread.new { EM.run {} }
-  
+
     require 'amqp'
     amqp_yaml = YAML.load_file("#{RAILS_ROOT}/config/amqp.yml")
     $amqp_config = amqp_yaml[ENV['RAILS_ENV'] || 'development']
     $amqp_config.symbolize_keys!
     AMQP.start($amqp_config)
   }
-  
+
 end
 
 ActionMailer::Base.delivery_method = :sendmail
