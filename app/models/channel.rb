@@ -65,8 +65,9 @@ class Channel < ActiveRecord::Base
   def self.sort_candidate!(chans)
     chans.each{|x| x.configuration[:_p] = x.priority + rand}
     chans.sort! do |x, y|
-      result = x.configuration[:_p] <=> y.configuration[:_p]
+      result = x.configuration[:_p].floor <=> y.configuration[:_p].floor
       result = ((x.paused ? 1 : 0) <=> (y.paused ? 1 : 0)) if result == 0
+      result = x.configuration[:_p] <=> y.configuration[:_p] if result == 0
       result
     end
   end
