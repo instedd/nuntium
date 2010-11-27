@@ -10,6 +10,7 @@ class VisualizationController < AccountAuthenticatedController
   private
 
   def messages_state_by_day(kind)
+    @hide_title = true
     @kind = kind
     @two_months_ago = Date.today - 2.months
     if @two_months_ago.year == Date.today.year
