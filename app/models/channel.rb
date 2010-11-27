@@ -63,13 +63,12 @@ class Channel < ActiveRecord::Base
   end
 
   def self.sort_candidate!(chans)
-    chans.each{|x| x.priority += rand}
+    chans.each{|x| x.configuration[:_p] = x.priority + rand}
     chans.sort! do |x, y|
-      result = (x.priority || 100) <=> (y.priority || 100)
+      result = x.configuration[:_p] <=> y.configuration[:_p]
       result = ((x.paused ? 1 : 0) <=> (y.paused ? 1 : 0)) if result == 0
       result
     end
-    chans.each{|x| x.priority = x.priority.floor}
   end
 
   def route_ao(msg, via_interface, options = {})
