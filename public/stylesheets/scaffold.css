@@ -235,13 +235,28 @@ acronym {
   color: #999
 }
 
-#version {
-  color: #bbbbbb;
-  text-align: right;
-  font-size: 8pt;
-}
-
 .url {
   font-family: monospace;
   font-weight: bold;
 }
+
+#container {
+  min-height: 100%;
+  position: relative;
+}
+
+#version_separator {
+  height: 20px;
+}
+
+#version {
+  position: absolute;
+  bottom: 0px;
+  right: 4px;
+  height: 20px;
+  width: 100%;
+  color: #666;
+  text-align: right;
+  font-size: 8pt;
+}
+

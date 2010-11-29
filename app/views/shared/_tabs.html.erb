@@ -8,7 +8,8 @@
       ['AT messages', :at_messages],
       ['Logs', :logs],
       ['Interactions', :interactions],
-      ['Settings', :settings]
+      ['Settings', :settings],
+      ['Visualizations', :visualizations]
     ].each do |name, action|
     -%>
     <li<%= selected_tab == action ? ' class="selected"' : ''%>><%= link_to name, :controller => :home, :action => action -%></li>

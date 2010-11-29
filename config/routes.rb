@@ -1,7 +1,7 @@
 ActionController::Routing::Routes.draw do |map|
   # Home
   map.root :controller => 'home'
-  [:interactions, :settings, :applications, :channels, :ao_messages, :at_messages, :logs].each do |name|
+  [:interactions, :settings, :applications, :channels, :ao_messages, :at_messages, :logs, :visualizations].each do |name|
     map.send(name, "/#{name}", :controller => 'home', :action => name)
   end
 
@@ -65,12 +65,18 @@ ActionController::Routing::Routes.draw do |map|
   map.simulate_route_ao '/message/ao/simulate_route', :controller => 'message', :action => :simulate_route_ao
   map.simulate_route_at '/message/at/simulate_route', :controller => 'message', :action => :simulate_route_at
   map.view_ao_message '/message/ao/:id', :controller => 'message', :action => :view_ao_message
+  map.ao_rgviz '/messages/ao/rgviz', :controller => 'message', :action => :ao_rgviz
 
   # AT messages
   map.new_at_message '/message/at/new', :controller => 'message', :action => :new_at_message
   map.create_at_message '/message/at/create', :controller => 'message', :action => :create_at_message
   map.mark_at_messages_as_cancelled '/message/at/mark_as_cancelled', :controller => 'message', :action => :mark_at_messages_as_cancelled
   map.view_at_message '/message/at/:id', :controller => 'message', :action => :view_at_message
+  map.at_rgviz '/messages/at/rgviz', :controller => 'message', :action => :at_rgviz
+
+  # Visualization
+  map.visualization_ao_state_by_day '/visualization/ao/state_by_day', :controller => 'visualization', :action => :ao_state_by_day
+  map.visualization_at_state_by_day '/visualization/at/state_by_day', :controller => 'visualization', :action => :at_state_by_day
 
   # API
   map.countries '/api/countries.:format', :controller => 'api_country', :action => :index

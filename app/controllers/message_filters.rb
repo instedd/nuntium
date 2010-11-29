@@ -80,6 +80,15 @@ module MessageFilters
         conds[1][:before] = before
       end
     end
+    if search[:updated_at]
+      updated_at = parse_time(search[:updated_at])
+      if updated_at
+        next_day = updated_at + 1.day
+        conds[0] << " AND #{esc('updated_at')} >= :updated_at AND #{esc('updated_at')} < :updated_at_next_day"
+        conds[1][:updated_at] = updated_at
+        conds[1][:updated_at_next_day] = next_day
+      end
+    end
     if search[:channel]
       channel = @account.find_channel search[:channel]
       if channel

@@ -229,43 +229,57 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "sort candidate channels first by priority, then by paused" do
-    chans = []
-    chans << Channel.make_unsaved(:name => '0', :priority => 1)
-    chans << Channel.make_unsaved(:name => '1', :priority => 1)
-    chans << Channel.make_unsaved(:name => '2', :priority => 1, :paused => true)
-    chans << Channel.make_unsaved(:name => '3', :priority => 2)
-    chans << Channel.make_unsaved(:name => '4', :priority => 2)
-    chans << Channel.make_unsaved(:name => '5', :priority => 2, :paused => true)
+    zero_was_first = false
+    zero_was_second = false
+    three_was_fourth = false
+    three_was_fifth = false
+    10.times do
+      chans = []
+      chans << Channel.make_unsaved(:name => '0', :priority => 1)
+      chans << Channel.make_unsaved(:name => '1', :priority => 1)
+      chans << Channel.make_unsaved(:name => '2', :priority => 1, :paused => true)
+      chans << Channel.make_unsaved(:name => '3', :priority => 2)
+      chans << Channel.make_unsaved(:name => '4', :priority => 2)
+      chans << Channel.make_unsaved(:name => '5', :priority => 2, :paused => true)
 
-    names = chans.map &:name
+      names = chans.map &:name
 
-    chans.shuffle!
+      chans.shuffle!
 
-    Channel.sort_candidate! chans
+      Channel.sort_candidate! chans
 
-    [0, 1, 2].each do |i|
-      assert_equal 1, chans.select{|x| x.name == i.to_s}.first.priority
-    end
-    [3, 4, 5].each do |i|
-      assert_equal 2, chans.select{|x| x.name == i.to_s}.first.priority
-    end
-
-    chans.map! &:name
-
-    [0, 1].each do |less|
-      [2, 3, 4, 5].each do |great|
-        assert_true chans.index(names[less]) < chans.index(names[great])
+      [0, 1, 2].each do |i|
+        assert_equal 1, chans.select{|x| x.name == i.to_s}.first.priority
       end
-    end
-    [2].each do |less|
-      [3, 4, 5].each do |great|
-        assert_true chans.index(names[less]) < chans.index(names[great])
+      [3, 4, 5].each do |i|
+        assert_equal 2, chans.select{|x| x.name == i.to_s}.first.priority
       end
-    end
-    [3, 4].each do |less|
-      [5].each do |great|
-        assert_true chans.index(names[less]) < chans.index(names[great])
+
+      chans.map! &:name
+
+      [0, 1].each do |less|
+        [2, 3, 4, 5].each do |great|
+          assert_true chans.index(names[less]) < chans.index(names[great])
+        end
       end
+      [2].each do |less|
+        [3, 4, 5].each do |great|
+          assert_true chans.index(names[less]) < chans.index(names[great])
+        end
+      end
+      [3, 4].each do |less|
+        [5].each do |great|
+          assert_true chans.index(names[less]) < chans.index(names[great])
+        end
+      end
+      zero_was_first ||= chans.index('0') == 0
+      zero_was_second ||= chans.index('0') == 1
+      three_was_fourth ||= chans.index('3') == 3
+      three_was_fifth ||= chans.index('3') == 4
     end
+    assert_true zero_was_first
+    assert_true zero_was_second
+    assert_true three_was_fourth
+    assert_true three_was_fifth
   end
 end
