@@ -71,7 +71,7 @@ class HomeControllerTest < ActionController::TestCase
   test "home" do
     account = Account.make
     get :index, {}, {:account_id => account.id}
-    assert_redirected_to :applications
+    assert_template "applications"
   end
 
   # ------------------------ #
