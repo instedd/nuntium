@@ -15,6 +15,7 @@ class HomeController < AccountAuthenticatedController
 
   def index
     # This is to avoid one redirect
+    @selected_tab = :applications
     load_channels_and_applications
     render "applications"
   end
