@@ -120,6 +120,8 @@ class XmppService < Service
   end
 
   def subscribe_queue
+    Rails.logger.info "Subscribing to message queue"
+
     Queues.subscribe_ao(@channel, @mq) do |header, job|
       Rails.logger.debug "Executing job #{job}"
       begin
@@ -127,8 +129,28 @@ class XmppService < Service
         header.ack
       rescue Exception => e
         Rails.logger.error "Error when performing job. Exception: #{e.class} #{e}"
+        unsubscribe_temporarily
       end
     end
+
+    @subscribed = true
+  end
+
+  def unsubscribe_temporarily
+    if @subscribed
+      unsubscribe_queue
+      EM.add_timer(5) { subscribe_queue }
+    end
+  end
+
+
+  def unsubscribe_queue
+    Rails.logger.info "Unsubscribing from message queue"
+
+    @mq = Queues.reconnect(@mq)
+    @mq.prefetch PrefetchCount
+
+    @subscribed = false
   end
 
   def handle_exceptions
