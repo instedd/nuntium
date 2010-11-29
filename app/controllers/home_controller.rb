@@ -14,7 +14,9 @@ class HomeController < AccountAuthenticatedController
   ResultsPerPage = 10
 
   def index
-    redirect_to :applications
+    # This is to avoid one redirect
+    load_channels_and_applications
+    render "applications"
   end
 
   def interactions
