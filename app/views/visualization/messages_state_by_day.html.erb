@@ -14,7 +14,7 @@
   :kind => 'PieChart',
   :url => {:controller => :message, :action => "#{@kind}_rgviz"},
   :query => "select channel_name, count(id) where toDate(updated_at) = param_1 and state = param_2 group by channel_name",
-  :options => {:width => '500', :height => '400', :title => 'js_channels_title'},
+  :options => {:width => '700', :height => '600', :title => 'js_channels_title'},
   :events => {:select => 'select_channel', :rgviz_start => "show_loading", :rgviz_end => "hide_loading"},
   :extensions => true
 %>
