@@ -15,7 +15,10 @@
       <span id="notice"><%= flash[:notice] -%></span>
     <%- end -%>
     <%- if @account && @account.id -%>
-      <span id="toolbar"><%= @account.name -%> | <%= link_to 'Help', 'http://code.google.com/p/nuntium/', :target => '_blank' -%> | <%= link_to 'Logoff', :controller => :home, :action => :logoff -%></span>
+      <span id="toolbar"><%= @account.name -%> |
+        <%= link_to 'Have a question?', 'http://tech.groups.yahoo.com/group/nuntiumusers/', :target => '_blank' -%> |
+        <%= link_to 'Help', 'http://code.google.com/p/nuntium/', :target => '_blank' -%> |
+        <%= link_to 'Logoff', :controller => :home, :action => :logoff -%></span>
       </div>
       <%= render :partial => 'shared/tabs' -%>
     <%- else -%>
