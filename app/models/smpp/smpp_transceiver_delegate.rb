@@ -244,7 +244,7 @@ class SmppTransceiverDelegate
   end
   
   def part_received(source, destination, data_coding, text, ref, total, partn)
-    conditions = ['channel_id = ? AND reference_number = ?', @channel.id, ref]
+    conditions = ['channel_id = ? AND source = ? AND reference_number = ?', @channel.id, source, ref]
     parts = SmppMessagePart.all(:conditions => conditions)
     
     # If all other parts are here
@@ -266,7 +266,8 @@ class SmppTransceiverDelegate
       :reference_number => ref,
       :part_count => total,
       :part_number => partn,
-      :text => text
+      :text => text,
+      :source => source
       )
     end
   end
