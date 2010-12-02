@@ -244,6 +244,9 @@ class SmppTransceiverDelegate
   end
   
   def part_received(source, destination, data_coding, text, ref, total, partn)
+    # Discard unused message parts after one hour
+    SmppMessagePart.delete_all(['created_at < ?', Time.current - 1.hour])
+    
     conditions = ['channel_id = ? AND source = ? AND reference_number = ?', @channel.id, source, ref]
     parts = SmppMessagePart.all(:conditions => conditions)
     

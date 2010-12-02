@@ -270,6 +270,15 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     receive_message "\005\000\003\001\002\002four", 0, 'twofour', :from => '8882', :esm_class => 64
   end
   
+  test "obsolete message parts are discarded" do
+    receive_message "\005\000\003\001\002\001one", 0, 'one', :from => '8881', :part => true, :esm_class => 64, :reference_number => 0001, :part_count => 2, :part_number => 1
+    part = SmppMessagePart.first
+    part.created_at = part.created_at - 2.hours
+    part.save!
+    receive_message "\005\000\003\001\002\001two", 0, 'two', :from => '8882', :part => true, :esm_class => 64, :reference_number => 0001, :part_count => 2, :part_number => 1
+    assert_equal 1, SmppMessagePart.count
+  end
+  
   test "receive sms with udh" do
     receive_message "\005\001\003\123\003\001hola", 0, 'hola', :part => false, :esm_class => 64
   end
