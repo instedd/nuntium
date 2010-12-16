@@ -96,6 +96,14 @@ class ChannelTest < ActiveSupport::TestCase
     assert_equal 'failed', msg.state
   end
 
+  test "route ao discards message with invalid to address" do
+    msg = AOMessage.make_unsaved :to => 'sms://hello', :account => @chan.account, :application => @chan.application
+    @chan.route_ao msg, 'test'
+
+    msg.reload
+    assert_equal 'failed', msg.state
+  end
+
   test "to xml" do
     xml = Hash.from_xml(@chan.to_xml).with_indifferent_access
     chan = xml[:channel]

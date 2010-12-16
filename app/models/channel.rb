@@ -95,6 +95,16 @@ class Channel < ActiveRecord::Base
       return
     end
 
+    # Discard message if the 'to' address is not valid
+    if not msg.to.valid_address?
+      msg.state = 'failed'
+      msg.save! unless simulate || dont_save
+
+      ThreadLocalLogger << "Message 'to' address is invalid. The message will be discarded."
+      logger.warning :application_id => msg.application_id, :channel_id => self.id, :ao_message_id => msg.id, :message => ThreadLocalLogger.result unless simulate
+      return
+    end
+
     # Save the message
     msg.channel = self
     msg.state = 'queued'
