@@ -39,6 +39,7 @@ Rails::Initializer.run do |config|
   config.gem 'json'
   config.gem 'rgviz'
   config.gem 'rgviz-rails', :lib => 'rgviz_rails'
+  config.gem 'smart_asset'
 
   # Only load the plugins named here, in the order given (default is alphabetical).
   # :all can be used as a placeholder for all plugins not explicitly named

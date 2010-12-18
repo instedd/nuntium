@@ -1,0 +1,8 @@
+javascripts:
+  default:
+    - application
+    - jquery-1.3.2
+
+stylesheets:
+  default:
+    - scaffold
