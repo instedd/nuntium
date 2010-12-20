@@ -254,7 +254,6 @@ class OutgoingControllerTest < ActionController::TestCase
     get 'index', :account_id => @account.name
 
     assert_select "message", {:count => 0}
-    assert_equal 1, QSTOutgoingMessage.count
   end
 
   test "don't mark cancelled messages as delivered" do
