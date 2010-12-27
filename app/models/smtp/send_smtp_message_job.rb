@@ -8,7 +8,7 @@ class SendSmtpMessageJob < SendMessageJob
       next unless key.start_with?('references_')
       references += ", <#{value}@#{key[11 .. -1]}.nuntium>"
     end
-    
+
 msgstr = <<-END_OF_MESSAGE
 From: #{@msg.from.without_protocol}
 To: #{@msg.to.without_protocol}
@@ -20,14 +20,18 @@ References: #{references}
 #{@msg.body}
 END_OF_MESSAGE
     msgstr.strip!
-    
+
     smtp = Net::SMTP.new(@config[:host], @config[:port].to_i)
     if (@config[:use_ssl].to_b)
       smtp.enable_tls
     end
-    
+
     begin
-      smtp.start('localhost.localdomain', @config[:user], @config[:password])
+      if @config[:user].present?
+        smtp.start('localhost.localdomain', @config[:user], @config[:password])
+      else
+        smtp.start('localhost.localdomain')
+      end
     rescue Net::SMTPAuthenticationError => ex
       raise PermanentException.new(ex)
     else
@@ -40,9 +44,9 @@ END_OF_MESSAGE
       end
     end
   end
-  
+
   def to_s
     "<SendSmtpMessageJob:#{@message_id}>"
   end
-  
+
 end
