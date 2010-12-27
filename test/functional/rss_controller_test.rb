@@ -73,15 +73,24 @@ class RssControllerTest < ActionController::TestCase
     assert_shows_message_as_rss_item msg
   end
 
-  test "should convert one message without subject to rss item" do
-    msg = ATMessage.make :account => @account, :application => @application, :state => 'queued', :subject => nil
+  test "should convert one message with empty subject to rss item" do
+    msg = ATMessage.make :account => @account, :application => @application, :state => 'queued', :subject => ''
 
     index
 
+    assert_equal msg.timestamp, @response.last_modified
+
     assert_select "title", "Outbox"
-    assert_select "guid" do |es|
+    assert_select "lastBuildDate", msg.timestamp.rfc822
+    assert_select "guid", :count => 1 do |es|
       assert_equal 1, es.length
     end
+    assert_shows_message_as_rss_item msg
+  end
+
+  test "should convert one message without subject to rss item" do
+    msg = ATMessage.make :account => @account, :application => @application, :state => 'queued', :subject => nil
+    index
     assert_shows_message_as_rss_item msg
   end
 
@@ -215,7 +224,7 @@ class RssControllerTest < ActionController::TestCase
   end
 
   def assert_shows_message_as_rss_item(msg)
-    if msg.subject.nil?
+    if msg.subject.blank?
       assert_select "item title", msg.body
       assert_select "item description", {:count => 0}
     else
