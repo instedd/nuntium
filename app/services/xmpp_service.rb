@@ -15,7 +15,9 @@ class XmppService < Service
 
   def start
     if !connect
-      return stop
+      # Give some time to flush EM events
+      EM.add_timer(5) { stop }
+      return
     end
 
     handle_exceptions
@@ -35,7 +37,7 @@ class XmppService < Service
       presence.set_status @channel.configuration[:status] if @channel.configuration[:status].present?
       @client.send presence
       true
-    rescue Exception => ex
+    rescue ClientAuthenticationFailure => ex
       alert_msg = "#{ex} #{ex.backtrace}"
 
       @channel.alert alert_msg
@@ -43,6 +45,9 @@ class XmppService < Service
       @channel.enabled = false
       @channel.save!
 
+      false
+    rescue Exception => ex
+      logger.error ex
       false
     end
   end
