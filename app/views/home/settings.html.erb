@@ -7,7 +7,11 @@
   <h5>Alerts</h5>
   <p>Specify here a comma separated list of emails that will receive error alerts.</p>
   <p>
-  <%= f.label :alert_emails -%><br/>
+  <%- if @account && @account.id && @account.alert_emails.blank? -%>
+    <%= f.label :alert_emails, 'Email alerts', :style => 'color:red' -%><br/>
+  <%- else -%>
+    <%= f.label :alert_emails, 'Email alerts'  -%><br/>
+  <%- end -%>
   <%= f.text_field :alert_emails, :size => 100 -%>
   </p>
   <h5>Password</h5>
