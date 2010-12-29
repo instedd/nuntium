@@ -1,12 +1,12 @@
 <html>
 <head>
 <title>nuntium<%= ' - ' + @account.name if !@account.nil? && !@account.id.nil? -%></title>
-<%= stylesheet_link_tag 'scaffold' -%>
-<%= javascript_include_tag 'jquery-1.3.2' -%>
-<%= javascript_include_tag 'application' -%>
+<%= javascript_include_merged :default %>
+<%= stylesheet_link_merged :default %>
 <%= yield :head%>
 </head>
 <body>
+<div id="container">
 <%- if @hide_title.nil? -%>
   <div id="header">
     <%= link_to 'Nuntium', {:controller => :home, :action => :index}, :id => 'title' -%>
@@ -14,22 +14,24 @@
       <span id="notice"><%= flash[:notice] -%></span>
     <%- end -%>
     <%- if @account && @account.id -%>
-      <span id="toolbar"><%= @account.name -%> | <%= link_to 'Help', 'http://code.google.com/p/nuntium/', :target => '_blank' -%> | <%= link_to 'Logoff', :controller => :home, :action => :logoff -%></span>
+      <span id="toolbar"><%= @account.name -%> |
+        <%- if @account && @account.id && @account.alert_emails.blank? -%>
+          <%= link_to "configure email alerts", {:controller => :home, :action => :settings}, {:style => 'color:red'} -%> |
+        <%- end -%>
+        <%= link_to 'Have a question?', 'http://tech.groups.yahoo.com/group/nuntiumusers/', :target => '_blank' -%> |
+        <%= link_to 'Help', 'http://code.google.com/p/nuntium/', :target => '_blank' -%> |
+        <%= link_to 'Logoff', :controller => :home, :action => :logoff -%></span>
       </div>
       <%= render :partial => 'shared/tabs' -%>
     <%- else -%>
       </div>
     <%- end -%>
 <%- end -%>
-<%- if @account && @account.id && @account.alert_emails.blank? && params[:action].to_sym != :settings -%>
-  <div id="errorNotice">
-    You don't have email alerts configured.<br/>
-    <%= link_to "Do this now", :controller => :home, :action => :settings -%>
-  </div>
-<%- end -%>
 <div id="main">
 <%= yield -%>
 </div>
+<div id="version_separator"></div>
 <div id="version">Version: <%= nuntium_version -%></div>
+</div>
 </body>
 </html>

@@ -55,7 +55,8 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
       pdu_options[:optional_parameters] = optionals
     end
     
-    pdu = Smpp::Pdu::DeliverSm.new '4444', '8888', input, pdu_options
+    from = options.fetch(:from, '4444')
+    pdu = Smpp::Pdu::DeliverSm.new from, '8888', input, pdu_options
     @delegate.mo_received @transceiver, pdu
     
     if options.fetch(:part, false)
@@ -65,12 +66,13 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
       assert_equal options[:reference_number], part.reference_number
       assert_equal options[:part_count], part.part_count
       assert_equal options[:part_number], part.part_number
+      assert_equal from, part.source
       assert_equal output, part.text
     else
       msgs = ATMessage.all
       assert_equal 1, msgs.length
       msg = msgs[0]
-      assert_equal 'sms://4444', msg.from
+      assert_equal "sms://#{from}", msg.from
       assert_equal 'sms://8888', msg.to
       assert_equal output, msg.body
       assert_equal @chan.id, msg.channel_id
@@ -258,6 +260,23 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     receive_message "\005\000\003\123\003\002dos", 0, 'dos', :part => true, :esm_class => 64, :reference_number => 0123, :part_count => 3, :part_number => 2
     receive_message "\005\000\003\123\003\003tres", 0, 'unodostres', :esm_class => 64
     assert_equal 0, SmppMessagePart.count
+  end
+  
+  test "receive concatenated sms from two sources at the same time" do
+    receive_message "\005\000\003\001\002\001one", 0, 'one', :from => '8881', :part => true, :esm_class => 64, :reference_number => 0001, :part_count => 2, :part_number => 1
+    receive_message "\005\000\003\001\002\001two", 0, 'two', :from => '8882', :part => true, :esm_class => 64, :reference_number => 0001, :part_count => 2, :part_number => 1
+    receive_message "\005\000\003\001\002\002three", 0, 'onethree', :from => '8881', :esm_class => 64
+    ATMessage.delete_all
+    receive_message "\005\000\003\001\002\002four", 0, 'twofour', :from => '8882', :esm_class => 64
+  end
+  
+  test "obsolete message parts are discarded" do
+    receive_message "\005\000\003\001\002\001one", 0, 'one', :from => '8881', :part => true, :esm_class => 64, :reference_number => 0001, :part_count => 2, :part_number => 1
+    part = SmppMessagePart.first
+    part.created_at = part.created_at - 2.hours
+    part.save!
+    receive_message "\005\000\003\001\002\001two", 0, 'two', :from => '8882', :part => true, :esm_class => 64, :reference_number => 0001, :part_count => 2, :part_number => 1
+    assert_equal 1, SmppMessagePart.count
   end
   
   test "receive sms with udh" do

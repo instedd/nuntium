@@ -308,6 +308,28 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
         assert_in_log "'from' changed from 'sms://1234' to 'sms://8765'"
       end
     end
+
+    test "message 'from' and 'to' are the same simulate = #{simulate}" do
+      create_channels 1
+
+      @msg = AOMessage.make_unsaved :from => 'sms://1', :to => 'sms://1'
+      @app.route_ao @msg, 'test', :simulate => simulate
+
+      @log = check_log :simulate => simulate, :severity => AccountLog::Warning
+
+      assert_in_log "Message 'from' and 'to' addresses are the same. The message will be discarded."
+    end
+
+    test "message 'to' is invalid simulate = #{simulate}" do
+      create_channels 1
+
+      @msg = AOMessage.make_unsaved :to => 'sms://hello'
+      @app.route_ao @msg, 'test', :simulate => simulate
+
+      @log = check_log :simulate => simulate, :severity => AccountLog::Warning
+
+      assert_in_log "Message 'to' address is invalid. The message will be discarded."
+    end
   end
 
   def create_channels(ammount = 3)
@@ -339,7 +361,7 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
     assert_equal @app.account_id, log.account_id
     assert_equal @app.id, log.application_id
     assert_equal @msg.id, log.ao_message_id
-    assert_equal AccountLog::Info, log.severity
+    assert_equal (options[:severity] || AccountLog::Info), log.severity
 
     log
   end

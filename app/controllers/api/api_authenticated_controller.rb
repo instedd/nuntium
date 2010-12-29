@@ -6,6 +6,7 @@ class ApiAuthenticatedController < ApplicationController
     authenticate_or_request_with_http_basic do |username, password|
       success = false
       account_name, app_name = username.split('/')
+      app_name, account_name = username.split('@') if app_name.nil?
       if account_name and app_name
         @account = Account.find_by_id_or_name account_name
         if @account

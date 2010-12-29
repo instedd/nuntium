@@ -63,13 +63,13 @@ class Channel < ActiveRecord::Base
   end
 
   def self.sort_candidate!(chans)
-    chans.each{|x| x.priority += rand}
+    chans.each{|x| x.configuration[:_p] = x.priority + rand}
     chans.sort! do |x, y|
-      result = (x.priority || 100) <=> (y.priority || 100)
+      result = x.configuration[:_p].floor <=> y.configuration[:_p].floor
       result = ((x.paused ? 1 : 0) <=> (y.paused ? 1 : 0)) if result == 0
+      result = x.configuration[:_p] <=> y.configuration[:_p] if result == 0
       result
     end
-    chans.each{|x| x.priority = x.priority.floor}
   end
 
   def route_ao(msg, via_interface, options = {})
@@ -91,6 +91,16 @@ class Channel < ActiveRecord::Base
       msg.save! unless simulate || dont_save
 
       ThreadLocalLogger << "Message 'from' and 'to' addresses are the same. The message will be discarded."
+      logger.warning :application_id => msg.application_id, :channel_id => self.id, :ao_message_id => msg.id, :message => ThreadLocalLogger.result unless simulate
+      return
+    end
+
+    # Discard message if the 'to' address is not valid
+    if not msg.to.valid_address?
+      msg.state = 'failed'
+      msg.save! unless simulate || dont_save
+
+      ThreadLocalLogger << "Message 'to' address is invalid. The message will be discarded."
       logger.warning :application_id => msg.application_id, :channel_id => self.id, :ao_message_id => msg.id, :message => ThreadLocalLogger.result unless simulate
       return
     end

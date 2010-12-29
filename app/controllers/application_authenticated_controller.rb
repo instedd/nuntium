@@ -6,7 +6,9 @@ class ApplicationAuthenticatedController < ApplicationController
     authenticate_or_request_with_http_basic do |username, password|
       success = false
       account_name, app_name = username.split('/')
-      if account_name == params[:account_name] and app_name == params[:application_name] 
+      app_name, account_name = username.split('@') if app_name.nil?
+
+      if account_name == params[:account_name] and app_name == params[:application_name]
         @account = Account.find_by_id_or_name account_name
         if @account
           @application = @account.find_application app_name

@@ -12,7 +12,7 @@ xml.rss "version" => "2.0" do
       @at_messages.each do |msg|
         xml.item do
           # Show body in title if subject is empty
-          if msg.subject.nil?
+          if msg.subject.blank?
             xml.title msg.body
           else
             xml.title msg.subject

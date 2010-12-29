@@ -7,7 +7,7 @@ class SmtpChannelHandlerTest < ActiveSupport::TestCase
     @chan = Channel.make :smtp
   end
 
-  [:host, :user, :password, :port].each do |field|
+  [:host, :port].each do |field|
     test "should validate configuration presence of #{field}" do
       assert_validates_configuration_presence_of @chan, field
     end

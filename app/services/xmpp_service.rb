@@ -15,7 +15,9 @@ class XmppService < Service
 
   def start
     if !connect
-      return stop
+      # Give some time to flush EM events
+      EM.add_timer(5) { stop }
+      return
     end
 
     handle_exceptions
@@ -35,7 +37,7 @@ class XmppService < Service
       presence.set_status @channel.configuration[:status] if @channel.configuration[:status].present?
       @client.send presence
       true
-    rescue Exception => ex
+    rescue ClientAuthenticationFailure => ex
       alert_msg = "#{ex} #{ex.backtrace}"
 
       @channel.alert alert_msg
@@ -43,6 +45,9 @@ class XmppService < Service
       @channel.enabled = false
       @channel.save!
 
+      false
+    rescue Exception => ex
+      logger.error ex
       false
     end
   end
@@ -120,6 +125,8 @@ class XmppService < Service
   end
 
   def subscribe_queue
+    Rails.logger.info "Subscribing to message queue"
+
     Queues.subscribe_ao(@channel, @mq) do |header, job|
       Rails.logger.debug "Executing job #{job}"
       begin
@@ -127,8 +134,28 @@ class XmppService < Service
         header.ack
       rescue Exception => e
         Rails.logger.error "Error when performing job. Exception: #{e.class} #{e}"
+        unsubscribe_temporarily
       end
     end
+
+    @subscribed = true
+  end
+
+  def unsubscribe_temporarily
+    if @subscribed
+      unsubscribe_queue
+      EM.add_timer(5) { subscribe_queue }
+    end
+  end
+
+
+  def unsubscribe_queue
+    Rails.logger.info "Unsubscribing from message queue"
+
+    @mq = Queues.reconnect(@mq)
+    @mq.prefetch PrefetchCount
+
+    @subscribed = false
   end
 
   def handle_exceptions

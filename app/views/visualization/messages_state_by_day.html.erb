@@ -1,0 +1,63 @@
+<div id="loading_states">Loading, please wait...</div>
+<%= rgviz :id => 'states',
+  :kind => 'ColumnChart',
+  :url => {:controller => :message, :action => "#{@kind}_rgviz"},
+  :query => "select #{@month_and_day}, count(id) where updated_at >= '#{@two_months_ago}' group by #{@month_and_day} pivot state order by #{@month_and_day} label count(id) 'messages'",
+  :options => {:width => '100%', :height => '300', :isStacked => true, :title => "State of #{@kind.to_s.upcase} messages for the last two months"},
+  :events => {:select => 'select_state', :rgviz_start => "show_loading", :rgviz_end => "hide_loading"},
+  :extensions => true
+%>
+
+<div id="loading_channels" style="display:none">Loading, please wait...</div>
+<div style="text-align:center">
+<%= rgviz :id => 'channels',
+  :kind => 'PieChart',
+  :url => {:controller => :message, :action => "#{@kind}_rgviz"},
+  :query => "select channel_name, count(id) where toDate(updated_at) = param_1 and state = param_2 group by channel_name",
+  :options => {:width => '700', :height => '600', :title => 'js_channels_title'},
+  :events => {:select => 'select_channel', :rgviz_start => "show_loading", :rgviz_end => "hide_loading"},
+  :extensions => true
+%>
+</div>
+
+<%= link_to 'Go back', :controller => :home, :action => :visualizations -%>
+
+<script>
+var current_date;
+var current_state;
+
+function select_state(e) {
+  var selection = rgviz_states.getSelection();
+  if (selection.length != 1) return;
+
+  var item = selection[0];
+  current_date = rgviz_states_data.getValue(item.row, 0);
+  <%= "current_date = '#{@prefix}' + current_date;" if @prefix %>
+  current_state = rgviz_states_data.getColumnLabel(item.column);
+  current_state = current_state.substring(0, current_state.length - 9);
+  var pieces = current_date.split('-')
+  rgviz_draw_channels(current_date, current_state);
+}
+
+function select_channel(e) {
+  var selection = rgviz_states.getSelection();
+  if (selection.length != 1) return;
+
+  var item = selection[0];
+  var channel = rgviz_channels_data.getValue(item.row, 0);
+
+  window.location = '<%= url_for(:controller => :home, :action => "#{@kind}_messages") %>?<%= @kind %>_search=channel:' + channel + ' state:' + current_state + ' updated_at:' + current_date;
+}
+
+function channels_title(e) {
+  return current_state + " messages per channel at " + current_date;
+}
+
+function show_loading(viz) {
+  $('#loading_' + viz).show();
+}
+
+function hide_loading(viz) {
+  $('#loading_' + viz).hide();
+}
+</script>

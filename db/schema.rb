@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101123173500) do
+ActiveRecord::Schema.define(:version => 20101202203546) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -221,9 +221,10 @@ ActiveRecord::Schema.define(:version => 20101123173500) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "channel_id"
+    t.string   "source"
   end
 
-  add_index "smpp_message_parts", ["channel_id", "reference_number"], :name => "index_smpp_message_parts_on_channel_id_and_reference_number"
+  add_index "smpp_message_parts", ["channel_id", "source", "reference_number"], :name => "index_smpp_message_parts"
 
   create_table "twitter_channel_statuses", :force => true do |t|
     t.integer  "channel_id"
