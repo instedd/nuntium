@@ -18,7 +18,7 @@ class IpopControllerTest < ActionController::TestCase
       :txtid => '987',
       :bl => '1'
     }
-    get :index, params
+    post :index, params
 
     msgs = AOMessage.all
     assert_equal 1, msgs.length
@@ -32,5 +32,50 @@ class IpopControllerTest < ActionController::TestCase
 
     assert_response :ok
     assert_equal 'OK', @response.body
+  end
+
+  test "ack ok" do
+    msg = AOMessage.make :account => @account, :application => @application, :channel => @chan, :channel_relative_id => '1234-5678'
+    params = {
+      :account_id => @chan.account.name,
+      :channel_name => @chan.name,
+      :hp => '1234',
+      :ts => '5678',
+      :st => 5
+    }
+
+    post :ack, params
+
+    msg.reload
+    assert_equal 'confirmed', msg.state
+
+    logs = AccountLog.all
+    assert_equal 1, logs.length
+    assert_equal msg.id, logs[0].ao_message_id
+    assert_equal @chan.id, logs[0].channel_id
+    assert_equal "Recieved status notification with status 5 (#{IpopChannelHandler::StatusCodes[5]})", logs[0].message
+  end
+
+  test "ack not ok" do
+    msg = AOMessage.make :account => @account, :application => @application, :channel => @chan, :channel_relative_id => '1234-5678'
+    params = {
+      :account_id => @chan.account.name,
+      :channel_name => @chan.name,
+      :hp => '1234',
+      :ts => '5678',
+      :st => 6,
+      :dst => 10
+    }
+
+    post :ack, params
+
+    msg.reload
+    assert_equal 'failed', msg.state
+
+    logs = AccountLog.all
+    assert_equal 1, logs.length
+    assert_equal msg.id, logs[0].ao_message_id
+    assert_equal @chan.id, logs[0].channel_id
+    assert_equal "Recieved status notification with status 6 (#{IpopChannelHandler::StatusCodes[6]}). Detailed status code 10: #{IpopChannelHandler::DetailedStatusCodes[10]}", logs[0].message
   end
 end
