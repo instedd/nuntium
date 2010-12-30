@@ -22,6 +22,10 @@ ActionController::Routing::Routes.draw do |map|
   # Dtac
   map.dtac '/:account_id/dtac/incoming', :controller => 'dtac', :action => :index
 
+  # I-POP
+  map.ipop '/:account_id/ipop/:channel_name/incoming', :controller => 'ipop', :action => :index, :conditions => {:method => :post}
+  map.ipop_ack '/:account_id/ipop/:channel_name/ack', :controller => 'ipop', :action => :ack, :conditions => {:method => :post}
+
   # Accounts
   map.create_account '/create_account', :controller => 'home', :action => :create_account
   map.login '/login', :controller => 'home', :action => :login

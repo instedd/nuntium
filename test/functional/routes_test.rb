@@ -75,6 +75,11 @@ class RoutesTest < ActionController::TestCase
     assert_routing({:path => "/some_account/dtac/incoming"}, { :controller => "dtac", :action => "index", :account_id => "some_account" })
   end
 
+  test "ipop" do
+    assert_routing({:path => "/some_account/ipop/some_channel/incoming", :method => :post}, { :controller => "ipop", :action => "index", :account_id => "some_account", :channel_name => "some_channel"})
+    assert_routing({:path => "/some_account/ipop/some_channel/ack", :method => :post}, { :controller => "ipop", :action => "ack", :account_id => "some_account", :channel_name => "some_channel"})
+  end
+
   test "api" do
     assert_routing({:path => "/api/countries.xml"}, { :controller => "api_country", :action => "index", :format => "xml" })
     assert_routing({:path => "/api/countries/foo.xml"}, { :controller => "api_country", :action => "show", :format => "xml", :iso => 'foo'})

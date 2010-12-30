@@ -33,6 +33,7 @@ class SendIpopMessageJobTest < ActiveSupport::TestCase
     msg = AOMessage.first
     assert_equal 1, msg.tries
     assert_equal 'delivered', msg.state
+    assert_equal "#{@msg.to.mobile_number}-#{@query[:ts]}", msg.channel_relative_id
   end
 
   def deliver

@@ -19,6 +19,7 @@ class SendIpopMessageJob < SendMessageJob
       when Net::HTTPSuccess, Net::HTTPRedirection
         raise res.body if res.body.blank? || res.body.strip != 'OK'
 
+        @msg.channel_relative_id = "#{@msg.to.mobile_number}-#{data[:ts]}"
         @msg.send_succeeed @account, @channel
       else
         raise netres.error!
