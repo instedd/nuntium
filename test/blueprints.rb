@@ -91,6 +91,11 @@ Channel.blueprint :dtac do
   configuration { {:user => Sham.username, :password => Sham.password } }
 end
 
+Channel.blueprint :ipop do
+  kind { "ipop" }
+  configuration { {:mt_post_url => Sham.url, :bid => '1', :cid => Sham.number8 } }
+end
+
 Channel.blueprint :multimodem_isms do
   kind { "multimodem_isms" }
   configuration {{:host => Sham.url, :port => rand(1000) + 1, :user => Sham.username, :password => Sham.password, :time_zone => ActiveSupport::TimeZone.all.rand.name}}
