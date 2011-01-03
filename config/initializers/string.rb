@@ -63,7 +63,7 @@ class String
   def valid_address?
     protocol, address = protocol_and_address
     case protocol
-    when 'sms':
+      when 'sms'
       !!(address =~ SmsRegexp)
     when 'mailto'
       !!(address =~ EmailRegexp)
