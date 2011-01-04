@@ -33,7 +33,19 @@
     <ul>
       <%- @applications.each do |app| -%>
         <li><span class="url">GET <%= url_for :controller => :send_ao, :action => :create, :account_name => @account.name, :application_name => app.name, :only_path => false -%></span>
-          create Application Originated Messages from <%= app.name -%></li>
+          create Application Originated Messages from application <%= app.name -%></li>
+      <%- end -%>
+    </ul>
+  <%- end -%>
+
+  <%- if @channels.any?{|c| c.kind == 'ipop'} -%>
+    <div><b>Via <%= link_to 'I-POP', 'http://www.i-pop.net/', :target => '_blank' -%></b></div>
+    <ul>
+      <%- @channels.select{|c| c.kind == 'ipop'}.each do |channel| -%>
+        <li><span class="url">POST <%= url_for :controller => :ipop, :action => :index, :account_id => @account.name, :channel_name => channel.name, :only_path => false -%></span>
+          create Application Terminated Messages from channel <%= channel.name %></li>
+        <li><span class="url">POST <%= url_for :controller => :ipop, :action => :ack, :account_id => @account.name, :channel_name => channel.name, :only_path => false -%></span>
+          receive Delivery Receipts callbacks from channel <%= channel.name %></li>
       <%- end -%>
     </ul>
   <%- end -%>
@@ -61,9 +73,9 @@
     <ul>
       <%- @applications.each do |app| -%>
         <li><span class="url">POST <%= url_for :controller => :rss, :action => :create, :account_name => @account.name, :application_name => app.name, :only_path => false -%></span>
-          create Application Originated Messages from <%= app.name -%></li>
+          create Application Originated Messages from application <%= app.name -%></li>
           <li><span class="url">GET <%= url_for :controller => :rss, :action => :index, :account_name => @account.name, :application_name => app.name, :only_path => false -%></span>
-          read Application Terminated Messages to <%= app.name -%></li>
+          read Application Terminated Messages to application <%= app.name -%></li>
       <%- end -%>
     </ul>
   <%- end -%>
