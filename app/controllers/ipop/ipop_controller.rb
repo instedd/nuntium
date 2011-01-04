@@ -1,5 +1,3 @@
-require 'test_helper'
-
 class IpopController < ApplicationController
   before_filter :authenticate
 
