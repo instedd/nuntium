@@ -21,7 +21,9 @@ class TwitterChannelHandler < GenericChannelHandler
 
   def friendship_create(user, follow)
     client = TwitterChannelHandler.new_client(@channel.configuration)
-    client.friendship_create user, follow
+    if not client.friendship_exists?(user, @channel.configuration[:screen_name])
+      client.friendship_create user, follow
+    end
   end
 
   def info
