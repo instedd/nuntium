@@ -4,6 +4,7 @@ class IpopController < ApplicationController
   def index
     msg = AOMessage.new
     msg.from = params[:hp].with_protocol 'sms'
+    msg.to = (@channel.address || '').with_protocol 'sms'
     msg.body = params[:txt]
     msg.timestamp = DateTime.strptime(params[:ts][0 .. -4], '%Y%m%d%H%M%S').to_time
     msg.channel_relative_id = params[:ts]

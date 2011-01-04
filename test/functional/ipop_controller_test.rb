@@ -25,6 +25,7 @@ class IpopControllerTest < ActionController::TestCase
     msg = msgs[0]
 
     assert_equal "sms://#{params[:hp]}", msg.from
+    assert_equal "sms://#{@chan.address}", msg.to
     assert_equal params[:ts][0 .. -4], msg.timestamp.strftime('%Y%m%d%H%M%S')
     assert_equal params[:txt], msg.body
     assert_equal params[:ts], msg.channel_relative_id
