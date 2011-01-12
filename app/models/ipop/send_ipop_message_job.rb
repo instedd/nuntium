@@ -8,7 +8,8 @@ class SendIpopMessageJob < SendMessageJob
       :mt => 1,
       :txt => @msg.subject_and_body,
       :sc => @channel.address
-
+    }
+    
     options = {:headers => {:content_type => "application/x-www-form-urlencoded"}}
 
     res = RestClient::Resource.new(@config[:mt_post_url], options)
