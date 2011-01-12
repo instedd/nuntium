@@ -4,6 +4,7 @@ class IpopChannelHandler < GenericChannelHandler
   end
 
   def check_valid
+    @channel.errors.add(:address, "can't be blank") if @channel.address.blank?
     check_config_not_blank :mt_post_url, :bid, :cid
   end
 
