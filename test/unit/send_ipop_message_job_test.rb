@@ -5,6 +5,7 @@ class SendIpopMessageJobTest < ActiveSupport::TestCase
     @chan = Channel.make :ipop
     @msg = AOMessage.make :account => Account.make, :channel => @chan
     @query = {
+      :sc => @chan.address,
       :hp => @msg.to.mobile_number,
       :ts => @msg.timestamp.strftime('%Y%m%d%H%M%S') + @msg.timestamp.milliseconds.to_s,
       :cid => @chan.configuration[:cid],
