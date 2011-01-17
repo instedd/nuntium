@@ -93,6 +93,7 @@ end
 
 Channel.blueprint :ipop do
   kind { "ipop" }
+  address { Sham.number8 }
   configuration { {:mt_post_url => Sham.url, :bid => '1', :cid => Sham.number8 } }
 end
 
