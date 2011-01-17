@@ -170,6 +170,63 @@ function filter_channels_by_kind(select) {
   });
 }
 
+function enable_channel(id, name) {
+  change_channel_state(id, name, false, 'enable', 'enabled', 'Enabling', ['enable'], ['disable', 'pause']);
+}
+
+function pause_channel(id, name) {
+  change_channel_state(id, name, false, 'pause', 'paused', 'Pausing', ['pause', 'disable'], ['resume']);
+}
+
+function resume_channel(id, name) {
+  change_channel_state(id, name, false, 'resume', 'enabled', 'Resuming', ['resume'], ['disable', 'pause']);
+}
+
+function disable_channel(id, name) {
+  change_channel_state(id, name, true, 'disable', 'disabled', 'Disabling', ['disable', 'pause'], ['enable']);
+}
+
+function change_channel_state(id, name, want_confirm, action, state, paction, to_hide, to_show) {
+  if (want_confirm && !confirm("Are you sure you want to " + action + " the channel " + name))
+    return;
+
+  flash(paction + " channel " + name + "...");
+
+  $.ajax({
+    type: "GET",
+    url: '/channel/' + action + '/' + id,
+    success: function(data) {
+      $("#chan-" + id + " .img").attr('src', '/images/' + state + '.png');
+      for(var i = 0; i < to_hide.length; i++) {
+        $("#chan-" + id + " ." + to_hide[i]).hide();
+      }
+      for(var i = 0; i < to_show.length; i++) {
+        $("#chan-" + id + " ." + to_show[i]).show();
+      }
+      flash(data);
+    },
+    error: function() {
+      flash('An error happened while changing the channel ' + name + ' state to ' + state + ' :-(');
+    }
+  });
+}
+
+function flash(message) {
+  $flash = $('.notice');
+  if ($flash.length == 0) {
+    $flash = $('span');
+  }
+
+  $flash.attr('class', 'notice');
+  $flash.attr('style', 'position:fixed; top:4px; z-index:2');
+  $flash.text(message);
+  $flash.show();
+
+  setTimeout(function() {
+    $flash.hide();
+  }, 3000);
+}
+
 // === clickatell ===
 
 function clickatell_channel_direction_changed() {
