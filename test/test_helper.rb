@@ -79,7 +79,7 @@ class ActiveSupport::TestCase
       response = mock('RestClient::Response')
       response.expects('net_http_res').returns(ret)
       response.stubs(:body => options[:returns_body])
-      response.stubs(:content_type => options[:returns_content_type])
+      ret.stubs(:content_type => options[:returns_content_type])
 
       resource.expects('post').with(options[:data]).returns(response)
     end

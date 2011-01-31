@@ -52,8 +52,16 @@ class SendInterfaceCallbackJob
 
           # If the response includes a body, create an AO message from it
           if res.body.present?
-            reply = AOMessage.new :from => msg.to, :to => msg.from, :body => res.body
-            app.route_ao reply, 'http post callback'
+            if netres.content_type == 'application/json'
+              hashes = JSON.parse(res.body)
+              hashes.each do |hash|
+                msg = AOMessage.from_hash hash
+                app.route_ao msg, 'http post callback'
+              end
+            else
+              reply = AOMessage.new :from => msg.to, :to => msg.from, :body => res.body
+              app.route_ao reply, 'http post callback'
+            end
           end
 
           return true
