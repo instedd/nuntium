@@ -169,10 +169,40 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     assert_equal 1, msgs.count
     assert_equal @application.account_id, msgs[0].account_id
     assert_equal @application.id, msgs[0].application_id
+    assert_equal @chan.id, msgs[0].channel_id
     assert_equal 'sms://1', msgs[0].from
     assert_equal 'sms://2', msgs[0].to
     assert_equal 'Hello!', msgs[0].body
     assert_equal 'ar', msgs[0].country
+  end
+
+  test "post response is an xml, route it back" do
+    @application.interface = 'http_post_callback'
+    @application.interface_url = 'http://www.domain.com'
+    @application.save!
+
+    xml = AOMessage.make_unsaved :subject => nil
+    xml.country = 'ar'
+
+    expect_post :url => @application.interface_url,
+      :data => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPSuccess,
+      :returns_body => AOMessage.write_xml([xml]),
+      :returns_content_type => 'application/xml'
+
+    job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
+    job.perform
+
+    msgs = AOMessage.all
+    assert_equal 1, msgs.count
+    assert_equal @application.account_id, msgs[0].account_id
+    assert_equal @application.id, msgs[0].application_id
+    assert_equal @chan.id, msgs[0].channel_id
+    assert_equal xml.from, msgs[0].from
+    assert_equal xml.to, msgs[0].to
+    assert_equal xml.body, msgs[0].body
+    assert_equal xml.country, msgs[0].country
   end
 
   test "post with custom attributes" do
