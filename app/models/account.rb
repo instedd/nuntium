@@ -98,6 +98,7 @@ class Account < ActiveRecord::Base
     # Intef attributes
     msg.infer_custom_attributes :mobile_number => mob
 
+
     # App Routing logic
     if applications.empty?
       msg.save! unless simulate

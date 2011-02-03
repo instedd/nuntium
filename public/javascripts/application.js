@@ -170,6 +170,63 @@ function filter_channels_by_kind(select) {
   });
 }
 
+function enable_channel(id, name) {
+  change_channel_state(id, name, false, 'enable', 'enabled', 'Enabling', ['enable'], ['disable', 'pause']);
+}
+
+function pause_channel(id, name) {
+  change_channel_state(id, name, false, 'pause', 'paused', 'Pausing', ['pause', 'disable'], ['resume']);
+}
+
+function resume_channel(id, name) {
+  change_channel_state(id, name, false, 'resume', 'enabled', 'Resuming', ['resume'], ['disable', 'pause']);
+}
+
+function disable_channel(id, name) {
+  change_channel_state(id, name, true, 'disable', 'disabled', 'Disabling', ['disable', 'pause'], ['enable']);
+}
+
+function change_channel_state(id, name, want_confirm, action, state, paction, to_hide, to_show) {
+  if (want_confirm && !confirm("Are you sure you want to " + action + " the channel " + name))
+    return;
+
+  flash(paction + " channel " + name + "...");
+
+  $.ajax({
+    type: "GET",
+    url: '/channel/' + action + '/' + id,
+    success: function(data) {
+      $("#chan-" + id + " .img").attr('src', '/images/' + state + '.png');
+      for(var i = 0; i < to_hide.length; i++) {
+        $("#chan-" + id + " ." + to_hide[i]).hide();
+      }
+      for(var i = 0; i < to_show.length; i++) {
+        $("#chan-" + id + " ." + to_show[i]).show();
+      }
+      flash(data);
+    },
+    error: function() {
+      flash('An error happened while changing the channel ' + name + ' state to ' + state + ' :-(');
+    }
+  });
+}
+
+function flash(message) {
+  $flash = $('.notice');
+  if ($flash.length == 0) {
+    $flash = $('span');
+  }
+
+  $flash.attr('class', 'notice');
+  $flash.attr('style', 'position:fixed; top:4px; z-index:2');
+  $flash.text(message);
+  $flash.show();
+
+  setTimeout(function() {
+    $flash.hide();
+  }, 3000);
+}
+
 // === clickatell ===
 
 function clickatell_channel_direction_changed() {
@@ -420,146 +477,150 @@ var rules_nextId = 0;
 function rules_newId() { rules_nextId++; return rules_nextId; }
 
 function add_rule_ui(ctx, prefix, rule, matchings, actions) {
-	var table = jQuery('table', ctx);
+  var table = jQuery('table', ctx);
 
-	var rule_id = rules_newId();
-	var rule_prefix = prefix + '[' + rule_id + ']'
+  var rule_id = rules_newId();
+  var rule_prefix = prefix + '[' + rule_id + ']'
 
-	var row = jQuery('<tr><td><a href="#" class="remove-rule">[x]</a></td><td><a href="#" class="add-matching">add condition</a></td><td><a href="#" class="add-action">add action</a></td><td><input type="checkbox" name="' + rule_prefix +'[stop]" value="yes"></td></tr>');
-	table.append(row);
-	var add_matching = jQuery('.add-matching', row);
-	var add_action = jQuery('.add-action', row);
+  var row = jQuery('<tr><td><a href="#" class="remove-rule">[x]</a></td><td><a href="#" class="add-matching">add condition</a></td><td><a href="#" class="add-action">add action</a></td><td><input type="checkbox" name="' + rule_prefix +'[stop]" value="yes"></td></tr>');
+  table.append(row);
+  var add_matching = jQuery('.add-matching', row);
+  var add_action = jQuery('.add-action', row);
 
-	jQuery('.remove-rule', row).click(function(){ row.remove(); return false; });
-	add_matching.click(function(){ add_matching_ui(rule_id, add_matching, rule_prefix, null, matchings); return false; });
-	add_action.click(function(){  add_action_ui(rule_id, add_action, rule_prefix, null, actions); return false; });
+  jQuery('.remove-rule', row).click(function(){ row.remove(); return false; });
+  add_matching.click(function(){ add_matching_ui(rule_id, add_matching, rule_prefix, null, matchings); return false; });
+  add_action.click(function(){ add_action_ui(rule_id, add_action, rule_prefix, null, actions); return false; });
 
-	if (rule != null) {
-		// load existing matchings
-		jQuery(rule.matchings).each(function(_, matching){
-			add_matching_ui(rule_id, add_matching, rule_prefix, matching, matchings);
-		});
-		// load existing actions
-		jQuery(rule.actions).each(function(_, action){
-			add_action_ui(rule_id, add_action, rule_prefix, action, actions);
-		});
-		// load stop value
-		if (rule.stop) {
-			jQuery('input:checkbox', row).val(['yes']);
-		}
-	}
+  if (rule != null) {
+    // load existing matchings
+    if (rule.matchings) {
+      jQuery(rule.matchings).each(function(_, matching){
+        add_matching_ui(rule_id, add_matching, rule_prefix, matching, matchings);
+      });
+    }
+    // load existing actions
+    if (rule.actions) {
+      jQuery(rule.actions).each(function(_, action){
+        add_action_ui(rule_id, add_action, rule_prefix, action, actions);
+      });
+    }
+    // load stop value
+    if (rule.stop) {
+      jQuery('input:checkbox', row).val(['yes']);
+    }
+  }
 }
 
 function add_matching_ui(rule_id, add_matching, prefix, matching, matchings) {
-	// add matching ui
-	var matching_id = rules_newId();
-	var matching_ui = jQuery('<div/>');
-	add_matching.before(matching_ui);
+  // add matching ui
+  var matching_id = rules_newId();
+  var matching_ui = jQuery('<div/>');
+  add_matching.before(matching_ui);
 
-	// fill matching ui
-	if (!matchings) {
-	  matchings = ['application', 'body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'];
-	}
+  // fill matching ui
+  if (!matchings) {
+    matchings = ['application', 'body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'];
+  }
 
-	var name_prefix = prefix + '[matchings][' + matching_id + ']';
-	var matching_ui_str = '';
-	matching_ui_str += '<span class="property"><select name="' + name_prefix +'[property]">';
-	matching_ui_str += property_combo_string(matchings);
-	matching_ui_str += '</select></span>';
+  var name_prefix = prefix + '[matchings][' + matching_id + ']';
+  var matching_ui_str = '';
+  matching_ui_str += '<span class="property"><select name="' + name_prefix +'[property]">';
+  matching_ui_str += property_combo_string(matchings);
+  matching_ui_str += '</select></span>';
 
-	matching_ui.append(matching_ui_str);
-	matching_ui.append('<select class="operator" name="' + name_prefix +'[operator]"><option value="equals">equals</option><option value="not_equals">not equals</option><option value="starts_with">starts with</option><option value="regex">regex</option></select>');
-	matching_ui.append('<span class="value"><input type="text" name="' + name_prefix +'[value]"/></span>');
-	matching_ui.append('<a href="#" class="remove-matching">[x]</a>');
+  matching_ui.append(matching_ui_str);
+  matching_ui.append('<select class="operator" name="' + name_prefix +'[operator]"><option value="equals">equals</option><option value="not_equals">not equals</option><option value="starts_with">starts with</option><option value="regex">regex</option></select>');
+  matching_ui.append('<span class="value"><input type="text" name="' + name_prefix +'[value]"/></span>');
+  matching_ui.append('<a href="#" class="remove-matching">[x]</a>');
 
-	jQuery('.remove-matching', matching_ui).click(function(){ matching_ui.remove(); return false; });
+  jQuery('.remove-matching', matching_ui).click(function(){ matching_ui.remove(); return false; });
 
-	var property = jQuery('select:first', matching_ui);
-	var propertyDiv = jQuery('.property', matching_ui);
-	var valueDiv = jQuery('.value', matching_ui);
-	var operatorSelect = jQuery('.operator', matching_ui);
+  var property = jQuery('select:first', matching_ui);
+  var propertyDiv = jQuery('.property', matching_ui);
+  var valueDiv = jQuery('.value', matching_ui);
+  var operatorSelect = jQuery('.operator', matching_ui);
 
-	init_properties(name_prefix, property, propertyDiv, valueDiv, operatorSelect);
-	if (matching != null) {
-	  init_existing_property(matching, name_prefix, property, propertyDiv, valueDiv, operatorSelect);
-	}
+  init_properties(name_prefix, property, propertyDiv, valueDiv, operatorSelect);
+  if (matching != null) {
+    init_existing_property(matching, name_prefix, property, propertyDiv, valueDiv, operatorSelect);
+  }
 }
 
 function add_action_ui(rule_id, add_action, prefix, action, actions) {
-	// add action ui
-	var action_id = rules_newId();
-	var action_ui = jQuery('<div/>');
-	add_action.before(action_ui);
+  // add action ui
+  var action_id = rules_newId();
+  var action_ui = jQuery('<div/>');
+  add_action.before(action_ui);
 
-	// fill action ui
-	if (!actions) {
-	  actions = ['application', 'body', 'cost', 'country', 'carrier', 'from', 'subject', 'to', 'other'];
-	}
+  // fill action ui
+  if (!actions) {
+    actions = ['application', 'body', 'cost', 'country', 'carrier', 'from', 'subject', 'to', 'other'];
+  }
 
-	var name_prefix = prefix + '[actions][' + action_id + ']';
-	var action_ui_str = '';
-	action_ui_str += '<span class="property"><select name="' + name_prefix +'[property]">';
-	action_ui_str += property_combo_string(actions);
-	action_ui_str += '</span>';
+  var name_prefix = prefix + '[actions][' + action_id + ']';
+  var action_ui_str = '';
+  action_ui_str += '<span class="property"><select name="' + name_prefix +'[property]">';
+  action_ui_str += property_combo_string(actions);
+  action_ui_str += '</span>';
 
-	action_ui.append(action_ui_str);
-	action_ui.append(' = ');
-	action_ui.append('<span class="value"><input type="text" name="' + name_prefix +'[value]"/></span>');
-	action_ui.append('<a href="#" class="remove-action">[x]</a>');
+  action_ui.append(action_ui_str);
+  action_ui.append(' = ');
+  action_ui.append('<span class="value"><input type="text" name="' + name_prefix +'[value]"/></span>');
+  action_ui.append('<a href="#" class="remove-action">[x]</a>');
 
-	jQuery('.remove-action', action_ui).click(function(){ action_ui.remove(); return false; });
+  jQuery('.remove-action', action_ui).click(function(){ action_ui.remove(); return false; });
 
-	var property = jQuery('select:first', action_ui);
-	var propertyDiv = jQuery('.property', action_ui);
-	var valueDiv = jQuery('.value', action_ui);
+  var property = jQuery('select:first', action_ui);
+  var propertyDiv = jQuery('.property', action_ui);
+  var valueDiv = jQuery('.value', action_ui);
 
-	init_properties(name_prefix, property, propertyDiv, valueDiv);
-	if (action != null) {
-	  init_existing_property(action, name_prefix, property, propertyDiv, valueDiv);
-	}
+  init_properties(name_prefix, property, propertyDiv, valueDiv);
+  if (action != null) {
+    init_existing_property(action, name_prefix, property, propertyDiv, valueDiv);
+  }
 }
 
 function init_rules(ctx, prefix, rules, matchings, actions) {
-	// initial ui
-	ctx.append('<table class="table"><tr><th>&nbsp;</th><th>Condition</th><th>Action</th><th>Stop</th></tr></table>');
-	ctx.append('<div><a href="#" class="add-rule">add rule</a></div><br/>');
+  // initial ui
+  ctx.append('<table class="table"><tr><th>&nbsp;</th><th>Condition</th><th>Action</th><th>Stop</th></tr></table>');
+  ctx.append('<div><a href="#" class="add-rule">add rule</a></div><br/>');
 
-	jQuery('.add-rule', ctx).click(function(){
-		add_rule_ui(ctx, prefix, null, matchings, actions);
-		return false;
-	});
+  jQuery('.add-rule', ctx).click(function(){
+    add_rule_ui(ctx, prefix, null, matchings, actions);
+    return false;
+  });
 
-	// load existing rules
-	if (rules != null) {
-		jQuery(rules).each(function(_, rule){
-			add_rule_ui(ctx, prefix, rule, matchings, actions);
-		});
-	}
+  // load existing rules
+  if (rules != null) {
+    jQuery(rules).each(function(_, rule){
+      add_rule_ui(ctx, prefix, rule, matchings, actions);
+    });
+  }
 }
 
 function init_properties(name_prefix, property, propertyDiv, valueDiv, operatorSelect) {
   var propertyChangedFunction = function(property) {
-	  var val = property.val();
-	  switch(val) {
-	  case 'application':
-	    init_property_application(name_prefix, valueDiv, operatorSelect);
-	    break;
-	  case 'country':
-	    init_property_country(name_prefix, valueDiv, operatorSelect);
-	    break;
-    case 'carrier':
-      init_property_carrier(name_prefix, valueDiv, operatorSelect);
-      break;
-	  case 'other':
-	    init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect);
-	    break;
-	  default:
-	    init_property_field(name_prefix, propertyDiv, valueDiv, operatorSelect);
-	    break;
-	  }
-	};
-	property.change(function() { propertyChangedFunction(jQuery(this))});
-	propertyChangedFunction(property);
+    var val = property.val();
+    switch(val) {
+      case 'application':
+        init_property_application(name_prefix, valueDiv, operatorSelect);
+        break;
+      case 'country':
+        init_property_country(name_prefix, valueDiv, operatorSelect);
+        break;
+      case 'carrier':
+        init_property_carrier(name_prefix, valueDiv, operatorSelect);
+        break;
+      case 'other':
+        init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect);
+        break;
+      default:
+        init_property_field(name_prefix, propertyDiv, valueDiv, operatorSelect);
+        break;
+    }
+  };
+  property.change(function() { propertyChangedFunction(jQuery(this))});
+  propertyChangedFunction(property);
 }
 
 function init_property_application(name_prefix, valueDiv, operatorSelect, existing) {
@@ -567,10 +628,10 @@ function init_property_application(name_prefix, valueDiv, operatorSelect, existi
     operatorSelect.html(op_equals_not_equals());
     if (existing) operatorSelect.val(existing.operator);
   }
-	valueDiv.html(applications_select(name_prefix + '[value]'));
-	if (existing) {
-	  jQuery('select', valueDiv).val(existing.value);
-	}
+  valueDiv.html(applications_select(name_prefix + '[value]'));
+  if (existing) {
+    jQuery('select', valueDiv).val(existing.value);
+  }
 }
 
 function init_property_country(name_prefix, valueDiv, operatorSelect, existing) {
@@ -582,8 +643,8 @@ function init_property_country(name_prefix, valueDiv, operatorSelect, existing) 
     success: function(countries) {
       valueDiv.html(countries_select(countries, name_prefix + '[value]'));
       if (existing) {
-	      jQuery('select', valueDiv).val(existing.value);
-	    }
+        jQuery('select', valueDiv).val(existing.value);
+      }
     },
     error: function() {
       alert('An error happened while retreiving countries :-(');
@@ -710,38 +771,38 @@ function op_all() {
 function property_combo_string(actions) {
   str = '';
   for(var i = 0; i < actions.length; i++) {
-	  switch(actions[i]) {
-	  case 'application':
-	    str += '<option value="application">Application</option>';
-	    break;
-	  case 'body':
-	    str += '<option value="body">Body</option>';
-	    break;
-	  case 'cost':
-	    str += '<option value="cost">Cost</option>';
-	    break;
-	  case 'country':
-	    str += '<option value="country">Country</option>';
-	    break;
-    case 'carrier':
-	    str += '<option value="carrier">Carrier</option>';
-	    break;
-	  case 'from':
-	    str += '<option value="from">From</option>';
-	    break;
-    case 'subject':
-	    str += '<option value="subject">Subject</option>';
-	    break;
-	  case 'subject_and_body':
-	    str += '<option value="subject_and_body">Subject and Body</option>';
-	    break;
-	  case 'to':
-	    str += '<option value="to">To</option>';
-	    break;
-    case 'other':
-      str += '<option value="other">Other...</option></select>';
-      break;
-	  }
-	}
-	return str;
+    switch(actions[i]) {
+      case 'application':
+        str += '<option value="application">Application</option>';
+        break;
+      case 'body':
+        str += '<option value="body">Body</option>';
+        break;
+      case 'cost':
+        str += '<option value="cost">Cost</option>';
+        break;
+      case 'country':
+        str += '<option value="country">Country</option>';
+        break;
+      case 'carrier':
+        str += '<option value="carrier">Carrier</option>';
+        break;
+      case 'from':
+        str += '<option value="from">From</option>';
+        break;
+      case 'subject':
+        str += '<option value="subject">Subject</option>';
+        break;
+      case 'subject_and_body':
+        str += '<option value="subject_and_body">Subject and Body</option>';
+        break;
+      case 'to':
+        str += '<option value="to">To</option>';
+        break;
+      case 'other':
+        str += '<option value="other">Other...</option></select>';
+        break;
+    }
+  }
+  return str;
 }

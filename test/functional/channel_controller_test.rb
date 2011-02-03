@@ -98,8 +98,8 @@ class ChannelControllerTest < ActionController::TestCase
     get :enable_channel, {:id => chan.id}, {:account_id => @account.id}
 
     # Go to channels page
-    assert_redirected_to(:controller => 'home', :action => 'channels')
-    assert_equal "Channel #{chan.name} was enabled", flash[:notice]
+    assert_response :ok
+    assert_equal "Channel #{chan.name} was enabled", @response.body
 
     # The channel was enabled
     chans = Channel.all
@@ -129,9 +129,8 @@ class ChannelControllerTest < ActionController::TestCase
 
     get :pause_channel, {:id => chan.id}, {:account_id => @account.id}
 
-    # Go to channels page
-    assert_redirected_to(:controller => 'home', :action => 'channels')
-    assert_equal "Channel #{chan.name} was paused", flash[:notice]
+    assert_response :ok
+    assert_equal "Channel #{chan.name} was paused", @response.body
 
     # The channel was paused
     chans = Channel.all
@@ -144,8 +143,8 @@ class ChannelControllerTest < ActionController::TestCase
     get :resume_channel, {:id => chan.id}, {:account_id => @account.id}
 
     # Go to channels page
-    assert_redirected_to(:controller => 'home', :action => 'channels')
-    assert_equal "Channel #{chan.name} was resumed", flash[:notice]
+    assert_response :ok
+    assert_equal "Channel #{chan.name} was resumed", @response.body
 
     # The channel was resumed
     chans = Channel.all

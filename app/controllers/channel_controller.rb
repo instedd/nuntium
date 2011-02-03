@@ -80,8 +80,7 @@ class ChannelController < AccountAuthenticatedController
     @channel.enabled = true
     @channel.save!
 
-    flash[:notice] = "Channel #{@channel.name} was enabled"
-    redirect_to :controller => :home, :action => :channels
+    render :text => "Channel #{@channel.name} was enabled"
   end
 
   def disable_channel
@@ -103,29 +102,26 @@ class ChannelController < AccountAuthenticatedController
     end
 
     if requeued_messages_count == 0
-      flash[:notice] = "Channel #{@channel.name} was disabled"
+      return render :text => "Channel #{@channel.name} was disabled"
     elsif requeued_messages_count == 1
-      flash[:notice] = "Channel #{@channel.name} was disabled and 1 message was re-queued"
+      return render :text => "Channel #{@channel.name} was disabled and 1 message was re-queued"
     else
-      flash[:notice] = "Channel #{@channel.name} was disabled and #{requeued_messages_count} messages were re-queued"
+      return render :text => "Channel #{@channel.name} was disabled and #{requeued_messages_count} messages were re-queued"
     end
-    redirect_to :controller => :home, :action => :channels
   end
 
   def pause_channel
     @channel.paused = true
     @channel.save!
 
-    flash[:notice] = "Channel #{@channel.name} was paused"
-    redirect_to :controller => :home, :action => :channels
+    render :text => "Channel #{@channel.name} was paused"
   end
 
   def resume_channel
     @channel.paused = false
     @channel.save!
 
-    flash[:notice] = "Channel #{@channel.name} was resumed"
-    redirect_to :controller => :home, :action => :channels
+    render :text => "Channel #{@channel.name} was resumed"
   end
 
   protected

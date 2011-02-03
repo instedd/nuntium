@@ -161,7 +161,7 @@ acronym {
   clear:both;
 }
 
-#notice {
+.notice {
   border-radius: 4px;
   -moz-border-radius: 4px;
   background:#FFF1A8;
