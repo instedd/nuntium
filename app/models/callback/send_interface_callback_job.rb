@@ -92,7 +92,7 @@ class SendInterfaceCallbackJob
   end
 
   def to_s
-    "<SendInterfaceCallbackMessageJob:#{@message_id}>"
+    "<SendInterfaceCallbackJob:#{@message_id}>"
   end
 
   private
