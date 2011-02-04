@@ -27,7 +27,6 @@ class AOMessage < ActiveRecord::Base
 
   def send_succeeed(account, channel, channel_relative_id = nil)
     self.state = 'delivered'
-    self.tries += 1
     self.channel_relative_id = channel_relative_id unless channel_relative_id.nil?
     self.save!
 
@@ -35,7 +34,6 @@ class AOMessage < ActiveRecord::Base
   end
 
   def send_failed(account, channel, exception)
-    self.tries += 1
     self.state = 'failed'
     self.save!
 

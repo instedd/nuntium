@@ -21,7 +21,6 @@ class ATMessage < ActiveRecord::Base
   end
 
   def send_failed(account, application, exception)
-    self.tries += 1
     self.state = 'failed'
     self.save!
 

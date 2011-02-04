@@ -396,7 +396,6 @@ class Application < ActiveRecord::Base
   def alert(message)
     return if account.alert_emails.blank?
 
-    logger.error :application_id => self.id, :message => message
     AlertMailer.deliver_error account, "Error in account #{account.name}, application #{self.name}", message
   end
 

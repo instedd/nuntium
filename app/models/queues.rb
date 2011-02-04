@@ -1,4 +1,3 @@
-
 module Queues
 
   class << self
@@ -29,7 +28,7 @@ module Queues
 
     def subscribe_ao(channel, mq = DefaultMQ)
       bind_ao(channel, mq).subscribe(:ack => true) do |header, job|
-        yield header, deserialize(job)
+        yield header, job.deserialize_job
       end
     end
 
@@ -41,27 +40,27 @@ module Queues
       notifications_exchange(mq).publish(job.to_yaml, :routing_key => routing_key)
     end
 
-		def purge_ao(channel, mq = DefaultMQ)
-			bind_ao(channel, mq).purge
-		end
+    def purge_ao(channel, mq = DefaultMQ)
+      bind_ao(channel, mq).purge
+    end
 
-		def purge_notifications(id, routing_key, mq = DefaultMQ)
-			bind_notifications(id, routing_key, mq).purge
-		end
+    def purge_notifications(id, routing_key, mq = DefaultMQ)
+      bind_notifications(id, routing_key, mq).purge
+    end
 
-		def publish_cron_task(task, mq = DefaultMQ)
-		  cron_tasks_exchange(mq).publish(task.to_yaml, :persistent => true)
+    def publish_cron_task(task, mq = DefaultMQ)
+      cron_tasks_exchange(mq).publish(task.to_yaml, :persistent => true)
     end
 
     def subscribe_notifications(id, routing_key, mq = DefaultMQ)
       bind_notifications(id, routing_key, mq).subscribe do |header, task|
-        yield header, deserialize(task)
+        yield header, task.deserialize_job
       end
     end
 
     def subscribe(queue_name, ack, durable, mq = DefaultMQ)
       mq.queue(queue_name, :durable => durable).subscribe(:ack => ack) do |header, job|
-        yield header, deserialize(job)
+        yield header, job.deserialize_job
       end
     end
 
@@ -73,26 +72,6 @@ module Queues
       new_mq = MQ.new
       mq.close
       new_mq
-    end
-
-    def deserialize(source)
-      handler = YAML.load(source) rescue nil
-
-      unless handler.respond_to?(:perform)
-        if handler.nil? && source =~ ParseObjectFromYaml
-          handler_class = $1
-        end
-        attempt_to_load(handler_class || handler.class)
-        handler = YAML.load(source)
-      end
-
-      return handler if handler.respond_to?(:perform)
-
-      raise DeserializationError,
-        'Job failed to load: Unknown handler. Try to manually require the appropriate file.'
-    rescue TypeError, LoadError, NameError => e
-      raise DeserializationError,
-        "Job failed to load: #{e.message}. Try to manually require the required file."
     end
 
     def application_exchange(mq = DefaultMQ)
@@ -152,14 +131,6 @@ module Queues
     def bind_cron_tasks(mq = DefaultMQ)
       cron_tasks_queue(mq).bind(cron_tasks_exchange(mq))
     end
-
-    # Constantize the object so that ActiveSupport can attempt
-    # its auto loading magic. Will raise LoadError if not successful.
-    def attempt_to_load(klass)
-       klass.constantize
-    end
-
-    ParseObjectFromYaml = /\!ruby\/\w+\:([^\s]+)/
 
   end
 

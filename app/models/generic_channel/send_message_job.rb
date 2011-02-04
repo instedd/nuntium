@@ -13,6 +13,7 @@ class SendMessageJob
   def perform
     begin
       @msg = AOMessage.find @message_id
+
       return true if @msg.channel_id != @channel_id
       return true if @msg.state != 'queued'
 
@@ -20,29 +21,16 @@ class SendMessageJob
       @channel = @account.find_channel @channel_id
       @config = @channel.configuration
 
-      managed_perform
-    rescue MessageException => ex
-      @msg.send_failed @account, @channel, ex.inner
-      true
-    rescue PermanentException => ex
-      alert_msg = "Permanent exception in #{self} when trying to send message with id #{@msg.id}: #{ex}"
-
-      Rails.logger.warn alert_msg
-      @channel.alert alert_msg
-
-      @channel.enabled = false
-      @channel.save!
-
-      false
-    rescue Exception => ex
       @msg.tries += 1
       @msg.save!
 
-      if @msg.tries >= @account.max_tries
-        @channel.alert "Temporary exception in #{self} when trying to send message with id #{@msg.id}: #{ex}"
-      end
-
-      raise ex
+      managed_perform
+    rescue MessageException => ex
+      @msg.send_failed @account, @channel, ex.inner
+    rescue PermanentException => ex
+      alert_msg = "Permanent exception when trying to send message with id #{@msg.id}: #{ex}"
+      @channel.alert alert_msg
+      raise alert_msg
     end
   end
 
@@ -55,6 +43,16 @@ class SendMessageJob
   # If there's no error, @msg.send_succeeed must be invoked.
   def managed_perform
     raise PermanentException.new(Exception.new("managed_perform method is not implemented for #{self.class.name}"))
+  end
+
+  def reschedule(ex)
+    @msg.state = 'delayed'
+    @msg.save!
+
+    @account.logger.warning :channel_id => @channel.id, :ao_message_id => @message_id, :message => ex.message
+
+    new_job = self.class.new @account_id, @channel_id, @message_id
+    ScheduledJob.create! :job => RepublishAoMessageJob.new(@message_id, new_job), :run_at => 1.minute.from_now
   end
 
   def to_s

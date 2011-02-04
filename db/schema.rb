@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101202203546) do
+ActiveRecord::Schema.define(:version => 20110202195752) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -212,6 +212,15 @@ ActiveRecord::Schema.define(:version => 20101202203546) do
   end
 
   add_index "qst_outgoing_messages", ["ao_message_id"], :name => "index_unread_ao_messages_on_guid"
+
+  create_table "scheduled_jobs", :force => true do |t|
+    t.text     "job"
+    t.datetime "run_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "scheduled_jobs", ["run_at"], :name => "index_scheduled_jobs_on_run_at"
 
   create_table "smpp_message_parts", :force => true do |t|
     t.integer  "reference_number"

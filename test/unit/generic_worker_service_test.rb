@@ -16,9 +16,9 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     super
   end
 
-	def teardown
-	  @service.stop false # do not stop event machine
-	end
+  def teardown
+    @service.stop false # do not stop event machine
+  end
 
   test "should subscribe to enabled channels" do
     Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(MQ))
@@ -58,11 +58,25 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     @service.start
   end
 
-  test "should unsubscribe temporarily on unknown exception" do
+  test "should reschedule on unknown exception" do
+    header = mock('header')
+    header.expects(:ack)
+
+    job = mock('job')
+    job.expects(:perform).raises(RuntimeError.new)
+    job.expects(:reschedule)
+
+    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(MQ)).yields(header, job)
+
+    @service.start
+  end
+
+  test "should unsubscribe temporarily on exception on reschedule" do
     header = mock('header')
 
     job = mock('job')
-    job.expects(:perform).raises(Exception.new)
+    job.expects(:perform).raises(RuntimeError.new)
+    job.expects(:reschedule).raises(RuntimeError.new)
 
     Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(MQ)).yields(header, job)
 

@@ -44,13 +44,20 @@ class GenericWorkerService < Service
     Queues.subscribe(wq.queue_name, wq.ack, wq.durable, mq) do |header, job|
       begin
         Rails.logger.debug "Executing job #{job} for queue #{wq.queue_name}"
-        success = job.perform
-        header.ack if success == true and wq.ack
-      rescue Exception => ex
-        Rails.logger.info "Temporary exception executing #{job} for queue #{wq.queue_name}: #{ex.class} #{ex} #{ex.backtrace}"
+        job.perform
+        header.ack if wq.ack
+      rescue => ex
+        Rails.logger.info "Exception executing #{job} for queue #{wq.queue_name}: #{ex.class} #{ex} #{ex.backtrace}"
 
         if wq.ack
-          Queues.publish_notification UnsubscribeTemporarilyFromQueueJob.new(wq.queue_name), @working_group, @notifications_session
+          begin
+            job.reschedule ex
+          rescue => ex
+            Rails.logger.info "Exception rescheduling #{job} for queue #{wq.queue_name}: #{ex.class} #{ex} #{ex.backtrace}"
+            Queues.publish_notification UnsubscribeTemporarilyFromQueueJob.new(wq.queue_name), @working_group, @notifications_session
+          else
+            header.ack
+          end
         end
       end
     end

@@ -29,7 +29,7 @@ class SendIpopMessageJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPSuccess,
       :returns_body => 'OK'
 
-    assert_true deliver
+    deliver
 
     msg = AOMessage.first
     assert_equal 1, msg.tries

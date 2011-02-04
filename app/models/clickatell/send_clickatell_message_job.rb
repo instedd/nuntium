@@ -6,12 +6,11 @@ class SendClickatellMessageJob < SendMessageJob
     if response.body[0..2] == "ID:"
       @msg.channel_relative_id = response.body[4..-1]
       @msg.send_succeeed @account, @channel
-      return true
     elsif response.body[0..3] == "ERR:"
       code_with_description = response.body[5..-1]
       code = code_with_description.to_i
       error = ClickatellChannelHandler::CLICKATELL_ERRORS[code]
-      
+
       raise code_with_description if error.nil?
       raise PermanentException.new(Exception.new(code_with_description)) if error[:kind] == :fatal
       raise MessageException.new(Exception.new(code_with_description)) if error[:kind] == :message
@@ -20,7 +19,7 @@ class SendClickatellMessageJob < SendMessageJob
       raise response.body
     end
   end
-  
+
   def query_parameters
     params = {}
     params[:api_id] = @config[:api_id]
@@ -42,11 +41,11 @@ class SendClickatellMessageJob < SendMessageJob
     params[:callback] = '3'
     params
   end
-  
+
   def is_low_ascii(str)
     Chars.u_unpack(str).all? { |x| x < 128 }
   end
-  
+
   def to_unicode_raw_string(str)
     chars = Chars.u_unpack(str).map { |x| x.to_s(16).rjust(4, '0') }
     chars.to_s
