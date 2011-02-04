@@ -52,7 +52,7 @@ class SendMessageJob
     @account.logger.warning :channel_id => @channel.id, :ao_message_id => @message_id, :message => ex.message
 
     new_job = self.class.new @account_id, @channel_id, @message_id
-    ScheduledJob.create! :job => RepublishAoMessageJob.new(@message_id, new_job), :run_at => 1.minute.from_now
+    ScheduledJob.create! :job => RepublishAoMessageJob.new(@message_id, new_job), :run_at => @msg.tries.as_exponential_backoff.minutes.from_now
   end
 
   def to_s

@@ -48,7 +48,8 @@ class SendDeliveryAckJob
   def reschedule(ex)
     @app.logger.warning :ao_message_id => @message_id, :message => ex.message
 
-    new_job = self.class.new(@account_id, @application_id, @message_id, @state, self.tries + 1)
-    ScheduledJob.create! :job => RepublishApplicationJob.new(@application_id, new_job), :run_at => 1.minute.from_now
+    tries = self.tries + 1
+    new_job = self.class.new(@account_id, @application_id, @message_id, @state, tries)
+    ScheduledJob.create! :job => RepublishApplicationJob.new(@application_id, new_job), :run_at => tries.as_exponential_backoff.minutes.from_now
   end
 end

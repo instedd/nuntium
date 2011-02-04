@@ -92,8 +92,9 @@ class SendInterfaceCallbackJob
 
     @app.logger.warning :at_message_id => @message_id, :message => ex.message
 
-    new_job = self.class.new(@account_id, @application_id, @message_id, self.tries + 1)
-    ScheduledJob.create! :job => RepublishAtJob.new(@application_id, @message_id, new_job), :run_at => 1.minute.from_now
+    tries = self.tries + 1
+    new_job = self.class.new(@account_id, @application_id, @message_id, tries)
+    ScheduledJob.create! :job => RepublishAtJob.new(@application_id, @message_id, new_job), :run_at => tries.as_exponential_backoff.minutes.from_now
   end
 
   def to_s
