@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110202195752) do
+ActiveRecord::Schema.define(:version => 20110209142150) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -237,7 +237,7 @@ ActiveRecord::Schema.define(:version => 20110202195752) do
 
   create_table "twitter_channel_statuses", :force => true do |t|
     t.integer  "channel_id"
-    t.integer  "last_id"
+    t.string   "last_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
