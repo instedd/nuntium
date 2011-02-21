@@ -84,6 +84,17 @@ class Channel < ActiveRecord::Base
     # Apply AO Rules
     apply_ao_rules msg
 
+    # Discard the message if the rules canceled the message
+    if msg.state == 'canceled'
+      msg.channel = self
+      msg.state = 'canceled'
+      msg.save! unless simulate || dont_save
+
+      ThreadLocalLogger << "Message was canceled by channel ao rules."
+      logger.info :application_id => msg.application_id, :channel_id => self.id, :ao_message_id => msg.id, :message => ThreadLocalLogger.result unless simulate
+      return
+    end
+
     # Discard the message if the 'from' and 'to' are the same
     if msg.from == msg.to
       msg.channel = self

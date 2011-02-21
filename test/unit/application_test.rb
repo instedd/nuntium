@@ -2,6 +2,8 @@ require 'test_helper'
 
 class ApplicationTest < ActiveSupport::TestCase
 
+  include RulesEngine
+
   test "check modified" do
     app = Application.make
     chan1 = Channel.make :account => app.account
@@ -380,10 +382,10 @@ class ApplicationTest < ActiveSupport::TestCase
   test "application at rules" do
     app = Application.make
     app.at_rules = [
-      RulesEngine.rule([
-        RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1')
+      rule([
+        matching('from', OP_EQUALS, 'sms://1')
       ],[
-        RulesEngine.action('from','sms://2')
+        action('from','sms://2')
       ])
     ]
     chan = Channel.make :account_id => app.account_id
@@ -393,6 +395,29 @@ class ApplicationTest < ActiveSupport::TestCase
     app.route_at msg, chan
 
     assert_equal 'sms://2', msg.from
+  end
+
+  test "application at rules cancels message" do
+    app = Application.make
+    app.interface = 'http_get_callback'
+    app.at_rules = [
+      rule([
+        matching('from', OP_EQUALS, 'sms://1')
+      ],[
+        action('cancel','true')
+      ])
+    ]
+    chan = Channel.make :account_id => app.account_id
+
+    msg = ATMessage.make_unsaved :from => 'sms://1', :account_id => app.account_id
+
+    Queues.expects(:publish_application).never
+
+    app.route_at msg, chan
+
+    assert_equal 'canceled', msg.state
+    assert_not_nil msg.id
+    assert_equal app.id, msg.application_id
   end
 
   test "route ao failover" do
@@ -440,15 +465,32 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_nil msg.failover_channels
   end
 
+  test "route ao rules cancels message" do
+    app = Application.make
+    app.ao_rules = [
+        rule([
+          matching('from', OP_EQUALS, 'sms://1')
+        ],[
+          action('cancel', "true")
+        ])
+    ]
+    msg = AOMessage.make_unsaved :account_id => app.account_id, :from => 'sms://1'
+    app.route_ao msg, 'test'
+
+    assert_equal 'canceled', msg.state
+    assert_not_nil msg.id
+    assert_nil msg.channel_id
+  end
+
   test "route ao failover resets to original before rerouting" do
     app = Application.make
     chans = 2.times.map {|i| Channel.make_unsaved :account_id => app.account_id, :priority => i }
     chans.each_with_index do |chan, i|
       chan.ao_rules = [
-        RulesEngine.rule([
-          RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1')
+        rule([
+          matching('from', OP_EQUALS, 'sms://1')
         ],[
-          RulesEngine.action('from',"sms://#{i + 2}")
+          action('from',"sms://#{i + 2}")
         ])
       ]
     end
@@ -475,17 +517,17 @@ class ApplicationTest < ActiveSupport::TestCase
     app = Application.make
     chans = 2.times.map {|i| Channel.make_unsaved :account_id => app.account_id, :priority => i }
     chans[0].ao_rules = [
-      RulesEngine.rule([
-        RulesEngine.matching('cust', RulesEngine::OP_EQUALS, 'foo')
+      rule([
+        matching('cust', OP_EQUALS, 'foo')
       ],[
-        RulesEngine.action('cust',"bar")
+        action('cust',"bar")
       ])
     ]
     chans[1].ao_rules = [
-      RulesEngine.rule([
-        RulesEngine.matching('cust', RulesEngine::OP_EQUALS, 'foo')
+      rule([
+        matching('cust', OP_EQUALS, 'foo')
       ],[
-        RulesEngine.action('cust',"baz")
+        action('cust',"baz")
       ])
     ]
     chans.each &:'save!'

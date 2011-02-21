@@ -87,10 +87,13 @@ class Application < ActiveRecord::Base
 
     # Exit if no candidate channel
     if channels.empty?
-      msg.state = 'failed'
-      msg.save! unless simulate
+      if msg.state != 'canceled'
+        msg.state = 'failed'
 
-      ThreadLocalLogger << "No suitable channel found for routing the message"
+        ThreadLocalLogger << "No suitable channel found for routing the message"
+      end
+
+      msg.save! unless simulate
 
       if simulate
         return {:log => ThreadLocalLogger.result}
@@ -207,22 +210,26 @@ class Application < ActiveRecord::Base
     # Apply AT Rules
     at_routing_res = RulesEngine.apply(msg.rules_context, self.at_rules)
     if at_routing_res.present?
-      ThreadLocalLogger << "Applying channel at rules..."
+      ThreadLocalLogger << "Applying application at rules..."
       msg.merge at_routing_res
     end
 
     # save the message here so we have an id for the later job
     msg.save! unless simulate
 
-    # Check if callback interface is configured
-    if self.interface == 'http_get_callback' || self.interface == 'http_post_callback'
-      unless simulate
-        Queues.publish_application self, SendInterfaceCallbackJob.new(msg.account_id, msg.application_id, msg.id)
-      end
-      if self.interface == 'http_get_callback'
-        ThreadLocalLogger << "Enqueued GET callback"
-      else
-        ThreadLocalLogger << "Enqueued POST callback"
+    if msg.state == 'canceled'
+      ThreadLocalLogger << "Message was canceled by application at rules."
+    else
+      # Check if callback interface is configured
+      if self.interface == 'http_get_callback' || self.interface == 'http_post_callback'
+        unless simulate
+          Queues.publish_application self, SendInterfaceCallbackJob.new(msg.account_id, msg.application_id, msg.id)
+        end
+        if self.interface == 'http_get_callback'
+          ThreadLocalLogger << "Enqueued GET callback"
+        else
+          ThreadLocalLogger << "Enqueued POST callback"
+        end
       end
     end
 
@@ -251,6 +258,12 @@ class Application < ActiveRecord::Base
     if ao_rules_res.present?
       ThreadLocalLogger << "Applying application ao rules..."
       msg.merge ao_rules_res
+    end
+
+    # Return if message was canceled by AO rules
+    if msg.state == 'canceled'
+      ThreadLocalLogger << "Message was canceled by application ao rules."
+      return []
     end
 
     # Get all outgoing enabled channels

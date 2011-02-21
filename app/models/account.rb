@@ -92,12 +92,20 @@ class Account < ActiveRecord::Base
       msg.merge at_routing_res
     end
 
+    if msg.state == 'canceled'
+      ThreadLocalLogger << "Message was canceled by channel at rules."
+      msg.save! unless simulate
+
+      return ThreadLocalLogger.result if simulate
+      logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => ThreadLocalLogger.result
+      return
+    end
+
     # Save mobile number information
     mob = MobileNumber.update(msg.from.mobile_number, msg.country, msg.carrier, options) if msg.from and msg.from.protocol == 'sms'
 
     # Intef attributes
     msg.infer_custom_attributes :mobile_number => mob
-
 
     # App Routing logic
     if applications.empty?

@@ -88,6 +88,23 @@ class ChannelTest < ActiveSupport::TestCase
     assert_equal 'sms://2', msg.from
   end
 
+  test "route ao applies ao rules and cancels message" do
+    @chan.ao_rules = [
+      RulesEngine.rule([
+        RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1')
+      ],[
+        RulesEngine.action('cancel','true')
+      ])
+    ]
+
+    msg = AOMessage.make_unsaved :from => 'sms://1', :account => @chan.account, :application => @chan.application
+    @chan.route_ao msg, 'test'
+
+    assert_equal 'canceled', msg.state
+    assert_equal @chan.id, msg.channel_id
+    assert_not_nil msg.id
+  end
+
   test "route ao discards message with same from and to" do
     msg = AOMessage.make_unsaved :from => 'sms://123', :to => 'sms://123', :account => @chan.account, :application => @chan.application
     @chan.expects(:handle).never

@@ -490,7 +490,7 @@ function accept_when_not_specified_checkbox(checked) {
 var rules_nextId = 0;
 function rules_newId() { rules_nextId++; return rules_nextId; }
 
-function add_rule_ui(ctx, prefix, rule, matchings, actions) {
+function add_rule_ui(ctx, prefix, rule, excluded_matchings, excluded_actions) {
   var table = jQuery('table', ctx);
 
   var rule_id = rules_newId();
@@ -502,20 +502,20 @@ function add_rule_ui(ctx, prefix, rule, matchings, actions) {
   var add_action = jQuery('.add-action', row);
 
   jQuery('.remove-rule', row).click(function(){ row.remove(); return false; });
-  add_matching.click(function(){ add_matching_ui(rule_id, add_matching, rule_prefix, null, matchings); return false; });
-  add_action.click(function(){ add_action_ui(rule_id, add_action, rule_prefix, null, actions); return false; });
+  add_matching.click(function(){ add_matching_ui(rule_id, add_matching, rule_prefix, null, excluded_matchings); return false; });
+  add_action.click(function(){ add_action_ui(rule_id, add_action, rule_prefix, null, excluded_actions); return false; });
 
   if (rule != null) {
     // load existing matchings
     if (rule.matchings) {
       jQuery(rule.matchings).each(function(_, matching){
-        add_matching_ui(rule_id, add_matching, rule_prefix, matching, matchings);
+        add_matching_ui(rule_id, add_matching, rule_prefix, matching, excluded_matchings);
       });
     }
     // load existing actions
     if (rule.actions) {
       jQuery(rule.actions).each(function(_, action){
-        add_action_ui(rule_id, add_action, rule_prefix, action, actions);
+        add_action_ui(rule_id, add_action, rule_prefix, action, excluded_actions);
       });
     }
     // load stop value
@@ -525,15 +525,33 @@ function add_rule_ui(ctx, prefix, rule, matchings, actions) {
   }
 }
 
-function add_matching_ui(rule_id, add_matching, prefix, matching, matchings) {
+function add_matching_ui(rule_id, add_matching, prefix, matching, excluded_matchings) {
   // add matching ui
   var matching_id = rules_newId();
   var matching_ui = jQuery('<div/>');
   add_matching.before(matching_ui);
 
   // fill matching ui
-  if (!matchings) {
-    matchings = ['application', 'body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'];
+  var matchings = [];
+  var all_matchings = ['application', 'body', 'country', 'carrier', 'from', 'subject', 'subject_and_body', 'to', 'other'];
+  if (excluded_matchings) {
+    if (excluded_matchings['include']) {
+      excluded_matchings = excluded_matchings['include'];
+      for(var i in all_matchings) {
+        if (excluded_matchings.indexOf(all_matchings[i]) >= 0) {
+          matchings.push(all_matchings[i]);
+        }
+      }
+    } else {
+      excluded_matchings = excluded_matchings['exclude'];
+      for(var i in all_matchings) {
+        if (excluded_matchings.indexOf(all_matchings[i]) < 0) {
+          matchings.push(all_matchings[i]);
+        }
+      }
+    }
+  } else {
+    matchings = all_matchings;
   }
 
   var name_prefix = prefix + '[matchings][' + matching_id + ']';
@@ -560,15 +578,33 @@ function add_matching_ui(rule_id, add_matching, prefix, matching, matchings) {
   }
 }
 
-function add_action_ui(rule_id, add_action, prefix, action, actions) {
+function add_action_ui(rule_id, add_action, prefix, action, excluded_actions) {
   // add action ui
   var action_id = rules_newId();
   var action_ui = jQuery('<div/>');
   add_action.before(action_ui);
 
   // fill action ui
-  if (!actions) {
-    actions = ['application', 'body', 'cost', 'country', 'carrier', 'from', 'subject', 'to', 'other'];
+  var actions = [];
+  var all_actions = ['application', 'body', 'cost', 'country', 'carrier', 'from', 'subject', 'to', 'cancel', 'other'];
+  if (excluded_actions) {
+    if (excluded_actions['include']) {
+      excluded_actions = excluded_actions['include'];
+      for(var i in all_actions) {
+        if (excluded_actions.indexOf(all_actions[i]) >= 0) {
+          actions.push(all_actions[i]);
+        }
+      }
+    } else {
+      excluded_actions = excluded_actions['exclude'];
+      for(var i in all_actions) {
+        if (excluded_actions.indexOf(all_actions[i]) < 0) {
+          actions.push(all_actions[i]);
+        }
+      }
+    }
+  } else {
+    actions = all_actions;
   }
 
   var name_prefix = prefix + '[actions][' + action_id + ']';
@@ -578,36 +614,39 @@ function add_action_ui(rule_id, add_action, prefix, action, actions) {
   action_ui_str += '</span>';
 
   action_ui.append(action_ui_str);
-  action_ui.append(' = ');
+  action_ui.append('<span class="value_container">');
+  action_ui.append('<span class="operator"> = </span>');
   action_ui.append('<span class="value"><input type="text" name="' + name_prefix +'[value]"/></span>');
   action_ui.append('<a href="#" class="remove-action">[x]</a>');
+  action_ui.append('</span>');
 
   jQuery('.remove-action', action_ui).click(function(){ action_ui.remove(); return false; });
 
   var property = jQuery('select:first', action_ui);
   var propertyDiv = jQuery('.property', action_ui);
+  var operatorDiv = jQuery('.operator', action_ui);
   var valueDiv = jQuery('.value', action_ui);
 
-  init_properties(name_prefix, property, propertyDiv, valueDiv);
+  init_properties(name_prefix, property, propertyDiv, valueDiv, operatorDiv);
   if (action != null) {
-    init_existing_property(action, name_prefix, property, propertyDiv, valueDiv);
+    init_existing_property(action, name_prefix, property, propertyDiv, valueDiv, operatorDiv);
   }
 }
 
-function init_rules(ctx, prefix, rules, matchings, actions) {
+function init_rules(ctx, prefix, rules, excluded_matchings, excluded_actions) {
   // initial ui
   ctx.append('<table class="table"><tr><th>&nbsp;</th><th>Condition</th><th>Action</th><th>Stop</th></tr></table>');
   ctx.append('<div><a href="#" class="add-rule">add rule</a></div><br/>');
 
   jQuery('.add-rule', ctx).click(function(){
-    add_rule_ui(ctx, prefix, null, matchings, actions);
+    add_rule_ui(ctx, prefix, null, excluded_matchings, excluded_actions);
     return false;
   });
 
   // load existing rules
   if (rules != null) {
     jQuery(rules).each(function(_, rule){
-      add_rule_ui(ctx, prefix, rule, matchings, actions);
+      add_rule_ui(ctx, prefix, rule, excluded_matchings, excluded_actions);
     });
   }
 }
@@ -628,9 +667,18 @@ function init_properties(name_prefix, property, propertyDiv, valueDiv, operatorS
       case 'other':
         init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect);
         break;
+      case 'cancel':
+        operatorSelect.hide();
+        valueDiv.val('true');
+        valueDiv.hide();
+        break;
       default:
         init_property_field(name_prefix, propertyDiv, valueDiv, operatorSelect);
         break;
+    }
+    if (val != 'cancel') {
+      operatorSelect.show();
+      valueDiv.show();
     }
   };
   property.change(function() { propertyChangedFunction(jQuery(this))});
@@ -638,7 +686,7 @@ function init_properties(name_prefix, property, propertyDiv, valueDiv, operatorS
 }
 
 function init_property_application(name_prefix, valueDiv, operatorSelect, existing) {
-  if (operatorSelect) {
+  if (operatorSelect && operatorSelect.get()[0].tagName == 'SELECT') {
     operatorSelect.html(op_equals_not_equals());
     if (existing) operatorSelect.val(existing.operator);
   }
@@ -649,7 +697,7 @@ function init_property_application(name_prefix, valueDiv, operatorSelect, existi
 }
 
 function init_property_country(name_prefix, valueDiv, operatorSelect, existing) {
-  if (operatorSelect) {
+  if (operatorSelect && operatorSelect.get()[0].tagName == 'SELECT') {
     operatorSelect.html(op_equals_not_equals());
     if (existing) operatorSelect.val(existing.operator);
   }
@@ -667,7 +715,7 @@ function init_property_country(name_prefix, valueDiv, operatorSelect, existing) 
 }
 
 function init_property_carrier(name_prefix, valueDiv, operatorSelect, existing) {
-  if (operatorSelect) {
+  if (operatorSelect && operatorSelect.get()[0].tagName == 'SELECT') {
     operatorSelect.html(op_equals_not_equals());
     if (existing) operatorSelect.val(existing.operator);
   }
@@ -686,7 +734,6 @@ function init_property_carrier(name_prefix, valueDiv, operatorSelect, existing) 
               }
               valueDiv.append(carriers_select(carriers, name_prefix + '[value]'));
               if (existing) {
-                jQuery('select:last', valueDiv).val(existing.value);
               }
             },
             error: function() {
@@ -719,7 +766,7 @@ function init_property_carrier(name_prefix, valueDiv, operatorSelect, existing) 
 
 function init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect, existing) {
   propertyDiv.html('<input type="text" name="' + name_prefix +'[property]"/>');
-  if (operatorSelect) {
+  if (operatorSelect && operatorSelect.get()[0].tagName == 'SELECT') {
     operatorSelect.html(op_all());
   }
   valueDiv.html('<input type="text" name="' + name_prefix +'[value]"/>');
@@ -727,14 +774,14 @@ function init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect,
   if (existing) {
     jQuery('input', propertyDiv).val(existing.property);
     jQuery('input', valueDiv).val(existing.value);
-    if (operatorSelect) {
+    if (operatorSelect && operatorSelect.get()[0].tagName == 'SELECT') {
       operatorSelect.val(existing.operator);
     }
   }
 }
 
 function init_property_field(name_prefix, propertyDiv, valueDiv, operatorSelect, existing) {
-  if (operatorSelect) {
+  if (operatorSelect && operatorSelect.get()[0].tagName == 'SELECT') {
     operatorSelect.html(op_all());
   }
   valueDiv.html('<input type="text" name="' + name_prefix +'[value]"/>');
@@ -742,7 +789,7 @@ function init_property_field(name_prefix, propertyDiv, valueDiv, operatorSelect,
   if (existing) {
     jQuery('input', propertyDiv).val(existing.property);
     jQuery('input', valueDiv).val(existing.value);
-    if (operatorSelect) {
+    if (operatorSelect && operatorSelect.get()[0].tagName == 'SELECT') {
       operatorSelect.val(existing.operator);
     }
   }
@@ -767,6 +814,11 @@ function init_existing_property(existing, name_prefix, property, propertyDiv, va
   case 'subject_and_body':
   case 'cost':
     init_property_field(name_prefix, propertyDiv, valueDiv, operatorSelect, existing);
+    break;
+  case 'cancel':
+    operatorSelect.hide();
+    valueDiv.val('true');
+    valueDiv.hide();
     break;
   default:
     init_property_other(name_prefix, propertyDiv, valueDiv, operatorSelect, existing);
@@ -812,6 +864,9 @@ function property_combo_string(actions) {
         break;
       case 'to':
         str += '<option value="to">To</option>';
+        break;
+      case 'cancel':
+        str += '<option value="cancel">Cancel the message</option>';
         break;
       case 'other':
         str += '<option value="other">Other...</option></select>';

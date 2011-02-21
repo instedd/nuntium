@@ -168,10 +168,14 @@ module MessageCommon
 
     other_attributes = attributes.reject { |k,v| Fields.include?(k) }
     other_attributes.each do |key, value|
-      old = custom_attributes[key]
-      custom_attributes[key] = value
-      original[key] = old unless original[key]
-      ThreadLocalLogger << "'#{key}' changed from '#{old}' to '#{value}'"
+      if key == 'cancel'
+        self.state = 'canceled'
+      else
+        old = custom_attributes[key]
+        custom_attributes[key] = value
+        original[key] = old unless original[key]
+        ThreadLocalLogger << "'#{key}' changed from '#{old}' to '#{value}'"
+      end
     end
 
     original.present? ? original : nil

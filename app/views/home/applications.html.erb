@@ -72,7 +72,7 @@ else
     <script type="text/javascript">
     var applications = <%= applications.to_json -%>;
     jQuery(function(){
-      init_rules(jQuery('.apprules'), 'apprules', <%= @account.app_routing_rules.to_json -%>, null, ['application']);
+        init_rules(jQuery('.apprules'), 'apprules', <%= @account.app_routing_rules.to_json -%>, null, {include: ['application']});
     });
     </script>
 

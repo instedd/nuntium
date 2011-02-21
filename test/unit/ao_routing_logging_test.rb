@@ -138,6 +138,21 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
       assert_in_log "'country' changed from '' to 'ar'"
     end
 
+    test "applied application ao rules cancels simulate = #{simulate}" do
+      @app.ao_rules = [
+          rule(nil,[action('cancel','true')])
+      ]
+      @app.save!
+
+      @msg = AOMessage.make_unsaved :from => 'sms://1234'
+      @app.route_ao @msg, 'test', :simulate => simulate
+
+      @log = check_log :simulate => simulate
+
+      assert_in_log "Applying application ao rules..."
+      assert_in_log "Message was canceled by application ao rules."
+    end
+
     test "channels left after restrictions simulate = #{simulate}" do
       create_channels
 
@@ -240,6 +255,22 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
 
       assert_in_log "Applying channel ao rules..."
       assert_in_log "'from' changed from 'sms://1234' to 'sms://5678'"
+    end
+
+    test "applied channel ao rules cancels simulate = #{simulate}" do
+      create_channels 1
+      @chan1.ao_rules = [
+          rule(nil,[action('cancel','true')])
+      ]
+      @chan1.save!
+
+      @msg = AOMessage.make_unsaved :from => 'sms://1234'
+      @app.route_ao @msg, 'test', :simulate => simulate
+
+      @log = check_log :simulate => simulate
+
+      assert_in_log "Applying channel ao rules..."
+      assert_in_log "Message was canceled by channel ao rules."
     end
 
     test "strategy override simulate = #{simulate}" do
