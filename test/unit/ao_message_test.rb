@@ -257,4 +257,14 @@ class AOMessageTest < ActiveSupport::TestCase
 
     msg.save!
   end
+
+  test "fix mobile number" do
+    msg = AOMessage.new :from => 'sms://+1234', :to => 'sms://+5678'
+    assert_equal 'sms://1234', msg.from
+    assert_equal 'sms://5678', msg.to
+
+    msg = AOMessage.new :from => 'xmpp://+1234', :to => 'xmpp://+5678'
+    assert_equal 'xmpp://+1234', msg.from
+    assert_equal 'xmpp://+5678', msg.to
+  end
 end
