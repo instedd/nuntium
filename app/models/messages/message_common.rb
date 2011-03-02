@@ -31,6 +31,16 @@ module MessageCommon
     end
   end
 
+  def from=(value)
+    value = "sms://#{value.mobile_number}" if value && value.protocol == 'sms'
+    super value
+  end
+
+  def to=(value)
+    value = "sms://#{value.mobile_number}" if value && value.protocol == 'sms'
+    super value
+  end
+
   # A Hash where each value can be a string or an Array of strings
   def custom_attributes
     self[:custom_attributes] = {} if self[:custom_attributes].nil?
