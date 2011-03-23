@@ -10,9 +10,9 @@ class XmppChannelHandler < ServiceChannelHandler
 
   def jid
     c = @channel.configuration
-    jid_str = "#{c[:user]}@#{c[:domain]}"
-    jid_str << "/#{c[:resource]}" unless c[:resource].blank?
-    JID::new(jid_str)
+    jid = "#{c[:user]}@#{c[:domain]}"
+    jid << "/#{c[:resource]}" unless c[:resource].blank?
+    jid
   end
 
   def server
@@ -26,7 +26,7 @@ class XmppChannelHandler < ServiceChannelHandler
 
   def check_valid_in_ui
     begin
-      client = Client::new(jid)
+      client = Client::new(JID::new jid)
       client.connect server, @channel.configuration[:port]
       client.auth @channel.configuration[:password]
     rescue => e
