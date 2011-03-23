@@ -30,8 +30,8 @@ class SendInterfaceCallbackJob
         :application => @app.name,
         :from => @msg.from,
         :to => @msg.to,
-        :subject => @msg.subject,
-        :body => @msg.body,
+        :subject => @msg.subject.sanitize,
+        :body => @msg.body.sanitize,
         :guid => @msg.guid,
         :channel => @msg.channel.name
       }.merge(@msg.custom_attributes)

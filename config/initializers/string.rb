@@ -91,6 +91,14 @@ class String
     raise "Job failed to load: #{e.message}. Try to manually require the required file."
   end
 
+  def sanitize
+    gsub(/[\x00-\x09\x0B\x0C\x0E-\x1F]/,'?')
+  end
+
+  def sanitize!
+    gsub!(/[\x00-\x09\x0B\x0C\x0E-\x1F]/,'?')
+  end
+
   ParseObjectFromYaml = /\!ruby\/\w+\:(\S+)/
 
 end

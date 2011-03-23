@@ -70,4 +70,10 @@ class StringTest < ActiveSupport::TestCase
     assert_false "mailto:// foo@bar.com".valid_address?
   end
 
+  test "sanitize" do
+    string = "hello#{(0..0x1F).map{|x| x.chr}.join}world"
+    string.sanitize!
+    assert_equal "hello??????????\n??\r??????????????????world", string
+  end
+
 end
