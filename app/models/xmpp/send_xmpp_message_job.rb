@@ -13,6 +13,7 @@ class SendXmppMessageJob
     msg = AOMessage.find @message_id
 
     begin
+      msg.tries += 1
       delegate.send_message(msg.id, msg.from.without_protocol, msg.to.without_protocol, msg.subject, msg.body)
       msg.send_succeeed account, channel
     rescue => e
