@@ -39,19 +39,14 @@ class GenericWorkerService < Service
     return if @temporarily_unsubscribed.include? wq_name
 
     wq = WorkerQueue.find_by_queue_name wq unless wq.kind_of? WorkerQueue
-    return unless wq and wq.enabled
+    return unless wq && wq.enabled
     return if @sessions.include? wq.queue_name
 
     Rails.logger.info "Subscribing to queue #{wq.queue_name} with ack #{wq.ack} and durable #{wq.durable}"
-
-    mq = create_mq_for wq
-
-    Queues.subscribe(wq.queue_name, wq.ack, wq.durable, mq) do |header, job|
-      perform job, header, wq
-    end
+    wq.subscribe(mq_for wq) { |header, job| perform job, header, wq }
   end
 
-  def create_mq_for(wq)
+  def mq_for(wq)
     mq = MQ.new
     mq.prefetch PrefetchCount
     @sessions[wq.queue_name] = mq
@@ -79,9 +74,7 @@ class GenericWorkerService < Service
     return if @temporarily_unsubscribed.include? wq_name
 
     Rails.logger.info "Unsubscribing from queue #{wq_name}"
-
-    mq = @sessions.delete wq_name
-    mq.close if mq
+    @sessions.delete(wq_name).try(:close)
   end
 
   def unsubscribe_temporarily_from_queue(wq_name)
@@ -114,5 +107,4 @@ class GenericWorkerService < Service
     @notifications_session.close
     EM.stop_event_loop if stop_event_machine
   end
-
 end

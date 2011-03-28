@@ -21,6 +21,10 @@ class WorkerQueue < ActiveRecord::Base
     find_each(:conditions => ['working_group = ? AND enabled = ?', working_group, true], &block)
   end
 
+  def subscribe(mq = Queues::DefaultMQ, &block)
+    Queues.subscribe queue_name, ack, durable, mq, &block
+  end
+
   private
 
   def publish_subscribe_notification
