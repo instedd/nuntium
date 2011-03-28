@@ -1,13 +1,13 @@
 class GenericWorkerService < Service
 
   PrefetchCount = 1
+  SuspensionTime = 5 * 60
 
   attr_reader :sessions
 
-  def initialize(id, working_group, suspension_time = 5 * 60)
+  def initialize(id, working_group)
     @id = id
     @working_group = working_group
-    @suspension_time = suspension_time
   end
 
   def start
@@ -18,10 +18,17 @@ class GenericWorkerService < Service
     @temporarily_unsubscribed = Set.new
     @notifications_session = MQ.new
 
-    WorkerQueue.find_each(:conditions => ['working_group = ? AND enabled = ?', @working_group, true]) do |wq|
+    subscribe_to_queues
+    subscribe_to_notifications
+  end
+
+  def subscribe_to_queues
+    WorkerQueue.find_each_enabled_for_working_group(@working_group) do |wq|
       subscribe_to_queue wq
     end
+  end
 
+  def subscribe_to_notifications
     Queues.subscribe_notifications(@id, @working_group, @notifications_session) do |header, job|
       job.perform self
     end
@@ -37,30 +44,35 @@ class GenericWorkerService < Service
 
     Rails.logger.info "Subscribing to queue #{wq.queue_name} with ack #{wq.ack} and durable #{wq.durable}"
 
+    mq = create_mq_for wq
+
+    Queues.subscribe(wq.queue_name, wq.ack, wq.durable, mq) do |header, job|
+      perform job, header, wq
+    end
+  end
+
+  def create_mq_for(wq)
     mq = MQ.new
     mq.prefetch PrefetchCount
     @sessions[wq.queue_name] = mq
+  end
 
-    Queues.subscribe(wq.queue_name, wq.ack, wq.durable, mq) do |header, job|
-      begin
-        Rails.logger.debug "Executing job #{job} for queue #{wq.queue_name}"
-        job.perform
-        header.ack if wq.ack
-      rescue => ex
-        Rails.logger.info "Exception executing #{job} for queue #{wq.queue_name}: #{ex.class} #{ex} #{ex.backtrace}"
+  def perform(job, header, wq)
+    Rails.logger.debug "Executing job #{job} for queue #{wq.queue_name}"
+    job.perform
+    header.ack if wq.ack
+  rescue => ex
+    Rails.logger.info "Exception executing #{job} for queue #{wq.queue_name}: #{ex.class} #{ex} #{ex.backtrace}"
+    reschedule job, header, ex, wq if wq.ack
+  end
 
-        if wq.ack
-          begin
-            job.reschedule ex
-          rescue => ex
-            Rails.logger.info "Exception rescheduling #{job} for queue #{wq.queue_name}: #{ex.class} #{ex} #{ex.backtrace}"
-            Queues.publish_notification UnsubscribeTemporarilyFromQueueJob.new(wq.queue_name), @working_group, @notifications_session
-          else
-            header.ack
-          end
-        end
-      end
-    end
+  def reschedule(job, header, ex, wq)
+    job.reschedule ex
+  rescue => ex
+    Rails.logger.info "Exception rescheduling #{job} for queue #{wq.queue_name}: #{ex.class} #{ex} #{ex.backtrace}"
+    Queues.publish_notification UnsubscribeTemporarilyFromQueueJob.new(wq.queue_name), @working_group, @notifications_session
+  else
+    header.ack
   end
 
   def unsubscribe_from_queue(wq_name)
@@ -76,17 +88,16 @@ class GenericWorkerService < Service
     return if @temporarily_unsubscribed.include? wq_name
 
     start_ignoring wq_name
-    reactivate = proc { stop_ignoring wq_name }
-    if @suspension_time == 0
-      reactivate.call
-    else
-      EM.add_timer(@suspension_time) { reactivate.call }
-    end
+    stop_ignoring_later wq_name
   end
 
   def start_ignoring(wq_name)
     unsubscribe_from_queue(wq_name)
     @temporarily_unsubscribed << wq_name
+  end
+
+  def stop_ignoring_later(wq_name)
+    EM.add_timer(SuspensionTime) { stop_ignoring wq_name }
   end
 
   def stop_ignoring(wq_name)

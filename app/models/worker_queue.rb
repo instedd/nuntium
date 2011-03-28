@@ -17,6 +17,10 @@ class WorkerQueue < ActiveRecord::Base
     find_by_queue_name Queues.application_queue_name_for(app)
   end
 
+  def self.find_each_enabled_for_working_group(working_group, &block)
+    find_each(:conditions => ['working_group = ? AND enabled = ?', working_group, true], &block)
+  end
+
   private
 
   def publish_subscribe_notification
