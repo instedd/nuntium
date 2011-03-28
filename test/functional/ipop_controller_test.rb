@@ -20,7 +20,7 @@ class IpopControllerTest < ActionController::TestCase
     }
     post :index, params
 
-    msgs = AOMessage.all
+    msgs = ATMessage.all
     assert_equal 1, msgs.length
     msg = msgs[0]
 

@@ -1,54 +1,60 @@
 class SendInterfaceCallbackJob
-  attr_accessor :account_id, :application_id, :message_id
+  attr_accessor :account_id, :application_id, :message_id, :tries
 
-  def initialize(account_id, application_id, message_id)
+  def initialize(account_id, application_id, message_id, tries = 0)
     @account_id = account_id
     @application_id = application_id
     @message_id = message_id
+    @tries = tries
   end
 
   def perform
-    account = Account.find_by_id @account_id
-    app = account.find_application @application_id
-    msg = ATMessage.get_message @message_id
-    return true if msg.state != 'queued'
+    @account = Account.find_by_id @account_id
+    @app = @account.find_application @application_id
+    @msg = ATMessage.get_message @message_id
+    return if @msg.state != 'queued'
+
+    @msg.tries += 1
+    @msg.save!
 
     content_type = "application/x-www-form-urlencoded"
 
-    if app.interface_custom_format.present?
-      looks_like_xml = looks_like_xml?(app.interface_custom_format)
-      if app.interface == 'http_post_callback' && looks_like_xml
+    if @app.interface_custom_format.present?
+      looks_like_xml = looks_like_xml?(@app.interface_custom_format)
+      if @app.interface == 'http_post_callback' && looks_like_xml
         content_type = 'application/xml'
       end
-      data = apply_custom_format msg, app, looks_like_xml
+      data = apply_custom_format @msg, @app, looks_like_xml
     else
       data = {
-        :application => app.name,
-        :from => msg.from,
-        :to => msg.to,
-        :subject => msg.subject,
-        :body => msg.body,
-        :guid => msg.guid,
-        :channel => msg.channel.name
-      }.merge(msg.custom_attributes)
-      data = data.to_query if app.interface == 'http_get_callback'
+        :application => @app.name,
+        :from => @msg.from,
+        :to => @msg.to,
+        :subject => @msg.subject.try(:sanitize),
+        :body => @msg.body.try(:sanitize),
+        :guid => @msg.guid,
+        :channel => @msg.channel.name
+      }.merge(@msg.custom_attributes)
+      data = data.to_query if @app.interface == 'http_get_callback'
     end
 
     options = {:headers => {:content_type => content_type}}
-    if app.interface_user.present?
-      options[:user] = app.interface_user
-      options[:password] = app.interface_password
+    if @app.interface_user.present?
+      options[:user] = @app.interface_user
+      options[:password] = @app.interface_password
     end
 
     begin
-      res = RestClient::Resource.new(app.interface_url, options)
-      res = app.interface == 'http_get_callback' ? res["?#{data}"].get : res.post(data)
+      res = RestClient::Resource.new(@app.interface_url, options)
+      res = @app.interface == 'http_get_callback' ? res["?#{data}"].get : res.post(data)
       netres = res.net_http_res
 
       case netres
         when Net::HTTPSuccess, Net::HTTPRedirection
-          ATMessage.update_tries([msg.id],'delivered')
-          ATMessage.log_delivery([msg], account, 'http_post_callback')
+          @msg.state = 'delivered'
+          @msg.save!
+
+          ATMessage.log_delivery([@msg], @account, 'http_post_callback')
 
           # If the response includes a body, create an AO message from it
           if res.body.present?
@@ -56,43 +62,43 @@ class SendInterfaceCallbackJob
             when 'application/json'
               hashes = JSON.parse(res.body)
               hashes.each do |hash|
-                msg = AOMessage.from_hash hash
-                app.route_ao msg, 'http post callback'
+                @msg = AOMessage.from_hash hash
+                @app.route_ao @msg, 'http post callback'
               end
             when 'application/xml'
               AOMessage.parse_xml(res.body) do |parsed|
-                app.route_ao parsed, 'http post callback'
+                @app.route_ao parsed, 'http post callback'
               end
             else
-              reply = AOMessage.new :from => msg.to, :to => msg.from, :body => res.body
-              app.route_ao reply, 'http post callback'
+              reply = AOMessage.new :from => @msg.to, :to => @msg.from, :body => res.body
+              @app.route_ao reply, 'http post callback'
             end
           end
-
-          return true
         when Net::HTTPUnauthorized
-          app.alert "Sending HTTP POST callback received unauthorized: invalid credentials"
-
-          app.interface = 'rss'
-          app.save!
-          return false
+          alert_msg = "Sending HTTP POST callback received unauthorized: invalid credentials"
+          @app.alert alert_msg
+          raise alert_msg
         else
-          alert_msg = "HTTP POST callback failed #{netres.error!}"
-          app.alert alert_msg
-
-          ATMessage.update_tries([msg.id],'failed')
-          #TODO check if this error is logged
-          account.logger.error :at_message_id => @message_id, :message => alert_msg
-          raise netres.error!
+          raise "HTTP POST callback failed #{netres.error!}"
       end
     rescue RestClient::BadRequest
-      msg.send_failed account, app, "Received HTTP Bad Request (404)"
-      return true
+      @msg.send_failed @account, @app, "Received HTTP Bad Request (404)"
     end
   end
 
+  def reschedule(ex)
+    @msg.state = 'delayed'
+    @msg.save!
+
+    @app.logger.warning :at_message_id => @message_id, :message => ex.message
+
+    tries = self.tries + 1
+    new_job = self.class.new(@account_id, @application_id, @message_id, tries)
+    ScheduledJob.create! :job => RepublishAtJob.new(@application_id, @message_id, new_job), :run_at => tries.as_exponential_backoff.minutes.from_now
+  end
+
   def to_s
-    "<SendInterfaceCallbackMessageJob:#{@message_id}>"
+    "<SendInterfaceCallbackJob:#{@message_id}>"
   end
 
   private

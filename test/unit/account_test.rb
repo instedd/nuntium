@@ -130,7 +130,7 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal 0, AddressSource.count
   end
 
-  test "apply at routing" do
+  test "apply channel at routing" do
     @chan.at_rules = [
       rule([matching('subject', OP_EQUALS, 'one')], [action('subject', 'ONE')])
     ]
@@ -145,6 +145,21 @@ class AccountTest < ActiveSupport::TestCase
     @account.route_at msg, @chan
 
     assert_equal 'two', msg.subject
+  end
+
+  test "apply channel at routing cancels message" do
+    @chan.at_rules = [
+      rule([matching('subject', OP_EQUALS, 'one')], [action('cancel', 'true')])
+    ]
+    @chan.save!
+
+    msg = ATMessage.make_unsaved :subject => 'one'
+    @account.route_at msg, @chan
+
+    assert_equal 'canceled', msg.state
+    assert_not_nil msg.id
+    assert_equal @chan.id, msg.channel_id
+    assert_nil msg.application_id
   end
 
   test "apply app routing" do

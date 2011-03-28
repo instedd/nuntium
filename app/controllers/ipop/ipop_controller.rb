@@ -2,7 +2,7 @@ class IpopController < ApplicationController
   before_filter :authenticate
 
   def index
-    msg = AOMessage.new
+    msg = ATMessage.new
     msg.from = params[:hp].with_protocol 'sms'
     msg.to = (@channel.address || '').with_protocol 'sms'
     msg.body = params[:txt]

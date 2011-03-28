@@ -87,10 +87,36 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPUnauthorized
 
     job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
-    assert_false job.perform
+    begin
+      job.perform
+    rescue => ex
+      exception = ex
+    else
+      fail "Expected exception to be thrown"
+    end
+
+    job.reschedule exception
+
+    @msg.reload
+    assert_equal 'delayed', @msg.state
+
+    sjobs = ScheduledJob.all
+    assert_equal 1, sjobs.length
+
+    republish = sjobs.first.job.deserialize_job
+    assert_true republish.kind_of?(RepublishAtJob)
+    assert_equal @application.id, republish.application_id
+    assert_equal @msg.id, republish.message_id
+
+    job = republish.job
+    assert_true job.kind_of?(SendInterfaceCallbackJob)
+    assert_equal @application.account.id, job.account_id
+    assert_equal @application.id, job.application_id
+    assert_equal @msg.id, job.message_id
+    assert_equal 1, job.tries
 
     @application.reload
-    assert_equal 'rss', @application.interface
+    assert_equal 'http_post_callback', @application.interface
   end
 
   test "post bad request" do
@@ -104,7 +130,7 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPBadRequest
 
     job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
-    assert_true job.perform
+    job.perform
 
     @application.reload
     assert_equal 'http_post_callback', @application.interface
@@ -122,7 +148,7 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     @msg.save!
 
     job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
-    assert_true job.perform
+    job.perform
   end
 
   test "post response is a text, route it back" do

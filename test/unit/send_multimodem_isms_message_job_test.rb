@@ -16,7 +16,7 @@ class SendMultimodemIsmsMessageJobTest < ActiveSupport::TestCase
     msg = AOMessage.make :account => Account.make, :channel => @chan, :guid => '1-2'
 
     expect_rest msg, response
-    assert_true (deliver msg)
+    deliver msg
 
     msg = AOMessage.first
     assert_equal 'msgid', msg.channel_relative_id

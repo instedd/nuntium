@@ -11,7 +11,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
     msg = AOMessage.make :account => @chan.account, :channel => @chan
     msgstr = msg_as_email msg
     expect_smtp msg, msgstr
-    assert_true (deliver msg)
+    deliver msg
     expect_ao_message_was_delivered
   end
 
@@ -22,7 +22,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
     msg = AOMessage.make :account => @chan.account, :channel => @chan
     msgstr = msg_as_email msg
     expect_smtp msg, msgstr
-    assert_true (deliver msg)
+    deliver msg
     expect_ao_message_was_delivered
   end
 
@@ -33,7 +33,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
     msg = AOMessage.make :account => @chan.account, :channel => @chan
     msgstr = msg_as_email msg
     expect_smtp msg, msgstr
-    assert_true (deliver msg)
+    deliver msg
     expect_ao_message_was_delivered
   end
 
@@ -44,7 +44,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
 
     msgstr = msg_as_email msg
     expect_smtp msg, msgstr
-    assert_true (deliver msg)
+    deliver msg
     expect_ao_message_was_delivered
   end
 
@@ -56,7 +56,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
 
     msgstr = msg_as_email msg
     expect_smtp msg, msgstr
-    assert_true (deliver msg)
+    deliver msg
     expect_ao_message_was_delivered
   end
 

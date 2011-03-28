@@ -72,4 +72,33 @@ class String
     end
   end
 
+  def deserialize_job
+    handler = YAML.load(self) rescue nil
+
+    unless handler.respond_to?(:perform)
+      self.scan ParseObjectFromYaml do |match|
+        match.first.constantize
+      end
+      handler = YAML.load(self)
+    end
+
+    if handler && handler.respond_to?(:perform)
+      return handler
+    end
+
+    raise 'Job failed to load: Unknown handler. Try to manually require the appropriate file.'
+  rescue TypeError, LoadError, NameError => e
+    raise "Job failed to load: #{e.message}. Try to manually require the required file."
+  end
+
+  def sanitize
+    gsub(/[\x00-\x09\x0B\x0C\x0E-\x1F]/,'?')
+  end
+
+  def sanitize!
+    gsub!(/[\x00-\x09\x0B\x0C\x0E-\x1F]/,'?')
+  end
+
+  ParseObjectFromYaml = /\!ruby\/\w+\:(\S+)/
+
 end

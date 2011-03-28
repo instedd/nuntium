@@ -38,7 +38,6 @@ END_OF_MESSAGE
       begin
         smtp.send_message msgstr, @msg.from.without_protocol, @msg.to.without_protocol
         @msg.send_succeeed @account, @channel, channel_relative_id
-        return true
       ensure
         smtp.finish
       end

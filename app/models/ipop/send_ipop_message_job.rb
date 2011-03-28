@@ -9,7 +9,7 @@ class SendIpopMessageJob < SendMessageJob
       :txt => @msg.subject_and_body,
       :sc => @channel.address
     }
-    
+
     options = {:headers => {:content_type => "application/x-www-form-urlencoded"}}
 
     res = RestClient::Resource.new(@config[:mt_post_url], options)
@@ -25,7 +25,5 @@ class SendIpopMessageJob < SendMessageJob
       else
         raise netres.error!
     end
-
-    true
   end
 end

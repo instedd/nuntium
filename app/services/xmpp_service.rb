@@ -1,9 +1,7 @@
-require 'xmpp4r/client'
-require 'xmpp4r/roster'
+require 'blather/client/dsl'
 
 class XmppService < Service
-
-  include Jabber
+  include Blather::DSL
 
   PrefetchCount = 5
 
@@ -14,50 +12,73 @@ class XmppService < Service
   end
 
   def start
-    if !connect
-      # Give some time to flush EM events
-      EM.add_timer(5) { stop }
-      return
-    end
+    setup @channel.handler.jid, @channel.configuration[:password], @channel.handler.server, @channel.configuration[:port]
+    when_ready do
+      Rails.logger.info "Connected to #{@channel.handler.jid}"
+      set_status :chat, @channel.configuration[:status] if @channel.configuration[:status].present?
 
-    handle_exceptions
-    receive_messages
-    receive_subscriptions
-    subscribe_queue
-    keep_me_alive
+      subscribe_queue
+      receive_chats
+      receive_errors
+      receive_subscriptions
+      handle_disconnections
+    end
+    client.run
   end
 
-  def connect
-    begin
-      @client = Client.new(@channel.handler.jid)
-      @client.connect @channel.handler.server, @channel.configuration[:port]
-      @client.auth @channel.configuration[:password]
+  def stop
+    client.close
+    @mq.close
+    EM.stop_event_loop
+  end
 
-      presence = Presence.new.set_show(:chat)
-      presence.set_status @channel.configuration[:status] if @channel.configuration[:status].present?
-      @client.send presence
-      true
-    rescue ClientAuthenticationFailure => ex
-      alert_msg = "#{ex} #{ex.backtrace}"
+  def receive_chats
+    message :chat?, :body do |msg|
+      at = ATMessage.new
+      at.channel_relative_id = msg.id
+      at.from = msg.from.stripped.to_s.with_protocol 'xmpp'
+      at.to = msg.to.stripped.to_s.with_protocol 'xmpp'
+      at.subject = msg.subject
+      at.body = msg.body
 
-      @channel.alert alert_msg
+      @channel.route_at at
+    end
+  end
 
-      @channel.enabled = false
-      @channel.save!
+  def receive_errors
+    message :error? do |msg|
+      ao = AOMessage.find_by_id msg.id
+      if ao
+        ao.state = 'failed'
+        ao.save!
 
-      false
-    rescue Exception => ex
-      logger.error ex
-      false
+        @channel.logger.exception_in_channel_and_ao_message @channel, ao, "Code #{msg.error_code} - #{msg.error_type}"
+      else
+        Rails.logger.debug "Received error message: #{msg}"
+      end
+    end
+  end
+
+  def receive_subscriptions
+    subscription :request? do |s|
+      @channel.logger.info :message => "Accepting subscription from #{s.from}", :application_id => @channel.application_id, :channel_id => @channel.id
+
+      write_to_stream s.approve!
+    end
+  end
+
+  def handle_disconnections
+    disconnected do
+      Rails.logger.info "Disconnected, trying to reconnect..."
+      client.connect
     end
   end
 
   def send_message(id, from, to, subject, body)
     Rails.logger.debug "Sending message with id: '#{id}', from: '#{from}', to: '#{to}', subject: '#{subject}', body: '#{body}'"
 
-    msg = Message.new
+    msg = Blather::Stanza::Message.new
     msg.id = id
-    #msg.from = from
     msg.to = to
     if body.empty?
       msg.body = subject
@@ -67,61 +88,7 @@ class XmppService < Service
     end
     msg.type = :chat
 
-    @client.send msg
-  end
-
-  def stop
-    @client.close
-    @mq.close
-    EM.stop_event_loop
-  end
-
-  def receive_messages
-    @client.add_message_callback do |msg|
-      Rails.logger.debug "Receiving message #{msg}"
-
-      # Sometimes a nil msg arrives...
-      next unless msg
-
-      if msg.type == :error
-        ao = AOMessage.find_by_id msg.id
-        if ao
-          ao.state = 'failed'
-          ao.save!
-
-          @channel.logger.exception_in_channel_and_ao_message @channel, ao, "Code #{msg.error.code} - #{msg.error.text}"
-        else
-          Rails.logger.debug "Received error message: #{msg}"
-        end
-        next
-      end
-
-      # The body might be empty when receiving "composing" messages
-      next unless msg.body.present?
-
-      at = ATMessage.new
-      at.channel_relative_id = msg.id
-      at.from = msg.from.bare.to_s.with_protocol 'xmpp'
-      at.to = msg.to.bare.to_s.with_protocol 'xmpp'
-      at.subject = msg.subject
-      at.body = msg.body
-
-      @channel.route_at at
-    end
-  end
-
-  def receive_subscriptions
-    @roster = Roster::Helper.new(@client)
-    @roster.add_subscription_request_callback do |item, pres|
-      @channel.logger.info :message => "Accepting subscription from #{pres.from}", :application_id => @channel.application_id, :channel_id => @channel.id
-
-      # we accept everyone
-      @roster.accept_subscription(pres.from)
-
-      # Now it's our turn to send a subscription request
-      presence = Presence.new.set_type(:subscribe).set_to(pres.from)
-      @client.send presence
-    end
+    write_to_stream msg
   end
 
   def subscribe_queue
@@ -148,7 +115,6 @@ class XmppService < Service
     end
   end
 
-
   def unsubscribe_queue
     Rails.logger.info "Unsubscribing from message queue"
 
@@ -157,23 +123,4 @@ class XmppService < Service
 
     @subscribed = false
   end
-
-  def handle_exceptions
-    @client.on_exception do |ex|
-      # TODO do something else...
-      Rails.logger.error "#{ex}"
-      if @client.is_disconnected?
-        if !connect
-          stop
-        end
-      end
-    end
-  end
-
-  def keep_me_alive
-    EM.add_periodic_timer(1) do
-      # Nothing
-    end
-  end
-
 end

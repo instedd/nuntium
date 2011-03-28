@@ -19,7 +19,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPSuccess
 
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
-    assert_true job.perform
+    job.perform
   end
 
   test "get with auth" do
@@ -35,7 +35,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPSuccess
 
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
-    assert_true job.perform
+    job.perform
   end
 
   test "get with custom attributes" do
@@ -52,7 +52,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPSuccess
 
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
-    assert_true job.perform
+    job.perform
   end
 
   test "post" do
@@ -66,7 +66,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPSuccess
 
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
-    assert_true job.perform
+    job.perform
   end
 
   test "post with auth" do
@@ -82,7 +82,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPSuccess
 
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
-    assert_true job.perform
+    job.perform
   end
 
   test "get unauthorized" do
@@ -96,10 +96,33 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPUnauthorized
 
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
-    assert_false job.perform
+    begin
+      job.perform
+    rescue => ex
+      exception = ex
+    else
+      fail "Expected exception to be thrown"
+    end
+
+    job.reschedule exception
+
+    sjobs = ScheduledJob.all
+    assert_equal 1, sjobs.length
+
+    republish = sjobs.first.job.deserialize_job
+    assert_true republish.kind_of?(RepublishApplicationJob)
+    assert_equal @application.id, republish.application_id
+
+    job = republish.job
+    assert_true job.kind_of?(SendDeliveryAckJob)
+    assert_equal @application.account_id, job.account_id
+    assert_equal @application.id, job.application_id
+    assert_equal @msg.id, job.message_id
+    assert_equal @msg.state, job.state
+    assert_equal 1, job.tries
 
     @application.reload
-    assert_equal 'none', @application.delivery_ack_method
+    assert_equal 'get', @application.delivery_ack_method
   end
 
   test "get bad request" do
@@ -113,7 +136,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
       :returns => Net::HTTPBadRequest
 
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
-    assert_true job.perform
+    job.perform
 
     @application.reload
     assert_equal 'get', @application.delivery_ack_method

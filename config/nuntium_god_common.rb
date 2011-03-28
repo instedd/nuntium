@@ -1,7 +1,7 @@
 RAILS_ROOT=File.join(File.dirname(__FILE__), '..')
 
 if RAILS_ENV == "production"
-	MONGREL_PORTS = %w{3000 3001 3002 3003} 
+	MONGREL_PORTS = %w{3000 3001 3002 3003}
 	WORKERS_COUNT = 4
 else
 	MONGREL_PORTS = %w{3000}
@@ -76,21 +76,21 @@ MONGREL_PORTS.each do |port|
     w.interval = 30.seconds
     w.start = "mongrel_rails start -c #{RAILS_ROOT} -p #{port} -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid -d -e #{RAILS_ENV}"
     w.stop = "mongrel_rails stop -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid"
-    w.restart = "mongrels_rails restart -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid"
+    w.restart = "mongrel_rails restart -P #{RAILS_ROOT}/tmp/pids/mongrel.#{port}.pid"
     w.start_grace = 10.seconds
     w.restart_grace = 10.seconds
     w.pid_file = File.join(RAILS_ROOT, "tmp/pids/mongrel.#{port}.pid")
     w.group = 'mongrel'
-    
+
     w.behavior(:clean_pid_file)
-    
+
     w.start_if do |start|
       start.condition(:process_running) do |c|
         c.interval = 5.seconds
         c.running = false
       end
     end
-    
+
     yield w if block_given?
   end
 end
