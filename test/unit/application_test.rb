@@ -245,6 +245,22 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal 'queued', msg.state
   end
 
+  test "route ao filter channel because belongs to application" do
+    account = Account.make
+    app1 = Application.make :account => account
+    app2 = Application.make :account => account
+
+    msg = AOMessage.make_unsaved
+
+    chan1 = Channel.make :account => account, :application => app2
+    chan2 = Channel.make :account => account
+
+    app1.route_ao msg, 'test'
+
+    assert_nil msg.failover_channels
+    assert_equal chan2.id, msg.channel_id
+  end
+
   test "route ao test filter when empty value passes" do
     app = Application.make
 

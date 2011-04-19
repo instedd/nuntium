@@ -274,6 +274,9 @@ class Application < ActiveRecord::Base
     # Find channels that handle that protocol
     channels = channels.select {|x| x.protocol == protocol}
 
+    # Filter channels that belong to a different application
+    channels = channels.select {|x| x.application_id.nil? || x.application_id == msg.application_id}
+
     # Filter them according to custom attributes
     channels = channels.select{|x| x.can_route_ao? msg}
 
