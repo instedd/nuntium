@@ -1,8 +1,8 @@
 <html>
 <head>
 <title>nuntium<%= ' - ' + @account.name if !@account.nil? && !@account.id.nil? -%></title>
-<%= javascript_include_merged :default %>
 <%= stylesheet_link_merged :default %>
+<%= javascript_include_merged :default %>
 <%= yield :head%>
 </head>
 <body>

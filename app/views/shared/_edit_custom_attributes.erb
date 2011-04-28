@@ -83,7 +83,7 @@ var show_accept_when_not_specified_option = <%= show_accept_when_not_specified_o
           =
           <select name="custom_attribute_value[]">
             <%- applications.each do |app| -%>
-              <option><%= app -%></option>
+              <option <%= 'selected="selected"' if app == value -%>><%= app -%></option>
             <%- end -%>
           </select>
           <%-

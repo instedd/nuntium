@@ -176,7 +176,7 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     assert_equal 'foo', msgs[0].body
   end
 
-  test "post response is a json, route it back" do
+  test "post response is a json array, route it back" do
     @application.interface = 'http_post_callback'
     @application.interface_url = 'http://www.domain.com'
     @application.save!
@@ -186,6 +186,32 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
       :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
       :returns => Net::HTTPSuccess,
       :returns_body => [{:from => 'sms://1', :to => 'sms://2', :body => 'Hello!', :country => 'ar'}].to_json,
+      :returns_content_type => 'application/json'
+
+    job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
+    job.perform
+
+    msgs = AOMessage.all
+    assert_equal 1, msgs.count
+    assert_equal @application.account_id, msgs[0].account_id
+    assert_equal @application.id, msgs[0].application_id
+    assert_equal @chan.id, msgs[0].channel_id
+    assert_equal 'sms://1', msgs[0].from
+    assert_equal 'sms://2', msgs[0].to
+    assert_equal 'Hello!', msgs[0].body
+    assert_equal 'ar', msgs[0].country
+  end
+
+  test "post response is a json hash, route it back" do
+    @application.interface = 'http_post_callback'
+    @application.interface_url = 'http://www.domain.com'
+    @application.save!
+
+    expect_post :url => @application.interface_url,
+      :data => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPSuccess,
+      :returns_body => {:from => 'sms://1', :to => 'sms://2', :body => 'Hello!', :country => 'ar'}.to_json,
       :returns_content_type => 'application/json'
 
     job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id

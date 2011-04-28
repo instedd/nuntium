@@ -4,12 +4,11 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 
   @@id = 10000000
   @@working_group = 'fast'
-  @@suspension_time = 0
 
   def setup
     @@id = @@id + 1
     @account = Account.make
-    @service = GenericWorkerService.new(@@id, @@working_group, @@suspension_time)
+    @service = GenericWorkerService.new(@@id, @@working_group)
 
     @chan = Channel.make :clickatell, :account => @account
 
@@ -129,8 +128,9 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 
     queue_name = Queues.ao_queue_name_for(@chan)
 
-    @service.expects(:start_ignoring).with(queue_name)
-    @service.expects(:stop_ignoring).with(queue_name)
+    seq = sequence('seq')
+    @service.expects(:start_ignoring).with(queue_name).in_sequence(seq)
+    @service.expects(:stop_ignoring_later).with(queue_name).in_sequence(seq)
 
     @service.unsubscribe_temporarily_from_queue Queues.ao_queue_name_for(@chan)
   end

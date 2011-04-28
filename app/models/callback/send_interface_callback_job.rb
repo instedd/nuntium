@@ -61,6 +61,7 @@ class SendInterfaceCallbackJob
             case netres.content_type
             when 'application/json'
               hashes = JSON.parse(res.body)
+              hashes = [hashes] unless hashes.is_a? Array
               hashes.each do |hash|
                 @msg = AOMessage.from_hash hash
                 @app.route_ao @msg, 'http post callback'
