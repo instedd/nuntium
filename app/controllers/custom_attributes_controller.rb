@@ -37,7 +37,7 @@ class CustomAttributesController < AccountAuthenticatedController
       flash[:notice] = 'CustomAttribute was successfully created.'
       redirect_to :action => :index
     else
-      render :action => "new"
+      render :action => :edit
     end
   end
 

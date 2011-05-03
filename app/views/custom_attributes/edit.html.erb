@@ -1,4 +1,4 @@
-<h1></h1>
+<h3><%= @custom_attribute.new_record? ? 'New' : 'Edit' %> custom attribute</h3>
 
 <% form_for(@custom_attribute) do |f| %>
   <%= f.error_messages %>
