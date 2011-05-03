@@ -17,13 +17,17 @@ class Hash
       self[key] = value
     end
   end
-  
+
   # Same as each, but every yielded value will be an array
   def each_multivalue
     each do |key, values|
       values = [values] unless values.kind_of? Array
       yield key, values
     end
+  end
+
+  def to_human
+    map {|k,v| "#{k}: #{v.is_a?(Array) ? "(#{v.join(', ')})" : v}"}.join(', ')
   end
 
 end

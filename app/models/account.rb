@@ -78,6 +78,7 @@ class Account < ActiveRecord::Base
     # Fill custom attributes specified by sender
     custom_attributes = CustomAttribute.find_by_account_id_and_address self.id, msg.from
     if custom_attributes
+      ThreadLocalLogger << "Setting custom attributes specified for this user (#{custom_attributes.custom_attributes.to_human})"
       msg.custom_attributes.merge! custom_attributes.custom_attributes
     end
 
