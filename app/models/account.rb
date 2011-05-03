@@ -7,6 +7,7 @@ class Account < ActiveRecord::Base
   has_many :address_sources
   has_many :ao_messages
   has_many :at_messages
+  has_many :custom_attributes
 
   serialize :app_routing_rules
 

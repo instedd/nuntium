@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110209142150) do
+ActiveRecord::Schema.define(:version => 20110503050915) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -182,6 +182,14 @@ ActiveRecord::Schema.define(:version => 20110209142150) do
     t.string   "code"
     t.string   "name"
     t.string   "locked_tag"
+  end
+
+  create_table "custom_attributes", :force => true do |t|
+    t.integer  "account_id"
+    t.string   "address"
+    t.text     "custom_attributes"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "managed_processes", :force => true do |t|

@@ -1,4 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :custom_attributes, :except => :show
+
   # Home
   map.root :controller => 'home'
   [:interactions, :settings, :applications, :channels, :ao_messages, :at_messages, :logs, :visualizations].each do |name|
