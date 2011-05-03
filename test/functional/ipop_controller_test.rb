@@ -79,4 +79,18 @@ class IpopControllerTest < ActionController::TestCase
     assert_equal @chan.id, logs[0].channel_id
     assert_equal "Recieved status notification with status 6 (#{IpopChannelHandler::StatusCodes[6]}). Detailed status code 10: #{IpopChannelHandler::DetailedStatusCodes[10]}", logs[0].message
   end
+
+  test "ack not ok for unknown message" do
+    params = {
+      :account_id => @chan.account.name,
+      :channel_name => @chan.name,
+      :hp => '1234',
+      :ts => '5678',
+      :st => 6,
+      :dst => 10
+    }
+
+    response = post :ack, params
+    assert_equal "NOK 1", response.body
+  end
 end
