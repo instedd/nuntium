@@ -1,30 +1,30 @@
 module RulesEngine
   extend self
-  
+
   def rule(matchings, actions, stop = false)
     return 'matchings' => matchings, 'actions' => actions, 'stop' => stop
   end
-   
+
   def matching(property, operator, value)
     return 'property' => property, 'operator' => operator, 'value' => value
   end
-  
+
   def action(property, value)
     return 'property' => property, 'value' => value
   end
-  
+
   # matching operators supported
   OP_REGEX = 'regex'
   OP_STARTS_WITH = 'starts_with'
   OP_EQUALS = 'equals'
   OP_NOT_EQUALS = 'not_equals'
-  
+
   # context is a hash with properties as keys
   # rules is a list of elements built wih RulesEngine#rule
   # a hash with actions to be taken is returned or nil if no rule matches
   def apply(context, rules)
     res = nil
-    
+
     (rules || []).each do |rule|
       match_datas = matches(context, rule)
       if match_datas
@@ -36,24 +36,24 @@ module RulesEngine
         return res if rule['stop']
       end
     end
-    
+
     res
   end
-  
+
   private
-  
+
   # Collect each matching in an array if all match, else returns nil
   def matches(context, rule)
     result = []
-    (rule['matchings'] || []).each do |m| 
+    (rule['matchings'] || []).each do |m|
       match = matches_matching(context, m)
       return nil unless match
       result << match
     end
     result
   end
-  
-  def matches_matching(context, matching)    
+
+  def matches_matching(context, matching)
     at_context = context[matching['property']]
     at_context = [at_context] unless at_context.kind_of? Array
     at_matching = matching['value']
@@ -63,27 +63,27 @@ module RulesEngine
     end
     nil
   end
-  
+
   def matches_value(at_context, op, at_matching)
     case op
-    when OP_EQUALS then
+    when OP_EQUALS
       at_context == at_matching
-    when OP_NOT_EQUALS then
+    when OP_NOT_EQUALS
       at_context != at_matching
-    when OP_STARTS_WITH then
-      at_context.starts_with?(at_matching)
-    when OP_REGEX then
+    when OP_STARTS_WITH
+      at_context =~ /\A\s*#{at_matching}/i
+    when OP_REGEX
       Regexp.new(at_matching).match(at_context)
     else
       false
-    end  
+    end
   end
-  
+
   # Regepx for ${...}
   VariablesRegexp = %r(\$\{(.*?)\})
-  
+
   def get_value(value, matchings, match_datas)
-    return value unless matchings and value.kind_of? String 
+    return value unless matchings and value.kind_of? String
     value.gsub(VariablesRegexp) do |match|
       # Remove the ${ from the beginning and the } from the end
       exp = match[2 .. -2]
@@ -105,5 +105,5 @@ module RulesEngine
       end
     end
   end
-  
+
 end
