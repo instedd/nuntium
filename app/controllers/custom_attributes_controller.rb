@@ -5,12 +5,19 @@ class CustomAttributesController < AccountAuthenticatedController
   # GET /custom_attributes
   def index
     conditions = ['account_id = ?', @account.id]
+
+    @search = params[:search]
+    if @search.present?
+      conditions[0] << ' AND address like ?'
+      conditions << "%#{@search}%"
+    end
+
     @custom_attributes = CustomAttribute.paginate(
       :conditions => conditions,
       :order => 'address',
       :page => params[:page],
       :per_page => 20
-      )
+    )
   end
 
   # GET /custom_attributes/new

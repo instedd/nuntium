@@ -4,6 +4,10 @@
   Here you can specify custom attributes to be applied to AT messages as they arrive
 </p>
 
+<form>
+Search: <input type="text" name="search" value="<%= h @search -%>" size= "50" class="<%= @search.present? ? 'highlighted' : '' -%>"/>
+<br/>
+
 <table class="table">
   <tr>
     <th>Address</th>
@@ -27,3 +31,4 @@
 <br />
 
 <%= link_to 'New custom_attribute', new_custom_attribute_path %>
+</form>
