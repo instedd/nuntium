@@ -75,6 +75,12 @@ class Account < ActiveRecord::Base
       return
     end
 
+    # Fill custom attributes specified by sender
+    custom_attributes = CustomAttribute.find_by_account_id_and_address self.id, msg.from
+    if custom_attributes
+      msg.custom_attributes.merge! custom_attributes.custom_attributes
+    end
+
     # Set application custom attribute if the channel belongs to an application
     if via_channel.application_id
       msg.custom_attributes['application'] = find_application(via_channel.application_id).name rescue nil
