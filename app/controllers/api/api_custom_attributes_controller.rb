@@ -15,14 +15,18 @@ class ApiCustomAttributesController < ApiAuthenticatedController
     data = JSON.parse data if data.is_a? String
 
     data.each do |key, value|
-      if value
+      if value.present?
         custom_attr.custom_attributes[key] = value
       else
         custom_attr.custom_attributes.delete key
       end
     end
 
-    custom_attr.save!
+    if custom_attr.custom_attributes.count > 0
+      custom_attr.save!
+    else
+      custom_attr.delete
+    end
     head :ok
   end
 
