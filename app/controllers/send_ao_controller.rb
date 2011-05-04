@@ -24,14 +24,12 @@ class SendAoController < ApplicationAuthenticatedController
   end
 
   def create_many_json
-    data = request.POST.present? ? request.POST : request.raw_post
-    AOMessage.from_json(data) { |msg| route msg }
+    AOMessage.from_json(request.raw_post) { |msg| route msg }
     head :ok
   end
 
   def create_many_xml
-    data = request.POST.present? ? request.POST : request.raw_post
-    AOMessage.parse_xml(data) { |msg| route msg }
+    AOMessage.parse_xml(request.raw_post) { |msg| route msg }
     head :ok
   end
 

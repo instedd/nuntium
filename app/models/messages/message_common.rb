@@ -250,12 +250,14 @@ module MessageCommon
       data = JSON.parse(data) if data.is_a? String
       data = [data] unless data.is_a? Array
       data.each do |hash|
-        msg = from_hash hash.with_indifferent_access
+        msg = from_hash hash
         yield msg
       end
     end
 
     def from_hash(hash)
+      hash = hash.with_indifferent_access
+
       msg = self.new
       hash.each do |key, value|
         if [:from, :to, :subject, :body, :guid].include? key.to_sym
