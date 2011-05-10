@@ -2,7 +2,7 @@ class SendIpopMessageJob < SendMessageJob
   def managed_perform
     data = {
       :hp => @msg.to.mobile_number,
-      :ts => @msg.timestamp.strftime('%Y%m%d%H%M%S') + @msg.timestamp.milliseconds.to_s,
+      :ts => @msg.timestamp.strftime('%Y%m%d%H%M%S') + ("%03d" % @msg.timestamp.milliseconds),
       :bid => @config[:bid],
       :cid => @config[:cid],
       :mt => 1,

@@ -7,6 +7,7 @@ class Account < ActiveRecord::Base
   has_many :address_sources
   has_many :ao_messages
   has_many :at_messages
+  has_many :custom_attributes
 
   serialize :app_routing_rules
 
@@ -72,6 +73,13 @@ class Account < ActiveRecord::Base
       return ThreadLocalLogger.result if simulate
       logger.warning :at_message_id => msg.id, :channel_id => via_channel.id, :message => ThreadLocalLogger.result
       return
+    end
+
+    # Fill custom attributes specified by sender
+    custom_attributes = CustomAttribute.find_by_account_id_and_address self.id, msg.from
+    if custom_attributes
+      ThreadLocalLogger << "Setting custom attributes specified for this user (#{custom_attributes.custom_attributes.to_human})"
+      msg.custom_attributes.merge! custom_attributes.custom_attributes
     end
 
     # Set application custom attribute if the channel belongs to an application

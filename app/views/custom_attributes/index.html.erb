@@ -1,0 +1,34 @@
+<h4>Custom attributes</h4>
+
+<p>
+  Here you can specify custom attributes to be applied to AT messages as they arrive
+</p>
+
+<form>
+Search: <input type="text" name="search" value="<%= h @search -%>" size= "50" class="<%= @search.present? ? 'highlighted' : '' -%>"/>
+<br/>
+
+<table class="table">
+  <tr>
+    <th>Address</th>
+    <th>Custom attributes</th>
+    <th></th>
+  </tr>
+
+<%= page_entries_info @custom_attributes %><%= will_paginate @custom_attributes %>
+<% @custom_attributes.each do |custom_attribute| %>
+  <tr>
+    <td><%=h custom_attribute.address %></td>
+    <td><%=short_html custom_attribute.custom_attributes.to_human %></td>
+    <td>
+      <%= link_to 'Edit', edit_custom_attribute_path(custom_attribute) %>
+      <%= link_to 'Delete', custom_attribute, :confirm => 'Are you sure?', :method => :delete %>
+    </td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New custom_attribute', new_custom_attribute_path %>
+</form>

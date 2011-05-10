@@ -19,6 +19,7 @@ class IpopController < ApplicationController
     status_message = IpopChannelHandler::StatusCodes[status]
 
     msg = AOMessage.find_by_channel_id_and_channel_relative_id @channel.id, "#{params[:hp]}-#{params[:ts]}"
+    return render :text => 'NOK 1' unless msg
     msg.state = (status == 4 || status == 5) ? 'confirmed' : 'failed'
     msg.save!
 

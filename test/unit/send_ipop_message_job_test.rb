@@ -3,11 +3,11 @@ require 'test_helper'
 class SendIpopMessageJobTest < ActiveSupport::TestCase
   def setup
     @chan = Channel.make :ipop
-    @msg = AOMessage.make :account => Account.make, :channel => @chan
+    @msg = AOMessage.make :account => Account.make, :channel => @chan, :timestamp => Time.utc(2001, 02, 03, 04, 05, 06)
     @query = {
       :sc => @chan.address,
       :hp => @msg.to.mobile_number,
-      :ts => @msg.timestamp.strftime('%Y%m%d%H%M%S') + @msg.timestamp.milliseconds.to_s,
+      :ts => '20010203040506000',
       :cid => @chan.configuration[:cid],
       :bid => @chan.configuration[:bid],
       :mt => 1,
