@@ -9,7 +9,7 @@ ActionController::Routing::Routes.draw do |map|
 
   # Interfaces
   map.resources :rss, :path_prefix => '/:account_name/:application_name', :only => [:index, :create]
-  map.send_ao '/:account_name/:application_name/send_ao', :controller => 'send_ao', :action => :create
+  map.send_ao '/:account_name/:application_name/send_ao.:format', :controller => 'send_ao', :action => :create
 
   # Qst
   map.resources :incoming, :path_prefix => '/:account_id/qst', :only => [:index, :create]

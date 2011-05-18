@@ -132,12 +132,12 @@ module MessageCommon
   # Given an xml builder writes itself unto it
   def write_xml(xml)
     require 'builder'
-    xml.message(:id => self.guid, :from => self.from, :to => self.to, :when => self.timestamp.xmlschema) do
+    options = {:id => self.guid, :from => self.from, :to => self.to}
+    options[:when] = self.timestamp.xmlschema if self.timestamp
+    xml.message(options) do
       xml.text self.subject_and_body
       custom_attributes.each_multivalue do |name, values|
-        values.each do |value|
-          xml.property :name => name, :value => value
-        end
+        values.each { |value| xml.property :name => name, :value => value }
       end
     end
   end
@@ -231,7 +231,7 @@ module MessageCommon
         msg.from = elem[:from]
         msg.to = elem[:to]
         msg.body = elem[:text]
-        msg.guid = elem[:id]
+        msg.guid = elem[:id] if elem[:id].present?
         msg.timestamp = Time.parse(elem[:when]) if elem[:when] rescue nil
 
         properties = elem[:property]
@@ -246,7 +246,18 @@ module MessageCommon
       end
     end
 
+    def from_json(data)
+      data = JSON.parse(data) if data.is_a? String
+      data = [data] unless data.is_a? Array
+      data.each do |hash|
+        msg = from_hash hash
+        yield msg
+      end
+    end
+
     def from_hash(hash)
+      hash = hash.with_indifferent_access
+
       msg = self.new
       hash.each do |key, value|
         if [:from, :to, :subject, :body, :guid].include? key.to_sym

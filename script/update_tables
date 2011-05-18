@@ -1,0 +1,82 @@
+#!/usr/bin/env ruby
+
+require(File.join(File.dirname(__FILE__), '..', 'config', 'boot'))
+require(File.join(RAILS_ROOT, 'config', 'environment'))
+require 'csv'
+
+###################
+# UPDATE COUNTRIES
+###################
+puts "Downloading countries CSV"
+csv = RestClient.get("http://spreadsheets.google.com/tq?tqx=out:csv&key=0Am20kCv-d_z2dHNucV9qRHJwZVhONjIteHF4X1l0QWc&hl=en&authkey=COnC25gP&sheet=Countries&headers=1")
+
+puts "Updating countries"
+first_row = true
+CSV.parse(csv) do |row|
+  if first_row
+    first_row = false
+    next
+  end
+
+  csv_country = {
+    :name => row[0],
+    :iso2 => row[1],
+    :iso3 => row[2],
+    :phone_prefix => row[3],
+    :clickatell_name => row[4],
+    :area_codes => (row[5].present?? row[5] : nil)
+  }
+
+  country = Country.find_by_iso2(csv_country[:iso2])
+  if country
+    country.attributes = csv_country
+    if country.changed?
+      puts "Updating '#{country.name}': #{country.changes.inspect}"
+      country.save!
+    end
+  else
+    puts "Creating country with ISO code '#{csv_country[:iso2]}'"
+    Country.create! csv_country
+  end
+end
+
+###################
+# UPDATE CARRIERS
+###################
+puts "Downloading carriers CSV"
+csv = RestClient.get("http://spreadsheets.google.com/tq?tqx=out:csv&key=0Am20kCv-d_z2dHNucV9qRHJwZVhONjIteHF4X1l0QWc&hl=en&authkey=COnC25gP&sheet=Carriers&headers=1")
+
+puts "Updating carriers database"
+first_row = true
+CSV.parse(csv) do |row|
+  if first_row
+    first_row = false
+    next
+  end
+
+  csv_carrier = {
+    :guid => row[0],
+    :country_id => Country.find_by_iso2(row[1]).id,
+    :name => row[2],
+    :clickatell_name => (row[3].present?? row[3] : nil),
+    :prefixes => (row[4].present?? row[4] : nil)
+  }
+
+  carrier = Carrier.find_by_guid(csv_carrier[:guid])
+  if carrier
+    carrier.attributes = csv_carrier
+    if carrier.changed?
+      puts "Updating '#{carrier.name}': #{carrier.changes.inspect}"
+      carrier.save!
+    end
+  else
+    puts "Creating carrier '#{csv_carrier[:name]}' with guid '#{csv_carrier[:guid]}'"
+    Carrier.create! csv_carrier
+  end
+end
+
+#############################
+# UPDATE CLICKATELL COVERAGE
+#############################
+puts "Updating Clickatell coverage"
+Clickatell.update_coverage_tables

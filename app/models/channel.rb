@@ -297,8 +297,9 @@ class Channel < ActiveRecord::Base
     if hash_or_string.empty?
       tree = {:channel => {}}
     else
-      tree = hash_or_string.kind_of?(Hash) ? hash_or_string : Hash.from_xml(hash_or_string).with_indifferent_access
+      tree = hash_or_string.kind_of?(Hash) ? hash_or_string : Hash.from_xml(hash_or_string)
     end
+    tree = tree.with_indifferent_access
     Channel.from_hash tree[:channel], :xml
   end
 
@@ -323,7 +324,7 @@ class Channel < ActiveRecord::Base
     if hash_or_string.empty?
       tree = {}
     else
-      tree = hash_or_string.kind_of?(Hash) ? hash_or_string : JSON.parse(hash_or_string).with_indifferent_access
+      tree = hash_or_string.kind_of?(Hash) ? hash_or_string.with_indifferent_access : JSON.parse(hash_or_string).with_indifferent_access
     end
     Channel.from_hash tree, :json
   end
@@ -425,6 +426,8 @@ class Channel < ActiveRecord::Base
   end
 
   def self.from_hash(hash, format)
+    hash = hash.with_indifferent_access
+
     chan = Channel.new
     [:name, :kind, :protocol, :priority, :address, :ao_cost, :at_cost].each do |sym|
       chan.send "#{sym}=", hash[sym]

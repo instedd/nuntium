@@ -23,11 +23,11 @@ class ApiChannelController < ApiAuthenticatedController
 
   # POST /api/channels.:format
   def create
-    data = request.POST.present? ? request.POST : request.raw_post
+    data = request.raw_post
     chan = nil
     respond_to do |format|
-      format.xml { chan = Channel.from_xml(data) }
-      format.json { chan = Channel.from_json(data) }
+      format.xml { data = Hash.from_xml data; chan = Channel.from_xml data }
+      format.json { data = JSON.parse data; chan = Channel.from_json data }
     end
     chan.account = @account
     if @application
@@ -48,11 +48,11 @@ class ApiChannelController < ApiAuthenticatedController
     return head :not_found unless chan
     return head :forbidden if @application && !chan.application_id
 
-    data = request.POST.present? ? request.POST : request.raw_post
+    data = request.raw_post
     update = nil
     respond_to do |format|
-      format.xml { update = Channel.from_xml(data) }
-      format.json { update = Channel.from_json(data) }
+      format.xml { data = Hash.from_xml data; update = Channel.from_xml data }
+      format.json { data = JSON.parse data; update = Channel.from_json data }
     end
     chan.merge(update)
 
