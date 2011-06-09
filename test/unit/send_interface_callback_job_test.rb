@@ -174,6 +174,7 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     assert_equal @msg.to, msgs[0].from
     assert_equal @msg.from, msgs[0].to
     assert_equal 'foo', msgs[0].body
+    assert_equal @msg.token, msgs[0].token
   end
 
   test "post response is a json array, route it back" do
@@ -200,6 +201,7 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     assert_equal 'sms://2', msgs[0].to
     assert_equal 'Hello!', msgs[0].body
     assert_equal 'ar', msgs[0].country
+    assert_equal @msg.token, msgs[0].token
   end
 
   test "post response is a json hash, route it back" do
@@ -226,6 +228,7 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     assert_equal 'sms://2', msgs[0].to
     assert_equal 'Hello!', msgs[0].body
     assert_equal 'ar', msgs[0].country
+    assert_equal @msg.token, msgs[0].token
   end
 
   test "post response is an xml, route it back" do
@@ -255,6 +258,7 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     assert_equal xml.to, msgs[0].to
     assert_equal xml.body, msgs[0].body
     assert_equal xml.country, msgs[0].country
+    assert_equal @msg.token, msgs[0].token
   end
 
   test "post with custom attributes" do
