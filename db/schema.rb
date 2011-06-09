@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110503093229) do
+ActiveRecord::Schema.define(:version => 20110609100312) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -69,6 +69,7 @@ ActiveRecord::Schema.define(:version => 20110503093229) do
     t.integer  "parent_id"
     t.text     "failover_channels"
     t.text     "original"
+    t.string   "token",               :limit => 36
   end
 
   add_index "ao_messages", ["account_id", "channel_id", "state"], :name => "index_ao_messages_on_account_id_and_channel_id_and_state"

@@ -148,6 +148,17 @@ module MessageCommon
     h
   end
 
+  def to_json(options = {})
+    hash = {}
+    Fields.each do |field|
+      value = send field
+      hash[field] = value if value
+    end
+    hash['state'] = state
+    hash.merge!(custom_attributes)
+    hash.to_json
+  end
+
   # Rule Engine related methods
 
   # Builds Context for AT Rules execution

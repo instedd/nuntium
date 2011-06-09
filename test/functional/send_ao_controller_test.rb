@@ -20,6 +20,7 @@ class SendAoControllerTest < ActionController::TestCase
 
       assert_equal msg.id.to_s, @response.headers['X-Nuntium-Id']
       assert_equal msg.guid.to_s, @response.headers['X-Nuntium-Guid']
+      assert_equal msg.token, @response.headers['X-Nuntium-Token']
 
       assert_equal @account.id, msg.account_id
       assert_equal "s", msg.subject
@@ -30,6 +31,7 @@ class SendAoControllerTest < ActionController::TestCase
       assert_not_nil msg.timestamp
       assert_equal (ok ? 'queued' : 'failed'), msg.state
       assert_equal (ok ? @chan.id : nil), msg.channel_id
+      assert_not_nil msg.token
     end
   end
 
@@ -63,6 +65,8 @@ class SendAoControllerTest < ActionController::TestCase
     messages = AOMessage.all
     assert_equal 2, messages.length
 
+    assert_equal messages[0].token, @response.headers['X-Nuntium-Token']
+
     assert_equal 'sms://1', messages[0].from
     assert_equal 'sms://2', messages[0].to
     assert_equal 'foo', messages[0].body
@@ -72,6 +76,10 @@ class SendAoControllerTest < ActionController::TestCase
     assert_equal 'sms://4', messages[1].to
     assert_equal 'bar', messages[1].body
     assert_equal @chan.id, messages[1].channel_id
+
+    assert_not_nil messages[0].token
+    assert_not_nil messages[1].token
+    assert_equal messages[0].token, messages[1].token
   end
 
   test "send ao with xml" do
@@ -83,6 +91,8 @@ class SendAoControllerTest < ActionController::TestCase
     messages = AOMessage.all
     assert_equal 2, messages.length
 
+    assert_equal messages[0].token, @response.headers['X-Nuntium-Token']
+
     assert_equal 'sms://1', messages[0].from
     assert_equal 'sms://2', messages[0].to
     assert_equal 'foo', messages[0].body
@@ -92,6 +102,10 @@ class SendAoControllerTest < ActionController::TestCase
     assert_equal 'sms://4', messages[1].to
     assert_equal 'bar', messages[1].body
     assert_equal @chan.id, messages[1].channel_id
+
+    assert_not_nil messages[0].token
+    assert_not_nil messages[1].token
+    assert_equal messages[0].token, messages[1].token
   end
 
 end

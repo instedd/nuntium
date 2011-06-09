@@ -20,21 +20,31 @@ class SendAoController < ApplicationAuthenticatedController
 
     response.headers['X-Nuntium-Id'] = msg.id.to_s
     response.headers['X-Nuntium-Guid'] = msg.guid.to_s
+    response.headers['X-Nuntium-Token'] = msg.token.to_s
     head msg.state == 'failed' ? :bad_request : :ok
   end
 
   def create_many_json
-    AOMessage.from_json(request.raw_post) { |msg| route msg }
-    head :ok
+    create_many :from_json
   end
 
   def create_many_xml
-    AOMessage.parse_xml(request.raw_post) { |msg| route msg }
+    create_many :parse_xml
+  end
+
+  def create_many(method)
+    token = Guid.new.to_s
+    AOMessage.send(method, request.raw_post) do |msg|
+      msg.token = token
+      route msg
+    end
+    response.headers['X-Nuntium-Token'] = token
     head :ok
   end
 
   def route(msg)
     msg.account_id = @account.id
+    msg.token ||= Guid.new.to_s
     @application.route_ao msg, 'http'
   end
 
