@@ -231,6 +231,26 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     assert_equal @msg.token, msgs[0].token
   end
 
+  test "post response is a json hash with token" do
+    @application.interface = 'http_post_callback'
+    @application.interface_url = 'http://www.domain.com'
+    @application.save!
+
+    expect_post :url => @application.interface_url,
+      :data => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPSuccess,
+      :returns_body => {:token => 'my_token'}.to_json,
+      :returns_content_type => 'application/json'
+
+    job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
+    job.perform
+
+    msgs = AOMessage.all
+    assert_equal 1, msgs.count
+    assert_equal 'my_token', msgs[0].token
+  end
+
   test "post response is an xml, route it back" do
     @application.interface = 'http_post_callback'
     @application.interface_url = 'http://www.domain.com'
@@ -259,6 +279,29 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     assert_equal xml.body, msgs[0].body
     assert_equal xml.country, msgs[0].country
     assert_equal @msg.token, msgs[0].token
+  end
+
+  test "post response is an xml with a token" do
+    @application.interface = 'http_post_callback'
+    @application.interface_url = 'http://www.domain.com'
+    @application.save!
+
+    xml = AOMessage.make_unsaved :subject => nil
+    xml.token = 'my_token'
+
+    expect_post :url => @application.interface_url,
+      :data => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPSuccess,
+      :returns_body => AOMessage.write_xml([xml]),
+      :returns_content_type => 'application/xml'
+
+    job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
+    job.perform
+
+    msgs = AOMessage.all
+    assert_equal 1, msgs.count
+    assert_equal 'my_token', msgs[0].token
   end
 
   test "post with custom attributes" do
