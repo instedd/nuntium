@@ -16,6 +16,7 @@ class SendAoController < ApplicationAuthenticatedController
 
   def create_single
     msg = AOMessage.from_hash params
+    msg.token = params.delete(:token) || Guid.new.to_s
     route msg
 
     response.headers['X-Nuntium-Id'] = msg.id.to_s
@@ -35,6 +36,7 @@ class SendAoController < ApplicationAuthenticatedController
   def create_many(method)
     token = Guid.new.to_s
     AOMessage.send(method, request.raw_post) do |msg|
+      token = msg.token if msg.token
       msg.token = token
       route msg
     end

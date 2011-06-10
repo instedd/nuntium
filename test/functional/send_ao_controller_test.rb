@@ -35,6 +35,19 @@ class SendAoControllerTest < ActionController::TestCase
     end
   end
 
+    test "send ao with token" do
+      get :create, {:token => 'my_token', :account_name => @account.name, :application_name => @application.name}
+
+      messages = AOMessage.all
+      assert_equal 1, messages.length
+
+      msg = messages[0]
+
+      assert_equal 'my_token', @response.headers['X-Nuntium-Token']
+
+      assert_equal 'my_token', msg.token
+    end
+
   test "send ao fails not authorized" do
     @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'wrong_pass')
     get :create, {:from => 'sms://1234', :to => 'sms://5678', :subject => 's', :body => 'b', :guid => 'g', :account_name => @account.name, :application_name => @application.name}
@@ -82,6 +95,18 @@ class SendAoControllerTest < ActionController::TestCase
     assert_equal messages[0].token, messages[1].token
   end
 
+  test "send ao with json and token" do
+    @request.env['RAW_POST_DATA'] = [{:token => 'my_token'}].to_json
+
+    get :create, :format => 'json', :account_name => @account.name, :application_name => @application.name
+
+    messages = AOMessage.all
+    assert_equal 1, messages.length
+
+    assert_equal 'my_token', messages[0].token
+    assert_equal 'my_token', @response.headers['X-Nuntium-Token']
+  end
+
   test "send ao with xml" do
     msgs = [AOMessage.new(:from => 'sms://1', :to => 'sms://2', :body => 'foo'), AOMessage.new(:from => 'sms://3', :to => 'sms://4', :body => 'bar')]
     @request.env['RAW_POST_DATA'] = AOMessage.write_xml(msgs)
@@ -106,6 +131,19 @@ class SendAoControllerTest < ActionController::TestCase
     assert_not_nil messages[0].token
     assert_not_nil messages[1].token
     assert_equal messages[0].token, messages[1].token
+  end
+
+  test "send ao with xml and token" do
+    msgs = [AOMessage.new(:token => 'my_token')]
+    @request.env['RAW_POST_DATA'] = AOMessage.write_xml(msgs)
+
+    get :create, :format => 'xml', :account_name => @account.name, :application_name => @application.name
+
+    messages = AOMessage.all
+    assert_equal 1, messages.length
+
+    assert_equal 'my_token', messages[0].token
+    assert_equal 'my_token', @response.headers['X-Nuntium-Token']
   end
 
 end

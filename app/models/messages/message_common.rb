@@ -139,6 +139,7 @@ module MessageCommon
       custom_attributes.each_multivalue do |name, values|
         values.each { |value| xml.property :name => name, :value => value }
       end
+      xml.property :name => 'token', :value => self.token if self.token
     end
   end
 
@@ -249,7 +250,11 @@ module MessageCommon
         if properties.present?
           properties = [properties] if properties.class <= Hash
           properties.each do |prop|
-            msg.custom_attributes.store_multivalue prop[:name], prop[:value]
+            if prop[:name] == 'token'
+              msg.token = prop[:value]
+            else
+              msg.custom_attributes.store_multivalue prop[:name], prop[:value]
+            end
           end
         end
 
@@ -271,7 +276,7 @@ module MessageCommon
 
       msg = self.new
       hash.each do |key, value|
-        if [:from, :to, :subject, :body, :guid].include? key.to_sym
+        if [:from, :to, :subject, :body, :guid, :token].include? key.to_sym
           # Normal attribute
           msg.send "#{key}=", value
         elsif [:controller, :action, :application_name, :account_name].include? key.to_sym
