@@ -139,6 +139,7 @@ module MessageCommon
       custom_attributes.each_multivalue do |name, values|
         values.each { |value| xml.property :name => name, :value => value }
       end
+      xml.property :name => 'token', :value => self.token if self.token
     end
   end
 
@@ -146,6 +147,19 @@ module MessageCommon
     h = {'id' => guid, 'from' => from, 'to' => to, 'text' => subject_and_body, 'when' => timestamp}
     h['properties'] = custom_attributes if custom_attributes.present?
     h
+  end
+
+  def to_json(options = {})
+    hash = {}
+    Fields.each do |field|
+      value = send field
+      hash[field] = value if value
+    end
+    hash['channel'] = channel.try(:name)
+    hash['channel_kind'] = channel.try(:kind)
+    hash['state'] = state
+    hash.merge!(custom_attributes)
+    hash.to_json
   end
 
   # Rule Engine related methods
@@ -238,7 +252,11 @@ module MessageCommon
         if properties.present?
           properties = [properties] if properties.class <= Hash
           properties.each do |prop|
-            msg.custom_attributes.store_multivalue prop[:name], prop[:value]
+            if prop[:name] == 'token'
+              msg.token = prop[:value]
+            else
+              msg.custom_attributes.store_multivalue prop[:name], prop[:value]
+            end
           end
         end
 
@@ -260,7 +278,7 @@ module MessageCommon
 
       msg = self.new
       hash.each do |key, value|
-        if [:from, :to, :subject, :body, :guid].include? key.to_sym
+        if [:from, :to, :subject, :body, :guid, :token].include? key.to_sym
           # Normal attribute
           msg.send "#{key}=", value
         elsif [:controller, :action, :application_name, :account_name].include? key.to_sym

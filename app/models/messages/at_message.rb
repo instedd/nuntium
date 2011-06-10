@@ -27,4 +27,7 @@ class ATMessage < ActiveRecord::Base
     account.logger.exception_in_application_and_at_message application, self, exception
   end
 
+  def token
+    guid
+  end
 end

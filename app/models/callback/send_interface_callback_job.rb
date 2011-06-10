@@ -63,15 +63,18 @@ class SendInterfaceCallbackJob
               hashes = JSON.parse(res.body)
               hashes = [hashes] unless hashes.is_a? Array
               hashes.each do |hash|
-                @msg = AOMessage.from_hash hash
-                @app.route_ao @msg, 'http post callback'
+                parsed = AOMessage.from_hash hash
+                parsed.token = @msg.token
+                @app.route_ao parsed, 'http post callback'
               end
             when 'application/xml'
               AOMessage.parse_xml(res.body) do |parsed|
+                parsed.token = @msg.token
                 @app.route_ao parsed, 'http post callback'
               end
             else
               reply = AOMessage.new :from => @msg.to, :to => @msg.from, :body => res.body
+              reply.token = @msg.token
               @app.route_ao reply, 'http post callback'
             end
           end
