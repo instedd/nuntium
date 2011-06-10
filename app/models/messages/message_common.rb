@@ -155,6 +155,8 @@ module MessageCommon
       value = send field
       hash[field] = value if value
     end
+    hash['channel'] = channel.try(:name)
+    hash['channel_kind'] = channel.try(:kind)
     hash['state'] = state
     hash.merge!(custom_attributes)
     hash.to_json

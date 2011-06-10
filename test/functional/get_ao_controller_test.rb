@@ -19,7 +19,7 @@ class GetAoControllerTest < ActionController::TestCase
 
   test "get ao as json matches one" do
     token = 1234
-    msg = AOMessage.make :account_id => @account.id, :application_id => @application.id, :token => token
+    msg = AOMessage.make :account_id => @account.id, :application_id => @application.id, :channel_id => @chan.id, :token => token
     msg.country = 'ar'
     msg.save!
 
@@ -29,9 +29,11 @@ class GetAoControllerTest < ActionController::TestCase
     assert_equal 1, messages.length
 
     keys = ['from', 'to', 'subject', 'body', 'guid', 'state', 'country']
-    assert_equal keys.sort, messages[0].keys.sort
+    assert_equal (keys + ['channel', 'channel_kind']).sort, messages[0].keys.sort
     keys.each do |key|
       assert_equal msg.send(key), messages[0][key]
     end
+    assert_equal @chan.name, messages[0]['channel']
+    assert_equal @chan.kind, messages[0]['channel_kind']
   end
 end
