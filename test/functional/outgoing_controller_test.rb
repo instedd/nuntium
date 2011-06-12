@@ -21,6 +21,14 @@ class OutgoingControllerTest < ActionController::TestCase
     msg
   end
 
+  test "get updates channel's last activity at" do
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
+    get 'index', :account_id => @account.name
+
+    @chan.reload
+    assert_in_delta Time.now.utc, @chan.last_activity_at, 5
+  end
+
   test "get one" do
     msg2 = create_qst_ao @account2, @chan2
     msg = create_qst_ao @account, @chan
