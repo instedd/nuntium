@@ -186,6 +186,15 @@ class ChannelTest < ActiveSupport::TestCase
     end
   end
 
+  test "to xml with last activity at" do
+    now = Time.parse "2011-06-12 15:15:11 UTC"
+    @chan.last_activity_at = now
+
+    xml = Hash.from_xml(@chan.to_xml).with_indifferent_access
+    chan = xml[:channel]
+    assert_equal "2011-06-12 15:15:11 UTC", chan[:last_activity_at]
+  end
+
   test "from xml with empty restrictions creates the empty hash" do
     c = Channel.from_xml('<channel><restrictions/></channel>')
 
@@ -251,6 +260,15 @@ class ChannelTest < ActiveSupport::TestCase
       end
       assert_true found, "Property #{name} not found"
     end
+  end
+
+  test "to json last activity at" do
+    now = Time.now.utc
+    @chan.last_activity_at = now
+
+    chan = JSON.parse(@chan.to_json).with_indifferent_access
+
+    assert_equal now.to_json, %Q("#{chan[:last_activity_at]}")
   end
 
   test "sort candidate channels first by priority, then by paused" do

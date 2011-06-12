@@ -1,5 +1,6 @@
 class QSTServerController < ApplicationController
   before_filter :authenticate
+  before_filter :update_channel_last_activity_at
 
   def authenticate
     authenticate_or_request_with_http_basic do |username, password|
@@ -15,5 +16,10 @@ class QSTServerController < ApplicationController
         false
       end
     end
+  end
+
+  def update_channel_last_activity_at
+    @channel.last_activity_at = Time.now.utc
+    @channel.save!
   end
 end

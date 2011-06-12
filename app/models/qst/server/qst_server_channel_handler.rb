@@ -1,6 +1,8 @@
 require 'digest/sha1'
 
 class QstServerChannelHandler < ChannelHandler
+  include ActionView::Helpers::DateHelper
+
   def self.title
     "QST server (local gateway)"
   end
@@ -71,5 +73,9 @@ class QstServerChannelHandler < ChannelHandler
 
   def hash(salt, password)
     Base64.encode64(Digest::SHA1.digest(salt + Iconv.conv('ucs-2le', 'utf-8', password))).strip
+  end
+
+  def info
+    "Last activity: #{@channel.last_activity_at ? time_ago_in_words(@channel.last_activity_at) : 'never'}"
   end
 end
