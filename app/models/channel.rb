@@ -417,8 +417,9 @@ class Channel < ActiveRecord::Base
 
   def common_to_x_attributes
     attributes = {}
-    [:name, :kind, :protocol, :enabled, :priority, :address, :ao_cost, :at_cost].each do |sym|
-      attributes[sym] = send(sym) if send(sym).present?
+    [:name, :kind, :protocol, :enabled, :priority, :address, :ao_cost, :at_cost, :last_activity_at].each do |sym|
+      value = send sym
+      attributes[sym] = value if value.present?
     end
     attributes[:direction] = direction_text unless direction_text == 'unknown'
     attributes[:application] = application.name if application_id
