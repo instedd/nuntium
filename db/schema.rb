@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110612125457) do
+ActiveRecord::Schema.define(:version => 20110613014515) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -25,6 +25,7 @@ ActiveRecord::Schema.define(:version => 20110612125457) do
 
   add_index "account_logs", ["account_id", "ao_message_id"], :name => "index_account_logs_on_account_id_and_ao_message_id"
   add_index "account_logs", ["account_id", "at_message_id"], :name => "index_account_logs_on_account_id_and_at_message_id"
+  add_index "account_logs", ["account_id", "channel_id"], :name => "index_account_logs_on_account_id_and_channel_id"
   add_index "account_logs", ["account_id", "id"], :name => "index_account_logs_on_account_id_and_id"
 
   create_table "accounts", :force => true do |t|
