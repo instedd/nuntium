@@ -60,4 +60,8 @@ class ServiceChannelHandler < ChannelHandler
   def managed_process_name
     "#{@channel.kind}_daemon #{@channel.name}"
   end
+
+  def has_connection?
+    true
+  end
 end

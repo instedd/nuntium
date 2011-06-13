@@ -36,6 +36,7 @@ By "the world" we mean anything that's not your particular application. For exam
         <td>
           <%- status = chan.paused ? 'paused' : (chan.enabled ? 'enabled' : 'disabled') -%>
           <%= image_tag "#{status}.png", :size => '16x16', :style => 'position:relative; top:4px', :title => "This channel is #{status}", :class => "img" -%>
+          <%- if chan.has_connection? -%><%= image_tag "#{chan.connected? ? 'connected' : 'disconnected'}.png", :size => '16x16', :style => 'position:relative; top:4px', :title => "This channel is #{chan.connected? ? 'connected' : 'disconnected'}", :class => "img" -%><%- end -%>
           <b><%= chan.name -%></b></td>
         <td><%= chan.kind -%></td>
         <td><%= chan.direction_text -%></td>

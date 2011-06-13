@@ -64,6 +64,10 @@ class ChannelHandler
   def on_destroy
   end
 
+  def has_connection?
+    false
+  end
+
   # Returns additional info for the given ao_msg in a hash, to be
   # displayed in the message view
   def more_info(ao_msg)

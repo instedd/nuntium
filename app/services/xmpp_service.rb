@@ -15,6 +15,8 @@ class XmppService < Service
     setup @channel.handler.jid, @channel.configuration[:password], @channel.handler.server, @channel.configuration[:port]
     when_ready do
       Rails.logger.info "Connected to #{@channel.handler.jid}"
+      self.channel_connected = true
+
       set_status :chat, @channel.configuration[:status] if @channel.configuration[:status].present?
 
       subscribe_queue
@@ -29,6 +31,7 @@ class XmppService < Service
   def stop
     client.close
     @mq.close
+    self.channel_connected = false
     EM.stop_event_loop
   end
 
@@ -70,6 +73,8 @@ class XmppService < Service
   def handle_disconnections
     disconnected do
       Rails.logger.info "Disconnected, trying to reconnect..."
+      self.channel_connected = false
+
       client.connect
     end
   end
@@ -122,5 +127,10 @@ class XmppService < Service
     @mq.prefetch PrefetchCount
 
     @subscribed = false
+  end
+
+  def channel_connected=(value)
+    @channel.connected = value
+    @channel.save!
   end
 end
