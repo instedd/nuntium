@@ -390,6 +390,8 @@ class Channel < ActiveRecord::Base
       else
         self.handler.on_resume
       end
+    elsif self.connected_changed?
+      # Do nothing
     else
       self.handler.on_changed
     end
