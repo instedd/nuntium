@@ -355,6 +355,10 @@ class Channel < ActiveRecord::Base
     Rails.cache.delete Channel.queued_ao_messages_count_cache_key(id)
   end
 
+  def has_connection?
+    self.handler.has_connection?
+  end
+
   private
 
   def handler_check_valid

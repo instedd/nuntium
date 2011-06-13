@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110613014515) do
+ActiveRecord::Schema.define(:version => 20110613031556) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -144,6 +144,7 @@ ActiveRecord::Schema.define(:version => 20110613014515) do
     t.decimal  "ao_cost",          :precision => 10, :scale => 2
     t.decimal  "at_cost",          :precision => 10, :scale => 2
     t.datetime "last_activity_at"
+    t.boolean  "connected"
   end
 
   create_table "clickatell_coverage_mos", :force => true do |t|

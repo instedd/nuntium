@@ -72,6 +72,8 @@ class SmppGateway < SmppTransceiverDelegate
   def stop
     Rails.logger.info "Closing SMPP connection"
 
+    self.channel_connected = false
+
     @is_running = false
     @transceiver.close_connection
     unsubscribe_queue
@@ -79,6 +81,8 @@ class SmppGateway < SmppTransceiverDelegate
 
   def bound(transceiver)
     Rails.logger.info "Delegate: transceiver bound"
+
+    self.channel_connected = true
 
     subscribe_queue
   end
@@ -120,6 +124,8 @@ class SmppGateway < SmppTransceiverDelegate
   def unbound(transceiver)
     Rails.logger.info "Delegate: transceiver unbound"
 
+    self.channel_connected = false
+
     unsubscribe_queue
 
     if @is_running
@@ -130,6 +136,11 @@ class SmppGateway < SmppTransceiverDelegate
   end
 
   private
+
+  def channel_connected=(value)
+    @channel.connected = value
+    @channel.save!
+  end
 
   def subscribe_queue
     Rails.logger.info "Subscribing to message queue"
