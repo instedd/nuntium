@@ -76,6 +76,6 @@ class QstServerChannelHandler < ChannelHandler
   end
 
   def info
-    "Last activity: #{@channel.last_activity_at ? time_ago_in_words(@channel.last_activity_at) : 'never'}"
+    "Last activity: " + (@channel.last_activity_at ? "#{time_ago_in_words(@channel.last_activity_at)} ago" : 'never')
   end
 end
