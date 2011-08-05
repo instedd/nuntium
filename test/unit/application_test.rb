@@ -577,4 +577,20 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert_equal 1.2, msg.cost
   end
+
+  test "route ao adds protocol through ao rules" do
+    app = Application.make
+    app.ao_rules = [rule([],[action('to',"sms://1234")])]
+    app.save!
+
+    chan = Channel.make :account_id => app.account_id
+
+    msg = AOMessage.make_unsaved :account_id => app.account_id, :to => ''
+    app.route_ao msg, 'test'
+
+    msg.reload
+
+    assert_equal 'sms://1234', msg.to
+    assert_equal chan.id, msg.channel_id
+  end
 end

@@ -64,7 +64,7 @@ class Application < ActiveRecord::Base
     fill_common_message_properties msg
 
     # Check protocol presence
-    protocol = msg.to.nil? ? '' : msg.to.protocol
+    protocol = msg.to.try(:protocol) || ''
 
     if protocol == ''
       msg.state = 'failed'
