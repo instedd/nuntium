@@ -1,10 +1,15 @@
 class Ticket < ActiveRecord::Base
 
-  def self.checkout(*params)
+  validates_inclusion_of :status, :in => ['pending', 'complete']
+  serialize :data, Hash
+
+  def self.checkout(data = nil)
     ticket = Ticket.new({
       :code => Ticket.generate_random_code,
       :secret_key => Guid.new,
-      :expiration => Ticket.get_expiration
+      :expiration => Ticket.get_expiration,
+      :data => data,
+      :status => 'pending'
     })
     
     ticket.save!    
@@ -17,6 +22,17 @@ class Ticket < ActiveRecord::Base
     
     ticket.expiration = Ticket.get_expiration
     
+    ticket
+  end
+  
+  def self.complete(code, data = {})
+    ticket = Ticket.find_by_code_and_status code, 'pending'
+    
+    raise "Invalid code" if ticket.nil?
+    ticket.data = (ticket.data || {}).merge! data
+    ticket.status = 'complete'
+
+    ticket.save!
     ticket
   end
   

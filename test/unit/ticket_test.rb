@@ -70,9 +70,48 @@ class TicketTest < ActiveSupport::TestCase
     assert_equal ticket.id, Ticket.all.first.id
   end
   
-  #test "Checkout ticket use params as initial data"
-#   :address => '12345678', :country_code => '54'  
-  #test "Checked out tickets can be completed"
-  #test "Upon keep alive a complete ticket updated data is provided"
+  test "Checkout ticket use params as initial data" do
+    data = { :address => '12345678', :country_code => '54' }
+    ticket = Ticket.checkout data
+    stored = Ticket.find_by_code ticket.code
     
+    assert_equal data, stored.data
+  end
+   
+  test "Checked out tickets can be completed" do
+    ticket = Ticket.checkout
+    assert_equal 'pending', ticket.status
+    
+    pending = Ticket.keep_alive ticket.code, ticket.secret_key
+    assert_equal 'pending', pending.status
+    
+    Ticket.complete ticket.code
+    completed = Ticket.keep_alive ticket.code, ticket.secret_key
+    
+    assert_equal 'complete', completed.status
+  end
+  
+  test "Upon keep alive a complete ticket updated data is provided" do
+    ticket = Ticket.checkout :a => 1
+    Ticket.complete ticket.code, :b => 2
+
+    completed = Ticket.keep_alive ticket.code, ticket.secret_key
+    
+    assert_equal ({ :a => 1, :b => 2 }), completed.data
+  end
+
+  test "Cannot complete already completed tickets" do
+    ticket = Ticket.checkout
+    Ticket.complete ticket.code
+
+    assert_raise RuntimeError, "Invalid code" do
+      Ticket.complete ticket.code
+    end
+  end
+  
+  test "Cannot complete with invalid ticket code" do
+    assert_raise RuntimeError, "Invalid code" do
+      Ticket.complete 'not-a-code'
+    end
+  end
 end
