@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110613031556) do
+ActiveRecord::Schema.define(:version => 20110808172602) do
 
   create_table "account_logs", :force => true do |t|
     t.integer  "account_id"
@@ -251,6 +251,16 @@ ActiveRecord::Schema.define(:version => 20110613031556) do
   end
 
   add_index "smpp_message_parts", ["channel_id", "source", "reference_number"], :name => "index_smpp_message_parts"
+
+  create_table "tickets", :force => true do |t|
+    t.string   "code"
+    t.string   "secret_key"
+    t.string   "status"
+    t.text     "data"
+    t.datetime "expiration"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "twitter_channel_statuses", :force => true do |t|
     t.integer  "channel_id"
