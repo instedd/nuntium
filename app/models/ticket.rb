@@ -6,7 +6,7 @@ class Ticket < ActiveRecord::Base
   def self.checkout(data = nil)
     ticket = Ticket.new({
       :code => Ticket.generate_random_code,
-      :secret_key => Guid.new,
+      :secret_key => Guid.new.to_s,
       :expiration => Ticket.get_expiration,
       :data => data,
       :status => 'pending'
@@ -40,10 +40,14 @@ class Ticket < ActiveRecord::Base
     Ticket.delete_all ['expiration < ?', Time.now.utc]
   end
 
+  def to_json
+    { :code => code , :secret_key => secret_key, :data => (data || {}) }.to_json
+  end
+
 private
 
   def self.generate_random_code
-    rand 9999
+    rand(9999).to_s
   end
   
   def self.get_expiration
