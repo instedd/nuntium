@@ -1,12 +1,18 @@
 class TicketsController < ApplicationController
 
   def checkout
-    ticket = Ticket.checkout clean_params    
+    Ticket.remove_expired
+    
+    ticket = Ticket.checkout clean_params
     render :json => ticket.to_json
   end
   
   def keep_alive
-    ticket = Ticket.keep_alive params[:code], params[:secret_key]
+    begin
+      ticket = Ticket.keep_alive params[:code], params[:secret_key]
+    rescue RuntimeError
+      return head :not_found
+    end
     render :json => ticket.to_json
   end
   

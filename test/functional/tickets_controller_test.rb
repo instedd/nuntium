@@ -35,4 +35,18 @@ class TicketsControllerTest < ActionController::TestCase
     assert_equal ticket, renewal
   end
   
+  test "response not found with invalid code" do
+    get :keep_alive, :found => 'json', :code => 'not-a-code', :secret_key => 'not-a-key'
+    assert_response :not_found
+  end
+  
+  test "clean expired tickets on checkout" do
+    ticket1 = Ticket.make :pending, :expiration => (base_time - 25.hours)
+    ticket2 = Ticket.make :status => 'complete', :expiration => (base_time - 26.hours)
+    
+    get :checkout, :format => 'json'
+        
+    assert_nil Ticket.find_by_id(ticket1.id)
+    assert_nil Ticket.find_by_id(ticket2.id)
+  end
 end

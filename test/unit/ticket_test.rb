@@ -114,4 +114,6 @@ class TicketTest < ActiveSupport::TestCase
       Ticket.complete 'not-a-code'
     end
   end
+  
+  # ensure unique code
 end

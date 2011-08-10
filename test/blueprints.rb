@@ -9,6 +9,7 @@ Sham.define do
   password { Faker::Name.name }
   number2(:unique => false) { (1..2).map { ('1'..'9').to_a.rand }.join }
   number8 { (1..8).map { ('1'..'9').to_a.rand }.join }
+  number4 { (1..4).map { ('1'..'9').to_a.rand }.join }
   guid { (1..10).map { ('a'..'z').to_a.rand }.join }
 end
 
@@ -126,6 +127,15 @@ Channel.blueprint :xmpp do
   kind { "xmpp" }
   protocol { "xmpp" }
   configuration { {:user => Sham.username, :domain => Sham.url, :password => Sham.password, :server => Sham.url, :port => 1 + rand(1000), :resource => Sham.username} }
+end
+
+Ticket.blueprint do
+  code { Sham.number4 }
+  secret_key { Sham.guid }
+end
+
+Ticket.blueprint :pending do
+  status { 'pending' }
 end
 
 Country.blueprint do

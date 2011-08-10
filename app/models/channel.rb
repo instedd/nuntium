@@ -18,6 +18,8 @@ class Channel < ActiveRecord::Base
   serialize :restrictions
   serialize :ao_rules
   serialize :at_rules
+  
+  attr_accessor :ticket_code
 
   validates_presence_of :name, :protocol, :kind, :account
   validates_format_of :name, :with => /^[a-zA-Z0-9\-_]+$/, :message => "can only contain alphanumeric characters, '_' or '-' (no spaces allowed)", :unless => proc {|c| c.name.blank?}
@@ -26,6 +28,9 @@ class Channel < ActiveRecord::Base
   validates_numericality_of :throttle, :allow_nil => true, :only_integer => true, :greater_than_or_equal_to => 0
   validates_numericality_of :ao_cost, :greater_than_or_equal_to => 0, :allow_nil => true
   validates_numericality_of :at_cost, :greater_than_or_equal_to => 0, :allow_nil => true
+
+  before_save :ticket_record_password
+  after_create :ticket_mark_as_complete
 
   validate :handler_check_valid
   before_save :handler_before_save
@@ -361,6 +366,23 @@ class Channel < ActiveRecord::Base
 
   private
 
+  def ticket_record_password
+    return unless ticket_code
+    ticket = Ticket.find_by_code_and_status ticket_code, 'pending'
+    if ticket.nil?
+      errors.add(:ticket_code, "Invalid code")
+      return false
+    end
+    self.address = ticket.data[:address]
+    @password_input = configuration[:password]
+    return true
+  end
+  
+  def ticket_mark_as_complete
+    return unless ticket_code
+    ticket = Ticket.complete ticket_code, { :channel => self.name, :account => self.account.name, :password => @password_input }
+  end
+
   def handler_check_valid
     self.handler.check_valid if self.handler.respond_to?(:check_valid)
     if !@check_valid_in_ui.nil? and @check_valid_in_ui
@@ -373,7 +395,7 @@ class Channel < ActiveRecord::Base
     true
   end
 
-  def handler_after_create
+  def handler_after_create    
     self.handler.on_create
   end
 
@@ -423,7 +445,7 @@ class Channel < ActiveRecord::Base
 
   def common_to_x_attributes
     attributes = {}
-    [:name, :kind, :protocol, :enabled, :priority, :address, :ao_cost, :at_cost, :last_activity_at].each do |sym|
+    [:name, :kind, :protocol, :enabled, :priority, :address, :ao_cost, :at_cost, :last_activity_at, :ticket_code].each do |sym|
       value = send sym
       attributes[sym] = value if value.present?
     end
@@ -441,6 +463,7 @@ class Channel < ActiveRecord::Base
     end
     chan.enabled = hash[:enabled].to_b
     chan.direction = hash[:direction] if hash[:direction]
+    chan.ticket_code = hash[:ticket_code] if hash[:ticket_code]
 
     hash_config = hash[:configuration] || {}
     hash_config = hash_config[:property] || [] if format == :xml and hash_config[:property]

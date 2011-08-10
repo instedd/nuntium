@@ -125,6 +125,30 @@ class ApiChannelControllerTest < ActionController::TestCase
         assert_equal chan.send(sym), result.send(sym), "sym was not the same"
       end
     end
+    
+    test "create #{format} channel with using ticket succeeds and complete ticket" do
+      ticket = Ticket.make :pending, :data => { :address => '8346-2355' }
+      chan = Channel.make_unsaved :qst_server, :enabled => false, :ticket_code => ticket.code
+      
+      create chan, format
+      
+      result = @account.channels.last
+      ticket.reload
+      
+      assert_not_nil result
+      assert_equal @account.id, result.account_id
+      assert_equal @application.id, result.application_id
+      [:name, :kind, :protocol, :direction, :enabled, :priority, :restrictions].each do |sym|
+        assert_equal chan.send(sym), result.send(sym), "sym was not the same"
+      end
+      assert_nil result.ticket_code
+      assert_equal '8346-2355', result.address
+      
+      assert_equal 'complete', ticket.status
+      assert_equal @account.name, ticket.data[:account]
+      assert_equal result.name, ticket.data[:channel]
+      assert_equal chan.configuration[:password], ticket.data[:password]
+    end
 
     test "create #{format} channel fails missing name" do
       chan = Channel.make_unsaved :qst_server, :name => nil
@@ -145,6 +169,25 @@ class ApiChannelControllerTest < ActionController::TestCase
       end
     end
 
+    test "create #{format} channel using invalid ticket fails" do
+      chan = Channel.make_unsaved :qst_server, :ticket_code => 'wrong-ticket'
+
+      before_count = Channel.all.length
+      create chan, format, :bad_request
+      assert_equal before_count, Channel.all.length
+
+      errors = (format == 'xml' ? Hash.from_xml(@response.body) : JSON.parse(@response.body)).with_indifferent_access
+      if format == 'xml'
+        assert_not_nil errors[:error][:summary]
+        assert_equal "ticket_code", errors[:error][:property][:name]
+        assert_not_nil errors[:error][:property][:value]
+      else
+        assert_not_nil errors[:summary]
+        assert_equal "ticket_code", errors[:properties][0].keys[0]
+        assert_not_nil errors[:properties][0].values[0]
+      end
+    end
+    
     test "update #{format} channel succeeds" do
       chan = Channel.make :account => @account, :application => @application, :priority => 20, :address => 'sms://1'
       update chan.name, Channel.new(:protocol => 'foobar', :priority => nil, :enabled => false, :address => 'sms://2'), format
