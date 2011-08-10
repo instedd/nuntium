@@ -128,7 +128,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     
     test "create #{format} channel with using ticket succeeds and complete ticket" do
       ticket = Ticket.make :pending, :data => { :address => '8346-2355' }
-      chan = Channel.make_unsaved :qst_server, :enabled => false, :ticket_code => ticket.code
+      chan = Channel.make_unsaved :qst_server, :enabled => false, :ticket_code => ticket.code, :ticket_message => 'Phone plugged to app'
       
       create chan, format
       
@@ -148,6 +148,7 @@ class ApiChannelControllerTest < ActionController::TestCase
       assert_equal @account.name, ticket.data[:account]
       assert_equal result.name, ticket.data[:channel]
       assert_equal chan.configuration[:password], ticket.data[:password]
+      assert_equal 'Phone plugged to app', ticket.data[:message]
     end
 
     test "create #{format} channel fails missing name" do

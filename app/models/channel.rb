@@ -19,7 +19,7 @@ class Channel < ActiveRecord::Base
   serialize :ao_rules
   serialize :at_rules
   
-  attr_accessor :ticket_code
+  attr_accessor :ticket_code, :ticket_message
 
   validates_presence_of :name, :protocol, :kind, :account
   validates_format_of :name, :with => /^[a-zA-Z0-9\-_]+$/, :message => "can only contain alphanumeric characters, '_' or '-' (no spaces allowed)", :unless => proc {|c| c.name.blank?}
@@ -380,7 +380,7 @@ class Channel < ActiveRecord::Base
   
   def ticket_mark_as_complete
     return unless ticket_code
-    ticket = Ticket.complete ticket_code, { :channel => self.name, :account => self.account.name, :password => @password_input }
+    ticket = Ticket.complete ticket_code, { :channel => self.name, :account => self.account.name, :password => @password_input, :message => self.ticket_message }
   end
 
   def handler_check_valid
@@ -445,7 +445,7 @@ class Channel < ActiveRecord::Base
 
   def common_to_x_attributes
     attributes = {}
-    [:name, :kind, :protocol, :enabled, :priority, :address, :ao_cost, :at_cost, :last_activity_at, :ticket_code].each do |sym|
+    [:name, :kind, :protocol, :enabled, :priority, :address, :ao_cost, :at_cost, :last_activity_at, :ticket_code, :ticket_message].each do |sym|
       value = send sym
       attributes[sym] = value if value.present?
     end
@@ -464,6 +464,7 @@ class Channel < ActiveRecord::Base
     chan.enabled = hash[:enabled].to_b
     chan.direction = hash[:direction] if hash[:direction]
     chan.ticket_code = hash[:ticket_code] if hash[:ticket_code]
+    chan.ticket_message = hash[:ticket_message] if hash[:ticket_message]
 
     hash_config = hash[:configuration] || {}
     hash_config = hash_config[:property] || [] if format == :xml and hash_config[:property]
