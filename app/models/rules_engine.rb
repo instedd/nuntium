@@ -39,6 +39,24 @@ module RulesEngine
 
     res
   end
+  
+  def to_xml(xml, rules)
+    (rules || []).each do |rule|
+      xml.rule :stop => rule['stop'] do
+        xml.matchings do
+          (rule['matchings'] || []).each do |m|
+            xml.matching m
+          end
+        end
+        xml.actions do
+          (rule['actions'] || []).each do |m|
+            xml.action m
+          end
+        end
+        # todo write rule
+      end
+    end
+  end
 
   private
 

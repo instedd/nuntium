@@ -295,6 +295,12 @@ class Channel < ActiveRecord::Base
           end
         end
       end unless restrictions.empty?
+      xml.ao_rules do
+        RulesEngine.to_xml xml, ao_rules
+      end unless ao_rules.nil?
+      xml.at_rules do
+        RulesEngine.to_xml xml, at_rules
+      end unless at_rules.nil?
     end
   end
 
@@ -322,6 +328,9 @@ class Channel < ActiveRecord::Base
       attributes[:restrictions] ||= []
       attributes[:restrictions] << {:name => name, :value => values}
     end unless restrictions.empty?
+    attributes[:ao_rules] = ao_rules unless ao_rules.nil?
+    attributes[:at_rules] = at_rules unless at_rules.nil?
+
     attributes.to_json
   end
 

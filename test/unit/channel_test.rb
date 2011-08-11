@@ -5,6 +5,21 @@ class ChannelTest < ActiveSupport::TestCase
     @chan = Channel.make
   end
 
+  def assert_eq_rules_xml(expected, actual)
+    expected = expected.ensure_array
+    actual = actual.ensure_array
+    
+    expected = { :v => expected }.with_indifferent_access[:v]
+    actual = { :v => actual }.with_indifferent_access[:v]
+    
+    assert_equal expected.length, actual.length
+    expected.zip(actual).each do |e_rule,a_rule|
+      assert_equal e_rule[:stop].to_s, a_rule[:stop].to_s
+      assert_equal e_rule[:actions], a_rule[:actions][:action].ensure_array
+      assert_equal e_rule[:matchings], a_rule[:matchings][:matching].ensure_array
+    end
+  end
+
   [:name, :kind, :protocol, :account_id].each do |field|
     test "should validate presence of #{field}" do
       @chan.send("#{field}=", nil)
@@ -186,6 +201,38 @@ class ChannelTest < ActiveSupport::TestCase
     end
   end
 
+  test "to xml ao_rules and at_rules" do
+    @chan.ao_rules = [
+      RulesEngine.rule([
+        RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1')
+      ],[
+        RulesEngine.action('from','sms://2')
+      ], true),
+      RulesEngine.rule([
+        RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://3')
+      ],[
+        RulesEngine.action('from','sms://4'),
+        RulesEngine.action('body','lorem')
+      ])      
+    ]
+    
+    @chan.at_rules = [
+      RulesEngine.rule([
+        RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1'),
+        RulesEngine.matching('body', RulesEngine::OP_EQUALS, 'ipsum')
+      ],[
+        RulesEngine.action('ca1','whitness')
+      ])
+    ]
+
+    xml = Hash.from_xml(@chan.to_xml).with_indifferent_access
+    ao_rules = xml[:channel][:ao_rules][:rule].ensure_array
+    at_rules = xml[:channel][:at_rules][:rule].ensure_array
+
+    assert_eq_rules_xml @chan.ao_rules, ao_rules
+    assert_eq_rules_xml @chan.at_rules, at_rules
+  end
+
   test "to xml with last activity at" do
     now = Time.parse "2011-06-12 15:15:11 UTC"
     @chan.last_activity_at = now
@@ -262,6 +309,36 @@ class ChannelTest < ActiveSupport::TestCase
     end
   end
 
+  test "to json ao_rules and at_rules" do
+    @chan.ao_rules = [
+      RulesEngine.rule([
+        RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1')
+      ],[
+        RulesEngine.action('from','sms://2')
+      ], true),
+      RulesEngine.rule([
+        RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://3')
+      ],[
+        RulesEngine.action('from','sms://4'),
+        RulesEngine.action('body','lorem')
+      ])      
+    ]
+    
+    @chan.at_rules = [
+      RulesEngine.rule([
+        RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1'),
+        RulesEngine.matching('body', RulesEngine::OP_EQUALS, 'ipsum')
+      ],[
+        RulesEngine.action('ca1','whitness')
+      ])
+    ]
+
+    chan = JSON.parse(@chan.to_json).with_indifferent_access
+
+    assert_equal @chan.ao_rules, chan[:ao_rules]
+    assert_equal @chan.at_rules, chan[:at_rules]
+  end
+  
   test "to json last activity at" do
     now = Time.now.utc
     @chan.last_activity_at = now
