@@ -2,6 +2,34 @@ require 'test_helper'
 
 class TicketTest < ActiveSupport::TestCase
 
+  test "Code is unique" do
+    Ticket.make :pending, :code => '1234'
+    assert_raise ActiveRecord::RecordInvalid do
+      Ticket.make :pending, :code => '1234'      
+    end
+  end
+  
+  test "Skip code if duplicate" do
+    Ticket.stubs(:rand).returns(1234)
+    
+    Ticket.checkout
+    Ticket.checkout    
+  end
+  
+  test "code can start with zero" do
+    Ticket.stubs(:rand).returns(123)
+    
+    assert_equal "0123", Ticket.checkout.code
+    assert_equal "0124", Ticket.checkout.code        
+  end
+
+  test "Code generation restarts from zero" do
+    Ticket.stubs(:rand).returns(9999)
+    
+    assert_equal "9999", Ticket.checkout.code
+    assert_equal "0000", Ticket.checkout.code    
+  end
+
   test "Checkout ticket gets code and use params as data" do
     ticket = Ticket.checkout
     assert !ticket.code.blank?

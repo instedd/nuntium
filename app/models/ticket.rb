@@ -2,6 +2,7 @@ class Ticket < ActiveRecord::Base
 
   validates_inclusion_of :status, :in => ['pending', 'complete']
   serialize :data, Hash
+  validates_uniqueness_of :code
 
   def self.checkout(data = nil)
     ticket = Ticket.new({
@@ -46,8 +47,16 @@ class Ticket < ActiveRecord::Base
 
 private
 
+  def self.format_code number
+    sprintf "%04d", number
+  end
+
   def self.generate_random_code
-    rand(9999).to_s
+    code = rand(9999)    
+    until Ticket.find_by_code(format_code(code)).nil? do 
+      code = (code + 1) % 10000
+    end    
+    format_code(code)
   end
   
   def self.get_expiration
