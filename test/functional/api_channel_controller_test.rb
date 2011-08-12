@@ -139,6 +139,9 @@ class ApiChannelControllerTest < ActionController::TestCase
         ],[
           RulesEngine.action('from','sms://4'),
           RulesEngine.action('body','lorem')
+        ]),   
+        RulesEngine.rule([],[
+          RulesEngine.action('subject','foo')
         ])      
       ]
 
