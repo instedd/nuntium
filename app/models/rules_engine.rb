@@ -57,6 +57,22 @@ module RulesEngine
       end
     end
   end
+  
+  def from_hash(hash, format)
+    if format == :json
+      return hash
+    elsif format == :xml
+        # in :xml format we need to flatten :actions => [ { :action => { ... } } ,  { :action => { ... } } ]
+        rules = []
+        hash[:rule].ensure_array.each do |rule|
+          matchings = rule[:matchings][:matching].ensure_array
+          actions = rule[:actions][:action].ensure_array
+                      
+          rules << RulesEngine.rule(matchings, actions, rule[:stop].to_b)
+        end
+        return rules
+    end
+  end
 
   private
 
