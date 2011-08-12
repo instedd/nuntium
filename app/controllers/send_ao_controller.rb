@@ -22,7 +22,7 @@ class SendAoController < ApplicationAuthenticatedController
     response.headers['X-Nuntium-Id'] = msg.id.to_s
     response.headers['X-Nuntium-Guid'] = msg.guid.to_s
     response.headers['X-Nuntium-Token'] = msg.token.to_s
-    head msg.state == 'failed' ? :bad_request : :ok
+    head :ok
   end
 
   def create_many_json

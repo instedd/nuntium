@@ -35,18 +35,24 @@ class SendAoControllerTest < ActionController::TestCase
     end
   end
 
-    test "send ao with token" do
-      get :create, {:token => 'my_token', :account_name => @account.name, :application_name => @application.name}
+  test "send ao with token" do
+    get :create, {:token => 'my_token', :account_name => @account.name, :application_name => @application.name}
 
-      messages = AOMessage.all
-      assert_equal 1, messages.length
+    messages = AOMessage.all
+    assert_equal 1, messages.length
 
-      msg = messages[0]
+    msg = messages[0]
 
-      assert_equal 'my_token', @response.headers['X-Nuntium-Token']
+    assert_equal 'my_token', @response.headers['X-Nuntium-Token']
 
-      assert_equal 'my_token', msg.token
-    end
+    assert_equal 'my_token', msg.token
+  end
+
+  test "send ao can't route but head ok" do
+    get :create, {:account_name => @account.name, :application_name => @application.name}
+
+    assert_response :ok
+  end
 
   test "send ao fails not authorized" do
     @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'wrong_pass')
@@ -145,5 +151,6 @@ class SendAoControllerTest < ActionController::TestCase
     assert_equal 'my_token', messages[0].token
     assert_equal 'my_token', @response.headers['X-Nuntium-Token']
   end
+
 
 end
