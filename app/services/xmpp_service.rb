@@ -130,6 +130,7 @@ class XmppService < Service
   end
 
   def channel_connected=(value)
+    @channel.reload
     @channel.connected = value
     @channel.save!
   end

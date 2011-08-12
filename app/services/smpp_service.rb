@@ -138,6 +138,7 @@ class SmppGateway < SmppTransceiverDelegate
   private
 
   def channel_connected=(value)
+    @channel.reload
     @channel.connected = value
     @channel.save!
   end
