@@ -344,7 +344,7 @@ class Channel < ActiveRecord::Base
   end
 
   def merge(other)
-    [:name, :kind, :protocol, :direction, :enabled, :priority, :configuration, :restrictions, :address, :ao_cost, :at_cost].each do |sym|
+    [:name, :kind, :protocol, :direction, :enabled, :priority, :configuration, :restrictions, :address, :ao_cost, :at_cost, :ao_rules, :at_rules].each do |sym|
       write_attribute sym, other.read_attribute(sym) if !other.read_attribute(sym).nil?
     end
   end
@@ -494,6 +494,28 @@ class Channel < ActiveRecord::Base
     hash_restrict.each do |property|
       chan.restrictions.store_multivalue property[:name], property[:value]
     end unless hash_restrict.kind_of? String
+
+    # update of ao_rules and at_rules
+    if format == :json
+      chan.ao_rules = hash[:ao_rules]
+      chan.at_rules = hash[:at_rules]     
+    elsif format == :xml
+      [:ao_rules, :at_rules].each do |sym|        
+        if hash.has_key?(sym)
+          # in :xml format we need to flatten :actions => [ { :action => { ... } } ,  { :action => { ... } } ]
+          rules = []
+          hash[sym][:rule].ensure_array.each do |rule|
+            matchings = rule[:matchings][:matching].ensure_array
+            actions = rule[:actions][:action].ensure_array
+                        
+            rules << RulesEngine.rule(matchings, actions, rule[:stop].to_b)
+          end
+        else
+          rules = nil
+        end
+        chan.send("#{sym}=", rules)
+      end
+    end
 
     chan
   end
