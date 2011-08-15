@@ -1,5 +1,4 @@
 class ManagedProcess < ActiveRecord::Base
-
   belongs_to :account
 
   after_create :publish_start_notification
@@ -7,7 +6,7 @@ class ManagedProcess < ActiveRecord::Base
 
   # Both are needed, because enabled_changed? is lost in the after_update
   before_update :record_enabled_changed
-  after_commit_on_update :publish_notification_if_needed
+  after_commit :publish_notification_if_needed, :on => :update
 
   def publish_start_notification
     publish_notification StartProcessJob
@@ -44,5 +43,4 @@ class ManagedProcess < ActiveRecord::Base
   def publish_notification(clazz)
     Queues.publish_notification clazz.new(id), 'managed_processes'
   end
-
 end

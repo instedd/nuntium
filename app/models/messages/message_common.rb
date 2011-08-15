@@ -149,7 +149,7 @@ module MessageCommon
     h
   end
 
-  def to_json(options = {})
+  def as_json(options = {})
     hash = {}
     Fields.each do |field|
       value = send field
@@ -159,7 +159,7 @@ module MessageCommon
     hash['channel_kind'] = channel.try(:kind)
     hash['state'] = state
     hash.merge!(custom_attributes)
-    hash.to_json
+    hash
   end
 
   # Rule Engine related methods

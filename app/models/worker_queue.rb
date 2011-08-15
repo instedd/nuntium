@@ -1,13 +1,13 @@
 class WorkerQueue < ActiveRecord::Base
 
-  after_commit_on_create :publish_subscribe_notification
-  before_commit_on_destroy  :publish_unsubscribe_notification
+  after_commit :publish_subscribe_notification, :on => :create
+  before_destroy  :publish_unsubscribe_notification
 
   # Both are needed, because enabled_changed? is lost in the after_update
   before_update :record_enabled_changed
-  after_commit_on_update :publish_notification_if_enabled_changed
+  after_commit :publish_notification_if_enabled_changed, :on => :update
 
-  after_commit_on_destroy :delete_queue
+  after_commit :delete_queue, :on => :destroy
 
   def self.for_channel(channel)
     find_by_queue_name Queues.ao_queue_name_for(channel)

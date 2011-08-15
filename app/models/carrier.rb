@@ -46,8 +46,8 @@ class Carrier < ActiveRecord::Base
     xml.carrier :name => name, :guid => guid, :country_iso2 => country.iso2
   end
 
-  def to_json(options = {})
-    {:name => name, :guid => guid, :country_iso2 => country.iso2}.to_json
+  def as_json(options = {})
+    {:name => name, :guid => guid, :country_iso2 => country.iso2}
   end
 
   def self.clear_cache

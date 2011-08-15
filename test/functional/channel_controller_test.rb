@@ -89,7 +89,7 @@ class ChannelControllerTest < ActionController::TestCase
 
     get :update_channel, {:id => chan.id, :channel => {:protocol => '', :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => @account.id}
 
-    assert_template "channel/edit_qst_server_channel.html.erb"
+    assert_template "channel/edit_qst_server_channel"
   end
 
   test "enable channel" do

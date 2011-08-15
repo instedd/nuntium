@@ -34,7 +34,7 @@ module ServiceChannelHandlerTest
       returns(proc)
     proc.expects(:touch)
 
-    @chan.touch
+    @chan.save!
   end
 
   def test_on_enable_enables_managed_process

@@ -18,7 +18,7 @@ class Channel < ActiveRecord::Base
   serialize :restrictions
   serialize :ao_rules
   serialize :at_rules
-  
+
   attr_accessor :ticket_code, :ticket_message
 
   validates_presence_of :name, :protocol, :kind, :account
@@ -314,14 +314,15 @@ class Channel < ActiveRecord::Base
     Channel.from_hash tree[:channel], :xml
   end
 
-  def to_json(options = {})
+  def as_json(options = {})
+    options ||= {}
+
     attributes = common_to_x_attributes
-    attributes.to_json
     attributes[:configuration] = []
     configuration.each do |name, value|
       next if value.blank?
       is_password = name.to_s.include?('password') || name.to_s == 'salt'
-      next if is_password and (options[:include_passwords].nil? or options[:include_passwords] === false)
+      next if is_password && (options[:include_passwords].nil? || options[:include_passwords] === false)
       attributes[:configuration] << {:name => name, :value => value}
     end
     restrictions.each do |name, values|
@@ -331,7 +332,7 @@ class Channel < ActiveRecord::Base
     attributes[:ao_rules] = ao_rules unless ao_rules.nil?
     attributes[:at_rules] = at_rules unless at_rules.nil?
 
-    attributes.to_json
+    attributes
   end
 
   def self.from_json(hash_or_string)
@@ -386,7 +387,7 @@ class Channel < ActiveRecord::Base
     @password_input = configuration[:password]
     return true
   end
-  
+
   def ticket_mark_as_complete
     return unless ticket_code
     ticket = Ticket.complete ticket_code, { :channel => self.name, :account => self.account.name, :password => @password_input, :message => self.ticket_message }
@@ -404,7 +405,7 @@ class Channel < ActiveRecord::Base
     true
   end
 
-  def handler_after_create    
+  def handler_after_create
     self.handler.on_create
   end
 

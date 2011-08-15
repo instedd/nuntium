@@ -26,7 +26,7 @@ class IncomingControllerTest < ActionController::TestCase
     head 'index', :account_id => @account.name
     assert_response :ok
 
-    assert_equal expected, @response.headers['ETag']
+    assert_equal expected, @response.headers['Etag']
   end
 
   test "get last message id" do
@@ -54,7 +54,7 @@ class IncomingControllerTest < ActionController::TestCase
   end
 
   def push(data)
-    @request.env['RAW_POST_DATA'] = data
+    @request.env['RAW_POST_DATA'] = data.strip
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
     post 'create', :account_id => @account.name
@@ -76,7 +76,7 @@ class IncomingControllerTest < ActionController::TestCase
       </messages>
     eos
 
-    assert_equal msg.guid.to_s, @response.headers['ETag']
+    assert_equal msg.guid.to_s, @response.headers['Etag']
 
     assert_equal @account.id, msg.account_id
     assert_equal @application1.id, msg.application_id

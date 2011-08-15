@@ -1,5 +1,4 @@
 require 'test_helper'
-require 'mq'
 
 class SmppChannelHandlerTest < ActiveSupport::TestCase
   include Mocha::API

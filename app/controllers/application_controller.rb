@@ -8,9 +8,6 @@ class ApplicationController < ActionController::Base
   helper :all # include all helpers, all the time
   # protect_from_forgery # See ActionController::RequestForgeryProtection for details
 
-  # Scrub sensitive parameters from your log
-  filter_parameter_logging :password
-
   # Given an array of AOMessage or ATMessage, this methods
   # returns two arrays:
   #  - The first one has the messages which have tries < account.max_tries
@@ -18,7 +15,7 @@ class ApplicationController < ActionController::Base
   def filter_tries_exceeded_and_not_exceeded(msgs, account)
     valid_messages = []
     invalid_messages = []
-    
+
     msgs.each do |msg|
       if msg.tries >= account.max_tries
         invalid_messages.push msg
@@ -26,16 +23,16 @@ class ApplicationController < ActionController::Base
         valid_messages.push msg
       end
     end
-    
+
     [valid_messages, invalid_messages]
   end
-  
+
   def compress
     accept = self.request.env['HTTP_ACCEPT_ENCODING']
     if accept && accept.match(/gzip/)
       encoding = self.response.headers["Content-Transfer-Encoding"]
       if encoding != 'binary'
-        begin 
+        begin
           ostream = StringIO.new
           gz = Zlib::GzipWriter.new(ostream)
           gz.write(self.response.body)

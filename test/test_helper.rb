@@ -1,7 +1,7 @@
 ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require File.expand_path(File.dirname(__FILE__) + "/blueprints")
-require 'test_help'
+require 'rails/test_help'
 require 'base64'
 require 'digest/md5'
 require 'digest/sha2'
@@ -174,7 +174,3 @@ class ActiveSupport::TestCase
     assert_equal msg.id, jobs[0].message_id
   end
 end
-
-# This is for after_create to work in tests
-ActiveRecord::Base.send(:include, AfterCommit::AfterSavepoint)
-ActiveRecord::Base.include_after_savepoint_extensions

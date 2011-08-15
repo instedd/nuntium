@@ -27,8 +27,8 @@ class RoutesTest < ActionController::TestCase
   end
 
   test "twitter" do
-    assert_routing({:path => "/channel/create/twitter"}, { :controller => "twitter", :action => "create_twitter_channel", :kind => "twitter" })
-    assert_routing({:path => "/channel/update/twitter"}, { :controller => "twitter", :action => "update_twitter_channel" })
+    assert_routing({:path => "/channel/twitter/create"}, { :controller => "twitter", :action => "create_twitter_channel", :kind => "twitter" })
+    assert_routing({:path => "/channel/twitter/update/1"}, { :controller => "twitter", :action => "update_twitter_channel", :id => '1' })
     assert_routing({:path => "/twitter_callback"}, { :controller => "twitter", :action => "twitter_callback" })
   end
 
@@ -78,6 +78,11 @@ class RoutesTest < ActionController::TestCase
   test "ipop" do
     assert_routing({:path => "/some_account/ipop/some_channel/incoming", :method => :post}, { :controller => "ipop", :action => "index", :account_id => "some_account", :channel_name => "some_channel"})
     assert_routing({:path => "/some_account/ipop/some_channel/ack", :method => :post}, { :controller => "ipop", :action => "ack", :account_id => "some_account", :channel_name => "some_channel"})
+  end
+
+  test "address" do
+    assert_routing({:path => "/some_account/qst/setaddress", :method => :post}, { :controller => "address", :action => "update", :account_id => "some_account"})
+    assert_generates("/some_account/qst/setaddress", { :controller => "address", :action => "update", :account_id => "some_account"})
   end
 
   test "api" do

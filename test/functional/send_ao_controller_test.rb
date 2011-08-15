@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class SendAoControllerTest < ActionController::TestCase
-
   def setup
     @account = Account.make
     @chan = Channel.make :account => @account
@@ -49,7 +48,7 @@ class SendAoControllerTest < ActionController::TestCase
   end
 
   test "send ao can't route but head ok" do
-    get :create, {:account_name => @account.name, :application_name => @application.name}
+    get :create, :account_name => @account.name, :application_name => @application.name
 
     assert_response :ok
   end
@@ -151,6 +150,4 @@ class SendAoControllerTest < ActionController::TestCase
     assert_equal 'my_token', messages[0].token
     assert_equal 'my_token', @response.headers['X-Nuntium-Token']
   end
-
-
 end

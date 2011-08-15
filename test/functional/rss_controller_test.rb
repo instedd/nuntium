@@ -206,7 +206,7 @@ class RssControllerTest < ActionController::TestCase
 
   # Utility methods follow
   def new_rss_feed(msg)
-    <<-eos
+    result = <<-eos
       <?xml version="1.0" encoding="UTF-8"?>
       <rss version="2.0">
         <channel>
@@ -221,6 +221,7 @@ class RssControllerTest < ActionController::TestCase
         </channel>
       </rss>
     eos
+    result.strip
   end
 
   def assert_shows_message_as_rss_item(msg)

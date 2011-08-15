@@ -85,7 +85,7 @@ class HomeController < AccountAuthenticatedController
   end
 
   def create_account
-    return render :text => 'This funcionality has been disabled, contact the system administrator' if AccountCreationDisabled
+    return render :text => 'This funcionality has been disabled, contact the system administrator' if Nuntium::AccountCreationDisabled
 
     account = params[:new_account]
     return redirect_to_home if account.nil?

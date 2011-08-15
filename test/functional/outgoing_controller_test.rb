@@ -36,7 +36,7 @@ class OutgoingControllerTest < ActionController::TestCase
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
     get 'index', :account_id => @account.name
 
-    assert_equal msg.id.to_s, @response.headers['ETag']
+    assert_equal msg.id.to_s, @response.headers['Etag']
 
     assert_select "message", {:count => 1}
     assert_shows_message msg
@@ -121,7 +121,7 @@ class OutgoingControllerTest < ActionController::TestCase
     @request.env["HTTP_IF_NONE_MATCH"] = msg0.guid
     get 'index', :account_id => @account.name
 
-    assert_equal msg1.id.to_s, @response.headers['ETag']
+    assert_equal msg1.id.to_s, @response.headers['Etag']
 
     assert_select "message", {:count => 1}
     assert_shows_message msg1
@@ -146,7 +146,7 @@ class OutgoingControllerTest < ActionController::TestCase
     @request.env["HTTP_IF_NONE_MATCH"] = msgs[1].guid.to_s
     get 'index', :account_id => @account.name, :max => 1
 
-    assert_equal msgs[2].id.to_s, @response.headers['ETag']
+    assert_equal msgs[2].id.to_s, @response.headers['Etag']
 
     assert_select "message", {:count => 1}
     assert_shows_message msgs[2]
@@ -171,7 +171,7 @@ class OutgoingControllerTest < ActionController::TestCase
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
     get 'index', :account_id => @account.name
 
-    assert_equal msg.id.to_s, @response.headers['ETag']
+    assert_equal msg.id.to_s, @response.headers['Etag']
 
     assert_select "message", {:count => 1}
     assert_shows_message msg
@@ -183,7 +183,7 @@ class OutgoingControllerTest < ActionController::TestCase
     @request.env["HTTP_IF_NONE_MATCH"] = msg.guid.to_s
     get 'index', :account_id => @account.name
 
-    assert_equal msg1.id.to_s, @response.headers['ETag']
+    assert_equal msg1.id.to_s, @response.headers['Etag']
 
     assert_select "message", {:count => 1}
     assert_shows_message msg1
@@ -200,7 +200,7 @@ class OutgoingControllerTest < ActionController::TestCase
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
     get 'index', :account_id => @account.name
 
-    assert_equal msg11.id.to_s, @response.headers['ETag']
+    assert_equal msg11.id.to_s, @response.headers['Etag']
 
     assert_select "message", {:count => 1}
     assert_shows_message msg11
@@ -218,7 +218,7 @@ class OutgoingControllerTest < ActionController::TestCase
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 3"
     get 'index', :account_id => @account.name
 
-    assert_equal msg.id.to_s, @response.headers['ETag']
+    assert_equal msg.id.to_s, @response.headers['Etag']
 
     assert_select "message", {:count => 1}
     assert_shows_message msg

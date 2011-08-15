@@ -8,10 +8,10 @@ class ChannelTest < ActiveSupport::TestCase
   def assert_eq_rules_xml(expected, actual)
     expected = expected.ensure_array
     actual = actual.ensure_array
-    
+
     expected = { :v => expected }.with_indifferent_access[:v]
     actual = { :v => actual }.with_indifferent_access[:v]
-    
+
     assert_equal expected.length, actual.length
     expected.zip(actual).each do |e_rule,a_rule|
       assert_equal e_rule[:stop].to_s, a_rule[:stop].to_s
@@ -213,9 +213,9 @@ class ChannelTest < ActiveSupport::TestCase
       ],[
         RulesEngine.action('from','sms://4'),
         RulesEngine.action('body','lorem')
-      ])      
+      ])
     ]
-    
+
     @chan.at_rules = [
       RulesEngine.rule([
         RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1'),
@@ -292,6 +292,17 @@ class ChannelTest < ActiveSupport::TestCase
     end
   end
 
+  test "to json with passwords" do
+    @chan.kind = 'clickatell'
+    @chan.direction = 'incoming'
+    @chan.configuration = {:user => 'user', :password => 'password', :api_id => 'api_id', :from => 'something', :incoming_password => 'incoming_pass' }
+
+    chan = JSON.parse(@chan.to_json(:include_passwords =>  true)).with_indifferent_access
+    properties = chan[:configuration]
+
+    assert_equal 5, properties.length
+  end
+
   test "to json restrictions" do
     @chan.restrictions['single'] = 'one'
     @chan.restrictions['multi'] = ['a', 'b']
@@ -321,9 +332,9 @@ class ChannelTest < ActiveSupport::TestCase
       ],[
         RulesEngine.action('from','sms://4'),
         RulesEngine.action('body','lorem')
-      ])      
+      ])
     ]
-    
+
     @chan.at_rules = [
       RulesEngine.rule([
         RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1'),
@@ -338,7 +349,7 @@ class ChannelTest < ActiveSupport::TestCase
     assert_equal @chan.ao_rules, chan[:ao_rules]
     assert_equal @chan.at_rules, chan[:at_rules]
   end
-  
+
   test "to json last activity at" do
     now = Time.now.utc
     @chan.last_activity_at = now
