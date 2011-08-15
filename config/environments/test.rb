@@ -1,9 +1,4 @@
 # Settings specified here will take precedence over those in config/environment.rb
-config.gem 'test-unit', :lib => 'test/unit'
-config.gem "mocha"
-config.gem "thoughtbot-shoulda", :lib => "shoulda", :source => "http://gems.github.com"
-config.gem 'faker', :version => '0.3.1'
-config.gem 'machinist'
 
 # The test environment is used exclusively to run your application's
 # test suite.  You never need to work with it otherwise.  Remember that
