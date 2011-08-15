@@ -73,6 +73,17 @@ class ApiChannelControllerTest < ActionController::TestCase
     post :create, :format => format
 
     assert_response expected_response
+    
+    if expected_response == :ok
+      case format
+      when 'xml'
+        xml = Hash.from_xml(@response.body).with_indifferent_access
+        assert_not_nil xml[:channel]
+      when 'json'
+        json = JSON.parse @response.body
+        assert_not_nil json
+      end      
+    end
   end
 
   ['json', 'xml'].each do |format|

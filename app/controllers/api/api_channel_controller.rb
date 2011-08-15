@@ -97,7 +97,7 @@ class ApiChannelController < ApiAuthenticatedController
   def save(channel, action)
     channel.check_valid_in_ui
     if channel.save
-      head :ok
+      respond channel
     else
       respond_to do |format|
         format.xml { render :xml => errors_to_xml(channel.errors, action), :status => :bad_request }
