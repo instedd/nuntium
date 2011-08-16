@@ -3,11 +3,6 @@ class AbstractPushQstMessageJob
 
   attr_accessor :batch_size
 
-  def initialize(application_id)
-    @application_id = application_id
-    @batch_size = 10
-  end
-
   def perform
     client = QstClient.new *get_url_user_and_password
     last_id = client.get_last_id
