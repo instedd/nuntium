@@ -12,7 +12,7 @@
       ['Visualizations', :visualizations]
     ].each do |name, action|
     -%>
-    <li<%= selected_tab == action ? ' class="selected"' : ''%>><%= link_to name, :controller => :home, :action => action -%></li>
+    <li<%= (selected_tab == action ? ' class="selected"' : '').html_safe %>><%= link_to name, :controller => :home, :action => action -%></li>
     <%-
   end
   -%>
