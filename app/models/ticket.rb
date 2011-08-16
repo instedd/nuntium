@@ -42,7 +42,7 @@ class Ticket < ActiveRecord::Base
   end
 
   def to_json
-    { :code => code , :secret_key => secret_key, :data => (data || {}) }.to_json
+    { :code => code , :secret_key => secret_key, :status => status, :data => (data || {}) }.to_json
   end
 
 private
