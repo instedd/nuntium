@@ -9,7 +9,7 @@
   <%= render :partial => 'edit_application', :locals => {:f => f} -%>
   <%= render :partial => 'edit_direction', :locals => {:on_change => "clickatell_channel_direction_changed()"} -%>
   <%= render :partial => 'edit_address', :locals => {:f => f} -%>
-  <%- f.fields_for :configuration do |c| -%>
+  <%= f.fields_for :configuration do |c| -%>
     <p id="user_container">
     <%= c.label :user -%><br/>
     <%= c.text_field :user, :autocomplete => :off, :value => @channel[:configuration][:user] -%>
@@ -26,10 +26,10 @@
     <%= c.label :from -%><br/>
     <%= c.text_field :from, :value => @channel[:configuration][:from] -%>
     </p>
-	  <p id="network">
-	  <%= c.label :network -%><br/>
-	  <%= c.select :network, options_for_select(ClickatellChannelHandler::CLICKATELL_NETWORKS.map {|v,d| [d,v]}, @channel[:configuration][:network])%>
-	  </p>
+    <p id="network">
+    <%= c.label :network -%><br/>
+    <%= c.select :network, options_for_select(ClickatellChannelHandler::CLICKATELL_NETWORKS.map {|v,d| [d,v]}, @channel[:configuration][:network])%>
+    </p>
     <p id="concat_container">
     <%= c.label :concatenation -%><br/>
     <%= c.text_field :concat, :value => @channel[:configuration][:concat] || 3 -%>

@@ -8,7 +8,7 @@
   <%= render :partial => 'edit_application', :locals => {:f => f} -%>
   <%= render :partial => 'edit_direction' -%>
   <%= render :partial => 'edit_address', :locals => {:f => f} -%>
-  <%- f.fields_for :configuration do |c| -%>
+  <%= f.fields_for :configuration do |c| -%>
     <p>
     <b>Leave blank if you don't want to change the password</b><br/>
     <%= c.label :password -%><br/>

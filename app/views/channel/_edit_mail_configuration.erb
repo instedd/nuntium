@@ -1,4 +1,4 @@
-<%- f.fields_for :configuration do |c| -%>
+<%= f.fields_for :configuration do |c| -%>
   <p>
   <%= c.label :host -%><br/>
   <%= c.text_field :host, :value => @channel[:configuration][:host] -%>
