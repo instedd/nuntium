@@ -66,11 +66,11 @@ class ManagedProcessesService < Service
   def create_controller(proc)
     controller = DaemonController.new(
        :identifier    => proc.name,
-       :start_command => "#{RAILS_ROOT}/lib/services/#{proc.start_command}",
-       :stop_command => "#{RAILS_ROOT}/lib/services/#{proc.stop_command}",
+       :start_command => "#{Rails.root}/lib/services/#{proc.start_command}",
+       :stop_command => "#{Rails.root}/lib/services/#{proc.stop_command}",
        :ping_command => lambda { true },
-       :pid_file      => "#{RAILS_ROOT}/tmp/pids/#{proc.pid_file}",
-       :log_file      => "#{RAILS_ROOT}/log/#{proc.log_file}"
+       :pid_file      => "#{Rails.root}/tmp/pids/#{proc.pid_file}",
+       :log_file      => "#{Rails.root}/log/#{proc.log_file}"
     )
     # We want our ping command to be the pid file check:
     # this is the simplest (but hacky) way to do it.

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require(File.join(File.dirname(__FILE__), '..', 'config', 'boot'))
-require(File.join(RAILS_ROOT, 'config', 'environment'))
+require(File.join(Rails.root, 'config', 'environment'))
 require 'csv'
 
 ###################

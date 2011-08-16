@@ -4,20 +4,11 @@ class CustomAttributesController < AccountAuthenticatedController
 
   # GET /custom_attributes
   def index
-    conditions = ['account_id = ?', @account.id]
+    @custom_attributes = @account.custom_attributes.order(:address)
 
     @search = params[:search]
-    if @search.present?
-      conditions[0] << ' AND address like ?'
-      conditions << "%#{@search}%"
-    end
-
-    @custom_attributes = CustomAttribute.paginate(
-      :conditions => conditions,
-      :order => 'address',
-      :page => params[:page],
-      :per_page => 20
-    )
+    @custom_attributes = @custom_attributes.search @search if @search.present?
+    @custom_attributes = @custom_attributes.paginate :page => params[:page], :per_page => 20
   end
 
   # GET /custom_attributes/new
@@ -28,7 +19,7 @@ class CustomAttributesController < AccountAuthenticatedController
 
   # GET /custom_attributes/1/edit
   def edit
-    @custom_attribute = @account.custom_attributes.find(params[:id])
+    @custom_attribute = @account.custom_attributes.find params[:id]
     @custom_attribute[:custom_attributes] ||= {}
   end
 
@@ -38,7 +29,7 @@ class CustomAttributesController < AccountAuthenticatedController
       :address => params[:custom_attribute][:address],
       :custom_attributes => get_custom_attributes
     }
-    @custom_attribute = @account.custom_attributes.new(attrs)
+    @custom_attribute = @account.custom_attributes.new attrs
 
     if @custom_attribute.save
       flash[:notice] = 'CustomAttribute was successfully created.'

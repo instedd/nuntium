@@ -13,7 +13,7 @@ module Nuntium
     # -- all .rb files in that directory are automatically loaded.
 
     # Add additional load paths for your own custom dirs
-    # config.load_paths += %W( #{RAILS_ROOT}/extras )
+    # config.load_paths += %W( #{Rails.root}/extras )
     config.autoload_paths += Dir["#{Rails.root}/app/controllers/**/**"]
     config.autoload_paths += Dir["#{Rails.root}/app/models/**/**"]
     config.autoload_paths += Dir["#{Rails.root}/app/services/**/**"]

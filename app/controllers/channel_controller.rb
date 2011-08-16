@@ -94,7 +94,7 @@ class ChannelController < AccountAuthenticatedController
     other_channels = @account.channels.select{|c| c.enabled && c.protocol == @channel.protocol && @channel.is_outgoing?}
 
     if !other_channels.empty?
-      queued_messages = AOMessage.all :conditions => ['channel_id = ? AND state = ?', @channel.id, 'queued'], :include => :application
+      queued_messages = @channel.ao_messages.with_state('queued').includes(:application).all
       requeued_messages_count = queued_messages.length
       queued_messages.each do |msg|
         msg.application.route_ao msg, 'user' if msg.application

@@ -10,6 +10,8 @@ class Channel < ActiveRecord::Base
   belongs_to :account
   belongs_to :application
 
+  has_many :ao_messages, :class_name => 'AOMessage'
+  has_many :at_messages, :class_name => 'ATMessage'
   has_many :qst_outgoing_messages
   has_many :address_sources
   has_many :cron_tasks, :as => :parent, :dependent => :destroy # TODO: Tasks are not being destroyed
@@ -49,7 +51,7 @@ class Channel < ActiveRecord::Base
   def self.kinds
     @@kinds ||= begin
       # Load all channel handlers
-      Dir.glob("#{RAILS_ROOT}/app/models/**/*_channel_handler.rb").each do |file|
+      Dir.glob("#{Rails.root}/app/models/**/*_channel_handler.rb").each do |file|
         eval(ActiveSupport::Inflector.camelize(file[file.rindex('/') + 1 .. -4]))
       end
 
