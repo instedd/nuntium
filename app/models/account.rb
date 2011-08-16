@@ -5,9 +5,10 @@ class Account < ActiveRecord::Base
   has_many :applications
   has_many :channels
   has_many :address_sources
-  has_many :ao_messages
-  has_many :at_messages
+  has_many :ao_messages, :class_name => 'AOMessage'
+  has_many :at_messages, :class_name => 'ATMessage'
   has_many :custom_attributes
+  has_many :logs, :class_name => 'AccountLog'
 
   serialize :app_routing_rules
 

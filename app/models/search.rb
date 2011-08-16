@@ -15,16 +15,16 @@ class Search < Hash
 
   def initialize(str)
     return if str.nil?
-  
+
     s = StringScanner.new(str)
-    
+
     until s.eos?
       # Skip whitespace
       s.scan(/\s+/)
-    
+
       # Get next work
       key = s.scan(/\w+/)
-      
+
       # Check if there's a colon so we have key:...
       # (but not key://)
       colon = s.scan(/:/)
@@ -35,14 +35,14 @@ class Search < Hash
           add_to_search("#{key}:#{value}")
           next
         end
-        
+
         # Check key:"value"
         value = s.scan(/".+?"/)
         value = value ? value[1...-1] : s.scan(/(\S)+/)
         self[key.to_sym] = value
         next
       end
-      
+
       key = s.scan(/"(\w|\s)+"/) if key.nil?
       key = s.scan(/\W+/) if key.nil?
 
@@ -50,8 +50,20 @@ class Search < Hash
       add_to_search key
     end
   end
-  
+
   def add_to_search(value)
     @search = @search ? "#{@search} #{value}" : value
+  end
+
+  def self.get_op_and_val(val)
+    op = '='
+    if val.length > 1 && (val[0..1] == '<=' || val[0..1] == '>=')
+      op = val[0..1]
+      val = val[2..-1]
+    elsif val.length > 0 && (val[0].chr == '<' || val[0].chr == '>')
+      op = val[0].chr
+      val = val[1..-1]
+    end
+    [op, val]
   end
 end

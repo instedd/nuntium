@@ -15,6 +15,7 @@ class AOMessage < ActiveRecord::Base
   include MessageSerialization
   include MessageCustomAttributes
   include MessageState
+  include MessageSearch
 
   # Logs that each message was delivered/not delivered through the given interface
   def self.log_delivery(msgs, account, interface)

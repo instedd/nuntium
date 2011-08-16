@@ -1,8 +1,6 @@
 require 'will_paginate'
 
 class HomeController < AccountAuthenticatedController
-
-  include MessageFilters
   include RulesControllerCommon
 
   before_filter :check_login, :except => [:login, :create_account]
@@ -33,36 +31,39 @@ class HomeController < AccountAuthenticatedController
   end
 
   def ao_messages
-    build_ao_messages_filter
+    @page = params[:page].presence || 1
+    @search = params[:search]
+    @previous_search = params[:previous_search]
+    @page = 1 if @previous_search.present? && @previous_search != @search
 
-    @ao_messages = AOMessage.paginate(
-      :conditions => @ao_conditions,
-      :order => 'id DESC',
-      :page => @ao_page,
-      :per_page => ResultsPerPage
-      )
+    @ao_messages = @account.ao_messages.order 'id DESC'
+    @ao_messages = @ao_messages.search @search if @search.present?
+    @ao_messages = @ao_messages.paginate :page => @page, :per_page => ResultsPerPage
+    @ao_messages = @ao_messages.all
   end
 
   def at_messages
-    build_at_messages_filter
+    @page = params[:page].presence || 1
+    @search = params[:search]
+    @previous_search = params[:previous_search]
+    @page = 1 if @previous_search.present? && @previous_search != @search
 
-    @at_messages = ATMessage.paginate(
-      :conditions => @at_conditions,
-      :order => 'id DESC',
-      :page => @at_page,
-      :per_page => ResultsPerPage
-      )
+    @at_messages = @account.at_messages.order 'id DESC'
+    @at_messages = @at_messages.search @search if @search.present?
+    @at_messages = @at_messages.paginate :page => @page, :per_page => ResultsPerPage
+    @at_messages = @at_messages.all
   end
 
   def logs
-    build_logs_filter
+    @page = params[:page].presence || 1
+    @search = params[:search]
+    @previous_search = params[:previous_search]
+    @page = 1 if @previous_search.present? && @previous_search != @search
 
-    @logs = AccountLog.paginate(
-      :conditions => @log_conditions,
-      :order => 'id DESC',
-      :page => params[:logs_page],
-      :per_page => ResultsPerPage
-      )
+    @logs = @account.logs.order 'id DESC'
+    @logs = @logs.search @search if @search.present?
+    @logs = @logs.paginate :page => @page, :per_page => ResultsPerPage
+    @logs = @logs.all
   end
 
   def visualizations

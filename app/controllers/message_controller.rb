@@ -1,7 +1,5 @@
 class MessageController < AccountAuthenticatedController
-
   include CustomAttributesControllerCommon
-  include MessageFilters
 
   before_filter :check_login
   after_filter :compress
@@ -83,31 +81,30 @@ class MessageController < AccountAuthenticatedController
   end
 
   def mark_ao_messages_as_cancelled
-    mark_messages_as_cancelled AOMessage
+    mark_messages_as_cancelled AOMessage, @account.ao_messages
   end
 
   def mark_at_messages_as_cancelled
-    mark_messages_as_cancelled ATMessage
+    mark_messages_as_cancelled ATMessage, @account.at_messages
   end
 
-  def mark_messages_as_cancelled(kind)
+  def mark_messages_as_cancelled(kind, messages)
     all = kind == AOMessage ? :ao_all : :at_all
 
     if params[all].to_b
-      kind == AOMessage ? build_ao_messages_filter : build_at_messages_filter
-      conditions = kind == AOMessage ? @ao_conditions : @at_conditions
+      messages = messages.search params[:search] if params[:search].present?
     else
       msgs = kind == AOMessage ? :ao_messages : :at_messages
-			conditions = ['id IN (?)', params[msgs]]
+      messages = messages.where 'id IN (?)', params[msgs]
     end
 
-		affected = kind.all(:conditions => conditions)
-		affected.each do |msg|
-			msg.state = 'cancelled'
-			msg.save!
-		end
+    affected = messages.all
+    affected.each do |msg|
+      msg.state = 'cancelled'
+      msg.save!
+    end
 
-		affected = affected.length
+    affected = affected.length
 
     k = kind == AOMessage ? 'Originated' : 'Terminated'
     flash[:notice] = "#{affected} Application #{k} messages #{affected == 1 ? 'was' : 'were'} marked as cancelled"
@@ -118,14 +115,11 @@ class MessageController < AccountAuthenticatedController
   end
 
   def reroute_ao_messages
-    msgs = []
+    msgs = @account.ao_messages
     if params[:ao_all].to_b
-      build_ao_messages_filter
-      conditions = @ao_conditions
-      msgs = AOMessage.all(:conditions => conditions)
+      msgs = msgs.search params[:search] if params[:search].present?
     else
-      ids = params[:ao_messages]
-      msgs = AOMessage.all(:conditions => ['id IN (?)', ids])
+      msgs = msgs.where 'id IN (?)', params[:ao_messages]
     end
 
     applications = @account.applications

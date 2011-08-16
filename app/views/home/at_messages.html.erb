@@ -3,8 +3,8 @@ Messages sent from the world into Nuntium and then into your application are cal
 </p>
 
 <form id="at_messages_form" action="#at">
-<input type="hidden" name="at_page" value="<%= @at_page -%>" />
-<input type="hidden" name="at_previous_search" value="<%= @at_search -%>" />
+<input type="hidden" name="page" value="<%= @page -%>" />
+<input type="hidden" name="previous_search" value="<%= @search -%>" />
 <input type="hidden" id="at_all" name="at_all" value="0" />
 
 <%- if @channels.select{|x| x.direction == Channel::Incoming || x.direction == Channel::Bidirectional}.empty? -%>
@@ -13,18 +13,18 @@ Messages sent from the world into Nuntium and then into your application are cal
   <%= render :partial => 'shared/create_channel' -%>
   </p>
 <%- else -%>
-  <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AT Message">Create new AT Message', :controller => :message, :action => :new_at_message -%> &nbsp; &nbsp;
+  <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AT Message">Create new AT Message'.html_safe, :controller => :message, :action => :new_at_message -%> &nbsp; &nbsp;
 <%- end -%>
-Search: <input type="text" name="at_search" value="<%= h @at_search -%>" size= "50" class="<%= @at_search.present? ? 'highlighted' : '' -%>"/> <a href="http://code.google.com/p/nuntium/wiki/AdvancedSearch" target="_blank" title="You can filter by field like 'id:5', 'before:&quot;20 minutes ago&quot;', 'state:queued', etc.">?</a> &nbsp; &nbsp;
+Search: <input type="text" name="search" value="<%= @search.try(:html_safe) -%>" size= "50" class="<%= @search.present? ? 'highlighted' : '' -%>"/> <a href="http://code.google.com/p/nuntium/wiki/AdvancedSearch" target="_blank" title="You can filter by field like 'id:5', 'before:&quot;20 minutes ago&quot;', 'state:queued', etc.">?</a> &nbsp; &nbsp;
 Select: <%= link_to_function 'all', 'select_all_at_messages()' -%>, <%= link_to_function 'none', 'select_none_at_messages()' -%> &nbsp; &nbsp;
 Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelled()' -%>
 
 <div><%= page_entries_info @at_messages, :entry_name => 'message' -%></div>
-<%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_search => @at_search, :anchor => 'at' } -%>
+<%= will_paginate @at_messages, :param_name => 'page', :params => { :previous_search => @search } -%>
 
 <div id="all_at_messages_text" style="display:none"></div>
 
-<%- if !@at_messages.empty? -%>
+<%- if @at_messages.present? -%>
   <table border="1" class="table">
     <tr>
       <th></th>
@@ -68,7 +68,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelle
   </table>
 <%- end -%>
 
-<%= will_paginate @at_messages, :param_name => 'at_page', :params => { :at_previous_search => @at_search, :anchor => 'at' } -%>
+<%= will_paginate @at_messages, :param_name => 'present', :params => { :present => @search } -%>
 </form>
 
 <script>

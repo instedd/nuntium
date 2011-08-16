@@ -5,7 +5,7 @@ module ApplicationHelper
       yield f
     end
   end
-  
+
   def channel_submit_tag
     submit_tag (@channel.new_record? ? 'Create Channel' : 'Update Channel')
   end
@@ -14,20 +14,20 @@ module ApplicationHelper
     return '' if msg.nil?
     msg.length > length ? (msg[0 ... length] + "...") : msg
   end
-  
+
   def short_html(msg, length = 15)
-    '<span title="' << (h msg) << '">' << h(short(msg, length)) << '</span>'
+    ('<span title="' << (h msg) << '">' << h(short(msg, length)) << '</span>').html_safe
   end
-  
+
   def time_ago(time)
     return '' if time.nil?
-    '<span title="' << time.utc.to_s << '">' << time_ago_in_words(time.utc, true) << ' ago</span>'
+    ('<span title="' << time.utc.to_s << '">' << time_ago_in_words(time.utc, true) << ' ago</span>').html_safe
   end
-  
+
   def go_back_link
     link_to 'Go back', :controller => :home, :action => :index
   end
-  
+
   def nuntium_version
     begin
       @@nuntium_version = File.read('VERSION').strip unless defined? @@nuntium_version
