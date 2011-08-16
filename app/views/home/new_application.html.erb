@@ -50,7 +50,7 @@ var applications = <%= applications.to_json -%>;
   <h4>Edit <%= @application.name -%> Application</h4>
 <%- end -%>
 
-<%- form_for :application, :url => { :controller => 'home', :action => @application.new_record? ? :create_application : :update_application} do |f| -%>
+<%= form_for :application, :url => { :controller => 'home', :action => @application.new_record? ? :create_application : :update_application} do |f| -%>
   <%= f.error_messages -%>
 
   <%- if @application.new_record? -%>

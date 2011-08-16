@@ -10,7 +10,7 @@ Have a question? <%= link_to 'Ask it on our group', 'http://tech.groups.yahoo.co
 
 <h3>Login to your account:</h3>
 
-<%- form_for :account, :url => { :controller => 'home', :action => :login }, :html => {:id => 'login'} do |f| -%>
+<%= form_for :account, :url => { :controller => 'home', :action => :login }, :html => {:id => 'login'} do |f| -%>
   <p>
   <%= f.label :name -%><br/>
   <%= f.text_field :name -%>
@@ -27,7 +27,7 @@ Have a question? <%= link_to 'Ask it on our group', 'http://tech.groups.yahoo.co
 
 <h3>Or create a new one:</h3>
 
-<%- form_for :new_account, :url => { :controller => 'home', :action => :create_account }, :html => {:id => 'new_account'} do |f| -%>
+<%= form_for :new_account, :url => { :controller => 'home', :action => :create_account }, :html => {:id => 'new_account'} do |f| -%>
   <%= f.error_messages -%>
   <p>
   <%= f.label :name -%><br/>

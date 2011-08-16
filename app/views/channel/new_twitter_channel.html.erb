@@ -4,7 +4,7 @@
   <%= render :partial => 'twitter_configuration_missing' -%>
 <%- else -%>
 
-<%- form_for :channel, :url => { :controller => 'twitter', :action => :create_twitter_channel } do |f| -%>
+<%= form_for :channel, :url => { :controller => 'twitter', :action => :create_twitter_channel } do |f| -%>
   <%= f.error_messages -%>
   <%= f.hidden_field :direction, :value => Channel::Bidirectional -%>
   <%= render :partial => 'channel/edit_name', :locals => {:f => f} -%>

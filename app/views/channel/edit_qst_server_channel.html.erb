@@ -1,6 +1,6 @@
 <%= render :partial => 'edit_channel_header' -%>
 
-<%- form_for_channel do |f| -%>
+<%= form_for_channel do |f| -%>
   <%= f.error_messages -%>
   <%= render :partial => 'edit_name', :locals => {:f => f} -%>
   <%= render :partial => 'edit_protocol', :locals => {:f => f} -%>

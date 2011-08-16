@@ -4,7 +4,7 @@
   <%= render :partial => 'twitter_configuration_missing' -%>
 <%- else -%>
 
-<%- form_for :channel, :html => { :id => 'edit_twitter_channel_form' } do |f| -%>
+<%= form_for :channel, :html => { :id => 'edit_twitter_channel_form' } do |f| -%>
   <%= f.error_messages -%>
   <%= render :partial => 'edit_name', :locals => {:f => f} -%>
   <%= render :partial => 'edit_protocol', :locals => {:f => f} -%>

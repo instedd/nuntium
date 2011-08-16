@@ -1,6 +1,6 @@
 <h3><%= @custom_attribute.new_record? ? 'New' : 'Edit' %> custom attribute</h3>
 
-<% form_for(@custom_attribute) do |f| %>
+<%= form_for(@custom_attribute) do |f| -%>
   <%= f.error_messages %>
 
   <p>
@@ -13,6 +13,6 @@
   <p>
     <%= f.submit 'Update' %>
   </p>
-<% end %>
+<%- end -%>
 
 <%= link_to 'Back', custom_attributes_path %>
