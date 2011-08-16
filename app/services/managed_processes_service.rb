@@ -5,7 +5,7 @@ class ManagedProcessesService < Service
   def start
     @controllers = {}
 
-    ManagedProcess.find_each(:conditions => ['enabled = ?', true]) do |proc|
+    ManagedProcess.where(:enabled => true).find_each do |proc|
       start_process proc
     end
 

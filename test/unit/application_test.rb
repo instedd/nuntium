@@ -372,7 +372,7 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_nil msg.channel
     assert_equal 'broadcasted', msg.state
 
-    children = AOMessage.all :conditions => ['parent_id = ?', msg.id]
+    children = msg.children
     assert_equal 2, children.length
 
     2.times do |i|

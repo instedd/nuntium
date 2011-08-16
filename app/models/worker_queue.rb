@@ -1,5 +1,4 @@
 class WorkerQueue < ActiveRecord::Base
-
   after_commit :publish_subscribe_notification, :on => :create
   before_destroy  :publish_unsubscribe_notification
 
@@ -18,7 +17,7 @@ class WorkerQueue < ActiveRecord::Base
   end
 
   def self.find_each_enabled_for_working_group(working_group, &block)
-    find_each(:conditions => ['working_group = ? AND enabled = ?', working_group, true], &block)
+    where(:working_group => working_group, :enabled => true).find_each &block
   end
 
   def subscribe(mq = Queues::DefaultMQ, &block)
@@ -56,5 +55,4 @@ class WorkerQueue < ActiveRecord::Base
   def delete_queue
     Queues.delete queue_name, durable
   end
-
 end

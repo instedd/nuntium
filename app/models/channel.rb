@@ -13,6 +13,7 @@ class Channel < ActiveRecord::Base
   has_many :at_messages, :class_name => 'ATMessage'
   has_many :qst_outgoing_messages, :class_name => 'QSTOutgoingMessage'
   has_many :smpp_message_parts
+  has_many :twitter_channel_statuses
   has_many :address_sources
   has_many :cron_tasks, :as => :parent, :dependent => :destroy # TODO: Tasks are not being destroyed
 

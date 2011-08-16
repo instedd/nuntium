@@ -1,8 +1,8 @@
 <h4><%= link_to_function title, "toggle('details_#{@msg.guid}')" -%></h4>
 
 <%
-application = @account.find_application(msg.application_id)
-channel = @account.find_channel(msg.channel_id)
+application = @account.find_application msg.application_id
+channel = @account.find_channel msg.channel_id
 %>
 <div id="details_<%= msg.guid -%>">
 <table class="table">
@@ -67,7 +67,7 @@ channel = @account.find_channel(msg.channel_id)
     <td><%= msg.token -%></td>
   </tr>
   <%- if msg.state == 'broadcasted' -%>
-    <%- copies_str = AOMessage.all(:conditions => ['parent_id = ?', msg.id]).map do |b|
+    <%- copies_str = AOMessage.where(:parent_id => msg.id)all..map do |b|
           link_to b.id, {:controller => :message, :action => :view_ao_message, :id => b.id}, :target => '_blank'
         end.join(', ') -%>
     <%- if copies_str.present? -%>

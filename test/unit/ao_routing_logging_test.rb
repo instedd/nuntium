@@ -286,7 +286,7 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
         assert_equal 3, logs.length
         assert_true logs[0].include? "Strategy overwritten by message to 'broadcast'"
       else
-        @log = AccountLog.first :conditions => "ao_message_id = #{@msg.id}"
+        @log = @msg.logs.first
         check_log :log => @log
         assert_in_log "Strategy overwritten by message to 'broadcast'"
       end
@@ -320,10 +320,10 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
         assert_true logs[2].include? "Applying channel ao rules..."
         assert_true logs[2].include? "'from' changed from 'sms://1234' to 'sms://8765'"
       else
-        copies = AOMessage.all :conditions => "parent_id = #{@msg.id}"
+        copies = @msg.children
 
         @msg = copies[0]
-        @log = AccountLog.first :conditions => "ao_message_id = #{@msg.id}"
+        @log = @msg.logs.first
         check_log :log => @log
         assert_equal @chan1.id, @log.channel_id
 
@@ -331,7 +331,7 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
         assert_in_log "'from' changed from 'sms://1234' to 'sms://5678'"
 
         @msg = copies[1]
-        @log = AccountLog.first :conditions => "ao_message_id = #{@msg.id}"
+        @log = @msg.logs.first
         check_log :log => @log
         assert_equal @chan2.id, @log.channel_id
 

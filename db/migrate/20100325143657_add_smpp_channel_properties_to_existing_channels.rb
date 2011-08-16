@@ -1,6 +1,6 @@
 class AddSmppChannelPropertiesToExistingChannels < ActiveRecord::Migration
   def self.up
-    Channel.all(:conditions => ['kind = ?', 'smpp']).each do |c|
+    Channel.where(:kind => 'smpp').each do |c|
       c.configuration[:mt_encodings] = ['ascii', 'latin1', 'ucs-2']
       c.configuration[:endianness] = 'big'
       c.configuration[:default_mo_encoding] = 'ascii'
