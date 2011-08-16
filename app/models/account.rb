@@ -1,7 +1,6 @@
 require 'digest/sha2'
 
 class Account < ActiveRecord::Base
-
   has_many :applications
   has_many :channels
   has_many :address_sources
@@ -165,7 +164,7 @@ class Account < ActiveRecord::Base
     return if self.alert_emails.blank?
 
     logger.error :message => message
-    AlertMailer.deliver_error self, "Error in account #{self.name}", message
+    AlertMailer.error(self, "Error in account #{self.name}", message).deliver
   end
 
   def logger
@@ -200,5 +199,4 @@ class Account < ActiveRecord::Base
     return false if !msg.new_record? || msg.guid.nil?
     msg.class.exists?(['account_id = ? and guid = ?', self.id, msg.guid])
   end
-
 end
