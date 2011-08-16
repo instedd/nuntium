@@ -23,6 +23,7 @@ gem 'rgviz'
 gem 'rgviz-rails', :require => 'rgviz_rails'
 gem 'smart_asset'
 gem 'blather', '0.4.15'
+gem 'dynamic_form'
 gem 'ci_reporter'
 
 group :test do
