@@ -150,7 +150,7 @@ class SmppTransceiverDelegate
       msg_reference = (pdu.receipted_message_id || pdu.msg_reference)
     end
 
-    msg = AOMessage.first(:conditions => ['channel_id = ? AND channel_relative_id = ?', @channel.id, msg_reference])
+    msg = @channel.ao_messages.where(:channel_relative_id => msg_reference).first
     return logger.info "AOMessage with channel_relative_id #{msg_reference} not found" if msg.nil?
 
     # Reflect in message state
@@ -223,10 +223,10 @@ class SmppTransceiverDelegate
         msg.body = GsmDecoder.decode text
       else
         source_encoding = case data_coding
-          when 0: encoding_endianized(@default_mo_encoding, :mo)
-          when 1: 'ascii'
-          when 3: 'latin1'
-          when 8: ucs2_endianized(:mo)
+          when 0 then encoding_endianized(@default_mo_encoding, :mo)
+          when 1 then 'ascii'
+          when 3 then 'latin1'
+          when 8 then ucs2_endianized(:mo)
         end
 
         if source_encoding
@@ -243,10 +243,10 @@ class SmppTransceiverDelegate
 
   def part_received(source, destination, data_coding, text, ref, total, partn)
     # Discard unused message parts after one hour
-    SmppMessagePart.delete_all(['created_at < ?', Time.current - 1.hour])
+    SmppMessagePart.where('created_at < ?', Time.current - 1.hour).delete_all
 
-    conditions = ['channel_id = ? AND source = ? AND reference_number = ?', @channel.id, source, ref]
-    parts = SmppMessagePart.all(:conditions => conditions)
+    parts = @channel.smpp_message_parts.where(:source => source, :reference_number => ref)
+    all_parts = parts.all
 
     # If all other parts are here
     if parts.length == total-1
@@ -259,16 +259,15 @@ class SmppTransceiverDelegate
       create_at_message source, destination, data_coding, text
 
       # Delete stored information
-      SmppMessagePart.delete_all conditions
+      parts.delete_all
     else
       # Just save the part
-      SmppMessagePart.create(
-      :channel_id => @channel.id,
-      :reference_number => ref,
-      :part_count => total,
-      :part_number => partn,
-      :text => text,
-      :source => source
+      @channel.smpp_message_parts.create(
+        :reference_number => ref,
+        :part_count => total,
+        :part_number => partn,
+        :text => text,
+        :source => source
       )
     end
   end

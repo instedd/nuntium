@@ -2,7 +2,7 @@ class ScheduledJob < ActiveRecord::Base
   before_save :serialize_job
 
   def self.due_to_run
-    all(:conditions => ['run_at <= ?', Time.now.utc])
+    where('run_at <= ?', Time.now.utc).all
   end
 
   def perform
