@@ -1,7 +1,6 @@
 require 'digest/sha2'
 
 class Channel < ActiveRecord::Base
-
   # Channel directions
   Incoming = 1
   Outgoing = 2
@@ -12,7 +11,7 @@ class Channel < ActiveRecord::Base
 
   has_many :ao_messages, :class_name => 'AOMessage'
   has_many :at_messages, :class_name => 'ATMessage'
-  has_many :qst_outgoing_messages
+  has_many :qst_outgoing_messages, :class_name => 'QSTOutgoingMessage'
   has_many :address_sources
   has_many :cron_tasks, :as => :parent, :dependent => :destroy # TODO: Tasks are not being destroyed
 
@@ -168,7 +167,7 @@ class Channel < ActiveRecord::Base
   def self.find_all_by_account_id(account_id)
     channels = Rails.cache.read cache_key(account_id)
     if not channels
-      channels = Channel.all :conditions => ['account_id = ?', account_id]
+      channels = Channel.where(:account_id => account_id).all
       Rails.cache.write cache_key(account_id), channels
     end
     channels
@@ -359,9 +358,9 @@ class Channel < ActiveRecord::Base
   end
 
   def self.initialize_queued_ao_messages_count(channel_id)
-    count = AOMessage.count :conditions => ['channel_id = ? and state = ?', channel_id, 'queued']
+    count = AOMessage.with_state('queued').where(:channel_id => channel_id).count
     Rails.cache.write Channel.queued_ao_messages_count_cache_key(channel_id), count, :raw => true
-		count
+    count
   end
 
   def self.queued_ao_messages_count_cache_key(channel_id)
@@ -503,5 +502,4 @@ class Channel < ActiveRecord::Base
 
     chan
   end
-
 end

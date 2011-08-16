@@ -169,8 +169,8 @@ class MessageController < AccountAuthenticatedController
     @channels = @account.channels
 
     limit = @page * 5
-    aos = AOMessage.all :conditions => ["account_id = ? AND #{esc('to')} = ? AND parent_id IS NULL", @account.id, @address], :order => 'id DESC', :limit => limit
-    ats = ATMessage.all :conditions => ["account_id = ? AND #{esc('from')} = ?", @account.id, @address], :order => 'id DESC', :limit => limit
+    aos = @account.ao_messages.where(:to => @address, :parent_id => nil).order('id DESC').limit(limit)
+    ats = @account.at_messages.where(:from => @address).order('id DESC').limit(limit)
 
     @has_more = aos.length == limit || ats.length == limit
 
@@ -188,5 +188,4 @@ class MessageController < AccountAuthenticatedController
   def at_rgviz
     render :rgviz => ATMessage, :conditions => ['at_messages.account_id = ?', @account.id], :extensions => true
   end
-
 end

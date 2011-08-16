@@ -312,7 +312,7 @@ class Application < ActiveRecord::Base
   def self.find_all_by_account_id(account_id)
     apps = Rails.cache.read cache_key(account_id)
     if not apps
-      apps = Application.all :conditions => ['account_id = ?', account_id]
+      apps = Application.where(:account_id => account_id).all
       Rails.cache.write cache_key(account_id), apps
     end
     apps
@@ -467,7 +467,7 @@ class Application < ActiveRecord::Base
 
   def get_last_channel(address, all_channels, outgoing_channels)
     return nil unless use_address_source?
-    ass = AddressSource.all :conditions => ['application_id = ? AND address = ?', self.id, address], :order => 'updated_at DESC'
+    ass = address_sources.where(:address => address).order('updated_at DESC').all
     return nil if ass.empty?
 
     chosen_channel = nil

@@ -94,7 +94,7 @@ module Clickatell
       puts "\033[31mCan't create usa network: country US not founde\033[0m"
     end
 
-    Channel.find_each(:conditions => ['kind = ?', 'clickatell']) do |chan|
+    Channel.where(:kind => 'clickatell').find_each do |chan|
       chan.handler.clear_restrictions_cache unless options[:pretend]
     end
   end

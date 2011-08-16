@@ -5,7 +5,7 @@ module MessageCommon
 
   included do
     before_save :generate_guid
-    scope :with_state, lambda { |state| where(:state => state) }
+    scope :with_state, lambda { |*state| where(:state => state) }
   end
 
   module InstanceMethods

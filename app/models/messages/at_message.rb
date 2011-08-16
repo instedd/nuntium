@@ -9,7 +9,6 @@ class ATMessage < ActiveRecord::Base
   include MessageGetter
   include MessageSerialization
   include MessageCustomAttributes
-  include MessageState
   include MessageSearch
 
   # Logs that each message was delivered/not delivered through the given interface

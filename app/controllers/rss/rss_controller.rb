@@ -3,24 +3,16 @@ require 'rss/2.0'
 require 'nokogiri'
 
 class RssController < ApplicationAuthenticatedController
-
   # GET /:account_name/:application_name/rss
   def index
     last_modified = request.env['HTTP_IF_MODIFIED_SINCE']
     etag = request.env['HTTP_IF_NONE_MATCH']
 
-    # Filter by account and application
-    query = 'account_id = ? AND application_id = ? AND (state = ? OR state = ?)'
-    params = [@account.id, @application.id, 'queued', 'delivered']
-
-    # Filter by date if requested
-    if !last_modified.nil?
-      query << ' AND timestamp > ?'
-      params.push DateTime.parse(last_modified)
-    end
-
-    # Order by time, last arrived message will be first
-    @at_messages = ATMessage.all(:order => 'timestamp DESC', :conditions => [query] + params)
+    @at_messages = @account.at_messages.order 'timestamp DESC'
+    @at_messages = @at_messages.where :application_id => @application.id
+    @at_messages = @at_messages.with_state 'queued', 'delivered'
+    @at_messages = @at_messages.where 'timestamp > ?', DateTime.parse(last_modified) if last_modified
+    @at_messages = @at_messages.all
 
     return head :not_modified if @at_messages.empty?
 
@@ -41,11 +33,11 @@ class RssController < ApplicationAuthenticatedController
     @at_messages.reverse!
 
     # Get the ids of the messages to be shown
-    at_messages_ids = @at_messages.collect {|x| x.id}
+    at_messages_ids = @at_messages.map &:id
 
     # And increment their tries
     at_messages_ids.each do |at_message_id|
-      ATMessage.update_all("state = 'delivered', tries = tries + 1", ['id = ?', at_message_id])
+      ATMessage.where(:id => at_message_id).update_all "state = 'delivered', tries = tries + 1"
     end
 
     # Separate messages into ones that have their tries
@@ -54,7 +46,7 @@ class RssController < ApplicationAuthenticatedController
 
     # Mark as failed messages that have their tries over max_tries
     invalid_messages.each do |invalid_message|
-      ATMessage.update_all("state = 'failed'", ['id = ?', invalid_message.id])
+      ATMessage.where(:id => invalid_message.id).update_all "state = 'failed'"
     end
 
     # Logging: say that valid messages were returned and invalid no
