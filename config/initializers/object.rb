@@ -8,7 +8,7 @@ class Object
       self
     end
   end
-  
+
   def ensure_array
     if self.kind_of? Array
       self
@@ -16,6 +16,13 @@ class Object
       []
     else
       [self]
+    end
+  end
+
+  def subclasses_of(klass)
+    subclasses = klass.subclasses
+    subclasses.each do |subclass|
+      subclasses.push *subclasses_of(subclass)
     end
   end
 end
