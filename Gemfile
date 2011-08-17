@@ -25,6 +25,7 @@ gem 'smart_asset'
 gem 'blather', '0.4.15'
 gem 'dynamic_form'
 gem 'ci_reporter'
+gem 'daemons'
 
 group :test do
   gem 'test-unit', :require => 'test/unit'
