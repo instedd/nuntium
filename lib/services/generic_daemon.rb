@@ -1,9 +1,9 @@
 def start_service(log_name)
-  $log_path = File.join(File.dirname(__FILE__), '..', '..', 'log', "#{log_name}.log")
-  Rails.env = ARGV[0] unless ARGV.empty?
+  $log_path = File.expand_path("../../../log/#{log_name}.log", __FILE__)
+  ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
 
-  require(File.join(File.dirname(__FILE__), '..', '..', 'config', 'boot'))
-  require(File.join(Rails.root, 'config', 'environment'))
+  require File.expand_path('../../../config/boot',  __FILE__)
+  require File.expand_path('../../../config/environment',  __FILE__)
 
   yield
 rescue Exception => err
