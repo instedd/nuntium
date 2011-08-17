@@ -1,19 +1,17 @@
-# Settings specified here will take precedence over those in config/environment.rb
 Nuntium::Application.configure do
+  # Settings specified here will take precedence over those in config/environment.rb
+
   # The test environment is used exclusively to run your application's
   # test suite.  You never need to work with it otherwise.  Remember that
   # your test database is "scratch space" for the test suite and is wiped
   # and recreated between test runs.  Don't rely on the data there!
   config.cache_classes = true
 
-  # config.logger.level = INFO
-
   # Log error messages when you accidentally call methods on nil.
   config.whiny_nils = true
 
-  # Show full error reports and disable caching
-  config.consider_all_requests_local = true
-  config.action_controller.perform_caching             = false
+  # Raise exceptions instead of rendering exception templates
+  config.action_dispatch.show_exceptions = false
 
   # Disable request forgery protection in test environment
   config.action_controller.allow_forgery_protection    = false
@@ -28,15 +26,9 @@ Nuntium::Application.configure do
   # like if you have constraints or database-specific column types
   # config.active_record.schema_format = :sql
 
-  # See everything in the log (default is :info)
-  config.log_level = :debug
-
-  # Use a different logger for distributed setups
-  #config.logger = Logger.new(STDOUT)
+  # Print deprecation notices to the stderr
+  config.active_support.deprecation = :stderr
 
   # Use memcached
   config.cache_store = :mem_cache_store
-
-  # Print deprecation notices to the stderr
-  config.active_support.deprecation = :stderr
 end
