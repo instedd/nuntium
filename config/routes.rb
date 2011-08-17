@@ -86,8 +86,8 @@ ActionController::Routing::Routes.draw do |map|
   map.visualization_at_state_by_day '/visualization/at/state_by_day', :controller => 'visualization', :action => :at_state_by_day
 
   # Tickets
-  map.tickets_checkout '/tickets/checkout.:format', :controller => 'tickets', :action => :checkout
-  map.tickets_checkout '/tickets/keep_alive.:format', :controller => 'tickets', :action => :keep_alive
+  map.tickets_create '/tickets.:format', :conditions => {:method => :post}, :controller => 'tickets', :action => :create
+  map.tickets_show '/tickets/:code.:format', :conditions => {:method => :get},  :controller => 'tickets', :action => :show
 
   # API
   map.countries '/api/countries.:format', :controller => 'api_country', :action => :index

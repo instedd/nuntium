@@ -2,7 +2,7 @@ require 'test_helper'
 
 class TicketsControllerTest < ActionController::TestCase
   test "checkout ticket and with data" do
-    get :checkout, :format => 'json', :country_iso => 'ar', :address => '1234-5678'
+    post :create, :format => 'json', :country_iso => 'ar', :address => '1234-5678'
     
     assert_response :ok
     
@@ -17,7 +17,7 @@ class TicketsControllerTest < ActionController::TestCase
   end
   
   test "do not include route data in ticket data" do
-    get :checkout, :format => 'json', :country_iso => 'ar', :address => '1234-5678'
+    post :create, :format => 'json', :country_iso => 'ar', :address => '1234-5678'
     ticket = JSON.parse @response.body
     stored = Ticket.find_by_code(ticket['code'])
     
@@ -25,9 +25,9 @@ class TicketsControllerTest < ActionController::TestCase
   end
   
   test "allow keep alive of exiting tiket" do
-    get :checkout, :format => 'json'
+    post :create, :format => 'json'
     ticket = JSON.parse @response.body  
-    get :keep_alive, :format => 'json', :code => ticket['code'], :secret_key => ticket['secret_key']
+    get :show, :format => 'json', :code => ticket['code'], :secret_key => ticket['secret_key']
     
     assert_response :ok
     renewal = JSON.parse @response.body
@@ -36,7 +36,7 @@ class TicketsControllerTest < ActionController::TestCase
   end
   
   test "response not found with invalid code" do
-    get :keep_alive, :found => 'json', :code => 'not-a-code', :secret_key => 'not-a-key'
+    get :show, :format => 'json', :code => 'not-a-code', :secret_key => 'not-a-key'
     assert_response :not_found
   end
   
@@ -44,7 +44,7 @@ class TicketsControllerTest < ActionController::TestCase
     ticket1 = Ticket.make :pending, :expiration => (base_time - 25.hours)
     ticket2 = Ticket.make :status => 'complete', :expiration => (base_time - 26.hours)
     
-    get :checkout, :format => 'json'
+    post :create, :format => 'json'
         
     assert_nil Ticket.find_by_id(ticket1.id)
     assert_nil Ticket.find_by_id(ticket2.id)
