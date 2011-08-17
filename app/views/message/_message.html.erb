@@ -125,7 +125,7 @@ channel = @account.find_channel msg.channel_id
   <%- if log.present? -%>
     <tr valign="baseline">
       <td><b>Log:</b></td>
-      <td><%= log.gsub("\n", "<br/>") -%></td>
+      <td><%= log.gsub("\n", "<br/>").html_safe rescue '' -%></td>
     </tr>
   <%- end -%>
 </table>
