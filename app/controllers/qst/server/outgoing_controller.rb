@@ -41,7 +41,7 @@ class OutgoingController < QSTServerController
       if @ao_messages.present?
         # Separate messages into ones that have their tries
         # over max_tries and those still valid.
-        valid_messages, invalid_messages = filter_tries_exceeded_and_not_exceeded @ao_messages, @account
+        valid_messages, invalid_messages = @ao_messages.partition { |msg| msg.tries < @account.max_tries }
 
         # Mark as failed messages that have their tries over max_tries
         if !invalid_messages.empty?
