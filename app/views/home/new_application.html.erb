@@ -94,7 +94,7 @@ var applications = <%= applications.to_json.html_safe -%>;
       <%= c.password_field :interface_password, :value => @application.interface_password, :autocomplete => :off, :class => 'configurl' -%>
       </p>
       <p id="custom_format">
-      <%= c.label :custom_format, '<span id="custom_format_desc" /></span> (leave blank for default) <a href="http://code.google.com/p/nuntium/wiki/Interfaces#Custom_formats" target="_blank">Learn more...</a>' -%><br/>
+      <%= c.label :custom_format, '<span id="custom_format_desc" /></span> (leave blank for default) <a href="http://code.google.com/p/nuntium/wiki/Interfaces#Custom_formats" target="_blank">Learn more...</a>'.html_safe -%><br/>
       <%= c.text_area :interface_custom_format, :rows => 3, :cols => 80, :value => @application.interface_custom_format -%>
       </p>
     </div>
