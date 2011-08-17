@@ -7,8 +7,8 @@ class TwitterChannelHandler < GenericChannelHandler
   end
 
   def self.new_oauth
-    oauth = Twitter::OAuth.new(TwitterConsumerConfig['token'], TwitterConsumerConfig['secret'])
-    oauth.set_callback_url(TwitterConsumerConfig['callback_url'])
+    oauth = Twitter::OAuth.new(Nuntium::TwitterConsumerConfig['token'], Nuntium::TwitterConsumerConfig['secret'])
+    oauth.set_callback_url(Nuntium::TwitterConsumerConfig['callback_url'])
     oauth
   end
 

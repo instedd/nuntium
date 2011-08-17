@@ -11,7 +11,7 @@
   <div id="header">
     <%= link_to 'Nuntium', {:controller => :home, :action => :index}, :id => 'title' -%>
     <%- if !flash[:notice].nil? -%>
-      <span class="notice"><%= flash[:notice] -%></span>
+      <span class="notice"><%= flash[:notice].html_safe -%></span>
     <%- end -%>
     <%- if @account && @account.id -%>
       <span id="toolbar"><%= @account.name -%> |

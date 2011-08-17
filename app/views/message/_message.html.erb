@@ -67,7 +67,7 @@ channel = @account.find_channel msg.channel_id
     <td><%= msg.token -%></td>
   </tr>
   <%- if msg.state == 'broadcasted' -%>
-    <%- copies_str = AOMessage.where(:parent_id => msg.id)all..map do |b|
+    <%- copies_str = AOMessage.where(:parent_id => msg.id).all.map do |b|
           link_to b.id, {:controller => :message, :action => :view_ao_message, :id => b.id}, :target => '_blank'
         end.join(', ') -%>
     <%- if copies_str.present? -%>

@@ -1,6 +1,6 @@
 <%= render :partial => 'channel/edit_channel_header' -%>
 
-<%- if TwitterConsumerConfig.nil? -%>
+<%- if Nuntium::TwitterConsumerConfig.nil? -%>
   <%= render :partial => 'twitter_configuration_missing' -%>
 <%- else -%>
 

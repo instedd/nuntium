@@ -63,7 +63,11 @@ module Nuntium
   ActionMailer::Base.delivery_method = :sendmail
 
   # Twitter OAuth configuration
-  TwitterConsumerConfig = YAML.load_file "#{Rails.root}/config/twitter_oauth_consumer.yml" rescue nil
+  if File.exists? "#{Rails.root}/config/twitter_oauth_consumer.yml"
+    TwitterConsumerConfig = YAML.load_file "#{Rails.root}/config/twitter_oauth_consumer.yml"
+  else
+    TwitterConsumerConfig = nil
+  end
 
   # Disable account creation from UI
   AccountCreationDisabled = false
