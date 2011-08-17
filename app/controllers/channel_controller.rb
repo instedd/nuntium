@@ -1,12 +1,10 @@
 class ChannelController < AccountAuthenticatedController
-
   include CustomAttributesControllerCommon
   include RulesControllerCommon
 
   before_filter :check_login
   before_filter :check_channel, :except => [:new_channel, :create_channel]
   before_filter :set_selected_tab
-  after_filter :compress
 
   def new_channel
     @channel = Channel.new :configuration => {} unless @channel

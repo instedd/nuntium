@@ -1,9 +1,7 @@
 class AccountAuthenticatedController < ApplicationController
-
   def check_login
     if session[:account_id].nil?
       render :template => 'home/index'
-      compress
       return
     end
 
@@ -12,7 +10,6 @@ class AccountAuthenticatedController < ApplicationController
     if @account.nil?
       session.delete :account_id
       render :template => 'home/index'
-      compress
       return
     end
   end
@@ -21,5 +18,4 @@ class AccountAuthenticatedController < ApplicationController
     flash[:notice] = msg if msg
     redirect_to :controller => :home, :action => :index
   end
-
 end

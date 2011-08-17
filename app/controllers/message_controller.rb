@@ -2,7 +2,6 @@ class MessageController < AccountAuthenticatedController
   include CustomAttributesControllerCommon
 
   before_filter :check_login
-  after_filter :compress
 
   def new_ao_message
     return redirect_to :controller => :home, :action => :ao_messages if @account.applications.empty?

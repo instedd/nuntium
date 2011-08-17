@@ -1,9 +1,6 @@
 # Filters added to this controller apply to all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
-require 'stringio'
-require 'zlib'
-
 class ApplicationController < ActionController::Base
   helper :all # include all helpers, all the time
   # protect_from_forgery # See ActionController::RequestForgeryProtection for details
@@ -26,23 +23,4 @@ class ApplicationController < ActionController::Base
 
     [valid_messages, invalid_messages]
   end
-
-  def compress
-    accept = self.request.env['HTTP_ACCEPT_ENCODING']
-    if accept && accept.match(/gzip/)
-      encoding = self.response.headers["Content-Transfer-Encoding"]
-      if encoding != 'binary'
-        begin
-          ostream = StringIO.new
-          gz = Zlib::GzipWriter.new(ostream)
-          gz.write(self.response.body)
-          self.response.body = ostream.string
-          self.response.headers['Content-Encoding'] = 'gzip'
-        ensure
-          gz.close
-        end
-      end
-    end
-  end
-
 end

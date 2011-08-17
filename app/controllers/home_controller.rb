@@ -5,7 +5,6 @@ class HomeController < AccountAuthenticatedController
 
   before_filter :check_login, :except => [:login, :create_account]
   before_filter :load_channels_and_applications, :only => [:interactions, :applications, :channels, :ao_messages, :at_messages, :logs]
-  after_filter :compress
 
   before_filter :check_application, :only => [:edit_application, :update_application, :delete_application]
 
