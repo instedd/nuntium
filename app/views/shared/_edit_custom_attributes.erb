@@ -44,8 +44,8 @@ countries = Country.all
 carriers = Carrier.all_with_countries
 -%>
 <script type="text/javascript">
-var applications = <%= applications.to_json -%>;
-var channels = <%= channels.to_json -%>;
+var applications = <%= applications.to_json.html_safe -%>;
+var channels = <%= channels.to_json.html_safe -%>;
 var show_accept_when_not_specified_option = <%= show_accept_when_not_specified_option ? 'true' : 'false' -%>;
 </script>
 

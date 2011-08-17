@@ -70,9 +70,9 @@ else
     <div class="apprules"></div>
 
     <script type="text/javascript">
-    var applications = <%= applications.to_json -%>;
+    var applications = <%= applications.to_json.html_safe -%>;
     jQuery(function(){
-        init_rules(jQuery('.apprules'), 'apprules', <%= @account.app_routing_rules.to_json -%>, null, {include: ['application']});
+        init_rules(jQuery('.apprules'), 'apprules', <%= @account.app_routing_rules.to_json.html_safe -%>, null, {include: ['application']});
     });
     </script>
 

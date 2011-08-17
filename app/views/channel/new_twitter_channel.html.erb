@@ -11,7 +11,7 @@
   <%= render :partial => 'channel/edit_protocol', :locals => {:f => f, :default => 'twitter'} -%>
   <%= render :partial => 'channel/edit_priority', :locals => {:f => f} -%>
   <%= render :partial => 'channel/edit_application', :locals => {:f => f} -%>
-  <%- f.fields_for :configuration do |c| -%>
+  <%= f.fields_for :configuration do |c| -%>
     <p>
     Welcome message for new followers (leave blank if not desired)<br/>
     <%= c.text_field :welcome_message, :value => @channel.configuration[:welcome_message] -%>

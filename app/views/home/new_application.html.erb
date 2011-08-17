@@ -41,7 +41,7 @@
 applications = @account.applications.map(&:name).sort!
 -%>
 <script type="text/javascript">
-var applications = <%= applications.to_json -%>;
+var applications = <%= applications.to_json.html_safe -%>;
 </script>
 
 <%- if @application.new_record? -%>
@@ -78,10 +78,10 @@ var applications = <%= applications.to_json -%>;
   <%= f.radio_button :interface, 'http_get_callback', :onclick => "interface_http_get_callback();"%> <%= f.label :interface, 'HTTP GET callback', :value => 'http_get_callback' -%><br/>
   <%= f.radio_button :interface, 'http_post_callback', :onclick => "interface_http_post_callback();"%> <%= f.label :interface, 'HTTP POST callback', :value => 'http_post_callback' -%><br/>
 
-  <%- f.fields_for :configuration do |c| -%>
+  <%= f.fields_for :configuration do |c| -%>
     <div id="config">
       <h5>Interface configuration:</h5>
-	    <p>
+      <p>
       <%= c.label :url -%><br/>
       <%= c.text_field :interface_url, :value => @application.interface_url, :class => 'configurl' -%>
       </p>
@@ -143,35 +143,35 @@ var applications = <%= applications.to_json -%>;
     </div>
   <%- end -%>
 
-	<h5>AO Rules</h5>
+  <h5>AO Rules</h5>
 
-	<p>
-	These rules will be executed when an AO message is received via this application.
-	<a href="http://code.google.com/p/nuntium/wiki/Rules" target="_blank">Learn more...</a>
-	</p>
+  <p>
+  These rules will be executed when an AO message is received via this application.
+  <a href="http://code.google.com/p/nuntium/wiki/Rules" target="_blank">Learn more...</a>
+  </p>
 
-	<div class="aorules"></div>
+  <div class="aorules"></div>
 
-	<script type="text/javascript">
-	jQuery(function(){
-            init_rules(jQuery('.aorules'), 'aorules', <%= @application.ao_rules.to_json -%>, {exclude: ['application']}, {exclude: ['application']});
-	});
-	</script>
+  <script type="text/javascript">
+  jQuery(function(){
+      init_rules(jQuery('.aorules'), 'aorules', <%= @application.ao_rules.to_json.html_safe -%>, {exclude: ['application']}, {exclude: ['application']});
+  });
+  </script>
 
-	<h5>AT Rules</h5>
+  <h5>AT Rules</h5>
 
-	<p>
-	These rules will be executed when an AT message is sent to this application.
-	<a href="http://code.google.com/p/nuntium/wiki/Rules" target="_blank">Learn more...</a>
-	</p>
+  <p>
+  These rules will be executed when an AT message is sent to this application.
+  <a href="http://code.google.com/p/nuntium/wiki/Rules" target="_blank">Learn more...</a>
+  </p>
 
-	<div class="atrules"></div>
+  <div class="atrules"></div>
 
-	<script type="text/javascript">
-	jQuery(function(){
-            init_rules(jQuery('.atrules'), 'atrules', <%= @application.at_rules.to_json -%>, {exclude: ['application']}, {exclude: ['application']});
-	});
-	</script>
+  <script type="text/javascript">
+  jQuery(function(){
+      init_rules(jQuery('.atrules'), 'atrules', <%= @application.at_rules.to_json.html_safe -%>, {exclude: ['application']}, {exclude: ['application']});
+  });
+  </script>
 
   <%= submit_tag (@application.new_record? ? 'Create Application' : 'Update Application') -%>
 <%- end -%>

@@ -165,6 +165,7 @@ class HomeController < AccountAuthenticatedController
   end
 
   def edit_application
+    @selected_tab = :applications
     render :new_application
   end
 
