@@ -20,6 +20,7 @@ Nuntium::Application.routes.draw do
       post :mark_as_cancelled
       post :reroute
       post :simulate_route
+      get :rgviz
     end
   end
   resources :at_messages do
@@ -29,13 +30,16 @@ Nuntium::Application.routes.draw do
     collection do
       post :mark_as_cancelled
       post :simulate_route
+      get :rgviz
     end
   end
   resources :logs
   resources :custom_attributes, :except => :show
   resources :interactions
   resources :settings
-  resources :visualizations
+  resources :visualizations, :only => :index do
+    get :messages_state_by_day, :on => :collection
+  end
 
   match '/:account_id/clickatell/incoming' => 'clickatell#index', :as => :clickatell, :constraints => {:account_id => /.*/}
   match '/:account_id/clickatell/ack' => 'clickatell#ack', :as => :clickatell_ack, :constraints => {:account_id => /.*/}

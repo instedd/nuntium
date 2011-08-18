@@ -1,19 +1,8 @@
-class VisualizationController < AccountAuthenticatedController
-  before_filter :check_login
-
-  def ao_state_by_day
-    messages_state_by_day :ao
-  end
-
-  def at_state_by_day
-    messages_state_by_day :at
-  end
-
-  private
-
-  def messages_state_by_day(kind)
+class VisualizationsController < ApplicationController
+  def messages_state_by_day
     @selected_tab = :visualizations
-    @kind = kind
+    @kind = params[:kind]
+    @kind = 'ao' unless @kind == 'ao' || @kind == 'at'
     @two_months_ago = Date.today - 2.months
     if @two_months_ago.year == Date.today.year
       @prefix = "#{Date.today.year}-"
