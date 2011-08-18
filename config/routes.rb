@@ -36,7 +36,7 @@ Nuntium::Application.routes.draw do
   resources :logs
   resources :custom_attributes, :except => :show
   resources :interactions
-  resources :settings
+  resource :settings
   resources :visualizations, :only => :index do
     get :messages_state_by_day, :on => :collection
   end

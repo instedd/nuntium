@@ -18,7 +18,9 @@ class Account < ActiveRecord::Base
   validates_confirmation_of :password
   validates_numericality_of :max_tries, :only_integer => true, :greater_than_or_equal_to => 0
 
-  before_save :hash_password
+  before_create :hash_password
+  before_validation :reset_password, :if => lambda { persisted? && password.blank? && password_confirmation.blank? }
+  before_update :hash_password, :if => lambda { password.present? && password_changed? }
   after_save :restart_channel_processes
 
   def self.find_by_id_or_name(id_or_name)
@@ -165,9 +167,12 @@ class Account < ActiveRecord::Base
 
   private
 
-  def hash_password
-    return if self.salt.present?
+  def reset_password
+    self.password = self.password_was
+    self.password_confirmation = self.password
+  end
 
+  def hash_password
     self.salt = ActiveSupport::SecureRandom.base64(8)
     self.password = Digest::SHA2.hexdigest(self.salt + self.password) if self.password
     self.password_confirmation = Digest::SHA2.hexdigest(self.salt + self.password_confirmation) if self.password_confirmation
