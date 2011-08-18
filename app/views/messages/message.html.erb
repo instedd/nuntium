@@ -1,4 +1,4 @@
-<h2>Application <%= @kind == 'ao' ? 'Originated' : 'Terminated' -%> Message #<%= @id -%></h2>
+<h2>Application <%= @kind == 'ao' ? 'Originated' : 'Terminated' -%> Message #<%= @msg.id -%></h2>
 
 <h4><%= link_to_function 'Log', "toggle('log')" -%></h4>
 
@@ -20,4 +20,4 @@
 </table>
 </div>
 
-<%= render :partial => 'message', :locals => {:msg => @msg, :title => 'Message', :log => nil} -%>
+<%= render :partial => 'messages/message', :locals => {:msg => @msg, :title => 'Message', :log => nil} -%>

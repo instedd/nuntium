@@ -46,7 +46,7 @@ class Channel < ActiveRecord::Base
   scope :enabled, where(:enabled => true)
   scope :disabled, where(:enabled => false)
   scope :outgoing, where(:direction => [Outgoing, Bidirectional])
-  scope :incoming, where(:direction => [Outgoing, Bidirectional])
+  scope :incoming, where(:direction => [Incoming, Bidirectional])
 
   include CronTask::CronTaskOwner
 

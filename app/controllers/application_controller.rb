@@ -7,6 +7,8 @@ class ApplicationController < ActionController::Base
 
   before_filter :check_login
 
+  ResultsPerPage = 10
+
   expose(:account) { Account.find_by_id session[:account_id] }
 
   expose(:applications) { account.applications }

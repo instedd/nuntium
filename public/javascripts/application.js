@@ -120,7 +120,8 @@ function mark_ao_messages_as_cancelled() {
     return;
 
   var form = document.getElementById('ao_messages_form');
-  form.action = '/message/ao/mark_as_cancelled';
+  form.action = '/ao_messages/mark_as_cancelled';
+  form.method = 'POST'
   form.submit();
 }
 
@@ -139,7 +140,8 @@ function mark_at_messages_as_cancelled() {
     return;
 
   var form = document.getElementById('at_messages_form');
-  form.action = '/message/at/mark_as_cancelled';
+  form.action = '/at_messages/mark_as_cancelled';
+  form.method = 'POST';
   form.submit();
 }
 
@@ -158,7 +160,8 @@ function reroute_ao_messages() {
     return;
 
   var form = document.getElementById('ao_messages_form');
-  form.action = '/message/ao/reroute';
+  form.action = '/ao_messages/reroute';
+  form.method = 'POST';
   form.submit();
 }
 

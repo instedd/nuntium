@@ -1,6 +1,6 @@
 <h4>Create new <%= @kind == 'ao' ? 'Application Originated' : 'Application Terminated' -%> Message</h4>
 
-<%= form_for :message, :html => {:id => :new_message_form} do |f| -%>
+<%= form_for @msg, :html => {:id => :new_message_form} do |f| -%>
   <%- [:from, :to, :subject].each do |field| -%>
     <p>
     <%= f.label field -%><br/>
@@ -14,12 +14,12 @@
   <%- if @kind == 'ao' -%>
     <p>
     <%= f.label :application -%><br/>
-    <%= f.select :application_id, @account.applications.map{|x| [x.name, x.id]} -%>
+    <%= f.select :application_id, applications.map{|x| [x.name, x.id]} -%>
     </p>
   <%- else -%>
     <p>
     <%= f.label :channel -%><br/>
-    <%= f.select :channel_id, @account.channels.select{|x| x.direction == Channel::Incoming || x.direction == Channel::Bidirectional}.map{|x| [x.name, x.id]} -%>
+    <%= f.select :channel_id, channels.select{|x| x.direction == Channel::Incoming || x.direction == Channel::Bidirectional}.map{|x| [x.name, x.id]} -%>
     </p>
   <%- end -%>
   <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @message, :include_channels => @kind == 'ao', :accept_when_not_specified_option => false} -%>
@@ -30,17 +30,17 @@
 <script>
 function create_message() {
   var f = document.getElementById('new_message_form');
-  f.action = '<%= url_for :controller => 'message', :action => (@kind == 'ao' ? :create_ao_message : :create_at_message) -%>';
+  f.action = '<%= url_for(@msg) -%>';
   f.target = '_self';
   f.submit();
 }
 
 function simulate_route() {
   var f = document.getElementById('new_message_form');
-  f.action = '<%= url_for :controller => :message, :action => "simulate_route_#{@kind}" -%>';
+  f.action = '<%= eval("simulate_route_#{@kind}_messages_path") -%>';
   f.target = '_blank';
   f.submit();
 }
 </script>
 
-<%= link_to 'Go back', :controller => :home, :action => "#{@kind}_messages" -%>
+<%= link_to 'Go back', eval("#{@kind}_messages_path") -%>

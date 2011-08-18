@@ -1,8 +1,8 @@
 <h4><%= link_to_function title, "toggle('details_#{@msg.guid}')" -%></h4>
 
 <%
-application = @account.applications.find_by_id msg.application_id
-channel = @account.channels.find_by_id msg.channel_id
+application = applications.find_by_id msg.application_id
+channel = channels.find_by_id msg.channel_id
 %>
 <div id="details_<%= msg.guid -%>">
 <table class="table">

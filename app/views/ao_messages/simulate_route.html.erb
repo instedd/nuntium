@@ -1,0 +1,18 @@
+<h4>Route simulation</h4>
+
+<%- if @result[:strategy] == 'broadcast' -%>
+  <div>Message was broadcasted.</div>
+  <%- @result[:messages].each_with_index do |msg, i| -%>
+    <%= render 'messages/message', :msg => msg, :title => (i == 0 ? 'Original copy' : "Broadcasted copy #{i}"), :log => @result[:logs][i] -%>
+  <%- end -%>
+<%- elsif @strategy == 'single_priority' -%>
+  <div id="route_simulation">
+  <%= @result[:channel].name -%>
+  </div>
+  <%= render 'messages/message', :msg => @msg, :title => 'Details', :log => @result[:log] -%>
+<%- else -%>
+   <div id="route_simulation">
+   No channel for the given message.
+   </div>
+   <%= render 'messages/message', :msg => @msg, :title => 'Details', :log => @result[:log] -%>
+<%- end -%>

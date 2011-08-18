@@ -7,10 +7,10 @@ Messages sent from your application into Nuntium and then into the world are cal
 <input type="hidden" name="previous_search" value="<%= @search -%>" />
 <input type="hidden" id="ao_all" name="ao_all" value="0" />
 
-<%- if @applications.empty? -%>
+<%- if applications.empty? -%>
   <%= link_to 'Create an Application', :controller => :home, :action => :new_application -%> to create AO Messages.<br/><br/>
 <%- else -%>
-  <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AO Message">Create new AO Message'.html_safe, :controller => :message, :action => :new_ao_message -%> &nbsp; &nbsp;
+  <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AO Message">Create new AO Message'.html_safe, new_ao_message_path -%> &nbsp; &nbsp;
 <%- end -%>
 Search: <input type="text" name="search" value="<%= @search.try(:html_safe) -%>" size="50" class="<%= @search.present? ? 'highlighted' : '' -%>"/> <a href="http://code.google.com/p/nuntium/wiki/AdvancedSearch" target="_blank" title="You can filter by field like 'id:5', 'before:&quot;20 minutes ago&quot;', 'state:queued', etc.">?</a> &nbsp; &nbsp;
 Select: <%= link_to_function 'all', 'select_all_ao_messages()' -%>, <%= link_to_function 'none', 'select_none_ao_messages()' -%> &nbsp; &nbsp;
@@ -40,10 +40,6 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
     </tr>
     <tr>
     <%- @ao_messages.each_with_index do |msg, i| -%>
-      <%-
-      chan = @channels.select{|x| msg.channel_id == x.id}.first
-      app = @applications.select{|x| msg.application_id == x.id}.first
-      -%>
       <tr class="<%= i.even_to_s -%>">
         <td><input type="checkbox" name="ao_messages[]" value="<%= msg.id -%>" <%= 'checked="checked"' if !params[:ao_messages].nil? && params[:ao_messages].include?(msg.id.to_s) -%>/></td>
         <td>
@@ -58,15 +54,15 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
         <td><%= short_html msg.guid -%></td>
         <td><%= short_html msg.channel_relative_id -%></td>
         <td><%= msg.from -%></td>
-        <td><%= link_to msg.to, {:controller => :message, :action => :view_thread, :address => msg.to}, :target => '_blank' if msg.to.present? -%></td>
+        <td><%= link_to msg.to, thread_ao_message_path(msg), :target => '_blank' if msg.to.present? -%></td>
         <td><%= short_html msg.subject -%></td>
         <td><%= short_html msg.body -%></td>
-        <td><%= chan ? chan.name : '' -%></td>
-        <td><%= app ? app.name : '' -%></td>
+        <td><%= msg.channel.try(:name) -%></td>
+        <td><%= msg.application.try(:name) -%></td>
         <td align="right"><%= msg.tries -%></td>
         <td><%= msg.state -%></td>
         <td>
-          <%= link_to 'view log', {:controller => :message, :action => :view_ao_message, :id => msg.id}, :target => '_blank'%>
+          <%= link_to 'view log', msg, :target => '_blank'%>
         </td>
       </tr>
     <%- end -%>

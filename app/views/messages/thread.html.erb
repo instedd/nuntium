@@ -21,8 +21,6 @@
   </tr>
   <%- @msgs.each_with_index do |msg, i| -%>
     <%-
-    chan = @channels.select{|x| msg.channel_id == x.id}.first
-    app = @applications.select{|x| msg.application_id == x.id}.first
     kind = msg.kind_of?(AOMessage) ? 'ao' : 'at'
     -%>
     <tr class="<%= kind -%> <%= i.even_to_s -%>">
@@ -42,12 +40,12 @@
       <td><%= msg.to -%></td>
       <td><%= short_html msg.subject -%></td>
       <td><%= short_html msg.body -%></td>
-      <td><%= chan ? chan.name : '' -%></td>
-      <td><%= app ? app.name : '' -%></td>
+      <td><%= msg.channel.try(:name) -%></td>
+      <td><%= msg.application.try(:name) -%></td>
       <td align="right"><%= msg.tries -%></td>
       <td><%= msg.state -%></td>
       <td>
-        <%= link_to 'view log', {:controller => :message, :action => "view_#{kind}_message", :id => msg.id}, :target => '_blank'%>
+        <%= link_to 'view log', eval("#{kind}_message_path(msg)"), :target => '_blank'%>
       </td>
     </tr>
   <%- end -%>

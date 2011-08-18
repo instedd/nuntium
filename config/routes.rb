@@ -12,8 +12,25 @@ Nuntium::Application.routes.draw do
       get :resume
     end
   end
-  resources :ao_messages
-  resources :at_messages
+  resources :ao_messages do
+    member do
+      get :thread
+    end
+    collection do
+      post :mark_as_cancelled
+      post :reroute
+      post :simulate_route
+    end
+  end
+  resources :at_messages do
+    member do
+      get :thread
+    end
+    collection do
+      post :mark_as_cancelled
+      post :simulate_route
+    end
+  end
   resources :logs
   resources :custom_attributes, :except => :show
   resources :interactions
