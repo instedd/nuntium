@@ -35,7 +35,7 @@ Nuntium::Application.routes.draw do
   end
   resources :logs
   resources :custom_attributes, :except => :show
-  resources :interactions
+  resource :interactions
   resource :settings
   resources :visualizations, :only => :index do
     get :messages_state_by_day, :on => :collection
@@ -48,6 +48,18 @@ Nuntium::Application.routes.draw do
   put '/channels/twitter/update/:id' => 'twitter#update', :as => :update_twitter_channel
 
   match '/twitter/callback' => 'twitter#callback', :as => :twitter_callback
+
+  match '/:account_name/:application_name/send_ao' => 'ao_messages#create_via_api', :as => :send_ao, :constraints => {:account_name => /.*/, :application_name => /.*/}
+
+  get '/:account_id/qst/outgoing' => 'outgoing#index', :as => :outgoing, :constraints => {:account_id => /.*/}
+
+  get '/:account_name/:application_name/rss' => 'rss#index', :as => :rss, :constraints => {:account_name => /.*/, :application_name => /.*/}
+  post '/:account_name/:application_name/rss' => 'rss#create', :as => :create_rss, :constraints => {:account_name => /.*/, :application_name => /.*/}
+
+  match '/:account_id/dtac/incoming' => 'dtac#index', :as => :dtac, :constraints => {:account_id => /.*/}
+
+  post '/:account_id/ipop/:channel_name/incoming' => 'ipop#index', :as => :ipop, :constraints => {:account_id => /.*/}
+  post '/:account_id/ipop/:channel_name/ack' => 'ipop#ack', :as => :ipop_ack, :constraints => {:account_id => /.*/}
 
   root :to => 'applications#index'
 
@@ -120,18 +132,11 @@ Nuntium::Application.routes.draw do
 
  #match '/:account_id/clickatell/incoming' => 'clickatell#index', :as => :clickatel, :constraints => {:account_id => /.*/}
  #match '/:account_id/clickatell/ack' => 'clickatell#ack', :as => :clickatel_ack, :constraints => {:account_id => /.*/}
- #match '/:account_id/dtac/incoming' => 'dtac#index', :as => :dtac, :constraints => {:account_id => /.*/}
- #match '/:account_id/ipop/:channel_name/incoming' => 'ipop#index', :as => :ipop, :via => :post, :constraints => {:account_id => /.*/}
- #match '/:account_id/ipop/:channel_name/ack' => 'ipop#ack', :as => :ipop_ack, :via => :post, :constraints => {:account_id => /.*/}
  #match '/:account_id/qst/setaddress' => 'address#update', :as => :qst_set_address, :constraints => {:account_id => /.*/}
 
  #match '/:account_name/:application_name/send_ao' => 'send_ao#create', :as => :send_ao, :constraints => {:account_name => /.*/, :application_name => /.*/}
  #match '/:account_name/:application_name/get_ao' => 'get_ao#index', :as => :get_ao, :constraints => {:account_name => /.*/, :application_name => /.*/}
 
- #get '/:account_name/:application_name/rss' => 'rss#index', :as => :rss, :constraints => {:account_name => /.*/, :application_name => /.*/}
- #post '/:account_name/:application_name/rss' => 'rss#create', :as => :rss, :constraints => {:account_name => /.*/, :application_name => /.*/}
-
  #post '/:account_id/qst/incoming' => 'incoming#create', :as => :incoming, :constraints => {:account_id => /.*/}
  #match '/:account_id/qst/incoming' => 'incoming#index', :as => :incoming, :constraints => {:account_id => /.*/}
- #get '/:account_id/qst/outgoing' => 'outgoing#index', :as => :outgoing, :constraints => {:account_id => /.*/}
 end
