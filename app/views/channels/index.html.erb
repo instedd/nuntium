@@ -5,7 +5,7 @@ By "the world" we mean anything that's not your particular application. For exam
 
 <table class="table" cellspacing="4" id="channels" width="100%">
   <tr>
-    <td colspan="7" style="background:white"><%= render :partial => 'shared/create_channel' -%></td>
+    <td colspan="7" style="background:white"><%= render 'shared/create_channel' -%></td>
     <%- unless channels.empty? -%>
       <%
       channel_kinds = [['All', '']] + Channel.kinds

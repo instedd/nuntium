@@ -5,7 +5,7 @@
     <%= f.text_field :address %>
   </p>
   <p>
-    <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @custom_attribute, :accept_when_not_specified_option => false } %>
+    <%= render 'shared/edit_custom_attributes', :f => f, :entity => @custom_attribute, :accept_when_not_specified_option => false %>
   </p>
   <p>
     <%= f.submit 'Update' %>

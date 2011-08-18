@@ -22,7 +22,7 @@
     <%= f.select :channel_id, channels.select{|x| x.direction == Channel::Incoming || x.direction == Channel::Bidirectional}.map{|x| [x.name, x.id]} -%>
     </p>
   <%- end -%>
-  <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @message, :include_channels => @kind == 'ao', :accept_when_not_specified_option => false} -%>
+  <%= render 'shared/edit_custom_attributes', :f => f, :entity => @message, :include_channels => @kind == 'ao', :accept_when_not_specified_option => false -%>
   <button onClick="create_message()">Create Message</button>
   or <button onClick="simulate_route()">Simulate Route</button>
 <%- end -%>

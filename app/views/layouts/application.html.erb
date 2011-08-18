@@ -22,7 +22,7 @@
         <%= link_to 'Help', 'http://code.google.com/p/nuntium/', :target => '_blank' -%> |
         <%= link_to 'Logoff', session_path, :method => :delete -%></span>
       </div>
-      <%= render :partial => 'shared/tabs' -%>
+      <%= render 'shared/tabs' -%>
     <%- else -%>
       </div>
     <%- end -%>

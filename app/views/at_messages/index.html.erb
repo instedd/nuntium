@@ -10,7 +10,7 @@ Messages sent from the world into Nuntium and then into your application are cal
 <%- if channels.incoming.empty? -%>
   <p>
   Create an incoming or bidirectional Channel to create AT Messages:
-  <%= render :partial => 'shared/create_channel' -%>
+  <%= render 'shared/create_channel' -%>
   </p>
 <%- else -%>
   <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AT Message">Create new AT Message'.html_safe, new_at_message_path -%> &nbsp; &nbsp;
