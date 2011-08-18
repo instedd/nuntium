@@ -1,9 +1,12 @@
 Nuntium::Application.routes.draw do
   resource :session do
-    post :application_routing_rules, :on => :member
     post :register
   end
-  resources :applications
+  resources :applications do
+    collection do
+      put :routing_rules
+    end
+  end
   resources :channels do
     member do
       get :enable

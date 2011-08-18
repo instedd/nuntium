@@ -53,7 +53,7 @@ else
     <%-
   end
   -%>
-  <%= form_for account, :url => application_routing_rules_session_path do |f| -%>
+  <%= form_for account, :url => routing_rules_applications_path do |f| -%>
     <%= f.error_messages -%>
     <p>
     Specify here rules to route AT messages to specific applications.<br/>

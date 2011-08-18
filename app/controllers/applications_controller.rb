@@ -27,4 +27,14 @@ class ApplicationsController < ApplicationController
     application.destroy
     redirect_to applications_path, :notice => "Application #{application.name} deleted"
   end
+
+  def routing_rules
+    account.app_routing_rules = get_rules :apprules
+
+    if account.save
+      redirect_to applications_path, :notice => 'Application Routing Rules were changed'
+    else
+      render 'index'
+    end
+  end
 end
