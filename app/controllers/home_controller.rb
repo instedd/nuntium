@@ -1,9 +1,6 @@
 require 'will_paginate'
 
 class HomeController < AccountAuthenticatedController
-  def interactions
-  end
-
   def logs
     @page = params[:page].presence || 1
     @search = params[:search]
@@ -26,5 +23,4 @@ class HomeController < AccountAuthenticatedController
       redirect_to :applications
     end
   end
-
 end

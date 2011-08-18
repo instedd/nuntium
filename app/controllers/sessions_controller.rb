@@ -37,14 +37,6 @@ class SessionsController < ApplicationController
     end
   end
 
-  def update
-    if account.update_attributes params[:account]
-      redirect_to settings_path, :notice => 'Settings were changed'
-    else
-      render 'settings/index'
-    end
-  end
-
   def destroy
     session[:account_id] = nil
     redirect_to new_session_path
