@@ -1,4 +1,5 @@
 class TicketsController < ApplicationController
+  skip_filter :check_login
 
   def create
     Ticket.remove_expired
