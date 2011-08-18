@@ -1,0 +1,30 @@
+<%= form_for channel do |f| -%>
+  <%= f.error_messages -%>
+  <%= f.hidden_field :kind, :value => channel.kind %>
+  <%= f.hidden_field :direction, :value => Channel::Bidirectional -%>
+  <%= render 'edit_name', :f => f -%>
+  <%= render 'edit_protocol', :f => f, :default => 'sms' -%>
+  <%= render 'edit_priority', :f => f -%>
+  <%= render 'edit_application', :f => f -%>
+  <%= render 'edit_address', :f => f -%>
+  <%= f.fields_for :configuration do |c| -%>
+    <p>
+    <%= c.label :user -%><br/>
+    <%= c.text_field :user, :autocomplete => :off, :value => channel.configuration[:user] -%>
+    </p>
+    <p>
+    <%= c.label :password -%><br/>
+    <%= c.password_field :password, :autocomplete => :off, :value => channel.configuration[:password] -%>
+    </p>
+    <p>
+    Callback urls for incoming messages:<br/>
+    <code>/dtac/<%= account.name -%>/incoming</code><br/>
+    <code>/dtac/<%= account.id -%>/incoming</code>
+    </p>
+  <%- end -%>
+  <%= render 'edit_costs', :f => f -%>
+  <%= render 'shared/edit_custom_attributes', :f => f, :entity => @channel, :as_restriction => true -%>
+  <%= render 'edit_ao_rules', :f => f -%>
+  <%= render 'edit_at_rules', :f => f -%>
+  <%= f.submit -%>
+<%- end -%>

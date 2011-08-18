@@ -1,4 +1,4 @@
-class AccountLog < ActiveRecord::Base
+class Log < ActiveRecord::Base
   belongs_to :account
   belongs_to :application
   belongs_to :channel
@@ -38,7 +38,7 @@ class AccountLog < ActiveRecord::Base
 
     search = Search.new search
     if search.search
-      severity = AccountLog.severity_from_text search.search
+      severity = severity_from_text search.search
       if severity == 0
         result = result.where 'message LIKE ?', "%#{search.search}%"
       else
@@ -47,7 +47,7 @@ class AccountLog < ActiveRecord::Base
     end
     if search[:severity]
       op, val = Search.get_op_and_val search[:severity]
-      result = result.where "severity #{op} ?", AccountLog.severity_from_text(val)
+      result = result.where "severity #{op} ?", severity_from_text(val)
     end
     [:ao, :ao_message_id, :ao_message].each do |sym|
       if search[sym]

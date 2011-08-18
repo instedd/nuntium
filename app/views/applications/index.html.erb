@@ -3,9 +3,9 @@ A Nuntium Application simply represents your application.<br/>
 If you have many applications you would create many Nuntium Applications, and you can choose to interface with each of them in a different way.
 </p>
 
-<p><%= link_to 'Create new Application', :controller => :home, :action => :new_application -%></p>
+<p><%= link_to 'Create new Application', new_application_path -%></p>
 
-<%- unless @applications.empty? -%>
+<%- unless applications.empty? -%>
   <table class="table" cellspacing="4">
     <tr>
       <th>Name</th>
@@ -15,7 +15,7 @@ If you have many applications you would create many Nuntium Applications, and yo
       <th>Delivery ACK</th>
       <th></th>
     </tr>
-    <%- @applications.each_with_index do |app, i| -%>
+    <%- applications.each_with_index do |app, i| -%>
       <tr class="<%= i.even_to_s -%>">
         <td><%= app.name -%></td>
         <td><%= app.interface_description -%></td>
@@ -23,11 +23,11 @@ If you have many applications you would create many Nuntium Applications, and yo
         <td><%= app.strategy_description -%></td>
         <td><%= app.delivery_ack_method_description -%></td>
         <td>
-          <%= link_to "view log", :controller => :home, :action => :logs, :log_search => "application:#{app.name}" -%>
-          <%= link_to "view aos", :controller => :home, :action => :ao_messages, :ao_search => "application:#{app.name}" -%>
-          <%= link_to "view ats", :controller => :home, :action => :at_messages, :at_search => "application:#{app.name}" -%>
-          <%= link_to "edit", :controller => :home, :action => :edit_application, :id => app.id -%>
-          <%= link_to "delete", {:controller => :home, :action => :delete_application, :id => app.id}, :confirm => "Are you sure you want to delete the application #{app.name}?" -%>
+          <%= link_to "view log", logs_path(:search => "application:#{app.name}") -%>
+          <%= link_to "view aos", ao_messages_path(:search => "application:#{app.name}") -%>
+          <%= link_to "view ats", at_messages_path(:search => "application:#{app.name}") -%>
+          <%= link_to "edit", edit_application_path(app) -%>
+          <%= link_to "delete", application_path(app), :method => :delete, :confirm => "Are you sure you want to delete the application #{app.name}?" -%>
         </td>
       </tr>
     <%- end -%>
@@ -36,15 +36,15 @@ If you have many applications you would create many Nuntium Applications, and yo
 
 <h5>Application Routing Rules</h5>
 <%-
-applications = @account.applications.map(&:name).sort!
-if applications.length < 2
+applications_names = applications.map(&:name).sort!
+if applications_names.length < 2
   -%>
   <p>
   No need to specify these rules right now since you don't have more than one application.
   </p>
   <%-
 else
-  if @account.app_routing_rules.blank?
+  if app_routing_rules.blank?
     -%>
     <p id="errorNotice">
     Now that you have more than one application you should configure rules
@@ -53,7 +53,7 @@ else
     <%-
   end
   -%>
-  <%= form_for :account, :url => { :controller => 'home', :action => :update_application_routing_rules } do |f| -%>
+  <%= form_for account, :url => application_routing_rules_session_path do |f| -%>
     <%= f.error_messages -%>
     <p>
     Specify here rules to route AT messages to specific applications.<br/>
@@ -70,9 +70,9 @@ else
     <div class="apprules"></div>
 
     <script type="text/javascript">
-    var applications = <%= applications.to_json.html_safe -%>;
+    var applications = <%= applications_names.to_json.html_safe -%>;
     jQuery(function(){
-        init_rules(jQuery('.apprules'), 'apprules', <%= @account.app_routing_rules.to_json.html_safe -%>, null, {include: ['application']});
+        init_rules(jQuery('.apprules'), 'apprules', <%= app_routing_rules.to_json.html_safe -%>, null, {include: ['application']});
     });
     </script>
 
@@ -83,5 +83,5 @@ end
 -%>
 
 <p>
-  Routing can also be manipulated setting <%= link_to 'custom attributes', :controller => :custom_attributes %> to specific users.
+  Routing can also be manipulated setting <%= link_to 'custom attributes', custom_attributes_path %> to specific users.
 </p>

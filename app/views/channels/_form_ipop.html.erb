@@ -1,0 +1,38 @@
+<%= form_for channel do |f| -%>
+  <%= f.error_messages -%>
+  <%= f.hidden_field :kind, :value => channel.kind %>
+  <%= f.hidden_field :direction, :value => Channel::Bidirectional -%>
+  <%= render 'edit_name', :f => f -%>
+  <%= render 'edit_protocol', :f => f, :default => 'sms' -%>
+  <%= render 'edit_priority', :f => f -%>
+  <%= render 'edit_application', :f => f -%>
+  <%= render 'edit_direction' -%>
+  <%= render 'edit_address', :f => f -%>
+  <%= f.fields_for :configuration do |c| -%>
+    <h5>MT POST</h5>
+    <p>
+    <%= c.label :mt_post_url, 'URL' -%><br/>
+    <%= c.text_field :mt_post_url, :value => channel.configuration[:mt_post_url] -%>
+    </p>
+    <p>
+    <%= c.label :mt_post_user, 'User (optional)' -%><br/>
+    <%= c.text_field :mt_post_user, :value => channel.configuration[:mt_post_user] -%>
+    </p>
+    <p>
+    <%= c.label :mt_post_password, 'Password (optional)' -%><br/>
+    <%= c.password_field :mt_post_password, :autocomplete => :off, :value => channel.configuration[:mt_post_password] -%>
+    </p>
+    <p>
+    <%= c.label :cid, 'Connection ID (cid)' -%><br/>
+    <%= c.text_field :cid, :value => channel.configuration[:cid] -%>
+    </p>
+    <p>
+    <%= c.label :bid, 'Billing Level (bid)' -%><br/>
+    <%= c.text_field :bid, :value => channel.configuration[:bid] -%>
+    </p>
+  <%- end -%>
+  <%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>
+  <%= render 'edit_ao_rules', :f => f -%>
+  <%= render 'edit_at_rules', :f => f -%>
+  <%= f.submit -%>
+<%- end -%>

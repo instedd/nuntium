@@ -6,8 +6,8 @@ class AccountTest < ActiveSupport::TestCase
 
   def setup
     @account = Account.make
-    @app = Application.make :account => @account
-    @chan = Channel.make :account => @account
+    @app = @account.applications.make
+    @chan = @account.channels.make
   end
 
   [:name, :password].each do |field|
@@ -84,7 +84,7 @@ class AccountTest < ActiveSupport::TestCase
     previous_date = (Time.now - 10)
     msg = ATMessage.make_unsaved
 
-    AddressSource.create! :address => msg.from, :account_id => @account.id, :application_id => @app.id, :channel_id => @chan.id, :updated_at => previous_date
+    @account.address_sources.create! :address => msg.from, :application_id => @app.id, :channel_id => @chan.id, :updated_at => previous_date
 
     @account.route_at msg, @chan
 
@@ -99,7 +99,7 @@ class AccountTest < ActiveSupport::TestCase
   end
 
    test "route at saves many last channels" do
-    chan2 = Channel.make :account => @account
+    chan2 = @account.channels.make
 
     msg1 = ATMessage.make_unsaved :from => 'sms://1234'
     @account.route_at msg1, @chan
@@ -163,7 +163,7 @@ class AccountTest < ActiveSupport::TestCase
   end
 
   test "apply app routing" do
-    app2 = Application.make :account => @account
+    app2 = @account.applications.make
 
     @account.app_routing_rules = [
       rule([matching('subject', OP_EQUALS, 'one')], [action('application', @app.name)]),
@@ -182,7 +182,7 @@ class AccountTest < ActiveSupport::TestCase
   end
 
   test "skip app routing if message has an application property already" do
-    app2 = Application.make :account => @account
+    app2 = @account.applications.make
 
     @account.app_routing_rules = [
       rule([], [action('application', app2.name)])
@@ -206,7 +206,7 @@ class AccountTest < ActiveSupport::TestCase
   end
 
   test "at routing routes to channel's application" do
-    app2 = Application.make :account => @account
+    app2 = @account.applications.make
     @chan.application_id = app2.id
     @chan.save!
 
@@ -217,7 +217,7 @@ class AccountTest < ActiveSupport::TestCase
   end
 
   test "at routing routes to channel's application overriding custom attribute" do
-    app2 = Application.make :account => @account
+    app2 = @account.applications.make
     @chan.application_id = app2.id
     @chan.save!
 

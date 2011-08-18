@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'test_helper'
 require 'smpp'
 
@@ -91,7 +92,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     msg = AOMessage.find_by_id msg.id
     assert_equal state, msg.state
 
-    logs = AccountLog.all
+    logs = Log.all
     assert_equal 1, logs.length
 
     if optional_parameters[:message_state]
@@ -331,9 +332,9 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
     @delegate.delivery_report_received @transceiver, pdu
 
-    count = AccountLog.count
+    count = Log.count
     @delegate.delivery_report_received @transceiver, pdu
-    assert_equal count, AccountLog.count
+    assert_equal count, Log.count
   end
 
   test "message accepted with delivery report digicel" do

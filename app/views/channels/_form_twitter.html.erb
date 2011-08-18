@@ -1,0 +1,64 @@
+<%- if Nuntium::TwitterConsumerConfig.nil? -%>
+  <%= render 'twitter_configuration_missing' -%>
+<%- else -%>
+  <%= form_for channel, :url => create_twitter_channel_path do |f| -%>
+    <%= f.error_messages -%>
+    <%= f.hidden_field :kind, :value => channel.kind %>
+    <%= f.hidden_field :direction, :value => Channel::Bidirectional -%>
+    <%= render 'channels/edit_name', :f => f -%>
+    <%= render 'channels/edit_protocol', :f => f, :default => 'twitter' -%>
+    <%= render 'channels/edit_priority', :f => f -%>
+    <%= render 'channels/edit_application', :f => f -%>
+    <%= f.fields_for :configuration do |c| -%>
+      <%- if channel.persisted? -%>
+        <p>
+          <%= c.label :screen_name -%><br/>
+          <%= c.text_field :screen_name, :value => channel.configuration[:screen_name], :readonly => 'readonly' -%>
+        </p>
+      <%- end -%>
+      <p>
+      Welcome message for new followers (leave blank if not desired)<br/>
+      <%= c.text_field :welcome_message, :value => channel.configuration[:welcome_message], :id => 'twitter_welcome_message' -%>
+      </p>
+    <%- end -%>
+    <%= render 'channels/edit_costs', :f => f -%>
+    <%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>
+    <%= render 'channels/edit_ao_rules', :f => f -%>
+    <%= render 'channels/edit_at_rules', :f => f -%>
+    <%- if channel.new_record? -%>
+      <p>
+      After clicking "Create Channel" you'll be prompted to login with a Twitter account
+      to authorize access to nuntium.
+      </p>
+      <%= f.submit -%>
+    <%- else -%>
+      <button onclick="twitter_channel_update()">Update channel</button>
+      or
+      <button onclick="twitter_channel_update_user()">Update channel and also change Twitter account</button>
+    <%- end -%>
+  <%- end -%>
+
+  <%- if channel.persisted? -%>
+    <script>
+    function twitter_channel_update() {
+      var f = document.getElementById('edit_channel_<%= channel.id %>');
+      f.action = '<%= channel_path(channel) -%>';
+      f.submit();
+    }
+
+    function twitter_channel_update_user() {
+      var f = document.getElementById('edit_channel_<%= channel.id %>');
+      f.action = '<%= update_twitter_channel_path(:id => channel.id) -%>';
+      f.submit();
+    }
+
+    document.getElementById('twitter_welcome_message').onkeydown = function(e) {
+      if (e.keyCode == 13) {
+        twitter_channel_update();
+        return false;
+      }
+      return true;
+    };
+    </script>
+  <%- end -%>
+<%- end -%>

@@ -38,8 +38,8 @@ end
 <%-
 # Write the applications in javascript so we can fill the combobox without
 # going to the server...
-applications = @account.applications.map(&:name).sort!
-channels = @account.channels.map(&:name).sort!
+applications = account.applications.map(&:name).sort!
+channels = account.channels.map(&:name).sort!
 countries = Country.all
 carriers = Carrier.all_with_countries
 -%>

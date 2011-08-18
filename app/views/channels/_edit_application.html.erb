@@ -1,5 +1,5 @@
 <%-
-apps = @account.applications.map{|x| [x.name, x.id]}
+apps = applications.map{|x| [x.name, x.id]}
 apps.insert 0, ['(none)', '']
 -%>
 <p>

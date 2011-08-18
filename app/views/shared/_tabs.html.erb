@@ -1,6 +1,6 @@
 <ul id="tabs">
   <%-
-    selected_tab = @selected_tab || params[:action].to_sym
+    #selected_tab = @selected_tab || params[:action].to_sym
     [
       ['Applications', :applications],
       ['Channels', :channels],
@@ -12,7 +12,7 @@
       ['Visualizations', :visualizations]
     ].each do |name, action|
     -%>
-    <li<%= (selected_tab == action ? ' class="selected"' : '').html_safe %>><%= link_to name, :controller => :home, :action => action -%></li>
+  <li<%= (params[:controller].to_sym == action ? ' class="selected"' : '').html_safe %>><%= link_to name, eval("#{action}_path") -%></li>
     <%-
   end
   -%>

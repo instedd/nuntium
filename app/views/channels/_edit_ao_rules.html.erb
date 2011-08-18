@@ -9,6 +9,6 @@ These rules will be executed when an AO message is routed to this channel.
 
 <script type="text/javascript">
 jQuery(function(){
-	init_rules(jQuery('.aorules'), 'aorules', <%= @channel.ao_rules.to_json.html_safe -%>);
+	init_rules(jQuery('.aorules'), 'aorules', <%= channel.ao_rules.to_json.html_safe -%>);
 });
 </script>

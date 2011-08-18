@@ -50,7 +50,7 @@ class IpopControllerTest < ActionController::TestCase
     msg.reload
     assert_equal 'confirmed', msg.state
 
-    logs = AccountLog.all
+    logs = Log.all
     assert_equal 1, logs.length
     assert_equal msg.id, logs[0].ao_message_id
     assert_equal @chan.id, logs[0].channel_id
@@ -73,7 +73,7 @@ class IpopControllerTest < ActionController::TestCase
     msg.reload
     assert_equal 'failed', msg.state
 
-    logs = AccountLog.all
+    logs = Log.all
     assert_equal 1, logs.length
     assert_equal msg.id, logs[0].ao_message_id
     assert_equal @chan.id, logs[0].channel_id

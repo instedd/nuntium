@@ -1,10 +1,9 @@
-class CustomAttributesController < AccountAuthenticatedController
-  before_filter :check_login
+class CustomAttributesController < ApplicationController
   include CustomAttributesControllerCommon
 
   # GET /custom_attributes
   def index
-    @custom_attributes = @account.custom_attributes.order(:address)
+    @custom_attributes = account.custom_attributes.order :address
 
     @search = params[:search]
     @custom_attributes = @custom_attributes.search @search if @search.present?
@@ -14,12 +13,11 @@ class CustomAttributesController < AccountAuthenticatedController
   # GET /custom_attributes/new
   def new
     @custom_attribute = CustomAttribute.new :custom_attributes => {}
-    render :edit
   end
 
   # GET /custom_attributes/1/edit
   def edit
-    @custom_attribute = @account.custom_attributes.find params[:id]
+    @custom_attribute = account.custom_attributes.find params[:id]
     @custom_attribute[:custom_attributes] ||= {}
   end
 
@@ -29,37 +27,35 @@ class CustomAttributesController < AccountAuthenticatedController
       :address => params[:custom_attribute][:address],
       :custom_attributes => get_custom_attributes
     }
-    @custom_attribute = @account.custom_attributes.new attrs
+    @custom_attribute = account.custom_attributes.new attrs
 
     if @custom_attribute.save
-      flash[:notice] = 'CustomAttribute was successfully created.'
-      redirect_to :action => :index
+      redirect_to custom_attributes_path, :notice => 'CustomAttribute was successfully created.'
     else
-      render :action => :edit
+      render :new
     end
   end
 
   # PUT /custom_attributes/1
   def update
-    @custom_attribute = @account.custom_attributes.find(params[:id])
+    @custom_attribute = account.custom_attributes.find(params[:id])
     attrs = {
       :address => params[:custom_attribute][:address],
       :custom_attributes => get_custom_attributes
     }
 
-    if @custom_attribute.update_attributes(attrs)
-      flash[:notice] = 'CustomAttribute was successfully updated.'
-      redirect_to :action => :index
+    if @custom_attribute.update_attributes attrs
+      redirect_to custom_attributes_path, :notice => 'CustomAttribute was successfully updated.'
     else
-      render :action => "edit"
+      render :edit
     end
   end
 
   # DELETE /custom_attributes/1
   def destroy
-    @custom_attribute = @account.custom_attributes.find(params[:id])
+    @custom_attribute = account.custom_attributes.find params[:id]
     @custom_attribute.destroy
 
-    redirect_to :action => :index
+    redirect_to custom_attributes_path
   end
 end

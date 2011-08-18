@@ -13,7 +13,7 @@ class ReceiveTwitterMessageJob
 
   def perform
     @account = Account.find @account_id
-    @channel = @account.find_channel @channel_id
+    @channel = @account.channels.find_by_id @channel_id
     @config = @channel.configuration
     @status = @channel.twitter_channel_statuses.first
 

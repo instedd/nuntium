@@ -10,7 +10,7 @@ class SendInterfaceCallbackJob
 
   def perform
     @account = Account.find_by_id @account_id
-    @app = @account.find_application @application_id
+    @app = @account.applications.find_by_id @application_id
     @msg = ATMessage.get_message @message_id
     return if @msg.state != 'queued'
 

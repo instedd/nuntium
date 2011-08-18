@@ -1,8 +1,8 @@
 <h4><%= link_to_function title, "toggle('details_#{@msg.guid}')" -%></h4>
 
 <%
-application = @account.find_application msg.application_id
-channel = @account.find_channel msg.channel_id
+application = @account.applications.find_by_id msg.application_id
+channel = @account.channels.find_by_id msg.channel_id
 %>
 <div id="details_<%= msg.guid -%>">
 <table class="table">
@@ -51,7 +51,7 @@ channel = @account.find_channel msg.channel_id
   <% if msg.class == AOMessage && msg.failover_channels.present? %>
     <tr valign="baseline">
       <td><b>Failover channels:</b></td>
-      <td><%= msg.failover_channels.split(',').map{|x| @account.find_channel(x).name rescue ''}.join ', ' -%></td>
+      <td><%= msg.failover_channels.split(',').map{|x| @account.channels.find_by_id(x).name rescue ''}.join ', ' -%></td>
     </tr>
   <% end %>
   <tr valign="baseline">

@@ -53,7 +53,7 @@ class IpopController < ApplicationController
     @account = Account.find_by_id_or_name params[:account_id]
     return head :unauthorized unless @account
 
-    @channel = @account.find_channel params[:channel_name]
+    @channel = @account.channels.find_by_name params[:channel_name]
     return head :unauthorized unless @channel && @channel.kind == 'ipop'
   end
 end

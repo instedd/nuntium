@@ -141,7 +141,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
     @application.reload
     assert_equal 'get', @application.delivery_ack_method
 
-    logs = AccountLog.all
+    logs = Log.all
     assert_equal 1, logs.length
     assert_equal "Received HTTP Bad Request (404) for delivery ack", logs[0].message
     assert_equal @msg.id, logs[0].ao_message_id

@@ -33,7 +33,7 @@ class QstServerChannelHandler < ChannelHandler
           @channel.errors.add(:password, "doesn't match confirmation")
         end
       else
-        @channel.errors.add(:password, "doesnBase64.encode64(Digest::SHA1.digest(salt + Iconv.conv('ucs-2le', 'utf-8', confirm)))'t match confirmation")
+        @channel.errors.add(:password, "doesn't match confirmation")
       end
     end
 
@@ -56,8 +56,16 @@ class QstServerChannelHandler < ChannelHandler
     end
   end
 
+  def before_validation
+    if @channel.configuration[:password].empty?
+      @channel.configuration[:password] = @channel.configuration_was[:password]
+      @channel.configuration[:password_confirmation] = @channel.configuration_was[:password_confirmation]
+      @channel.configuration[:salt] = @channel.configuration_was[:salt]
+    end
+  end
+
   def before_save
-    return if !@channel.configuration[:salt].nil?
+    return if @channel.configuration[:salt]
     @channel.configuration[:salt] = ActiveSupport::SecureRandom.base64(8)
     @channel.configuration[:password] = hash decoded_salt, @channel.configuration[:password]
   end

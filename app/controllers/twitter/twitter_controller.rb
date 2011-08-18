@@ -1,60 +1,29 @@
 require 'twitter'
 
-class TwitterController < AccountAuthenticatedController
-
+class TwitterController < ChannelsController
   include CustomAttributesControllerCommon
   include RulesControllerCommon
 
-  before_filter :check_login
+  before_filter :set_channel_parameters, :only => [:create, :update]
   before_filter :check_twitter_properly_configured
 
-  def create_twitter_channel
-    chan = params[:channel]
-    return redirect_to_home if chan.nil?
-
-    @channel = Channel.new(chan)
-    @channel.account_id = @account.id
-    @channel.kind = params[:kind]
-    @channel.direction = Channel::Bidirectional
-    @channel.restrictions = get_custom_attributes
-    @channel.ao_rules = get_rules :aorules
-    @channel.at_rules = get_rules :atrules
-
-    if !@channel.valid?
-      return render "channel/new_twitter_channel"
+  def create
+    if channel.valid?
+      go_to_twitter
+    else
+      render "channels/new"
     end
-
-    oauth = TwitterChannelHandler.new_oauth
-
-    request_token = oauth.request_token
-
-    session['twitter_token'] = request_token.token
-    session['twitter_secret'] = request_token.secret
-    session['twitter_channel'] = @channel
-
-    redirect_to request_token.authorize_url
   end
 
-  def update_twitter_channel
-    oauth = TwitterChannelHandler.new_oauth
-
-    request_token = oauth.request_token
-
-    session['twitter_token'] = request_token.token
-    session['twitter_secret'] = request_token.secret
-
-    chan = params[:channel]
-    @channel = @account.find_channel params[:id]
-    @channel.handler.update(chan)
-    @channel.restrictions = get_custom_attributes
-    @channel.ao_rules = get_rules :aorules
-    @channel.at_rules = get_rules :atrules
-    session['twitter_channel'] = @channel
-
-    redirect_to request_token.authorize_url
+  def update
+    if channel.valid?
+      go_to_twitter
+    else
+      render "channels/edit"
+    end
   end
 
-  def twitter_callback
+  def callback
     oauth = TwitterChannelHandler.new_oauth
     oauth.authorize_from_request(session['twitter_token'], session['twitter_secret'], params[:oauth_verifier])
     profile = Twitter::Base.new(oauth).verify_credentials
@@ -76,12 +45,12 @@ class TwitterController < AccountAuthenticatedController
     else
       flash[:notice] = "Channel #{@channel.name} couldn't be saved"
     end
-    redirect_to :controller => :home, :action => :channels
+    redirect_to channels_path
   end
 
   def view_rate_limit_status
     id = params[:id]
-    @channel = @account.find_channel id
+    @channel = @account.channels.find_by_id id
     if @channel.nil? || @channel.account_id != @account.id || @channel.kind != 'twitter'
       return redirect_to_home
     end
@@ -90,6 +59,18 @@ class TwitterController < AccountAuthenticatedController
   end
 
   protected
+
+  def go_to_twitter
+    oauth = TwitterChannelHandler.new_oauth
+
+    request_token = oauth.request_token
+
+    session['twitter_token'] = request_token.token
+    session['twitter_secret'] = request_token.secret
+    session['twitter_channel'] = channel
+
+    redirect_to request_token.authorize_url
+  end
 
   def check_twitter_properly_configured
     return redirect_to_home if Nuntium::TwitterConsumerConfig.nil?

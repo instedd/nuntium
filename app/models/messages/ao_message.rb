@@ -2,7 +2,7 @@ class AOMessage < ActiveRecord::Base
   belongs_to :account
   belongs_to :application
   belongs_to :channel
-  has_many :logs, :class_name => 'AccountLog'
+  has_many :logs
   has_many :children, :foreign_key => 'parent_id', :class_name => 'AOMessage'
 
   validates_presence_of :account
@@ -10,7 +10,6 @@ class AOMessage < ActiveRecord::Base
   serialize :original, Hash
 
   after_save :send_delivery_ack
-  after_save :update_queued_ao_messages_count
   before_save :route_failover
 
   include MessageCommon
@@ -71,24 +70,12 @@ class AOMessage < ActiveRecord::Base
     true
   end
 
-  def update_queued_ao_messages_count
-    if channel_id
-      if state_was != 'queued' && state == 'queued'
-        found = Rails.cache.increment Channel.queued_ao_messages_count_cache_key(channel_id)
-        Channel.initialize_queued_ao_messages_count channel_id unless found
-      elsif state_was == 'queued' && state != 'queued'
-        found = Rails.cache.decrement Channel.queued_ao_messages_count_cache_key(channel_id)
-        Channel.initialize_queued_ao_messages_count channel_id unless found
-      end
-    end
-  end
-
   def route_failover
     return unless state_was != 'failed' && state == 'failed'
     return unless self.failover_channels.present?
 
     chans = self.failover_channels.split(',')
-    chan = account.find_channel chans[0]
+    chan = account.channels.find_by_id chans[0]
 
     self.failover_channels = chans[1 .. -1].join(',')
     self.failover_channels = nil if self.failover_channels.empty?

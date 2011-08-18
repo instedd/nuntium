@@ -201,7 +201,7 @@ class HomeController < AccountAuthenticatedController
   end
 
   def check_application
-    @application = @account.find_application params[:id]
+    @application = @account.applications.find_by_id params[:id]
     redirect_to_home if @application.nil?
   end
 

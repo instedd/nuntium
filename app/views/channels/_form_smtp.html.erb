@@ -1,0 +1,14 @@
+<%= form_for channel do |f| -%>
+  <%= f.error_messages -%>
+  <%= f.hidden_field :kind, :value => channel.kind %>
+  <%= f.hidden_field :direction, :value => Channel::Outgoing -%>
+  <%= render 'edit_name', :f => f -%>
+  <%= render 'edit_protocol', :f => f, :default => 'mailto' -%>
+  <%= render 'edit_priority', :f => f -%>
+  <%= render 'edit_application', :f => f -%>
+  <%= render 'edit_mail_configuration', :f => f -%>
+  <%= render 'edit_costs', :f => f, :hide_at => true -%>
+  <%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>
+  <%= render 'edit_ao_rules', :f => f -%>
+  <%= f.submit -%>
+<%- end -%>

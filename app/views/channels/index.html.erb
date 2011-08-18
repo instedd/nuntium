@@ -1,0 +1,81 @@
+<p>
+A channel lets Nuntium communicate with the world.<br/>
+By "the world" we mean anything that's not your particular application. For example: cellphone companies, email clients and twitter. <a href="http://code.google.com/p/nuntium/wiki/Channels" target="_blank">Learn more...</a>
+</p>
+
+<table class="table" cellspacing="4" id="channels" width="100%">
+  <tr>
+    <td colspan="7" style="background:white"><%= render :partial => 'shared/create_channel' -%></td>
+    <%- unless channels.empty? -%>
+      <%
+      channel_kinds = [['All', '']] + Channel.kinds
+      channel_kinds.map!{|x| x[0] << ' channels'; x}
+      channel_kinds = channel_kinds.select{|x| x[1] == '' || channels.any?{|c| c.kind == x[1]}}
+      -%>
+      <%- if channel_kinds.length > 2 -%>
+        <td colspan="3" align="right" style="background:white">Show:
+          <%= select_tag('kind', options_for_select(channel_kinds), :onchange => 'filter_channels_by_kind(this)') -%>
+        </td>
+      <%- end -%>
+    <%- end -%>
+  </tr>
+  <%- unless channels.empty? -%>
+    <tr>
+      <th>Name</th>
+      <th>Kind</th>
+      <th>Direction</th>
+      <th>Protocol</th>
+      <th>Info</th>
+      <th>Priority</th>
+      <th>Application</th>
+      <th>Queued AO Messages</th>
+      <th></th>
+    </tr>
+    <%- channels.each_with_index do |chan, i| -%>
+      <tr class="<%= i.even_to_s -%>" id="chan-<%= chan.id %>">
+        <td>
+          <%- status = chan.paused ? 'paused' : (chan.enabled ? 'enabled' : 'disabled') -%>
+          <%= image_tag "#{status}.png", :size => '16x16', :style => 'position:relative; top:4px', :title => "This channel is #{status}", :class => "img" -%>
+          <%- if chan.has_connection? -%><%= image_tag "#{chan.connected? ? 'connected' : 'disconnected'}.png", :size => '16x16', :style => 'position:relative; top:4px', :title => "This channel is #{chan.connected? ? 'connected' : 'disconnected'}" -%><%- end -%>
+          <b><%= chan.name -%></b></td>
+        <td><%= chan.kind -%></td>
+        <td><%= chan.direction_text -%></td>
+        <td><%= chan.protocol -%></td>
+        <td><%= chan.info.blank? ? '' : chan.info.html_safe -%></td>
+        <td><%= chan.priority -%></td>
+        <td><%= @applications.select{|x| x.id == chan.application_id}.first.name rescue nil -%></td>
+        <%-
+        queued = chan.queued_ao_messages_count
+        if queued > 0
+          -%>
+          <td align="right"><%= link_to queued, ao_messages_path(:search => "channel:#{chan.name} state:queued") -%></td>
+          <%-
+        else
+          -%>
+          <td align="right">0</td>
+          <%-
+        end
+        -%>
+        <td>
+          <%= link_to "view log", logs_path(:search => "channel:#{chan.name}") -%>
+          <%= link_to "view aos", ao_messages_path(:search => "channel:#{chan.name}") -%>
+          <%= link_to "view ats", at_messages_path(:search => "channel:#{chan.name}") -%>
+          <%
+          [
+            ['resume', chan.paused?],
+            ['disable', !chan.paused? && chan.enabled?],
+            ['pause', !chan.paused? && chan.enabled?],
+            ['enable', !chan.paused? && !chan.enabled?]
+          ].each do |name, shown|
+            %>
+            <%= link_to_function name, "#{name}_channel(#{chan.id}, '#{h chan.name}')", :class => name, :style => (shown ? '' : 'display:none') -%>
+            <%
+          end
+          %>
+          <%= link_to "edit", edit_channel_path(chan) -%>
+          <%= link_to "delete", channel_path(chan), :method => :delete, :confirm => "Are you sure you want to delete the channel #{chan.name}?" -%>
+        </td>
+      </tr>
+    <%- end -%>
+  <%- end -%>
+</table>

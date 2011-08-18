@@ -4,7 +4,7 @@ module ChannelQstConfiguration
   end
 
   def channel
-    @channel ||= account.find_channel @channel_id
+    @channel ||= account.channels.find_by_id @channel_id
   end
 
   def get_url_user_and_password

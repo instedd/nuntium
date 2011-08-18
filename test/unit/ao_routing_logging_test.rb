@@ -346,7 +346,7 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
       @msg = AOMessage.make_unsaved :from => 'sms://1', :to => 'sms://1'
       @app.route_ao @msg, 'test', :simulate => simulate
 
-      @log = check_log :simulate => simulate, :severity => AccountLog::Warning
+      @log = check_log :simulate => simulate, :severity => Log::Warning
 
       assert_in_log "Message 'from' and 'to' addresses are the same. The message will be discarded."
     end
@@ -357,7 +357,7 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
       @msg = AOMessage.make_unsaved :to => 'sms://hello'
       @app.route_ao @msg, 'test', :simulate => simulate
 
-      @log = check_log :simulate => simulate, :severity => AccountLog::Warning
+      @log = check_log :simulate => simulate, :severity => Log::Warning
 
       assert_in_log "Message 'to' address is invalid. The message will be discarded."
     end
@@ -384,7 +384,7 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
     if options[:log]
       log = options[:log]
     else
-      logs = AccountLog.all
+      logs = Log.all
       assert_equal 1, logs.length
 
       log = logs[0]
@@ -392,7 +392,7 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
     assert_equal @app.account_id, log.account_id
     assert_equal @app.id, log.application_id
     assert_equal @msg.id, log.ao_message_id
-    assert_equal (options[:severity] || AccountLog::Info), log.severity
+    assert_equal (options[:severity] || Log::Info), log.severity
 
     log
   end

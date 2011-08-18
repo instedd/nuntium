@@ -21,15 +21,15 @@ class Application < ActiveRecord::Base
   serialize :ao_rules
   serialize :at_rules
 
-  before_save :hash_password
+  before_create :hash_password
+  before_validation :reset_password, :if => lambda { persisted? && password.blank? && password_confirmation.blank? }
+  before_update :hash_password, :if => lambda { password.present? && password_changed? }
 
   after_save :handle_tasks
   after_create :create_worker_queue
   after_save :bind_queue
 
-  before_destroy :clear_cache
   before_destroy :delete_worker_queue
-  after_save :clear_cache
 
   after_save :restart_channel_processes
 
@@ -309,15 +309,6 @@ class Application < ActiveRecord::Base
     return channels
   end
 
-  def self.find_all_by_account_id(account_id)
-    apps = Rails.cache.read cache_key(account_id)
-    if not apps
-      apps = Application.where(:account_id => account_id).all
-      Rails.cache.write cache_key(account_id), apps
-    end
-    apps
-  end
-
   def configuration
     self[:configuration] = {} if self[:configuration].nil?
     self[:configuration]
@@ -416,7 +407,7 @@ class Application < ActiveRecord::Base
   end
 
   def logger
-    @logger ||= AccountLogger.new(self.account.id, self.id)
+    @logger ||= AccountLogger.new self.account.id, self.id
   end
 
   protected
@@ -489,24 +480,18 @@ class Application < ActiveRecord::Base
     chosen_channel
   end
 
-  def hash_password
-    return if self.salt.present?
+  def reset_password
+    self.password = self.password_was
+    self.password_confirmation = self.password
+  end
 
+  def hash_password
     self.salt = ActiveSupport::SecureRandom.base64(8)
     self.password = Digest::SHA2.hexdigest(self.salt + self.password) if self.password
     self.password_confirmation = Digest::SHA2.hexdigest(self.salt + self.password_confirmation) if self.password_confirmation
   end
 
-  def clear_cache
-    Rails.cache.delete Application.cache_key(account_id)
-    true
-  end
-
   def restart_channel_processes
     account.restart_channel_processes
-  end
-
-  def self.cache_key(account_id)
-    "account_#{account_id}_applications"
   end
 end

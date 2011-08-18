@@ -26,6 +26,8 @@ gem 'blather', '0.4.15'
 gem 'dynamic_form'
 gem 'ci_reporter'
 gem 'daemons'
+gem 'decent_exposure'
+gem 'jquery-rails', '>= 1.0.12'
 
 group :test do
   gem 'test-unit', :require => 'test/unit'

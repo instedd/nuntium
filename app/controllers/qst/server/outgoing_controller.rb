@@ -64,8 +64,6 @@ class OutgoingController < QSTServerController
 
     @ao_messages.sort!{|x,y| x.timestamp <=> y.timestamp}
 
-    @channel.invalidate_queued_ao_messages_count
-
     response.headers['Etag'] = @ao_messages.last.id.to_s if @ao_messages.present?
     response.headers["Content-Type"] = "application/xml; charset=utf-8"
     render :text => AOMessage.write_xml(@ao_messages)

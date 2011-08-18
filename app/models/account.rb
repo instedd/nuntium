@@ -7,7 +7,7 @@ class Account < ActiveRecord::Base
   has_many :ao_messages, :class_name => 'AOMessage'
   has_many :at_messages, :class_name => 'ATMessage'
   has_many :custom_attributes
-  has_many :logs, :class_name => 'AccountLog'
+  has_many :logs
 
   serialize :app_routing_rules
 
@@ -27,24 +27,8 @@ class Account < ActiveRecord::Base
     account
   end
 
-  def channels
-    Channel.find_all_by_account_id id
-  end
-
-  def find_channel(id_or_name)
-    channels.select{|c| c.id == id_or_name.to_i || c.name == id_or_name}.first
-  end
-
   def authenticate(password)
     self.password == Digest::SHA2.hexdigest(self.salt + password)
-  end
-
-  def applications
-    Application.find_all_by_account_id id
-  end
-
-  def find_application(id_or_name)
-    applications.select{|c| c.id == id_or_name.to_i || c.name == id_or_name}.first
   end
 
   # Routes an ATMessage via a channel.
@@ -76,7 +60,7 @@ class Account < ActiveRecord::Base
     end
 
     # Fill custom attributes specified by sender
-    custom_attributes = CustomAttribute.find_by_account_id_and_address self.id, msg.from
+    custom_attributes = self.custom_attributes.find_by_address msg.from
     if custom_attributes
       ThreadLocalLogger << "Setting custom attributes specified for this user (#{custom_attributes.custom_attributes.to_human})"
       msg.custom_attributes.merge! custom_attributes.custom_attributes
@@ -84,7 +68,7 @@ class Account < ActiveRecord::Base
 
     # Set application custom attribute if the channel belongs to an application
     if via_channel.application_id
-      msg.custom_attributes['application'] = find_application(via_channel.application_id).name rescue nil
+      msg.custom_attributes['application'] = applications.find_by_id(via_channel.application_id).name rescue nil
       if msg.custom_attributes['application']
         ThreadLocalLogger << "Message's application set to '#{msg.custom_attributes['application']}' because the channel belongs to it"
       end
@@ -138,7 +122,7 @@ class Account < ActiveRecord::Base
       end
 
       if dest_application_name
-        application = find_application dest_application_name
+        application = applications.find_by_name dest_application_name
         if application
           application.route_at(msg, via_channel, options)
 
@@ -168,13 +152,7 @@ class Account < ActiveRecord::Base
   end
 
   def logger
-    @logger ||= AccountLogger.new(self.id)
-  end
-
-  def clear_password
-    self.salt = nil
-    self.password = nil
-    self.password_confirmation = nil
+    @logger ||= AccountLogger.new self.id
   end
 
   def restart_channel_processes

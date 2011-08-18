@@ -1,7 +1,7 @@
 class ApiTwitterChannelController < ApiAuthenticatedController
 
   def friendship_create
-    channel = @account.find_channel params[:name]
+    channel = @account.channels.find_by_name params[:name]
 
     return head :not_found unless channel
     return head :forbidden if @application && !channel.application_id

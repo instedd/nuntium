@@ -23,6 +23,7 @@ class Channel < ActiveRecord::Base
   serialize :at_rules
 
   attr_accessor :ticket_code, :ticket_message
+  attr_accessor :throttle_opt
 
   validates_presence_of :name, :protocol, :kind, :account
   validates_format_of :name, :with => /^[a-zA-Z0-9\-_]+$/, :message => "can only contain alphanumeric characters, '_' or '-' (no spaces allowed)", :unless => proc {|c| c.name.blank?}
@@ -36,18 +37,18 @@ class Channel < ActiveRecord::Base
   after_create :ticket_mark_as_complete
 
   validate :handler_check_valid
+  before_validation :handler_before_validation
   before_save :handler_before_save
   after_create :handler_after_create
   after_update :handler_after_update
   before_destroy :handler_before_destroy
 
-  before_destroy :clear_cache
-  after_save :clear_cache
+  scope :enabled, where(:enabled => true)
+  scope :disabled, where(:enabled => false)
+  scope :outgoing, where(:direction => [Outgoing, Bidirectional])
+  scope :incoming, where(:direction => [Outgoing, Bidirectional])
 
-  before_destroy :clear_queued_ao_messages_count_cache
-  after_save :initialize_queued_ao_messages_count_cache
-
-  include(CronTask::CronTaskOwner)
+  include CronTask::CronTaskOwner
 
   def self.kinds
     @@kinds ||= begin
@@ -164,15 +165,6 @@ class Channel < ActiveRecord::Base
     end
 
     return true
-  end
-
-  def self.find_all_by_account_id(account_id)
-    channels = Rails.cache.read cache_key(account_id)
-    if not channels
-      channels = Channel.where(:account_id => account_id).all
-      Rails.cache.write cache_key(account_id), channels
-    end
-    channels
   end
 
   def is_outgoing?
@@ -353,28 +345,12 @@ class Channel < ActiveRecord::Base
     end
   end
 
-  def queued_ao_messages_count
-    count = Rails.cache.read Channel.queued_ao_messages_count_cache_key(id), :raw => true
-    count = Channel.initialize_queued_ao_messages_count(id) unless count
-    count.to_i
-  end
-
-  def self.initialize_queued_ao_messages_count(channel_id)
-    count = AOMessage.with_state('queued').where(:channel_id => channel_id).count
-    Rails.cache.write Channel.queued_ao_messages_count_cache_key(channel_id), count, :raw => true
-    count
-  end
-
-  def self.queued_ao_messages_count_cache_key(channel_id)
-    "channel.#{channel_id}.queued_ao_messages_count"
-  end
-
-  def invalidate_queued_ao_messages_count
-    Rails.cache.delete Channel.queued_ao_messages_count_cache_key(id)
-  end
-
   def has_connection?
     self.handler.has_connection?
+  end
+
+  def queued_ao_messages_count
+    ao_messages.with_state('queued').count
   end
 
   private
@@ -401,6 +377,11 @@ class Channel < ActiveRecord::Base
     if !@check_valid_in_ui.nil? and @check_valid_in_ui
       self.handler.check_valid_in_ui if self.handler.respond_to?(:check_valid_in_ui)
     end
+  end
+
+  def handler_before_validation
+    self.handler.before_validation
+    true
   end
 
   def handler_before_save
@@ -436,24 +417,6 @@ class Channel < ActiveRecord::Base
   def handler_before_destroy
     self.handler.on_destroy
     true
-  end
-
-  def clear_cache
-    Rails.cache.delete Channel.cache_key(account_id)
-    true
-  end
-
-  def clear_queued_ao_messages_count_cache
-    Rails.cache.delete Channel.queued_ao_messages_count_cache_key(id)
-    true
-  end
-
-  def initialize_queued_ao_messages_count_cache
-    Rails.cache.write(Channel.queued_ao_messages_count_cache_key(id), 0, :raw => true) unless id_was
-  end
-
-  def self.cache_key(account_id)
-    "account_#{account_id}_channels"
   end
 
   def common_to_x_attributes

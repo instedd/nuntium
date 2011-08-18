@@ -172,7 +172,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "no application was determined simulate = #{simulate}" do
-      app2 = Application.make :account_id => @app.account_id
+      app2 = @app.account.applications.make
 
       @msg = ATMessage.make_unsaved
       @account.route_at @msg, @channel, :simulate => simulate
@@ -204,7 +204,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "account at rules app not found simulate = #{simulate}" do
-      app2 = Application.make :account_id => @app.account_id
+      app2 = @app.account.applications.make
 
       @account.app_routing_rules= [
           rule(nil,[action('application','foobar')])
@@ -220,7 +220,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "account at rules app found simulate = #{simulate}" do
-      app2 = Application.make :account_id => @app.account_id
+      app2 = @app.account.applications.make
 
       @account.app_routing_rules= [
           rule(nil,[action('application',@app.name)])
@@ -239,7 +239,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     test "address source created simulate = #{simulate}" do
       @msg = ATMessage.make_unsaved
 
-      AddressSource.create!(:account_id => @account.id, :application_id => @app.id, :address => @msg.from, :channel_id => @channel.id)
+      @account.address_sources.create! :application_id => @app.id, :address => @msg.from, :channel_id => @channel.id
 
       @account.route_at @msg, @channel, :simulate => simulate
 
@@ -270,14 +270,14 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
       return log
     end
 
-    logs = AccountLog.all
+    logs = Log.all
     assert_equal 1, logs.length
 
     log = logs[0]
     assert_equal @account.id, log.account_id
     assert_equal @channel.id, log.channel_id
     assert_equal @msg.id, log.at_message_id
-    assert_equal AccountLog::Info, log.severity
+    assert_equal Log::Info, log.severity
 
     log
   end

@@ -20,7 +20,7 @@ class MessageController < AccountAuthenticatedController
   def create_ao_message
     msg = create_message AOMessage
 
-    application = @account.find_application params[:message][:application_id]
+    application = @account.applications.find_by_id params[:message][:application_id]
     return redirect_to :controller => :home, :action => :ao_messages unless application
 
     application.route_ao msg, 'user'
@@ -33,7 +33,7 @@ class MessageController < AccountAuthenticatedController
     msg = create_message ATMessage
     msg.timestamp = Time.new.utc
 
-    channel = @account.find_channel params[:message][:channel_id]
+    channel = @account.channels.find_by_id params[:message][:channel_id]
     @account.route_at msg, channel
 
     flash[:notice] = "AT Message was created with id #{msg.id} <a href=\"/message/at/#{msg.id}\" target=\"_blank\">view log</a> <a href=\"/message/thread?address=#{msg.from}\" target=\"_blank\">view thread</a>"
@@ -43,7 +43,7 @@ class MessageController < AccountAuthenticatedController
   def simulate_route_ao
     @msg = create_message AOMessage
 
-    application = @account.find_application params[:message][:application_id]
+    application = @account.applications.find_by_id params[:message][:application_id]
     return redirect_to :controller => :home, :action => :ao_messages unless application
 
     result = application.route_ao @msg, 'ui', :simulate => true
@@ -60,7 +60,7 @@ class MessageController < AccountAuthenticatedController
   def simulate_route_at
     @msg = create_message ATMessage
 
-    channel = @account.find_channel params[:message][:channel_id]
+    channel = @account.channels.find_by_id params[:message][:channel_id]
     @log = @account.route_at @msg, channel, :simulate => true
     @hide_title = true
   end
@@ -140,7 +140,7 @@ class MessageController < AccountAuthenticatedController
     @msg = AOMessage.find_by_id @id
     return redirect_to :controller => :home, :action => :ao_messages if @msg.nil? || @msg.account_id != @account.id
     @hide_title = true
-    @logs = AccountLog.find_all_by_account_id_and_ao_message_id(@account.id, @id, :order => :created_at)
+    @logs = @account.logs.find_all_by_ao_message_id(@id).order(:created_at).all
     @kind = 'ao'
     render "message.html.erb"
   end
@@ -150,16 +150,12 @@ class MessageController < AccountAuthenticatedController
     @msg = ATMessage.find_by_id @id
     return redirect_to :controller => :home, :action => :at_messages if @msg.nil? || @msg.account_id != @account.id
     @hide_title = true
-    @logs = AccountLog.find_all_by_account_id_and_at_message_id(@account.id, @id, :order => :created_at)
+    @logs = @account.logs..find_all_by_at_message_id(@id).order(:created_at).all
     @kind = 'at'
     render "message.html.erb"
   end
 
   def view_thread
-    def esc(name)
-      ActiveRecord::Base.connection.quote_column_name(name)
-    end
-
     @address = params[:address]
     @page = (params[:page] || '1').to_i
     @hide_title = true

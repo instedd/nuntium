@@ -18,7 +18,7 @@ class SendMessageJob
       return true if @msg.state != 'queued'
 
       @account = Account.find_by_id @account_id
-      @channel = @account.find_channel @channel_id
+      @channel = @account.channels.find_by_id @channel_id
       @config = @channel.configuration
 
       @msg.tries += 1

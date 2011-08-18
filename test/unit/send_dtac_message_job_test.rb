@@ -40,7 +40,7 @@ class SendDtacMessageJobTest < ActiveSupport::TestCase
     assert_equal 1, msg.tries
     assert_equal 'failed', msg.state
 
-    logs = AccountLog.all
+    logs = Log.all
     assert_equal 1, logs.length
     assert_true logs[0].message.include?('111. Message length exceed 1000 characters: The length of parameter "Msg" is over than 1000 characters')
 

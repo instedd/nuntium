@@ -31,7 +31,7 @@ END_OF_MESSAGE
 
     msgs = ATMessage.all
     assert_equal 0, msgs.length
-    assert_equal 0, AccountLog.count
+    assert_equal 0, Log.count
   end
 
   should "perform with one" do

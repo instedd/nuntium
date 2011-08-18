@@ -2,8 +2,7 @@ class ApiChannelController < ApiAuthenticatedController
 
   # GET /api/channels.:format
   def index
-    channels = @account.channels
-    channels = channels.select{|c| c.application_id.nil? || c.application_id == @application.id}
+    channels = @account.channels.where('application_id = ? OR application_id IS NULL', @application.id).all
     channels.each do |c|
       c.account = @account
       c.application = @application if c.application_id
@@ -14,7 +13,7 @@ class ApiChannelController < ApiAuthenticatedController
 
   # GET /api/channels/:name.:format
   def show
-    chan = @account.find_channel params[:name]
+    chan = @account.channels.find_by_name params[:name]
 
     return head :not_found unless chan
 
@@ -34,16 +33,14 @@ class ApiChannelController < ApiAuthenticatedController
       chan.application = @application
     else
       app_name = data[:application] || (data[:channel] && data[:channel][:application])
-      if app_name
-        chan.application = @account.find_application app_name
-      end
+      chan.application = @account.applications.find_by_name app_name if app_name
     end
     save chan, 'creating'
   end
 
   # PUT /api/channels/:name.:format
   def update
-    chan = @account.find_channel params[:name]
+    chan = @account.channels.find_by_name params[:name]
 
     return head :not_found unless chan
     return head :forbidden if @application && !chan.application_id
@@ -58,14 +55,14 @@ class ApiChannelController < ApiAuthenticatedController
 
     new_app_name = data[:application] || (data[:channel] && data[:channel][:application])
     if new_app_name
-      chan.application = @account.find_application new_app_name
+      chan.application = @account.applications.find_name new_app_name
     end
     save chan, 'updating'
   end
 
   # DELETE /api/channels/:name
   def destroy
-    chan = @account.find_channel params[:name]
+    chan = @account.channels.find_by_name params[:name]
 
     return head :not_found unless chan
     return head :forbidden if @application && !chan.application_id

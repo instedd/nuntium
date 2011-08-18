@@ -1,6 +1,6 @@
 # Just leave this "as is" if you don't plan to use twitter for development
 # callback_url should have the protocol and port prepended to it
-# (like http://nuntium.domain.com/twitter_callback)
+# (like http://nuntium.domain.com/twitter/callback)
 token: Copy "Consumer key" from http://twitter.com/oauth_clients
 secret: Copy "Consumer secret" from http://twitter.com/oauth_clients
-callback_url: /twitter_callback
+callback_url: /twitter/callback

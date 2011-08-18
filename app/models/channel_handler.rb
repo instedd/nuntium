@@ -40,6 +40,9 @@ class ChannelHandler
     @channel.attributes = params
   end
 
+  def before_validation
+  end
+
   def before_save
   end
 

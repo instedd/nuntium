@@ -20,7 +20,6 @@ class PushQstChannelMessageJob < AbstractPushQstMessageJob
   end
 
   def save_last_id(last_id)
-    channel.invalidate_queued_ao_messages_count
     channel.configuration[:last_ao_guid] = last_id
     channel.save!
   end

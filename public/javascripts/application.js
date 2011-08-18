@@ -164,7 +164,7 @@ function reroute_ao_messages() {
 
 function create_channel(select) {
   if (!select.value) return;
-  window.location = '/channel/new/' + select.value;
+  window.location = '/channels/new?kind=' + select.value;
   select.value = '';
 }
 
@@ -208,7 +208,7 @@ function change_channel_state(id, name, want_confirm, action, state, paction, to
 
   $.ajax({
     type: "GET",
-    url: '/channel/' + action + '/' + id,
+    url: '/channels/' + id + '/' + action,
     success: function(data) {
       $("#chan-" + id + " .img").attr('src', '/images/' + state + '.png');
       for(var i = 0; i < to_hide.length; i++) {
@@ -244,7 +244,7 @@ function flash(message) {
 // === clickatell ===
 
 function clickatell_channel_direction_changed() {
-  var dir = $('#channel_direction :selected').val();
+  var dir = parseInt($('select#channel_direction').val());
 
   // incoming
   if (dir & 1) {

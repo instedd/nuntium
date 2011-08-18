@@ -6,18 +6,18 @@ class SendSmppMessageJob
     @channel_id = channel_id
     @message_id = message_id
   end
-  
+
   def perform(delegate)
     account = Account.find_by_id @account_id
-    channel = account.find_channel @channel_id
+    channel = account.channels.find_by_id @channel_id
     msg = AOMessage.find @message_id
-    
+
     return false if msg.state != 'queued' or msg.channel_id != @channel_id
-    
+
     from = msg.from.without_protocol
     to = msg.to.without_protocol
     sms = msg.subject_and_body
-    
+
     error = delegate.send_message(msg.id, from, to, sms)
     if error
       msg.send_failed account, channel, error
@@ -26,9 +26,9 @@ class SendSmppMessageJob
       true
     end
   end
-  
+
   def to_s
     "<SendSmppMessageJob:#{@message_id}>"
   end
-  
+
 end

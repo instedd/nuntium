@@ -24,12 +24,10 @@ class ClickatellController < AccountAuthenticatedController
     msg = AOMessage.find_by_channel_id_and_channel_relative_id @channel.id, params[:apiMsgId]
     return head :ok unless msg
 
-    case params[:status].to_i
-    when 4
-      msg.state = 'confirmed'
-    when 5, 6, 7, 12
-      msg.state = 'failed'
-    end
+    msg.state = case params[:status].to_i
+                when 4 then msg.state = 'confirmed'
+                when 5, 6, 7, 12 then msg.state = 'failed'
+                end
 
     unless msg.custom_attributes[:cost]
       cost_per_credit = (@channel.configuration[:cost_per_credit] || '1').to_f
@@ -46,7 +44,7 @@ class ClickatellController < AccountAuthenticatedController
 
   def view_credit
     id = params[:id]
-    @channel = @account.find_channel id
+    @channel = @account.channels.find_by_id id
     return redirect_to_home unless @channel && @channel.kind == 'clickatell'
 
     render :text => @channel.handler.get_credit

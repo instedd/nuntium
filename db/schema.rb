@@ -10,24 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110808172602) do
-
-  create_table "account_logs", :force => true do |t|
-    t.integer  "account_id"
-    t.integer  "channel_id"
-    t.integer  "ao_message_id"
-    t.integer  "at_message_id"
-    t.text     "message"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "severity"
-    t.integer  "application_id"
-  end
-
-  add_index "account_logs", ["account_id", "ao_message_id"], :name => "index_account_logs_on_account_id_and_ao_message_id"
-  add_index "account_logs", ["account_id", "at_message_id"], :name => "index_account_logs_on_account_id_and_at_message_id"
-  add_index "account_logs", ["account_id", "channel_id"], :name => "index_account_logs_on_account_id_and_channel_id"
-  add_index "account_logs", ["account_id", "id"], :name => "index_account_logs_on_account_id_and_id"
+ActiveRecord::Schema.define(:version => 20110818140301) do
 
   create_table "accounts", :force => true do |t|
     t.string   "name"
@@ -201,6 +184,23 @@ ActiveRecord::Schema.define(:version => 20110808172602) do
   end
 
   add_index "custom_attributes", ["account_id", "address"], :name => "index_custom_attributes_on_account_id_and_address", :unique => true
+
+  create_table "logs", :force => true do |t|
+    t.integer  "account_id"
+    t.integer  "channel_id"
+    t.integer  "ao_message_id"
+    t.integer  "at_message_id"
+    t.text     "message"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "severity"
+    t.integer  "application_id"
+  end
+
+  add_index "logs", ["account_id", "ao_message_id"], :name => "index_account_logs_on_account_id_and_ao_message_id"
+  add_index "logs", ["account_id", "at_message_id"], :name => "index_account_logs_on_account_id_and_at_message_id"
+  add_index "logs", ["account_id", "channel_id"], :name => "index_account_logs_on_account_id_and_channel_id"
+  add_index "logs", ["account_id", "id"], :name => "index_account_logs_on_account_id_and_id"
 
   create_table "managed_processes", :force => true do |t|
     t.integer  "account_id"

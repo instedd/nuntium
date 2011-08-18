@@ -41,7 +41,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
     assert_equal 1, msg.tries
     assert_equal 'failed', msg.state
 
-    logs = AccountLog.all
+    logs = Log.all
     assert_equal 1, logs.length
     assert_true logs[0].message.include?('105, Invalid destination address')
 

@@ -14,7 +14,7 @@ class ReceivePop3MessageJob
 
   def perform
     account = Account.find @account_id
-    @channel = account.find_channel @channel_id
+    @channel = account.channels.find_by_id @channel_id
     config = @channel.configuration
     remove_quoted = config[:remove_quoted_text_or_text_after_first_empty_line].to_b
 

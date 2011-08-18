@@ -63,32 +63,32 @@ class AccountLogger
   end
 
   def info(hash_or_message)
-    create(hash_or_message, AccountLog::Info)
+    create(hash_or_message, Log::Info)
   end
 
   def warning(hash_or_message)
-    create(hash_or_message, AccountLog::Warning)
+    create(hash_or_message, Log::Warning)
   end
 
   def error(hash_or_message)
-    create(hash_or_message, AccountLog::Error)
+    create(hash_or_message, Log::Error)
   end
 
   def self.exception_in_channel(channel, exception)
-    logger = AccountLogger.new(channel.account_id)
-    logger.error(:channel_id => channel.id, :message => "#{logger.exception_msg(exception)}")
+    logger = AccountLogger.new channel.account_id
+    logger.error :channel_id => channel.id, :message => "#{logger.exception_msg(exception)}"
   end
 
   def exception_in_channel_and_ao_message(channel, ao_msg, exception)
-    error(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => "Try ##{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' failed: #{exception_msg(exception)}")
+    error :channel_id => channel.id, :ao_message_id => ao_msg.id, :message => "Try ##{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' failed: #{exception_msg(exception)}"
   end
 
   def exception_in_application_and_at_message(application, at_msg, exception)
-    error(:application_id => application.id, :at_message_id => at_msg.id, :message => "Try ##{at_msg.tries} for delivering message to application '#{application.name}' failed: #{exception_msg(exception)}")
+    error :application_id => application.id, :at_message_id => at_msg.id, :message => "Try ##{at_msg.tries} for delivering message to application '#{application.name}' failed: #{exception_msg(exception)}"
   end
 
   def message_channeled(ao_msg, channel)
-    info(:channel_id => channel.id, :ao_message_id => ao_msg.id, :message => "Try ##{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' succeeded")
+    info :channel_id => channel.id, :ao_message_id => ao_msg.id, :message => "Try ##{ao_msg.tries} for delivering message through #{channel.kind} channel '#{channel.name}' succeeded"
   end
 
   def create(hash_or_message, severity)
@@ -99,9 +99,9 @@ class AccountLogger
     now = Time.now.utc.to_s(:db)
     message = (hash_or_message[:message] || "").gsub("'", "''")
 
-    insert = "INSERT INTO account_logs (account_id, application_id, channel_id, ao_message_id, at_message_id, message, severity, created_at, updated_at) VALUES (#{@account_id}, #{@application_id || hash_or_message[:application_id] || "NULL"}, #{hash_or_message[:channel_id] || "NULL"},#{hash_or_message[:ao_message_id] || "NULL"},#{hash_or_message[:at_message_id] || "NULL"},'#{message}',#{severity},'#{now}','#{now}')"
+    insert = "INSERT INTO logs (account_id, application_id, channel_id, ao_message_id, at_message_id, message, severity, created_at, updated_at) VALUES (#{@account_id}, #{@application_id || hash_or_message[:application_id] || "NULL"}, #{hash_or_message[:channel_id] || "NULL"},#{hash_or_message[:ao_message_id] || "NULL"},#{hash_or_message[:at_message_id] || "NULL"},'#{message}',#{severity},'#{now}','#{now}')"
 
-    AccountLog.connection.execute insert
+    Log.connection.execute insert
   end
 
   def exception_msg(exception)

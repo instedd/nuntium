@@ -158,13 +158,13 @@ class AOMessageTest < ActiveSupport::TestCase
   ['failed', 'confirmed', 'delivered'].each do |state|
     test "delivery ack when #{state}" do
       account = Account.make
-      app = Application.make_unsaved :account => account
+      app = account.applications.make_unsaved
       app.delivery_ack_method = 'get'
       app.delivery_ack_url = 'foo'
       app.save!
-      chan = Channel.make :account => account
+      chan = account.channels.make
 
-      msg = AOMessage.make :account => account, :application => app, :channel => chan
+      msg = account.ao_messages.make :application => app, :channel => chan
 
       Queues.expects(:publish_application).with do |a, j|
         a.id == app.id and
@@ -182,13 +182,13 @@ class AOMessageTest < ActiveSupport::TestCase
 
   test "don't delivery ack when queued" do
     account = Account.make
-    app = Application.make_unsaved :account => account
+    app = account.applications.make_unsaved
     app.delivery_ack_method = 'get'
     app.delivery_ack_url = 'foo'
     app.save!
-    chan = Channel.make :account => account
+    chan = account.channels.make
 
-    msg = AOMessage.make :account => account, :application => app, :channel => chan
+    msg = account.ao_messages.make :application => app, :channel => chan
 
     Queues.expects(:publish_application).times(0)
 
@@ -198,12 +198,12 @@ class AOMessageTest < ActiveSupport::TestCase
 
   test "don't delivery ack when method is none" do
     account = Account.make
-    app = Application.make_unsaved :account => account
+    app = account.applications.make_unsaved
     app.delivery_ack_method = 'none'
     app.save!
-    chan = Channel.make :account => account
+    chan = account.channels.make
 
-    msg = AOMessage.make :account => account, :application => app, :channel => chan
+    msg = account.ao_messages.make :application => app, :channel => chan
 
     Queues.expects(:publish_application).times(0)
 
@@ -213,13 +213,13 @@ class AOMessageTest < ActiveSupport::TestCase
 
   test "don't delivery ack when channel is not set" do
     account = Account.make
-    app = Application.make_unsaved :account => account
+    app = account.applications.make_unsaved
     app.delivery_ack_method = 'get'
     app.delivery_ack_url = 'foo'
     app.save!
-    chan = Channel.make :account => account
+    chan = account.channels.make
 
-    msg = AOMessage.make :account => account, :application => app
+    msg = account.ao_messages.make :application => app
 
     Queues.expects(:publish_application).times(0)
 
@@ -229,15 +229,15 @@ class AOMessageTest < ActiveSupport::TestCase
 
   test "delivery ack when changed" do
     account = Account.make
-    app = Application.make_unsaved :account => account
+    app = account.applications.make_unsaved
     app.delivery_ack_method = 'get'
     app.delivery_ack_url = 'foo'
     app.save!
-    chan = Channel.make :account => account
+    chan = account.channels.make
 
     Queues.expects(:publish_application).times(2)
 
-    msg = AOMessage.make :account => account, :application => app, :channel => chan, :state => 'delivered'
+    msg = account.ao_messages.make :application => app, :channel => chan, :state => 'delivered'
 
     msg.custom_attributes[:cost] = '1'
     msg.save!
@@ -245,15 +245,15 @@ class AOMessageTest < ActiveSupport::TestCase
 
   test "don't delivery ack when not changed" do
     account = Account.make
-    app = Application.make_unsaved :account => account
+    app = account.applications.make_unsaved
     app.delivery_ack_method = 'get'
     app.delivery_ack_url = 'foo'
     app.save!
-    chan = Channel.make :account => account
+    chan = account.channels.make
 
     Queues.expects(:publish_application).times(1)
 
-    msg = AOMessage.make :account => account, :application => app, :channel => chan, :state => 'delivered'
+    msg = account.ao_messages.make :application => app, :channel => chan, :state => 'delivered'
 
     msg.save!
   end
