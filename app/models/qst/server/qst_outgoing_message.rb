@@ -1,4 +1,4 @@
-class QSTOutgoingMessage < ActiveRecord::Base
+class QstOutgoingMessage < ActiveRecord::Base
   belongs_to :ao_message
   belongs_to :channel
   validates_presence_of :channel

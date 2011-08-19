@@ -8,7 +8,7 @@ class QstServerChannelHandler < ChannelHandler
   end
 
   def handle(msg)
-    outgoing = QSTOutgoingMessage.new
+    outgoing = QstOutgoingMessage.new
     outgoing.channel_id = @channel.id
     outgoing.ao_message_id = msg.id
     outgoing.save

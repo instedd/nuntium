@@ -186,7 +186,7 @@ class CronTaskTest < ActiveSupport::TestCase
       AtMessage, Carrier, Channel,
       ClickatellCoverageMO, ClickatellMessagePart, Country,
       CronTask, ManagedProcess, MobileNumber,
-      QSTOutgoingMessage, SmppMessagePart,
+      QstOutgoingMessage, SmppMessagePart,
       TwitterChannelStatus, WorkerQueue
     ].each(&:delete_all)
   end

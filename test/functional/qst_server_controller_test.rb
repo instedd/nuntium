@@ -140,7 +140,7 @@ class QstServerControllerTest < ActionController::TestCase
 
   def create_qst_ao(account, channel)
     msg = AoMessage.make :account => account, :channel => channel, :state => 'queued'
-    QSTOutgoingMessage.create! :channel => channel, :ao_message_id => msg.id
+    QstOutgoingMessage.create! :channel => channel, :ao_message_id => msg.id
     msg
   end
 
@@ -164,7 +164,7 @@ class QstServerControllerTest < ActionController::TestCase
     assert_select "message", {:count => 1}
     assert_shows_message msg
 
-    unread = QSTOutgoingMessage.all
+    unread = QstOutgoingMessage.all
     assert_equal 2, unread.length
 
     assert_equal @chan2.id, unread[0].channel_id
@@ -185,7 +185,7 @@ class QstServerControllerTest < ActionController::TestCase
     msg.custom_attributes['foo2'] = 'bar2'
     msg.save!
 
-    QSTOutgoingMessage.create! :channel => @chan, :ao_message_id => msg.id
+    QstOutgoingMessage.create! :channel => @chan, :ao_message_id => msg.id
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
     get :pull, :account_id => @account.name
@@ -230,7 +230,7 @@ class QstServerControllerTest < ActionController::TestCase
 
     assert_select "message", {:count => 0}
 
-    unread = QSTOutgoingMessage.all
+    unread = QstOutgoingMessage.all
     assert_equal 1, unread.length
     assert_equal @chan2.id, unread[0].channel_id
     assert_equal msg2.id, unread[0].ao_message_id
@@ -250,7 +250,7 @@ class QstServerControllerTest < ActionController::TestCase
     assert_shows_message msg1
 
     # One unread message was deleted
-    unread = QSTOutgoingMessage.all
+    unread = QstOutgoingMessage.all
     assert_equal 1, unread.length
     assert_equal msg1.id, unread[0].ao_message_id
 
@@ -274,7 +274,7 @@ class QstServerControllerTest < ActionController::TestCase
     assert_select "message", {:count => 1}
     assert_shows_message msgs[2]
 
-    unread = QSTOutgoingMessage.all
+    unread = QstOutgoingMessage.all
     assert_equal 2, unread.length
     assert_equal msgs[2].id, unread[0].ao_message_id
     assert_equal msgs[3].id, unread[1].ao_message_id
@@ -315,7 +315,7 @@ class QstServerControllerTest < ActionController::TestCase
   test "should skip failed messages" do
     10.times do |i|
       msg = AoMessage.make :account => @account, :tries => 4
-      QSTOutgoingMessage.create! :channel => @chan, :ao_message_id => msg.id
+      QstOutgoingMessage.create! :channel => @chan, :ao_message_id => msg.id
     end
 
     msg11 = create_qst_ao @account, @chan
@@ -329,7 +329,7 @@ class QstServerControllerTest < ActionController::TestCase
     assert_shows_message msg11
 
     # One unread message
-    unread = QSTOutgoingMessage.all
+    unread = QstOutgoingMessage.all
     assert_equal 1, unread.length
     assert_equal msg11.id, unread[0].ao_message_id
   end
@@ -346,7 +346,7 @@ class QstServerControllerTest < ActionController::TestCase
     assert_select "message", {:count => 1}
     assert_shows_message msg
 
-    unread = QSTOutgoingMessage.all
+    unread = QstOutgoingMessage.all
     assert_equal 1, unread.length
   end
 
@@ -399,7 +399,7 @@ class QstServerControllerTest < ActionController::TestCase
     get :pull, :account_id => @account.name
 
     assert_select "message", {:count => 1}
-    assert_equal 1, QSTOutgoingMessage.count
+    assert_equal 1, QstOutgoingMessage.count
 
     msg1.reload
     assert_equal 'cancelled', msg1.state

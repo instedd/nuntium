@@ -49,7 +49,7 @@ class RssControllerTest < ActionController::TestCase
     messages = AoMessage.all
     assert_equal 1, messages.length
 
-    unread = QSTOutgoingMessage.all
+    unread = QstOutgoingMessage.all
     assert_equal 1, unread.length
     assert_equal messages[0].id, unread[0].ao_message_id
     assert_equal @chan.id, unread[0].channel_id

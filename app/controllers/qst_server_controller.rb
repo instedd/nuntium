@@ -89,7 +89,7 @@ class QstServerController < ApplicationController
         if !invalid_messages.empty?
           invalid_messages.each do |invalid_message|
             AoMessage.where(:id => invalid_message.id).update_all "state = 'failed'"
-            QSTOutgoingMessage.where(:ao_message_id => invalid_message.id).delete_all
+            QstOutgoingMessage.where(:ao_message_id => invalid_message.id).delete_all
           end
           invalid_messages.each do |message|
             @account.logger.ao_message_delivery_exceeded_tries message, 'qst_server'

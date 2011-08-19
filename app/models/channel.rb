@@ -13,7 +13,7 @@ class Channel < ActiveRecord::Base
 
   has_many :ao_messages
   has_many :at_messages
-  has_many :qst_outgoing_messages, :class_name => 'QSTOutgoingMessage'
+  has_many :qst_outgoing_messages
   has_many :smpp_message_parts
   has_many :twitter_channel_statuses
   has_many :address_sources
