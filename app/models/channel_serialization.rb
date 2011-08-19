@@ -90,7 +90,7 @@ module ChannelSerialization
     def from_hash(hash, format)
       hash = hash.with_indifferent_access
 
-      chan = Channel.new
+      chan = (hash[:kind].try(:to_channel) || Channel).new
       [:name, :kind, :protocol, :priority, :address, :ao_cost, :at_cost].each do |sym|
         chan.send "#{sym}=", hash[sym]
       end

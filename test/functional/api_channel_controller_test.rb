@@ -132,9 +132,10 @@ class ApiChannelControllerTest < ActionController::TestCase
       assert_not_nil result
       assert_equal @account.id, result.account_id
       assert_equal @application.id, result.application_id
-      [:name, :kind, :protocol, :direction, :enabled, :priority, :restrictions, :configuration].each do |sym|
+      [:name, :kind, :protocol, :direction, :enabled, :priority, :restrictions].each do |sym|
         assert_equal chan.send(sym), result.send(sym), "#{sym} was not the same"
       end
+      assert result.authenticate('secret')
     end
 
     test "create #{format} channel with at_rules and ao_rules succeeds" do
@@ -173,7 +174,7 @@ class ApiChannelControllerTest < ActionController::TestCase
       assert_not_nil result
       assert_equal @account.id, result.account_id
       assert_equal @application.id, result.application_id
-      [:name, :kind, :protocol, :direction, :enabled, :priority, :restrictions, :configuration, :ao_rules, :at_rules].each do |sym|
+      [:name, :kind, :protocol, :direction, :enabled, :priority, :restrictions, :ao_rules, :at_rules].each do |sym|
         assert_equal chan.send(sym), result.send(sym), "#{sym} was not the same"
       end
     end
@@ -313,7 +314,7 @@ class ApiChannelControllerTest < ActionController::TestCase
       assert result.enabled
       assert_equal to_update.ao_rules, result.ao_rules
       assert_equal to_update.at_rules, result.at_rules
-      [:name, :kind, :protocol, :direction, :priority, :restrictions, :configuration].each do |sym|
+      [:name, :kind, :protocol, :direction, :priority, :restrictions].each do |sym|
         assert_equal chan.send(sym), result.send(sym), "#{sym} was not the same"
       end
     end
@@ -357,7 +358,7 @@ class ApiChannelControllerTest < ActionController::TestCase
       assert_equal @account.id, result.account_id
       assert_equal @application.id, result.application_id
       assert result.enabled
-      [:name, :kind, :protocol, :direction, :priority, :restrictions, :configuration, :ao_rules, :at_rules].each do |sym|
+      [:name, :kind, :protocol, :direction, :priority, :restrictions, :ao_rules, :at_rules].each do |sym|
         assert_equal chan.send(sym), result.send(sym), "#{sym} was not the same"
       end
     end
