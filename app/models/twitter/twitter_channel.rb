@@ -4,6 +4,8 @@ class TwitterChannel < Channel
   include CronChannel
   include GenericChannel
 
+  has_many :twitter_channel_statuses, :foreign_key => 'channel_id'
+
   configuration_accessor :token, :secret, :screen_name
 
   def self.new_oauth

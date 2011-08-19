@@ -4,6 +4,8 @@ module CronChannel
   include CronTask::CronTaskOwner
 
   included do
+    has_many :cron_tasks, :as => :parent, :dependent => :destroy # TODO: Tasks are not being destroyed
+
     after_create :create_tasks, :if => :enabled?
     after_enabled :create_tasks
     after_disabled :destroy_tasks

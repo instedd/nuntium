@@ -1,6 +1,8 @@
 class SmppChannel < Channel
   include ServiceChannel
 
+  has_many :smpp_message_parts, :foreign_key => 'channel_id'
+
   configuration_accessor :user, :password
   configuration_accessor :host, :system_type, :port, :source_ton, :source_npi, :destination_ton, :destination_npi
   configuration_accessor :default_mo_encoding, :mt_encodings, :mt_csms_method

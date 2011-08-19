@@ -3,6 +3,8 @@ require 'digest/sha1'
 class QstServerChannel < Channel
   include ActionView::Helpers::DateHelper
 
+  has_many :qst_outgoing_messages, :foreign_key => 'channel_id'
+
   validates_presence_of :password
 
   configuration_accessor :password, :password_confirmation, :salt
