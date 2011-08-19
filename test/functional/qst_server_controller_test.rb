@@ -3,7 +3,7 @@ require 'test_helper'
 class QstServerControllerTest < ActionController::TestCase
   def setup
     @account = Account.make :password
-    @chan = Channel.make_unsaved :qst_server, :account => @account
+    @chan = QstServerChannel.make_unsaved :account => @account
     @chan.configuration[:password] = 'chan_pass'
     @chan.configuration[:password_confirmation] = 'chan_pass'
     @chan.configuration.delete :salt
@@ -12,11 +12,11 @@ class QstServerControllerTest < ActionController::TestCase
     @application1 = Application.make :account => @account
 
     # This is so that we have another channel but the one we are looking for is used
-    Channel.make :qst_serve, :account => @account
+    QstServerChannel.make :account => @account
 
     # This is to see that this doesn't interfere with the test
     @account2 = Account.make
-    @chan2 = Channel.make :qst_server, :account => @account2
+    @chan2 = QstServerChannel.make :account => @account2
     @application2 = Application.make :account => @account2
   end
 

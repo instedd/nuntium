@@ -4,13 +4,13 @@ class ApiTwitterChannelControllerTest < ActionController::TestCase
   [nil, false, true].each do |follow|
     test "account authenticated with follow #{follow}" do
       @account = Account.make :password => 'secret'
-      @channel = Channel.make :twitter, :account => @account
+      @channel = TwitterChannel.make :account => @account
 
       client = mock('client')
       client.expects(:friendship_exists?).with('foo', @channel.configuration[:screen_name]).returns(false)
       client.expects(:friendship_create).with('foo', follow.to_b)
 
-      TwitterChannelHandler.expects(:new_client).with(@channel.configuration).returns(client)
+      TwitterChannel.expects(:new_client).with(@channel.configuration).returns(client)
 
       @request.env['HTTP_AUTHORIZATION'] = http_auth(@account.name, 'secret')
       get :friendship_create, :name => @channel.name, :user => 'foo', :follow => follow
@@ -22,13 +22,13 @@ class ApiTwitterChannelControllerTest < ActionController::TestCase
   test "application authenticated" do
     @account = Account.make :password => 'secret'
     @application = Application.make :account => @account, :password => 'secret2'
-    @channel = Channel.make :twitter, :account => @account, :application => @application
+    @channel = TwitterChannel.make :account => @account, :application => @application
 
     client = mock('client')
     client.expects(:friendship_exists?).with('foo', @channel.configuration[:screen_name]).returns(false)
     client.expects(:friendship_create).with('foo', false)
 
-    TwitterChannelHandler.expects(:new_client).with(@channel.configuration).returns(client)
+    TwitterChannel.expects(:new_client).with(@channel.configuration).returns(client)
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'secret2')
     get :friendship_create, :name => @channel.name, :user => 'foo'
@@ -39,13 +39,13 @@ class ApiTwitterChannelControllerTest < ActionController::TestCase
   test "application authenticated already following" do
     @account = Account.make :password => 'secret'
     @application = Application.make :account => @account, :password => 'secret2'
-    @channel = Channel.make :twitter, :account => @account, :application => @application
+    @channel = TwitterChannel.make :account => @account, :application => @application
 
     client = mock('client')
     client.expects(:friendship_exists?).with('foo', @channel.configuration[:screen_name]).returns(true)
     client.expects(:friendship_create).never
 
-    TwitterChannelHandler.expects(:new_client).with(@channel.configuration).returns(client)
+    TwitterChannel.expects(:new_client).with(@channel.configuration).returns(client)
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'secret2')
     get :friendship_create, :name => @channel.name, :user => 'foo'
@@ -56,7 +56,7 @@ class ApiTwitterChannelControllerTest < ActionController::TestCase
   test "application authenticated can't access account channel" do
     @account = Account.make :password => 'secret'
     @application = Application.make :account => @account, :password => 'secret2'
-    @channel = Channel.make :twitter, :account => @account
+    @channel = TwitterChannel.make :account => @account
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'secret2')
     get :friendship_create, :name => @channel.name, :user => 'foo'
@@ -75,7 +75,7 @@ class ApiTwitterChannelControllerTest < ActionController::TestCase
 
   test "channel not twitter" do
     @account = Account.make :password => 'secret'
-    @channel = Channel.make :qst_server, :account => @account
+    @channel = QstServerChannel.make :account => @account
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@account.name, 'secret')
     get :friendship_create, :name => @channel.name, :user => 'foo'
@@ -86,13 +86,13 @@ class ApiTwitterChannelControllerTest < ActionController::TestCase
   [Twitter::General, Twitter::NotFound, Twitter::InformTwitter, Twitter::Unavailable].each do |ex|
     test "twitter error #{ex}" do
       @account = Account.make :password => 'secret'
-      @channel = Channel.make :twitter, :account => @account
+      @channel = TwitterChannel.make :account => @account
 
       client = mock('client')
       client.expects(:friendship_exists?).with('foo', @channel.configuration[:screen_name]).returns(false)
       client.expects(:friendship_create).with('foo', true).raises(ex.new('foo'), '(403): Forbidden - Could not follow user: foo is already on your list')
 
-      TwitterChannelHandler.expects(:new_client).with(@channel.configuration).returns(client)
+      TwitterChannel.expects(:new_client).with(@channel.configuration).returns(client)
 
       @request.env['HTTP_AUTHORIZATION'] = http_auth(@account.name, 'secret')
       get :friendship_create, :name => @channel.name, :user => 'foo', :follow => true

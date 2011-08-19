@@ -35,7 +35,7 @@ class ClickatellController < ApplicationController
     end
     msg.save!
 
-    status_message = ClickatellChannelHandler::CLICKATELL_STATUSES[params[:status]][0]
+    status_message = ClickatellChannel::CLICKATELL_STATUSES[params[:status]][0]
     @account.logger.info :channel_id => @channel.id, :ao_message_id => msg.id,
       :message => "Recieved status notification with status #{params[:status]} (#{status_message}) and credit #{params[:charge]} (cost #{msg.custom_attributes[:cost]})"
 

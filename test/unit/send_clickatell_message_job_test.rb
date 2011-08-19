@@ -2,7 +2,7 @@ require 'test_helper'
 
 class SendClickatellMessageJobTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make :clickatell
+    @chan = ClickatellChannel.make
   end
 
   should "perform" do

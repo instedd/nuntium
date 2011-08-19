@@ -6,7 +6,7 @@ class SubscribeToQueueJobTest < ActiveSupport::TestCase
   test "perform" do
     worker = mock('worker');
     worker.expects(:subscribe_to_queue).with('foo')
-  
+
     job = SubscribeToQueueJob.new('foo')
     job.perform worker
   end

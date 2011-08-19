@@ -10,7 +10,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     @account = Account.make
     @service = GenericWorkerService.new(@@id, @@working_group)
 
-    @chan = Channel.make :clickatell, :account => @account
+    @chan = ClickatellChannel.make :account => @account
 
     super
   end

@@ -1,7 +1,6 @@
+require 'iconv'
+
 class SendDtacMessageJob < SendMessageJob
-
-  require 'iconv'
-
   def managed_perform
     str = @msg.subject_and_body
     encoded = ActiveSupport::Multibyte::Chars.u_unpack(str).map { |i| i.to_s(16).rjust(4, '0') }
@@ -34,7 +33,7 @@ class SendDtacMessageJob < SendMessageJob
       if ( status == 0 )
         @msg.send_succeeed @account, @channel
       else
-        error = DtacChannelHandler::DTAC_ERRORS[status]
+        error = DtacChannel::DTAC_ERRORS[status]
 
         raise response_body if error.nil?
         raise PermanentException.new(Exception.new("#{status}. #{error[:description]}")) if error[:kind] == :fatal
@@ -45,5 +44,4 @@ class SendDtacMessageJob < SendMessageJob
       raise response.body
     end
   end
-
 end

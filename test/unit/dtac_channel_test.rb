@@ -1,10 +1,8 @@
 require 'test_helper'
 
-class DtacChannelHandlerTest < ActiveSupport::TestCase
-  include Mocha::API
-
+class DtacChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make :dtac
+    @chan = DtacChannel.make
   end
 
   [:user, :password].each do |field|
@@ -13,6 +11,5 @@ class DtacChannelHandlerTest < ActiveSupport::TestCase
     end
   end
 
-  include GenericChannelHandlerTest
-
+  include GenericChannelTest
 end

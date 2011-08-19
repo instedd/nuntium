@@ -1,10 +1,10 @@
-module GenericChannelHandlerTest
+module GenericChannelTest
   def test_should_enqueue
     assert_handler_should_enqueue_ao_job @chan
   end
 
   def test_on_create_binds_queue
-    chan = Channel.make_unsaved :clickatell
+    chan = @chan.class.make_unsaved
     Queues.expects(:bind_ao).with(chan)
     chan.save!
   end

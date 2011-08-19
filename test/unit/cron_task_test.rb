@@ -56,21 +56,21 @@ class CronTaskTest < ActiveSupport::TestCase
   end
 
   test "should create twitter task for channel" do
-    ch = Channel.make :twitter
+    ch = TwitterChannel.make
     assert_equal 1, CronTask.all.size
     assert_equal ch.id, CronTask.first.get_handler.channel_id
     assert_equal ReceiveTwitterMessageJob, CronTask.first.get_handler.class
   end
 
   test "should create pop3 task for channel" do
-    ch = Channel.make :pop3
+    ch = Pop3Channel.make
     assert_equal 1, CronTask.all.size
     assert_equal ch.id, CronTask.first.get_handler.channel_id
     assert_equal ReceivePop3MessageJob, CronTask.first.get_handler.class
   end
 
   test "should not create task for non task channel" do
-    ch = Channel.make :qst_server
+    ch = QstServerChannel.make
     assert_equal 0, CronTask.all.size
   end
 
@@ -90,7 +90,7 @@ class CronTaskTest < ActiveSupport::TestCase
   end
 
   test "should save channel task" do
-    ch = Channel.make :qst_server
+    ch = QstServerChannel.make
 
     task = CronTask.new :parent => ch, :interval => 50
     assert task.save!

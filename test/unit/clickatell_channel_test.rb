@@ -1,13 +1,11 @@
 require 'test_helper'
 
-class ClickatellChannelHandlerTest < ActiveSupport::TestCase
-  include Mocha::API
-
+class ClickatellChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make :clickatell
+    @chan = ClickatellChannel.make
   end
 
-  include GenericChannelHandlerTest
+  include GenericChannelTest
 
   [:user, :password, :from, :api_id, :incoming_password, :cost_per_credit].each do |field|
     test "should validate configuration presence of #{field}" do
@@ -100,7 +98,7 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
     assert @chan.can_route_ao?(ao_with(country.iso2, carrier2.guid))
   end
 
-  test "clickatell channel restrictions made based on coverage table" do
+  test "clickatell channel augmented restrictions made based on coverage table" do
     country1 = Country.make
     carrier1 = Carrier.make :country => country1
     carrier2 = Carrier.make :country => country1
@@ -119,7 +117,7 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
     assert_equal ({
       'carrier' => [carrier1.guid, carrier2.guid, carrier3.guid, carrier4.guid, ''],
       'country' => [country1.iso2, country2.iso2]
-      }), @chan.handler.restrictions
+      }), @chan.augmented_restrictions
   end
 
   test "clickatell channel can send a message within coverage table" do

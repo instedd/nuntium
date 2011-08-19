@@ -2,7 +2,7 @@ require 'test_helper'
 
 class PushQstChannelMessageJobTest < ActiveSupport::TestCase
   def setup
-    @channel = Channel.make :qst_client
+    @channel = QstClientChannel.make
 
     @job = PushQstChannelMessageJob.new @channel.account_id, @channel.id
     @job.batch_size = 3

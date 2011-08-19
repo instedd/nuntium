@@ -1,13 +1,11 @@
 require 'test_helper'
 
-class SmtpChannelHandlerTest < ActiveSupport::TestCase
-  include Mocha::API
-
+class Pop3ChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make :smtp
+    @chan = Pop3Channel.make
   end
 
-  [:host, :port].each do |field|
+  [:host, :user, :password, :port].each do |field|
     test "should validate configuration presence of #{field}" do
       assert_validates_configuration_presence_of @chan, field
     end
@@ -22,6 +20,4 @@ class SmtpChannelHandlerTest < ActiveSupport::TestCase
     @chan.configuration[:port] = -430
     assert_false @chan.save
   end
-
-  include GenericChannelHandlerTest
 end

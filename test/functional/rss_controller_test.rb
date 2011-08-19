@@ -6,7 +6,7 @@ require 'yaml'
 class RssControllerTest < ActionController::TestCase
   def setup
     @account = Account.make
-    @chan = Channel.make :qst_server, :account => @account
+    @chan = QstServerChannel.make :account => @account
     @application = Application.make :account => @account, :password => 'app_pass'
     @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')
   end

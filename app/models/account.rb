@@ -5,6 +5,7 @@ class Account < ActiveRecord::Base
 
   has_many :applications
   has_many :channels
+  has_many :qst_server_channels
   has_many :address_sources
   has_many :ao_messages
   has_many :at_messages
@@ -153,7 +154,7 @@ class Account < ActiveRecord::Base
   end
 
   def restart_channel_processes
-    channels.each { |x| x.handler.on_changed }
+    channels.each &:on_changed
   end
 
   def to_s

@@ -8,8 +8,8 @@ require 'digest/sha2'
 require 'shoulda'
 require 'mocha'
 
-require File.expand_path(File.dirname(__FILE__) + "/unit/generic_channel_handler_test")
-require File.expand_path(File.dirname(__FILE__) + "/unit/service_channel_handler_test")
+require File.expand_path(File.dirname(__FILE__) + "/unit/generic_channel_test")
+require File.expand_path(File.dirname(__FILE__) + "/unit/service_channel_test")
 
 class ActiveSupport::TestCase
   # Transactional fixtures accelerate your tests by wrapping each test method
@@ -164,10 +164,10 @@ class ActiveSupport::TestCase
     end
 
     msg = AoMessage.make :account_id => chan.account_id, :channel_id => chan.id
-    chan.handler.handle(msg)
+    chan.handle(msg)
 
     assert_equal 1, jobs.length
-    assert_equal chan.handler.job_class, jobs[0].class
+    assert_equal chan.job_class, jobs[0].class
     assert_equal msg.id, jobs[0].message_id
     assert_equal chan.id, jobs[0].channel_id
     assert_equal chan.account_id, jobs[0].account_id

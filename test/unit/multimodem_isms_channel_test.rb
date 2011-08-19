@@ -1,10 +1,8 @@
 require 'test_helper'
 
-class MultimodemIsmsChannelHandlerTest < ActiveSupport::TestCase
-  include Mocha::API
-
+class MultimodemIsmsChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make :multimodem_isms
+    @chan = MultimodemIsmsChannel.make
   end
 
   [:host, :user, :password].each do |field|
@@ -23,5 +21,5 @@ class MultimodemIsmsChannelHandlerTest < ActiveSupport::TestCase
     assert_false @chan.save
   end
 
-  include GenericChannelHandlerTest
+  include GenericChannelTest
 end

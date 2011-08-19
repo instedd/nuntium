@@ -10,18 +10,18 @@ class ApiCountryControllerTest < ActionController::TestCase
   test "index xml" do
     get :index, :format => 'xml'
     assert_response :ok
-    
+
     assert_select 'countries' do
       @attributes.each do |key, value|
         assert_select "country[#{key}=?]", value
       end
     end
   end
-  
+
   test "index json" do
     get :index, :format => 'json'
     assert_response :ok
-    
+
     countries = JSON.parse @response.body
     assert_equal 1, countries.length
     @attributes.each do |key, value|

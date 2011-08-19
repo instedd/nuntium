@@ -73,7 +73,7 @@ By "the world" we mean anything that's not your particular application. For exam
           end
           %>
           <%= link_to "edit", edit_channel_path(chan) -%>
-          <%= link_to "delete", chan, :method => :delete, :confirm => "Are you sure you want to delete the channel #{chan.name}?" -%>
+          <%= link_to "delete", channel_path(chan), :method => :delete, :confirm => "Are you sure you want to delete the channel #{chan.name}?" -%>
         </td>
       </tr>
     <%- end -%>

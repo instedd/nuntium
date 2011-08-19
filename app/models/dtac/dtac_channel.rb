@@ -1,18 +1,18 @@
 # coding: utf-8
 
-class DtacChannelHandler < ChannelHandler
-  include GenericChannelHandler
+class DtacChannel < Channel
+  include GenericChannel
+
+  configuration_accessor :user, :password
+
+  validates_presence_of :user, :password
 
   def self.title
     "DTAC"
   end
 
-  def check_valid
-    check_config_not_blank :user, :password
-  end
-
   def info
-    @channel.configuration[:user]
+    user
   end
 
 =begin
@@ -58,5 +58,4 @@ class DtacChannelHandler < ChannelHandler
     -136 => { :kind => :message, :description => 'Sno is not number: Parameter "Sno" is not a number'},
     -501 => { :kind => :temporary, :description => 'Database is not ready. Please try to post again later.'}
   }
-
 end

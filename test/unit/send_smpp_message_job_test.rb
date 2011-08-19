@@ -2,7 +2,7 @@ require 'test_helper'
 
 class SendSmppMessageJobTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make :smpp
+    @chan = SmppChannel.make
   end
 
   test "dont sent message if its not queued" do

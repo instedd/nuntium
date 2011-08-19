@@ -3,7 +3,7 @@ require 'test_helper'
 class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
   def setup
     @application = Application.make
-    @chan = Channel.make :account => @application.account, :application => @application
+    @chan = QstServerChannel.make :account => @application.account, :application => @application
     @msg = AtMessage.make :account => @application.account, :application => @application, :channel => @chan
     @query = {
       :application => @application.name,

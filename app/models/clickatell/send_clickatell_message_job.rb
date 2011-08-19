@@ -9,7 +9,7 @@ class SendClickatellMessageJob < SendMessageJob
     elsif response.body[0..3] == "ERR:"
       code_with_description = response.body[5..-1]
       code = code_with_description.to_i
-      error = ClickatellChannelHandler::CLICKATELL_ERRORS[code]
+      error = ClickatellChannel::CLICKATELL_ERRORS[code]
 
       raise code_with_description if error.nil?
       raise PermanentException.new(Exception.new(code_with_description)) if error[:kind] == :fatal

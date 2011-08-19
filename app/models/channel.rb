@@ -1,7 +1,9 @@
 require 'digest/sha2'
 
 class Channel < ActiveRecord::Base
+  include ChannelMetadata
   include ChannelSerialization
+  include ChannelTicket
 
   # Channel directions
   Incoming = 1
@@ -24,7 +26,6 @@ class Channel < ActiveRecord::Base
   serialize :ao_rules
   serialize :at_rules
 
-  attr_accessor :ticket_code, :ticket_message
   attr_accessor :throttle_opt
 
   validates_presence_of :name, :protocol, :kind, :account
@@ -35,43 +36,12 @@ class Channel < ActiveRecord::Base
   validates_numericality_of :ao_cost, :greater_than_or_equal_to => 0, :allow_nil => true
   validates_numericality_of :at_cost, :greater_than_or_equal_to => 0, :allow_nil => true
 
-  before_save :ticket_record_password
-  after_create :ticket_mark_as_complete
-
-  validate :handler_check_valid
-  before_validation :handler_before_validation
-  before_save :handler_before_save
-  after_create :handler_after_create
-  after_update :handler_after_update
-  before_destroy :handler_before_destroy
-
   scope :enabled, where(:enabled => true)
   scope :disabled, where(:enabled => false)
   scope :outgoing, where(:direction => [Outgoing, Bidirectional])
   scope :incoming, where(:direction => [Incoming, Bidirectional])
 
   include CronTask::CronTaskOwner
-
-  def self.kinds
-    @@kinds ||= begin
-      # Load all channel handlers
-      Dir.glob("#{Rails.root}/app/models/**/*_channel_handler.rb").each do |file|
-        eval(ActiveSupport::Inflector.camelize(file[file.rindex('/') + 1 .. -4]))
-      end
-
-      Object.subclasses_of(ChannelHandler).select do |clazz|
-        # Skip some abstract ones
-        clazz.name != 'GenericChannelHandler' && clazz.name != 'ServiceChannelHandler'
-      end.map do |clazz|
-        # Put the title and kind in array
-        [clazz.title, clazz.kind]
-      end.sort do |a1, a2|
-        # And sort by title
-        a1[0] <=> a2[0]
-      end
-    end
-    @@kinds.map{|x| [x[0].dup, x[1].dup]}
-  end
 
   def self.sort_candidate!(chans)
     chans.each{|x| x.configuration[:_p] = x.priority + rand}
@@ -81,6 +51,14 @@ class Channel < ActiveRecord::Base
       result = x.configuration[:_p] <=> y.configuration[:_p] if result == 0
       result
     end
+  end
+
+  def incoming?
+    (direction & Incoming) != 0
+  end
+
+  def outgoing?
+    (direction & Outgoing) != 0
   end
 
   def route_ao(msg, via_interface, options = {})
@@ -149,11 +127,10 @@ class Channel < ActiveRecord::Base
   end
 
   def can_route_ao?(msg)
-    # Check that each custom attribute is present in this channel's restrictions (probably augmented with handler's)
-    handler_restrictions = self.handler.restrictions
-
+    # Check that each custom attribute is present in this channel's restrictions
+    all_restrictions = augmented_restrictions
     msg.custom_attributes.each_multivalue do |key, values|
-      channel_values = handler_restrictions[key]
+      channel_values = all_restrictions[key]
       next unless channel_values.present?
 
       channel_values = [channel_values] unless channel_values.kind_of? Array
@@ -161,7 +138,7 @@ class Channel < ActiveRecord::Base
       return false unless values.any?{|v| channel_values.include? v}
     end
 
-    handler_restrictions.each_multivalue do |key, values|
+    all_restrictions.each_multivalue do |key, values|
       next if values.include? ''
       return false unless msg.custom_attributes.has_key? key
     end
@@ -177,12 +154,8 @@ class Channel < ActiveRecord::Base
     self[:restrictions] ||= ActiveSupport::OrderedHash.new
   end
 
-  def clear_password
-    self.handler.clear_password if self.handler.respond_to?(:clear_password)
-  end
-
-  def handle(msg)
-    self.handler.handle msg
+  def augmented_restrictions
+    restrictions
   end
 
   def route_at(msg)
@@ -196,17 +169,8 @@ class Channel < ActiveRecord::Base
     AlertMailer.error(account, "Error in account #{account.name}, channel #{self.name}", message).deliver
   end
 
-  def handler
-    if kind.nil?
-      nil
-    else
-      eval(ActiveSupport::Inflector.camelize(kind) + 'ChannelHandler.new(self)')
-    end
-  end
-
-  def info
-    return self.handler.info if self.handler.respond_to?(:info)
-    return ''
+  def has_connection?
+    false
   end
 
   def direction=(value)
@@ -214,7 +178,7 @@ class Channel < ActiveRecord::Base
       if value.integer?
         self[:direction] = value.to_i
       else
-        self[:direction] = Channel.direction_from_text(value)
+        self[:direction] = Channel.direction_from_text value
       end
     else
       self[:direction] = value
@@ -223,32 +187,24 @@ class Channel < ActiveRecord::Base
 
   def direction_text
     case direction
-    when Incoming
-      'incoming'
-    when Outgoing
-      'outgoing'
-    when Bidirectional
-      'bidirectional'
-    else
-      'unknown'
+    when Incoming then 'incoming'
+    when Outgoing then 'outgoing'
+    when Bidirectional then 'bidirectional'
+    else 'unknown'
     end
   end
 
   def self.direction_from_text(direction)
     case direction.downcase
-    when 'incoming'
-      Incoming
-    when 'outgoing'
-      Outgoing
-    when 'bidirectional'
-      Bidirectional
-    else
-      -1
+    when 'incoming' then Incoming
+    when 'outgoing' then Outgoing
+    when 'bidirectional' then Bidirectional
+    else -1
     end
   end
 
   def check_valid_in_ui
-    @check_valid_in_ui = true
+    # Perform validations that are lengthy, like checking a connection works
   end
 
   def throttle_opt
@@ -265,77 +221,11 @@ class Channel < ActiveRecord::Base
     end
   end
 
-  def has_connection?
-    self.handler.has_connection?
-  end
-
   def queued_ao_messages_count
     ao_messages.with_state('queued').count
   end
 
-  private
-
-  def ticket_record_password
-    return unless ticket_code
-    ticket = Ticket.find_by_code_and_status ticket_code, 'pending'
-    if ticket.nil?
-      errors.add(:ticket_code, "Invalid code")
-      return false
-    end
-    self.address = ticket.data[:address]
-    @password_input = configuration[:password]
-    return true
-  end
-
-  def ticket_mark_as_complete
-    return unless ticket_code
-    ticket = Ticket.complete ticket_code, { :channel => self.name, :account => self.account.name, :password => @password_input, :message => self.ticket_message }
-  end
-
-  def handler_check_valid
-    self.handler.check_valid if self.handler.respond_to?(:check_valid)
-    if !@check_valid_in_ui.nil? and @check_valid_in_ui
-      self.handler.check_valid_in_ui if self.handler.respond_to?(:check_valid_in_ui)
-    end
-  end
-
-  def handler_before_validation
-    self.handler.try :before_validation
-    true
-  end
-
-  def handler_before_save
-    self.handler.before_save
-    true
-  end
-
-  def handler_after_create
-    self.handler.on_create
-  end
-
-  def handler_after_update
-    if self.enabled_changed?
-      if self.enabled
-        self.handler.on_enable
-      else
-        self.handler.on_disable
-      end
-    elsif self.paused_changed?
-      if self.paused
-        self.handler.on_pause
-      else
-        self.handler.on_resume
-      end
-    elsif self.connected_changed?
-      # Do nothing
-    else
-      self.handler.on_changed
-    end
-    true
-  end
-
-  def handler_before_destroy
-    self.handler.on_destroy
-    true
+  def on_changed
+    # Custom logic to be executed when this channel changed because it's account or application changed
   end
 end

@@ -1,58 +1,32 @@
 # coding: utf-8
 
-class MultimodemIsmsChannelHandler < ChannelHandler
-  include GenericChannelHandler
+class MultimodemIsmsChannel < Channel
+  include GenericChannel
+
+  configuration_accessor :host, :port, :user, :password
+
+  validates_presence_of :host, :port, :user, :password
+  validates_numericality_of :port, :greater_than => 0
+
+  after_create :create_tasks, :if => :enabled?
+  after_update :create_tasks, :if => lambda { (enabled_changed? && enabled) || (paused_changed? && !paused) }
+  after_update :destroy_tasks, :if => lambda { (enabled_changed? && !enabled) || (paused_changed? && paused) }
+  before_destroy :destroy_tasks, :if => :enabled?
 
   def self.title
     "Multimodem iSms"
   end
 
-  def check_valid
-    check_config_not_blank :host, :user, :password
-    check_config_port :required => false
-  end
-
   def info
-    config = @channel.configuration
-    if config[:port].present?
-      "#{config[:user]}@#{config[:host]}:#{config[:port]}"
-    else
-      "#{config[:user]}@#{config[:host]}"
-    end
+    port.present? ? "#{user}@#{host}:#{port}" : "#{user}@#{host}"
   end
 
-  def on_create
-    super
-    if @channel.enabled
-      @channel.create_task('multimodem-isms-receive', MULTIMODEM_ISMS_RECEIVE_INTERVAL, ReceiveMultimodemIsmsMessageJob.new(@channel.account_id, @channel.id))
-    end
+  def create_tasks
+    create_task 'multimodem-isms-receive', MULTIMODEM_ISMS_RECEIVE_INTERVAL, ReceiveMultimodemIsmsMessageJob.new(account_id, id)
   end
 
-  def on_enable
-    super
-    @channel.create_task('multimodem-isms-receive', MULTIMODEM_ISMS_RECEIVE_INTERVAL, ReceiveMultimodemIsmsMessageJob.new(@channel.account_id, @channel.id))
-  end
-
-  def on_disable
-    super
-    @channel.drop_task('multimodem-isms-receive')
-  end
-
-  def on_pause
-    super
-    @channel.drop_task('multimodem-isms-receive')
-  end
-
-  def on_resume
-    super
-    @channel.create_task('multimodem-isms-receive', MULTIMODEM_ISMS_RECEIVE_INTERVAL, ReceiveMultimodemIsmsMessageJob.new(@channel.account_id, @channel.id))
-  end
-
-  def on_destroy
-    super
-    if @channel.enabled
-      @channel.drop_task('multimodem-isms-receive')
-    end
+  def destroy_tasks
+    drop_task 'multimodem-isms-receive'
   end
 
   ERRORS = {

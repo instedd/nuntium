@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class RulesEngineTest < ActiveSupport::TestCase
-
   include RulesEngine
 
   test "empty rules" do

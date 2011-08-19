@@ -1,12 +1,16 @@
-class IpopChannelHandler < ChannelHandler
-  include GenericChannelHandler
+class IpopChannel < Channel
+  include GenericChannel
+
+  configuration_accessor :mt_post_url, :bid, :cid
+
+  validates_presence_of :address, :mt_post_url, :bid, :cid
 
   def self.title
     "I-POP"
   end
 
   def check_valid
-    @channel.errors.add(:address, "can't be blank") if @channel.address.blank?
+    errors.add(:address, "can't be blank") if address.blank?
     check_config_not_blank :mt_post_url, :bid, :cid
   end
 

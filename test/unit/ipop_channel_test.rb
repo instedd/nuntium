@@ -1,15 +1,15 @@
 require 'test_helper'
 
-class XmppChannelHandlerTest < ActiveSupport::TestCase
+class IpopChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make :xmpp
+    @chan = IpopChannel.make
   end
 
-  [:user, :domain, :password].each do |field|
+  include GenericChannelTest
+
+  [:mt_post_url, :bid, :cid].each do |field|
     test "should validate configuration presence of #{field}" do
       assert_validates_configuration_presence_of @chan, field
     end
   end
-
-  include ServiceChannelHandlerTest
 end

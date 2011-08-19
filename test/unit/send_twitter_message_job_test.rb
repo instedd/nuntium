@@ -5,7 +5,7 @@ class SendTwitterMessageJobTest < ActiveSupport::TestCase
   include Mocha::API
 
   def setup
-    @channel = Channel.make :twitter
+    @channel = TwitterChannel.make
     @msg = AoMessage.make :account_id => @channel.account_id, :channel_id => @channel.id, :state => 'queued'
     @job = SendTwitterMessageJob.new @channel.account_id, @channel.id, @msg.id
   end
@@ -17,7 +17,7 @@ class SendTwitterMessageJobTest < ActiveSupport::TestCase
     client = mock('client')
     client.expects(:direct_message_create).with(@msg.to.without_protocol, @msg.subject_and_body).returns(response)
 
-    TwitterChannelHandler.expects(:new_client).with(@channel.configuration).returns(client)
+    TwitterChannel.expects(:new_client).with(@channel.configuration).returns(client)
 
     @job.perform
 
@@ -30,7 +30,7 @@ class SendTwitterMessageJobTest < ActiveSupport::TestCase
     client = mock('client')
     client.expects(:direct_message_create).with(@msg.to.without_protocol, @msg.subject_and_body).raises(Twitter::Unauthorized.new(''))
 
-    TwitterChannelHandler.expects(:new_client).with(@channel.configuration).returns(client)
+    TwitterChannel.expects(:new_client).with(@channel.configuration).returns(client)
 
     begin
       @job.perform
@@ -48,7 +48,7 @@ class SendTwitterMessageJobTest < ActiveSupport::TestCase
       client = mock('client')
       client.expects(:direct_message_create).with(@msg.to.without_protocol, @msg.subject_and_body).raises(ex.new(''))
 
-      TwitterChannelHandler.expects(:new_client).with(@channel.configuration).returns(client)
+      TwitterChannel.expects(:new_client).with(@channel.configuration).returns(client)
 
       @job.perform
 

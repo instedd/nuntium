@@ -4,7 +4,7 @@ require 'yaml'
 
 class ReceivePop3MessageJobTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make :pop3
+    @chan = Pop3Channel.make
     @email = AtMessage.make_unsaved :email
   end
 

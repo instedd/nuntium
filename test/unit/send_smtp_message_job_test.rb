@@ -4,7 +4,7 @@ require 'net/smtp'
 class SendSmtpMessageJobTest < ActiveSupport::TestCase
   def setup
     @time = Time.now
-    @chan = Channel.make :smtp
+    @chan = SmtpChannel.make
   end
 
   test "perform no ssl" do

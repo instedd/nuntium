@@ -33,6 +33,21 @@ class Application < ActiveRecord::Base
 
   include(CronTask::CronTaskOwner)
 
+  configuration_accessor :interface_url, :interface_user, :interface_password, :interface_custom_format
+  configuration_accessor :strategy, :default => 'single_priority'
+  configuration_accessor :delivery_ack_method, :default => 'none'
+  configuration_accessor :delivery_ack_url, :delivery_ack_user, :delivery_ack_password
+  configuration_accessor :last_at_guid, :last_ao_guid
+
+  def use_address_source?
+    v = configuration[:use_address_source]
+    v.nil? || v.to_b
+  end
+
+  def use_address_source=(value)
+    configuration[:use_address_source] = value.to_b
+  end
+
   # Route an AoMessage.
   #
   # When options[:simulate] is true, a simulation is done with the following result:
@@ -310,42 +325,8 @@ class Application < ActiveRecord::Base
     self[:configuration]
   end
 
-  def is_rss
-    self.interface == 'rss'
-  end
-
-  def self.configuration_accessor(name, default = nil)
-    define_method(name) do
-      configuration[name] || default
-    end
-    define_method("#{name}=") do |value|
-      configuration[name] = value
-    end
-  end
-
-  configuration_accessor :interface_url
-  configuration_accessor :interface_user
-  configuration_accessor :interface_password
-  configuration_accessor :interface_custom_format
-  configuration_accessor :strategy, 'single_priority'
-  configuration_accessor :delivery_ack_method, 'none'
-  configuration_accessor :delivery_ack_url
-  configuration_accessor :delivery_ack_user
-  configuration_accessor :delivery_ack_password
-  configuration_accessor :last_at_guid
-  configuration_accessor :last_ao_guid
-
-  def use_address_source?
-    v = configuration[:use_address_source]
-    v.nil? || v.to_b
-  end
-
-  def use_address_source=(value)
-    configuration[:use_address_source] = value.to_b
-  end
-
   def strategy_description
-    Application.strategy_description(strategy)
+    self.class.strategy_description strategy
   end
 
   def self.strategy_description(strategy)

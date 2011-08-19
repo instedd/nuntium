@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make
+    @chan = QstServerChannel.make
   end
 
   def assert_eq_rules_xml(expected, actual)
@@ -40,13 +40,13 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "should not save if name is taken" do
-    chan2 = Channel.make_unsaved :name => @chan.name, :account => @chan.account
+    chan2 = QstServerChannel.make_unsaved :name => @chan.name, :account => @chan.account
     assert_false chan2.save
   end
 
   test "should save if name is taken in another account" do
     account2 = Account.make
-    chan2 = Channel.make_unsaved :name => @chan.name, :account => account2
+    chan2 = QstServerChannel.make_unsaved :name => @chan.name, :account => account2
     assert chan2.save
   end
 
@@ -366,12 +366,12 @@ class ChannelTest < ActiveSupport::TestCase
     three_was_fifth = false
     10.times do
       chans = []
-      chans << Channel.make_unsaved(:name => '0', :priority => 1)
-      chans << Channel.make_unsaved(:name => '1', :priority => 1)
-      chans << Channel.make_unsaved(:name => '2', :priority => 1, :paused => true)
-      chans << Channel.make_unsaved(:name => '3', :priority => 2)
-      chans << Channel.make_unsaved(:name => '4', :priority => 2)
-      chans << Channel.make_unsaved(:name => '5', :priority => 2, :paused => true)
+      chans << QstServerChannel.make_unsaved(:name => '0', :priority => 1)
+      chans << QstServerChannel.make_unsaved(:name => '1', :priority => 1)
+      chans << QstServerChannel.make_unsaved(:name => '2', :priority => 1, :paused => true)
+      chans << QstServerChannel.make_unsaved(:name => '3', :priority => 2)
+      chans << QstServerChannel.make_unsaved(:name => '4', :priority => 2)
+      chans << QstServerChannel.make_unsaved(:name => '5', :priority => 2, :paused => true)
 
       names = chans.map &:name
 

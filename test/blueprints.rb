@@ -64,68 +64,104 @@ Carrier.blueprint do
   prefixes { Sham.number2 }
 end
 
-Channel.blueprint do
+QstClientChannel.blueprint do
   account
-  name { (1..10).map { ('a'..'z').to_a.rand }.join }
-  kind { "qst_server" }
-  protocol { "sms" }
+  name { Sham.guid }
   direction { Channel::Bidirectional }
-  configuration { {:password => 'secret', :password_confirmation => 'secret'} }
+  protocol { "sms" }
   enabled { true }
-end
-
-Channel.blueprint :qst_client do
-  kind { "qst_client" }
   configuration { {:url => Sham.url, :user => Sham.username, :password => Sham.password} }
 end
 
-Channel.blueprint :qst_server do
+QstServerChannel.blueprint do
+  account
+  name { Sham.guid }
+  direction { Channel::Bidirectional }
+  protocol { "sms" }
+  enabled { true }
+  address { Sham.number8 }
+  configuration { {:password => 'secret', :password_confirmation => 'secret'} }
 end
 
-Channel.blueprint :clickatell do
-  kind { "clickatell" }
+ClickatellChannel.blueprint do
+  account
+  name { Sham.guid }
+  direction { Channel::Bidirectional }
+  protocol { "sms" }
+  enabled { true }
   configuration { {:user => Sham.username, :password => Sham.password, :api_id => Sham.guid, :from => Sham.number8, :incoming_password => Sham.password, :cost_per_credit => rand }}
 end
 
-Channel.blueprint :dtac do
-  kind { "dtac" }
+DtacChannel.blueprint do
+  account
+  name { Sham.guid }
+  direction { Channel::Bidirectional }
+  protocol { "sms" }
+  enabled { true }
   configuration { {:user => Sham.username, :password => Sham.password } }
 end
 
-Channel.blueprint :ipop do
-  kind { "ipop" }
+IpopChannel.blueprint do
+  account
+  name { Sham.guid }
+  direction { Channel::Bidirectional }
+  protocol { "sms" }
+  enabled { true }
   address { Sham.number8 }
   configuration { {:mt_post_url => Sham.url, :bid => '1', :cid => Sham.number8 } }
 end
 
-Channel.blueprint :multimodem_isms do
-  kind { "multimodem_isms" }
+MultimodemIsmsChannel.blueprint do
+  account
+  name { Sham.guid }
+  direction { Channel::Bidirectional }
+  protocol { "sms" }
+  enabled { true }
   configuration {{:host => Sham.url, :port => rand(1000) + 1, :user => Sham.username, :password => Sham.password, :time_zone => ActiveSupport::TimeZone.all.rand.name}}
 end
 
-[[:pop3, Channel::Incoming], [:smtp, Channel::Outgoing]].each do |k, d|
-  Channel.blueprint k do
-    kind { k.to_s }
-    protocol { "mailto" }
-    direction { d }
-    configuration { {:host => Sham.url, :port => rand(1000) + 1, :user => Sham.username, :password => Sham.password}}
-  end
+Pop3Channel.blueprint do
+  account
+  name { Sham.guid }
+  protocol { "mailto" }
+  direction { Channel::Incoming }
+  enabled { true }
+  configuration { {:host => Sham.url, :port => rand(1000) + 1, :user => Sham.username, :password => Sham.password}}
 end
 
-Channel.blueprint :smpp do
-  kind { "smpp" }
+SmtpChannel.blueprint do
+  account
+  name { Sham.guid }
+  protocol { "mailto" }
+  direction { Channel::Outgoing }
+  enabled { true }
+  configuration { {:host => Sham.url, :port => rand(1000) + 1, :user => Sham.username, :password => Sham.password}}
+end
+
+SmppChannel.blueprint do
+  account
+  name { Sham.guid }
+  direction { Channel::Bidirectional }
+  protocol { "sms" }
+  enabled { true }
   configuration {{:host => Sham.url, :port => rand(1000) + 1, :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => Sham.username, :password => Sham.password, :system_type => 'smpp', :mt_encodings => ['ascii'], :default_mo_encoding => 'ascii', :mt_csms_method => 'udh' } }
 end
 
-Channel.blueprint :twitter do
-  kind { "twitter" }
+TwitterChannel.blueprint do
+  account
+  name { Sham.guid }
+  direction { Channel::Bidirectional }
   protocol { "twitter" }
+  enabled { true }
   configuration { {:token => Sham.guid, :secret => Sham.guid, :screen_name => Sham.username} }
 end
 
-Channel.blueprint :xmpp do
-  kind { "xmpp" }
+XmppChannel.blueprint do
+  account
+  name { Sham.guid }
+  direction { Channel::Bidirectional }
   protocol { "xmpp" }
+  enabled { true }
   configuration { {:user => Sham.username, :domain => Sham.url, :password => Sham.password, :server => Sham.url, :port => 1 + rand(1000), :resource => Sham.username} }
 end
 

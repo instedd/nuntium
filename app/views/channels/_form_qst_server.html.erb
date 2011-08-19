@@ -1,4 +1,4 @@
-<%= form_for channel do |f| -%>
+<%= form_for_channel channel do |f| -%>
   <%= f.error_messages -%>
   <%= f.hidden_field :kind, :value => channel.kind %>
   <%= render 'edit_name', :f => f -%>

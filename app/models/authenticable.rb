@@ -9,7 +9,7 @@ module Authenticable
 
   module InstanceMethods
     def authenticate(password)
-      self.password == Digest::SHA2.hexdigest(self.salt + password)
+      self.password == encode_password(self.salt + password)
     end
 
     def reset_password
@@ -19,8 +19,12 @@ module Authenticable
 
     def hash_password
       self.salt = ActiveSupport::SecureRandom.base64(8)
-      self.password = Digest::SHA2.hexdigest(self.salt + self.password) if self.password
-      self.password_confirmation = Digest::SHA2.hexdigest(self.salt + self.password_confirmation) if self.password_confirmation
+      self.password = encode_password(self.salt + self.password) if self.password
+      self.password_confirmation = encode_password(self.salt + self.password_confirmation) if self.password_confirmation
+    end
+
+    def encode_password(str)
+      Digest::SHA2.hexdigest str
     end
   end
 end

@@ -6,7 +6,7 @@ class UnsubscribeFromQueueJobTest < ActiveSupport::TestCase
   test "perform" do
     worker = mock('worker');
     worker.expects(:unsubscribe_from_queue).with('foo')
-  
+
     job = UnsubscribeFromQueueJob.new('foo')
     job.perform worker
   end

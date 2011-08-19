@@ -13,7 +13,17 @@ class ApplicationController < ActionController::Base
   expose(:application)
 
   expose(:channels) { account.channels }
-  expose(:channel)
+  expose(:channel) do
+    if params[:id] || params[:channel_id]
+      channel = channels.find(params[:id] || params[:channel_id])
+      channel.attributes = params[:channel] if params[:channel]
+      channel
+    elsif params[:channel]
+      params[:channel][:kind].to_channel.new params[:channel]
+    else
+      params[:kind].to_channel.new
+    end
+  end
 
   expose(:app_routing_rules) { account.app_routing_rules }
 

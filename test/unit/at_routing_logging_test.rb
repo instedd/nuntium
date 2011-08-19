@@ -7,7 +7,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
   def setup
     @app = Application.make
     @account = @app.account
-    @channel = Channel.make
+    @channel = QstServerChannel.make
   end
 
   [false, true].each do |simulate|
@@ -119,7 +119,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     test "inferred country simulate = #{simulate}" do
       country = Country.make
 
-      @msg = AoMessage.make_unsaved :from => "sms://#{country.phone_prefix}12"
+      @msg = AtMessage.make_unsaved :from => "sms://#{country.phone_prefix}12"
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate

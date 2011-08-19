@@ -1,4 +1,4 @@
-module ServiceChannelHandlerTest
+module ServiceChannelTest
   def test_should_enqueue_when_handling
     assert_handler_should_enqueue_ao_job @chan
   end
@@ -16,7 +16,7 @@ module ServiceChannelHandlerTest
   end
 
   def test_on_create_binds_queue
-    chan = Channel.make_unsaved :smpp
+    chan = @chan.class.make_unsaved
     Queues.expects(:bind_ao).with(chan)
     chan.save!
   end
@@ -32,8 +32,9 @@ module ServiceChannelHandlerTest
     ManagedProcess.expects(:find_by_account_id_and_name).
       with(@chan.account.id, "#{@chan.kind}_daemon #{@chan.name}").
       returns(proc)
-    proc.expects(:touch)
+    proc.expects(:save!)
 
+    @chan.priority = 1234
     @chan.save!
   end
 
@@ -89,7 +90,7 @@ module ServiceChannelHandlerTest
     ManagedProcess.expects(:find_by_account_id_and_name).
       with(@chan.account.id, "#{@chan.kind}_daemon #{@chan.name}").
       returns(proc)
-    proc.expects(:touch)
+    proc.expects(:save!)
 
     @chan.account.save!
   end
@@ -100,7 +101,7 @@ module ServiceChannelHandlerTest
     ManagedProcess.expects(:find_by_account_id_and_name).
       with(@chan.account.id, "#{@chan.kind}_daemon #{@chan.name}").
       returns(proc)
-    proc.expects(:touch)
+    proc.expects(:save!)
 
     Application.make :account => @chan.account
   end

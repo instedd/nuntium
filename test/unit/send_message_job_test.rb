@@ -5,7 +5,7 @@ class SendMessageJobTest < ActiveSupport::TestCase
 
   test "should rethrow on permanent exception" do
     account = Account.make
-    channel = Channel.make :account => account
+    channel = QstServerChannel.make :account => account
     msg = AoMessage.make :account => account, :channel => channel, :state => 'queued'
 
     job = SendMessageJob.new account.id, channel.id, msg.id
@@ -42,7 +42,7 @@ class SendMessageJobTest < ActiveSupport::TestCase
 
   test "should increment tries on temporary exception" do
     account = Account.make
-    channel = Channel.make :account => account
+    channel = QstServerChannel.make :account => account
     msg = AoMessage.make :account => account, :channel => channel, :state => 'queued'
 
     job = SendMessageJob.new account.id, channel.id, msg.id
@@ -61,8 +61,8 @@ class SendMessageJobTest < ActiveSupport::TestCase
 
   test "should not execute if the message is queued on a different channel" do
     account = Account.make
-    channel1 = Channel.make :account => account
-    channel2 = Channel.make :account => account
+    channel1 = QstServerChannel.make :account => account
+    channel2 = QstServerChannel.make :account => account
     msg = AoMessage.make :account => account, :channel => channel2
 
     job = SendMessageJob.new account.id, channel1.id, msg.id
@@ -73,7 +73,7 @@ class SendMessageJobTest < ActiveSupport::TestCase
 
   test "should not execute if the message is not in 'queued' state" do
     account = Account.make
-    channel = Channel.make :account => account
+    channel = QstServerChannel.make :account => account
     msg = AoMessage.make :account => account, :channel => channel, :state => 'canceled'
 
     job = SendMessageJob.new account.id, channel.id, msg.id

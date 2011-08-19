@@ -24,7 +24,7 @@ class CustomAttributeTest < ActiveSupport::TestCase
     account = Account.make
     CustomAttribute.create! :account => account, :address => 'sms://123', :custom_attributes => {'foo' => '1'}
     msg = AtMessage.make_unsaved :from => 'sms://123'
-    channel = Channel.make
+    channel = QstServerChannel.make
 
     account.route_at msg, channel
 
@@ -33,7 +33,7 @@ class CustomAttributeTest < ActiveSupport::TestCase
 
   test "custom attributes can be used to route AT" do
     account = Account.make
-    channel = Channel.make :account => account
+    channel = QstServerChannel.make :account => account
     app1 = Application.make :account => account
     app2 = Application.make :account => account
     CustomAttribute.create! :account => account, :address => 'sms://123', :custom_attributes => {'application' => app1.name}

@@ -17,7 +17,7 @@ class IpopController < ApplicationController
 
   def ack
     status = params[:st].to_i
-    status_message = IpopChannelHandler::StatusCodes[status]
+    status_message = IpopChannel::StatusCodes[status]
 
     msg = AoMessage.find_by_channel_id_and_channel_relative_id @channel.id, "#{params[:hp]}-#{params[:ts]}"
     return render :text => 'NOK 1' unless msg
@@ -28,7 +28,7 @@ class IpopController < ApplicationController
 
     if status == 6
       detailed_status = params[:dst].to_i
-      detailed_status_message = IpopChannelHandler::DetailedStatusCodes[detailed_status]
+      detailed_status_message = IpopChannel::DetailedStatusCodes[detailed_status]
       log_message << ". Detailed status code #{detailed_status}: #{detailed_status_message}"
 
       # Insufficient credit

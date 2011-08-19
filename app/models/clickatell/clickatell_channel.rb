@@ -2,16 +2,24 @@ require 'uri'
 require 'net/http'
 require 'net/https'
 
-class ClickatellChannelHandler < ChannelHandler
-  include GenericChannelHandler
+class ClickatellChannel < Channel
+  include GenericChannel
 
-  def restrictions
+  configuration_accessor :api_id, :user, :password, :from, :incoming_password, :cost_per_credit, :network
+
+  validates_presence_of :api_id, :incoming_password
+  validates_numericality_of :cost_per_credit, :greater_than => 0
+  validates_presence_of :user, :password, :from, :if => :outgoing?
+
+  before_destroy :clear_restrictions_cache
+  after_update :clear_restrictions_cache
+
+  def augmented_restrictions
     # try to load the restrictions from cache
     res = Rails.cache.read restrictions_cache_key
     return res if res
 
     res = super
-    network = @channel.configuration[:network]
     return res if !network || res.has_key?('country') || res.has_key?('carrier')
 
     # since restriction is modified inplace, clone it.
@@ -30,35 +38,11 @@ class ClickatellChannelHandler < ChannelHandler
     return res
   end
 
-  def on_changed
-    super
-    clear_restrictions_cache
-  end
-
-  def on_destroy
-    super
-    clear_restrictions_cache
-  end
-
-  def check_valid
-    check_config_not_blank :api_id
-    check_config_not_blank :incoming_password
-    check_config_not_blank :cost_per_credit
-
-    if (@channel.configuration[:cost_per_credit].to_f <= 0)
-      @channel.errors.add(:cost_per_credit, "must be a positive number")
-    end
-
-    if (@channel.direction & Channel::Outgoing) != 0
-      check_config_not_blank :user, :password, :from
-    end
-  end
-
   def info
-    s = ""
-    s << @channel.configuration[:user] + " / " if @channel.configuration[:user].present?
-    s << @channel.configuration[:api_id] + " <a href=\"#\" onclick=\"clickatell_view_credit(#{@channel.id}); return false;\">view credit</a>"
-    s
+    str = ""
+    str << "#{user} / " if user.present?
+    str << "#{api_id} <a href=\"#\" onclick=\"clickatell_view_credit(#{id}); return false;\">view credit</a>"
+    str
   end
 
   def more_info(ao_msg)
@@ -87,21 +71,20 @@ class ClickatellChannelHandler < ChannelHandler
   end
 
   def get_credit
-    cfg = @channel.configuration
-    Clickatell.get_credit :api_id => cfg[:api_id], :user => cfg[:user], :password => cfg[:password]
+    Clickatell.get_credit :api_id => api_id, :user => user, :password => password
   end
 
   def get_status(ao_msg)
-    cfg = @channel.configuration
-    Clickatell.get_status :api_id => cfg[:api_id], :user => cfg[:user], :password => cfg[:password], :apimsgid => ao_msg.channel_relative_id
+    Clickatell.get_status :api_id => api_id, :user => user, :password => password, :apimsgid => ao_msg.channel_relative_id
   end
 
   def restrictions_cache_key
-    "channel_restrictions.#{@channel.id}"
+    "channel_restrictions.#{id}"
   end
 
   def clear_restrictions_cache
     Rails.cache.delete restrictions_cache_key
+    true
   end
 
   CLICKATELL_NETWORKS = {
@@ -180,5 +163,4 @@ class ClickatellChannelHandler < ChannelHandler
       res[key] << value unless res[key].include? value
     end
   end
-
 end

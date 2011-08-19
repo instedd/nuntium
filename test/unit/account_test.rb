@@ -7,7 +7,7 @@ class AccountTest < ActiveSupport::TestCase
   def setup
     @account = Account.make
     @app = @account.applications.make
-    @chan = @account.channels.make
+    @chan = QstServerChannel.make :account_id => @account.id
   end
 
   [:name, :password].each do |field|
@@ -98,8 +98,8 @@ class AccountTest < ActiveSupport::TestCase
     assert as[0].updated_at > previous_date
   end
 
-   test "route at saves many last channels" do
-    chan2 = @account.channels.make
+  test "route at saves many last channels" do
+    chan2 = QstServerChannel.make :account_id => @account.id
 
     msg1 = AtMessage.make_unsaved :from => 'sms://1234'
     @account.route_at msg1, @chan

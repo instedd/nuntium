@@ -4,7 +4,7 @@ require 'smpp'
 
 class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make_unsaved :smpp
+    @chan = SmppChannel.make_unsaved
     @transceiver = mock('Smpp::Transceiver')
   end
 

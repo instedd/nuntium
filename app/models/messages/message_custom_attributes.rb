@@ -20,12 +20,12 @@ module MessageCustomAttributes
     #                      be read when completing missing fields
     def infer_custom_attributes(optimizations = {})
       address = self.kind_of?(AoMessage) ? to : from
-      return if not address or address.protocol != 'sms'
+      return unless address.try(:protocol) == 'sms'
 
       number = address.mobile_number
 
       # Infer country from phone number
-      if not self.country
+      unless self.country
         countries = Country.all.select{|x| number.start_with? x.phone_prefix}
         if countries.length > 0
           # Slipt countries with and without area codes

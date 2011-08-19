@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class ScheduledJobsServiceTest < ActiveSupport::TestCase
-
   cattr_accessor :flag
 
   def setup

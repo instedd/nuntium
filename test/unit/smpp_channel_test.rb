@@ -1,10 +1,8 @@
 require 'test_helper'
 
-class SmppChannelHandlerTest < ActiveSupport::TestCase
-  include Mocha::API
-
+class SmppChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make :smpp
+    @chan = SmppChannel.make
   end
 
   [:host, :port, :source_ton, :source_npi, :destination_ton, :destination_npi, :user, :password, :system_type, :mt_csms_method].each do |field|
@@ -13,5 +11,5 @@ class SmppChannelHandlerTest < ActiveSupport::TestCase
     end
   end
 
-  include ServiceChannelHandlerTest
+  include ServiceChannelTest
 end

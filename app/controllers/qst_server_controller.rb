@@ -6,8 +6,8 @@ class QstServerController < ApplicationController
     authenticate_or_request_with_http_basic do |username, password|
       @account = Account.find_by_id_or_name params[:account_id]
       if @account
-        @channel = @account.channels.where(:name => username, :kind => 'qst_server').first
-        @channel && @channel.handler.authenticate(password)
+        @channel = @account.qst_server_channels.where(:name => username).first
+        @channel && @channel.authenticate(password)
       else
         false
       end

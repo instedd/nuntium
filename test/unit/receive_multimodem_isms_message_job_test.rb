@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ReceiveMultimodemIsmsMessageJobTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make :multimodem_isms
+    @chan = MultimodemIsmsChannel.make
   end
 
   should "perform with zero" do

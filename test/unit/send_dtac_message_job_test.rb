@@ -2,7 +2,7 @@ require 'test_helper'
 
 class SendDtacMessageJobTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make :dtac
+    @chan = DtacChannel.make
   end
 
   should "perform" do

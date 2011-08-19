@@ -1,4 +1,4 @@
-<%= form_for channel do |f| -%>
+<%= form_for channel.becomes(Channel), :url => (channel.new_record? ? channels_path : channel_path(channel)) do |f| -%>
   <%= f.error_messages -%>
   <%= f.hidden_field :kind, :value => channel.kind %>
   <%= f.hidden_field :direction, :value => Channel::Bidirectional -%>

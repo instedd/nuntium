@@ -1,7 +1,7 @@
 <%- if Nuntium::TwitterConsumerConfig.nil? -%>
   <%= render 'twitter_configuration_missing' -%>
 <%- else -%>
-  <%= form_for channel, :url => create_twitter_channel_path do |f| -%>
+  <%= form_for channel.becomes(Channel), :url => create_twitter_channel_path do |f| -%>
     <%= f.error_messages -%>
     <%= f.hidden_field :kind, :value => channel.kind %>
     <%= f.hidden_field :direction, :value => Channel::Bidirectional -%>

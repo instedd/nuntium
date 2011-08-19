@@ -24,14 +24,26 @@ class WorkerQueue < ActiveRecord::Base
     Queues.subscribe queue_name, ack, durable, mq, &block
   end
 
+  def enable!
+    self.enabled = true
+    self.save!
+  end
+
+  def disable!
+    self.enabled = false
+    self.save!
+  end
+
   private
 
   def publish_subscribe_notification
     Queues.publish_notification SubscribeToQueueJob.new(queue_name), working_group
+    true
   end
 
   def publish_unsubscribe_notification
     Queues.publish_notification UnsubscribeFromQueueJob.new(queue_name), working_group
+    true
   end
 
   def record_enabled_changed

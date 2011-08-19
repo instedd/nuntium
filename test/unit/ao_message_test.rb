@@ -162,7 +162,7 @@ class AoMessageTest < ActiveSupport::TestCase
       app.delivery_ack_method = 'get'
       app.delivery_ack_url = 'foo'
       app.save!
-      chan = account.channels.make
+      chan = QstServerChannel.make :account_id => account.id
 
       msg = account.ao_messages.make :application => app, :channel => chan
 
@@ -186,7 +186,7 @@ class AoMessageTest < ActiveSupport::TestCase
     app.delivery_ack_method = 'get'
     app.delivery_ack_url = 'foo'
     app.save!
-    chan = account.channels.make
+    chan = QstServerChannel.make :account_id => account.id
 
     msg = account.ao_messages.make :application => app, :channel => chan
 
@@ -201,7 +201,7 @@ class AoMessageTest < ActiveSupport::TestCase
     app = account.applications.make_unsaved
     app.delivery_ack_method = 'none'
     app.save!
-    chan = account.channels.make
+    chan = QstServerChannel.make :account_id => account.id
 
     msg = account.ao_messages.make :application => app, :channel => chan
 
@@ -217,7 +217,7 @@ class AoMessageTest < ActiveSupport::TestCase
     app.delivery_ack_method = 'get'
     app.delivery_ack_url = 'foo'
     app.save!
-    chan = account.channels.make
+    chan = QstServerChannel.make :account_id => account.id
 
     msg = account.ao_messages.make :application => app
 
@@ -233,7 +233,7 @@ class AoMessageTest < ActiveSupport::TestCase
     app.delivery_ack_method = 'get'
     app.delivery_ack_url = 'foo'
     app.save!
-    chan = account.channels.make
+    chan = QstServerChannel.make :account_id => account.id
 
     Queues.expects(:publish_application).times(2)
 
@@ -249,7 +249,7 @@ class AoMessageTest < ActiveSupport::TestCase
     app.delivery_ack_method = 'get'
     app.delivery_ack_url = 'foo'
     app.save!
-    chan = account.channels.make
+    chan = QstServerChannel.make :account_id => account.id
 
     Queues.expects(:publish_application).times(1)
 

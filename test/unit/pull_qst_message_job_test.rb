@@ -8,7 +8,7 @@ class PullQstMessageJobTest < ActiveSupport::TestCase
     @application.interface_password = 'pass'
     @application.save!
 
-    @channel = Channel.make :clickatell, :account => @application.account
+    @channel = ClickatellChannel.make :account => @application.account
 
     @job = PullQstMessageJob.new @application.id
     @job.batch_size = 3

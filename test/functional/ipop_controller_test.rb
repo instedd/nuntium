@@ -4,7 +4,7 @@ class IpopControllerTest < ActionController::TestCase
   def setup
     @account = Account.make
     @application = Application.make :account => @account
-    @chan = Channel.make :ipop, :account => @account
+    @chan = IpopChannel.make :account => @account
   end
 
   test "index" do
@@ -54,7 +54,7 @@ class IpopControllerTest < ActionController::TestCase
     assert_equal 1, logs.length
     assert_equal msg.id, logs[0].ao_message_id
     assert_equal @chan.id, logs[0].channel_id
-    assert_equal "Recieved status notification with status 5 (#{IpopChannelHandler::StatusCodes[5]})", logs[0].message
+    assert_equal "Recieved status notification with status 5 (#{IpopChannel::StatusCodes[5]})", logs[0].message
   end
 
   test "ack not ok" do
@@ -77,7 +77,7 @@ class IpopControllerTest < ActionController::TestCase
     assert_equal 1, logs.length
     assert_equal msg.id, logs[0].ao_message_id
     assert_equal @chan.id, logs[0].channel_id
-    assert_equal "Recieved status notification with status 6 (#{IpopChannelHandler::StatusCodes[6]}). Detailed status code 10: #{IpopChannelHandler::DetailedStatusCodes[10]}", logs[0].message
+    assert_equal "Recieved status notification with status 6 (#{IpopChannel::StatusCodes[6]}). Detailed status code 10: #{IpopChannel::DetailedStatusCodes[10]}", logs[0].message
   end
 
   test "ack not ok for unknown message" do

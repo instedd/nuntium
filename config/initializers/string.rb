@@ -99,6 +99,11 @@ class String
     gsub!(/[\x00-\x09\x0B\x0C\x0E-\x1F]/,'?')
   end
 
+  # Returns a channel class for this kind
+  def to_channel
+    "#{self}_channel".camelize.constantize
+  end
+
   ParseObjectFromYaml = /\!ruby\/\w+\:(\S+)/
 
 end

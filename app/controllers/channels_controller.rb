@@ -12,10 +12,6 @@ class ChannelsController < ApplicationController
     channel.check_valid_in_ui
   end
 
-  def new
-    channel.kind = params[:kind]
-  end
-
   def create
     if channel.save
       redirect_to channels_path, :notice => "Channel #{channel.name} was created"

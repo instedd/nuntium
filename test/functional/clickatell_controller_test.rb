@@ -4,7 +4,7 @@ class ClickatellControllerTest < ActionController::TestCase
   def setup
     @account = Account.make
     @application = Application.make :account => @account, :password => 'secret'
-    @chan = Channel.make_unsaved :clickatell, :account => @account
+    @chan = ClickatellChannel.make_unsaved :account => @account
     @chan.configuration[:incoming_password] = 'incoming'
     @chan.save!
   end

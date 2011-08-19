@@ -24,7 +24,7 @@ class TwitterController < ChannelsController
   end
 
   def callback
-    oauth = TwitterChannelHandler.new_oauth
+    oauth = TwitterChannel.new_oauth
     oauth.authorize_from_request(session['twitter_token'], session['twitter_secret'], params[:oauth_verifier])
     profile = Twitter::Base.new(oauth).verify_credentials
     access_token = oauth.access_token
@@ -61,7 +61,7 @@ class TwitterController < ChannelsController
   protected
 
   def go_to_twitter
-    oauth = TwitterChannelHandler.new_oauth
+    oauth = TwitterChannel.new_oauth
 
     request_token = oauth.request_token
 

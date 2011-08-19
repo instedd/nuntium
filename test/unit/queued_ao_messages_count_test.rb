@@ -2,7 +2,7 @@ require 'test_helper'
 
 class QueuedAoMessagesCountTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make
+    @chan = QstServerChannel.make
   end
 
   test "default count is zero" do

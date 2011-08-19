@@ -1,4 +1,4 @@
-<%= form_for channel do |f| -%>
+<%= form_for_channel channel do |f| -%>
   <%= f.error_messages -%>
   <%= f.hidden_field :kind, :value => channel.kind %>
   <%= f.hidden_field :direction, :value => Channel::Bidirectional -%>
@@ -27,7 +27,7 @@
     </p>
     <p id="network">
     <%= c.label :network -%><br/>
-    <%= c.select :network, options_for_select(ClickatellChannelHandler::CLICKATELL_NETWORKS.map {|v,d| [d,v]}, channel.configuration[:network])%>
+    <%= c.select :network, options_for_select(ClickatellChannel::CLICKATELL_NETWORKS.map {|v,d| [d,v]}, channel.configuration[:network])%>
     </p>
     <p id="concat_container">
     <%= c.label :concatenation -%><br/>

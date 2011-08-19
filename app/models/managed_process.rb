@@ -8,6 +8,16 @@ class ManagedProcess < ActiveRecord::Base
   before_update :record_enabled_changed
   after_commit :publish_notification_if_needed, :on => :update
 
+  def enable!
+    self.enabled = true
+    save!
+  end
+
+  def disable!
+    self.enabled = false
+    save!
+  end
+
   def publish_start_notification
     publish_notification StartProcessJob
   end

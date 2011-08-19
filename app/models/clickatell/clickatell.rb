@@ -1,7 +1,6 @@
 require 'csv'
 
 module Clickatell
-
   def self.get_credit(query_parameters)
     Clickatell.get("/http/getbalance?#{query_parameters.to_query}").body
   end
@@ -54,7 +53,7 @@ module Clickatell
         next
       end
 
-      ::ClickatellChannelHandler::CLICKATELL_NETWORKS.each do |network_key, network_desc|
+      ::ClickatellChannel::CLICKATELL_NETWORKS.each do |network_key, network_desc|
         next if network_key == 'usa'
 
         network_column_index = firstRow.index(network_desc)
@@ -94,8 +93,8 @@ module Clickatell
       puts "\033[31mCan't create usa network: country US not founde\033[0m"
     end
 
-    Channel.where(:kind => 'clickatell').find_each do |chan|
-      chan.handler.clear_restrictions_cache unless options[:pretend]
+    ClickatellChannel.find_each do |chan|
+      chan.clear_restrictions_cache unless options[:pretend]
     end
   end
 
