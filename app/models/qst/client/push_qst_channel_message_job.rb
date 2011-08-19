@@ -8,7 +8,7 @@ class PushQstChannelMessageJob < AbstractPushQstMessageJob
   end
 
   def message_class
-    AOMessage
+    AoMessage
   end
 
   def max_tries

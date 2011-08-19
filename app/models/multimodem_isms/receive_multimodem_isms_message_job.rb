@@ -27,7 +27,7 @@ class ReceiveMultimodemIsmsMessageJob
 
     notifs = [notifs] unless notifs.kind_of? Array
     notifs.each do |notif|
-      msg = ATMessage.new
+      msg = AtMessage.new
 
       from = notif['SenderNumber'] || ''
       from = from[1 .. -1] if from.start_with? '+'

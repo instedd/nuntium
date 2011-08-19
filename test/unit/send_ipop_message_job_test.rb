@@ -3,7 +3,7 @@ require 'test_helper'
 class SendIpopMessageJobTest < ActiveSupport::TestCase
   def setup
     @chan = Channel.make :ipop
-    @msg = AOMessage.make :account => Account.make, :channel => @chan, :timestamp => Time.utc(2001, 02, 03, 04, 05, 06)
+    @msg = AoMessage.make :account => Account.make, :channel => @chan, :timestamp => Time.utc(2001, 02, 03, 04, 05, 06)
     @query = {
       :sc => @chan.address,
       :hp => @msg.to.mobile_number,
@@ -31,7 +31,7 @@ class SendIpopMessageJobTest < ActiveSupport::TestCase
 
     deliver
 
-    msg = AOMessage.first
+    msg = AoMessage.first
     assert_equal 1, msg.tries
     assert_equal 'delivered', msg.state
     assert_equal "#{@msg.to.mobile_number}-#{@query[:ts]}", msg.channel_relative_id

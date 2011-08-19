@@ -11,8 +11,8 @@ class Channel < ActiveRecord::Base
   belongs_to :account
   belongs_to :application
 
-  has_many :ao_messages, :class_name => 'AOMessage'
-  has_many :at_messages, :class_name => 'ATMessage'
+  has_many :ao_messages
+  has_many :at_messages
   has_many :qst_outgoing_messages, :class_name => 'QSTOutgoingMessage'
   has_many :smpp_message_parts
   has_many :twitter_channel_statuses

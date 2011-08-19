@@ -110,9 +110,9 @@ class ActiveSupport::TestCase
     end
   end
 
-  # Creates an ATMessage that belongs to account and has values according to i
+  # Creates an AtMessage that belongs to account and has values according to i
   def new_at_message(application, i, protocol = 'protocol', state = 'queued', tries = 0)
-    msg = new_message application.account, i, ATMessage, protocol, state, tries
+    msg = new_message application.account, i, AtMessage, protocol, state, tries
     if msg.respond_to? :each
       msg.each{|x| x.application_id = application.id, x.save!}
     else
@@ -163,7 +163,7 @@ class ActiveSupport::TestCase
       jobs << job
     end
 
-    msg = AOMessage.make :account_id => chan.account_id, :channel_id => chan.id
+    msg = AoMessage.make :account_id => chan.account_id, :channel_id => chan.id
     chan.handler.handle(msg)
 
     assert_equal 1, jobs.length

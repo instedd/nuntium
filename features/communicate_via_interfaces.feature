@@ -10,7 +10,7 @@ Should be able to send messages to nuntium
 
   Scenario: Receive message via RSS interface
     Given I am authenticated as the "GeoChat" application
-      And the following ATMessage exists:
+      And the following AtMessage exists:
         | account name      | InsTEDD                       |
         | application name  | GeoChat                       |
         | from              | mailto://some@user.com        |

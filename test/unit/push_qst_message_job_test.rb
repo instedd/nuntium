@@ -24,7 +24,7 @@ class PushQstMessageJobTest < ActiveSupport::TestCase
   end
 
   test "one message no previous last id" do
-    @msg = ATMessage.make :account => @application.account, :application => @application, :state => 'queued'
+    @msg = AtMessage.make :account => @application.account, :application => @application, :state => 'queued'
 
     @client.expects(:get_last_id).returns(nil)
     @client.expects(:put_messages).with([@msg.to_qst]).returns(@msg.guid)
@@ -40,8 +40,8 @@ class PushQstMessageJobTest < ActiveSupport::TestCase
   end
 
   test "two messages with previous last id" do
-    @msg1 = ATMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now
-    @msg2 = ATMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now + 1
+    @msg1 = AtMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now
+    @msg2 = AtMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now + 1
 
     @client.expects(:get_last_id).returns(@msg1.guid)
     @client.expects(:put_messages).with([@msg2.to_qst]).returns(@msg2.guid)
@@ -61,8 +61,8 @@ class PushQstMessageJobTest < ActiveSupport::TestCase
   end
 
   test "two messages no previous last id but only one confirmed" do
-    @msg1 = ATMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now
-    @msg2 = ATMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now + 1
+    @msg1 = AtMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now
+    @msg2 = AtMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now + 1
 
     @client.expects(:get_last_id).returns(nil)
     @client.expects(:put_messages).with([@msg1.to_qst, @msg2.to_qst]).returns(@msg1.guid)
@@ -82,7 +82,7 @@ class PushQstMessageJobTest < ActiveSupport::TestCase
   end
 
   test "authentication exception sets application interface to rss" do
-    @msg = ATMessage.make :account => @application.account, :application => @application, :state => 'queued'
+    @msg = AtMessage.make :account => @application.account, :application => @application, :state => 'queued'
 
     response = mock('Response')
     response.stubs(:code => 401)
@@ -100,8 +100,8 @@ class PushQstMessageJobTest < ActiveSupport::TestCase
   test "check has quota if returned messages equal batch size" do
     @job.batch_size = 1
 
-    @msg1 = ATMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now
-    @msg2 = ATMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now + 1
+    @msg1 = AtMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now
+    @msg2 = AtMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now + 1
 
     @client.expects(:get_last_id).returns(nil)
 

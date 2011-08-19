@@ -147,7 +147,7 @@ class ClickatellChannelHandlerTest < ActiveSupport::TestCase
   end
 
   def ao_with(country, carrier = nil)
-    msg = AOMessage.new
+    msg = AoMessage.new
     msg.country = country
     msg.carrier = carrier unless carrier.nil?
     msg

@@ -8,7 +8,7 @@ class DtacController < ApplicationController
     converter = Iconv.new('UTF-8','TIS-620')
     text = converter.iconv(params[:CONTENT])
 
-    msg = ATMessage.new
+    msg = AtMessage.new
     msg.from = "sms://#{params[:MSISDN]}"
     msg.to = "sms://#{params[:SMSCODE]}"
     msg.body = text

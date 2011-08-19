@@ -10,15 +10,15 @@ class QueuedAoMessagesCountTest < ActiveSupport::TestCase
   end
 
   test "when an ao gets queued count gets incremented" do
-    AOMessage.make :account => @chan.account, :channel => @chan, :state => 'queued'
+    AoMessage.make :account => @chan.account, :channel => @chan, :state => 'queued'
     assert_equal 1, @chan.queued_ao_messages_count
 
-    AOMessage.make :account => @chan.account, :channel => @chan, :state => 'queued'
+    AoMessage.make :account => @chan.account, :channel => @chan, :state => 'queued'
     assert_equal 2, @chan.queued_ao_messages_count
   end
 
   test "when an ao gets out of queued count gets decremented" do
-    msg = AOMessage.make :account => @chan.account, :channel => @chan, :state => 'queued'
+    msg = AoMessage.make :account => @chan.account, :channel => @chan, :state => 'queued'
     assert_equal 1, @chan.queued_ao_messages_count
 
     msg.state = 'delivered'
@@ -28,7 +28,7 @@ class QueuedAoMessagesCountTest < ActiveSupport::TestCase
   end
 
   test "when an ao does not change its state count is the same" do
-    msg = AOMessage.make :account => @chan.account, :channel => @chan, :state => 'queued'
+    msg = AoMessage.make :account => @chan.account, :channel => @chan, :state => 'queued'
     assert_equal 1, @chan.queued_ao_messages_count
 
     msg.tries = 2
@@ -38,9 +38,9 @@ class QueuedAoMessagesCountTest < ActiveSupport::TestCase
   end
 
   test "when an ao gets created but it's not queued don't increment" do
-    AOMessage.make :account => @chan.account, :channel => @chan, :state => 'pending'
-    AOMessage.make :account => @chan.account, :channel => @chan, :state => 'pending'
-    AOMessage.make :account => @chan.account, :channel => @chan, :state => 'pending'
+    AoMessage.make :account => @chan.account, :channel => @chan, :state => 'pending'
+    AoMessage.make :account => @chan.account, :channel => @chan, :state => 'pending'
+    AoMessage.make :account => @chan.account, :channel => @chan, :state => 'pending'
 
     assert_equal 0, @chan.queued_ao_messages_count
   end

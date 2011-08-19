@@ -48,7 +48,7 @@ channel = channels.find_by_id msg.channel_id
     <td><b>In channel:</b></td>
     <td><%= channel.name rescue '' -%></td>
   </tr>
-  <% if msg.class == AOMessage && msg.failover_channels.present? %>
+  <% if msg.class == AoMessage && msg.failover_channels.present? %>
     <tr valign="baseline">
       <td><b>Failover channels:</b></td>
       <td><%= msg.failover_channels.split(',').map{|x| @account.channels.find_by_id(x).name rescue ''}.join ', ' -%></td>
@@ -67,7 +67,7 @@ channel = channels.find_by_id msg.channel_id
     <td><%= msg.token -%></td>
   </tr>
   <%- if msg.state == 'broadcasted' -%>
-    <%- copies_str = AOMessage.where(:parent_id => msg.id).all.map do |b|
+    <%- copies_str = AoMessage.where(:parent_id => msg.id).all.map do |b|
           link_to b.id, {:controller => :message, :action => :view_ao_message, :id => b.id}, :target => '_blank'
         end.join(', ') -%>
     <%- if copies_str.present? -%>
@@ -79,7 +79,7 @@ channel = channels.find_by_id msg.channel_id
       </tr>
     <%- end -%>
   <%- end -%>
-  <%- if msg.class == AOMessage and msg.parent_id and parent = msg.class.find_by_id(msg.parent_id)%>
+  <%- if msg.class == AoMessage and msg.parent_id and parent = msg.class.find_by_id(msg.parent_id)%>
     <tr valign="baseline">
       <td><b>Original:</b></td>
       <td><%= link_to parent.id, {:controller => :message, :action => :view_ao_message, :id => parent.id}, :target => '_blank' -%></td>
@@ -110,7 +110,7 @@ channel = channels.find_by_id msg.channel_id
       </tr>
     <%- end -%>
   <%- end -%>
-  <%- if msg.class == AOMessage && channel
+  <%- if msg.class == AoMessage && channel
     hash = channel.handler.more_info(msg)
     hash.each_pair do |key, value|
       -%>

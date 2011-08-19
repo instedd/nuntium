@@ -5,7 +5,7 @@ require 'yaml'
 class ReceivePop3MessageJobTest < ActiveSupport::TestCase
   def setup
     @chan = Channel.make :pop3
-    @email = ATMessage.make_unsaved :email
+    @email = AtMessage.make_unsaved :email
   end
 
   should "perform no ssl" do
@@ -123,7 +123,7 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     expect_connection @chan, mail
     receive
 
-    assert_equal 1, ATMessage.count
+    assert_equal 1, AtMessage.count
   end
 
   should "not throw if mail has no from field" do
@@ -137,7 +137,7 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     expect_connection @chan, mail
     receive
 
-    assert_equal 1, ATMessage.count
+    assert_equal 1, AtMessage.count
   end
 
   def msg_as_email(email, options = {})
@@ -169,7 +169,7 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
   end
 
   def expect_at_message(options = {})
-    msgs = ATMessage.all
+    msgs = AtMessage.all
     assert_equal 1, msgs.length
 
     msg = msgs[0]

@@ -74,7 +74,7 @@ class ApiChannelController < ApiAuthenticatedController
   def candidates
     return head :bad_request unless @application
 
-    msg = AOMessage.from_hash params
+    msg = AoMessage.from_hash params
     msg.account_id = @account.id
 
     channels = @application.candidate_channels_for_ao msg

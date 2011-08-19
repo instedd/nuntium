@@ -10,7 +10,7 @@ class RepublishAtJob
   end
 
   def perform
-    msg = ATMessage.find @message_id
+    msg = AtMessage.find @message_id
     msg.state = 'queued'
     msg.save!
 

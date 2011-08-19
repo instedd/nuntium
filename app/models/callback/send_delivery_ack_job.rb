@@ -12,7 +12,7 @@ class SendDeliveryAckJob
   def perform
     @account = Account.find_by_id @account_id
     @app = @account.applications.find_by_id @application_id
-    @msg = AOMessage.get_message @message_id
+    @msg = AoMessage.get_message @message_id
     @chan = @account.channels.find_by_id @msg.channel_id
 
     return unless @app and @chan and @app.delivery_ack_method != 'none'

@@ -8,7 +8,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
   end
 
   test "perform no ssl" do
-    msg = AOMessage.make :account => @chan.account, :channel => @chan
+    msg = AoMessage.make :account => @chan.account, :channel => @chan
     msgstr = msg_as_email msg
     expect_smtp msg, msgstr
     deliver msg
@@ -19,7 +19,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
     @chan.configuration[:user] = @chan.configuration[:password] = nil
     @chan.save!
 
-    msg = AOMessage.make :account => @chan.account, :channel => @chan
+    msg = AoMessage.make :account => @chan.account, :channel => @chan
     msgstr = msg_as_email msg
     expect_smtp msg, msgstr
     deliver msg
@@ -30,7 +30,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
     @chan.configuration[:use_ssl] = '1'
     @chan.save!
 
-    msg = AOMessage.make :account => @chan.account, :channel => @chan
+    msg = AoMessage.make :account => @chan.account, :channel => @chan
     msgstr = msg_as_email msg
     expect_smtp msg, msgstr
     deliver msg
@@ -38,7 +38,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
   end
 
   test "perform with thread" do
-    msg = AOMessage.make :account => @chan.account, :channel => @chan
+    msg = AoMessage.make :account => @chan.account, :channel => @chan
     msg.custom_attributes['references_thread'] = 'foo'
     msg.save!
 
@@ -49,7 +49,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
   end
 
   test "perform with references" do
-    msg = AOMessage.make :account => @chan.account, :channel => @chan
+    msg = AoMessage.make :account => @chan.account, :channel => @chan
     msg.custom_attributes['references_foo'] = 'a'
     msg.custom_attributes['references_bar'] = 'b'
     msg.save!
@@ -97,7 +97,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
   end
 
   def expect_ao_message_was_delivered
-    msg = AOMessage.first
+    msg = AoMessage.first
     assert_equal 1, msg.tries
     assert_equal 'delivered', msg.state
   end

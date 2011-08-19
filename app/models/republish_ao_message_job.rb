@@ -8,7 +8,7 @@ class RepublishAoMessageJob
   end
 
   def perform
-    msg = AOMessage.find @message_id
+    msg = AoMessage.find @message_id
     return if msg.state != 'delayed'
 
     msg.state = 'queued'

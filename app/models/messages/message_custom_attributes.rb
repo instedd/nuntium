@@ -19,7 +19,7 @@ module MessageCustomAttributes
     #  - :mobile_number => associated to the message, so that it does not need to
     #                      be read when completing missing fields
     def infer_custom_attributes(optimizations = {})
-      address = self.kind_of?(AOMessage) ? to : from
+      address = self.kind_of?(AoMessage) ? to : from
       return if not address or address.protocol != 'sms'
 
       number = address.mobile_number

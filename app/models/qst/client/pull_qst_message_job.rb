@@ -7,7 +7,7 @@ class PullQstMessageJob < AbstractPullQstMessageJob
   end
 
   def message_class
-    AOMessage
+    AoMessage
   end
 
   def load_last_id

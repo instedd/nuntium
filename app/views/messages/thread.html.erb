@@ -21,12 +21,12 @@
   </tr>
   <%- @msgs.each_with_index do |msg, i| -%>
     <%-
-    kind = msg.kind_of?(AOMessage) ? 'ao' : 'at'
+    kind = msg.kind_of?(AoMessage) ? 'ao' : 'at'
     -%>
     <tr class="<%= kind -%> <%= i.even_to_s -%>">
       <td><%= kind.upcase -%></td>
       <td>
-        <%- if msg.kind_of?(AOMessage) && msg.parent_id
+        <%- if msg.kind_of?(AoMessage) && msg.parent_id
           image_name = @ao_messages[i+1] && @ao_messages[i+1].parent_id == msg.parent_id ? 'branch' : 'branch_end'
           -%>
           <%= image_tag "#{image_name}.png", :size => '16x16', :style => 'position:relative; top:4px' -%>

@@ -14,13 +14,13 @@ class PullQstChannelMessageJobTest < ActiveSupport::TestCase
   test "no messages" do
     @client.expects(:get_messages).with(:max => @job.batch_size).returns([])
 
-    assert_equal 0, ATMessage.count
+    assert_equal 0, AtMessage.count
 
     @job.perform
   end
 
   test "one message no last id" do
-    @msg = ATMessage.make_unsaved
+    @msg = AtMessage.make_unsaved
 
     @client.expects(:get_messages).with(:max => @job.batch_size).returns([@msg.to_qst])
 
@@ -30,7 +30,7 @@ class PullQstChannelMessageJobTest < ActiveSupport::TestCase
     @channel.reload
     assert_equal @msg.guid, @channel.configuration[:last_at_guid]
 
-    msgs = ATMessage.all
+    msgs = AtMessage.all
     assert_equal 1, msgs.length
     assert_equal @msg.to_qst, msgs[0].to_qst
   end
@@ -45,8 +45,8 @@ class PullQstChannelMessageJobTest < ActiveSupport::TestCase
   end
 
   test "two messages because has quota" do
-    @msg1 = ATMessage.make_unsaved
-    @msg2 = ATMessage.make_unsaved
+    @msg1 = AtMessage.make_unsaved
+    @msg2 = AtMessage.make_unsaved
 
     @client.expects(:get_messages).with(:max => @job.batch_size, :from_id => @msg1.guid).returns([@msg2.to_qst])
     @client.expects(:get_messages).with(:max => @job.batch_size).returns([@msg1.to_qst])
@@ -56,7 +56,7 @@ class PullQstChannelMessageJobTest < ActiveSupport::TestCase
 
     @job.perform
 
-    msgs = ATMessage.all
+    msgs = AtMessage.all
     assert_equal 2, msgs.length
 
     assert_equal @msg1.to_qst, msgs[0].to_qst

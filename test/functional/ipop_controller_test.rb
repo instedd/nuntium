@@ -20,7 +20,7 @@ class IpopControllerTest < ActionController::TestCase
     }
     post :index, params
 
-    msgs = ATMessage.all
+    msgs = AtMessage.all
     assert_equal 1, msgs.length
     msg = msgs[0]
 
@@ -36,7 +36,7 @@ class IpopControllerTest < ActionController::TestCase
   end
 
   test "ack ok" do
-    msg = AOMessage.make :account => @account, :application => @application, :channel => @chan, :channel_relative_id => '1234-5678'
+    msg = AoMessage.make :account => @account, :application => @application, :channel => @chan, :channel_relative_id => '1234-5678'
     params = {
       :account_id => @chan.account.name,
       :channel_name => @chan.name,
@@ -58,7 +58,7 @@ class IpopControllerTest < ActionController::TestCase
   end
 
   test "ack not ok" do
-    msg = AOMessage.make :account => @account, :application => @application, :channel => @chan, :channel_relative_id => '1234-5678'
+    msg = AoMessage.make :account => @account, :application => @application, :channel => @chan, :channel_relative_id => '1234-5678'
     params = {
       :account_id => @chan.account.name,
       :channel_name => @chan.name,

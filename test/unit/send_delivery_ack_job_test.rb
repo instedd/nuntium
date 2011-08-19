@@ -4,7 +4,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
   def setup
     @application = Application.make
     @chan = Channel.make :account => @application.account, :application => @application
-    @msg = AOMessage.make :account => @application.account, :application => @application, :channel => @chan
+    @msg = AoMessage.make :account => @application.account, :application => @application, :channel => @chan
     @query = {:guid => @msg.guid, :channel => @chan.name, :state => @msg.state}
   end
 

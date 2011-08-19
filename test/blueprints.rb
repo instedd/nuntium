@@ -41,7 +41,7 @@ end
   end
 end
 
-[AOMessage, ATMessage].each do |message|
+[AoMessage, AtMessage].each do |message|
   message.blueprint do
     from { "sms://#{Sham.number8}" }
     to { "sms://#{Sham.number8}" }

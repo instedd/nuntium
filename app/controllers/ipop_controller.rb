@@ -3,7 +3,7 @@ class IpopController < ApplicationController
   before_filter :authenticate
 
   def index
-    msg = ATMessage.new
+    msg = AtMessage.new
     msg.from = params[:hp].with_protocol 'sms'
     msg.to = (@channel.address || '').with_protocol 'sms'
     msg.body = params[:txt]
@@ -19,7 +19,7 @@ class IpopController < ApplicationController
     status = params[:st].to_i
     status_message = IpopChannelHandler::StatusCodes[status]
 
-    msg = AOMessage.find_by_channel_id_and_channel_relative_id @channel.id, "#{params[:hp]}-#{params[:ts]}"
+    msg = AoMessage.find_by_channel_id_and_channel_relative_id @channel.id, "#{params[:hp]}-#{params[:ts]}"
     return render :text => 'NOK 1' unless msg
     msg.state = (status == 4 || status == 5) ? 'confirmed' : 'failed'
     msg.save!

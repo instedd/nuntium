@@ -14,7 +14,7 @@ class AtMessagesController < ApplicationController
   end
 
   def new
-    @msg = ATMessage.new
+    @msg = AtMessage.new
     @kind = 'at'
     render "messages/new"
   end
@@ -53,7 +53,7 @@ class AtMessagesController < ApplicationController
   end
 
   def rgviz
-    render :rgviz => ATMessage, :conditions => ['at_messages.account_id = ?', account.id], :extensions => true
+    render :rgviz => AtMessage, :conditions => ['at_messages.account_id = ?', account.id], :extensions => true
   end
 
   protected

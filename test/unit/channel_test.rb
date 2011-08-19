@@ -97,7 +97,7 @@ class ChannelTest < ActiveSupport::TestCase
       ])
     ]
 
-    msg = AOMessage.make_unsaved :from => 'sms://1', :account => @chan.account, :application => @chan.application
+    msg = AoMessage.make_unsaved :from => 'sms://1', :account => @chan.account, :application => @chan.application
     @chan.route_ao msg, 'test'
 
     assert_equal 'sms://2', msg.from
@@ -112,7 +112,7 @@ class ChannelTest < ActiveSupport::TestCase
       ])
     ]
 
-    msg = AOMessage.make_unsaved :from => 'sms://1', :account => @chan.account, :application => @chan.application
+    msg = AoMessage.make_unsaved :from => 'sms://1', :account => @chan.account, :application => @chan.application
     @chan.route_ao msg, 'test'
 
     assert_equal 'canceled', msg.state
@@ -121,7 +121,7 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "route ao discards message with same from and to" do
-    msg = AOMessage.make_unsaved :from => 'sms://123', :to => 'sms://123', :account => @chan.account, :application => @chan.application
+    msg = AoMessage.make_unsaved :from => 'sms://123', :to => 'sms://123', :account => @chan.account, :application => @chan.application
     @chan.expects(:handle).never
     @chan.route_ao msg, 'test'
 
@@ -129,7 +129,7 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "route ao discards message with invalid to address" do
-    msg = AOMessage.make_unsaved :to => 'sms://hello', :account => @chan.account, :application => @chan.application
+    msg = AoMessage.make_unsaved :to => 'sms://hello', :account => @chan.account, :application => @chan.application
     @chan.route_ao msg, 'test'
 
     msg.reload

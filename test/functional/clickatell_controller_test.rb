@@ -12,7 +12,7 @@ class ClickatellControllerTest < ActionController::TestCase
   def assert_message(options = {})
     assert_equal 0, ClickatellMessagePart.all.length
 
-    msgs = ATMessage.all
+    msgs = AtMessage.all
     assert_equal 1, msgs.length
 
     msg = msgs[0]
@@ -69,7 +69,7 @@ class ClickatellControllerTest < ActionController::TestCase
 
     assert_equal 0, ClickatellMessagePart.all.length
 
-    msgs = ATMessage.all
+    msgs = AtMessage.all
     assert_equal 2, msgs.length
   end
 
@@ -78,7 +78,7 @@ class ClickatellControllerTest < ActionController::TestCase
     get :index, :account_id => 'another', :api_id => @chan.configuration[:api_id], :from => 'from1', :to => 'to1', :text => 'some text', :timestamp => '1218007814', :charset => 'UTF-8', :moMsgId => 'someid'
     assert_response 401
 
-    assert_equal 0, ATMessage.count
+    assert_equal 0, AtMessage.count
   end
 
   test "fails authorization because of channel" do
@@ -86,7 +86,7 @@ class ClickatellControllerTest < ActionController::TestCase
     get :index, :account_id => @account.name, :api_id => @chan.configuration[:api_id], :from => 'from1', :to => 'to1', :text => 'some text', :timestamp => '1218007814', :charset => 'UTF-8', :moMsgId => 'someid'
     assert_response 401
 
-    assert_equal 0, ATMessage.count
+    assert_equal 0, AtMessage.count
   end
 
   test "ack just to verify" do
@@ -96,7 +96,7 @@ class ClickatellControllerTest < ActionController::TestCase
   end
 
   test "ack 003 (delivered to gateway)" do
-    @msg = AOMessage.make :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'foo'
+    @msg = AoMessage.make :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'foo'
 
     charge = 0.3
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])
@@ -109,7 +109,7 @@ class ClickatellControllerTest < ActionController::TestCase
   end
 
   test "ack 004 (received by recipient)" do
-    @msg = AOMessage.make :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'foo'
+    @msg = AoMessage.make :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'foo'
 
     charge = 0.3
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])
@@ -123,7 +123,7 @@ class ClickatellControllerTest < ActionController::TestCase
 
   ['005', '006', '007', '012'].each do |status|
     test "ack #{status} (failed)" do
-      @msg = AOMessage.make :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'foo'
+      @msg = AoMessage.make :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'foo'
 
       charge = 0.3
       @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])

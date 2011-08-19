@@ -38,7 +38,7 @@ class ReceivePop3MessageJob
       sender = (tmail.from || []).first
       receiver = (tmail.to || []).first
 
-      msg = ATMessage.new
+      msg = AtMessage.new
       msg.from = "mailto://#{sender}"
       msg.to = "mailto://#{receiver}"
       msg.subject = tmail.subject

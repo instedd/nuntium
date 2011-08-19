@@ -28,7 +28,7 @@ class SmppTransceiverDelegate
     end
 
     if msg_text.nil?
-      logger.warning "Could not find suitable encoding for AOMessage with id #{id}"
+      logger.warning "Could not find suitable encoding for AoMessage with id #{id}"
       return "Could not find suitable encoding"
     end
 
@@ -151,7 +151,7 @@ class SmppTransceiverDelegate
     end
 
     msg = @channel.ao_messages.where(:channel_relative_id => msg_reference).first
-    return logger.info "AOMessage with channel_relative_id #{msg_reference} not found" if msg.nil?
+    return logger.info "AoMessage with channel_relative_id #{msg_reference} not found" if msg.nil?
 
     # Reflect in message state
     if pdu.message_state
@@ -171,14 +171,14 @@ class SmppTransceiverDelegate
     logger.info "Delegate: message_accepted: id #{mt_message_id} smsc ref id: #{pdu.message_id}"
 
     # Find message with mt_message_id
-    msg = AOMessage.find_by_id mt_message_id
-    return logger.info "AOMessage with id #{mt_message_id} not found (ref id: #{pdu.message_id})" if msg.nil?
+    msg = AoMessage.find_by_id mt_message_id
+    return logger.info "AoMessage with id #{mt_message_id} not found (ref id: #{pdu.message_id})" if msg.nil?
 
     # smsc_message_id comes in hexadecimal
     reference_id = normalize(pdu.message_id)
 
     # Blank all messages with that reference id in case the reference id is already used
-    AOMessage.update_all(['channel_relative_id = ?', nil], ['channel_id = ? AND channel_relative_id = ?', @channel.id, reference_id])
+    AoMessage.update_all(['channel_relative_id = ?', nil], ['channel_id = ? AND channel_relative_id = ?', @channel.id, reference_id])
 
     # And set this message's channel relative id to later look it up
     # in the delivery_report_received method
@@ -197,8 +197,8 @@ class SmppTransceiverDelegate
     logger.info "Delegate: message_sent_with_error: id #{mt_message_id} pdu_command_status: #{pdu.command_status}"
 
     # Find message with mt_message_id
-    msg = AOMessage.find_by_id mt_message_id
-    return logger.info "AOMessage with id #{mt_message_id} not found (pdu_command_status: #{pdu.command_status})" if msg.nil?
+    msg = AoMessage.find_by_id mt_message_id
+    return logger.info "AoMessage with id #{mt_message_id} not found (pdu_command_status: #{pdu.command_status})" if msg.nil?
 
     msg.state = 'failed'
     msg.tries += 1
@@ -211,7 +211,7 @@ class SmppTransceiverDelegate
   end
 
   def create_at_message(source, destination, data_coding, text)
-    msg = ATMessage.new
+    msg = AtMessage.new
     msg.from = source.with_protocol 'sms'
     msg.to = destination.with_protocol 'sms'
     if (@channel.configuration[:accept_mo_hex_string].to_b) and text.is_hex?

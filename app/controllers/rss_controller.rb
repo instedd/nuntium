@@ -42,7 +42,7 @@ class RssController < ApplicationController
 
     # And increment their tries
     at_messages_ids.each do |at_message_id|
-      ATMessage.where(:id => at_message_id).update_all "state = 'delivered', tries = tries + 1"
+      AtMessage.where(:id => at_message_id).update_all "state = 'delivered', tries = tries + 1"
     end
 
     # Separate messages into ones that have their tries
@@ -51,11 +51,11 @@ class RssController < ApplicationController
 
     # Mark as failed messages that have their tries over max_tries
     invalid_messages.each do |invalid_message|
-      ATMessage.where(:id => invalid_message.id).update_all "state = 'failed'"
+      AtMessage.where(:id => invalid_message.id).update_all "state = 'failed'"
     end
 
     # Logging: say that valid messages were returned and invalid no
-    ATMessage.log_delivery(@at_messages, @account, 'rss')
+    AtMessage.log_delivery(@at_messages, @account, 'rss')
 
     @at_messages = valid_messages
     return head :not_modified if @at_messages.empty?
@@ -74,7 +74,7 @@ class RssController < ApplicationController
       items = [items] if items.class <= Hash
       items.each do |item|
         # Create AO message
-        msg = AOMessage.new
+        msg = AoMessage.new
         msg.from = item[:author]
         msg.to = item[:to]
         msg.subject = item[:title]

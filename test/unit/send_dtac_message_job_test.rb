@@ -13,12 +13,12 @@ class SendDtacMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain',
       :read_body => 'Status=0')
 
-    msg = AOMessage.make :account => Account.make, :channel => @chan
+    msg = AoMessage.make :account => Account.make, :channel => @chan
 
     expect_http_post msg, response
     deliver msg
 
-    msg = AOMessage.first
+    msg = AoMessage.first
     assert_equal 1, msg.tries
     assert_equal 'delivered', msg.state
   end
@@ -31,12 +31,12 @@ class SendDtacMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain',
       :read_body => 'Status=-111') # Message length too long
 
-    msg = AOMessage.make :account => Account.make, :channel => @chan
+    msg = AoMessage.make :account => Account.make, :channel => @chan
 
     expect_http_post msg, response
     deliver msg
 
-    msg = AOMessage.first
+    msg = AoMessage.first
     assert_equal 1, msg.tries
     assert_equal 'failed', msg.state
 
@@ -56,7 +56,7 @@ class SendDtacMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain',
       :read_body => 'Status=-110') # Invalid User / Invalid Password: Not valid User or Password
 
-    msg = AOMessage.make :account => Account.make, :channel => @chan
+    msg = AoMessage.make :account => Account.make, :channel => @chan
 
     expect_http_post msg, response
     begin
@@ -66,7 +66,7 @@ class SendDtacMessageJobTest < ActiveSupport::TestCase
       fail "Expected exception to be thrown"
     end
 
-    msg = AOMessage.first
+    msg = AoMessage.first
     assert_equal 1, msg.tries
     assert_equal 'queued', msg.state
 
@@ -94,7 +94,7 @@ class SendDtacMessageJobTest < ActiveSupport::TestCase
   end
 
   def check_message_was_delivered(channel_relative_id)
-    msg = AOMessage.first
+    msg = AoMessage.first
     assert_equal channel_relative_id, msg.channel_relative_id
     assert_equal 1, msg.tries
     assert_equal 'delivered', msg.state

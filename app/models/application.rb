@@ -33,7 +33,7 @@ class Application < ActiveRecord::Base
 
   include(CronTask::CronTaskOwner)
 
-  # Route an AOMessage.
+  # Route an AoMessage.
   #
   # When options[:simulate] is true, a simulation is done with the following result:
   #

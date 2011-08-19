@@ -10,7 +10,7 @@ class SendSmppMessageJob
   def perform(delegate)
     account = Account.find_by_id @account_id
     channel = account.channels.find_by_id @channel_id
-    msg = AOMessage.find @message_id
+    msg = AoMessage.find @message_id
 
     return false if msg.state != 'queued' or msg.channel_id != @channel_id
 

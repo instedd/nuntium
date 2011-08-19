@@ -1,9 +1,9 @@
-class AOMessage < ActiveRecord::Base
+class AoMessage < ActiveRecord::Base
   belongs_to :account
   belongs_to :application
   belongs_to :channel
   has_many :logs
-  has_many :children, :foreign_key => 'parent_id', :class_name => 'AOMessage'
+  has_many :children, :foreign_key => 'parent_id', :class_name => name
 
   validates_presence_of :account
   serialize :custom_attributes, Hash

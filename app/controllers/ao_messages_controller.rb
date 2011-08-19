@@ -18,7 +18,7 @@ class AoMessagesController < ApplicationController
   end
 
   def new
-    @msg = AOMessage.new
+    @msg = AoMessage.new
     @kind = 'ao'
     render "messages/new"
   end
@@ -96,11 +96,11 @@ class AoMessagesController < ApplicationController
 
   # GET /:account_name/:application_name/get_ao.:format
   def get_ao
-    render :json => AOMessage.find_all_by_application_id_and_token(@application.id, params[:token])
+    render :json => AoMessage.find_all_by_application_id_and_token(@application.id, params[:token])
   end
 
   def rgviz
-    render :rgviz => AOMessage, :conditions => ['ao_messages.account_id = ?', account.id], :extensions => true
+    render :rgviz => AoMessage, :conditions => ['ao_messages.account_id = ?', account.id], :extensions => true
   end
 
   private
@@ -116,7 +116,7 @@ class AoMessagesController < ApplicationController
   end
 
   def create_single
-    msg = AOMessage.from_hash params
+    msg = AoMessage.from_hash params
     msg.token = params.delete(:token) || Guid.new.to_s
     route msg
 
@@ -136,7 +136,7 @@ class AoMessagesController < ApplicationController
 
   def create_many(method)
     token = Guid.new.to_s
-    AOMessage.send(method, request.raw_post) do |msg|
+    AoMessage.send(method, request.raw_post) do |msg|
       token = msg.token if msg.token
       msg.token = token
       route msg

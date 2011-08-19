@@ -10,9 +10,9 @@ class AoMessagesControllerTest < ActionController::TestCase
   end
 
   def create_test_ao_messages
-    @ao_msg1 = AOMessage.create! :account_id => @account.id, :application_id => @application.id, :state => 'pending', :body => 'one', :to => 'sms://1'
-    @ao_msg2 = AOMessage.create! :account_id => @account.id, :application_id => @application.id, :state => 'pending', :body => 'one', :to => 'sms://1'
-    @ao_msg3 = AOMessage.create! :account_id => @account.id, :application_id => @application.id, :state => 'pending', :body => 'two', :to => 'sms://1', :tries => 3
+    @ao_msg1 = AoMessage.create! :account_id => @account.id, :application_id => @application.id, :state => 'pending', :body => 'one', :to => 'sms://1'
+    @ao_msg2 = AoMessage.create! :account_id => @account.id, :application_id => @application.id, :state => 'pending', :body => 'one', :to => 'sms://1'
+    @ao_msg3 = AoMessage.create! :account_id => @account.id, :application_id => @application.id, :state => 'pending', :body => 'two', :to => 'sms://1', :tries => 3
   end
 
   test "get ao as json no matches" do
@@ -26,7 +26,7 @@ class AoMessagesControllerTest < ActionController::TestCase
 
   test "get ao as json matches one" do
     token = 1234
-    msg = AOMessage.make :account_id => @account.id, :application_id => @application.id, :channel_id => @chan.id, :token => token
+    msg = AoMessage.make :account_id => @account.id, :application_id => @application.id, :channel_id => @chan.id, :token => token
     msg.country = 'ar'
     msg.save!
 
@@ -45,7 +45,7 @@ class AoMessagesControllerTest < ActionController::TestCase
   end
 
   def assert_fields(kind, member, *states)
-    msgs = (kind == :ao ? AOMessage : ATMessage).all
+    msgs = (kind == :ao ? AoMessage : AtMessage).all
     assert_equal states.length, msgs.length
     states.length.times do |i|
       assert_equal states[i], msgs[i].send(member)
@@ -130,7 +130,7 @@ class AoMessagesControllerTest < ActionController::TestCase
     test "send ao with to = #{to}" do
       get :create_via_api, {:from => 'sms://1234', :to => to, :subject => 's', :body => 'b', :guid => 'g', :account_name => @account.name, :application_name => @application.name}
 
-      messages = AOMessage.all
+      messages = AoMessage.all
       assert_equal 1, messages.length
 
       msg = messages[0]
@@ -155,7 +155,7 @@ class AoMessagesControllerTest < ActionController::TestCase
   test "send ao with token" do
     get :create_via_api, {:token => 'my_token', :account_name => @account.name, :application_name => @application.name}
 
-    messages = AOMessage.all
+    messages = AoMessage.all
     assert_equal 1, messages.length
 
     msg = messages[0]
@@ -177,7 +177,7 @@ class AoMessagesControllerTest < ActionController::TestCase
 
     assert_response 401
 
-    messages = AOMessage.all
+    messages = AoMessage.all
     assert_equal 0, messages.length
   end
 
@@ -185,7 +185,7 @@ class AoMessagesControllerTest < ActionController::TestCase
     get :create_via_api, {:from => 'sms://1234', :to => 'sms://5678', :subject => 's', :body => 'b', :guid => 'g', :account_name => @account.name, :application_name => @application.name,
       'foo' => ['bar', 'baz'], 'bax' => 'bex'}
 
-    messages = AOMessage.all
+    messages = AoMessage.all
     assert_equal 1, messages.length
 
     msg = messages[0]
@@ -198,7 +198,7 @@ class AoMessagesControllerTest < ActionController::TestCase
 
     get :create_via_api, :format => 'json', :account_name => @account.name, :application_name => @application.name
 
-    messages = AOMessage.all
+    messages = AoMessage.all
     assert_equal 2, messages.length
 
     assert_equal messages[0].token, @response.headers['X-Nuntium-Token']
@@ -223,7 +223,7 @@ class AoMessagesControllerTest < ActionController::TestCase
 
     get :create_via_api, :format => 'json', :account_name => @account.name, :application_name => @application.name
 
-    messages = AOMessage.all
+    messages = AoMessage.all
     assert_equal 1, messages.length
 
     assert_equal 'my_token', messages[0].token
@@ -231,12 +231,12 @@ class AoMessagesControllerTest < ActionController::TestCase
   end
 
   test "send ao with xml" do
-    msgs = [AOMessage.new(:from => 'sms://1', :to => 'sms://2', :body => 'foo'), AOMessage.new(:from => 'sms://3', :to => 'sms://4', :body => 'bar')]
-    @request.env['RAW_POST_DATA'] = AOMessage.write_xml(msgs)
+    msgs = [AoMessage.new(:from => 'sms://1', :to => 'sms://2', :body => 'foo'), AoMessage.new(:from => 'sms://3', :to => 'sms://4', :body => 'bar')]
+    @request.env['RAW_POST_DATA'] = AoMessage.write_xml(msgs)
 
     get :create_via_api, :format => 'xml', :account_name => @account.name, :application_name => @application.name
 
-    messages = AOMessage.all
+    messages = AoMessage.all
     assert_equal 2, messages.length
 
     assert_equal messages[0].token, @response.headers['X-Nuntium-Token']
@@ -257,12 +257,12 @@ class AoMessagesControllerTest < ActionController::TestCase
   end
 
   test "send ao with xml and token" do
-    msgs = [AOMessage.new(:token => 'my_token')]
-    @request.env['RAW_POST_DATA'] = AOMessage.write_xml(msgs)
+    msgs = [AoMessage.new(:token => 'my_token')]
+    @request.env['RAW_POST_DATA'] = AoMessage.write_xml(msgs)
 
     get :create_via_api, :format => 'xml', :account_name => @account.name, :application_name => @application.name
 
-    messages = AOMessage.all
+    messages = AoMessage.all
     assert_equal 1, messages.length
 
     assert_equal 'my_token', messages[0].token

@@ -8,7 +8,7 @@ class PullQstChannelMessageJob < AbstractPullQstMessageJob
   end
 
   def message_class
-    ATMessage
+    AtMessage
   end
 
   def load_last_id

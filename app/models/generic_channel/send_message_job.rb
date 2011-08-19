@@ -12,7 +12,7 @@ class SendMessageJob
 
   def perform
     begin
-      @msg = AOMessage.find @message_id
+      @msg = AoMessage.find @message_id
 
       return true if @msg.channel_id != @channel_id
       return true if @msg.state != 'queued'

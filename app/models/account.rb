@@ -6,8 +6,8 @@ class Account < ActiveRecord::Base
   has_many :applications
   has_many :channels
   has_many :address_sources
-  has_many :ao_messages, :class_name => 'AOMessage'
-  has_many :at_messages, :class_name => 'ATMessage'
+  has_many :ao_messages
+  has_many :at_messages
   has_many :custom_attributes
   has_many :logs
 
@@ -28,7 +28,7 @@ class Account < ActiveRecord::Base
     account
   end
 
-  # Routes an ATMessage via a channel.
+  # Routes an AtMessage via a channel.
   #
   # When options[:simulate] is true, a simulation is done and the log is returned.
   def route_at(msg, via_channel, options = {})

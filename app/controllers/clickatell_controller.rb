@@ -21,7 +21,7 @@ class ClickatellController < ApplicationController
     # This is the case when clickatell verifies this URL
     return head :ok unless params[:apiMsgId]
 
-    msg = AOMessage.find_by_channel_id_and_channel_relative_id @channel.id, params[:apiMsgId]
+    msg = AoMessage.find_by_channel_id_and_channel_relative_id @channel.id, params[:apiMsgId]
     return head :ok unless msg
 
     msg.state = case params[:status].to_i
@@ -90,7 +90,7 @@ class ClickatellController < ApplicationController
   end
 
   def create_message(text)
-    msg = ATMessage.new
+    msg = AtMessage.new
     msg.from = "sms://#{params[:from]}"
     msg.to = "sms://#{params[:to]}"
     msg.body = Iconv.new('UTF-8', params[:charset]).iconv(text)

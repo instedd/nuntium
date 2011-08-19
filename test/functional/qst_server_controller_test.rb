@@ -68,7 +68,7 @@ class QstServerControllerTest < ActionController::TestCase
     post :push, :account_id => @account.name
     assert_response :ok
 
-    messages = ATMessage.all
+    messages = AtMessage.all
     assert_equal 1, messages.length
 
     messages[0]
@@ -139,7 +139,7 @@ class QstServerControllerTest < ActionController::TestCase
   end
 
   def create_qst_ao(account, channel)
-    msg = AOMessage.make :account => account, :channel => channel, :state => 'queued'
+    msg = AoMessage.make :account => account, :channel => channel, :state => 'queued'
     QSTOutgoingMessage.create! :channel => channel, :ao_message_id => msg.id
     msg
   end
@@ -180,7 +180,7 @@ class QstServerControllerTest < ActionController::TestCase
   end
 
   test "get one with custom properties" do
-    msg = AOMessage.make_unsaved :account => @account
+    msg = AoMessage.make_unsaved :account => @account
     msg.custom_attributes['foo1'] = 'bar1'
     msg.custom_attributes['foo2'] = 'bar2'
     msg.save!
@@ -195,7 +195,7 @@ class QstServerControllerTest < ActionController::TestCase
   end
 
   test "get one not unread" do
-    AOMessage.make :account => @account
+    AoMessage.make :account => @account
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
     get :pull, :account_id => @account.name
@@ -210,13 +210,13 @@ class QstServerControllerTest < ActionController::TestCase
     1.upto 3 do |i|
       get :pull, :account_id => @account.name
       assert_select "message", {:count => 1}
-      assert_equal i, AOMessage.first.tries
+      assert_equal i, AoMessage.first.tries
     end
 
     # Try number 4 -> should be gone
     get :pull, :account_id => @account.name
     assert_select "message", {:count => 0}
-    assert_equal 'failed', AOMessage.first.state
+    assert_equal 'failed', AoMessage.first.state
   end
 
   test "should return not modified for HTTP_IF_NONE_MATCH" do
@@ -256,7 +256,7 @@ class QstServerControllerTest < ActionController::TestCase
 
     # The first message is marked as delivered,
     # the second stays as queued
-    msgs = AOMessage.all
+    msgs = AoMessage.all
 
     assert_equal 'delivered', msgs[0].state
     assert_equal 'queued', msgs[1].state
@@ -314,7 +314,7 @@ class QstServerControllerTest < ActionController::TestCase
 
   test "should skip failed messages" do
     10.times do |i|
-      msg = AOMessage.make :account => @account, :tries => 4
+      msg = AoMessage.make :account => @account, :tries => 4
       QSTOutgoingMessage.create! :channel => @chan, :ao_message_id => msg.id
     end
 
@@ -361,7 +361,7 @@ class QstServerControllerTest < ActionController::TestCase
     @request.env["HTTP_IF_NONE_MATCH"] = msg.guid
     get :pull, :account_id => @account.name
 
-    assert_equal original_state, AOMessage.find(msg2.id).state
+    assert_equal original_state, AoMessage.find(msg2.id).state
   end
 
   test "get one decrements queued ao count" do

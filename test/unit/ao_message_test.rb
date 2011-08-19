@@ -1,28 +1,28 @@
 require 'test_helper'
 
-class AOMessageTest < ActiveSupport::TestCase
+class AoMessageTest < ActiveSupport::TestCase
   test "subject and body no subject nor body" do
-    msg = AOMessage.new
+    msg = AoMessage.new
     assert_equal '', msg.subject_and_body
   end
 
   test "subject and body just subject" do
-    msg = AOMessage.new :subject => 'subject'
+    msg = AoMessage.new :subject => 'subject'
     assert_equal 'subject', msg.subject_and_body
   end
 
   test "subject and body just body" do
-    msg = AOMessage.new :body => 'body'
+    msg = AoMessage.new :body => 'body'
     assert_equal 'body', msg.subject_and_body
   end
 
   test "subject and body" do
-    msg = AOMessage.new :subject => 'subject', :body => 'body'
+    msg = AoMessage.new :subject => 'subject', :body => 'body'
     assert_equal 'subject - body', msg.subject_and_body
   end
 
   test "infer attributes none" do
-    msg = AOMessage.new :to => 'sms://+1234'
+    msg = AoMessage.new :to => 'sms://+1234'
     msg.infer_custom_attributes
 
     assert_nil msg.country
@@ -30,7 +30,7 @@ class AOMessageTest < ActiveSupport::TestCase
   end
 
   test "infer attributes when to is just protocol" do
-    msg = AOMessage.new :to => 'sms://'
+    msg = AoMessage.new :to => 'sms://'
     msg.infer_custom_attributes
 
     assert_nil msg.country
@@ -40,7 +40,7 @@ class AOMessageTest < ActiveSupport::TestCase
   test "infer attributes one country" do
     country = Country.make
 
-    msg = AOMessage.new :to => "sms://+#{country.phone_prefix}1234"
+    msg = AoMessage.new :to => "sms://+#{country.phone_prefix}1234"
     msg.infer_custom_attributes
 
     assert_equal country.iso2, msg.country
@@ -52,7 +52,7 @@ class AOMessageTest < ActiveSupport::TestCase
     two = Country.make :phone_prefix => '1'
     three = Country.make :phone_prefix => '2'
 
-    msg = AOMessage.new :to => 'sms://+1234'
+    msg = AoMessage.new :to => 'sms://+1234'
     msg.infer_custom_attributes
 
     assert_equal [one.iso2, two.iso2], msg.country
@@ -63,11 +63,11 @@ class AOMessageTest < ActiveSupport::TestCase
     usa = Country.make :phone_prefix => '1'
     canada = Country.make :phone_prefix => '1', :area_codes => '250, 204'
 
-    msg = AOMessage.new :to => 'sms://+12501345'
+    msg = AoMessage.new :to => 'sms://+12501345'
     msg.infer_custom_attributes
     assert_equal canada.iso2, msg.country
 
-    msg = AOMessage.new :to => 'sms://+1234567'
+    msg = AoMessage.new :to => 'sms://+1234567'
     msg.infer_custom_attributes
     assert_equal usa.iso2, msg.country
   end
@@ -77,7 +77,7 @@ class AOMessageTest < ActiveSupport::TestCase
     usa2 = Country.make :phone_prefix => '1'
     canada = Country.make :phone_prefix => '1', :area_codes => '250, 204'
 
-    msg = AOMessage.new :to => 'sms://+1234567'
+    msg = AoMessage.new :to => 'sms://+1234567'
     msg.infer_custom_attributes
     assert_equal [usa.iso2, usa2.iso2], msg.country
   end
@@ -85,7 +85,7 @@ class AOMessageTest < ActiveSupport::TestCase
   test "don't infer country if already specified" do
     country = Country.make :iso2 => 'ar'
 
-    msg = AOMessage.new :to => 'sms://+#{country.phone_prefix}1234'
+    msg = AoMessage.new :to => 'sms://+#{country.phone_prefix}1234'
     msg.country = 'br'
     msg.infer_custom_attributes
 
@@ -97,7 +97,7 @@ class AOMessageTest < ActiveSupport::TestCase
     country = Country.make
     carrier = Carrier.make :country => country
 
-    msg = AOMessage.new :to => "sms://+#{country.phone_prefix}#{carrier.prefixes}1234"
+    msg = AoMessage.new :to => "sms://+#{country.phone_prefix}#{carrier.prefixes}1234"
     msg.infer_custom_attributes
 
     assert_equal country.iso2, msg.country
@@ -110,7 +110,7 @@ class AOMessageTest < ActiveSupport::TestCase
     c2 = Carrier.make :country => country, :prefixes => '3'
     c3 = Carrier.make :country => country, :prefixes => '4'
 
-    msg = AOMessage.new(:to => 'sms://+1234')
+    msg = AoMessage.new(:to => 'sms://+1234')
     msg.infer_custom_attributes
 
     assert_equal country.iso2, msg.country
@@ -121,7 +121,7 @@ class AOMessageTest < ActiveSupport::TestCase
     country = Country.make :iso2 => 'ar'
     carrier = Carrier.make :country => country, :guid => 'personal'
 
-    msg = AOMessage.new(:to => 'sms://+#{country.phone_prefix}#{carrier.prefixes}1234')
+    msg = AoMessage.new(:to => 'sms://+#{country.phone_prefix}#{carrier.prefixes}1234')
     msg.country = country.iso2
     msg.carrier = 'movistar'
     msg.infer_custom_attributes
@@ -135,7 +135,7 @@ class AOMessageTest < ActiveSupport::TestCase
     carrier = Carrier.make :country => country, :guid => 'personal'
     mob = MobileNumber.create! :number => '1234', :country => country, :carrier => carrier
 
-    msg = AOMessage.new :to => 'sms://1234'
+    msg = AoMessage.new :to => 'sms://1234'
     msg.infer_custom_attributes
 
     assert_equal country.iso2, msg.country
@@ -147,7 +147,7 @@ class AOMessageTest < ActiveSupport::TestCase
     carrier = Carrier.make :country => country, :guid => 'personal'
     mob = MobileNumber.create! :number => '1234', :carrier => carrier
 
-    msg = AOMessage.new :to => 'sms://1234'
+    msg = AoMessage.new :to => 'sms://1234'
     msg.country = 'ar'
     msg.infer_custom_attributes
 
@@ -259,11 +259,11 @@ class AOMessageTest < ActiveSupport::TestCase
   end
 
   test "fix mobile number" do
-    msg = AOMessage.new :from => 'sms://+1234', :to => 'sms://+5678'
+    msg = AoMessage.new :from => 'sms://+1234', :to => 'sms://+5678'
     assert_equal 'sms://1234', msg.from
     assert_equal 'sms://5678', msg.to
 
-    msg = AOMessage.new :from => 'xmpp://+1234', :to => 'xmpp://+5678'
+    msg = AoMessage.new :from => 'xmpp://+1234', :to => 'xmpp://+5678'
     assert_equal 'xmpp://+1234', msg.from
     assert_equal 'xmpp://+5678', msg.to
   end

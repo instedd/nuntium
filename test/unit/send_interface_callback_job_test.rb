@@ -4,7 +4,7 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
   def setup
     @application = Application.make
     @chan = Channel.make :account => @application.account, :application => @application
-    @msg = ATMessage.make :account => @application.account, :application => @application, :channel => @chan
+    @msg = AtMessage.make :account => @application.account, :application => @application, :channel => @chan
     @query = {
       :application => @application.name,
       :from => @msg.from,
@@ -166,7 +166,7 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
     job.perform
 
-    msgs = AOMessage.all
+    msgs = AoMessage.all
     assert_equal 1, msgs.count
     assert_equal @application.account_id, msgs[0].account_id
     assert_equal @application.id, msgs[0].application_id
@@ -192,7 +192,7 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
     job.perform
 
-    msgs = AOMessage.all
+    msgs = AoMessage.all
     assert_equal 1, msgs.count
     assert_equal @application.account_id, msgs[0].account_id
     assert_equal @application.id, msgs[0].application_id
@@ -219,7 +219,7 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
     job.perform
 
-    msgs = AOMessage.all
+    msgs = AoMessage.all
     assert_equal 1, msgs.count
     assert_equal @application.account_id, msgs[0].account_id
     assert_equal @application.id, msgs[0].application_id
@@ -246,7 +246,7 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
     job.perform
 
-    msgs = AOMessage.all
+    msgs = AoMessage.all
     assert_equal 1, msgs.count
     assert_equal 'my_token', msgs[0].token
   end
@@ -256,20 +256,20 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     @application.interface_url = 'http://www.domain.com'
     @application.save!
 
-    xml = AOMessage.make_unsaved :subject => nil
+    xml = AoMessage.make_unsaved :subject => nil
     xml.country = 'ar'
 
     expect_post :url => @application.interface_url,
       :data => @query,
       :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
       :returns => Net::HTTPSuccess,
-      :returns_body => AOMessage.write_xml([xml]),
+      :returns_body => AoMessage.write_xml([xml]),
       :returns_content_type => 'application/xml'
 
     job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
     job.perform
 
-    msgs = AOMessage.all
+    msgs = AoMessage.all
     assert_equal 1, msgs.count
     assert_equal @application.account_id, msgs[0].account_id
     assert_equal @application.id, msgs[0].application_id
@@ -286,20 +286,20 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     @application.interface_url = 'http://www.domain.com'
     @application.save!
 
-    xml = AOMessage.make_unsaved :subject => nil
+    xml = AoMessage.make_unsaved :subject => nil
     xml.token = 'my_token'
 
     expect_post :url => @application.interface_url,
       :data => @query,
       :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
       :returns => Net::HTTPSuccess,
-      :returns_body => AOMessage.write_xml([xml]),
+      :returns_body => AoMessage.write_xml([xml]),
       :returns_content_type => 'application/xml'
 
     job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
     job.perform
 
-    msgs = AOMessage.all
+    msgs = AoMessage.all
     assert_equal 1, msgs.count
     assert_equal 'my_token', msgs[0].token
   end

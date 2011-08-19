@@ -6,7 +6,7 @@ class SendTwitterMessageJobTest < ActiveSupport::TestCase
 
   def setup
     @channel = Channel.make :twitter
-    @msg = AOMessage.make :account_id => @channel.account_id, :channel_id => @channel.id, :state => 'queued'
+    @msg = AoMessage.make :account_id => @channel.account_id, :channel_id => @channel.id, :state => 'queued'
     @job = SendTwitterMessageJob.new @channel.account_id, @channel.id, @msg.id
   end
 

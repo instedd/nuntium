@@ -50,7 +50,7 @@ class ReceiveTwitterMessageJob
       end
 
       msgs.each do |twit|
-        msg = ATMessage.new
+        msg = AtMessage.new
         msg.from = "twitter://#{twit.sender_screen_name}"
         msg.to ="twitter://#{twit.recipient_screen_name}"
         msg.body = twit.text

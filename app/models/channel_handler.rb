@@ -1,4 +1,4 @@
-# Knows what to do when an AOMessage arrives via a channel kind.
+# Knows what to do when an AoMessage arrives via a channel kind.
 # Implementations must define:
 # - handle(msg): to handle a message, typically creating a feature job to execute
 # - check_valid: to perform error validations on channel's configuration (optional)

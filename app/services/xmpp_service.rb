@@ -37,7 +37,7 @@ class XmppService < Service
 
   def receive_chats
     message :chat?, :body do |msg|
-      at = ATMessage.new
+      at = AtMessage.new
       at.channel_relative_id = msg.id
       at.from = msg.from.stripped.to_s.with_protocol 'xmpp'
       at.to = msg.to.stripped.to_s.with_protocol 'xmpp'
@@ -50,7 +50,7 @@ class XmppService < Service
 
   def receive_errors
     message :error? do |msg|
-      ao = AOMessage.find_by_id msg.id
+      ao = AoMessage.find_by_id msg.id
       if ao
         ao.state = 'failed'
         ao.save!

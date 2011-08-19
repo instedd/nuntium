@@ -6,15 +6,15 @@ class AtMessagesControllerTest < ActionController::TestCase
     @chan = Channel.make :account => @account
     @application = Application.make :account => @account, :password => 'app_pass'
 
-    @at_msg1 = ATMessage.create! :account_id => @account.id, :state => 'queued', :body => 'one'
-    @at_msg2 = ATMessage.create! :account_id => @account.id, :state => 'queued', :body => 'one'
-    @at_msg3 = ATMessage.create! :account_id => @account.id, :state => 'queued', :body => 'two'
+    @at_msg1 = AtMessage.create! :account_id => @account.id, :state => 'queued', :body => 'one'
+    @at_msg2 = AtMessage.create! :account_id => @account.id, :state => 'queued', :body => 'one'
+    @at_msg3 = AtMessage.create! :account_id => @account.id, :state => 'queued', :body => 'two'
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')
   end
 
   def assert_fields(kind, member, *states)
-    msgs = (kind == :ao ? AOMessage : ATMessage).all
+    msgs = (kind == :ao ? AoMessage : AtMessage).all
     assert_equal states.length, msgs.length
     states.length.times do |i|
       assert_equal states[i], msgs[i].send(member)

@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class PushQstChannelMessageJobTest < ActiveSupport::TestCase
-
   def setup
     @channel = Channel.make :qst_client
 
@@ -20,7 +19,7 @@ class PushQstChannelMessageJobTest < ActiveSupport::TestCase
   end
 
   test "one message no previous last id" do
-    @msg = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued'
+    @msg = AoMessage.make :account => @channel.account, :channel => @channel, :state => 'queued'
 
     @client.expects(:get_last_id).returns(nil)
     @client.expects(:put_messages).with([@msg.to_qst]).returns(@msg.guid)
@@ -36,8 +35,8 @@ class PushQstChannelMessageJobTest < ActiveSupport::TestCase
   end
 
   test "two messages with previous last id" do
-    @msg1 = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now
-    @msg2 = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now + 1
+    @msg1 = AoMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now
+    @msg2 = AoMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now + 1
 
     @client.expects(:get_last_id).returns(@msg1.guid)
     @client.expects(:put_messages).with([@msg2.to_qst]).returns(@msg2.guid)
@@ -57,8 +56,8 @@ class PushQstChannelMessageJobTest < ActiveSupport::TestCase
   end
 
   test "two messages no previous last id but only one confirmed" do
-    @msg1 = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now
-    @msg2 = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now + 1
+    @msg1 = AoMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now
+    @msg2 = AoMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now + 1
 
     @client.expects(:get_last_id).returns(nil)
     @client.expects(:put_messages).with([@msg1.to_qst, @msg2.to_qst]).returns(@msg1.guid)
@@ -78,7 +77,7 @@ class PushQstChannelMessageJobTest < ActiveSupport::TestCase
   end
 
   test "authentication exception disables channel" do
-    @msg = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued'
+    @msg = AoMessage.make :account => @channel.account, :channel => @channel, :state => 'queued'
 
     response = mock('Response')
     response.stubs(:code => 401)
@@ -96,8 +95,8 @@ class PushQstChannelMessageJobTest < ActiveSupport::TestCase
   test "check has quota if returned messages equal batch size" do
     @job.batch_size = 1
 
-    @msg1 = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now
-    @msg2 = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now + 1
+    @msg1 = AoMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now
+    @msg2 = AoMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now + 1
 
     @client.expects(:get_last_id).returns(nil)
 
@@ -111,17 +110,16 @@ class PushQstChannelMessageJobTest < ActiveSupport::TestCase
     @job.perform
   end
 
-	test "one message no previous last id correct queued count" do
-    @msg = AOMessage.make :account => @channel.account, :channel => @channel, :state => 'queued'
+  test "one message no previous last id correct queued count" do
+    @msg = AoMessage.make :account => @channel.account, :channel => @channel, :state => 'queued'
 
-		assert_equal 1, @channel.queued_ao_messages_count
+    assert_equal 1, @channel.queued_ao_messages_count
 
     @client.expects(:get_last_id).returns(nil)
     @client.expects(:put_messages).with([@msg.to_qst]).returns(@msg.guid)
 
     @job.perform
 
-		assert_equal 0, @channel.queued_ao_messages_count
+    assert_equal 0, @channel.queued_ao_messages_count
   end
-
 end

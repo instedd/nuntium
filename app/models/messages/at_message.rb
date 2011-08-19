@@ -1,4 +1,4 @@
-class ATMessage < ActiveRecord::Base
+class AtMessage < ActiveRecord::Base
   belongs_to :account
   belongs_to :application
   belongs_to :channel

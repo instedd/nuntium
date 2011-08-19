@@ -182,8 +182,8 @@ class CronTaskTest < ActiveSupport::TestCase
   def clean_database
     [
       Account, Log,
-      AddressSource, AOMessage, Application,
-      ATMessage, Carrier, Channel,
+      AddressSource, AoMessage, Application,
+      AtMessage, Carrier, Channel,
       ClickatellCoverageMO, ClickatellMessagePart, Country,
       CronTask, ManagedProcess, MobileNumber,
       QSTOutgoingMessage, SmppMessagePart,

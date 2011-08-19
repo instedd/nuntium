@@ -111,7 +111,7 @@ class ChannelsControllerTest < ActionController::TestCase
     chan2 = Channel.make :qst_server, :account => @account
 
     app = Application.make :account => @account
-    msg = AOMessage.make :account => @account, :application => app, :channel => chan1, :state => 'queued'
+    msg = AoMessage.make :account => @account, :application => app, :channel => chan1, :state => 'queued'
 
     get :disable, {:id => chan1.id}, {:account_id => @account.id}
 

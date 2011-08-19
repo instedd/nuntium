@@ -23,7 +23,7 @@ class CustomAttributeTest < ActiveSupport::TestCase
   test "apply custom attributes for AT messages" do
     account = Account.make
     CustomAttribute.create! :account => account, :address => 'sms://123', :custom_attributes => {'foo' => '1'}
-    msg = ATMessage.make_unsaved :from => 'sms://123'
+    msg = AtMessage.make_unsaved :from => 'sms://123'
     channel = Channel.make
 
     account.route_at msg, channel
@@ -37,7 +37,7 @@ class CustomAttributeTest < ActiveSupport::TestCase
     app1 = Application.make :account => account
     app2 = Application.make :account => account
     CustomAttribute.create! :account => account, :address => 'sms://123', :custom_attributes => {'application' => app1.name}
-    msg = ATMessage.make_unsaved :from => 'sms://123'
+    msg = AtMessage.make_unsaved :from => 'sms://123'
 
     account.route_at msg, channel
 
