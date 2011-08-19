@@ -1,8 +1,8 @@
 require 'iconv'
 
-class ClickatellController < AccountAuthenticatedController
+class ClickatellController < ApplicationController
   before_filter :authenticate, :only => [:index, :ack]
-  before_filter :check_login, :only => :view_credit
+  skip_filter :check_login, :except => [:view_credit]
 
   @@clickatell_timezone = ActiveSupport::TimeZone.new 2.hours
 

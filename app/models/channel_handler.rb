@@ -4,7 +4,6 @@
 # - check_valid: to perform error validations on channel's configuration (optional)
 # - check_valid_in_ui: to perform error validations when configured from the ui, otherwise tests would become slow (optional)
 # - before_save: to apply a transformation before saving it (optional)
-# - update(params): copy attributes from params hash when updating (can be overriden)
 # - clear_password: to clear any sensitive data from a channel before redirecting to the edit page when errors happened (optional)
 # - info: public configuration info about this channel (optional)
 class ChannelHandler
@@ -34,10 +33,6 @@ class ChannelHandler
 
   def create_job(msg)
     job_class.new(@channel.account_id, @channel.id, msg.id)
-  end
-
-  def update(params)
-    @channel.attributes = params
   end
 
   def before_validation

@@ -380,7 +380,7 @@ class Channel < ActiveRecord::Base
   end
 
   def handler_before_validation
-    self.handler.before_validation
+    self.handler.try :before_validation
     true
   end
 

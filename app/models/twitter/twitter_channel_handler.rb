@@ -1,11 +1,6 @@
 require 'twitter'
 
 class TwitterChannelHandler < GenericChannelHandler
-  def update(params)
-    super
-    @channel.configuration[:welcome_message] = params[:configuration][:welcome_message]
-  end
-
   def self.new_oauth
     oauth = Twitter::OAuth.new(Nuntium::TwitterConsumerConfig['token'], Nuntium::TwitterConsumerConfig['secret'])
     oauth.set_callback_url(Nuntium::TwitterConsumerConfig['callback_url'])

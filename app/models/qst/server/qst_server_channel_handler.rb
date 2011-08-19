@@ -40,24 +40,8 @@ class QstServerChannelHandler < ChannelHandler
     config.delete :password_confirmation
   end
 
-  def update(params)
-    @channel.protocol = params[:protocol]
-    @channel.direction = params[:direction]
-    @channel.priority = params[:priority]
-    @channel.address = params[:address]
-    @channel.application_id = params[:application_id]
-
-    if !params[:configuration][:password].blank?
-      @channel.configuration[:salt] = nil
-      @channel.configuration[:password] = params[:configuration][:password]
-      @channel.configuration[:password_confirmation] = params[:configuration][:password_confirmation]
-    else
-      @channel.configuration[:password_confirmation] = @channel.configuration[:password]
-    end
-  end
-
   def before_validation
-    if @channel.configuration[:password].empty?
+    if @channel.configuration[:password].blank?
       @channel.configuration[:password] = @channel.configuration_was[:password]
       @channel.configuration[:password_confirmation] = @channel.configuration_was[:password_confirmation]
       @channel.configuration[:salt] = @channel.configuration_was[:salt]
