@@ -265,15 +265,13 @@ class Application < ActiveRecord::Base
     end
 
     # Get all outgoing enabled channels
-    all_channels = account.channels
-
-    channels = all_channels.select{|c| c.enabled && c.is_outgoing?}
+    channels = account.channels.enabled.outgoing
 
     # Find channels that handle that protocol
-    channels = channels.select {|x| x.protocol == protocol}
+    channels = channels.where(:protocol => protocol)
 
     # Filter channels that belong to a different application
-    channels = channels.select {|x| x.application_id.nil? || x.application_id == msg.application_id}
+    channels = channels.where('application_id IS NULL or application_id = ?', msg.application_id)
 
     # Filter them according to custom attributes
     channels = channels.select{|x| x.can_route_ao? msg}
@@ -298,7 +296,7 @@ class Application < ActiveRecord::Base
     end
 
     # See if there is a last channel used to route an AT message with this address
-    last_channel = get_last_channel msg.to, all_channels, channels
+    last_channel = get_last_channel msg.to, channels
     if last_channel
       ThreadLocalLogger << "'#{last_channel.name}' selected from address sources"
       return [last_channel]
@@ -450,7 +448,7 @@ class Application < ActiveRecord::Base
     end
   end
 
-  def get_last_channel(address, all_channels, outgoing_channels)
+  def get_last_channel(address, outgoing_channels)
     return nil unless use_address_source?
     ass = address_sources.where(:address => address).order('updated_at DESC').all
     return nil if ass.empty?
@@ -460,7 +458,7 @@ class Application < ActiveRecord::Base
 
     # Return the first outgoing_channel that was used as a last channel.
     ass.each do |as|
-      real = all_channels.select{|x| x.id == as.channel_id}.first
+      real = account.channels.find_by_id as.channel_id
       address_sources_names << real.name if real
 
       if not chosen_channel

@@ -169,22 +169,12 @@ class Channel < ActiveRecord::Base
     return true
   end
 
-  def is_outgoing?
-    direction == Outgoing || direction == Bidirectional
-  end
-
-  def is_incoming?
-    direction == Incoming || direction == Bidirectional
-  end
-
   def configuration
-    self[:configuration] = {} if self[:configuration].nil?
-    self[:configuration]
+    self[:configuration] ||= {}
   end
 
   def restrictions
-    self[:restrictions] = ActiveSupport::OrderedHash.new if self[:restrictions].nil?
-    self[:restrictions]
+    self[:restrictions] ||= ActiveSupport::OrderedHash.new
   end
 
   def clear_password
