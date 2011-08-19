@@ -54,7 +54,10 @@ Nuntium::Application.routes.draw do
 
   match '/:account_name/:application_name/send_ao' => 'ao_messages#create_via_api', :as => :send_ao, :constraints => {:account_name => /.*/, :application_name => /.*/}
 
-  get '/:account_id/qst/outgoing' => 'outgoing#index', :as => :outgoing, :constraints => {:account_id => /.*/}
+  post '/:account_id/qst/incoming' => 'qst_server#push', :as => :qst_push, :constraints => {:account_id => /.*/}
+  get '/:account_id/qst/incoming' => 'qst_server#get_last_id', :as => :qst_get_last_id, :constraints => {:account_id => /.*/}
+  get '/:account_id/qst/outgoing' => 'qst_server#pull', :as => :qst_pull, :constraints => {:account_id => /.*/}
+  match '/:account_id/qst/setaddress' => 'qst_server#set_address', :as => :qst_set_address, :constraints => {:account_id => /.*/}
 
   get '/:account_name/:application_name/rss' => 'rss#index', :as => :rss, :constraints => {:account_name => /.*/, :application_name => /.*/}
   post '/:account_name/:application_name/rss' => 'rss#create', :as => :create_rss, :constraints => {:account_name => /.*/, :application_name => /.*/}
@@ -135,11 +138,7 @@ Nuntium::Application.routes.draw do
 
  #match '/:account_id/clickatell/incoming' => 'clickatell#index', :as => :clickatel, :constraints => {:account_id => /.*/}
  #match '/:account_id/clickatell/ack' => 'clickatell#ack', :as => :clickatel_ack, :constraints => {:account_id => /.*/}
- #match '/:account_id/qst/setaddress' => 'address#update', :as => :qst_set_address, :constraints => {:account_id => /.*/}
 
  #match '/:account_name/:application_name/send_ao' => 'send_ao#create', :as => :send_ao, :constraints => {:account_name => /.*/, :application_name => /.*/}
  #match '/:account_name/:application_name/get_ao' => 'get_ao#index', :as => :get_ao, :constraints => {:account_name => /.*/, :application_name => /.*/}
-
- #post '/:account_id/qst/incoming' => 'incoming#create', :as => :incoming, :constraints => {:account_id => /.*/}
- #match '/:account_id/qst/incoming' => 'incoming#index', :as => :incoming, :constraints => {:account_id => /.*/}
 end

@@ -5,8 +5,6 @@ class ApplicationController < ActionController::Base
   helper :all # include all helpers, all the time
   # protect_from_forgery # See ActionController::RequestForgeryProtection for details
 
-  before_filter :check_login
-
   ResultsPerPage = 10
 
   expose(:account) { Account.find_by_id session[:account_id] }
@@ -19,6 +17,7 @@ class ApplicationController < ActionController::Base
 
   expose(:app_routing_rules) { account.app_routing_rules }
 
+  before_filter :check_login
   def check_login
     unless session[:account_id]
       redirect_to new_session_path
