@@ -2,7 +2,7 @@
 # Subclasses must define:
 #  - job_class
 #  - service_name
-class ServiceChannelHandler < ChannelHandler
+module ServiceChannelHandler
   def handle(msg)
     Queues.publish_ao msg, create_job(msg)
   end

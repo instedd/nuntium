@@ -1,4 +1,8 @@
-class MultimodemIsmsChannelHandler < GenericChannelHandler
+# coding: utf-8
+
+class MultimodemIsmsChannelHandler < ChannelHandler
+  include GenericChannelHandler
+
   def self.title
     "Multimodem iSms"
   end

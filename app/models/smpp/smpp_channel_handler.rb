@@ -1,4 +1,6 @@
-class SmppChannelHandler < ServiceChannelHandler
+class SmppChannelHandler < ChannelHandler
+  include ServiceChannelHandler
+
   def self.title
     "SMPP"
   end

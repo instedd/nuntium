@@ -1,4 +1,8 @@
-class DtacChannelHandler < GenericChannelHandler
+# coding: utf-8
+
+class DtacChannelHandler < ChannelHandler
+  include GenericChannelHandler
+
   def self.title
     "DTAC"
   end

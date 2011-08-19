@@ -1,6 +1,6 @@
 # Generic channel handler that enqueues jobs to rabbit.
 # Subclasses must define job_class
-class GenericChannelHandler < ChannelHandler
+module GenericChannelHandler
   def handle(msg)
     Queues.publish_ao msg, create_job(msg)
   end

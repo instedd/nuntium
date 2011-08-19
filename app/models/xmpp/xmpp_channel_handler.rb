@@ -1,7 +1,7 @@
 require 'xmpp4r/client'
 
-class XmppChannelHandler < ServiceChannelHandler
-
+class XmppChannelHandler < ChannelHandler
+  include ServiceChannelHandler
   include Jabber
 
   def self.title

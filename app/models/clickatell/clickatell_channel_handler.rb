@@ -2,7 +2,9 @@ require 'uri'
 require 'net/http'
 require 'net/https'
 
-class ClickatellChannelHandler < GenericChannelHandler
+class ClickatellChannelHandler < ChannelHandler
+  include GenericChannelHandler
+
   def restrictions
     # try to load the restrictions from cache
     res = Rails.cache.read restrictions_cache_key

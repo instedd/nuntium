@@ -1,4 +1,6 @@
-class IpopChannelHandler < GenericChannelHandler
+class IpopChannelHandler < ChannelHandler
+  include GenericChannelHandler
+
   def self.title
     "I-POP"
   end

@@ -1,6 +1,8 @@
 require 'net/smtp'
 
-class SmtpChannelHandler < GenericChannelHandler
+class SmtpChannelHandler < ChannelHandler
+  include GenericChannelHandler
+
   def self.title
     "SMTP"
   end
