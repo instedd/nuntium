@@ -1,6 +1,8 @@
 require 'digest/sha2'
 
 class Application < ActiveRecord::Base
+  include Authenticable
+
   belongs_to :account
   has_many :ao_messages
   has_many :at_messages
@@ -20,10 +22,6 @@ class Application < ActiveRecord::Base
   serialize :configuration, Hash
   serialize :ao_rules
   serialize :at_rules
-
-  before_create :hash_password
-  before_validation :reset_password, :if => lambda { persisted? && password.blank? && password_confirmation.blank? }
-  before_update :hash_password, :if => lambda { password.present? && password_changed? }
 
   after_save :handle_tasks
   after_create :create_worker_queue
@@ -318,10 +316,6 @@ class Application < ActiveRecord::Base
     self.interface == 'rss'
   end
 
-  def authenticate(password)
-    self.password == Digest::SHA2.hexdigest(self.salt + password)
-  end
-
   def self.configuration_accessor(name, default = nil)
     define_method(name) do
       configuration[name] || default
@@ -478,17 +472,6 @@ class Application < ActiveRecord::Base
     ThreadLocalLogger << "Address sources are: #{address_sources_names.join(', ')}"
 
     chosen_channel
-  end
-
-  def reset_password
-    self.password = self.password_was
-    self.password_confirmation = self.password
-  end
-
-  def hash_password
-    self.salt = ActiveSupport::SecureRandom.base64(8)
-    self.password = Digest::SHA2.hexdigest(self.salt + self.password) if self.password
-    self.password_confirmation = Digest::SHA2.hexdigest(self.salt + self.password_confirmation) if self.password_confirmation
   end
 
   def restart_channel_processes

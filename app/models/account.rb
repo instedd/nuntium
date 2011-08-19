@@ -1,6 +1,8 @@
 require 'digest/sha2'
 
 class Account < ActiveRecord::Base
+  include Authenticable
+
   has_many :applications
   has_many :channels
   has_many :address_sources
@@ -18,19 +20,12 @@ class Account < ActiveRecord::Base
   validates_confirmation_of :password
   validates_numericality_of :max_tries, :only_integer => true, :greater_than_or_equal_to => 0
 
-  before_create :hash_password
-  before_validation :reset_password, :if => lambda { persisted? && password.blank? && password_confirmation.blank? }
-  before_update :hash_password, :if => lambda { password.present? && password_changed? }
   after_save :restart_channel_processes
 
   def self.find_by_id_or_name(id_or_name)
     account = self.find_by_id(id_or_name) if id_or_name =~ /\A\d+\Z/ or id_or_name.kind_of? Integer
     account = self.find_by_name(id_or_name) if account.nil?
     account
-  end
-
-  def authenticate(password)
-    self.password == Digest::SHA2.hexdigest(self.salt + password)
   end
 
   # Routes an ATMessage via a channel.
@@ -166,17 +161,6 @@ class Account < ActiveRecord::Base
   end
 
   private
-
-  def reset_password
-    self.password = self.password_was
-    self.password_confirmation = self.password
-  end
-
-  def hash_password
-    self.salt = ActiveSupport::SecureRandom.base64(8)
-    self.password = Digest::SHA2.hexdigest(self.salt + self.password) if self.password
-    self.password_confirmation = Digest::SHA2.hexdigest(self.salt + self.password_confirmation) if self.password_confirmation
-  end
 
   def duplicated?(msg)
     return false if !msg.new_record? || msg.guid.nil?
