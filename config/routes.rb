@@ -44,52 +44,77 @@ Nuntium::Application.routes.draw do
     get :messages_state_by_day, :on => :collection
   end
 
-  match '/:account_id/clickatell/incoming' => 'clickatell#index', :as => :clickatell, :constraints => {:account_id => /.*/}
-  match '/:account_id/clickatell/ack' => 'clickatell#ack', :as => :clickatell_ack, :constraints => {:account_id => /.*/}
+  scope '/:account_id/clickatell', :constraints => {:account_id => /.*/} do
+    match '/incoming' => 'clickatell#index', :as => :clickatell
+    match '/ack' => 'clickatell#ack', :as => :clickatell_ack, :constraints => {:account_id => /.*/}
+  end
+
   match '/clickatell/view_credit' => 'clickatell#view_credit', :as => :clickatel_credit
 
-  post '/channels/twitter/create' => 'twitter#create', :as => :create_twitter_channel
-  put '/channels/twitter/update/:id' => 'twitter#update', :as => :update_twitter_channel
-  match '/twitter/view_rate_limit_status' => 'twitter#view_rate_limit_status', :as => :twitter_rate_limit_status
+  scope '/channels/twitter' do
+    post '/create' => 'twitter#create', :as => :create_twitter_channel
+    put '/update/:id' => 'twitter#update', :as => :update_twitter_channel
+  end
 
-  match '/twitter/callback' => 'twitter#callback', :as => :twitter_callback
+  scope '/twitter' do
+    match '/view_rate_limit_status' => 'twitter#view_rate_limit_status', :as => :twitter_rate_limit_status
+    match '/callback' => 'twitter#callback', :as => :twitter_callback
+  end
 
-  match '/:account_name/:application_name/send_ao' => 'ao_messages#create_via_api', :as => :send_ao, :constraints => {:account_name => /.*/, :application_name => /.*/}
+  scope '/:account_id/qst', :constraints => {:account_id => /.*/}  do
+    post '/incoming' => 'qst_server#push', :as => :qst_push
+    get '/incoming' => 'qst_server#get_last_id', :as => :qst_get_last_id, :constraints => {:account_id => /.*/}
+    get '/outgoing' => 'qst_server#pull', :as => :qst_pull, :constraints => {:account_id => /.*/}
+    match '/setaddress' => 'qst_server#set_address', :as => :qst_set_address, :constraints => {:account_id => /.*/}
+  end
 
-  post '/:account_id/qst/incoming' => 'qst_server#push', :as => :qst_push, :constraints => {:account_id => /.*/}
-  get '/:account_id/qst/incoming' => 'qst_server#get_last_id', :as => :qst_get_last_id, :constraints => {:account_id => /.*/}
-  get '/:account_id/qst/outgoing' => 'qst_server#pull', :as => :qst_pull, :constraints => {:account_id => /.*/}
-  match '/:account_id/qst/setaddress' => 'qst_server#set_address', :as => :qst_set_address, :constraints => {:account_id => /.*/}
+  scope '/:account_name/:application_name', :constraints => {:account_name => /.*/, :application_name => /.*/} do
+    get '/rss' => 'rss#index', :as => :rss
+    post '/rss' => 'rss#create', :as => :create_rss, :constraints => {:account_name => /.*/, :application_name => /.*/}
 
-  get '/:account_name/:application_name/rss' => 'rss#index', :as => :rss, :constraints => {:account_name => /.*/, :application_name => /.*/}
-  post '/:account_name/:application_name/rss' => 'rss#create', :as => :create_rss, :constraints => {:account_name => /.*/, :application_name => /.*/}
+    match '/send_ao' => 'ao_messages#create_via_api', :as => :send_ao, :constraints => {:account_name => /.*/, :application_name => /.*/}
+    get '/get_ao' => 'ao_messages#get_ao', :as => :get_ao, :constraints => {:account_name => /.*/, :application_name => /.*/}
+  end
 
   match '/:account_id/dtac/incoming' => 'dtac#index', :as => :dtac, :constraints => {:account_id => /.*/}
 
-  post '/:account_id/ipop/:channel_name/incoming' => 'ipop#index', :as => :ipop, :constraints => {:account_id => /.*/}
-  post '/:account_id/ipop/:channel_name/ack' => 'ipop#ack', :as => :ipop_ack, :constraints => {:account_id => /.*/}
+  scope '/:account_id/ipop/:channel_name', :constraints => {:account_id => /.*/} do
+    post '/incoming' => 'ipop#index', :as => :ipop
+    post '/ack' => 'ipop#ack', :as => :ipop_ack, :constraints => {:account_id => /.*/}
+  end
 
-  match '/api/carriers' => 'api_carrier#index', :as => :carriers
-  match '/api/carriers/:guid' => 'api_carrier#show', :as => :carrier
+  scope '/api' do
+    scope '/carriers' do
+      match '/' => 'api_carrier#index', :as => :carriers
+      match '/:guid' => 'api_carrier#show', :as => :carrier
+    end
 
-  match '/api/countries' => 'api_country#index', :as => :countries
-  match '/api/countries/:iso' => 'api_country#show', :as => :country
+    scope '/countries' do
+      match '/' => 'api_country#index', :as => :countries
+      match '/:iso' => 'api_country#show', :as => :country
+    end
 
-  get '/api/channels' => 'api_channel#index', :as => :api_channels_index
-  post '/api/channels' => 'api_channel#create', :as => :api_channels_create
-  get '/api/channels/:name' => 'api_channel#show', :as => :api_channels_show
-  put '/api/channels/:name' => 'api_channel#update', :as => :api_channels_update
-  delete '/api/channels/:name' => 'api_channel#destroy', :as => :api_channels_destroy
-  get '/api/candidate/channels' => 'api_channel#candidates', :as => :api_candidate_channels
-  get '/api/channels/:name/twitter/friendships/create' => 'api_twitter_channel#friendship_create', :as => :api_twitter_follow
+    scope '/channels' do
+      get '/' => 'api_channel#index', :as => :api_channels_index
+      post '/' => 'api_channel#create', :as => :api_channels_create
+      get '/:name' => 'api_channel#show', :as => :api_channels_show
+      put '/:name' => 'api_channel#update', :as => :api_channels_update
+      delete '/:name' => 'api_channel#destroy', :as => :api_channels_destroy
+      get '/:name/twitter/friendships/create' => 'api_twitter_channel#friendship_create', :as => :api_twitter_follow
+    end
 
-  match '/api/custom_attributes' => 'api_custom_attributes#show', :as => :api_custom_attributes_show, :via => :get
-  match '/api/custom_attributes' => 'api_custom_attributes#create_or_update', :as => :api_custom_attributes_show, :via => :post
+    get '/candidate/channels' => 'api_channel#candidates', :as => :api_candidate_channels
 
-  get '/:account_name/:application_name/get_ao' => 'ao_messages#get_ao', :as => :get_ao, :constraints => {:account_name => /.*/, :application_name => /.*/}
+    scope '/custom_attributes' do
+      get '/' => 'api_custom_attributes#show', :as => :api_custom_attributes_show
+      post '/api/custom_attributes' => 'api_custom_attributes#create_or_update', :as => :api_custom_attributes_show
+    end
+  end
 
-  post '/tickets' => 'tickets#create'
-  get '/tickets/:code' => 'tickets#show'
+  scope '/tickets' do
+    post '/' => 'tickets#create'
+    get '/:code' => 'tickets#show'
+  end
 
   root :to => 'applications#index'
 end
