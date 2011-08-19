@@ -2,7 +2,12 @@ require 'rss/1.0'
 require 'rss/2.0'
 require 'nokogiri'
 
-class RssController < ApplicationAuthenticatedController
+class RssController < ApplicationController
+  include ApplicationAuthenticatedController
+
+  skip_filter :check_login
+  before_filter :authenticate
+
   # GET /:account_name/:application_name/rss
   def index
     last_modified = request.env['HTTP_IF_MODIFIED_SINCE']

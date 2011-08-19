@@ -1,4 +1,5 @@
 class IpopController < ApplicationController
+  skip_filter :check_login
   before_filter :authenticate
 
   def index

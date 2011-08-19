@@ -1,5 +1,9 @@
 class AoMessagesController < ApplicationController
+  include ApplicationAuthenticatedController
   include CustomAttributesControllerCommon
+
+  skip_filter :check_login, :only => [:create_via_api, :get_ao]
+  before_filter :authenticate, :only => [:create_via_api, :get_ao]
 
   def index
     @page = params[:page].presence || 1
@@ -88,6 +92,11 @@ class AoMessagesController < ApplicationController
     when 'xml'
       create_many_xml
     end
+  end
+
+  # GET /:account_name/:application_name/get_ao.:format
+  def get_ao
+    render :json => AOMessage.find_all_by_application_id_and_token(@application.id, params[:token])
   end
 
   def rgviz

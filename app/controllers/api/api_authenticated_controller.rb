@@ -1,5 +1,5 @@
 class ApiAuthenticatedController < ApplicationController
-
+  skip_filter :check_login
   before_filter :authenticate
 
   def authenticate

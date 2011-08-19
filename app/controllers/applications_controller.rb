@@ -3,6 +3,7 @@ class ApplicationsController < ApplicationController
 
   before_filter :set_application_parameters, :only => [:create, :update]
   def set_application_parameters
+    application.account_id = account.id
     application.ao_rules = get_rules :aorules
     application.at_rules = get_rules :atrules
   end

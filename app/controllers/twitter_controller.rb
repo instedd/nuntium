@@ -75,5 +75,4 @@ class TwitterController < ChannelsController
   def check_twitter_properly_configured
     return redirect_to_home if Nuntium::TwitterConsumerConfig.nil?
   end
-
 end

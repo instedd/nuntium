@@ -1,4 +1,5 @@
 class ApiCarrierController < ApplicationController
+  skip_filter :check_login
 
   # GET /api/carriers.:format?country_id=:country_id
   def index

@@ -1,7 +1,4 @@
-class ApplicationAuthenticatedController < ApplicationController
-
-  before_filter :authenticate
-
+module ApplicationAuthenticatedController
   def authenticate
     authenticate_or_request_with_http_basic do |username, password|
       success = false
@@ -21,5 +18,4 @@ class ApplicationAuthenticatedController < ApplicationController
       success
     end
   end
-
 end

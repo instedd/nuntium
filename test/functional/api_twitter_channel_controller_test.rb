@@ -1,9 +1,6 @@
 require 'test_helper'
 
 class ApiTwitterChannelControllerTest < ActionController::TestCase
-
-  include Mocha::API
-
   [nil, false, true].each do |follow|
     test "account authenticated with follow #{follow}" do
       @account = Account.make :password => 'secret'
@@ -104,5 +101,4 @@ class ApiTwitterChannelControllerTest < ActionController::TestCase
       assert_equal 'Forbidden - Could not follow user: foo is already on your list', @response.body
     end
   end
-
 end

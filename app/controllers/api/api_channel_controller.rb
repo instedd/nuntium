@@ -1,5 +1,4 @@
 class ApiChannelController < ApiAuthenticatedController
-
   # GET /api/channels.:format
   def index
     channels = @account.channels.where('application_id = ? OR application_id IS NULL', @application.id).all
@@ -87,7 +86,7 @@ class ApiChannelController < ApiAuthenticatedController
   def respond(object)
     respond_to do |format|
       format.xml { render :xml => object.to_xml(:root => 'channels', :skip_types => true) }
-      format.json { render :json => object.to_json }
+      format.json { render :json => object }
     end
   end
 
@@ -104,7 +103,6 @@ class ApiChannelController < ApiAuthenticatedController
   end
 
   def errors_to_xml(errors, action)
-    require 'builder'
     xml = Builder::XmlMarkup.new(:indent => 2)
     xml.instruct!
     xml.error :summary => "There were problems #{action} the channel" do
@@ -123,7 +121,6 @@ class ApiChannelController < ApiAuthenticatedController
     errors.each do |name, value|
       attrs[:properties] << { name => value }
     end
-    attrs.to_json
+    attrs
   end
-
 end

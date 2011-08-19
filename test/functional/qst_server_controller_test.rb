@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class QSTServerControllerTest < ActionController::TestCase
+class QstServerControllerTest < ActionController::TestCase
   def setup
     @account = Account.make :password
     @chan = Channel.make_unsaved :qst_server, :account => @account

@@ -4,6 +4,7 @@ class ChannelsController < ApplicationController
 
   before_filter :set_channel_parameters, :only => [:create, :update]
   def set_channel_parameters
+    channel.account_id = account.id
     channel.throttle = params[:channel][:throttle_opt] == 'on' ? params[:channel][:throttle].to_i : nil
     channel.restrictions = get_custom_attributes
     channel.ao_rules = get_rules :aorules
@@ -17,7 +18,7 @@ class ChannelsController < ApplicationController
 
   def create
     if channel.save
-      redirect_to channels_path, :notice => "Channel #{channel.name} created"
+      redirect_to channels_path, :notice => "Channel #{channel.name} was created"
     else
       render :new
     end
@@ -25,7 +26,7 @@ class ChannelsController < ApplicationController
 
   def update
     if channel.save
-      redirect_to channels_path, :notice => "Channel #{channel.name} updated"
+      redirect_to channels_path, :notice => "Channel #{channel.name} was updated"
     else
       render :edit
     end
@@ -33,7 +34,7 @@ class ChannelsController < ApplicationController
 
   def destroy
     channel.destroy
-    redirect_to channels_path, :notice => "Channel #{channel.name} deleted"
+    redirect_to channels_path, :notice => "Channel #{channel.name} was deleted"
   end
 
   def enable

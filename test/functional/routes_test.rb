@@ -2,67 +2,23 @@ require 'test_helper'
 
 class RoutesTest < ActionController::TestCase
   test "qst" do
-    assert_routing({:path => "/some_account/qst/incoming", :method => :head }, { :controller => "incoming", :action => "index", :account_id => "some_account" })
-    assert_routing({:path => "/some_account/qst/incoming", :method => :post }, { :controller => "incoming", :action => "create", :account_id => "some_account" })
-    assert_routing({:path => "/some_account/qst/outgoing", :method => :get }, { :controller => "outgoing", :action => "index", :account_id => "some_account" })
-
-    ["new", "create"].each do |op|
-      assert_routing({:path => "/channel/#{op}/qst_server"}, { :controller => "channel", :action => "#{op}_channel", :kind => 'qst_server' })
-    end
-  end
-
-  test "accounts" do
-    ["create_account", "login", "logoff"].each do |path|
-      assert_routing({:path => "/" + path}, { :controller => "home", :action => path })
-    end
-    ["update"].each do |op|
-      assert_routing({:path => "/account/#{op}"}, { :controller => "home", :action => "#{op}_account"})
-    end
-  end
-
-  test "channels" do
-    ["edit", "update", "delete", "enable", "disable", "pause", "resume"].each do |op|
-      assert_routing({:path => "/channel/#{op}/10"}, { :controller => "channel", :action => "#{op}_channel", :id => '10' })
-    end
+    assert_routing({:path => "/some_account/qst/incoming", :method => :get }, { :controller => "qst_server", :action => "get_last_id", :account_id => "some_account" })
+    assert_routing({:path => "/some_account/qst/incoming", :method => :post }, { :controller => "qst_server", :action => "push", :account_id => "some_account" })
+    assert_routing({:path => "/some_account/qst/outgoing", :method => :get }, { :controller => "qst_server", :action => "pull", :account_id => "some_account" })
+    assert_routing({:path => "/some_account/qst/setaddress", :method => :post}, { :controller => "qst_server", :action => "set_address", :account_id => "some_account"})
+    assert_generates("/some_account/qst/setaddress", { :controller => "qst_server", :action => "set_address", :account_id => "some_account"})
   end
 
   test "twitter" do
-    assert_routing({:path => "/channel/twitter/create"}, { :controller => "twitter", :action => "create_twitter_channel", :kind => "twitter" })
-    assert_routing({:path => "/channel/twitter/update/1"}, { :controller => "twitter", :action => "update_twitter_channel", :id => '1' })
-    assert_routing({:path => "/twitter_callback"}, { :controller => "twitter", :action => "twitter_callback" })
-  end
-
-  test "home" do
-    ['interactions', 'settings', 'applications', 'channels', 'ao_messages', 'at_messages', 'logs', 'visualizations'].each do |name|
-      assert_routing({:path => "/#{name}"}, { :controller => "home", :action => name })
-    end
-  end
-
-  test "messages" do
-    ["ao", "at"].each do |kind|
-      ["new", "create"].each do |op|
-        assert_routing({:path => "/message/#{kind}/#{op}"}, { :controller => "message", :action => "#{op}_#{kind}_message" })
-      end
-      assert_routing({:path => "/message/#{kind}/mark_as_cancelled"}, { :controller => "message", :action => "mark_#{kind}_messages_as_cancelled" })
-      assert_routing({:path => "/message/#{kind}/10"}, { :controller => "message", :action => "view_#{kind}_message", :id => '10' })
-      assert_routing({:path => "/message/#{kind}/simulate_route"}, { :controller => "message", :action => "simulate_route_#{kind}" })
-    end
-    assert_routing({:path => "/message/ao/reroute"}, { :controller => "message", :action => "reroute_ao_messages" })
-  end
-
-  test "applications" do
-    ['new', 'create'].each do |action|
-      assert_routing({:path => "/application/#{action}"}, { :controller => "home", :action => "#{action}_application" })
-    end
-    ['edit', 'update', 'delete'].each do |action|
-      assert_routing({:path => "/application/#{action}/10"}, { :controller => "home", :action => "#{action}_application", :id => '10' })
-    end
+    assert_routing({:path => "/twitter/callback"}, { :controller => "twitter", :action => "callback" })
+    assert_routing({:path => "/twitter/view_rate_limit_status"}, { :controller => "twitter", :action => "view_rate_limit_status" })
   end
 
   test "interfaces" do
     assert_routing({:path => "/account/app/rss", :method => :get }, { :controller => "rss", :action => "index", :account_name => 'account', :application_name => 'app' })
     assert_routing({:path => "/account/app/rss", :method => :post }, { :controller => "rss", :action => "create", :account_name => 'account', :application_name => 'app' })
-    assert_routing({:path => "/account/app/send_ao"}, { :controller => "send_ao", :action => "create", :account_name => 'account', :application_name => 'app' })
+    assert_routing({:path => "/account/app/send_ao"}, { :controller => "ao_messages", :action => "create_via_api", :account_name => 'account', :application_name => 'app' })
+    assert_routing({:path => "/account/app/get_ao"}, { :controller => "ao_messages", :action => "get_ao", :account_name => 'account', :application_name => 'app' })
   end
 
   test "clickatell" do
@@ -78,11 +34,6 @@ class RoutesTest < ActionController::TestCase
   test "ipop" do
     assert_routing({:path => "/some_account/ipop/some_channel/incoming", :method => :post}, { :controller => "ipop", :action => "index", :account_id => "some_account", :channel_name => "some_channel"})
     assert_routing({:path => "/some_account/ipop/some_channel/ack", :method => :post}, { :controller => "ipop", :action => "ack", :account_id => "some_account", :channel_name => "some_channel"})
-  end
-
-  test "address" do
-    assert_routing({:path => "/some_account/qst/setaddress", :method => :post}, { :controller => "address", :action => "update", :account_id => "some_account"})
-    assert_generates("/some_account/qst/setaddress", { :controller => "address", :action => "update", :account_id => "some_account"})
   end
 
   test "api" do

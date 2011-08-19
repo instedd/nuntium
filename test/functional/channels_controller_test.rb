@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ChannelControllerTest < ActionController::TestCase
+class ChannelsControllerTest < ActionController::TestCase
 
   def setup
     @account = Account.make
@@ -9,13 +9,13 @@ class ChannelControllerTest < ActionController::TestCase
   test "create qst server channel succeeds" do
     attrs = Channel.plan :qst_server
 
-    get :create_channel, {:kind => 'qst_server', :channel => attrs}, {:account_id => @account.id}
+    post :create, {:kind => 'qst_server', :channel => attrs}, {:account_id => @account.id}
 
     # Go to channels page
-    assert_redirected_to(:controller => 'home', :action => 'channels')
+    assert_redirected_to channels_path
     assert_equal "Channel #{attrs[:name]} was created", flash[:notice]
 
-    # The channel was changed
+    # The channel was created
     chans = Channel.all
     assert_equal 1, chans.length
 
@@ -30,10 +30,10 @@ class ChannelControllerTest < ActionController::TestCase
   test "edit channel change password succeeds" do
     chan = Channel.make :qst_server, :account => @account
 
-    get :update_channel, {:id => chan.id, :channel => {:protocol => 'sms', :direction => Channel::Bidirectional, :configuration => {:password => 'new_pass', :password_confirmation => 'new_pass'}}}, {:account_id => @account.id}
+    put :update, {:id => chan.id, :channel => {:protocol => 'sms', :direction => Channel::Bidirectional, :configuration => {:password => 'new_pass', :password_confirmation => 'new_pass'}}}, {:account_id => @account.id}
 
     # Go to channels page
-    assert_redirected_to(:controller => 'home', :action => 'channels')
+    assert_redirected_to channels_path
     assert_equal "Channel #{chan.name} was updated", flash[:notice]
 
     # The channel was changed
@@ -52,10 +52,10 @@ class ChannelControllerTest < ActionController::TestCase
     chan.configuration.delete :salt
     chan.save!
 
-    get :update_channel, {:id => chan.id, :channel => {:protocol => 'mail', :priority => 200, :application_id => app2.id, :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => @account.id}
+    put :update, {:id => chan.id, :channel => {:protocol => 'mail', :priority => 200, :application_id => app2.id, :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => @account.id}
 
     # Go to channels page
-    assert_redirected_to(:controller => 'home', :action => 'channels')
+    assert_redirected_to channels_path
     assert_equal "Channel #{chan.name} was updated", flash[:notice]
 
     # The channel was changed
@@ -73,10 +73,10 @@ class ChannelControllerTest < ActionController::TestCase
   test "delete channel" do
     chan = Channel.make :qst_server, :account => @account
 
-    get :delete_channel, {:id => chan.id}, {:account_id => @account.id}
+    delete :destroy, {:id => chan.id}, {:account_id => @account.id}
 
     # Go to channels page
-    assert_redirected_to(:controller => 'home', :action => 'channels')
+    assert_redirected_to channels_path
     assert_equal "Channel #{chan.name} was deleted", flash[:notice]
 
     # The channel was deleted
@@ -87,15 +87,15 @@ class ChannelControllerTest < ActionController::TestCase
   test "edit channel fails protocol empty" do
     chan = Channel.make :qst_server, :account => @account
 
-    get :update_channel, {:id => chan.id, :channel => {:protocol => '', :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => @account.id}
+    put :update, {:id => chan.id, :channel => {:protocol => '', :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => @account.id}
 
-    assert_template "channel/edit_qst_server_channel"
+    assert_template "channels/edit"
   end
 
   test "enable channel" do
     chan = Channel.make :qst_server, :account => @account, :enabled => false
 
-    get :enable_channel, {:id => chan.id}, {:account_id => @account.id}
+    get :enable, {:id => chan.id}, {:account_id => @account.id}
 
     # Go to channels page
     assert_response :ok
@@ -113,7 +113,7 @@ class ChannelControllerTest < ActionController::TestCase
     app = Application.make :account => @account
     msg = AOMessage.make :account => @account, :application => app, :channel => chan1, :state => 'queued'
 
-    get :disable_channel, {:id => chan1.id}, {:account_id => @account.id}
+    get :disable, {:id => chan1.id}, {:account_id => @account.id}
 
     chan1.reload
     chan2.reload
@@ -127,7 +127,7 @@ class ChannelControllerTest < ActionController::TestCase
   test "pause channel" do
     chan = Channel.make :qst_server, :account => @account
 
-    get :pause_channel, {:id => chan.id}, {:account_id => @account.id}
+    get :pause, {:id => chan.id}, {:account_id => @account.id}
 
     assert_response :ok
     assert_equal "Channel #{chan.name} was paused", @response.body
@@ -140,7 +140,7 @@ class ChannelControllerTest < ActionController::TestCase
   test "resume channel" do
     chan = Channel.make :qst_server, :account => @account, :paused => true
 
-    get :resume_channel, {:id => chan.id}, {:account_id => @account.id}
+    get :resume, {:id => chan.id}, {:account_id => @account.id}
 
     # Go to channels page
     assert_response :ok
