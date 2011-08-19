@@ -41,7 +41,13 @@ class Channel < ActiveRecord::Base
   scope :outgoing, where(:direction => [Outgoing, Bidirectional])
   scope :incoming, where(:direction => [Incoming, Bidirectional])
 
-  include CronTask::CronTaskOwner
+  def self.after_enabled(method, options = {})
+    after_update method, options.merge(:if => lambda { (enabled_changed? && enabled) || (paused_changed? && !paused) })
+  end
+
+  def self.after_disabled(method, options = {})
+    after_update method, options.merge(:if => lambda { (enabled_changed? && !enabled) || (paused_changed? && paused) })
+  end
 
   def self.sort_candidate!(chans)
     chans.each{|x| x.configuration[:_p] = x.priority + rand}

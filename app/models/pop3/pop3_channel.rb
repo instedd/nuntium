@@ -1,15 +1,12 @@
 require 'net/pop'
 
 class Pop3Channel < Channel
+  include CronChannel
+
   configuration_accessor :host, :port, :user, :password, :use_ssl
 
   validates_presence_of :host, :user, :password
   validates_numericality_of :port, :greater_than => 0
-
-  after_create :create_tasks, :if => :enabled?
-  after_update :create_tasks, :if => lambda { (enabled_changed? && enabled) || (paused_changed? && !paused) }
-  after_update :destroy_tasks, :if => lambda { (enabled_changed? && !enabled) || (paused_changed? && paused) }
-  before_destroy :destroy_tasks, :if => :enabled?
 
   def self.title
     "POP3"

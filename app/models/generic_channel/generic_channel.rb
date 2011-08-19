@@ -5,8 +5,8 @@ module GenericChannel
 
   included do
     after_create :create_worker_queue
-    after_update :enable_worker_queue, :if => lambda { (enabled_changed? && enabled) || (paused_changed? && !paused) }
-    after_update :disable_worker_queue, :if => lambda { (enabled_changed? && !enabled) || (paused_changed? && paused) }
+    after_enabled :enable_worker_queue
+    after_disabled :disable_worker_queue
     before_destroy :destroy_worker_queue
   end
 

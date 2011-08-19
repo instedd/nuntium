@@ -1,14 +1,10 @@
 require 'twitter'
 
 class TwitterChannel < Channel
+  include CronChannel
   include GenericChannel
 
   configuration_accessor :token, :secret, :screen_name
-
-  after_create :create_tasks, :if => :enabled?
-  after_update :create_tasks, :if => lambda { (enabled_changed? && enabled) || (paused_changed? && !paused) }
-  after_update :destroy_tasks, :if => lambda { (enabled_changed? && !enabled) || (paused_changed? && paused) }
-  before_destroy :destroy_tasks, :if => :enabled?
 
   def self.new_oauth
     oauth = Twitter::OAuth.new Nuntium::TwitterConsumerConfig['token'], Nuntium::TwitterConsumerConfig['secret']

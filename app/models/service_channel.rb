@@ -7,9 +7,9 @@ module ServiceChannel
 
   included do
     after_create :create_managed_process
-    after_update :enable_managed_process, :if => lambda { (enabled_changed? && enabled) || (paused_changed? && !paused) }
-    after_update :disable_managed_process, :if => lambda { (enabled_changed? && !enabled) || (paused_changed? && paused) }
-    after_update :touch_managed_process, :if => lambda { !enabled_changed? && !paused_changed? }
+    after_enabled :enable_managed_process
+    after_disabled :disable_managed_process
+    after_update :touch_managed_process, :unless => lambda { enabled_changed? || paused_changed? }
     before_destroy :destroy_managed_process
   end
 

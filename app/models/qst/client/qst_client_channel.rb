@@ -1,12 +1,9 @@
 class QstClientChannel < Channel
+  include CronChannel
+
   configuration_accessor :url, :user, :password
 
   validates_presence_of :url, :user, :password
-
-  after_create :create_tasks, :if => :enabled?
-  after_update :create_tasks, :if => lambda { (enabled_changed? && enabled) || (paused_changed? && !paused) }
-  after_update :destroy_tasks, :if => lambda { (enabled_changed? && !enabled) || (paused_changed? && paused) }
-  before_destroy :destroy_tasks, :if => :enabled?
 
   def self.title
     "QST client"
