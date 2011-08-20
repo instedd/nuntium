@@ -3,7 +3,7 @@ require 'net/smtp'
 class SmtpChannel < Channel
   include GenericChannel
 
-  configuration_accessor :host, :port, :use_ssl
+  configuration_accessor :host, :port, :user, :password, :use_ssl
 
   validates_presence_of :host
   validates_numericality_of :port, :greater_than => 0
