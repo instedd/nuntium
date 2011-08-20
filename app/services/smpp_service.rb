@@ -31,20 +31,20 @@ class SmppGateway < SmppTransceiverDelegate
 
   def initialize(channel)
     super nil, channel
-    @prefetch_count = channel.configuration[:max_unacknowledged_messages].to_i
+    @prefetch_count = channel.max_unacknowledged_messages.to_i
     @prefetch_count = 5 if @prefetch_count <= 0
 
     @config = {
-      :host => channel.configuration[:host],
-      :port => channel.configuration[:port],
-      :system_id => channel.configuration[:user],
-      :password => channel.configuration[:password],
-      :system_type => channel.configuration[:system_type],
+      :host => channel.host,
+      :port => channel.port,
+      :system_id => channel.user,
+      :password => channel.password,
+      :system_type => channel.system_type,
       :interface_version => 52,
-      :source_ton  => channel.configuration[:source_ton].to_i,
-      :source_npi => channel.configuration[:source_npi].to_i,
-      :destination_ton => channel.configuration[:destination_ton].to_i,
-      :destination_npi => channel.configuration[:destination_npi].to_i,
+      :source_ton  => channel.source_ton.to_i,
+      :source_npi => channel.source_npi.to_i,
+      :destination_ton => channel.destination_ton.to_i,
+      :destination_npi => channel.destination_npi.to_i,
       :source_address_range => '',
       :destination_address_range => '',
       :enquire_link_delay_secs => 10

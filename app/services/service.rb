@@ -28,7 +28,7 @@ class Service
   # sleep_seconds. Repeats this for ever. Takes care of exceptions.
   def self.loop_with_sleep(sleep_seconds, &block)
     raise 'no block given for loop_with_sleep' if not block_given?
-    define_method('start') do
+    define_method 'start' do
       while running?
         begin
           instance_eval(&block)

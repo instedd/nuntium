@@ -12,11 +12,11 @@ class PullQstChannelMessageJob < AbstractPullQstMessageJob
   end
 
   def load_last_id
-    channel.configuration[:last_at_guid]
+    channel.last_at_guid
   end
 
   def save_last_id(last_id)
-    channel.configuration[:last_at_guid] = last_id
+    channel.last_at_guid = last_id
     channel.save!
   end
 

@@ -3,7 +3,7 @@ require 'net/pop'
 class Pop3Channel < Channel
   include CronChannel
 
-  configuration_accessor :host, :port, :user, :password, :use_ssl
+  configuration_accessor :host, :port, :user, :password, :use_ssl, :remove_quoted_text_or_text_after_first_empty_line
 
   validates_presence_of :host, :user, :password
   validates_numericality_of :port, :greater_than => 0

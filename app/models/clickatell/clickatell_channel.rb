@@ -5,7 +5,7 @@ require 'net/https'
 class ClickatellChannel < Channel
   include GenericChannel
 
-  configuration_accessor :api_id, :user, :password, :from, :incoming_password, :cost_per_credit, :network
+  configuration_accessor :api_id, :user, :password, :from, :incoming_password, :cost_per_credit, :network, :concat
 
   validates_presence_of :api_id, :incoming_password
   validates_numericality_of :cost_per_credit, :greater_than => 0

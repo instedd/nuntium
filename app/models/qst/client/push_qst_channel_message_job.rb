@@ -20,7 +20,7 @@ class PushQstChannelMessageJob < AbstractPushQstMessageJob
   end
 
   def save_last_id(last_id)
-    channel.configuration[:last_ao_guid] = last_id
+    channel.last_ao_guid = last_id
     channel.save!
   end
 end

@@ -4,7 +4,7 @@ class MultimodemIsmsChannel < Channel
   include CronChannel
   include GenericChannel
 
-  configuration_accessor :host, :port, :user, :password
+  configuration_accessor :host, :port, :user, :password, :time_zone
 
   validates_presence_of :host, :port, :user, :password
   validates_numericality_of :port, :greater_than => 0

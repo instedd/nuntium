@@ -32,9 +32,9 @@ class TwitterController < ChannelsController
     @channel = session['twitter_channel']
     @update = !@channel.new_record?
 
-    @channel.configuration[:screen_name] = profile.screen_name
-    @channel.configuration[:token] = access_token.token
-    @channel.configuration[:secret] = access_token.secret
+    @channel.screen_name = profile.screen_name
+    @channel.token = access_token.token
+    @channel.secret = access_token.secret
 
     session['twitter_token']  = nil
     session['twitter_secret'] = nil

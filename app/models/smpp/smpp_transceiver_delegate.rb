@@ -8,11 +8,11 @@ class SmppTransceiverDelegate
   def initialize(transceiver, channel)
     @transceiver = transceiver
     @channel = channel
-    @encodings = @channel.configuration[:mt_encodings].map { |x| encoding_endianized(x, :mt) }
-    @mt_max_length = @channel.configuration[:mt_max_length].to_i
-    @mt_csms_method = @channel.configuration[:mt_csms_method]
+    @encodings = @channel.mt_encodings.map { |x| encoding_endianized(x, :mt) }
+    @mt_max_length = @channel.mt_max_length.to_i
+    @mt_csms_method = @channel.mt_csms_method
     @delivery_report_cache = Cache.new(nil, nil, 100, 86400)
-    @default_mo_encoding = @channel.configuration[:default_mo_encoding]
+    @default_mo_encoding = @channel.default_mo_encoding
   end
 
   def send_message(id, from, to, text)
@@ -214,7 +214,7 @@ class SmppTransceiverDelegate
     msg = AtMessage.new
     msg.from = source.with_protocol 'sms'
     msg.to = destination.with_protocol 'sms'
-    if (@channel.configuration[:accept_mo_hex_string].to_b) and text.is_hex?
+    if (@channel.accept_mo_hex_string.to_b) and text.is_hex?
       bytes = text.hex_to_bytes
       iconv = Iconv.new('utf-8', ucs2_endianized(:mo))
       msg.body = iconv.iconv bytes
@@ -305,7 +305,7 @@ class SmppTransceiverDelegate
   end
 
   def ucs2_endianized(direction)
-    endianness = @channel.configuration[direction == :mo ? :endianness_mo : :endianness_mt]
+    endianness = direction == :mo ? @channel.endianness_mo : @channel.endianness_mt
     endianness == 'little' ? 'ucs-2le' : 'ucs-2be'
   end
 

@@ -8,7 +8,7 @@ module ChannelQstConfiguration
   end
 
   def get_url_user_and_password
-    [channel.configuration[:url], channel.configuration[:user], channel.configuration[:password]]
+    [channel.url, channel.user, channel.password]
   end
 
   def on_401(message)

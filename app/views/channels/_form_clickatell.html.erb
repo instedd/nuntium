@@ -11,27 +11,27 @@
   <%= f.fields_for :configuration do |c| -%>
     <p id="user_container">
     <%= c.label :user -%><br/>
-    <%= c.text_field :user, :autocomplete => :off, :value => channel.configuration[:user] -%>
+    <%= c.text_field :user, :autocomplete => :off, :value => channel.user -%>
     </p>
     <p id="password_container">
     <%= c.label :password -%> (this is the password of your account)<br/>
-    <%= c.password_field :password, :autocomplete => :off, :value => channel.configuration[:password] -%>
+    <%= c.password_field :password, :autocomplete => :off, :value => channel.password -%>
     </p>
     <p>
     <%= c.label :api_ID -%><br/>
-    <%= c.text_field :api_id, :value => channel.configuration[:api_id] -%>
+    <%= c.text_field :api_id, :value => channel.api_id -%>
     </p>
     <p id="from_container">
     <%= c.label :from -%><br/>
-    <%= c.text_field :from, :value => channel.configuration[:from] -%>
+    <%= c.text_field :from, :value => channel.from -%>
     </p>
     <p id="network">
     <%= c.label :network -%><br/>
-    <%= c.select :network, options_for_select(ClickatellChannel::CLICKATELL_NETWORKS.map {|v,d| [d,v]}, channel.configuration[:network])%>
+    <%= c.select :network, options_for_select(ClickatellChannel::CLICKATELL_NETWORKS.map {|v,d| [d,v]}, channel.network)%>
     </p>
     <p id="concat_container">
     <%= c.label :concatenation -%><br/>
-    <%= c.text_field :concat, :value => channel.configuration[:concat] || 3 -%>
+    <%= c.text_field :concat, :value => channel.concat || 3 -%>
     </p>
     <p id="callback_incoming">
     Callback urls for incoming messages (use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Basic Http Authentication</a> with channel name and incoming password):<br/>
@@ -43,11 +43,11 @@
     </p>
     <p>
     <%= c.label :incoming_password -%> (to use for the callback urls)<br/>
-    <%= c.password_field :incoming_password, :value => channel.configuration[:incoming_password] -%>
+    <%= c.password_field :incoming_password, :value => channel.incoming_password -%>
     </p>
     <p>
     <%= c.label :cost_per_credit -%> (messages will get a 'cost' custom attribute with the value <code>charge * cost_per_credit</code>)<br/>
-    <%= c.text_field :cost_per_credit, :value => channel.configuration[:cost_per_credit] || 1 -%>
+    <%= c.text_field :cost_per_credit, :value => channel.cost_per_credit || 1 -%>
     </p>
   <%- end -%>
   <%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>

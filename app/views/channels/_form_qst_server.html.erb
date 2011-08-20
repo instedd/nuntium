@@ -13,11 +13,11 @@
       <b>Leave blank if you don't want to change the password</b><br/>
     <%- end -%>
     <%= c.label :password -%><br/>
-    <%= c.password_field :password, :value => (channel.persisted? ? '' : channel.configuration[:password]) -%>
+    <%= c.password_field :password, :value => (channel.persisted? ? '' : channel.password) -%>
     </p>
     <p>
     <%= c.label :password_confirmation -%><br/>
-    <%= c.password_field :password_confirmation, :value => (channel.persisted? ? '' : channel.configuration[:password_confirmation]) -%>
+    <%= c.password_field :password_confirmation, :value => (channel.persisted? ? '' : channel.password_confirmation) -%>
     </p>
   <%- end -%>
   <%= render 'edit_costs', :f => f -%>

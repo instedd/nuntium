@@ -12,12 +12,12 @@ class XmppService < Service
   end
 
   def start
-    setup @channel.handler.jid, @channel.configuration[:password], @channel.handler.server, @channel.configuration[:port]
+    setup @channel.jid, @channel.password, @channel.handler.server, @channel.port
     when_ready do
       Rails.logger.info "Connected to #{@channel.handler.jid}"
       self.channel_connected = true
 
-      set_status :chat, @channel.configuration[:status] if @channel.configuration[:status].present?
+      set_status :chat, @channel.status if @channel.status.present?
 
       subscribe_queue
       receive_chats

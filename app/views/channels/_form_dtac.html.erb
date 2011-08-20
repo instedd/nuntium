@@ -10,11 +10,11 @@
   <%= f.fields_for :configuration do |c| -%>
     <p>
     <%= c.label :user -%><br/>
-    <%= c.text_field :user, :autocomplete => :off, :value => channel.configuration[:user] -%>
+    <%= c.text_field :user, :autocomplete => :off, :value => channel.user -%>
     </p>
     <p>
     <%= c.label :password -%><br/>
-    <%= c.password_field :password, :autocomplete => :off, :value => channel.configuration[:password] -%>
+    <%= c.password_field :password, :autocomplete => :off, :value => channel.password -%>
     </p>
     <p>
     Callback urls for incoming messages:<br/>

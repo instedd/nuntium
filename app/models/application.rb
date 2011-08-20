@@ -321,8 +321,7 @@ class Application < ActiveRecord::Base
   end
 
   def configuration
-    self[:configuration] = {} if self[:configuration].nil?
-    self[:configuration]
+    self[:configuration] ||= {}
   end
 
   def strategy_description

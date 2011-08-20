@@ -52,7 +52,7 @@
     <div><b>Via Email</b></div>
     <ul>
       <%- channels.select{|c| c.kind == 'pop3'}.each do |c| -%>
-        <li>Send an email to <%= c.configuration[:user] -%>: create Application Terminated Messages</li>
+        <li>Send an email to <%= c.user -%>: create Application Terminated Messages</li>
       <%- end -%>
     </ul>
   <%- end -%>
@@ -82,7 +82,7 @@
     <div><b>Via <%= link_to 'Twitter', 'http://www.twitter.com', :target => '_blank' -%></b></div>
     <ul>
       <%- channels.select{|c| c.kind == 'twitter'}.each do |c| -%>
-        <li>Send a direct message to <%= c.configuration[:screen_name] -%>: create Application Terminated Messages</li>
+        li>Send a direct message to <%= c.screen_name -%>: create Application Terminated Messages</li>
       <%- end -%>
     </ul>
   <%- end -%>

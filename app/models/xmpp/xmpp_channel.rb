@@ -4,7 +4,7 @@ class XmppChannel < Channel
   include ServiceChannel
   include Jabber
 
-  configuration_accessor :user, :password, :domain, :port, :resource, :server
+  configuration_accessor :user, :password, :domain, :port, :resource, :server, :status
 
   validates_presence_of :user, :domain, :password
   validates_numericality_of :port, :greater_than => 0

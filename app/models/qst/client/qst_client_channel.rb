@@ -1,7 +1,7 @@
 class QstClientChannel < Channel
   include CronChannel
 
-  configuration_accessor :url, :user, :password
+  configuration_accessor :url, :user, :password, :last_ao_guid, :last_at_guid
 
   validates_presence_of :url, :user, :password
 

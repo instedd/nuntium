@@ -6,7 +6,7 @@ class TwitterChannel < Channel
 
   has_many :twitter_channel_statuses, :foreign_key => 'channel_id'
 
-  configuration_accessor :token, :secret, :screen_name
+  configuration_accessor :token, :secret, :screen_name, :welcome_message
 
   def self.new_oauth
     oauth = Twitter::OAuth.new Nuntium::TwitterConsumerConfig['token'], Nuntium::TwitterConsumerConfig['secret']

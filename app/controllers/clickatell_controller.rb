@@ -30,7 +30,7 @@ class ClickatellController < ApplicationController
                 end
 
     unless msg.custom_attributes[:cost]
-      cost_per_credit = (@channel.configuration[:cost_per_credit] || '1').to_f
+      cost_per_credit = (@channel.cost_per_credit || '1').to_f
       msg.custom_attributes[:cost] = (cost_per_credit * params[:charge].to_f).round 2
     end
     msg.save!
@@ -107,11 +107,7 @@ class ClickatellController < ApplicationController
     authenticate_or_request_with_http_basic do |username, password|
       @account = Account.find_by_id_or_name(params[:account_id])
       if !@account.nil?
-        @channel = @account.channels.select{|c|
-          c.kind == 'clickatell' &&
-          c.name == username &&
-          c.configuration[:incoming_password] == password
-        }.first
+        @channel = @account.clickatell_channels.where(:name => username).all.select{|x| x.incoming_password == password}.first
       else
         false
       end

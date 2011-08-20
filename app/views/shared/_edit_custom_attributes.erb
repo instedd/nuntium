@@ -52,9 +52,6 @@ var show_accept_when_not_specified_option = <%= show_accept_when_not_specified_o
 <div>
 <ul id="custom_attributes">
   <%-
-  countries = Country.all
-  carriers = Carrier.all_with_countries
-
   def write_custom_attribute(applications, channels, countries, carriers, include_channels, as_restriction, show_accept_when_not_specified_option, name, values)
     values = [values] unless values.kind_of? Array
     values.each do |value|

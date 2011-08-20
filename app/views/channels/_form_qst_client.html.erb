@@ -10,15 +10,15 @@
   <%= f.fields_for :configuration do |c| -%>
     <p>
     <%= c.label :url -%><br/>
-    <%= c.text_field :url, :value => channel.configuration[:url] -%>
+    <%= c.text_field :url, :value => channel.url -%>
     </p>
     <p>
     <%= c.label :user -%><br/>
-    <%= c.text_field :user, :value => channel.configuration[:user] -%>
+    <%= c.text_field :user, :value => channel.user -%>
     </p>
     <p>
     <%= c.label :password -%><br/>
-    <%= c.password_field :password, :value => channel.configuration[:password] -%>
+    <%= c.password_field :password, :value => channel.password -%>
     </p>
   <%- end -%>
   <%= render 'edit_costs', :f => f -%>

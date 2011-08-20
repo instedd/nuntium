@@ -13,12 +13,12 @@
       <%- if channel.persisted? -%>
         <p>
           <%= c.label :screen_name -%><br/>
-          <%= c.text_field :screen_name, :value => channel.configuration[:screen_name], :readonly => 'readonly' -%>
+          <%= c.text_field :screen_name, :value => channel.screen_name, :readonly => 'readonly' -%>
         </p>
       <%- end -%>
       <p>
       Welcome message for new followers (leave blank if not desired)<br/>
-      <%= c.text_field :welcome_message, :value => channel.configuration[:welcome_message], :id => 'twitter_welcome_message' -%>
+      <%= c.text_field :welcome_message, :value => channel.welcome_message, :id => 'twitter_welcome_message' -%>
       </p>
     <%- end -%>
     <%= render 'channels/edit_costs', :f => f -%>

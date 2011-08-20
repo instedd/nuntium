@@ -1,7 +1,7 @@
 class IpopChannel < Channel
   include GenericChannel
 
-  configuration_accessor :mt_post_url, :bid, :cid
+  configuration_accessor :mt_post_url, :mt_post_user, :mt_post_password, :bid, :cid
 
   validates_presence_of :address, :mt_post_url, :bid, :cid
 
