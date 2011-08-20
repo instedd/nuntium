@@ -111,7 +111,7 @@ channel = channels.find_by_id msg.channel_id
     <%- end -%>
   <%- end -%>
   <%- if msg.class == AoMessage && channel
-    hash = channel.handler.more_info(msg)
+    hash = channel.more_info(msg)
     hash.each_pair do |key, value|
       -%>
       <tr valign="baseline">

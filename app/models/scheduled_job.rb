@@ -6,8 +6,7 @@ class ScheduledJob < ActiveRecord::Base
   end
 
   def perform
-    handler = self.job.deserialize_job
-    handler.perform
+    self.job.deserialize_job.perform
   end
 
   private

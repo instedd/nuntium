@@ -205,10 +205,6 @@ class Channel < ActiveRecord::Base
     end
   end
 
-  def check_valid_in_ui
-    # Perform validations that are lengthy, like checking a connection works
-  end
-
   def throttle_opt
     self.throttle.nil? ? 'off' : 'on'
   end
@@ -227,7 +223,18 @@ class Channel < ActiveRecord::Base
     ao_messages.with_state('queued').count
   end
 
+  # Perform validations that are lengthy, like checking a connection works
+  def check_valid_in_ui
+  end
+
+  # Returns additional info for the given ao_msg in a hash, to be
+  # displayed in the message view
+  def more_info(ao_msg)
+    {}
+  end
+
+  # Custom logic to be executed when this channel changes
+  # because it's account or application changed
   def on_changed
-    # Custom logic to be executed when this channel changed because it's account or application changed
   end
 end

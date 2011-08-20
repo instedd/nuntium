@@ -8,7 +8,7 @@ else
       channel_id = ARGV[1]
       channel = Channel.find_by_id channel_id
       if channel
-        eval("#{channel.handler.class.identifier}Service").new(channel).start
+        channel.service.start
         EM.reactor_thread.join
       else
         Rails.logger.error "No channel found for id #{channel_id}"

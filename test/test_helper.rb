@@ -155,7 +155,7 @@ class ActiveSupport::TestCase
     assert !chan.save
   end
 
-  def assert_handler_should_enqueue_ao_job(chan)
+  def assert_channel_should_enqueue_ao_job(chan)
     chan.save!
 
     jobs = []

@@ -64,6 +64,10 @@ module ServiceChannel
       "#{kind}_daemon #{name}"
     end
 
+    def service
+      "#{self.class.identifier}Service".constantize.new self
+    end
+
     def has_connection?
       true
     end

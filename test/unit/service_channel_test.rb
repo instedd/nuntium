@@ -1,6 +1,6 @@
 module ServiceChannelTest
   def test_should_enqueue_when_handling
-    assert_handler_should_enqueue_ao_job @chan
+    assert_channel_should_enqueue_ao_job @chan
   end
 
   def test_on_create_creates_managed_process

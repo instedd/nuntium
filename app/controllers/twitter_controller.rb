@@ -55,7 +55,7 @@ class TwitterController < ChannelsController
       return redirect_to_home
     end
 
-    render :text => @channel.handler.get_rate_limit_status
+    render :text => @channel.get_rate_limit_status
   end
 
   protected
