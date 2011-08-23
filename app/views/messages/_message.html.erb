@@ -86,16 +86,16 @@ channel = channels.find_by_id msg.channel_id
     </tr>
   <%- end -%>
   <%- unless msg.custom_attributes.empty?
-    countries = Country.all
-    carriers = Carrier.all
     -%>
     <%- msg.custom_attributes.each_multivalue do |key, values|
       values.map! do |value|
         case key
         when 'country'
+          countries ||= Country.all
           result = countries.select{|x| x.iso2.casecmp(value) == 0}.first
           result ? result.name : value
         when 'carrier'
+          carriers ||= Carrier.all
           result = carriers.select{|x| x.guid == value}.first
           result ? result.name : value
         else
