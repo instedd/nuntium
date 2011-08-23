@@ -33,7 +33,7 @@ class SendInterfaceCallbackJob
         :subject => @msg.subject.try(:sanitize),
         :body => @msg.body.try(:sanitize),
         :guid => @msg.guid,
-        :channel => @msg.channel.name
+        :channel => @msg.channel.try(:name)
       }.merge(@msg.custom_attributes)
       data = data.to_query if @app.interface == 'http_get_callback'
     end
