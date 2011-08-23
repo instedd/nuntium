@@ -367,13 +367,13 @@ class QstServerControllerTest < ActionController::TestCase
   test "get one decrements queued ao count" do
     msg = create_qst_ao @account, @chan
 
-    assert_equal 1, @chan.queued_ao_messages_count
+    assert_equal 1, @account.queued_ao_messages_count_by_channel_id[@chan.id]
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
     @request.env["HTTP_IF_NONE_MATCH"] = msg.guid
     get :pull, :account_id => @account.name
 
-    assert_equal 0, @chan.queued_ao_messages_count
+    assert_equal 0, @account.queued_ao_messages_count_by_channel_id[@chan.id]
   end
 
   test "don't return cancelled messages" do

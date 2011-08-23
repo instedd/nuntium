@@ -223,10 +223,6 @@ class Channel < ActiveRecord::Base
     end
   end
 
-  def queued_ao_messages_count
-    ao_messages.with_state('queued').count
-  end
-
   # Perform validations that are lengthy, like checking a connection works
   def check_valid_in_ui
   end

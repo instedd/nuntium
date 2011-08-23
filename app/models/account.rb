@@ -151,6 +151,14 @@ class Account < ActiveRecord::Base
     AlertMailer.error(self, "Error in account #{self.name}", message).deliver
   end
 
+  def queued_ao_messages_count_by_channel_id
+    result = Hash.new 0
+    ao_messages.joins(:channel).with_state('queued').group(:channel_id).select('channel_id, count(*) as count').each do |record|
+      result[record.channel_id] = record.count.to_i
+    end
+    result
+  end
+
   def logger
     @logger ||= AccountLogger.new self.id
   end

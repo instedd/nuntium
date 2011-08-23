@@ -2,6 +2,8 @@ class ChannelsController < ApplicationController
   include CustomAttributesControllerCommon
   include RulesControllerCommon
 
+  expose(:queued_ao_messages_count_by_channel_id) { account.queued_ao_messages_count_by_channel_id }
+
   before_filter :set_channel_parameters, :only => [:create, :update]
   def set_channel_parameters
     channel.account_id = account.id

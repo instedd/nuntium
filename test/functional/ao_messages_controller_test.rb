@@ -105,11 +105,11 @@ class AoMessagesControllerTest < ActionController::TestCase
     @ao_msg1.state = 'queued'
     @ao_msg1.save!
 
-    assert_equal 1, @chan.queued_ao_messages_count
+    assert_equal 1, @account.queued_ao_messages_count_by_channel_id[@chan.id]
 
     post :mark_as_cancelled, {:ao_messages => [@ao_msg1.id, @ao_msg2.id]}, {:account_id => @account.id}
 
-    assert_equal 0, @chan.queued_ao_messages_count
+    assert_equal 0, @account.queued_ao_messages_count_by_channel_id[@chan.id]
   end
 
   test "mark ao messages as cancelled using search decrements queued count" do
@@ -119,11 +119,11 @@ class AoMessagesControllerTest < ActionController::TestCase
     @ao_msg1.state = 'queued'
     @ao_msg1.save!
 
-    assert_equal 1, @chan.queued_ao_messages_count
+    assert_equal 1, @account.queued_ao_messages_count_by_channel_id[@chan.id]
 
     post :mark_as_cancelled, {:ao_all => 1, :search => 'one'}, {:account_id => @account.id}
 
-    assert_equal 0, @chan.queued_ao_messages_count
+    assert_equal 0, @account.queued_ao_messages_count_by_channel_id[@chan.id]
   end
 
   {nil => false, 'PROT://567' => false, 'sms://5678' => true}.each do |to, ok|

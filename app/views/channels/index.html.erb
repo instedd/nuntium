@@ -45,7 +45,7 @@ By "the world" we mean anything that's not your particular application. For exam
         <td><%= chan.priority -%></td>
         <td><%= @applications.select{|x| x.id == chan.application_id}.first.name rescue nil -%></td>
         <%-
-        queued = chan.queued_ao_messages_count
+        queued = queued_ao_messages_count_by_channel_id[chan.id]
         if queued > 0
           -%>
           <td align="right"><%= link_to queued, ao_messages_path(:search => "channel:#{chan.name} state:queued") -%></td>
