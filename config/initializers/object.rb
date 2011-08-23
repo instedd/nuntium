@@ -20,7 +20,7 @@ class Object
   end
 
   def subclasses_of(klass)
-    subclasses = klass.subclasses
+    subclasses = klass.descendants
     subclasses.each do |subclass|
       subclasses.push *subclasses_of(subclass)
     end

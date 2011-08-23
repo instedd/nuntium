@@ -41,6 +41,10 @@ class Channel < ActiveRecord::Base
     after_update method, options.merge(:if => lambda { (enabled_changed? && enabled) || (paused_changed? && !paused) })
   end
 
+  def self.after_changed(method, options = {})
+    after_update method, options.merge(:if => lambda { changed? && !enabled_changed? && !paused_changed? && !connected_changed? })
+  end
+
   def self.after_disabled(method, options = {})
     after_update method, options.merge(:if => lambda { (enabled_changed? && !enabled) || (paused_changed? && paused) })
   end

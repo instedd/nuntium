@@ -58,6 +58,7 @@ class ManagedProcessesService < Service
   end
 
   def restart_process(proc_id)
+    logger.info caller
     logger.info "Restarting #{proc_id}"
     stop_process proc_id
     start_process proc_id

@@ -9,7 +9,7 @@ module ServiceChannel
     after_create :create_managed_process
     after_enabled :enable_managed_process
     after_disabled :disable_managed_process
-    after_update :touch_managed_process, :unless => lambda { enabled_changed? || paused_changed? }
+    after_changed :touch_managed_process
     before_destroy :destroy_managed_process
   end
 
@@ -53,6 +53,8 @@ module ServiceChannel
     end
 
     def touch_managed_process
+      Rails.logger.info "TOUCH"
+      Rails.logger.info caller
       managed_process.try :save!
     end
 
