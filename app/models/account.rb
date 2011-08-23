@@ -99,14 +99,15 @@ class Account < ActiveRecord::Base
     msg.infer_custom_attributes :mobile_number => mob
 
     # App Routing logic
-    if applications.empty?
+    all_applications = applications.all
+    if all_applications.empty?
       msg.save! unless simulate
 
       ThreadLocalLogger << "No application found for routing message"
       return ThreadLocalLogger.result if simulate
       logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => ThreadLocalLogger.result
-    elsif applications.length == 1
-      applications.first.route_at(msg, via_channel, options)
+    elsif all_applications.length == 1
+      all_applications.first.route_at(msg, via_channel, options)
       return ThreadLocalLogger.result if simulate
     else
       # if msg says which application to be used...
@@ -121,7 +122,7 @@ class Account < ActiveRecord::Base
       end
 
       if dest_application_name
-        application = applications.find_by_name dest_application_name
+        application = all_applications.select{|x| x.name == dest_application_name}.first
         if application
           application.route_at(msg, via_channel, options)
 
