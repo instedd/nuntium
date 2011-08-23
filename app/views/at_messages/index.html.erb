@@ -64,7 +64,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_at_messages_as_cancelle
   </table>
 <%- end -%>
 
-<%= will_paginate @at_messages, :param_name => 'present', :params => { :present => @search } -%>
+<%= will_paginate @at_messages, :param_name => 'page', :params => { :page => @search } -%>
 </form>
 
 <script>
