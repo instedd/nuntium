@@ -1,6 +1,6 @@
 <h4>Conversation thread for <%= @address -%></h4>
 
-<p>Showing <%= @msgs.length -%> message<%= @msgs.length != 1 ? 's' : '' -%>. <%= link_to 'Show more', :controller => :message, :action => :view_thread, :address => @address, :page => @page + 1 if @has_more  -%></p>
+<p>Showing <%= @msgs.length -%> message<%= @msgs.length != 1 ? 's' : '' -%>. <%= link_to 'Show more', "?page=#{@page + 1}" if @has_more  -%></p>
 
 <table border="1" class="table">
   <tr>
@@ -51,4 +51,4 @@
   <%- end -%>
 </table>
 
-<p>Showing <%= @msgs.length -%> message<%= @msgs.length != 1 ? 's' : '' -%>. <%= link_to 'Show more', :controller => :message, :action => :view_thread, :address => @address, :page => @page + 1 if @has_more -%></p>
+<p>Showing <%= @msgs.length -%> message<%= @msgs.length != 1 ? 's' : '' -%>. <%= link_to 'Show more', "?page=#{@page + 1}" if @has_more  -%></p>

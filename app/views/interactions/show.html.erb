@@ -42,7 +42,7 @@
       <%- channels.select{|c| c.kind == 'ipop'}.each do |channel| -%>
         <li><span class="url">POST <%= ipop_url(:account_id => account.name, :channel_name => channel.name) -%></span>
           create Application Terminated Messages from channel <%= channel.name %></li>
-        <li><span class="url">POST <%= iopo_ack_url(:account_id => account.name, :channel_name => channel.name) -%></span>
+        <li><span class="url">POST <%= ipop_ack_url(:account_id => account.name, :channel_name => channel.name) -%></span>
           receive Delivery Receipts callbacks from channel <%= channel.name %></li>
       <%- end -%>
     </ul>
@@ -60,11 +60,11 @@
   <%- if channels.any?{|c| c.kind == 'qst_server'} -%>
     <div><b>Via <%= link_to 'QueueStateTransfer', 'http://code.google.com/p/geochat/wiki/QueueStateTransfer', :target => '_blank' -%></b></div>
     <ul>
-      <li>Use <span class="url"><%= outgoing_url(:account_id => account.name)[0 .. -10] %></span> when configuring a QST client using <%= link_to 'Http Basic Authentication', 'http://en.wikipedia.org/wiki/Basic_access_authentication', :target => '_blank' -%> with channel credentials</li>
+      <li>Use <span class="url"><%= qst_pull_url(:account_id => account.name)[0 .. -10] %></span> when configuring a QST client using <%= link_to 'Http Basic Authentication', 'http://en.wikipedia.org/wiki/Basic_access_authentication', :target => '_blank' -%> with channel credentials</li>
     </ul>
   <%- end -%>
 
-  <%- if not applications.empty? -%>
+  <%- unless applications.empty? -%>
     <div><b>Via <%= link_to 'RSS', 'http://en.wikipedia.org/wiki/RSS', :target => '_blank' -%></b></div>
     Use <%= link_to 'Http Basic Authentication', 'http://en.wikipedia.org/wiki/Basic_access_authentication', :target => '_blank' -%> with application credentials (use "account/application" as username).
 
@@ -82,7 +82,7 @@
     <div><b>Via <%= link_to 'Twitter', 'http://www.twitter.com', :target => '_blank' -%></b></div>
     <ul>
       <%- channels.select{|c| c.kind == 'twitter'}.each do |c| -%>
-        li>Send a direct message to <%= c.screen_name -%>: create Application Terminated Messages</li>
+        <li>Send a direct message to <%= c.screen_name -%>: create Application Terminated Messages</li>
       <%- end -%>
     </ul>
   <%- end -%>

@@ -14,6 +14,10 @@ class IpopChannel < Channel
     check_config_not_blank :mt_post_url, :bid, :cid
   end
 
+  def info
+    address
+  end
+
   StatusCodes = {
     3 => 'Failure',
     4 => 'Operator SMSC',

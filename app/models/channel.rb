@@ -227,6 +227,11 @@ class Channel < ActiveRecord::Base
   def check_valid_in_ui
   end
 
+  # Return some info about this channel
+  def info
+    ''
+  end
+
   # Returns additional info for the given ao_msg in a hash, to be
   # displayed in the message view
   def more_info(ao_msg)

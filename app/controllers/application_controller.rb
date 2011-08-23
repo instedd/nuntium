@@ -12,7 +12,7 @@ class ApplicationController < ActionController::Base
   expose(:applications) { account.applications }
   expose(:application)
 
-  expose(:channels) { account.channels }
+  expose(:channels) { account.channels.includes(:application) }
   expose(:channel) do
     if params[:id] || params[:channel_id]
       channel = channels.find(params[:id] || params[:channel_id])

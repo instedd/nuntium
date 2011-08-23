@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110818140301) do
+ActiveRecord::Schema.define(:version => 20110823191413) do
 
   create_table "accounts", :force => true do |t|
     t.string   "name"
@@ -46,7 +46,7 @@ ActiveRecord::Schema.define(:version => 20110818140301) do
     t.integer  "account_id"
     t.integer  "tries",                             :default => 0,         :null => false
     t.string   "subject"
-    t.string   "state",               :limit => 15, :default => "pending", :null => false
+    t.string   "state",                             :default => "pending", :null => false
     t.string   "channel_relative_id"
     t.integer  "channel_id"
     t.text     "custom_attributes"
@@ -57,8 +57,7 @@ ActiveRecord::Schema.define(:version => 20110818140301) do
     t.string   "token",               :limit => 36
   end
 
-  add_index "ao_messages", ["account_id", "channel_id", "state"], :name => "index_ao_messages_on_account_id_and_channel_id_and_state"
-  add_index "ao_messages", ["account_id", "id"], :name => "index_ao_messages_on_account_id_and_id"
+  add_index "ao_messages", ["account_id", "state", "channel_id"], :name => "index_ao_messages_on_account_id_and_state_and_channel_id"
   add_index "ao_messages", ["account_id", "to", "id"], :name => "index_ao_messages_on_account_id_and_to_and_id"
   add_index "ao_messages", ["application_id", "token"], :name => "index_ao_messages_on_application_id_and_token"
   add_index "ao_messages", ["channel_id", "channel_relative_id"], :name => "index_ao_messages_on_channel_id_and_channel_relative_id"
@@ -230,6 +229,7 @@ ActiveRecord::Schema.define(:version => 20110818140301) do
   end
 
   add_index "qst_outgoing_messages", ["ao_message_id"], :name => "index_unread_ao_messages_on_guid"
+  add_index "qst_outgoing_messages", ["channel_id", "ao_message_id"], :name => "foo"
 
   create_table "scheduled_jobs", :force => true do |t|
     t.text     "job"

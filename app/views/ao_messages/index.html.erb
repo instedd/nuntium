@@ -8,7 +8,7 @@ Messages sent from your application into Nuntium and then into the world are cal
 <input type="hidden" id="ao_all" name="ao_all" value="0" />
 
 <%- if applications.empty? -%>
-  <%= link_to 'Create an Application', :controller => :home, :action => :new_application -%> to create AO Messages.<br/><br/>
+  <%= link_to 'Create an Application', new_application_path -%> to create AO Messages.<br/><br/>
 <%- else -%>
   <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AO Message">Create new AO Message'.html_safe, new_ao_message_path -%> &nbsp; &nbsp;
 <%- end -%>
@@ -54,7 +54,7 @@ Actions: <%= link_to_function 'mark as cancelled', 'mark_ao_messages_as_cancelle
         <td><%= short_html msg.guid -%></td>
         <td><%= short_html msg.channel_relative_id -%></td>
         <td><%= msg.from -%></td>
-        <td><%= link_to msg.to, thread_ao_message_path(msg), :target => '_blank' if msg.to.present? -%></td>
+        <td><a hre<%= link_to msg.to, thread_ao_message_path(msg), :target => '_blank' if msg.to.present? -%></td>
         <td><%= short_html msg.subject -%></td>
         <td><%= short_html msg.body -%></td>
         <td><%= msg.channel.try(:name) -%></td>

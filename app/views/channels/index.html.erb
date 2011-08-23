@@ -37,18 +37,19 @@ By "the world" we mean anything that's not your particular application. For exam
           <%- status = chan.paused ? 'paused' : (chan.enabled ? 'enabled' : 'disabled') -%>
           <%= image_tag "#{status}.png", :size => '16x16', :style => 'position:relative; top:4px', :title => "This channel is #{status}", :class => "img" -%>
           <%- if chan.has_connection? -%><%= image_tag "#{chan.connected? ? 'connected' : 'disconnected'}.png", :size => '16x16', :style => 'position:relative; top:4px', :title => "This channel is #{chan.connected? ? 'connected' : 'disconnected'}" -%><%- end -%>
-          <b><%= chan.name -%></b></td>
+          <b><%= chan.name -%></b>
+        </td>
         <td><%= chan.kind -%></td>
         <td><%= chan.direction_text -%></td>
         <td><%= chan.protocol -%></td>
         <td><%= chan.info.blank? ? '' : chan.info.html_safe -%></td>
         <td><%= chan.priority -%></td>
-        <td><%= @applications.select{|x| x.id == chan.application_id}.first.name rescue nil -%></td>
+        <td><%= chan.application.try(:name) -%></td>
         <%-
         queued = queued_ao_messages_count_by_channel_id[chan.id]
         if queued > 0
           -%>
-          <td align="right"><%= link_to queued, ao_messages_path(:search => "channel:#{chan.name} state:queued") -%></td>
+          <td align="right"><a href="/ao_messages?search=<%= CGI.escape "channel:#{chan.name} state:queued" %>"><%= queued -%></a></td>
           <%-
         else
           -%>
@@ -57,9 +58,9 @@ By "the world" we mean anything that's not your particular application. For exam
         end
         -%>
         <td>
-          <%= link_to "view log", logs_path(:search => "channel:#{chan.name}") -%>
-          <%= link_to "view aos", ao_messages_path(:search => "channel:#{chan.name}") -%>
-          <%= link_to "view ats", at_messages_path(:search => "channel:#{chan.name}") -%>
+          <a href="/logs?search=<%= CGI.escape "channel:#{chan.name}" %>">view logs</a>
+          <a href="/ao_messages?search=<%= CGI.escape "channel:#{chan.name}" %>">view aos</a>
+          <a href="/at_messages?search=<%= CGI.escape "channel:#{chan.name}" %>">view ats</a>
           <%
           [
             ['resume', chan.paused?],
@@ -68,12 +69,12 @@ By "the world" we mean anything that's not your particular application. For exam
             ['enable', !chan.paused? && !chan.enabled?]
           ].each do |name, shown|
             %>
-            <%= link_to_function name, "#{name}_channel(#{chan.id}, '#{h chan.name}')", :class => name, :style => (shown ? '' : 'display:none') -%>
+            <a onclick="<%= name %>_channel(<%= chan.id %>, '<%= chan.name %>'); return false;" class="<%= name %>" style="<%= shown ? '' : 'display:none' %>" href="#"><%= name %></a>
             <%
           end
           %>
-          <%= link_to "edit", edit_channel_path(chan) -%>
-          <%= link_to "delete", channel_path(chan), :method => :delete, :confirm => "Are you sure you want to delete the channel #{chan.name}?" -%>
+          <a href="/channels/<%= chan.id %>/edit">edit</a>
+          <a href="/channels/<%= chan.id %>" data-method="delete" data-confirm="Are you sure you want to delete the channel <%= chan.name %>?">delete</a>
         </td>
       </tr>
     <%- end -%>

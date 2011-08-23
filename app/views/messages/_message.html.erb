@@ -68,7 +68,7 @@ channel = channels.find_by_id msg.channel_id
   </tr>
   <%- if msg.state == 'broadcasted' -%>
     <%- copies_str = AoMessage.where(:parent_id => msg.id).all.map do |b|
-          link_to b.id, {:controller => :message, :action => :view_ao_message, :id => b.id}, :target => '_blank'
+          link_to b.id, ao_message_path(b), :target => '_blank'
         end.join(', ') -%>
     <%- if copies_str.present? -%>
       <tr valign="baseline">
@@ -82,7 +82,7 @@ channel = channels.find_by_id msg.channel_id
   <%- if msg.class == AoMessage and msg.parent_id and parent = msg.class.find_by_id(msg.parent_id)%>
     <tr valign="baseline">
       <td><b>Original:</b></td>
-      <td><%= link_to parent.id, {:controller => :message, :action => :view_ao_message, :id => parent.id}, :target => '_blank' -%></td>
+      <td><%= link_to parent.id, ao_message_path(parent), :target => '_blank' -%></td>
     </tr>
   <%- end -%>
   <%- unless msg.custom_attributes.empty?

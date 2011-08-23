@@ -9,17 +9,17 @@
 <div id="container">
 <%- if @hide_title.nil? -%>
   <div id="header">
-    <%= link_to 'Nuntium', root_path, :id => 'title' -%>
+    <a href="/" id="title">Nuntium</a>
     <%- if !flash[:notice].nil? -%>
       <span class="notice"><%= flash[:notice].html_safe -%></span>
     <%- end -%>
     <%- if account && account.id -%>
       <span id="toolbar"><%= account.name -%> |
         <%- if account && account.id && account.alert_emails.blank? -%>
-          <%= link_to "configure email alerts", settings_path, {:style => 'color:red'} -%> |
+          <a href="/settings" style="color:red">configure email alerts</a> |
         <%- end -%>
-        <%= link_to 'Have a question?', 'http://tech.groups.yahoo.com/group/nuntiumusers/', :target => '_blank' -%> |
-        <%= link_to 'Help', 'http://code.google.com/p/nuntium/', :target => '_blank' -%> |
+        <a href="http://tech.groups.yahoo.com/group/nuntiumusers/" target="_blank">Have a question?</a> |
+        <a href="http://code.google.com/p/nuntium/" target="_blank">Help</a> |
         <%= link_to 'Logoff', session_path, :method => :delete -%></span>
       </div>
       <%= render 'shared/tabs' -%>
