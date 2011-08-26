@@ -49,16 +49,21 @@ Rails::Initializer.run do |config|
   config.logger.formatter = Logger::Formatter.new
 
   # Start AMQP after rails loads:
-  config.after_initialize {
-    Thread.new { EM.run {} }
+  config.after_initialize do
+    Thread.new do
+      EM.run {}
 
-    require 'amqp'
-    amqp_yaml = YAML.load_file("#{RAILS_ROOT}/config/amqp.yml")
-    $amqp_config = amqp_yaml[ENV['RAILS_ENV'] || 'development']
-    $amqp_config.symbolize_keys!
-    AMQP.start($amqp_config)
-  }
+      require 'amqp'
+      amqp_yaml = YAML.load_file("#{RAILS_ROOT}/config/amqp.yml")
+      $amqp_config = amqp_yaml[ENV['RAILS_ENV'] || 'development']
+      $amqp_config.symbolize_keys!
+      AMQP.start($amqp_config)
+    end
 
+    EM.error_handler do |e|
+      puts "Error raised during event loop: #{e.message}"
+    end
+  end
 end
 
 ActionMailer::Base.delivery_method = :sendmail
