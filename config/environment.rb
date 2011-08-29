@@ -52,13 +52,13 @@ Rails::Initializer.run do |config|
   config.after_initialize do
     Thread.new do
       EM.run {}
-
-      require 'amqp'
-      amqp_yaml = YAML.load_file("#{RAILS_ROOT}/config/amqp.yml")
-      $amqp_config = amqp_yaml[ENV['RAILS_ENV'] || 'development']
-      $amqp_config.symbolize_keys!
-      AMQP.start($amqp_config)
     end
+    
+    require 'amqp'
+    amqp_yaml = YAML.load_file("#{RAILS_ROOT}/config/amqp.yml")
+    $amqp_config = amqp_yaml[ENV['RAILS_ENV'] || 'development']
+    $amqp_config.symbolize_keys!
+    AMQP.start($amqp_config)
 
     EM.error_handler do |e|
       puts "Error raised during event loop: #{e.message}"

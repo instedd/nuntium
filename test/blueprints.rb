@@ -87,6 +87,11 @@ Channel.blueprint :clickatell do
   configuration { {:user => Sham.username, :password => Sham.password, :api_id => Sham.guid, :from => Sham.number8, :incoming_password => Sham.password, :cost_per_credit => rand }}
 end
 
+Channel.blueprint :twilio do
+  kind { "twilio" }
+  configuration { {:account_sid => Sham.guid, :auth_token => Sham.guid, :from => Sham.number8 } }
+end
+
 Channel.blueprint :dtac do
   kind { "dtac" }
   configuration { {:user => Sham.username, :password => Sham.password } }

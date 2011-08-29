@@ -24,6 +24,7 @@ gem 'rgviz-rails', :require => 'rgviz_rails'
 gem 'smart_asset'
 gem 'blather', '0.4.15'
 gem 'ci_reporter'
+gem 'twilio-ruby'
 
 group :test do
   gem 'test-unit', :require => 'test/unit'
