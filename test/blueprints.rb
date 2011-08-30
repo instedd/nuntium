@@ -89,7 +89,7 @@ end
 
 Channel.blueprint :twilio do
   kind { "twilio" }
-  configuration { {:account_sid => Sham.guid, :auth_token => Sham.guid, :from => Sham.number8 } }
+  configuration { {:account_sid => Sham.guid, :auth_token => Sham.guid, :from => Sham.number8, :incoming_password => Sham.guid } }
 end
 
 Channel.blueprint :dtac do

@@ -21,6 +21,14 @@
     <%= c.label :from -%><br/>
     <%= c.text_field :from, :value => @channel[:configuration][:from] -%>
     </p>
+	<p id="callback_incoming">
+    Callback urls for incoming messages (use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Basic Http Authentication</a> with channel name and incoming password):<br/>
+    <code><%= twilio_url(@account.name) -%></code><br/>
+    </p>
+	<p>
+    <%= c.label :incoming_password -%> (to use for the callback urls)<br/>
+    <%= c.password_field :incoming_password, :value => @channel[:configuration][:incoming_password] -%>
+    </p>
   <%- end -%>
   <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} -%>
   <%= render :partial => 'edit_ao_rules', :locals => {:f => f} -%>

@@ -2,13 +2,13 @@ require 'test_helper'
 
 class SendTwilioMessageJobTest < ActiveSupport::TestCase
   def setup
-    @chan = Channel.make :twilio
+    @chan = Channel.make :twilio, :name => "channel_name"
     @config = @chan.configuration
     stub_twilio
   end
   
   should "perform" do
-    msg = AOMessage.make :account => Account.make, :channel => @chan, :guid => '1-2'
+    msg = AOMessage.make :account => @chan.account, :channel => @chan, :guid => '1-2'
     
     response = mock('response')
     @messages.expects(:create).returns(response)
@@ -23,7 +23,7 @@ class SendTwilioMessageJobTest < ActiveSupport::TestCase
   end
   
   should "perform error" do
-    msg = AOMessage.make :account => Account.make, :channel => @chan, :guid => '1-2'
+    msg = AOMessage.make :account => @chan.account, :channel => @chan, :guid => '1-2'
     
     @messages.expects(:create).raises(Twilio::REST::ServerError.new)
     
@@ -38,7 +38,7 @@ class SendTwilioMessageJobTest < ActiveSupport::TestCase
   end
   
   should "perform authenticate error" do
-    msg = AOMessage.make :account => Account.make, :channel => @chan, :guid => '1-2'
+    msg = AOMessage.make :account => @chan.account, :channel => @chan, :guid => '1-2'
     
     @messages.expects(:create).raises(Twilio::REST::RequestError.new("Authenticate"))
     
@@ -55,6 +55,36 @@ class SendTwilioMessageJobTest < ActiveSupport::TestCase
     
     @chan.reload
     assert @chan.enabled
+  end
+  
+  should "perform with expected parameters" do
+    msg = AOMessage.make :account => @chan.account, :channel => @chan, :guid => '1-2'
+    
+    response = mock('response')
+    response.stubs(:sid).returns('sms_sid')
+    
+    @messages.expects(:create).with do |params|
+      params[:from] == @config[:from] &&
+      params[:to] == msg.to.without_protocol &&
+      params[:body] == msg.subject_and_body
+    end.returns(response)
+    
+    deliver msg
+  end
+  
+  should "perform with callback url" do
+    msg = AOMessage.make :account => @chan.account, :channel => @chan, :guid => '1-2'
+    
+    NamedRoutes.expects(:twilio_ack_url).returns('http://nuntium/foo/twilio/ack')
+    
+    response = mock('response')
+    response.stubs(:sid).returns('sms_sid')
+    
+    @messages.expects(:create).with do |params|
+      params[:status_callback] == "http://#{@chan.name}:#{@config[:incoming_password]}@nuntium/foo/twilio/ack"
+    end.returns(response)
+    
+    deliver msg
   end
   
   def deliver(msg)

@@ -9,7 +9,7 @@ class TwilioChannelHandlerTest < ActiveSupport::TestCase
 
   include GenericChannelHandlerTest
 
-  [:account_sid, :auth_token, :from].each do |field|
+  [:account_sid, :auth_token, :from, :incoming_password].each do |field|
     test "should validate configuration presence of #{field}" do
       assert_validates_configuration_presence_of @chan, field
     end
