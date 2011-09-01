@@ -5,11 +5,11 @@
     <b>Leave blank if you don't want to change the password</b><br/>
   <%- end -%>
   <%= f.label :password -%><br/>
-  <%= f.password_field :password, :value => (channel.persisted? ? '' : channel.password) -%>
+  <%= f.password_field :password, :value => (channel.persisted? ? '' : channel.password), :autocomplete => :off -%>
   </p>
   <p>
   <%= f.label :password_confirmation -%><br/>
-  <%= f.password_field :password_confirmation, :value => (channel.persisted? ? '' : channel.password_confirmation) -%>
+  <%= f.password_field :password_confirmation, :value => (channel.persisted? ? '' : channel.password_confirmation), :autocomplete => :off -%>
   </p>
   <%= render 'edit_footer', :f => f %>
 <%- end -%>
