@@ -11,6 +11,10 @@ class DtacChannel < Channel
     "DTAC"
   end
 
+  def self.default_protocol
+    'sms'
+  end
+
   def info
     user
   end

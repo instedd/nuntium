@@ -4,11 +4,12 @@ class SmppChannel < Channel
   has_many :smpp_message_parts, :foreign_key => 'channel_id'
 
   configuration_accessor :user, :password
-  configuration_accessor :host, :system_type, :port, :source_ton, :source_npi, :destination_ton, :destination_npi
+  configuration_accessor :host, :port, :source_ton, :source_npi, :destination_ton, :destination_npi
+  configuration_accessor :system_type, :default => 'vma'
   configuration_accessor :default_mo_encoding, :mt_encodings, :mt_csms_method
   configuration_accessor :accept_mo_hex_string, :mt_max_length
   configuration_accessor :endianness_mo, :endianness_mt
-  configuration_accessor :max_unacknowledged_messages
+  configuration_accessor :max_unacknowledged_messages, :default => 5
 
   validates_presence_of :host, :system_type
   validates_presence_of :user, :password, :default_mo_encoding, :mt_encodings, :mt_csms_method
@@ -17,6 +18,10 @@ class SmppChannel < Channel
 
   def self.title
     "SMPP"
+  end
+
+  def self.default_protocol
+    'sms'
   end
 
   def check_valid_in_ui

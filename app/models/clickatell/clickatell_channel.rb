@@ -14,6 +14,10 @@ class ClickatellChannel < Channel
   before_destroy :clear_restrictions_cache
   after_update :clear_restrictions_cache
 
+  def self.default_protocol
+    'sms'
+  end
+
   def augmented_restrictions
     # try to load the restrictions from cache
     res = Rails.cache.read restrictions_cache_key

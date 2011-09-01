@@ -9,6 +9,10 @@ class IpopChannel < Channel
     "I-POP"
   end
 
+  def self.default_protocol
+    'sms'
+  end
+
   def check_valid
     errors.add(:address, "can't be blank") if address.blank?
     check_config_not_blank :mt_post_url, :bid, :cid

@@ -1,28 +1,15 @@
 <%= form_for_channel channel do |f| -%>
-  <%= f.error_messages -%>
-  <%= f.hidden_field :kind, :value => channel.kind %>
-  <%= render 'edit_name', :f => f -%>
-  <%= render 'edit_protocol', :f => f, :default => 'sms' -%>
-  <%= render 'edit_priority', :f => f -%>
-  <%= render 'edit_application', :f => f -%>
-  <%= render 'edit_direction' -%>
-  <%= render 'edit_address', :f => f -%>
-  <%= f.fields_for :configuration do |c| -%>
-    <p>
-    <%- if channel.persisted? -%>
-      <b>Leave blank if you don't want to change the password</b><br/>
-    <%- end -%>
-    <%= c.label :password -%><br/>
-    <%= c.password_field :password, :value => (channel.persisted? ? '' : channel.password) -%>
-    </p>
-    <p>
-    <%= c.label :password_confirmation -%><br/>
-    <%= c.password_field :password_confirmation, :value => (channel.persisted? ? '' : channel.password_confirmation) -%>
-    </p>
+  <%= render 'edit_header', :f => f -%>
+  <p>
+  <%- if channel.persisted? -%>
+    <b>Leave blank if you don't want to change the password</b><br/>
   <%- end -%>
-  <%= render 'edit_costs', :f => f -%>
-  <%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>
-  <%= render 'edit_ao_rules', :f => f -%>
-  <%= render 'edit_at_rules', :f => f -%>
-  <%= f.submit -%>
+  <%= f.label :password -%><br/>
+  <%= f.password_field :password, :value => (channel.persisted? ? '' : channel.password) -%>
+  </p>
+  <p>
+  <%= f.label :password_confirmation -%><br/>
+  <%= f.password_field :password_confirmation, :value => (channel.persisted? ? '' : channel.password_confirmation) -%>
+  </p>
+  <%= render 'edit_footer', :f => f %>
 <%- end -%>

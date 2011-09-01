@@ -1,11 +1,5 @@
 <%= form_for_channel channel do |f| -%>
-  <%= f.error_messages -%>
-  <%= f.hidden_field :kind, :value => channel.kind %>
-  <%= f.hidden_field :direction, :value => Channel::Incoming -%>
-  <%= render 'edit_name', :f => f -%>
-  <%= render 'edit_protocol', :f => f, :default => 'mailto' -%>
-  <%= render 'edit_priority', :f => f -%>
-  <%= render 'edit_application', :f => f -%>
+  <%= render 'edit_header', :f => f, :direction => Channel::Incoming, :exclude_address => true %>
   <%= render 'edit_mail_configuration', :f => f -%>
   <%= render 'edit_costs', :f => f, :hide_ao => true -%>
   <%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>

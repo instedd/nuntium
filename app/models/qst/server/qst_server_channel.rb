@@ -19,6 +19,10 @@ class QstServerChannel < Channel
     "QST server (local gateway)"
   end
 
+  def self.default_protocol
+    'sms'
+  end
+
   def handle(msg)
     outgoing = QstOutgoingMessage.new
     outgoing.channel_id = id

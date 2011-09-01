@@ -1,7 +1,7 @@
 <p>
 Direction:</br>
 <%- channel.direction ||= Channel::Bidirectional -%>
-<select id="channel_direction" name="channel[direction]" <%= "onchange=\"#{on_change}\"".html_safe if defined? on_change  -%>>
+<select id="channel_direction" name="channel[direction]" <%= "onchange=\"#{on_change}\"".html_safe if defined?(on_change) && on_change.present?  -%>>
   <option value="<%= Channel::Incoming -%>" <%= channel.direction == Channel::Incoming ? 'selected="selected"'.html_safe : "" -%>>Incoming</option>
   <option value="<%= Channel::Outgoing -%>" <%= channel.direction == Channel::Outgoing ? 'selected="selected"'.html_safe : "" -%>>Outgoing</option>
   <option value="<%= Channel::Bidirectional -%>" <%= channel.direction == Channel::Bidirectional ? 'selected="selected"'.html_safe : "" -%>>Bi-directional</option>

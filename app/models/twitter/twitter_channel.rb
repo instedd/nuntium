@@ -8,6 +8,10 @@ class TwitterChannel < Channel
 
   configuration_accessor :token, :secret, :screen_name, :welcome_message
 
+  def self.default_protocol
+    'twitter'
+  end
+
   def self.new_oauth
     oauth = Twitter::OAuth.new Nuntium::TwitterConsumerConfig['token'], Nuntium::TwitterConsumerConfig['secret']
     oauth.set_callback_url Nuntium::TwitterConsumerConfig['callback_url']

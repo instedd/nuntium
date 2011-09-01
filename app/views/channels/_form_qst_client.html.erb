@@ -1,29 +1,16 @@
 <%= form_for_channel channel do |f| -%>
-  <%= f.error_messages -%>
-  <%= f.hidden_field :kind, :value => channel.kind %>
-  <%= render 'edit_name', :f => f -%>
-  <%= render 'edit_protocol', :f => f, :default => 'sms' -%>
-  <%= render 'edit_priority', :f => f -%>
-  <%= render 'edit_application', :f => f -%>
-  <%= render 'edit_direction' -%>
-  <%= render 'edit_address', :f => f -%>
-  <%= f.fields_for :configuration do |c| -%>
-    <p>
-    <%= c.label :url -%><br/>
-    <%= c.text_field :url, :value => channel.url -%>
-    </p>
-    <p>
-    <%= c.label :user -%><br/>
-    <%= c.text_field :user, :value => channel.user -%>
-    </p>
-    <p>
-    <%= c.label :password -%><br/>
-    <%= c.password_field :password, :value => channel.password -%>
-    </p>
-  <%- end -%>
-  <%= render 'edit_costs', :f => f -%>
-  <%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>
-  <%= render 'edit_ao_rules', :f => f -%>
-  <%= render 'edit_at_rules', :f => f -%>
-  <%= f.submit -%>
+  <%= render 'edit_header', :f => f -%>
+  <p>
+  <%= f.label :url -%><br/>
+  <%= f.text_field :url -%>
+  </p>
+  <p>
+  <%= f.label :user -%><br/>
+  <%= f.text_field :user -%>
+  </p>
+  <p>
+  <%= f.label :password -%><br/>
+  <%= f.password_field :password -%>
+  </p>
+  <%= render 'edit_footer', :f => f %>
 <%- end -%>

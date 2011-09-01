@@ -1,89 +1,79 @@
 <%= form_for_channel channel do |f| -%>
-  <%= f.error_messages -%>
-  <%= f.hidden_field :kind, :value => channel.kind %>
-  <%= f.hidden_field :direction, :value => Channel::Bidirectional -%>
-  <%= render 'edit_name', :f => f -%>
-  <%= render 'edit_protocol', :f => f, :default => 'sms' -%>
-  <%= render 'edit_priority', :f => f -%>
-  <%= render 'edit_application', :f => f -%>
-  <%= render 'edit_address', :f => f -%>
+  <%= render 'edit_header', :f => f, :direction => Channel::Bidirectional -%>
   <%= render 'throttle', :f => f -%>
-  <%= f.fields_for :configuration do |c| -%>
-    <p>
-    <%= c.label :max_unacknowledged_messages -%><br/>
-    <%= c.text_field :max_unacknowledged_messages, :value => channel.max_unacknowledged_messages || 5 -%>
-    </p>
-    <p>
-    <%= c.label :host -%><br/>
-    <%= c.text_field :host, :value => channel.host -%>
-    </p>
-    <p>
-    <%= c.label :port -%><br/>
-    <%= c.text_field :port, :value => channel.port -%>
-    </p>
-    <p>
-    <%= c.label :system_type -%><br/>
-    <%= c.text_field :system_type, :value => channel.system_type || 'vma' -%>
-    </p>
-    <p>
-    <%= c.label :source_ton -%><br/>
-    <%= c.text_field :source_ton, :value => channel.source_ton -%>
-    </p>
-    <p>
-    <%= c.label :source_npi -%><br/>
-    <%= c.text_field :source_npi, :value => channel.source_npi -%>
-    </p>
-    <p>
-    <%= c.label :destination_ton -%><br/>
-    <%= c.text_field :destination_ton, :value => channel.destination_ton -%>
-    </p>
-    <p>
-    <%= c.label :destination_npi -%><br/>
-    <%= c.text_field :destination_npi, :value => channel.destination_npi -%>
-    </p>
-    <p>
-    <%= c.label :user -%><br/>
-    <%= c.text_field :user, :value => channel.user -%>
-    </p>
-    <p>
-    <%= c.label :password -%><br/>
-    <%= c.password_field :password, :value => channel.password -%>
-    </p>
-    <h5>Encoding</h5>
-    <p>
-    <%= c.check_box :endianness_mo, {:checked => channel.endianness_mo == 'little'}, :little, :big -%> <%= c.label 'Use little endian for ucs-2 MO messages' -%>
-    </p>
-    <p>
-    <%= c.check_box :endianness_mt, {:checked => channel.endianness_mt == 'little'}, :little, :big -%> <%= c.label 'Use little endian for ucs-2 MT messages' -%>
-    </p>
-    <p>
-    <%= c.check_box :accept_mo_hex_string, :checked => channel.accept_mo_hex_string.to_b -%> <%= c.label 'Hex strings' -%>
-    </p>
-    <%- encodings = [['ASCII', 'ascii'], ['Latin1', 'latin1'], ['UCS-2', 'ucs-2'], ['GSM 03.38', 'gsm']] -%>
-    <p>
-    <%= c.label 'Default MO encoding:' -%><br/>
-    <%= c.select :default_mo_encoding, options_for_select(encodings, channel.default_mo_encoding) -%>
-    </p>
-    <p>
-    <%= c.label 'MT encodings:' -%><br/>
-    <%- channel.mt_encodings = encodings.map{|x|x[1]} unless channel.mt_encodings.present? -%>
-    <%- encodings.each do |encoding| -%>
-      <%- next if encoding[1] == 'gsm' -%>
-      <input id="channel_configuration_mt_encodings" name="channel[configuration][mt_encodings][]" type="checkbox" value="<%= encoding[1] -%>" <%= 'checked="checked"' if channel.mt_encodings.include? encoding[1].to_s -%> /> <%= encoding[0] -%><br/>
-    <%- end -%>
-    </p>
-    <p>
-    <%= c.label 'MT max length:' -%><br/>
-    <%= c.select :mt_max_length, options_for_select(['140', '160', '254'], channel.mt_max_length) -%>
-    </p>
-    <p>
-    <%= c.label 'MT CSMS method:' -%><br/>
-    <%= c.select :mt_csms_method, options_for_select([['UDH', 'udh'], ['Optional parameters', 'optional_parameters'], ['Message payload', 'message_payload']], channel.mt_csms_method) -%>
-    </p>
+  <p>
+  <%= f.label :max_unacknowledged_messages -%><br/>
+  <%= f.text_field :max_unacknowledged_messages -%>
+  </p>
+  <p>
+  <%= f.label :host -%><br/>
+  <%= f.text_field :host -%>
+  </p>
+  <p>
+  <%= f.label :port -%><br/>
+  <%= f.text_field :port -%>
+  </p>
+  <p>
+  <%= f.label :system_type -%><br/>
+  <%= f.text_field :system_type -%>
+  </p>
+  <p>
+  <%= f.label :source_ton -%><br/>
+  <%= f.text_field :source_ton -%>
+  </p>
+  <p>
+  <%= f.label :source_npi -%><br/>
+  <%= f.text_field :source_npi -%>
+  </p>
+  <p>
+  <%= f.label :destination_ton -%><br/>
+  <%= f.text_field :destination_ton -%>
+  </p>
+  <p>
+  <%= f.label :destination_npi -%><br/>
+  <%= f.text_field :destination_npi -%>
+  </p>
+  <p>
+  <%= f.label :user -%><br/>
+  <%= f.text_field :user -%>
+  </p>
+  <p>
+  <%= f.label :password -%><br/>
+  <%= f.password_field :password -%>
+  </p>
+  <h5>Encoding</h5>
+  <p>
+  <%= f.check_box :endianness_mo, {:checked => channel.endianness_mo == 'little'}, :little, :big -%>
+  <%= f.label 'Use little endian for ucs-2 MO messages' -%>
+  </p>
+  <p>
+  <%= f.check_box :endianness_mt, {:checked => channel.endianness_mt == 'little'}, :little, :big -%>
+  <%= f.label 'Use little endian for ucs-2 MT messages' -%>
+  </p>
+  <p>
+  <%= f.check_box :accept_mo_hex_string -%>
+  <%= f.label 'Hex strings' -%>
+  </p>
+  <%- encodings = [['ASCII', 'ascii'], ['Latin1', 'latin1'], ['UCS-2', 'ucs-2'], ['GSM 03.38', 'gsm']] -%>
+  <p>
+  <%= f.label 'Default MO encoding:' -%><br/>
+  <%= f.select :default_mo_encoding, options_for_select(encodings, channel.default_mo_encoding) -%>
+  </p>
+  <p>
+  <%= f.label 'MT encodings:' -%><br/>
+  <%- channel.mt_encodings = encodings.map{|x|x[1]} unless channel.mt_encodings.present? -%>
+  <%- encodings.each do |encoding| -%>
+    <%- next if encoding[1] == 'gsm' -%>
+    <input id="channel_configuration_mt_encodings" name="channel[configuration][mt_encodings][]" type="checkbox" value="<%= encoding[1] -%>" <%= 'checked="checked"' if channel.mt_encodings.include? encoding[1].to_s -%> /> <%= encoding[0] -%><br/>
   <%- end -%>
-  <%= render 'edit_costs', :f => f -%>
-  <%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>
-  <%= render 'edit_ao_rules', :f => f -%>
-  <%= render 'edit_at_rules', :f => f -%>
-  <%= f.submit -%>
+  </p>
+  <p>
+  <%= f.label 'MT max length:' -%><br/>
+  <%= f.select :mt_max_length, options_for_select(['140', '160', '254'], channel.mt_max_length) -%>
+  </p>
+  <p>
+  <%= f.label 'MT CSMS method:' -%><br/>
+  <%= f.select :mt_csms_method, options_for_select([['UDH', 'udh'], ['Optional parameters', 'optional_parameters'], ['Message payload', 'message_payload']], channel.mt_csms_method) -%>
+  </p>
+  <%= render 'edit_footer', :f => f %>
 <%- end -%>

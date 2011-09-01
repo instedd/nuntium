@@ -1,38 +1,25 @@
 <%= form_for_channel channel do |f| -%>
-  <%= f.error_messages -%>
-  <%= f.hidden_field :kind, :value => channel.kind %>
-  <%= f.hidden_field :direction, :value => Channel::Bidirectional -%>
-  <%= render 'edit_name', :f => f -%>
-  <%= render 'edit_protocol', :f => f, :default => 'sms' -%>
-  <%= render 'edit_priority', :f => f -%>
-  <%= render 'edit_application', :f => f -%>
-  <%= render 'edit_direction' -%>
-  <%= render 'edit_address', :f => f -%>
-  <%= f.fields_for :configuration do |c| -%>
-    <h5>MT POST</h5>
-    <p>
-    <%= c.label :mt_post_url, 'URL' -%><br/>
-    <%= c.text_field :mt_post_url, :value => channel.mt_post_url -%>
-    </p>
-    <p>
-    <%= c.label :mt_post_user, 'User (optional)' -%><br/>
-    <%= c.text_field :mt_post_user, :value => channel.mt_post_user -%>
-    </p>
-    <p>
-    <%= c.label :mt_post_password, 'Password (optional)' -%><br/>
-    <%= c.password_field :mt_post_password, :autocomplete => :off, :value => channel.mt_post_password -%>
-    </p>
-    <p>
-    <%= c.label :cid, 'Connection ID (cid)' -%><br/>
-    <%= c.text_field :cid, :value => channel.cid -%>
-    </p>
-    <p>
-    <%= c.label :bid, 'Billing Level (bid)' -%><br/>
-    <%= c.text_field :bid, :value => channel.bid -%>
-    </p>
-  <%- end -%>
-  <%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>
-  <%= render 'edit_ao_rules', :f => f -%>
-  <%= render 'edit_at_rules', :f => f -%>
-  <%= f.submit -%>
+  <%= render 'edit_header', :f => f -%>
+  <h5>MT POST</h5>
+  <p>
+  <%= f.label :mt_post_url, 'URL' -%><br/>
+  <%= f.text_field :mt_post_url -%>
+  </p>
+  <p>
+  <%= f.label :mt_post_user, 'User (optional)' -%><br/>
+  <%= f.text_field :mt_post_user -%>
+  </p>
+  <p>
+  <%= f.label :mt_post_password, 'Password (optional)' -%><br/>
+  <%= f.password_field :mt_post_password, :autocomplete => :off -%>
+  </p>
+  <p>
+  <%= f.label :cid, 'Connection ID (cid)' -%><br/>
+  <%= f.text_field :cid -%>
+  </p>
+  <p>
+  <%= f.label :bid, 'Billing Level (bid)' -%><br/>
+  <%= f.text_field :bid -%>
+  </p>
+  <%= render 'edit_footer', :f => f %>
 <%- end -%>

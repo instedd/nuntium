@@ -12,6 +12,10 @@ class SmtpChannel < Channel
     "SMTP"
   end
 
+  def self.default_protocol
+    'mailto'
+  end
+
   def check_valid_in_ui
     smtp = Net::SMTP.new host, port.to_i
     smtp.enable_tls if use_ssl.to_b

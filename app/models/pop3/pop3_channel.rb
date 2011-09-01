@@ -12,6 +12,10 @@ class Pop3Channel < Channel
     "POP3"
   end
 
+  def self.default_protocol
+    'mailto'
+  end
+
   def check_valid_in_ui
     pop = Net::POP3.new host, port.to_i
     pop.enable_ssl(OpenSSL::SSL::VERIFY_NONE) if use_ssl.to_b

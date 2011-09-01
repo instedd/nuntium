@@ -1,26 +1,18 @@
 <%- if Nuntium::TwitterConsumerConfig.nil? -%>
   <%= render 'twitter_configuration_missing' -%>
 <%- else -%>
-  <%= form_for channel.becomes(Channel), :url => create_twitter_channel_path do |f| -%>
-    <%= f.error_messages -%>
-    <%= f.hidden_field :kind, :value => channel.kind %>
-    <%= f.hidden_field :direction, :value => Channel::Bidirectional -%>
-    <%= render 'channels/edit_name', :f => f -%>
-    <%= render 'channels/edit_protocol', :f => f, :default => 'twitter' -%>
-    <%= render 'channels/edit_priority', :f => f -%>
-    <%= render 'channels/edit_application', :f => f -%>
-    <%= f.fields_for :configuration do |c| -%>
-      <%- if channel.persisted? -%>
-        <p>
-          <%= c.label :screen_name -%><br/>
-          <%= c.text_field :screen_name, :value => channel.screen_name, :readonly => 'readonly' -%>
-        </p>
-      <%- end -%>
+  <%= form_for channel, :as => :channel, :url => create_twitter_channel_path do |f| -%>
+    <%= render 'edit_header', :f => f, :exclude_address => true -%>
+    <%- if channel.persisted? -%>
       <p>
-      Welcome message for new followers (leave blank if not desired)<br/>
-      <%= c.text_field :welcome_message, :value => channel.welcome_message, :id => 'twitter_welcome_message' -%>
+        <%= f.label :screen_name -%><br/>
+        <%= f.text_field :screen_name, :readonly => 'readonly' -%>
       </p>
     <%- end -%>
+    <p>
+    Welcome message for new followers (leave blank if not desired)<br/>
+    <%= f.text_field :welcome_message, :id => 'twitter_welcome_message' -%>
+    </p>
     <%= render 'channels/edit_costs', :f => f -%>
     <%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>
     <%= render 'channels/edit_ao_rules', :f => f -%>

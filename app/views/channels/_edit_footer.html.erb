@@ -1,0 +1,5 @@
+<%= render 'edit_costs', :f => f unless defined?(exclude_costs) -%>
+<%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>
+<%= render 'edit_ao_rules', :f => f -%>
+<%= render 'edit_at_rules', :f => f -%>
+<%= f.submit -%>

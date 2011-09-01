@@ -1,37 +1,24 @@
 <%= form_for_channel channel do |f| -%>
-  <%= f.error_messages -%>
-  <%= f.hidden_field :kind, :value => channel.kind %>
-  <%= render 'edit_name', :f => f -%>
-  <%= render 'edit_protocol', :f => f, :default => 'sms' -%>
-  <%= render 'edit_priority', :f => f -%>
-  <%= render 'edit_application', :f => f -%>
-  <%= render 'edit_direction' -%>
-  <%= render 'edit_address', :f => f -%>
-  <%= f.fields_for :configuration do |c| -%>
-    <p>
-    <%= c.label :host -%><br/>
-    <%= c.text_field :host, :value => channel.host -%>
-    </p>
-    <p>
-    <%= c.label :port -%><br/>
-    <%= c.text_field :port, :value => channel.port || '81' -%>
-    </p>
-    <p>
-    <%= c.label :user -%><br/>
-    <%= c.text_field :user, :value => channel.user -%>
-    </p>
-    <p>
-    <%= c.label :password -%><br/>
-    <%= c.password_field :password, :value => channel.password -%>
-    </p>
-    <p>
-    <%= c.label :time_zone -%><br/>
-    <%= c.select :time_zone, time_zone_options_for_select(channel.time_zone) -%>
-    </p>
-  <%- end -%>
-  <%= render 'edit_costs', :f => f -%>
-  <%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>
-  <%= render 'edit_ao_rules', :f => f -%>
-  <%= render 'edit_at_rules', :f => f -%>
-  <%= f.submit -%>
+  <%= render 'edit_header', :f => f -%>
+  <p>
+  <%= f.label :host -%><br/>
+  <%= f.text_field :host -%>
+  </p>
+  <p>
+  <%= f.label :port -%><br/>
+  <%= f.text_field :port -%>
+  </p>
+  <p>
+  <%= f.label :user -%><br/>
+  <%= f.text_field :user -%>
+  </p>
+  <p>
+  <%= f.label :password -%><br/>
+  <%= f.password_field :password -%>
+  </p>
+  <p>
+  <%= f.label :time_zone -%><br/>
+  <%= f.select :time_zone, time_zone_options_for_select(channel.time_zone) -%>
+  </p>
+  <%= render 'edit_footer', :f => f %>
 <%- end -%>

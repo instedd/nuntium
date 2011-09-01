@@ -1,0 +1,8 @@
+<%= f.error_messages -%>
+<%= f.hidden_field :kind, :value => channel.kind %>
+<%= render 'edit_name', :f => f -%>
+<%= render 'edit_protocol', :f => f, :default => channel.class.default_protocol -%>
+<%= render 'edit_priority', :f => f -%>
+<%= render 'edit_application', :f => f -%>
+<%= render 'edit_address', :f => f -%>
+<%= render 'edit_direction' -%>

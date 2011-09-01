@@ -4,13 +4,18 @@ class XmppChannel < Channel
   include ServiceChannel
   include Jabber
 
-  configuration_accessor :user, :password, :domain, :port, :resource, :server, :status
+  configuration_accessor :user, :password, :domain, :resource, :server, :status
+  configuration_accessor :port, :default => 5222
 
   validates_presence_of :user, :domain, :password
   validates_numericality_of :port, :greater_than => 0
 
   def self.title
     "XMPP"
+  end
+
+  def self.default_protocol
+    'xmpp'
   end
 
   def jid

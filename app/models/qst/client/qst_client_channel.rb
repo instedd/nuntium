@@ -9,6 +9,10 @@ class QstClientChannel < Channel
     "QST client"
   end
 
+  def self.default_protocol
+    'sms'
+  end
+
   def handle(msg)
     # AO Message should be queued, we just query them
   end

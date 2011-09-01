@@ -4,13 +4,18 @@ class MultimodemIsmsChannel < Channel
   include CronChannel
   include GenericChannel
 
-  configuration_accessor :host, :port, :user, :password, :time_zone
+  configuration_accessor :host, :user, :password, :time_zone
+  configuration_accessor :port, :default => 81
 
   validates_presence_of :host, :port, :user, :password
   validates_numericality_of :port, :greater_than => 0
 
   def self.title
     "Multimodem iSms"
+  end
+
+  def self.default_protocol
+    'sms'
   end
 
   def info

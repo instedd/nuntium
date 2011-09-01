@@ -1,44 +1,32 @@
-<%= form_for channel.becomes(Channel), :url => (channel.new_record? ? channels_path : channel_path(channel)) do |f| -%>
-  <%= f.error_messages -%>
-  <%= f.hidden_field :kind, :value => channel.kind %>
-  <%= f.hidden_field :direction, :value => Channel::Bidirectional -%>
-  <%= render 'edit_name', :f => f -%>
-  <%= render 'edit_protocol', :f => f, :default => 'xmpp' -%>
-  <%= render 'edit_priority', :f => f -%>
-  <%= render 'edit_application', :f => f -%>
-  <%= f.fields_for :configuration do |c| -%>
-    <p>
-    <%= c.label :user -%><br/>
-    <%= c.text_field :user, :value => channel.user -%>
-    </p>
-    <p>
-    <%= c.label :domain -%><br/>
-    <%= c.text_field :domain, :value => channel.domain -%>
-    </p>
-    <p>
-    <%= c.label :password -%><br/>
-    <%= c.password_field :password, :value => channel.password -%>
-    </p>
-    <p>
-    <%= c.label :server -%><br/>
-    <%= c.text_field :server, :value => channel.server -%>
-    </p>
-    <p>
-    <%= c.label :port -%><br/>
-    <%= c.text_field :port, :value => channel.port || 5222 -%>
-    </p>
-    <p>
-    <%= c.label :resource -%><br/>
-    <%= c.text_field :resource, :value => channel.resource -%>
-    </p>
-    <p>
-    <%= c.label :status -%><br/>
-    <%= c.text_field :status, :value => channel.status -%>
-    </p>
-  <%- end -%>
-  <%= render 'edit_costs', :f => f -%>
-  <%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>
-  <%= render 'edit_ao_rules', :f => f -%>
-  <%= render 'edit_at_rules', :f => f -%>
-  <%= f.submit -%>
+<%= form_for_channel channel do |f| -%>
+  <%= render 'edit_header', :f => f %>
+  <p>
+  <%= f.label :user -%><br/>
+  <%= f.text_field :user -%>
+  </p>
+  <p>
+  <%= f.label :domain -%><br/>
+  <%= f.text_field :domain -%>
+  </p>
+  <p>
+  <%= f.label :password -%><br/>
+  <%= f.password_field :password -%>
+  </p>
+  <p>
+  <%= f.label :server -%><br/>
+  <%= f.text_field :server -%>
+  </p>
+  <p>
+  <%= f.label :port -%><br/>
+  <%= f.text_field :port -%>
+  </p>
+  <p>
+  <%= f.label :resource -%><br/>
+  <%= f.text_field :resource -%>
+  </p>
+  <p>
+  <%= f.label :status -%><br/>
+  <%= f.text_field :status -%>
+  </p>
+  <%= render 'edit_footer', :f => f %>
 <%- end -%>
