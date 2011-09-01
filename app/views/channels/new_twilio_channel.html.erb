@@ -1,0 +1,43 @@
+<%= render :partial => 'edit_channel_header' -%>
+
+<%- form_for_channel do |f| -%>
+  <%= f.error_messages -%>
+  <%= f.hidden_field :direction, :value => Channel::Bidirectional -%>
+  <%= render :partial => 'edit_name', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_protocol', :locals => {:f => f, :default => 'sms'} -%>
+  <%= render :partial => 'edit_priority', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_application', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_direction' -%>
+  <%- f.fields_for :configuration do |c| -%>
+    <p id="account_sid_container">
+    <%= c.label :account_sid, 'Account SID' -%><br/>
+    <%= c.text_field :account_sid, :autocomplete => :off, :value => @channel[:configuration][:account_sid] -%>
+    </p>
+    <p id="auth_token_container">
+    <%= c.label :auth_token -%><br/>
+    <%= c.password_field :auth_token, :autocomplete => :off, :value => @channel[:configuration][:auth_token] -%>
+    </p>
+	<p id="from_container">
+    <%= c.label :from -%><br/>
+    <%= c.text_field :from, :value => @channel[:configuration][:from] -%>
+    </p>
+	<p id="callback_incoming">
+    Callback urls for incoming messages (use <a href="http://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Basic Http Authentication</a> with channel name and incoming password):<br/>
+    <code><%= twilio_url(@account.name) -%></code><br/>
+    </p>
+	<p>
+    <%= c.label :incoming_password -%> (to use for the callback urls)<br/>
+    <%= c.password_field :incoming_password, :value => @channel[:configuration][:incoming_password] -%>
+    </p>
+  <%- end -%>
+  <%= render :partial => 'shared/edit_custom_attributes', :locals => {:f => f, :entity => @channel, :as_restriction => true} -%>
+  <%= render :partial => 'edit_ao_rules', :locals => {:f => f} -%>
+  <%= render :partial => 'edit_at_rules', :locals => {:f => f} -%>
+  <%= channel_submit_tag -%>
+<%- end -%>
+
+<%= link_to 'Go back', :controller => :home, :action => :channels -%>
+
+<script>
+clickatell_channel_direction_changed();
+</script>

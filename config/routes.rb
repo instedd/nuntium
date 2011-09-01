@@ -83,6 +83,11 @@ Nuntium::Application.routes.draw do
     post '/ack' => 'ipop#ack', :as => :ipop_ack, :constraints => {:account_id => /.*/}
   end
 
+  scope '/:account_id/twilio', :constraints => {:account_id => /.*/} do
+    match '/incoming' => 'twilio#index', :as => :twilio
+    match '/ack' => 'twilio#ack', :as => :twilio_ack
+  end
+
   scope '/api' do
     scope '/carriers' do
       match '/' => 'api_carrier#index', :as => :carriers

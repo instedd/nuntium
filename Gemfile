@@ -28,6 +28,7 @@ gem 'ci_reporter'
 gem 'daemons'
 gem 'decent_exposure'
 gem 'jquery-rails', '>= 1.0.12'
+gem 'twilio-ruby'
 
 group :test do
   gem 'test-unit', :require => 'test/unit'

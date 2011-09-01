@@ -147,6 +147,15 @@ SmppChannel.blueprint do
   configuration {{:host => Sham.url, :port => rand(1000) + 1, :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => Sham.username, :password => Sham.password, :system_type => 'smpp', :mt_encodings => ['ascii'], :default_mo_encoding => 'ascii', :mt_csms_method => 'udh' } }
 end
 
+TwilioChannel.blueprint do
+  account
+  name { Sham.guid }
+  direction { Channel::Bidirectional }
+  protocol { "sms" }
+  enabled { true }
+  configuration { {:account_sid => Sham.guid, :auth_token => Sham.guid, :from => Sham.number8, :incoming_password => Sham.guid } }
+end
+
 TwitterChannel.blueprint do
   account
   name { Sham.guid }
