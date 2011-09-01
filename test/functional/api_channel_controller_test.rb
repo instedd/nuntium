@@ -224,6 +224,15 @@ class ApiChannelControllerTest < ActionController::TestCase
       end
     end
 
+    test "create #{format} channel fails missing password" do
+      chan = QstServerChannel.make_unsaved :qst_server, :name => 'coco'
+      chan.password = nil
+
+      before_count = Channel.all.length
+      create chan, format, :bad_request
+      assert_equal before_count, Channel.all.length
+    end
+
     test "create #{format} channel using invalid ticket fails" do
       chan = QstServerChannel.make_unsaved :qst_server, :ticket_code => 'wrong-ticket'
 

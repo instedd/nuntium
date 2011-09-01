@@ -9,7 +9,7 @@ class QstServerChannel < Channel
 
   configuration_accessor :password, :password_confirmation, :salt
 
-  before_validation :reset_password, :if => lambda { password.blank? }
+  before_validation :reset_password, :if => lambda { persisted? && password.blank? }
   before_create :hash_password
   before_update :hash_password, :if => lambda { salt.blank? }
 
