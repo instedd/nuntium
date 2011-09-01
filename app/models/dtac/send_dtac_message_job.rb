@@ -31,7 +31,7 @@ class SendDtacMessageJob < SendMessageJob
 
       status = values["Status"].to_i
       if ( status == 0 )
-        @msg.send_succeeed @account, @channel
+        @msg.send_succeed @account, @channel
       else
         error = DtacChannel::DTAC_ERRORS[status]
 

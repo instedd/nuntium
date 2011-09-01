@@ -3,7 +3,7 @@ class SendTwitterMessageJob < SendMessageJob
     client = TwitterChannel.new_client(@config)
     response = client.direct_message_create(@msg.to.without_protocol, @msg.subject_and_body)
     @msg.channel_relative_id = response.id
-    @msg.send_succeeed @account, @channel
+    @msg.send_succeed @account, @channel
   rescue Twitter::General => ex
     raise MessageException.new(ex)
   rescue Twitter::NotFound => ex

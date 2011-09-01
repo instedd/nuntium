@@ -21,7 +21,7 @@ class SendIpopMessageJob < SendMessageJob
         raise res.body if res.body.blank? || res.body.strip != 'OK'
 
         @msg.channel_relative_id = "#{@msg.to.mobile_number}-#{data[:ts]}"
-        @msg.send_succeeed @account, @channel
+        @msg.send_succeed @account, @channel
       else
         raise netres.error!
     end

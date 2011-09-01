@@ -40,7 +40,7 @@ class SendMessageJob
   #  - MessageException: intrinsic to the message
   #  - PermanentException: like "the password is wrong"
   #  - Exception: like "we don't have an internet connection" (temporary or unknown exception)
-  # If there's no error, @msg.send_succeeed must be invoked.
+  # If there's no error, @msg.send_succeed must be invoked.
   def managed_perform
     raise PermanentException.new(Exception.new("managed_perform method is not implemented for #{self.class.name}"))
   end

@@ -4,7 +4,7 @@ class SendTwilioMessageJob < SendMessageJob
     begin
       response = client.account.sms.messages.create sms_params
       @msg.channel_relative_id = response.sid
-      @msg.send_succeeed @account, @channel
+      @msg.send_succeed @account, @channel
     rescue Twilio::REST::RequestError => e
       if e.message == 'Authenticate'
         raise PermanentException.new(e)

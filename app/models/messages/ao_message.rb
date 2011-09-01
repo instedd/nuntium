@@ -29,7 +29,7 @@ class AoMessage < ActiveRecord::Base
     end
   end
 
-  def send_succeeed(account, channel, channel_relative_id = nil)
+  def send_succeed(account, channel, channel_relative_id = nil)
     self.state = 'delivered'
     self.channel_relative_id = channel_relative_id unless channel_relative_id.nil?
     self.save!

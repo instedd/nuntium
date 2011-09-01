@@ -15,7 +15,7 @@ class SendXmppMessageJob
     begin
       msg.tries += 1
       delegate.send_message(msg.id, msg.from.without_protocol, msg.to.without_protocol, msg.subject, msg.body)
-      msg.send_succeeed account, channel
+      msg.send_succeed account, channel
     rescue => e
       msg.send_failed account, channel, e
     end
