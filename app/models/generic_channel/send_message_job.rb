@@ -25,6 +25,8 @@ class SendMessageJob
       @msg.save!
 
       managed_perform
+
+      @msg.send_succeed @account, @channel
     rescue MessageException => ex
       @msg.send_failed @account, @channel, ex.inner
     rescue PermanentException => ex
@@ -40,7 +42,7 @@ class SendMessageJob
   #  - MessageException: intrinsic to the message
   #  - PermanentException: like "the password is wrong"
   #  - Exception: like "we don't have an internet connection" (temporary or unknown exception)
-  # If there's no error, @msg.send_succeed must be invoked.
+  # If there's no error, @msg.send_succeed(@account, @channel) will be invoked by this class
   def managed_perform
     raise PermanentException.new(Exception.new("managed_perform method is not implemented for #{self.class.name}"))
   end

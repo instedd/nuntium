@@ -30,9 +30,7 @@ class SendDtacMessageJob < SendMessageJob
       }
 
       status = values["Status"].to_i
-      if ( status == 0 )
-        @msg.send_succeed @account, @channel
-      else
+      if status != 0
         error = DtacChannel::DTAC_ERRORS[status]
 
         raise response_body if error.nil?
