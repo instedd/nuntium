@@ -3,7 +3,6 @@ syntax: glob
 *.sqlite3
 *.tmp*~
 *.orig
-*.lock
 *.pid
 *.*~
 sqlite3.dll
