@@ -65,7 +65,6 @@ class AtMessagesController < ApplicationController
     else
       messages = messages.where 'id IN (?)', params[:at_messages]
     end
-    messages = messages.where(:application_id => logged_in_application.id) if logged_in_application
     messages.all
   end
 end

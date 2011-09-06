@@ -14,12 +14,8 @@
       <span class="notice"><%= flash[:notice].html_safe -%></span>
     <%- end -%>
     <%- if account && account.id -%>
-      <span id="toolbar"><%= account.name -%>
-        <% if logged_in_application %>
-          / <%= logged_in_application.name %>
-        <% end %>
-        |
-        <%- if account && account.id && account.alert_emails.blank? && !logged_in_application-%>
+      <span id="toolbar"><%= account.name -%> |
+        <%- if account && account.id && account.alert_emails.blank? -%>
           <a href="/settings" style="color:red">configure email alerts</a> |
         <%- end -%>
         <a href="http://tech.groups.yahoo.com/group/nuntiumusers/" target="_blank">Have a question?</a> |

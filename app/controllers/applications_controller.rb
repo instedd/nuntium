@@ -2,8 +2,6 @@ class ApplicationsController < ApplicationController
   include RulesControllerCommon
 
   before_filter :set_application_parameters, :only => [:create, :update]
-  before_filter :deny_access_if_logged_in_as_application, :only => [:create, :destroy, :routing_rules]
-
   def set_application_parameters
     application.account_id = account.id
     application.ao_rules = get_rules :aorules

@@ -38,8 +38,8 @@
       <td><%= short_html msg.channel_relative_id -%></td>
       <td><%= msg.from -%></td>
       <td><%= msg.to -%></td>
-      <td><%= short_html message_subject(msg) -%></td>
-      <td><%= short_html message_body(msg) -%></td>
+      <td><%= short_html msg.subject -%></td>
+      <td><%= short_html msg.body -%></td>
       <td><%= msg.channel.try(:name) -%></td>
       <td><%= msg.application.try(:name) -%></td>
       <td align="right"><%= msg.tries -%></td>
