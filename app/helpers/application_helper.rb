@@ -11,7 +11,7 @@ module ApplicationHelper
 
   def message_subject(msg)
     if logged_in_application && msg.application != logged_in_application
-      '*' * msg.subject.length
+      '*' * (msg.subject.try(:length) || 0)
     else
       msg.subject
     end
@@ -19,7 +19,7 @@ module ApplicationHelper
 
   def message_body(msg)
     if logged_in_application && msg.application != logged_in_application
-      '*' * msg.body.length
+      '*' * (msg.body.try(:length) || 0)
     else
       msg.body
     end
