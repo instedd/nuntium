@@ -34,11 +34,11 @@ channel = channels.find_by_id msg.channel_id
   </tr>
   <tr valign="baseline">
     <td><b>Subject:</b></td>
-    <td><%= msg.subject -%></td>
+    <td><%= message_subject(msg) -%></td>
   </tr>
   <tr valign="baseline">
     <td><b>Body:</b></td>
-    <td><%= msg.body -%></td>
+    <td><%= message_body(msg) -%></td>
   </tr>
   <tr valign="baseline">
     <td><b>Application:</b></td>

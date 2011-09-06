@@ -10,6 +10,8 @@ Have a question? <%= link_to 'Ask it on our group', 'http://tech.groups.yahoo.co
 
 <h3>Login to your account:</h3>
 
+When logging in as an application, use <i>account/application</i> as the name.
+
 <%= form_for @account, :url => session_path, :html => {:id => 'login'} do |f| -%>
   <p>
   <%= f.label :name -%><br/>

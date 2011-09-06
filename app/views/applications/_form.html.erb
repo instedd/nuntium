@@ -104,7 +104,7 @@ var applications = <%= applications_names.to_json.html_safe -%>;
     <p>
     Strategy:<br/>
     <%- ['broadcast', 'single_priority'].each do |strategy| -%>
-      <%= c.radio_button :strategy, strategy, :checked => application.strategy == strategy -%> <%= f.label :strategy, Application.strategy_description(strategy), :value => strategy -%><br/>
+      <%= c.radio_button :strategy, strategy, :checked => application.strategy == strategy -%> <%= c.label :strategy, Application.strategy_description(strategy), :value => strategy -%><br/>
     <%- end -%>
     </p>
 
@@ -117,7 +117,7 @@ var applications = <%= applications_names.to_json.html_safe -%>;
     <p>
     Method:<br/>
     <%- ['none', 'get', 'post'].each do |method| -%>
-      <%= c.radio_button :delivery_ack_method, method, :checked => application.delivery_ack_method == method, :onclick => "delivery_ack_#{method}();" -%> <%= f.label :strategy, Application.delivery_ack_method_description(method), :value => method -%><br/>
+      <%= c.radio_button :delivery_ack_method, method, :checked => application.delivery_ack_method == method, :onclick => "delivery_ack_#{method}();" -%> <%= c.label :delivery_ack_method, Application.delivery_ack_method_description(method), :value => method -%><br/>
     <%- end -%>
     </p>
 
