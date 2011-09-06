@@ -31,6 +31,38 @@ class Account < ActiveRecord::Base
     account
   end
 
+  # Returns a pair: an account and an application.
+  #  - If the name has a slash (/), it is considered to be account/application and both
+  #    an account and an application will be returned if the password is that of the application.
+  #  - If the name has an at (@), it is considered to be application/account and both
+  #    an account and an application will be returned if the password is that of the application.
+  #  - Otherwise, it is considered an account login and account, nil will be returned if succesfull.
+  #  - nil, nil is returned if the login fails in any case.
+  #
+  # Options can be :only_application => true if only application login is accepted.
+  def self.authenticate(name, password, options = {})
+    account_name, app_name = name.split '/'
+    app_name, account_name = name.split '@' unless app_name
+
+    if account_name && app_name
+      account = Account.find_by_name account_name
+      if account
+        app = account.applications.find_by_name app_name
+        if app && app.authenticate(password)
+          app.account = account
+          return [account, app]
+        end
+      end
+    else
+      unless options[:only_application]
+        account = Account.find_by_name name
+        return [account, nil] if account && account.authenticate(password)
+      end
+    end
+
+    [nil, nil]
+  end
+
   # Routes an AtMessage via a channel.
   #
   # When options[:simulate] is true, a simulation is done and the log is returned.
