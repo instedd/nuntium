@@ -75,5 +75,18 @@
   <%= f.label 'MT CSMS method:' -%><br/>
   <%= f.select :mt_csms_method, options_for_select([['UDH', 'udh'], ['Optional parameters', 'optional_parameters'], ['Message payload', 'message_payload']], channel.mt_csms_method) -%>
   </p>
+  <h5>Vendor custom error codes</h5>
+  <p>
+    Enter here error codes known by your SMPP vendor that either must suspend the delivery of AO messages
+    or reject them.
+  </p>
+  <p>
+  <%= f.label :suspension_codes, 'Suspension codes (comma separated):' -%><br/>
+  <%= f.text_field :suspension_codes -%>
+  </p>
+  <p>
+  <%= f.label :rejection_codes, 'Rejection codes (comma separated):' -%><br/>
+  <%= f.text_field :rejection_codes -%>
+  </p>
   <%= render 'edit_footer', :f => f %>
 <%- end -%>

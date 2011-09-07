@@ -14,7 +14,7 @@ class SendSmppMessageJob
 
     return false if msg.state != 'queued' or msg.channel_id != @channel_id
 
-    from = msg.from.without_protocol
+    from = msg.from.protocol == 'sms' ? msg.from.without_protocol : channel.address.without_protocol
     to = msg.to.without_protocol
     sms = msg.subject_and_body
 
@@ -30,5 +30,4 @@ class SendSmppMessageJob
   def to_s
     "<SendSmppMessageJob:#{@message_id}>"
   end
-
 end

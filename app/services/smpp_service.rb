@@ -53,6 +53,12 @@ class SmppGateway < SmppTransceiverDelegate
     @mq = MQ.new
     @mq.prefetch @prefetch_count
 
+    @suspension_codes = [Smpp::Pdu::Base::ESME_RMSGQFUL, Smpp::Pdu::Base::ESME_RTHROTTLED]
+    @suspension_codes += channel.suspension_codes_as_array
+
+    @rejection_codes = [Smpp::Pdu::Base::ESME_RINVSRCADR, Smpp::Pdu::Base::ESME_RINVDSTADR]
+    @rejection_codes += channel.rejection_codes_as_array
+
     MQ.error { |err| Rails.logger.error err }
   end
 
@@ -95,14 +101,12 @@ class SmppGateway < SmppTransceiverDelegate
     case pdu.command_status
 
     # Queue full
-    when Smpp::Pdu::Base::ESME_RMSGQFUL,
-         Smpp::Pdu::Base::ESME_RTHROTTLED
+    when *@suspension_codes
       Rails.logger.info "Received ESME_RMSGQFUL or ESME_RHTORTTLED (#{pdu.command_status})"
       unsubscribe_temporarily
 
     # Message source or address not valid
-    when Smpp::Pdu::Base::ESME_RINVSRCADR,
-         Smpp::Pdu::Base::ESME_RINVDSTADR
+    when *@rejection_codes
       super
       send_ack mt_message_id
 

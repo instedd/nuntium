@@ -11,5 +11,15 @@ class SmppChannelTest < ActiveSupport::TestCase
     end
   end
 
+  test "suspension codes as array" do
+    @chan.suspension_codes = '1, 2, a'
+    assert_equal [1, 2], @chan.suspension_codes_as_array
+  end
+
+  test "rejection codes as array" do
+    @chan.rejection_codes = '1, 2, a'
+    assert_equal [1, 2], @chan.rejection_codes_as_array
+  end
+
   include ServiceChannelTest
 end

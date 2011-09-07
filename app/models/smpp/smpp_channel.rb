@@ -10,6 +10,7 @@ class SmppChannel < Channel
   configuration_accessor :accept_mo_hex_string, :mt_max_length
   configuration_accessor :endianness_mo, :endianness_mt
   configuration_accessor :max_unacknowledged_messages, :default => 5
+  configuration_accessor :suspension_codes, :rejection_codes
 
   validates_presence_of :host, :system_type
   validates_presence_of :user, :password, :default_mo_encoding, :mt_encodings, :mt_csms_method
@@ -33,5 +34,15 @@ class SmppChannel < Channel
     str = "#{user}@#{host}:#{port}"
     str << " (#{throttle}/min)" if throttle != 0
     str
+  end
+
+  def suspension_codes_as_array
+    return [] unless suspension_codes
+    suspension_codes.split(",").reject{|x| !x.integer?}.map(&:to_i)
+  end
+
+  def rejection_codes_as_array
+    return [] unless rejection_codes
+    rejection_codes.split(",").reject{|x| !x.integer?}.map(&:to_i)
   end
 end
