@@ -57,7 +57,7 @@ module ChannelSerialization
 
     def common_to_x_attributes
       attributes = {}
-      [:name, :kind, :protocol, :enabled, :priority, :address, :ao_cost, :at_cost, :last_activity_at, :ticket_code, :ticket_message].each do |sym|
+      [:name, :kind, :protocol, :enabled, :priority, :address, :ao_cost, :at_cost, :last_activity_at].each do |sym|
         value = send sym
         attributes[sym] = value if value.present?
       end

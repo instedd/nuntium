@@ -3,7 +3,6 @@ require 'digest/sha2'
 class Channel < ActiveRecord::Base
   include ChannelMetadata
   include ChannelSerialization
-  include ChannelTicket
 
   # Channel directions
   Incoming = 1
