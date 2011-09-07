@@ -57,6 +57,8 @@ module Nuntium
       $amqp_config = amqp_yaml[Rails.env || 'development']
       $amqp_config.symbolize_keys!
       AMQP.start $amqp_config
+
+      ::Application.all.each &:bind_queue
     end
   end
 
