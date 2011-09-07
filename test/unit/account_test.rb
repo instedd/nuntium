@@ -5,8 +5,8 @@ class AccountTest < ActiveSupport::TestCase
   include RulesEngine
 
   def setup
-    @account = Account.make
-    @app = @account.applications.make
+    @account = Account.make :password => 'secret1'
+    @app = @account.applications.make :password => 'secret2'
     @chan = QstServerChannel.make :account_id => @account.id
   end
 
@@ -248,5 +248,47 @@ class AccountTest < ActiveSupport::TestCase
     msg.reload
 
     assert_equal 1.2, msg.cost
+  end
+
+  test "authenticate with account and password" do
+    account, app = Account.authenticate @account.name, 'secret1'
+    assert_equal account, @account
+    assert_nil app
+  end
+
+  test "authenticate with account and password fails" do
+    account, app = Account.authenticate @account.name, 'secret2'
+    assert_nil account
+    assert_nil app
+  end
+
+  test "authenticate with account and password fails if only application is true" do
+    account, app = Account.authenticate @account.name, 'secret1', :only_application => true
+    assert_nil account
+    assert_nil app
+  end
+
+  test "authenticate with account/application and password" do
+    account, app = Account.authenticate "#{@account.name}/#{@app.name}", 'secret2'
+    assert_equal account, @account
+    assert_equal app, @app
+  end
+
+  test "authenticate with account/application and password fails" do
+    account, app = Account.authenticate "#{@account.name}/#{@app.name}", 'secret3'
+    assert_nil account
+    assert_nil app
+  end
+
+  test "authenticate with application@account and password" do
+    account, app = Account.authenticate "#{@app.name}@#{@account.name}", 'secret2'
+    assert_equal account, @account
+    assert_equal app, @app
+  end
+
+  test "authenticate with application@account and password fails" do
+    account, app = Account.authenticate "#{@app.name}@#{@account.name}", 'secret3'
+    assert_nil account
+    assert_nil app
   end
 end

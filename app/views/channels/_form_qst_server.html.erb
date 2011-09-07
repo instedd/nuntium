@@ -11,5 +11,17 @@
   <%= f.label :password_confirmation -%><br/>
   <%= f.password_field :password_confirmation, :value => (channel.persisted? ? '' : channel.password_confirmation), :autocomplete => :off -%>
   </p>
+  <% unless channel.persisted? %>
+    <h5>Ticket</h5>
+    <p>Leave these fields blank unless you know what you are doing. <%= link_to 'Learn more...', 'http://code.google.com/p/nuntium/wiki/Tickets', :target => '_blank' %></p>
+    <p>
+    <%= f.label :ticket_code -%><br/>
+    <%= f.text_field :ticket_code -%>
+    </p>
+    <p>
+    <%= f.label :ticket_message -%><br/>
+    <%= f.text_field :ticket_message -%>
+    </p>
+  <% end %>
   <%= render 'edit_footer', :f => f %>
 <%- end -%>

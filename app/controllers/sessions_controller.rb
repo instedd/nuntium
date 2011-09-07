@@ -7,17 +7,18 @@ class SessionsController < ApplicationController
   end
 
   def create
-    @account = Account.find_by_name params[:account][:name]
-    if @account && @account.authenticate(params[:account][:password])
+    @account, @app = Account.authenticate params[:account][:name], params[:account][:password]
+    if @account
       flash[:login_error] = nil
-      session[:account_id] = @account.id
+      @app ? (session[:application_id] = @app.id) : (session[:account_id] = @account.id)
       redirect_to root_path
-    else
-      @account = Account.new :name => params[:account][:name]
-      @new_account = Account.new
-      flash[:login_error] = 'Invalid name/password'
-      render :new
+      return
     end
+
+    @account = Account.new :name => params[:account][:name]
+    @new_account = Account.new
+    flash[:login_error] = 'Invalid name/password'
+    render :new
   end
 
   def register
@@ -39,6 +40,7 @@ class SessionsController < ApplicationController
 
   def destroy
     session[:account_id] = nil
+    session[:application_id] = nil
     redirect_to new_session_path
   end
 end

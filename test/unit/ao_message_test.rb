@@ -267,4 +267,21 @@ class AoMessageTest < ActiveSupport::TestCase
     assert_equal 'xmpp://+1234', msg.from
     assert_equal 'xmpp://+5678', msg.to
   end
+
+  test "setting timestamp in future sets it to current time" do
+    time = Time.now + 10.days
+
+    msg = AoMessage.new
+    msg.timestamp = time
+    assert_not_equal time, msg.timestamp
+    assert (Time.now - msg.timestamp).abs < 3.seconds
+  end
+
+  test "setting timestamp in past leaves it like that" do
+    time = Time.now - 10.days
+
+    msg = AoMessage.new
+    msg.timestamp = time
+    assert_equal time, msg.timestamp
+  end
 end

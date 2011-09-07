@@ -9,6 +9,22 @@ module ApplicationHelper
     ('<span title="' << (h msg) << '">' << h(short(msg, length)) << '</span>').html_safe
   end
 
+  def message_subject(msg)
+    if logged_in_application && msg.application != logged_in_application
+      '*' * (msg.subject.try(:length) || 0)
+    else
+      msg.subject
+    end
+  end
+
+  def message_body(msg)
+    if logged_in_application && msg.application != logged_in_application
+      '*' * (msg.body.try(:length) || 0)
+    else
+      msg.body
+    end
+  end
+
   def time_ago(time)
     return '' if time.nil?
     ('<span title="' << time.utc.to_s << '">' << time_ago_in_words(time.utc, true) << ' ago</span>').html_safe
