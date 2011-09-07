@@ -38,9 +38,9 @@ class QstServerControllerTest < ActionController::TestCase
   end
 
   test "get last message id" do
-    new_at_message(@application1, 0)
-    msg = new_at_message(@application1, 1)
-    new_at_message(@application2, 2)
+    new_at_message(@application1, 0, @chan)
+    msg = new_at_message(@application1, 1, @chan)
+    new_at_message(@application2, 2, @chan)
     get_last_id msg.guid.to_s
   end
 
