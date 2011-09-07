@@ -7,7 +7,12 @@ class QstServerController < ApplicationController
       @account = Account.find_by_id_or_name params[:account_id]
       if @account
         @channel = @account.qst_server_channels.where(:name => username).first
-        @channel && @channel.authenticate(password)
+        if @channel && @channel.authenticate(password)
+          @channel.connected = true
+          true
+        else
+          false
+        end
       else
         false
       end

@@ -42,6 +42,10 @@ class QstServerChannel < Channel
     "Last activity: " + (last_activity_at ? "#{time_ago_in_words(last_activity_at)} ago" : 'never')
   end
 
+  def has_connection?
+    true
+  end
+
   private
 
   def reset_password
