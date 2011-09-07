@@ -40,8 +40,8 @@ class PushQstMessageJobTest < ActiveSupport::TestCase
   end
 
   test "two messages with previous last id" do
-    @msg1 = AtMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now
-    @msg2 = AtMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now + 1
+    @msg1 = AtMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now - 10
+    @msg2 = AtMessage.make :account => @application.account, :application => @application, :state => 'queued', :timestamp => Time.now
 
     @client.expects(:get_last_id).returns(@msg1.guid)
     @client.expects(:put_messages).with([@msg2.to_qst]).returns(@msg2.guid)

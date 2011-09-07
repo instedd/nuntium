@@ -33,6 +33,11 @@ module MessageCommon
       super value
     end
 
+    def timestamp=(value)
+      value = Time.now.utc if value && value > Time.now
+      write_attribute 'timestamp', value
+    end
+
     # Rule Engine related methods
 
     # Builds Context for AT Rules execution

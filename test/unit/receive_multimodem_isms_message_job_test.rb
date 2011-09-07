@@ -43,7 +43,7 @@ END_OF_MESSAGE
 <Message_Index>1</Message_Index>
 <ModemNumber>1:0774494369</ModemNumber>
 <SenderNumber>+93774494364</SenderNumber>
-<Date>09/10/28</Date>
+<Date>28/10/09</Date>
 <Time>19:00:39</Time>
 <EncodingFlag>ASCII</EncodingFlag>
 <Message>This%20is%20a%20test%20message</Message>
@@ -72,7 +72,7 @@ END_OF_MESSAGE
 
     assert_equal "sms://93774494364", msgs[0].from
     assert_equal "sms://0774494369", msgs[0].to
-    assert_equal ActiveSupport::TimeZone[@chan.configuration[:time_zone]].parse('28-10-09 19:00:39'), msgs[0].timestamp
+    assert_equal ActiveSupport::TimeZone[@chan.configuration[:time_zone]].parse('09-10-28 19:00:39'), msgs[0].timestamp
     assert_equal "This is a test message", msgs[0].body
     assert_equal @chan.id, msgs[0].channel_id
   end
