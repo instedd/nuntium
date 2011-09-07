@@ -35,6 +35,24 @@ class AtMessagesController < ApplicationController
     render "messages/message"
   end
 
+  def thread
+    @msg = account.at_messages.find_by_id params[:id]
+    @address = @msg.from
+    @hide_title = true
+    @page = (params[:page] || '1').to_i
+
+    limit = @page * 5
+    aos = account.ao_messages.includes(:application, :channel).where(:to => @address, :parent_id => nil).order('ao_messages.id DESC').limit(limit)
+    ats = account.at_messages.includes(:application, :channel).where(:from => @address).order('at_messages.id DESC').limit(limit)
+
+    @has_more = aos.length == limit || ats.length == limit
+
+    @msgs = aos + ats
+    @msgs.sort!{|x, y| y.created_at <=> x.created_at}
+
+    render "messages/thread"
+  end
+
   def simulate_route
     @msg = account.at_messages.new params[:at_message]
     @msg.custom_attributes = get_custom_attributes
