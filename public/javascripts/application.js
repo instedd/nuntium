@@ -737,6 +737,7 @@ function init_property_carrier(name_prefix, valueDiv, operatorSelect, existing) 
               }
               valueDiv.append(carriers_select(carriers, name_prefix + '[value]'));
               if (existing) {
+                jQuery('select', valueDiv).val(existing.value);
               }
             },
             error: function() {
