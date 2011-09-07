@@ -26,6 +26,7 @@ class XmppService < Service
       handle_disconnections
     end
     client.run
+    notify_connection_status_loop
   end
 
   def stop
@@ -130,8 +131,13 @@ class XmppService < Service
   end
 
   def channel_connected=(value)
-    @channel.reload
+    @connected = value
     @channel.connected = value
-    @channel.save!
+  end
+
+  def notify_connection_status_loop
+    EM.add_periodic_timer 1.minute do
+      @channel.connected = @connected
+    end
   end
 end

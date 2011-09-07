@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110823191413) do
+ActiveRecord::Schema.define(:version => 20110907185714) do
 
   create_table "accounts", :force => true do |t|
     t.string   "name"
@@ -129,7 +129,6 @@ ActiveRecord::Schema.define(:version => 20110823191413) do
     t.decimal  "ao_cost",          :precision => 10, :scale => 2
     t.decimal  "at_cost",          :precision => 10, :scale => 2
     t.datetime "last_activity_at"
-    t.boolean  "connected"
   end
 
   create_table "clickatell_coverage_mos", :force => true do |t|

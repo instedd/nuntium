@@ -41,7 +41,7 @@ class Channel < ActiveRecord::Base
   end
 
   def self.after_changed(method, options = {})
-    after_update method, options.merge(:if => lambda { changed? && !enabled_changed? && !paused_changed? && !connected_changed? })
+    after_update method, options.merge(:if => lambda { changed? && !enabled_changed? && !paused_changed? })
   end
 
   def self.after_disabled(method, options = {})
@@ -151,6 +151,24 @@ class Channel < ActiveRecord::Base
     return true
   end
 
+  def connected=(value)
+    if value
+      Rails.cache.write connected_cache_key, 1, :expires_in => 2.minutes
+    else
+      Rails.cache.delete connected_cache_key
+    end
+  end
+
+  def connected?
+    !!(Rails.cache.read connected_cache_key)
+  end
+
+  def self.connected(channels)
+    keys = channels.select(&:has_connection?).map(&:connected_cache_key)
+    hash = Rails.cache.read_multi *keys
+    Hash[hash.map{|k, v| [k[/\d+/].to_i, v]}]
+  end
+
   def configuration
     self[:configuration] ||= {}
   end
@@ -240,5 +258,9 @@ class Channel < ActiveRecord::Base
   # Custom logic to be executed when this channel changes
   # because it's account or application changed
   def on_changed
+  end
+
+  def connected_cache_key
+    "channel_connected_#{id}"
   end
 end
