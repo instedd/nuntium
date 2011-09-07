@@ -58,7 +58,7 @@ module Nuntium
       $amqp_config.symbolize_keys!
       AMQP.start $amqp_config
 
-      ::Application.all.each &:bind_queue
+      ::Application.all.each(&:bind_queue) rescue nil
     end
   end
 
