@@ -64,7 +64,7 @@
   <%- channel.mt_encodings = encodings.map{|x|x[1]} unless channel.mt_encodings.present? -%>
   <%- encodings.each do |encoding| -%>
     <%- next if encoding[1] == 'gsm' -%>
-    <input id="channel_configuration_mt_encodings" name="channel[configuration][mt_encodings][]" type="checkbox" value="<%= encoding[1] -%>" <%= 'checked="checked"' if channel.mt_encodings.include? encoding[1].to_s -%> /> <%= encoding[0] -%><br/>
+    <input id="channel_configuration_mt_encodings" name="channel[mt_encodings][]" type="checkbox" value="<%= encoding[1] -%>" <%= 'checked="checked"' if channel.mt_encodings.include? encoding[1].to_s -%> /> <%= encoding[0] -%><br/>
   <%- end -%>
   </p>
   <p>
