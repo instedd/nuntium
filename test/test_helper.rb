@@ -111,8 +111,9 @@ class ActiveSupport::TestCase
   end
 
   # Creates an AtMessage that belongs to account and has values according to i
-  def new_at_message(application, i, protocol = 'protocol', state = 'queued', tries = 0)
-    msg = new_message application.account, i, AtMessage, protocol, state, tries
+  def new_at_message(application, i, channel = nil)
+    msg = new_message application.account, i, AtMessage
+    msg.channel = channel if channel
     if msg.respond_to? :each
       msg.each{|x| x.application_id = application.id, x.save!}
     else

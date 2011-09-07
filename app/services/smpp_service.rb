@@ -1,5 +1,4 @@
 class SmppService < Service
-
   def initialize(channel)
     @channel = channel
   end
@@ -13,7 +12,6 @@ class SmppService < Service
     @gateway.stop
     EM.stop_event_loop
   end
-
 end
 
 # Fix to keep the enquire link timer
@@ -60,6 +58,7 @@ class SmppGateway < SmppTransceiverDelegate
 
   def start
     connect
+    notify_connection_status_loop
     @is_running = true
   end
 
@@ -137,12 +136,6 @@ class SmppGateway < SmppTransceiverDelegate
 
   private
 
-  def channel_connected=(value)
-    @channel.reload
-    @channel.connected = value
-    @channel.save!
-  end
-
   def subscribe_queue
     Rails.logger.info "Subscribing to message queue"
 
@@ -195,4 +188,14 @@ class SmppGateway < SmppTransceiverDelegate
     end
   end
 
+  def channel_connected=(value)
+    @connected = value
+    @channel.connected = value
+  end
+
+  def notify_connection_status_loop
+    EM.add_periodic_timer 1.minute do
+      @channel.connected = @connected
+    end
+  end
 end

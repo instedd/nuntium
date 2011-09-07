@@ -38,10 +38,12 @@ class QstServerControllerTest < ActionController::TestCase
   end
 
   test "get last message id" do
-    new_at_message(@application1, 0)
-    msg = new_at_message(@application1, 1)
-    new_at_message(@application2, 2)
+    new_at_message(@application1, 0, @chan)
+    msg = new_at_message(@application1, 1, @chan)
+    new_at_message(@application2, 2, @chan)
     get_last_id msg.guid.to_s
+
+    assert @chan.connected?
   end
 
   test "get last message id not exists" do
@@ -93,6 +95,7 @@ class QstServerControllerTest < ActionController::TestCase
     assert_equal "Someone else", msg.to
     assert_equal "someguid", msg.guid
     assert_equal Time.parse("2008-09-24T17:12:57-03:00"), msg.timestamp
+    assert @chan.connected?
   end
 
   test "push message with custom attributes" do
@@ -177,6 +180,8 @@ class QstServerControllerTest < ActionController::TestCase
     get :pull, :account_id => @account.name
 
     assert_select "message", {:count => 0}
+
+    assert @chan.connected?
   end
 
   test "get one with custom properties" do

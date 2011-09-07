@@ -7,7 +7,12 @@ class QstServerController < ApplicationController
       @account = Account.find_by_id_or_name params[:account_id]
       if @account
         @channel = @account.qst_server_channels.where(:name => username).first
-        @channel && @channel.authenticate(password)
+        if @channel && @channel.authenticate(password)
+          @channel.connected = true
+          true
+        else
+          false
+        end
       else
         false
       end
@@ -23,7 +28,7 @@ class QstServerController < ApplicationController
   # HEAD /qst/:account_id/incoming
   def get_last_id
     return head(:not_found) unless request.head?
-    msg = AtMessage.select(:guid).where(:account_id => @account.id).order(:timestamp).last
+    msg = AtMessage.select(:guid).where(:account_id => @account.id, :channel_id => @channel.id).order(:timestamp).last
     etag = msg.nil? ? nil : msg.guid
     head :ok, 'Etag' => etag
   end
