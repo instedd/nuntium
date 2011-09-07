@@ -30,5 +30,4 @@ class SendSmppMessageJob
   def to_s
     "<SendSmppMessageJob:#{@message_id}>"
   end
-
 end
