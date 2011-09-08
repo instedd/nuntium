@@ -262,6 +262,9 @@ class Channel < ActiveRecord::Base
   def on_changed
   end
 
+  def bind_queue
+  end
+
   def connected_cache_key
     "channel_connected_#{id}"
   end

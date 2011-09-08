@@ -23,7 +23,7 @@ module ServiceChannel
     end
 
     def create_managed_process
-      Queues.bind_ao self
+      bind_queue
       if enabled
         ManagedProcess.create!(
           :account_id => account.id,
@@ -72,6 +72,10 @@ module ServiceChannel
 
     def has_connection?
       true
+    end
+
+    def bind_queue
+      Queues.bind_ao self
     end
   end
 end
