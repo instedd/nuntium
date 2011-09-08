@@ -28,7 +28,7 @@ class AoMessagesController < ApplicationController
     msg.custom_attributes = get_custom_attributes
     msg.application.route_ao msg, 'user'
 
-    redirect_to ao_messages_path, :notice => "AO Message was created with id #{msg.id} <a href=\"/message/ao/#{msg.id}\" target=\"_blank\">view log</a> <a href=\"/message/thread?address=#{msg.to}\" target=\"_blank\">view thread</a>"
+    redirect_to ao_messages_path, :notice => %Q(AO Message was created with id #{msg.id} <a href="#{ao_message_path(msg)}" target="_blank">view log</a> <a href="#{thread_ao_message_path(msg)}" target="_blank">view thread</a>)
   end
 
   def show
