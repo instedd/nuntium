@@ -44,8 +44,6 @@ class ReceivePop3MessageJob
       msg.subject = tmail.subject
       msg.body = tmail_body
       if remove_quoted
-        Rails.logger.error "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-        Rails.logger.error msg.body
         msg.body = ReceivePop3MessageJob.remove_quoted_text_or_text_after_first_empty_line msg.body
       end
       msg.channel_relative_id = tmail.message_id
