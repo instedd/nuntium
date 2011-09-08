@@ -66,7 +66,7 @@ module Nuntium
       # Twitter OAuth configuration
       if File.exists? "#{Rails.root}/config/twitter_oauth_consumer.yml"
         ::Nuntium::TwitterConsumerConfig = YAML.load_file "#{Rails.root}/config/twitter_oauth_consumer.yml"
-      elsif Channel.where(:kind => 'twitter').exists?
+      elsif (TwitterChannel.exists? rescue nil)
         error = "Error: missing '#{Rails.root}/config/twitter_oauth_consumer.yml' for twitter channels"
         Rails.logger.error error
         puts error
