@@ -258,6 +258,8 @@ class ChannelTest < ActiveSupport::TestCase
     assert_true chan[:enabled]
     assert_equal @chan.priority, chan[:priority]
     assert_nil chan[:application]
+    assert_equal 0, chan[:queued_ao_messages_count]
+    assert !chan[:connected]
   end
 
   test "to json with application" do
@@ -357,6 +359,18 @@ class ChannelTest < ActiveSupport::TestCase
     chan = JSON.parse(@chan.to_json).with_indifferent_access
 
     assert_equal now.to_json, %Q("#{chan[:last_activity_at]}")
+  end
+
+  test "to json queued ao messages count" do
+    AoMessage.make :account => @chan.account, :channel => @chan, :state => 'queued'
+    chan = JSON.parse(@chan.to_json).with_indifferent_access
+    assert_equal 1, chan[:queued_ao_messages_count]
+  end
+
+  test "to json connected" do
+    @chan.connected = true
+    chan = JSON.parse(@chan.to_json).with_indifferent_access
+    assert_equal true, chan[:connected]
   end
 
   test "sort candidate channels first by priority, then by paused" do

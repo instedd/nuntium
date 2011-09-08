@@ -266,6 +266,10 @@ class Channel < ActiveRecord::Base
     "channel_connected_#{id}"
   end
 
+  def queued_ao_messages_count
+    ao_messages.with_state('queued').count
+  end
+
   def reroute_messages
     other_channels = account.channels.enabled.outgoing.where(:protocol => protocol).all
     return unless other_channels.present?
