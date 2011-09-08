@@ -36,6 +36,8 @@ class Channel < ActiveRecord::Base
   scope :outgoing, where(:direction => [Outgoing, Bidirectional])
   scope :incoming, where(:direction => [Incoming, Bidirectional])
 
+  after_update :reroute_messages, :if => lambda { enabled_changed? && !enabled }
+
   def self.after_enabled(method, options = {})
     after_update method, options.merge(:if => lambda { (enabled_changed? && enabled) || (paused_changed? && !paused) })
   end
@@ -262,5 +264,18 @@ class Channel < ActiveRecord::Base
 
   def connected_cache_key
     "channel_connected_#{id}"
+  end
+
+  def reroute_messages
+    other_channels = account.channels.enabled.outgoing.where(:protocol => protocol).all
+    return unless other_channels.present?
+
+    queued_messages = ao_messages.with_state('queued').includes(:application).all
+    @requeued_messages_count = queued_messages.length
+    queued_messages.each { |msg| msg.application.route_ao msg, 'user' if msg.application }
+  end
+
+  def requeued_messages_count
+    @requeued_messages_count || 0
   end
 end

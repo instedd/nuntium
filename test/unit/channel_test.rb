@@ -413,4 +413,23 @@ class ChannelTest < ActiveSupport::TestCase
     assert_true three_was_fourth
     assert_true three_was_fifth
   end
+
+  test "disable channel re-routes" do
+    chan2 = QstServerChannel.make :account => @chan.account
+
+    app = Application.make :account => @chan.account
+    msg = AoMessage.make :account => @chan.account, :application => @chan.account.applications.make, :channel => @chan, :state => 'queued'
+
+    @chan.enabled = false
+    @chan.save!
+
+    @chan.reload
+    chan2.reload
+    msg.reload
+
+    assert_false @chan.enabled
+    assert_true chan2.enabled
+    assert_equal chan2.id, msg.channel_id
+    assert_equal 1, @chan.requeued_messages_count
+  end
 end
