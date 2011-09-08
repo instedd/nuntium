@@ -63,6 +63,8 @@ module ChannelSerialization
       end
       attributes[:direction] = direction_text unless direction_text == 'unknown'
       attributes[:application] = application.name if application_id
+      attributes[:queued_ao_messages_count] = queued_ao_messages_count
+      attributes[:connected] = connected? if has_connection?
       attributes
     end
   end

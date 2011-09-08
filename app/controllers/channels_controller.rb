@@ -15,6 +15,16 @@ class ChannelsController < ApplicationController
     channel.check_valid_in_ui
   end
 
+  before_filter :ban_if_logged_in_as_application_and_channel_doesnt_belong_to_an_application
+  def ban_if_logged_in_as_application_and_channel_doesnt_belong_to_an_application
+    if logged_in_application && channel.persisted? && channel.application_id != logged_in_application.id
+      redirect_to channels_path
+      false
+    else
+      true
+    end
+  end
+
   def create
     if channel.save
       redirect_to channels_path, :notice => "Channel #{channel.name} was created"
@@ -47,26 +57,13 @@ class ChannelsController < ApplicationController
     channel.enabled = false
     channel.save!
 
-    # If other channels for the same protocol exist, re-queue
-    # queued messages in those channels.
-    requeued_messages_count = 0;
-
-    other_channels = channels.enabled.outgoing.where(:protocol => channel.protocol).all
-
-    if !other_channels.empty?
-      queued_messages = channel.ao_messages.with_state('queued').includes(:application).all
-      requeued_messages_count = queued_messages.length
-      queued_messages.each do |msg|
-        msg.application.route_ao msg, 'user' if msg.application
-      end
-    end
-
-    if requeued_messages_count == 0
+    case channel.requeued_messages_count
+    when 0
       render :text => "Channel #{channel.name} was disabled"
-    elsif requeued_messages_count == 1
+    when 1
       render :text => "Channel #{channel.name} was disabled and 1 message was re-queued"
     else
-      render :text => "Channel #{channel.name} was disabled and #{requeued_messages_count} messages were re-queued"
+      render :text => "Channel #{channel.name} was disabled and #{channel.requeued_messages_count} messages were re-queued"
     end
   end
 

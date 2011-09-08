@@ -16,7 +16,7 @@ module GenericChannel
     end
 
     def create_worker_queue
-      Queues.bind_ao self
+      bind_queue
       WorkerQueue.create! :queue_name => Queues.ao_queue_name_for(self), :working_group => 'fast', :ack => true, :durable => true
     end
 
@@ -34,6 +34,10 @@ module GenericChannel
 
     def destroy_worker_queue
       worker_queue.try :destroy
+    end
+
+    def bind_queue
+      Queues.bind_ao self
     end
   end
 end

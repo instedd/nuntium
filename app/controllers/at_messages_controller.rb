@@ -8,7 +8,7 @@ class AtMessagesController < ApplicationController
     @page = 1 if @previous_search.present? && @previous_search != @search
 
     @at_messages = account.at_messages.includes(:channel, :application).order 'id DESC'
-    @at_messages = @at_messages.search @search if @search.present?
+    @at_messages = @at_messages.search @search, :account => account if @search.present?
     @at_messages = @at_messages.paginate :page => @page, :per_page => ResultsPerPage
     @at_messages = @at_messages.all
   end
@@ -24,7 +24,7 @@ class AtMessagesController < ApplicationController
     msg.custom_attributes = get_custom_attributes
     account.route_at msg, msg.channel
 
-    redirect_to at_messages_path, :notice => "AT Message was created with id #{msg.id} <a href=\"/message/at/#{msg.id}\" target=\"_blank\">view log</a> <a href=\"/message/thread?address=#{msg.from}\" target=\"_blank\">view thread</a>"
+    redirect_to at_messages_path, :notice => %Q(AT Message was created with id #{msg.id} <a href="#{at_message_path(msg)}" target="_blank">view log</a> <a href="#{thread_at_message_path(msg)}" target="_blank">view thread</a>)
   end
 
   def show
@@ -79,7 +79,7 @@ class AtMessagesController < ApplicationController
   def get_selected_messages
     messages = account.at_messages
     if params[:at_all].to_b
-      messages = messages.search params[:search] if params[:search].present?
+      messages = messages.search params[:search], :account => account if params[:search].present?
     else
       messages = messages.where 'id IN (?)', params[:at_messages]
     end

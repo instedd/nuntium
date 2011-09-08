@@ -258,6 +258,8 @@ class ChannelTest < ActiveSupport::TestCase
     assert_true chan[:enabled]
     assert_equal @chan.priority, chan[:priority]
     assert_nil chan[:application]
+    assert_equal 0, chan[:queued_ao_messages_count]
+    assert !chan[:connected]
   end
 
   test "to json with application" do
@@ -359,6 +361,18 @@ class ChannelTest < ActiveSupport::TestCase
     assert_equal now.to_json, %Q("#{chan[:last_activity_at]}")
   end
 
+  test "to json queued ao messages count" do
+    AoMessage.make :account => @chan.account, :channel => @chan, :state => 'queued'
+    chan = JSON.parse(@chan.to_json).with_indifferent_access
+    assert_equal 1, chan[:queued_ao_messages_count]
+  end
+
+  test "to json connected" do
+    @chan.connected = true
+    chan = JSON.parse(@chan.to_json).with_indifferent_access
+    assert_equal true, chan[:connected]
+  end
+
   test "sort candidate channels first by priority, then by paused" do
     zero_was_first = false
     zero_was_second = false
@@ -412,5 +426,24 @@ class ChannelTest < ActiveSupport::TestCase
     assert_true zero_was_second
     assert_true three_was_fourth
     assert_true three_was_fifth
+  end
+
+  test "disable channel re-routes" do
+    chan2 = QstServerChannel.make :account => @chan.account
+
+    app = Application.make :account => @chan.account
+    msg = AoMessage.make :account => @chan.account, :application => @chan.account.applications.make, :channel => @chan, :state => 'queued'
+
+    @chan.enabled = false
+    @chan.save!
+
+    @chan.reload
+    chan2.reload
+    msg.reload
+
+    assert_false @chan.enabled
+    assert_true chan2.enabled
+    assert_equal chan2.id, msg.channel_id
+    assert_equal 1, @chan.requeued_messages_count
   end
 end

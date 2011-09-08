@@ -59,6 +59,7 @@ module Nuntium
       AMQP.start $amqp_config
 
       ::Application.all.each(&:bind_queue) rescue nil
+      ::Channel.all.each(&:bind_queue) rescue nil
     end
   end
 
