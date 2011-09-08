@@ -61,16 +61,24 @@ module Nuntium
       ::Application.all.each(&:bind_queue) rescue nil
       ::Channel.all.each(&:bind_queue) rescue nil
     end
+
+    config.after_initialize do
+      # Twitter OAuth configuration
+      if File.exists? "#{Rails.root}/config/twitter_oauth_consumer.yml"
+        ::Nuntium::TwitterConsumerConfig = YAML.load_file "#{Rails.root}/config/twitter_oauth_consumer.yml"
+      elsif Channel.where(:kind => 'twitter').exists?
+        error = "Error: missing '#{Rails.root}/config/twitter_oauth_consumer.yml' for twitter channels"
+        Rails.logger.error error
+        puts error
+        exit 1
+      else
+        ::Nuntium::TwitterConsumerConfig = nil
+      end
+    end
   end
 
   ActionMailer::Base.delivery_method = :sendmail
 
-  # Twitter OAuth configuration
-  if File.exists? "#{Rails.root}/config/twitter_oauth_consumer.yml"
-    TwitterConsumerConfig = YAML.load_file "#{Rails.root}/config/twitter_oauth_consumer.yml"
-  else
-    TwitterConsumerConfig = nil
-  end
 
   # Disable account creation from UI
   AccountCreationDisabled = false
