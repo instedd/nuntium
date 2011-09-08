@@ -79,8 +79,8 @@ class TwilioControllerTest < ActionController::TestCase
 
     msg = msgs[0]
     assert_equal @account.id, msg.account_id
-    assert_equal "sms://#{message[:From]}", msg.from
-    assert_equal "sms://#{message[:To]}", msg.to
+    assert_equal "sms://1#{message[:From]}", msg.from
+    assert_equal "sms://1#{message[:To]}", msg.to
     assert_equal message[:Body], msg.body
     assert_equal message[:SmsSid], msg.channel_relative_id
     assert_equal 'queued', msg.state
