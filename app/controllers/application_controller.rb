@@ -26,7 +26,7 @@ class ApplicationController < ActionController::Base
 
   expose(:channels) do
     channels = account.channels.includes(:application)
-    channels = channels.where(:application_id => logged_in_application.id) if logged_in_application
+    channels = channels.where("application_id IS NULL OR application_id = ?", logged_in_application.id) if logged_in_application
     channels
   end
   expose(:channel) do
@@ -36,10 +36,12 @@ class ApplicationController < ActionController::Base
                 channel
               elsif params[:channel]
                 params[:channel][:kind].to_channel.new params[:channel]
-              else
+              elsif params[:kind]
                 params[:kind].to_channel.new
+              else
+                Channel.new
               end
-    channel.application = logged_in_application if logged_in_application
+    channel.application = logged_in_application if !channel.persisted? && logged_in_application
     channel
   end
 

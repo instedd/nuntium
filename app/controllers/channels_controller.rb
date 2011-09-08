@@ -15,6 +15,16 @@ class ChannelsController < ApplicationController
     channel.check_valid_in_ui
   end
 
+  before_filter :ban_if_logged_in_as_application_and_channel_doesnt_belong_to_an_application
+  def ban_if_logged_in_as_application_and_channel_doesnt_belong_to_an_application
+    if logged_in_application && channel.persisted? && channel.application_id != logged_in_application.id
+      redirect_to channels_path
+      false
+    else
+      true
+    end
+  end
+
   def create
     if channel.save
       redirect_to channels_path, :notice => "Channel #{channel.name} was created"
