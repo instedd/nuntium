@@ -12,7 +12,7 @@ class AoMessagesController < ApplicationController
     @page = 1 if @previous_search.present? && @previous_search != @search
 
     @ao_messages = account.ao_messages.includes(:channel, :application).order 'id DESC'
-    @ao_messages = @ao_messages.search @search if @search.present?
+    @ao_messages = @ao_messages.search @search, :account => account if @search.present?
     @ao_messages = @ao_messages.paginate :page => @page, :per_page => ResultsPerPage
     @ao_messages = @ao_messages.all
   end
@@ -108,7 +108,7 @@ class AoMessagesController < ApplicationController
   def get_selected_messages
     messages = account.ao_messages.includes(:application)
     if params[:ao_all].to_b
-      messages = messages.search params[:search] if params[:search].present?
+      messages = messages.search params[:search], :account => account if params[:search].present?
     else
       messages = messages.where 'id IN (?)', params[:ao_messages]
     end

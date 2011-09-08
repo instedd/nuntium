@@ -2,7 +2,7 @@ module MessageSearch
   extend ActiveSupport::Concern
 
   module ClassMethods
-    def search(search)
+    def search(search, options = {})
       def esc(name)
         ActiveRecord::Base.connection.quote_column_name name.to_s
       end
@@ -40,8 +40,22 @@ module MessageSearch
         updated_at = Time.smart_parse search[:updated_at]
         result = result.where "updated_at >= ? AND updated_at < ?", updated_at, (updated_at + 1.day) if updated_at
       end
-      result = result.joins(:channel).where 'channels.name = ?', search[:channel] if search[:channel]
-      result = result.joins(:application).where 'applications.name = ?', search[:application] if search[:application]
+      if search[:channel]
+        if options[:account]
+          channel = options[:account].channels.select(:id).find_by_name search[:channel]
+          result = result.where :channel_id => channel.id
+        else
+          result = result.joins(:channel).where 'channels.name = ?', search[:channel]
+        end
+      end
+      if search[:application]
+        if options[:account]
+          app = options[:account].applications.select(:id).find_by_name search[:application]
+          result = result.where :application_id => app.id
+        else
+          result = result.joins(:application).where 'applications.name = ?', search[:application]
+        end
+      end
       result
     end
   end
