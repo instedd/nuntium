@@ -8,7 +8,7 @@ class TwitterController < ChannelsController
   before_filter :check_twitter_properly_configured
 
   def create
-    if channel.valid?
+    if channel.save
       go_to_twitter
     else
       render "channels/new"
@@ -16,7 +16,7 @@ class TwitterController < ChannelsController
   end
 
   def update
-    if channel.valid?
+    if channel.save
       go_to_twitter
     else
       render "channels/edit"
@@ -29,7 +29,7 @@ class TwitterController < ChannelsController
     profile = Twitter::Base.new(oauth).verify_credentials
     access_token = oauth.access_token
 
-    @channel = session['twitter_channel']
+    @channel = Channel.find session['twitter_channel_id']
     @update = !@channel.new_record?
 
     @channel.screen_name = profile.screen_name
@@ -38,7 +38,7 @@ class TwitterController < ChannelsController
 
     session['twitter_token']  = nil
     session['twitter_secret'] = nil
-    session['twitter_channel'] = nil
+    session['twitter_channel_id'] = nil
 
     if @channel.save
       flash[:notice] = @update ? "Channel #{@channel.name} was updated" : "Channel #{@channel.name} was created"
@@ -67,7 +67,7 @@ class TwitterController < ChannelsController
 
     session['twitter_token'] = request_token.token
     session['twitter_secret'] = request_token.secret
-    session['twitter_channel'] = channel
+    session['twitter_channel_id'] = channel.id
 
     redirect_to request_token.authorize_url
   end

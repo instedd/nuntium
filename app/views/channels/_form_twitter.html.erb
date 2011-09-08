@@ -33,13 +33,13 @@
   <%- if channel.persisted? -%>
     <script>
     function twitter_channel_update() {
-      var f = document.getElementById('edit_channel_<%= channel.id %>');
+      var f = $('form.channel_edit')[0];
       f.action = '<%= channel_path(channel) -%>';
       f.submit();
     }
 
     function twitter_channel_update_user() {
-      var f = document.getElementById('edit_channel_<%= channel.id %>');
+      var f = $('form.channel_edit')[0];
       f.action = '<%= update_twitter_channel_path(:id => channel.id) -%>';
       f.submit();
     }
