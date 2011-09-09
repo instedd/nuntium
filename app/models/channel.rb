@@ -12,8 +12,8 @@ class Channel < ActiveRecord::Base
   belongs_to :account
   belongs_to :application
 
-  has_many :ao_messages
-  has_many :at_messages
+  has_many :ao_messages, :conditions => proc { "#{AoMessage.table_name}.account_id = #{self.account_id}" if self.account_id }
+  has_many :at_messages, :conditions => proc { "#{AtMessage.table_name}.account_id = #{self.account_id}" if self.account_id }
   has_many :address_sources
 
   serialize :configuration, Hash
