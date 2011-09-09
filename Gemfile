@@ -30,6 +30,10 @@ gem 'decent_exposure'
 gem 'jquery-rails', '>= 1.0.12'
 gem 'twilio-ruby'
 
+group :web do
+  gem 'rails', '3.0.9'
+end
+
 group :test do
   gem 'test-unit', :require => 'test/unit'
   gem "mocha"

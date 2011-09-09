@@ -26,6 +26,10 @@ module Rails
     def cache
       @cache ||= ActiveSupport::Cache::MemCacheStore.new
     end
+
+    def env
+      ENV["RAILS_ENV"]
+    end
   end
 end
 
