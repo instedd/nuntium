@@ -30,10 +30,8 @@ class TwilioController < ApplicationController
     authenticate_or_request_with_http_basic do |username, password|
       @account = Account.find_by_id_or_name(params[:account_id])
       if @account
-        @channel = @account.channels.select do |c|
-          c.kind == 'twilio' &&
+        @channel = @account.twilio_channels.where(:name => username).select do |c|
           c.configuration[:account_sid] == params[:AccountSid] &&
-          c.name == username &&
           c.configuration[:incoming_password] == password
         end.first
       else
