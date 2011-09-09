@@ -1,4 +1,5 @@
 require 'csv'
+require 'rest_client'
 
 module Clickatell
   def self.get_credit(query_parameters)

@@ -1,4 +1,5 @@
 require 'daemon_controller'
+require 'daemons'
 
 class ManagedProcessesService < Service
 

@@ -1,3 +1,5 @@
+require 'twilio-ruby'
+
 class SendTwilioMessageJob < SendMessageJob
   def managed_perform
     client = Twilio::REST::Client.new @config[:account_sid], @config[:auth_token]

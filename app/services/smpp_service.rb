@@ -1,3 +1,5 @@
+require 'smpp'
+
 class SmppService < Service
   def initialize(channel)
     @channel = channel

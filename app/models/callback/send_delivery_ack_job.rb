@@ -1,3 +1,5 @@
+require 'rest_client'
+
 class SendDeliveryAckJob
   attr_accessor :account_id, :application_id, :message_id, :state, :tries
 

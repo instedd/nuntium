@@ -1,3 +1,5 @@
+require 'rest_client'
+
 class SendMultimodemIsmsMessageJob < SendMessageJob
   def managed_perform
     url = "http://#{@config[:host]}"
