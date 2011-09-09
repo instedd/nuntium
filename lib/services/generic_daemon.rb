@@ -33,6 +33,12 @@ module Rails
   end
 end
 
+class ActiveRecord::Base
+  def logger
+    Rails.logger
+  end
+end
+
 # Autoload models and services
 ActiveSupport::Dependencies.autoload_paths += [File.expand_path("../../../app/models", __FILE__)]
 ActiveSupport::Dependencies.autoload_paths += [File.expand_path("../../../app/services", __FILE__)]
