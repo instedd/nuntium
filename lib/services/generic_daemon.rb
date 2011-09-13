@@ -3,6 +3,7 @@ require 'logger'
 require 'amqp'
 require 'active_record'
 require 'active_support'
+require 'active_support/core_ext'
 require 'active_support/dependencies'
 require 'yaml'
 
