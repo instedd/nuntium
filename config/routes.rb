@@ -112,7 +112,7 @@ Nuntium::Application.routes.draw do
 
     scope '/custom_attributes' do
       get '/' => 'api_custom_attributes#show', :as => :api_custom_attributes_show
-      post '/api/custom_attributes' => 'api_custom_attributes#create_or_update', :as => :api_custom_attributes_show
+      post '/' => 'api_custom_attributes#create_or_update', :as => :api_custom_attributes_show
     end
   end
 
