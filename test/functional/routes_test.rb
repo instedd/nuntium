@@ -48,5 +48,7 @@ class RoutesTest < ActionController::TestCase
     assert_routing({:path => "/api/channels/foo", :method => :delete}, { :controller => "api_channel", :action => "destroy", :name => "foo" })
     assert_routing({:path => "/api/candidate/channels.xml", :method => :get}, { :controller => "api_channel", :action => "candidates", :format => "xml" })
     assert_routing({:path => "/api/channels/foo/twitter/friendships/create", :method => :get}, { :controller => "api_twitter_channel", :action => "friendship_create", :name => "foo" })
+    assert_routing({:path => "/api/custom_attributes", :method => :get}, { :controller => "api_custom_attributes", :action => "show" })
+    assert_routing({:path => "/api/custom_attributes", :method => :post}, { :controller => "api_custom_attributes", :action => "create_or_update" })
   end
 end
