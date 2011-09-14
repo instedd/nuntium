@@ -1,4 +1,5 @@
 require 'digest/sha1'
+require 'action_view/helpers/date_helper'
 
 class QstServerChannel < Channel
   include ActionView::Helpers::DateHelper
