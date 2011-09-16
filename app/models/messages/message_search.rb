@@ -7,7 +7,7 @@ module MessageSearch
         ActiveRecord::Base.connection.quote_column_name name.to_s
       end
 
-      result = self
+      result = where '1 = 1'
 
       search = Search.new search
 
@@ -43,7 +43,11 @@ module MessageSearch
       if search[:channel]
         if options[:account]
           channel = options[:account].channels.select(:id).find_by_name search[:channel]
-          result = result.where :channel_id => channel.id
+          if channel
+            result = result.where :channel_id => channel.id
+          else
+            result = result.where '1 = 2'
+          end
         else
           result = result.joins(:channel).where 'channels.name = ?', search[:channel]
         end
@@ -51,7 +55,11 @@ module MessageSearch
       if search[:application]
         if options[:account]
           app = options[:account].applications.select(:id).find_by_name search[:application]
-          result = result.where :application_id => app.id
+          if app
+            result = result.where :application_id => app.id
+          else
+            result = result.where '1 = 2'
+          end
         else
           result = result.joins(:application).where 'applications.name = ?', search[:application]
         end
