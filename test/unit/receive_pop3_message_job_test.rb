@@ -140,6 +140,40 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     assert_equal 1, AtMessage.count
   end
 
+  should "process multipart" do
+    msg = ""
+    msg << "MIME-Version: 1.0\n"
+    msg << "Received: by 10.52.159.34 with HTTP; Wed, 21 Sep 2011 09:01:06 -0700 (PDT)\n"
+    msg << "Date: Wed, 21 Sep 2011 13:01:06 -0300\n"
+    msg << "Delivered-To: pepecadorna@gmail.com\n"
+    msg << "Message-ID: <CAJoqeL3TSDCXrdc5JhSpPDb7=X4wesGNEs4JF_28u3530er7Jg@mail.gmail.com>\n"
+    msg << "Subject: Soy yo\n"
+    msg << "From: Pepe Cardona <pepecadorna@gmail.com>\n"
+    msg << "To: pepecadorna@gmail.com\n"
+    msg << "Content-Type: multipart/alternative; boundary=bcaec53f90c1079a6d04ad75afdb\n"
+    msg << "\n"
+    msg << "--bcaec53f90c1079a6d04ad75afdb\n"
+    msg << "Content-Type: text/plain; charset=ISO-8859-1\n"
+    msg << "\n"
+    msg << "Hola\n"
+    msg << "\n"
+    msg << "--bcaec53f90c1079a6d04ad75afdb\n"
+    msg << "Content-Type: text/html; charset=ISO-8859-1\n"
+    msg << "\n"
+    msg << "Hola\n"
+    msg << "\n"
+    msg << "--bcaec53f90c1079a6d04ad75afdb--\n"
+
+    mail = mock('Net::POPMail')
+    mail.stubs :pop => msg
+
+    expect_connection @chan, mail
+    receive
+
+    msg = AtMessage.first
+    assert_equal "Hola", msg.body
+  end
+
   def msg_as_email(email, options = {})
     msg = ""
     msg << "From: #{email.from.without_protocol}\n" if email.from

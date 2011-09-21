@@ -98,7 +98,7 @@ class ReceivePop3MessageJob
 
     # Return text/plain part.
     tmail.parts.each do |part|
-      return part.body if part.content_type == 'text/plain'
+      return part.body.decoded if part.content_type =~ %r(text/plain)
     end
 
     # Or body if not found
