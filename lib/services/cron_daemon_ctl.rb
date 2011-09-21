@@ -1,3 +1,3 @@
 #!/usr/bin/ruby
-require(File.join(File.dirname(__FILE__), 'generic_ctl'))
+require(File.expand_path('../generic_ctl', __FILE__))
 run('cron_daemon')
