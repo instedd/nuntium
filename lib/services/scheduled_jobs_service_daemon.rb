@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 require(File.expand_path('../generic_daemon', __FILE__))
 start_service 'scheduled_jobs_service_daemon' do
   ScheduledJobsService.new.start
