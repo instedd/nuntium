@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class ChannelsControllerTest < ActionController::TestCase
-
   def setup
     @account = Account.make
   end

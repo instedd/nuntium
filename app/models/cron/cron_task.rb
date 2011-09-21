@@ -7,17 +7,7 @@ class CronTask < ActiveRecord::Base
 
   # Gets the job to execute on this task
   def get_handler
-    handler = YAML.load(self.code)
-    # If it could not be deserialized property try registering its class
-    # Constantize supposedly only converts a string into the constant,
-    # but somehow it is allowing YAML to create the correct instance.
-    # Black magic, clearly, but it works, as black magic usually does.
-    if handler.instance_of? YAML::Object
-      handler.class.constantize
-      handler = YAML.load(self.code)
-    end
-
-    handler
+    self.code.deserialize_job
   end
 
   # Sets the job to execute on this task

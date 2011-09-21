@@ -177,7 +177,7 @@ class ReceivePop3MessageJobTest < ActiveSupport::TestCase
     [:from, :to, :subject, :body].each do |field|
       assert_equal (options[field] || @email.send(field).strip), msg.send(field).strip
     end
-    assert_equal "<#{@email.guid}@baci.local.tmail>", msg.channel_relative_id if @email.guid.present?
+    assert_equal "#{@email.guid}@baci.local.tmail", msg.channel_relative_id if @email.guid.present?
     if options[:custom_attributes]
       options[:custom_attributes].each do |key, value|
         assert_equal value, msg.custom_attributes[key]

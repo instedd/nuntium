@@ -128,7 +128,7 @@ class AoMessagesControllerTest < ActionController::TestCase
 
   {nil => false, 'PROT://567' => false, 'sms://5678' => true}.each do |to, ok|
     test "send ao with to = #{to}" do
-      get :create_via_api, {:from => 'sms://1234', :to => to, :subject => 's', :body => 'b', :guid => 'g', :account_name => @account.name, :application_name => @application.name}
+      get :create_via_api, {:from => 'sms://1234', :to => (to ? "#{to}" : nil), :subject => 's', :body => 'b', :guid => 'g', :account_name => @account.name, :application_name => @application.name}
 
       messages = AoMessage.all
       assert_equal 1, messages.length

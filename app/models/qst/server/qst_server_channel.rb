@@ -60,7 +60,7 @@ class QstServerChannel < Channel
   end
 
   def decoded_salt
-    Base64.decode64 salt
+    Base64.decode64 self.salt
   end
 
   def encode_password(salt, password)

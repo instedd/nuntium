@@ -67,7 +67,7 @@ class ClickatellController < ApplicationController
       # Add this new part, sort and get text
       all_parts.push ClickatellMessagePart.new(:part_number => udh[0][:part_number], :text => params[:text])
       all_parts.sort! { |x,y| x.part_number <=> y.part_number }
-      text = all_parts.collect { |x| x.text }.to_s
+      text = all_parts.map(&:text).join
 
       # Create message from the resulting text
       create_message text

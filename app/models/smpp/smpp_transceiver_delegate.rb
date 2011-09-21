@@ -253,7 +253,7 @@ class SmppTransceiverDelegate
       # Add this new part, sort and get text
       parts.push SmppMessagePart.new(:part_number => partn, :text => text)
       parts.sort! { |x,y| x.part_number <=> y.part_number }
-      text = parts.collect { |x| x.text }.to_s
+      text = parts.map(&:text).join
 
       # Create message from the resulting text
       create_at_message source, destination, data_coding, text

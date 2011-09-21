@@ -173,6 +173,8 @@ class Channel < ActiveRecord::Base
 
   def configuration
     self[:configuration] ||= {}
+    self[:configuration].symbolize_keys! if self[:configuration].respond_to? :symbolize_keys!
+    self[:configuration]
   end
 
   def restrictions

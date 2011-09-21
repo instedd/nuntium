@@ -1,9 +1,9 @@
 source :rubygems
 
 gem 'rails', '3.0.9'
-gem 'mysql'
+gem 'mysql2', "0.2.13"
 gem 'libxml-ruby', :require => 'xml/libxml'
-gem "tmail"
+gem "mail"
 gem 'will_paginate', '~> 3.0'
 gem "guid"
 gem 'twitter', '0.9.4'

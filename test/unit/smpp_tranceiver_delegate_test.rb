@@ -142,15 +142,15 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   end
 
   test "send latin1 message as latin1" do
-    send_message ['ascii', 'latin1'], 'árbol', "\341rbol", 3
+    send_message ['ascii', 'latin1'], 'árbol', "\341rbol".force_encoding('ASCII-8BIT'), 3
   end
 
   test "send ascii message as ucs2" do
-    send_message ['ucs-2'], 'hola', "\000h\000o\000l\000a", 8
+    send_message ['ucs-2'], 'hola', "\000h\000o\000l\000a".force_encoding('UTF-16BE'), 8
   end
 
   test "send unicode message as ucs2" do
-    send_message ['ascii', 'latin1', 'ucs-2'], "你好", "\117\140\131\175", 8
+    send_message ['ascii', 'latin1', 'ucs-2'], "你好", "\117\140\131\175".force_encoding('UTF-16BE'), 8
   end
 
   test "send ucs2 little endian" do
@@ -199,7 +199,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
   end
 
   test "receive latin1 message" do
-    receive_message "\341rbol", 3, 'árbol'
+    receive_message "\341rbol".force_encoding('ASCII-8BIT'), 3, 'árbol'
   end
 
   test "receive ucs2 message" do
