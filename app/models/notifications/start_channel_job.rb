@@ -1,5 +1,4 @@
-class StopProcessJob
-
+class StartChannelJob
   attr_reader :id
 
   def initialize(id)
@@ -7,11 +6,10 @@ class StopProcessJob
   end
 
   def perform(manager)
-    manager.stop_process id
-  end
-  
-  def to_s
-    "<StopProcess:#{id}>"
+    manager.start_channel id
   end
 
+  def to_s
+    "<StartChannel:#{id}>"
+  end
 end

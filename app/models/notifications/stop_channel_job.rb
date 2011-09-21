@@ -1,5 +1,4 @@
-class RestartProcessJob
-
+class StopChannelJob
   attr_reader :id
 
   def initialize(id)
@@ -7,11 +6,10 @@ class RestartProcessJob
   end
 
   def perform(manager)
-    manager.restart_process id
-  end
-  
-  def to_s
-    "<RestartProcess:#{id}>"
+    manager.stop_channel id
   end
 
+  def to_s
+    "<StopChannel:#{id}>"
+  end
 end

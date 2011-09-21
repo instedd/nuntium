@@ -1,6 +1,63 @@
 require 'blather/client/dsl'
 
 class XmppService < Service
+  def initialize
+    @notifications_session = MQ.new
+    @connections = {}
+  end
+
+  def start
+    start_connections
+    subscribe_to_notifications
+    notify_connection_status_loop
+  end
+
+  def start_connections
+    XmppChannel.active.each do |channel|
+      start_channel channel
+    end
+  end
+
+  def subscribe_to_notifications
+    Queues.subscribe_notifications('xmpp', 'xmpp', @notifications_session) do |header, job|
+      job.perform self
+    end
+  end
+
+  def notify_connection_status_loop
+    EM.add_periodic_timer 1.minute do
+      @connections.each_value &:notify_connection_status
+    end
+  end
+
+  def start_channel(channel)
+    channel = Channel.find channel unless channel.is_a? Channel
+    connection = XmppConnection.new channel
+    @connections[channel.id] = connection
+    connection.start
+  end
+
+  def stop_channel(id)
+    connection = @connections.delete id
+    connection.stop
+  end
+
+  def restart_channel(id)
+    stop_channel id
+    start_channel id
+  end
+
+  def stop
+    stop_connections
+    EM.stop_event_loop
+  end
+
+  def stop_connections
+    @connections.each &:stop
+  end
+end
+
+class XmppConnection
   include Blather::DSL
 
   PrefetchCount = 5
@@ -26,14 +83,12 @@ class XmppService < Service
       handle_disconnections
     end
     client.run
-    notify_connection_status_loop
   end
 
   def stop
-    client.close
     @mq.close
+    client.close
     self.channel_connected = false
-    EM.stop_event_loop
   end
 
   def receive_chats
@@ -58,14 +113,14 @@ class XmppService < Service
 
         @channel.logger.exception_in_channel_and_ao_message @channel, ao, "Code #{msg.error_code} - #{msg.error_type}"
       else
-        Rails.logger.debug "Received error message: #{msg}"
+        Rails.logger.debug "[#{@channel.name}] Received error message: #{msg}"
       end
     end
   end
 
   def receive_subscriptions
     subscription :request? do |s|
-      @channel.logger.info :message => "Accepting subscription from #{s.from}", :application_id => @channel.application_id, :channel_id => @channel.id
+      @channel.logger.info :message => "[#{@channel.name}] Accepting subscription from #{s.from}", :application_id => @channel.application_id, :channel_id => @channel.id
 
       write_to_stream s.approve!
     end
@@ -73,15 +128,22 @@ class XmppService < Service
 
   def handle_disconnections
     disconnected do
-      Rails.logger.info "Disconnected, trying to reconnect..."
       self.channel_connected = false
 
-      client.connect
+      @channel.reload
+
+      if @channel.active?
+        Rails.logger.info "[#{@channel.name}] Disconnected, trying to reconnect..."
+
+        client.connect
+      end
+
+      true
     end
   end
 
   def send_message(id, from, to, subject, body)
-    Rails.logger.debug "Sending message with id: '#{id}', from: '#{from}', to: '#{to}', subject: '#{subject}', body: '#{body}'"
+    Rails.logger.debug "[#{@channel.name}] Sending message with id: '#{id}', from: '#{from}', to: '#{to}', subject: '#{subject}', body: '#{body}'"
 
     msg = Blather::Stanza::Message.new
     msg.id = id
@@ -98,15 +160,15 @@ class XmppService < Service
   end
 
   def subscribe_queue
-    Rails.logger.info "Subscribing to message queue"
+    Rails.logger.info "[#{@channel.name}] Subscribing to message queue"
 
     Queues.subscribe_ao(@channel, @mq) do |header, job|
-      Rails.logger.debug "Executing job #{job}"
+      Rails.logger.debug "[#{@channel.name}] Executing job #{job}"
       begin
         job.perform self
         header.ack
       rescue Exception => e
-        Rails.logger.error "Error when performing job. Exception: #{e.class} #{e}"
+        Rails.logger.error "[#{@channel.name}] Error when performing job. Exception: #{e.class} #{e}"
         unsubscribe_temporarily
       end
     end
@@ -122,7 +184,7 @@ class XmppService < Service
   end
 
   def unsubscribe_queue
-    Rails.logger.info "Unsubscribing from message queue"
+    Rails.logger.info "[#{@channel.name}] Unsubscribing from message queue"
 
     @mq = Queues.reconnect(@mq)
     @mq.prefetch PrefetchCount
@@ -135,9 +197,7 @@ class XmppService < Service
     @channel.connected = value
   end
 
-  def notify_connection_status_loop
-    EM.add_periodic_timer 1.minute do
-      @channel.connected = @connected
-    end
+  def notify_connection_status
+    @channel.connected = @connected
   end
 end

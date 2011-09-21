@@ -6,11 +6,12 @@ module ServiceChannel
   extend ActiveSupport::Concern
 
   included do
-    after_create :create_managed_process
-    after_enabled :enable_managed_process
-    after_disabled :disable_managed_process
-    after_changed :touch_managed_process
-    before_destroy :destroy_managed_process
+    after_create :bind_queue
+    after_create :publish_start_channel
+    after_enabled :publish_start_channel
+    after_disabled :publish_stop_channel
+    after_changed :publish_restart_channel
+    before_destroy :publish_stop_channel
   end
 
   module InstanceMethods
@@ -19,51 +20,22 @@ module ServiceChannel
     end
 
     def on_changed
-      touch_managed_process
+      publish_restart_channel
     end
 
-    def create_managed_process
-      bind_queue
-      if enabled
-        ManagedProcess.create!(
-          :account_id => account.id,
-          :name => managed_process_name,
-          :start_command => "service_daemon_ctl.rb start -- #{Rails.env} #{id}",
-          :stop_command => "service_daemon_ctl.rb stop -- #{Rails.env} #{id}",
-          # The dot after service_daemon is important: do not change it (the service won't start)
-          :pid_file => "service_daemon.#{id}.pid",
-          :log_file => "service_daemon_#{id}.log",
-          :enabled => enabled
-        )
-      end
-    end
-
-    def managed_process
-      ManagedProcess.find_by_account_id_and_name account.id, managed_process_name
-    end
-
-    def enable_managed_process
-      managed_process.try :enable!
+    def publish_start_channel
+      Queues.publish_notification StartChannelJob.new(id), self.class.kind
       true
     end
 
-    def disable_managed_process
-      managed_process.try :disable!
+    def publish_stop_channel
+      Queues.publish_notification StopChannelJob.new(id), self.class.kind
       true
     end
 
-    def touch_managed_process
-      Rails.logger.info "TOUCH"
-      Rails.logger.info caller
-      managed_process.try :save!
-    end
-
-    def destroy_managed_process
-      managed_process.try :destroy
-    end
-
-    def managed_process_name
-      "#{kind}_daemon #{name}"
+    def publish_restart_channel
+      Queues.publish_notification RestartChannelJob.new(id), self.class.kind
+      true
     end
 
     def service

@@ -33,8 +33,11 @@ class Channel < ActiveRecord::Base
 
   scope :enabled, where(:enabled => true)
   scope :disabled, where(:enabled => false)
+  scope :paused, where(:paused => true)
+  scope :unpaused, where(:paused => false)
   scope :outgoing, where(:direction => [Outgoing, Bidirectional])
   scope :incoming, where(:direction => [Incoming, Bidirectional])
+  scope :active, where(:enabled => true, :paused => false)
 
   after_update :reroute_messages, :if => lambda { enabled_changed? && !enabled }
 
@@ -163,6 +166,10 @@ class Channel < ActiveRecord::Base
 
   def connected?
     !!(Rails.cache.read connected_cache_key)
+  end
+
+  def active?
+    enabled? && !paused?
   end
 
   def self.connected(channels)

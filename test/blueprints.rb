@@ -189,12 +189,3 @@ Country.blueprint do
   iso3 { (1..3).map { ('a'..'z').to_a.rand }.join }
   phone_prefix { Sham.number2 }
 end
-
-ManagedProcess.blueprint do
-  account
-  name
-  start_command { Sham.guid }
-  stop_command { Sham.guid }
-  pid_file { Sham.guid }
-  log_file { Sham.guid }
-end

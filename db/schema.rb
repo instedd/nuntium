@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110907185714) do
+ActiveRecord::Schema.define(:version => 20110921222029) do
 
   create_table "accounts", :force => true do |t|
     t.string   "name"
@@ -201,18 +201,6 @@ ActiveRecord::Schema.define(:version => 20110907185714) do
   add_index "logs", ["account_id", "at_message_id"], :name => "index_account_logs_on_account_id_and_at_message_id"
   add_index "logs", ["account_id", "channel_id"], :name => "index_account_logs_on_account_id_and_channel_id"
   add_index "logs", ["account_id", "id"], :name => "index_account_logs_on_account_id_and_id"
-
-  create_table "managed_processes", :force => true do |t|
-    t.integer  "account_id"
-    t.string   "name"
-    t.string   "start_command"
-    t.string   "stop_command"
-    t.string   "pid_file"
-    t.string   "log_file"
-    t.boolean  "enabled"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
 
   create_table "mobile_numbers", :force => true do |t|
     t.string   "number"
