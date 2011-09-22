@@ -9,7 +9,7 @@ class SendSmppMessageJobTest < ActiveSupport::TestCase
     msg = AoMessage.make :account => @chan.account, :channel => @chan, :state => 'delivered'
 
     job = SendSmppMessageJob.new msg.account_id, @chan.id, msg.id
-    assert_false (job.perform nil)
+    job.perform nil
 
     assert_equal 'delivered', msg.state
   end
@@ -18,9 +18,8 @@ class SendSmppMessageJobTest < ActiveSupport::TestCase
     msg = AoMessage.make :account => @chan.account, :state => 'delivered'
 
     job = SendSmppMessageJob.new msg.account_id, @chan.id, msg.id
-    assert_false (job.perform nil)
+    job.perform nil
 
     assert_equal 'delivered', msg.state
   end
-
 end

@@ -113,13 +113,22 @@ class XmppConnection
       begin
         job.perform self
         header.ack
-      rescue Exception => e
-        Rails.logger.error "[#{@channel.name}] Error when performing job. Exception: #{e.class} #{e}"
-        unsubscribe_temporarily
+      rescue Exception => ex
+        Rails.logger.info "[#{@channel.name}] Exception executing #{job}: #{ex.class} #{ex} #{ex.backtrace}"
+        reschedule job, header, ex
       end
     end
 
     @subscribed = true
+  end
+
+  def reschedule(job, header, ex)
+    job.reschedule ex
+  rescue => ex
+    Rails.logger.info "[#{@channel.name}] Exception rescheduling #{job}: #{ex.class} #{ex} #{ex.backtrace}"
+    unsubscribe_temporarily
+  else
+    header.ack
   end
 
   def unsubscribe_temporarily
