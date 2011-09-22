@@ -43,7 +43,7 @@ module ChannelMetadata
     end
 
     def kind
-      ActiveSupport::Inflector.underscore identifier
+      identifier.underscore
     end
 
     # We want the SmtpChannel class given the "smtp" kind
