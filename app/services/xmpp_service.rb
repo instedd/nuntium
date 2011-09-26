@@ -15,6 +15,8 @@ class XmppConnection
   end
 
   def start
+    @is_running = true
+
     setup @channel.jid, @channel.password, @channel.server, @channel.port
     when_ready do
       Rails.logger.info "Connected to #{@channel.jid}"
@@ -32,6 +34,7 @@ class XmppConnection
   end
 
   def stop
+    @is_running = false
     @mq.close
     client.close
     self.channel_connected = false
@@ -78,7 +81,7 @@ class XmppConnection
 
       @channel.reload
 
-      if @channel.active?
+      if @is_running && @channel.active?
         Rails.logger.info "[#{@channel.name}] Disconnected, trying to reconnect..."
 
         client.connect

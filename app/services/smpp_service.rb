@@ -136,7 +136,7 @@ class SmppGateway < SmppTransceiverDelegate
 
     @channel.reload
 
-    if @channel.active?
+    if @is_running && @channel.active?
       unsubscribe_queue
 
       if @is_running
