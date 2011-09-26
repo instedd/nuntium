@@ -12,7 +12,7 @@ class ChannelsController < ApplicationController
     channel.restrictions = get_custom_attributes
     channel.ao_rules = get_rules :aorules
     channel.at_rules = get_rules :atrules
-    channel.check_valid_in_ui
+    channel.must_check_valid_in_ui!
   end
 
   before_filter :ban_if_logged_in_as_application_and_channel_doesnt_belong_to_an_application

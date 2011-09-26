@@ -1,3 +1,5 @@
+require 'rest_client'
+
 class ReceiveMultimodemIsmsMessageJob
 
   attr_accessor :account_id, :channel_id

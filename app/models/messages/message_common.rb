@@ -1,3 +1,5 @@
+require 'guid'
+
 module MessageCommon
   extend ActiveSupport::Concern
 

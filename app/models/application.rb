@@ -1,4 +1,5 @@
 require 'digest/sha2'
+require 'guid'
 
 class Application < ActiveRecord::Base
   include Authenticable

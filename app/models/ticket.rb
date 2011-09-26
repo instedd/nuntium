@@ -1,3 +1,5 @@
+require 'guid'
+
 class Ticket < ActiveRecord::Base
 
   validates_inclusion_of :status, :in => ['pending', 'complete']

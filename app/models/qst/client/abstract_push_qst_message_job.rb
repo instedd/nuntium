@@ -1,3 +1,5 @@
+require 'qst_client'
+
 class AbstractPushQstMessageJob
   include CronTask::QuotedTask
 

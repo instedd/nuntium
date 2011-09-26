@@ -1,3 +1,5 @@
+require 'socket'
+
 class Settings
   ConfigFilePath = "#{::Rails.root.to_s}/config/settings.yml"
 

@@ -1,3 +1,5 @@
+require 'smpp'
+
 class SmppService < ChannelService
 end
 

@@ -1,3 +1,5 @@
+require 'rest_client'
+
 class SendInterfaceCallbackJob
   attr_accessor :account_id, :application_id, :message_id, :tries
 
