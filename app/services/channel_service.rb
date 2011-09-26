@@ -31,13 +31,14 @@ class ChannelService < Service
   def start_channel(channel)
     channel = Channel.find channel unless channel.is_a? Channel
     connection = connection_class.new channel
-    @connections[channel.id] = connection
-    connection.start
+    if connection.start
+      @connections[channel.id] = connection
+    end
   end
 
   def stop_channel(id)
     connection = @connections.delete id
-    connection.stop
+    connection.stop if connection
   end
 
   def restart_channel(id)

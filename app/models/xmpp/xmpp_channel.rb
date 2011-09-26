@@ -33,8 +33,10 @@ class XmppChannel < Channel
       client = Client::new JID::new(jid)
       client.connect server, port
       client.auth password
+      return true
     rescue => e
-      errors.add_to_base e.message
+      errors.add :base, e.message
+      return false
     ensure
       client.close
     end

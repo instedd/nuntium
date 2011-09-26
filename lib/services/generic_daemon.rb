@@ -60,6 +60,7 @@ Thread.new { EM.run {} }
 
 EM.error_handler do |e|
   puts "Error raised during event loop: #{e.message}"
+  puts e.backtrace
 end
 
 # Start RabbitMQ

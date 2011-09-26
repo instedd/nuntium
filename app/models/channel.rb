@@ -47,7 +47,7 @@ class Channel < ActiveRecord::Base
   end
 
   def self.after_changed(method, options = {})
-    after_update method, options.merge(:if => lambda { changed? && !enabled_changed? && !paused_changed? })
+    after_update method, options.merge(:if => lambda { changed? && !enabled_changed? && !paused_changed? && active? })
   end
 
   def self.after_disabled(method, options = {})
@@ -202,9 +202,9 @@ class Channel < ActiveRecord::Base
   end
 
   def alert(message)
-    return if account.alert_emails.blank?
-
     logger.error :channel_id => self.id, :message => message
+
+    return if account.alert_emails.blank?
     AlertMailer.error(account, "Error in account #{account.name}, channel #{self.name}", message).deliver
   end
 

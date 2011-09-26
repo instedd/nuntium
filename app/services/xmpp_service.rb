@@ -15,6 +15,15 @@ class XmppConnection
   end
 
   def start
+    if !@channel.check_valid_in_ui
+      @channel.alert "Invalid credentials"
+      @channel.enabled = false
+      @channel.save!
+
+      @mq.close
+      return false
+    end
+
     @is_running = true
 
     setup @channel.jid, @channel.password, @channel.server, @channel.port
@@ -31,6 +40,8 @@ class XmppConnection
       handle_disconnections
     end
     client.run
+
+    true
   end
 
   def stop

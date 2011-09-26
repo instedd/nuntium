@@ -11,6 +11,7 @@ class SmppConnection
   def start
     @gateway = SmppGateway.new @channel
     @gateway.start
+    true
   end
 
   def notify_connection_status
