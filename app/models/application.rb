@@ -383,6 +383,12 @@ class Application < ActiveRecord::Base
     @logger ||= AccountLogger.new self.account.id, self.id
   end
 
+  def bind_queue
+    Queues.bind_application self
+    true
+  end
+
+
   protected
 
   # Ensures tasks for this account are correct
@@ -406,11 +412,6 @@ class Application < ActiveRecord::Base
   def delete_worker_queue
     wq = WorkerQueue.for_application self
     wq.destroy if wq
-    true
-  end
-
-  def bind_queue
-    Queues.bind_application self
     true
   end
 
