@@ -57,6 +57,9 @@ end
 
 # Start EM
 Thread.new { EM.run {} }
+until EM.reactor_running?
+  sleep 0.1
+end
 
 EM.error_handler do |e|
   puts "Error raised during event loop: #{e.message}"
