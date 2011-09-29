@@ -71,7 +71,7 @@ class XmppConnection
         ao.state = 'failed'
         ao.save!
 
-        @channel.logger.exception_in_channel_and_ao_message @channel, ao, "Code #{msg.error_code} - #{msg.error_type}"
+        @channel.logger.exception_in_channel_and_ao_message @channel, ao, "#{msg}"
       else
         Rails.logger.debug "[#{@channel.name}] Received error message: #{msg}"
       end
