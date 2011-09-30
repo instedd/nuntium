@@ -6,6 +6,7 @@ require 'active_support'
 require 'active_support/core_ext'
 require 'active_support/dependencies'
 require 'yaml'
+require 'em-net-http'
 
 ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
 ENV["RAILS_ENV"] ||= "development"

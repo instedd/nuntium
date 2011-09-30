@@ -29,6 +29,7 @@ gem 'daemons'
 gem 'decent_exposure'
 gem 'jquery-rails', '>= 1.0.12'
 gem 'twilio-ruby'
+gem 'em-net-http', :require => false
 
 group :test do
   gem 'test-unit', :require => 'test/unit'

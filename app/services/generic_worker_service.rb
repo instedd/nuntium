@@ -1,6 +1,6 @@
 class GenericWorkerService < Service
 
-  PrefetchCount = 1
+  PrefetchCount = 10
   SuspensionTime = 5 * 60
 
   attr_reader :sessions
@@ -43,7 +43,7 @@ class GenericWorkerService < Service
     return if @sessions.include? wq.queue_name
 
     Rails.logger.info "Subscribing to queue #{wq.queue_name} with ack #{wq.ack} and durable #{wq.durable}"
-    wq.subscribe(mq_for wq) { |header, job| perform job, header, wq }
+    wq.subscribe(mq_for wq) { |header, job| Fiber.new { perform job, header, wq }.resume }
   end
 
   def mq_for(wq)
