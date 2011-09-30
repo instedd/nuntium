@@ -18,7 +18,7 @@ module Rails
 
     def logger
       @logger ||= begin
-                    logger = Logger.new $log_path
+                    logger = Logger.new(STDOUT.tty? ? STDOUT : $log_path)
                     logger.formatter = Logger::Formatter.new
                     logger
                   end
