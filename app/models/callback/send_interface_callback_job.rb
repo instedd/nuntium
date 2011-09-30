@@ -14,7 +14,7 @@ class SendInterfaceCallbackJob
     @account = Account.find_by_id @account_id
     @app = @account.applications.find_by_id @application_id
     @msg = AtMessage.get_message @message_id
-    return if @msg.state != 'queued'
+    return if @msg.nil? || @msg.state != 'queued'
 
     @msg.tries += 1
     @msg.save!
