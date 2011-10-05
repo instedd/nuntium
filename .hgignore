@@ -1,4 +1,5 @@
 syntax: glob
+.bundle/config
 *.log
 *.sqlite3
 *.tmp*~
