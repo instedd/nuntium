@@ -10,7 +10,6 @@ gem 'twitter', '0.9.4'
 gem 'ruby-smpp', '0.2.1', :require => 'smpp'
 gem "eventmachine"
 gem 'amqp'
-gem 'memcached'
 gem 'memcache-client'
 gem 'xmpp4r'
 gem 'rest-client', :require => 'rest_client'
