@@ -1,10 +1,12 @@
 require 'rubygems'
+gem 'psych'
 require 'logger'
 require 'amqp'
 require 'active_record'
 require 'active_support'
 require 'active_support/core_ext'
 require 'active_support/dependencies'
+require 'psych'
 require 'yaml'
 require 'em-net-http'
 
@@ -78,5 +80,5 @@ def start_service(log_name)
 
   yield
 rescue Exception => err
-  File.open($log_path, 'a') { |f| f.write "Daemon failure: #{err} #{err.backtrace}\n" }
+  Rails.logger.error "Daemon failure: #{err} #{err.backtrace}"
 end

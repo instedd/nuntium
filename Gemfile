@@ -30,6 +30,7 @@ gem 'decent_exposure'
 gem 'jquery-rails', '>= 1.0.12'
 gem 'twilio-ruby'
 gem 'em-net-http', :require => false
+gem 'psych', '~> 1.2.0'
 
 group :test do
   gem 'test-unit', :require => 'test/unit'
