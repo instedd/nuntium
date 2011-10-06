@@ -93,7 +93,7 @@ class ClickatellChannel < Channel
 
   CLICKATELL_NETWORKS = {
     '61' => '+61',
-    '44a' => '+44 [A]',
+    '44a' => '+44 [A] *',
     '46' => '+46',
     '49' => '+49',
     '45' => '+45',

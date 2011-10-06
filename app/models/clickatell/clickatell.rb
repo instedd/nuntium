@@ -14,6 +14,10 @@ module Clickatell
     Clickatell.get "/http/sendmsg?#{query_parameters.to_query}"
   end
 
+  def self.red(string)
+    "\033[31m#{string}\033[0m"
+  end
+
   def self.update_coverage_tables(options = {})
     firstRow = nil
     countryRow = nil
@@ -42,7 +46,7 @@ module Clickatell
 
         country = Country.find_by_clickatell_name row[0]
         if not country
-          puts "\033[31mCountry not found: #{row[0]}\033[0m" unless options[:silent]
+          puts red("Country not found: #{row[0]}") unless options[:silent]
         end
         next
       end
@@ -50,7 +54,7 @@ module Clickatell
       next if not country # missing country => missing carrier
       carrier = Carrier.find_by_clickatell_name row[2]
       if not carrier
-        puts "\033[31mCountry/carrier not found: #{country.clickatell_name} - #{row[2]}\033[0m" unless options[:silent]
+        puts red("Country/carrier not found: #{country.clickatell_name} - #{row[2]}") unless options[:silent]
         next
       end
 
@@ -58,6 +62,10 @@ module Clickatell
         next if network_key == 'usa'
 
         network_column_index = firstRow.index(network_desc)
+        if not network_column_index
+          puts red("Network not found in the CSV: #{network_desc}")
+          next
+        end
         cost = row[network_column_index]
         cov = ::ClickatellCoverageMO.find_by_country_id_and_carrier_id_and_network country.id, carrier.id, network_key
 
