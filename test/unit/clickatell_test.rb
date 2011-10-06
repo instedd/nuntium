@@ -13,7 +13,7 @@ class ClickatellTest < ActiveSupport::TestCase
     @tel = Carrier.make :name => 'Telstra', :clickatell_name => 'Telstra', :country => @aus
 
     @s = <<-EOF
-Country, Country Code, Network, +41,+44 [A],+46,+61,+49,+45,+44 [B]
+Country, Country Code, Network, +41,+44 [A] *,+46,+61,+49,+45,+44 [B]
 "Argentina","54"
 ,,"AMX(Claro)","1","2","3","4","x","x","x"
 ,,"Nextel (iDEN)","5","6","7","x","x","x","x"
