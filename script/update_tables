@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
-require(File.join(File.dirname(__FILE__), '..', 'config', 'boot'))
-require(File.join(Rails.root, 'config', 'environment'))
+require File.expand_path('../../config/environment', __FILE__)
 require 'csv'
 
 ###################
