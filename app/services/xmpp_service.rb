@@ -32,15 +32,15 @@ class XmppConnection
       self.channel_connected = true
 
       set_status :chat, @channel.status if @channel.status.present?
-
       subscribe_queue
-      receive_chats
-      receive_errors
-      receive_subscriptions
-      handle_disconnections
     end
-    client.run
 
+    receive_chats
+    receive_errors
+    receive_subscriptions
+    handle_disconnections
+
+    client.run
     true
   end
 
