@@ -62,6 +62,8 @@ until EM.reactor_running?
   sleep 0.1
 end
 
+YAML::ENGINE.yamler = 'syck'
+
 EM.error_handler do |e|
   puts "Error raised during event loop: #{e.message}"
   puts e.backtrace
