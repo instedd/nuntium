@@ -6,7 +6,9 @@ require 'active_support'
 require 'active_support/core_ext'
 require 'active_support/dependencies'
 require 'yaml'
-require 'em-net-http'
+require 'yaml'
+require 'syck'
+YAML::ENGINE.yamler = 'syck'
 
 ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
 ENV["RAILS_ENV"] ||= "development"
@@ -61,8 +63,6 @@ Thread.new { EM.run {} }
 until EM.reactor_running?
   sleep 0.1
 end
-
-YAML::ENGINE.yamler = 'syck'
 
 EM.error_handler do |e|
   puts "Error raised during event loop: #{e.message}"
