@@ -48,7 +48,7 @@ class SendInterfaceCallbackJob
 
     http_method = @app.interface == 'http_get_callback' ? 'GET' : 'POST'
 
-    @app.logger.info :ao_message_id => @msg.id, :channel_id => @msg.channel.try(:id), :message => "Executing #{http_method} callback to #{@app.interface_user}"
+    @app.logger.info :at_message_id => @msg.id, :channel_id => @msg.channel.try(:id), :message => "Executing #{http_method} callback to #{@app.interface_url}"
 
     begin
       res = RestClient::Resource.new(@app.interface_url, options)
@@ -60,38 +60,38 @@ class SendInterfaceCallbackJob
           @msg.state = 'delivered'
           @msg.save!
 
-          AtMessage.log_delivery([@msg], @account, 'http_post_callback')
+          AtMessage.log_delivery([@msg], @account, "http #{http_method.downcase} callback")
 
           # If the response includes a body, create an AO message from it
           if res.body.present?
             case netres.content_type
             when 'application/json'
-              @app.logger.info :ao_message_id => @msg.id, :channel_id => @msg.channel.try(:id), :message => "HTTP callback returned json"
+              @app.logger.info :at_message_id => @msg.id, :channel_id => @msg.channel.try(:id), :message => "#{http_method} callback returned JSON: routed as AO messages"
 
               hashes = JSON.parse(res.body)
               hashes = [hashes] unless hashes.is_a? Array
               hashes.each do |hash|
                 parsed = AoMessage.from_hash hash
                 parsed.token ||= @msg.token
-                @app.route_ao parsed, 'http post callback'
+                @app.route_ao parsed, "http #{http_method.downcase} callback"
               end
             when 'application/xml'
-              @app.logger.info :ao_message_id => @msg.id, :channel_id => @msg.channel.try(:id), :message => "HTTP callback returned xml"
+              @app.logger.info :at_message_id => @msg.id, :channel_id => @msg.channel.try(:id), :message => "#{http_method} callback returned XML: routed as AO messages"
 
               AoMessage.parse_xml(res.body) do |parsed|
                 parsed.token ||= @msg.token
-                @app.route_ao parsed, 'http post callback'
+                @app.route_ao parsed, "http #{http_method.downcase} callback"
               end
             else
-              @app.logger.info :ao_message_id => @msg.id, :channel_id => @msg.channel.try(:id), :message => "HTTP callback returned text"
+              @app.logger.info :at_message_id => @msg.id, :channel_id => @msg.channel.try(:id), :message => "#{http_method} callback returned text: routed an AO message reply"
 
               reply = AoMessage.new :from => @msg.to, :to => @msg.from, :body => res.body
               reply.token = @msg.token
-              @app.route_ao reply, 'http post callback'
+              @app.route_ao reply, "http #{http_method.downcase} callback"
             end
           end
         when Net::HTTPUnauthorized
-          alert_msg = "Sending HTTP #{http_method} callback received unauthorized: invalid credentials"
+          alert_msg = "#{http_method} callback to #{@app.interface_url} received unauthorized: invalid credentials"
           @app.alert alert_msg
           raise alert_msg
         else
@@ -100,7 +100,7 @@ class SendInterfaceCallbackJob
     rescue RestClient::BadRequest
       @msg.send_failed @account, @app, "Received HTTP Bad Request (404)"
     rescue => ex
-      @msg.send_failed @account, @app, "HTTP #{http_method} callback failed: #{ex.message}"
+      @msg.send_failed @account, @app, "#{http_method} callback failed: #{ex.message}"
       raise ex
     end
   end
