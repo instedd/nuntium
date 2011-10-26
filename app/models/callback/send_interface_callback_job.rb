@@ -48,6 +48,8 @@ class SendInterfaceCallbackJob
 
     http_method = @app.interface == 'http_get_callback' ? 'GET' : 'POST'
 
+    @app.logger.info :ao_message_id => @msg.id, :channel_id => @msg.channel.try(:id), :message => "Executing #{http_method} callback to #{@app.interface_user}"
+
     begin
       res = RestClient::Resource.new(@app.interface_url, options)
       res = @app.interface == 'http_get_callback' ? res["?#{data}"].get : res.post(data)
@@ -64,6 +66,8 @@ class SendInterfaceCallbackJob
           if res.body.present?
             case netres.content_type
             when 'application/json'
+              @app.logger.info :ao_message_id => @msg.id, :channel_id => @msg.channel.try(:id), :message => "HTTP callback returned json"
+
               hashes = JSON.parse(res.body)
               hashes = [hashes] unless hashes.is_a? Array
               hashes.each do |hash|
@@ -72,11 +76,15 @@ class SendInterfaceCallbackJob
                 @app.route_ao parsed, 'http post callback'
               end
             when 'application/xml'
+              @app.logger.info :ao_message_id => @msg.id, :channel_id => @msg.channel.try(:id), :message => "HTTP callback returned xml"
+
               AoMessage.parse_xml(res.body) do |parsed|
                 parsed.token ||= @msg.token
                 @app.route_ao parsed, 'http post callback'
               end
             else
+              @app.logger.info :ao_message_id => @msg.id, :channel_id => @msg.channel.try(:id), :message => "HTTP callback returned text"
+
               reply = AoMessage.new :from => @msg.to, :to => @msg.from, :body => res.body
               reply.token = @msg.token
               @app.route_ao reply, 'http post callback'
