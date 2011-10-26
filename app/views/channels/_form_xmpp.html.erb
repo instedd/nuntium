@@ -28,5 +28,9 @@
   <%= f.label :status -%><br/>
   <%= f.text_field :status -%>
   </p>
+  <p>
+  <%= f.label :send_if_user_is_offline -%><br/>
+  <%= f.check_box :send_if_user_is_offline -%>
+  </p>
   <%= render 'edit_footer', :f => f %>
 <%- end -%>

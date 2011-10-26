@@ -12,6 +12,7 @@ class XmppConnection
     @channel = channel
     @mq = MQ.new
     @mq.prefetch PrefetchCount
+    @online_contacts = Set.new
   end
 
   def start
@@ -38,6 +39,7 @@ class XmppConnection
     receive_chats
     receive_errors
     receive_subscriptions
+    receive_presence unless @channel.send_if_user_is_offline?
     handle_disconnections
 
     client.run
@@ -86,6 +88,16 @@ class XmppConnection
     end
   end
 
+  def receive_presence
+    presence do |status|
+      if status.type.blank?
+        @online_contacts.add status.from.stripped.to_s
+      elsif status.type == "unavailable" || status.type == :unavailable
+        @online_contacts.delete status.from.stripped.to_s
+      end
+    end
+  end
+
   def handle_disconnections
     disconnected do
       self.channel_connected = false
@@ -103,6 +115,12 @@ class XmppConnection
   end
 
   def send_message(id, from, to, subject, body)
+    unless @channel.send_if_user_is_offline?
+      unless @online_contacts.include? to
+        raise MessageException.new "User #{to} is offline"
+      end
+    end
+
     Rails.logger.debug "[#{@channel.name}] Sending message with id: '#{id}', from: '#{from}', to: '#{to}', subject: '#{subject}', body: '#{body}'"
 
     msg = Blather::Stanza::Message.new
