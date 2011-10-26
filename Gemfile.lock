@@ -28,7 +28,6 @@ GEM
       activemodel (= 3.0.9)
       activesupport (= 3.0.9)
     activesupport (3.0.9)
-    addressable (2.2.6)
     amqp (0.7.4)
       eventmachine
     arel (2.0.10)
@@ -64,18 +63,8 @@ GEM
     decent_exposure (1.0.1)
     diff-lcs (1.1.2)
     dynamic_form (1.1.4)
-    em-http-request (0.3.0)
-      addressable (>= 2.0.0)
-      escape_utils
-      eventmachine (>= 0.12.9)
-    em-net-http (0.3.5)
-      addressable
-      em-http-request (>= 0.2.10)
-      eventmachine (>= 0.12.10)
-      rake
     erubis (2.6.6)
       abstract (>= 1.0.0)
-    escape_utils (0.2.4)
     eventmachine (0.12.10)
     ffaker (1.8.0)
     ffi (1.0.9)
@@ -188,7 +177,6 @@ DEPENDENCIES
   database_cleaner (>= 0.5.0)
   decent_exposure
   dynamic_form
-  em-net-http
   eventmachine
   ffaker
   guid
