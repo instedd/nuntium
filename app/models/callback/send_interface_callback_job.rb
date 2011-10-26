@@ -46,6 +46,8 @@ class SendInterfaceCallbackJob
       options[:password] = @app.interface_password
     end
 
+    http_method = @app.interface == 'http_get_callback' ? 'GET' : 'POST'
+
     begin
       res = RestClient::Resource.new(@app.interface_url, options)
       res = @app.interface == 'http_get_callback' ? res["?#{data}"].get : res.post(data)
@@ -81,14 +83,17 @@ class SendInterfaceCallbackJob
             end
           end
         when Net::HTTPUnauthorized
-          alert_msg = "Sending HTTP POST callback received unauthorized: invalid credentials"
+          alert_msg = "Sending HTTP #{http_method} callback received unauthorized: invalid credentials"
           @app.alert alert_msg
           raise alert_msg
         else
-          raise "HTTP POST callback failed #{netres.error!}"
+          raise "HTTP #{http_method} callback failed #{netres.error!}"
       end
     rescue RestClient::BadRequest
       @msg.send_failed @account, @app, "Received HTTP Bad Request (404)"
+    rescue => ex
+      @msg.send_failed @account, @app, "HTTP #{http_method} callback failed: #{ex.message}"
+      raise ex
     end
   end
 
