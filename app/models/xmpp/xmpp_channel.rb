@@ -30,17 +30,11 @@ class XmppChannel < Channel
   end
 
   def check_valid_in_ui
-    begin
-      client = Client::new JID::new(jid)
-      client.connect server, port
-      client.auth password
-      return true
-    rescue => e
-      errors.add :base, e.message
-      return false
-    ensure
-      client.close
-    end
+    with_xmpp4r_client
+    true
+  rescue => e
+    errors.add :base, e.message
+    false
   end
 
   def info
@@ -50,5 +44,23 @@ class XmppChannel < Channel
 
   def send_if_user_is_offline?
     send_if_user_is_offline.to_b
+  end
+
+  def add_contact(jid)
+    with_xmpp4r_client do |client|
+      presence = Jabber::Presence.new
+      presence.to = jid
+      presence.type = :subscribe
+      client.send presence
+    end
+  end
+
+  def with_xmpp4r_client
+    client = Client::new JID::new(jid)
+    client.connect server, port
+    client.auth password
+    yield client if block_given?
+  ensure
+    client.close
   end
 end
