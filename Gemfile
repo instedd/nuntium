@@ -1,7 +1,7 @@
 source :rubygems
 
 gem 'rails', '3.0.9'
-gem 'mysql2', "0.2.13"
+gem 'mysql2', :git => 'git://github.com/brianmario/mysql2.git', :branch => '0.2.x'
 gem 'libxml-ruby', :require => 'xml/libxml'
 gem "mail"
 gem 'will_paginate', '~> 3.0'
@@ -21,7 +21,7 @@ gem 'json'
 gem 'rgviz'
 gem 'rgviz-rails', :require => 'rgviz_rails'
 gem 'smart_asset'
-gem 'blather', '0.5.7'
+gem 'blather'
 gem 'dynamic_form'
 gem 'ci_reporter'
 gem 'daemons'

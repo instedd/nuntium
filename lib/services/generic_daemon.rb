@@ -1,3 +1,4 @@
+require 'bundler/setup'
 require 'rubygems'
 require 'logger'
 require 'amqp'
@@ -6,9 +7,6 @@ require 'active_support'
 require 'active_support/core_ext'
 require 'active_support/dependencies'
 require 'yaml'
-require 'yaml'
-require 'syck'
-YAML::ENGINE.yamler = 'syck'
 
 ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
 ENV["RAILS_ENV"] ||= "development"

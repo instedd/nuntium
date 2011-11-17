@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+require 'bundler/setup'
 require(File.expand_path('../generic_daemon', __FILE__))
 start_service 'xmpp_service_daemon' do
   XmppService.new.start
