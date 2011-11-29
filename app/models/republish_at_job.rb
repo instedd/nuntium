@@ -11,6 +11,8 @@ class RepublishAtJob
 
   def perform
     msg = AtMessage.find @message_id
+    return if msg.state != 'delayed'
+
     msg.state = 'queued'
     msg.save!
 
