@@ -31,13 +31,8 @@
 </div>
 <script type="text/javascript">
 $(function() {
-  var opt_in = $('#channel_opt_in_enabled');
-  opt_in.change(function() {
-    if (opt_in.is(':checked')) {
-      $('#opt_in_container').show('fast');
-    } else {
-      $('#opt_in_container').hide('fast');
-    }
+  $('#channel_opt_in_enabled').change(function() {
+    $('#opt_in_container').toggle('fast');
   });
 });
 </script>
