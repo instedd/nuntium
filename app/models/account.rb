@@ -137,6 +137,8 @@ class Account < ActiveRecord::Base
       case msg.body
       when /\s*#{via_channel.opt_help_keyword.strip}\s*/i
         return route_at_opt_help msg, via_channel, options
+      when /\s*#{via_channel.opt_in_keyword.strip}\s*/i
+        return route_at_opt_in msg, via_channel, options unless via_channel.whitelisted?(msg.from)
       end
     end
 
@@ -204,6 +206,30 @@ class Account < ActiveRecord::Base
 
     logger_result += "\n"
     logger_result += "AO message with id #{msg.id} created as a reply to request for help."
+
+    logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => logger_result
+  end
+
+  def route_at_opt_in(msg, via_channel, options = {})
+    simulate = options[:simulate]
+
+    ThreadLocalLogger << "Message is opt-in."
+    msg.state = 'replied'
+
+    return ThreadLocalLogger.result if simulate
+
+    msg.save!
+
+    logger_result = ThreadLocalLogger.result
+
+    via_channel.add_to_whitelist msg.from
+
+    ThreadLocalLogger.reset
+    ThreadLocalLogger << "Message is a reply to opt-in AT message with id: #{msg.id}"
+    via_channel.route_ao msg.new_reply(via_channel.opt_in_message), 'opt-in', options
+
+    logger_result += "\n"
+    logger_result += "AO message with id #{msg.id} created as a reply to opt-in."
 
     logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => logger_result
   end

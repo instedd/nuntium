@@ -15,6 +15,7 @@ class Channel < ActiveRecord::Base
   has_many :ao_messages, :conditions => proc { { :account_id => self.account_id } }
   has_many :at_messages, :conditions => proc { { :account_id => self.account_id } }
   has_many :address_sources
+  has_many :whitelists, :conditions => proc { { :account_id => self.account_id } }
 
   serialize :configuration, Hash
   serialize :restrictions
@@ -141,6 +142,10 @@ class Channel < ActiveRecord::Base
   end
 
   def can_route_ao?(msg)
+    bypasses_restrictions?(msg) && whitelisted?(msg.to)
+  end
+
+  def bypasses_restrictions?(msg)
     # Check that each custom attribute is present in this channel's restrictions
     all_restrictions = augmented_restrictions
     msg.custom_attributes.each_multivalue do |key, values|
@@ -158,6 +163,14 @@ class Channel < ActiveRecord::Base
     end
 
     return true
+  end
+
+  def whitelisted?(address)
+    !opt_in_enabled? || whitelists.where(:address => address).exists?
+  end
+
+  def add_to_whitelist(address)
+    whitelists.find_or_create_by_account_id_and_address account_id, address
   end
 
   def connected=(value)
