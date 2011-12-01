@@ -30,6 +30,7 @@ class Channel < ActiveRecord::Base
   validates_numericality_of :throttle, :allow_nil => true, :only_integer => true, :greater_than_or_equal_to => 0
   validates_numericality_of :ao_cost, :greater_than_or_equal_to => 0, :allow_nil => true
   validates_numericality_of :at_cost, :greater_than_or_equal_to => 0, :allow_nil => true
+  validates_presence_of :opt_in_keyword, :opt_in_message, :opt_out_keyword, :opt_out_message, :opt_help_keyword, :opt_help_message, :if => lambda { opt_in_enabled.to_b }
 
   scope :enabled, where(:enabled => true)
   scope :disabled, where(:enabled => false)
