@@ -38,6 +38,11 @@ class Channel < ActiveRecord::Base
 
   after_update :reroute_messages, :if => lambda { enabled_changed? && !enabled }
 
+  configuration_accessor :opt_in_enabled
+  configuration_accessor :opt_in_keyword, :opt_in_message
+  configuration_accessor :opt_out_keyword, :opt_out_message
+  configuration_accessor :opt_help_keyword, :opt_help_message
+
   def self.after_enabled(method, options = {})
     after_update method, options.merge(:if => lambda { (enabled_changed? && enabled) || (paused_changed? && !paused) })
   end

@@ -1,0 +1,43 @@
+<h5>Opt-in/Opt-out</h5>
+<p>
+<%= f.check_box :opt_in_enabled %>
+<%= f.label :opt_in_enabled, 'Handle opt-in/opt-out' -%>
+</p>
+<div id="opt_in_container" <%= raw (channel.opt_in_enabled.to_b ? '' : 'style="display:none"') %>>
+  <p>
+    <%= f.label :opt_in_keyword, 'Opt-in keyword (users will start receiving messages when sending this keyword)' -%><br/>
+  <%= f.text_field :opt_in_keyword %>
+  </p>
+  <p>
+  <%= f.label :opt_in_message, 'Opt-in message (message sent to users when they send the opt-in keyword)' -%><br/>
+  <%= f.text_field :opt_in_message, :size => 100 %>
+  </p>
+  <p>
+  <%= f.label :opt_out_keyword, 'Opt-out keyword (users will stop receiving messages when sending this keyword)' -%><br/>
+  <%= f.text_field :opt_out_keyword %>
+  </p>
+  <p>
+  <%= f.label :opt_out_message, 'Opt-out message (message sent to users when they send the opt-out keyword)' -%><br/>
+  <%= f.text_field :opt_out_message, :size => 100 %>
+  </p>
+  <p>
+  <%= f.label :opt_help_keyword, 'Help keyword (users will receive a help message when sending this keyword)' -%><br/>
+  <%= f.text_field :opt_help_keyword %>
+  </p>
+  <p>
+  <%= f.label :opt_help_message, 'Help message' -%><br/>
+  <%= f.text_field :opt_help_message, :size => 100 %>
+  </p>
+</div>
+<script type="text/javascript">
+$(function() {
+  var opt_in = $('#channel_opt_in_enabled');
+  opt_in.change(function() {
+    if (opt_in.is(':checked')) {
+      $('#opt_in_container').show('fast');
+    } else {
+      $('#opt_in_container').hide('fast');
+    }
+  });
+});
+</script>

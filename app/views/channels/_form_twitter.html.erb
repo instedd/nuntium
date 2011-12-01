@@ -14,6 +14,7 @@
     <%= f.text_field :welcome_message, :id => 'twitter_welcome_message' -%>
     </p>
     <%= render 'channels/edit_costs', :f => f -%>
+    <%= render 'edit_opt_in', :f => f %>
     <%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>
     <%= render 'channels/edit_ao_rules', :f => f -%>
     <%= render 'channels/edit_at_rules', :f => f -%>
