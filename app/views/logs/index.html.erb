@@ -4,7 +4,7 @@
 
 Search: <input type="text" name="search" value="<%= @search.try(:html_safe) -%>" size= "50" class="<%= @search.present? ? 'highlighted' : '' -%>"/> <a href="http://code.google.com/p/nuntium/wiki/AdvancedSearch" target="_blank" title="You can filter by field like 'severity:warning', 'before:&quot;20 minutes ago&quot;' etc.">?</a> &nbsp; &nbsp;
 
-<div><%= page_entries_info @logs, :entry_name => 'log entry' -%></div>
+<div><%= page_entries_info @logs, :model => 'log entry' -%></div>
 <%= will_paginate @logs, :param_name => 'page', :params => { :previous_search => @search } -%>
 
 <%- if @logs.present? -%>
