@@ -166,11 +166,15 @@ class Channel < ActiveRecord::Base
   end
 
   def whitelisted?(address)
-    !opt_in_enabled? || whitelists.where(:address => address).exists?
+    !opt_in_enabled? || whitelists.where(:account_id => account_id, :address => address).exists?
   end
 
   def add_to_whitelist(address)
     whitelists.find_or_create_by_account_id_and_address account_id, address
+  end
+
+  def remove_from_whitelist(address)
+    whitelists.where(:account_id => account_id, :address => address).destroy_all
   end
 
   def connected=(value)

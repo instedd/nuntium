@@ -101,4 +101,46 @@ class ChannelOptInTest < ActiveSupport::TestCase
 
     assert_equal 0, AoMessage.count
   end
+
+  test "removes from whitelist if message is opt-out" do
+    @chan.add_to_whitelist 'sms://1'
+
+    msg = AtMessage.new :from => 'sms://1', :to => 'sms://2', :body => 'out'
+    @chan.route_at msg
+
+    msg.reload
+
+    assert_equal 'replied', msg.state
+    assert_nil msg.application_id
+
+    msgs = AoMessage.all
+    assert_equal 1, msgs.length
+    assert_equal @chan.account_id, msgs[0].account_id
+    assert_equal @chan.id, msgs[0].channel_id
+    assert_equal msg.to, msgs[0].from
+    assert_equal msg.from, msgs[0].to
+    assert_equal @chan.opt_out_message, msgs[0].body
+
+    assert_equal 0, @chan.whitelists.find_all_by_account_id_and_address(@chan.account_id, 'sms://1').count
+  end
+
+  test "removes from whitelist if message is opt-out but not in whitelist" do
+    msg = AtMessage.new :from => 'sms://1', :to => 'sms://2', :body => 'out'
+    @chan.route_at msg
+
+    msg.reload
+
+    assert_equal 'replied', msg.state
+    assert_nil msg.application_id
+
+    msgs = AoMessage.all
+    assert_equal 1, msgs.length
+    assert_equal @chan.account_id, msgs[0].account_id
+    assert_equal @chan.id, msgs[0].channel_id
+    assert_equal msg.to, msgs[0].from
+    assert_equal msg.from, msgs[0].to
+    assert_equal @chan.opt_out_message, msgs[0].body
+
+    assert_equal 0, @chan.whitelists.find_all_by_account_id_and_address(@chan.account_id, 'sms://1').count
+  end
 end
