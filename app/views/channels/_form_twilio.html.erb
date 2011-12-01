@@ -1,5 +1,6 @@
 <%= form_for_channel channel do |f| -%>
   <%= render 'edit_header', :f => f, :exclude_address => true -%>
+  <h5>Twilio account info</h5>
   <p>
   <%= f.label :account_sid, 'Account SID' -%><br/>
   <%= f.text_field :account_sid, :autocomplete => :off -%>

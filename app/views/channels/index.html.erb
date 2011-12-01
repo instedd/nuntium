@@ -61,6 +61,9 @@ By "the world" we mean anything that's not your particular application. For exam
           <a href="/logs?search=<%= CGI.escape "channel:#{chan.name}" %>">view logs</a>
           <a href="/ao_messages?search=<%= CGI.escape "channel:#{chan.name}" %>">view aos</a>
           <a href="/at_messages?search=<%= CGI.escape "channel:#{chan.name}" %>">view ats</a>
+          <% if chan.opt_in_enabled? %>
+            <a href="/channels/<%= chan.id %>/whitelist">view whitelist</a>
+          <% end %>
           <% unless logged_in_application && chan.application_id != logged_in_application.id %>
             <%
             [

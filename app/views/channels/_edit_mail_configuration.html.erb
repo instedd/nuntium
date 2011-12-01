@@ -15,12 +15,12 @@
 <%= f.password_field :password -%>
 </p>
 <p>
+<%= f.check_box :use_ssl %>
 <%= f.label :use_ssl -%>
-<%= f.check_box :use_ssl -%>
 </p>
 <% if channel.kind == 'pop3' -%>
   <p>
-  <%= f.label :remove_quoted_text_or_text_after_first_empty_line -%>
   <%= f.check_box :remove_quoted_text_or_text_after_first_empty_line -%>
+  <%= f.label :remove_quoted_text_or_text_after_first_empty_line -%>
   </p>
 <%- end -%>

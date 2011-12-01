@@ -1,0 +1,28 @@
+<h4>Channel <%= channel.name %>'s whitelist</h4>
+
+<form id="whitelist_form">
+
+<p>
+Search address in whitelist: <input type="text" name="search" value="<%= @search.try(:html_safe) -%>" size="30" class="<%= @search.present? ? 'highlighted' : '' -%>"/>
+</p>
+
+<div><%= page_entries_info @whitelists, :model => 'address' -%></div>
+<%= will_paginate @whitelists -%>
+
+<% if @whitelists.present? %>
+  <table class="table" cellspacing="4">
+    <tr>
+      <th>Address</th>
+    </tr>
+    <% @whitelists.each do |whitelist| %>
+      <tr>
+        <td><%= whitelist.address %></td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>
+
+<%= will_paginate @whitelists -%>
+</form>
+
+<%= link_to 'Go back', channels_path -%>
