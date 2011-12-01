@@ -43,6 +43,7 @@ class Channel < ActiveRecord::Base
   configuration_accessor :opt_in_keyword, :opt_in_message
   configuration_accessor :opt_out_keyword, :opt_out_message
   configuration_accessor :opt_help_keyword, :opt_help_message
+  def opt_in_enabled?; opt_in_enabled.to_b; end
 
   def self.after_enabled(method, options = {})
     after_update method, options.merge(:if => lambda { (enabled_changed? && enabled) || (paused_changed? && !paused) })

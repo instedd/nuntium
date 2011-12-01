@@ -32,4 +32,8 @@ class AtMessage < ActiveRecord::Base
   def token
     guid
   end
+
+  def new_reply(body)
+    AoMessage.new :account_id => account_id, :from => to, :to => from, :body => body
+  end
 end

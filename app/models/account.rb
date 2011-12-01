@@ -121,6 +121,7 @@ class Account < ActiveRecord::Base
       msg.save! unless simulate
 
       return ThreadLocalLogger.result if simulate
+
       logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => ThreadLocalLogger.result
       return
     end
@@ -130,6 +131,14 @@ class Account < ActiveRecord::Base
 
     # Intef attributes
     msg.infer_custom_attributes :mobile_number => mob
+
+    # Check if it's an opt-in/out/help message
+    if via_channel.opt_in_enabled?
+      case msg.body
+      when /\s*#{via_channel.opt_help_keyword.strip}\s*/i
+        return route_at_opt_help msg, via_channel, options
+      end
+    end
 
     # App Routing logic
     all_applications = applications.all
@@ -175,6 +184,28 @@ class Account < ActiveRecord::Base
         logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => ThreadLocalLogger.result
       end
     end
+  end
+
+  def route_at_opt_help(msg, via_channel, options = {})
+    simulate = options[:simulate]
+
+    ThreadLocalLogger << "Message is request for help."
+    msg.state = 'replied'
+
+    return ThreadLocalLogger.result if simulate
+
+    msg.save!
+
+    logger_result = ThreadLocalLogger.result
+
+    ThreadLocalLogger.reset
+    ThreadLocalLogger << "Message is a reply to request for help from AT message with id: #{msg.id}"
+    via_channel.route_ao msg.new_reply(via_channel.opt_help_message), 'opt-in', options
+
+    logger_result += "\n"
+    logger_result += "AO message with id #{msg.id} created as a reply to request for help."
+
+    logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => logger_result
   end
 
   def alert(message)

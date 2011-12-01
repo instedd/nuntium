@@ -73,7 +73,7 @@ class SendInterfaceCallbackJob
                 @app.route_ao parsed, 'http post callback'
               end
             else
-              reply = AoMessage.new :from => @msg.to, :to => @msg.from, :body => res.body
+              reply = @msg.new_reply res.body
               reply.token = @msg.token
               @app.route_ao reply, 'http post callback'
             end

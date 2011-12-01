@@ -88,5 +88,4 @@ class AoMessage < ActiveRecord::Base
     ThreadLocalLogger << "Re-route failover"
     chan.route_ao self, 're-route', :dont_save => true
   end
-
 end
