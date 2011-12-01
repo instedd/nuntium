@@ -191,55 +191,21 @@ class Account < ActiveRecord::Base
   end
 
   def route_at_opt_help(msg, via_channel, options = {})
-    simulate = options[:simulate]
-
-    ThreadLocalLogger << "Message is request for help."
-    msg.state = 'replied'
-
-    return ThreadLocalLogger.result if simulate
-
-    msg.save!
-
-    logger_result = ThreadLocalLogger.result
-
-    ThreadLocalLogger.reset
-    ThreadLocalLogger << "Message is a reply to request for help from AT message with id: #{msg.id}"
-    via_channel.route_ao msg.new_reply(via_channel.opt_help_message), 'help', options
-
-    logger_result += "\n"
-    logger_result += "AO message with id #{msg.id} created as a reply to request for help."
-
-    logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => logger_result
+    route_at_opt(msg, via_channel, 'request for help', :help, options)
   end
 
   def route_at_opt_in(msg, via_channel, options = {})
-    simulate = options[:simulate]
-
-    ThreadLocalLogger << "Message is opt-in."
-    msg.state = 'replied'
-
-    return ThreadLocalLogger.result if simulate
-
-    msg.save!
-
-    logger_result = ThreadLocalLogger.result
-
-    via_channel.add_to_whitelist msg.from
-
-    ThreadLocalLogger.reset
-    ThreadLocalLogger << "Message is a reply to opt-in AT message with id: #{msg.id}"
-    via_channel.route_ao msg.new_reply(via_channel.opt_in_message), 'opt-in', options
-
-    logger_result += "\n"
-    logger_result += "AO message with id #{msg.id} created as a reply to opt-in."
-
-    logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => logger_result
+    route_at_opt(msg, via_channel, 'opt-in', :in, options) { via_channel.add_to_whitelist msg.from }
   end
 
   def route_at_opt_out(msg, via_channel, options = {})
+    route_at_opt(msg, via_channel, 'opt-out', :out, options) { via_channel.remove_from_whitelist msg.from }
+  end
+
+  def route_at_opt(msg, via_channel, opt_text, opt_symbol, options = {})
     simulate = options[:simulate]
 
-    ThreadLocalLogger << "Message is opt-out."
+    ThreadLocalLogger << "Message is #{opt_text}."
     msg.state = 'replied'
 
     return ThreadLocalLogger.result if simulate
@@ -248,14 +214,14 @@ class Account < ActiveRecord::Base
 
     logger_result = ThreadLocalLogger.result
 
-    via_channel.remove_from_whitelist msg.from
+    yield if block_given?
 
     ThreadLocalLogger.reset
-    ThreadLocalLogger << "Message is a reply to opt-out AT message with id: #{msg.id}"
-    via_channel.route_ao msg.new_reply(via_channel.opt_out_message), 'opt-out', options
+    ThreadLocalLogger << "Message is a reply to #{opt_text} AT message with id: #{msg.id}"
+    via_channel.route_ao msg.new_reply(via_channel.send :"opt_#{opt_symbol}_message"), opt_text, options
 
     logger_result += "\n"
-    logger_result += "AO message with id #{msg.id} created as a reply to opt-out."
+    logger_result += "AO message with id #{msg.id} created as a reply to #{opt_text}."
 
     logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => logger_result
   end

@@ -9,16 +9,18 @@ Search address in whitelist: <input type="text" name="search" value="<%= @search
 <div><%= page_entries_info @whitelists, :model => 'address' -%></div>
 <%= will_paginate @whitelists -%>
 
-<table class="table" cellspacing="4">
-  <tr>
-    <th>Address</th>
-  </tr>
-  <% @whitelists.each do |whitelist| %>
+<% if @whitelists.present? %>
+  <table class="table" cellspacing="4">
     <tr>
-      <td><%= whitelist.address %></td>
+      <th>Address</th>
     </tr>
-  <% end %>
-</table>
+    <% @whitelists.each do |whitelist| %>
+      <tr>
+        <td><%= whitelist.address %></td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>
 
 <%= will_paginate @whitelists -%>
 </form>
