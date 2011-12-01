@@ -1,5 +1,6 @@
 <%= form_for_channel channel do |f| -%>
   <%= render 'edit_header', :f => f, :on_direction_change => 'clickatell_channel_direction_changed()', :exclude_address => true -%>
+  <h5>Clickatell account info</h5>
   <p id="user_container">
   <%= f.label :user -%><br/>
   <%= f.text_field :user, :autocomplete => :off -%>

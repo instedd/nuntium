@@ -5,6 +5,7 @@
   <%= f.label :max_unacknowledged_messages -%><br/>
   <%= f.text_field :max_unacknowledged_messages -%>
   </p>
+  <h5>SMPP configuration</h5>
   <p>
   <%= f.label :host -%><br/>
   <%= f.text_field :host -%>
@@ -12,6 +13,14 @@
   <p>
   <%= f.label :port -%><br/>
   <%= f.text_field :port -%>
+  </p>
+  <p>
+  <%= f.label :user -%><br/>
+  <%= f.text_field :user, :autocomplete => :off -%>
+  </p>
+  <p>
+  <%= f.label :password -%><br/>
+  <%= f.password_field :password, :autocomplete => :off -%>
   </p>
   <p>
   <%= f.label :system_type -%><br/>
@@ -32,14 +41,6 @@
   <p>
   <%= f.label :destination_npi -%><br/>
   <%= f.text_field :destination_npi -%>
-  </p>
-  <p>
-  <%= f.label :user -%><br/>
-  <%= f.text_field :user, :autocomplete => :off -%>
-  </p>
-  <p>
-  <%= f.label :password -%><br/>
-  <%= f.password_field :password, :autocomplete => :off -%>
   </p>
   <h5>Encoding</h5>
   <p>
