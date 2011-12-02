@@ -57,7 +57,7 @@ class GenericWorkerService < Service
     job.perform
     Rails.logger.info "Job #{job} for queue #{wq.queue_name} executed successfully"
     EM.defer proc { header.ack } if wq.ack
-  rescue Timeout::Error
+  rescue Timeout::Error => ex
     Rails.logger.warn "Timeout executing #{job} for queue #{wq.queue_name}"
     reschedule job, header, ex, wq if wq.ack
   rescue => ex
