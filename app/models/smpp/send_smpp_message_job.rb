@@ -18,7 +18,20 @@ class SendSmppMessageJob
     to = msg.to.without_protocol
     sms = msg.subject_and_body
 
-    error = delegate.send_message(msg.id, from, to, sms)
+    options = {}
+    msg.custom_attributes.each do |key, value|
+      option_key =
+        if key =~ /^smpp_0x([\da-fA-F]+)$/
+          $1.to_i(16)
+        elsif key =~ /^smpp_(\d+)$/
+          $1.to_i
+        end
+      if option_key
+        options[option_key] = value
+      end
+    end
+
+    error = delegate.send_message(msg.id, from, to, sms, options)
     if error
       msg.send_failed account, channel, error
       false
