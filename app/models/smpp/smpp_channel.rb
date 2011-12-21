@@ -6,6 +6,7 @@ class SmppChannel < Channel
   configuration_accessor :user, :password
   configuration_accessor :host, :port, :source_ton, :source_npi, :destination_ton, :destination_npi
   configuration_accessor :system_type, :default => 'vma'
+  configuration_accessor :service_type
   configuration_accessor :default_mo_encoding, :mt_encodings, :mt_csms_method
   configuration_accessor :accept_mo_hex_string, :mt_max_length
   configuration_accessor :endianness_mo, :endianness_mt

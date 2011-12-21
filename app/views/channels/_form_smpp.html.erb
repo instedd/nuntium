@@ -42,6 +42,10 @@
   <%= f.label :destination_npi -%><br/>
   <%= f.text_field :destination_npi -%>
   </p>
+  <p>
+  <%= f.label :service_type -%><br/>
+  <%= f.text_field :service_type -%>
+  </p>
   <h5>Encoding</h5>
   <p>
   <%= f.check_box :endianness_mo, {:checked => channel.endianness_mo == 'little'}, :little, :big -%>

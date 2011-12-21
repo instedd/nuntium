@@ -15,7 +15,7 @@ class SmppTransceiverDelegate
     @default_mo_encoding = @channel.default_mo_encoding
   end
 
-  def send_message(id, from, to, text)
+  def send_message(id, from, to, text, options = {})
     msg_text = nil
     msg_coding = nil
 
@@ -32,23 +32,31 @@ class SmppTransceiverDelegate
       return "Could not find suitable encoding"
     end
 
+    send_options = {}
+    options.each do |key, value|
+      send_options[:optional_parameters] ||= {}
+      send_options[:optional_parameters][key] = Smpp::OptionalParameter.new(key, value)
+    end
+    send_options[:service_type] = @channel.service_type if @channel.service_type.present?
+
     if msg_text.length > @mt_max_length
       case @mt_csms_method
       when 'udh'
-        send_csms_using_udh id, from, to, msg_coding, msg_text
+        send_csms_using_udh id, from, to, msg_coding, msg_text, send_options
       when 'optional_parameters'
-        send_csms_using_optional_parameters id, from, to, msg_coding, msg_text
+        send_csms_using_optional_parameters id, from, to, msg_coding, msg_text, send_options
       when 'message_payload'
-        send_csms_using_message_payload id, from, to, msg_coding, msg_text
+        send_csms_using_message_payload id, from, to, msg_coding, msg_text, send_options
       end
     else
-      send_mt(id, from, to, msg_text, {:data_coding => msg_coding})
+      send_options[:data_coding] = msg_coding
+      send_mt(id, from, to, msg_text, send_options)
     end
 
     return false
   end
 
-  def send_csms_using_udh(id, from, to, msg_coding, msg_text)
+  def send_csms_using_udh(id, from, to, msg_coding, msg_text, options)
     send_csms_using_block msg_text, @mt_max_length - 6 do |i, total, part|
       udh = sprintf("%c", 5)            # UDH is 5 bytes.
       udh << sprintf("%c%c", 0, 3)      # This is a concatenated message
@@ -56,38 +64,34 @@ class SmppTransceiverDelegate
       udh << sprintf("%c", total)  # How many parts this message consists of
       udh << sprintf("%c", i + 1)         # This is part i+1
 
-      options = {
+      options.merge!(
         :esm_class => 64,               # This message contains a UDH header.
         :udh => udh,
         :data_coding => msg_coding
-      }
+      )
 
       send_mt(id, from, to, part, options)
     end
   end
 
-  def send_csms_using_optional_parameters(id, from, to, msg_coding, msg_text)
+  def send_csms_using_optional_parameters(id, from, to, msg_coding, msg_text, options)
     send_csms_using_block msg_text, @mt_max_length do |i, total, part|
-      options = {
-        :data_coding => msg_coding,
-        :optional_parameters => {
-          0x020C => Smpp::OptionalParameter.new(0x020C, int_to_bytes_string(id, 2)),
-          0x020E => Smpp::OptionalParameter.new(0x020E, int_to_bytes_string(total, 1)),
-          0x020F => Smpp::OptionalParameter.new(0x020F, int_to_bytes_string(i + 1, 1))
-        }
-      }
+      options[:data_coding] = msg_coding
+      (options[:optional_parameters] ||= {}).merge!(
+        0x020C => Smpp::OptionalParameter.new(0x020C, int_to_bytes_string(id, 2)),
+        0x020E => Smpp::OptionalParameter.new(0x020E, int_to_bytes_string(total, 1)),
+        0x020F => Smpp::OptionalParameter.new(0x020F, int_to_bytes_string(i + 1, 1))
+      )
 
       send_mt(id, from, to, part, options)
     end
   end
 
-  def send_csms_using_message_payload(id, from, to, msg_coding, msg_text)
-    options = {
-      :data_coding => msg_coding,
-      :optional_parameters => {
-        0x0424 => Smpp::OptionalParameter.new(0x0424, msg_text)
-      }
-    }
+  def send_csms_using_message_payload(id, from, to, msg_coding, msg_text, options)
+    options[:data_coding] = msg_coding
+    (options[:optional_parameters] ||= {}).merge!(
+       0x0424 => Smpp::OptionalParameter.new(0x0424, msg_text)
+    )
 
     send_mt(id, from, to, '', options)
   end

@@ -22,22 +22,32 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     @chan.configuration[:default_mo_encoding] = 'ascii'
     @chan.configuration[:mt_csms_method] = options.fetch(:mt_csms_method, 'udh')
     @chan.configuration[:mt_max_length] = options.fetch(:mt_max_length, 254)
+    @chan.configuration[:service_type] = options[:service_type]
     @chan.save!
 
-    if output.is_a? Array
-      output.each do |o|
-        if o.include? :udh
-          @transceiver.expects(:send_mt).with(123, '8888', '4444', o[:text], { :data_coding => output_coding, :udh => o[:udh], :esm_class => 64 })
-        elsif o.include? :optional_parameters
-          @transceiver.expects(:send_mt).with(123, '8888', '4444', o[:text], { :data_coding => output_coding, :optional_parameters => convert_optional_parameters(o[:optional_parameters])})
-        end
+    if output.is_a? String
+      output = [{:text => output}]
+    end
+
+    output.each do |o|
+      expect_options = { :data_coding => output_coding }
+      expect_options[:service_type] = options[:service_type] if options[:service_type].present?
+      if o.include? :udh
+        expect_options[:udh] = o[:udh]
+        expect_options[:esm_class] = 64
       end
-    else
-      @transceiver.expects(:send_mt).with(123, '8888', '4444', output, { :data_coding => output_coding })
+      if o.include? :optional_parameters
+        expect_options[:optional_parameters] = convert_optional_parameters(o[:optional_parameters])
+      end
+      @transceiver.expects(:send_mt).with(123, '8888', '4444', o[:text], expect_options)
     end
 
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
-    @delegate.send_message(123, '8888', '4444', input)
+    if options.include? :send_options
+      @delegate.send_message(123, '8888', '4444', input, options[:send_options])
+    else
+      @delegate.send_message(123, '8888', '4444', input)
+    end
   end
 
   def receive_message(input, input_coding, output, options = {})
@@ -133,6 +143,10 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     send_message ['ascii'], 'Hello', 'Hello', 1
   end
 
+  test "send message with custom service type" do
+    send_message ['ascii'], 'Hello', 'Hello', 1, :service_type => 'foo'
+  end
+
   test "send ascii message as latin1" do
     send_message ['latin1'], 'Hello', 'Hello', 3
   end
@@ -192,6 +206,36 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     @delegate.mo_received @transceiver, pdu
 
     assert_equal 2, AtMessage.count
+  end
+
+  test "send message with custom options" do
+    output = [{:text => 'Hello', :optional_parameters => { 0x1234 => 'foo' }}]
+    send_message ['ascii'], 'Hello', output, 1, :send_options => { 0x1234 => 'foo' }
+  end
+
+  test "send large message with udh and custom options" do
+    output = [
+      {:udh => "\x05\x00\x03\x7B\x04\x01", :text => 'uno', :optional_parameters => { 0x1234 => 'foo' }},
+      {:udh => "\x05\x00\x03\x7B\x04\x02", :text => 'dos', :optional_parameters => { 0x1234 => 'foo' }},
+      {:udh => "\x05\x00\x03\x7B\x04\x03", :text => 'tre', :optional_parameters => { 0x1234 => 'foo' }},
+      {:udh => "\x05\x00\x03\x7B\x04\x04", :text => 's', :optional_parameters => { 0x1234 => 'foo' }}
+      ]
+    send_message ['ascii'], 'unodostres', output, 1, :mt_csms_method => 'udh', :mt_max_length => 9, :send_options => { 0x1234 => 'foo' }
+  end
+
+  test "send large message with optional parameters and custom options" do
+    output = [
+      {:optional_parameters => { 0x020c => "\x00\x7b", 0x020e =>  "\x04", 0x020f => "\x01", 0x1234 => 'foo'}, :text => 'uno'},
+      {:optional_parameters => { 0x020c => "\x00\x7b", 0x020e =>  "\x04", 0x020f => "\x02", 0x1234 => 'foo'}, :text => 'dos'},
+      {:optional_parameters => { 0x020c => "\x00\x7b", 0x020e =>  "\x04", 0x020f => "\x03", 0x1234 => 'foo'}, :text => 'tre'},
+      {:optional_parameters => { 0x020c => "\x00\x7b", 0x020e =>  "\x04", 0x020f => "\x04", 0x1234 => 'foo'}, :text => 's'}
+      ]
+    send_message ['ascii'], 'unodostres', output, 1, :mt_csms_method => 'optional_parameters', :mt_max_length => 3, :send_options => { 0x1234 => 'foo' }
+  end
+
+  test "send large message using message payload and custom options" do
+    output = [{:text => '', :optional_parameters => { 0x0424 => 'unodostres', 0x1234 => 'foo' }}]
+    send_message ['ascii'], 'unodostres', output, 1, :mt_csms_method => 'message_payload', :mt_max_length => 3, :send_options => { 0x1234 => 'foo' }
   end
 
   test "receive ascii message" do
