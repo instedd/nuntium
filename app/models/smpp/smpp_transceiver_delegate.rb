@@ -37,6 +37,7 @@ class SmppTransceiverDelegate
       send_options[:optional_parameters] ||= {}
       send_options[:optional_parameters][key] = Smpp::OptionalParameter.new(key, value)
     end
+    send_options[:service_type] = @channel.service_type if @channel.service_type.present?
 
     if msg_text.length > @mt_max_length
       case @mt_csms_method

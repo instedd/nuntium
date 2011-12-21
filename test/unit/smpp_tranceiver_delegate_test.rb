@@ -22,22 +22,24 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     @chan.configuration[:default_mo_encoding] = 'ascii'
     @chan.configuration[:mt_csms_method] = options.fetch(:mt_csms_method, 'udh')
     @chan.configuration[:mt_max_length] = options.fetch(:mt_max_length, 254)
+    @chan.configuration[:service_type] = options[:service_type]
     @chan.save!
 
-    if output.is_a? Array
-      output.each do |o|
-        expect_options = { :data_coding => output_coding }
-        if o.include? :udh
-          expect_options[:udh] = o[:udh]
-          expect_options[:esm_class] = 64
-        end
-        if o.include? :optional_parameters
-          expect_options[:optional_parameters] = convert_optional_parameters(o[:optional_parameters])
-        end
-        @transceiver.expects(:send_mt).with(123, '8888', '4444', o[:text], expect_options)
+    if output.is_a? String
+      output = [{:text => output}]
+    end
+
+    output.each do |o|
+      expect_options = { :data_coding => output_coding }
+      expect_options[:service_type] = options[:service_type] if options[:service_type].present?
+      if o.include? :udh
+        expect_options[:udh] = o[:udh]
+        expect_options[:esm_class] = 64
       end
-    else
-      @transceiver.expects(:send_mt).with(123, '8888', '4444', output, { :data_coding => output_coding })
+      if o.include? :optional_parameters
+        expect_options[:optional_parameters] = convert_optional_parameters(o[:optional_parameters])
+      end
+      @transceiver.expects(:send_mt).with(123, '8888', '4444', o[:text], expect_options)
     end
 
     @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
@@ -139,6 +141,10 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
 
   test "send ascii message" do
     send_message ['ascii'], 'Hello', 'Hello', 1
+  end
+
+  test "send message with custom service type" do
+    send_message ['ascii'], 'Hello', 'Hello', 1, :service_type => 'foo'
   end
 
   test "send ascii message as latin1" do
