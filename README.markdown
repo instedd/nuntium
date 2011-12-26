@@ -26,3 +26,8 @@ What are the benefits of using Nuntium?
 *  You can change the routing logic without touching a single line in your application's source code.
 
 This way you don't have to repeat this logic in every application that needs to send and receive messages.
+
+API
+---
+
+[API documentation](https://bitbucket.org/instedd/nuntium/wiki/API)
