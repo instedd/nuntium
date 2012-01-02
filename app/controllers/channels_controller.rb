@@ -80,4 +80,14 @@ class ChannelsController < ApplicationController
 
     render :text => "Channel #{channel.name} was resumed"
   end
+
+  def whitelist
+    @page = params[:page].presence || 1
+    @search = params[:search]
+
+    @whitelists = channel.whitelists.order(:address)
+    @whitelists = @whitelists.where('address LIKE ?', "%#{@search.strip}%") if @search.present?
+    @whitelists = @whitelists.paginate :page => @page, :per_page => ResultsPerPage
+    @whitelists = @whitelists.all
+  end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111007185909) do
+ActiveRecord::Schema.define(:version => 20111201182318) do
 
   create_table "accounts", :force => true do |t|
     t.string   "name"
@@ -96,6 +96,7 @@ ActiveRecord::Schema.define(:version => 20111007185909) do
     t.integer  "application_id"
   end
 
+  add_index "at_messages", ["account_id", "channel_id", "timestamp"], :name => "index_at_messages_on_account_id_and_channel_id_and_timestamp"
   add_index "at_messages", ["account_id", "from", "id"], :name => "index_at_messages_on_account_id_and_from_and_id"
 
   create_table "carriers", :force => true do |t|
@@ -257,6 +258,16 @@ ActiveRecord::Schema.define(:version => 20111007185909) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "whitelists", :force => true do |t|
+    t.integer  "account_id"
+    t.integer  "channel_id"
+    t.string   "address"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "whitelists", ["account_id", "channel_id", "address"], :name => "index_whitelists_on_account_id_and_channel_id_and_address"
 
   create_table "worker_queues", :force => true do |t|
     t.string   "queue_name"

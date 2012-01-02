@@ -13,6 +13,7 @@ Nuntium::Application.routes.draw do
       get :disable
       get :pause
       get :resume
+      get :whitelist
     end
   end
   resources :ao_messages do

@@ -26,12 +26,12 @@ module MessageCommon
     end
 
     def from=(value)
-      value = "sms://#{value.mobile_number}" if value && value.protocol == 'sms'
+      value = value.mobile_number.with_protocol('sms') if value && value.protocol == 'sms'
       super value
     end
 
     def to=(value)
-      value = "sms://#{value.mobile_number}" if value && value.protocol == 'sms'
+      value = value.mobile_number.with_protocol('sms') if value && value.protocol == 'sms'
       super value
     end
 

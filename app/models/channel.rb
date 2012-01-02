@@ -15,6 +15,7 @@ class Channel < ActiveRecord::Base
   has_many :ao_messages, :conditions => proc { { :account_id => self.account_id } }
   has_many :at_messages, :conditions => proc { { :account_id => self.account_id } }
   has_many :address_sources
+  has_many :whitelists, :conditions => proc { { :account_id => self.account_id } }
 
   serialize :configuration, Hash
   serialize :restrictions
@@ -31,6 +32,7 @@ class Channel < ActiveRecord::Base
   validates_numericality_of :ao_cost, :greater_than_or_equal_to => 0, :allow_nil => true
   validates_numericality_of :at_cost, :greater_than_or_equal_to => 0, :allow_nil => true
   validate :check_valid_in_ui, :if => lambda { @must_check_valid_in_ui }
+  validates_presence_of :opt_in_keyword, :opt_in_message, :opt_out_keyword, :opt_out_message, :opt_help_keyword, :opt_help_message, :if => lambda { opt_in_enabled.to_b }
 
   scope :enabled, where(:enabled => true)
   scope :disabled, where(:enabled => false)
@@ -41,6 +43,12 @@ class Channel < ActiveRecord::Base
   scope :active, where(:enabled => true, :paused => false)
 
   after_update :reroute_messages, :if => lambda { enabled_changed? && !enabled }
+
+  configuration_accessor :opt_in_enabled
+  configuration_accessor :opt_in_keyword, :opt_in_message
+  configuration_accessor :opt_out_keyword, :opt_out_message
+  configuration_accessor :opt_help_keyword, :opt_help_message
+  def opt_in_enabled?; opt_in_enabled.to_b; end
 
   def self.after_enabled(method, options = {})
     after_update method, options.merge(:if => lambda { (enabled_changed? && enabled) || (paused_changed? && !paused) })
@@ -142,6 +150,10 @@ class Channel < ActiveRecord::Base
   end
 
   def can_route_ao?(msg)
+    bypasses_restrictions?(msg) && whitelisted?(msg.to)
+  end
+
+  def bypasses_restrictions?(msg)
     # Check that each custom attribute is present in this channel's restrictions
     all_restrictions = augmented_restrictions
     msg.custom_attributes.each_multivalue do |key, values|
@@ -159,6 +171,18 @@ class Channel < ActiveRecord::Base
     end
 
     return true
+  end
+
+  def whitelisted?(address)
+    !opt_in_enabled? || whitelists.where(:account_id => account_id, :address => address).exists?
+  end
+
+  def add_to_whitelist(address)
+    whitelists.find_or_create_by_account_id_and_address account_id, address
+  end
+
+  def remove_from_whitelist(address)
+    whitelists.where(:account_id => account_id, :address => address).destroy_all
   end
 
   def connected=(value)

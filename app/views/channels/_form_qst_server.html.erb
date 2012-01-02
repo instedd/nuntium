@@ -1,5 +1,6 @@
 <%= form_for_channel channel do |f| -%>
   <%= render 'edit_header', :f => f -%>
+  <h5>QST server authentication</h5>
   <p>
   <%- if channel.persisted? -%>
     <b>Leave blank if you don't want to change the password</b><br/>

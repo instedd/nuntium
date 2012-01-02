@@ -84,8 +84,7 @@ class SendInterfaceCallbackJob
               end
             else
               @app.logger.info :at_message_id => @msg.id, :channel_id => @msg.channel.try(:id), :message => "#{http_method} callback returned text: routed an AO message reply"
-
-              reply = AoMessage.new :from => @msg.to, :to => @msg.from, :body => res.body
+              reply = @msg.new_reply res.body
               reply.token = @msg.token
               @app.route_ao reply, "http #{http_method.downcase} callback"
             end

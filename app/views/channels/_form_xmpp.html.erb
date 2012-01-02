@@ -1,5 +1,6 @@
 <%= form_for_channel channel do |f| -%>
   <%= render 'edit_header', :f => f, :exclude_address => true %>
+  <h5>XMPP account info</h5>
   <p>
   <%= f.label :user -%><br/>
   <%= f.text_field :user, :autocomplete => :off  -%>

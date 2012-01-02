@@ -70,6 +70,19 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     @service.start
   end
 
+  test "should reschedule on timeout error" do
+    header = mock('header')
+    header.expects(:ack)
+
+    job = mock('job')
+    job.expects(:perform).raises(Timeout::Error.new)
+    job.expects(:reschedule)
+
+    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(MQ)).yields(header, job)
+
+    @service.start
+  end
+
   test "should unsubscribe temporarily on exception on reschedule" do
     header = mock('header')
 

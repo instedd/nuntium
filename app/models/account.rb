@@ -121,6 +121,7 @@ class Account < ActiveRecord::Base
       msg.save! unless simulate
 
       return ThreadLocalLogger.result if simulate
+
       logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => ThreadLocalLogger.result
       return
     end
@@ -130,6 +131,18 @@ class Account < ActiveRecord::Base
 
     # Intef attributes
     msg.infer_custom_attributes :mobile_number => mob
+
+    # Check if it's an opt-in/out/help message
+    if via_channel.opt_in_enabled?
+      case msg.body
+      when /\s*#{via_channel.opt_help_keyword.strip}\s*/i
+        return route_at_opt_help msg, via_channel, options
+      when /\s*#{via_channel.opt_in_keyword.strip}\s*/i
+        return route_at_opt_in msg, via_channel, options unless via_channel.whitelisted?(msg.from)
+      when /\s*#{via_channel.opt_out_keyword.strip}\s*/i
+        return route_at_opt_out msg, via_channel, options
+      end
+    end
 
     # App Routing logic
     all_applications = applications.all
@@ -175,6 +188,42 @@ class Account < ActiveRecord::Base
         logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => ThreadLocalLogger.result
       end
     end
+  end
+
+  def route_at_opt_help(msg, via_channel, options = {})
+    route_at_opt(msg, via_channel, 'request for help', :help, options)
+  end
+
+  def route_at_opt_in(msg, via_channel, options = {})
+    route_at_opt(msg, via_channel, 'opt-in', :in, options) { via_channel.add_to_whitelist msg.from }
+  end
+
+  def route_at_opt_out(msg, via_channel, options = {})
+    route_at_opt(msg, via_channel, 'opt-out', :out, options) { via_channel.remove_from_whitelist msg.from }
+  end
+
+  def route_at_opt(msg, via_channel, opt_text, opt_symbol, options = {})
+    simulate = options[:simulate]
+
+    ThreadLocalLogger << "Message is #{opt_text}."
+    msg.state = 'replied'
+
+    return ThreadLocalLogger.result if simulate
+
+    msg.save!
+
+    logger_result = ThreadLocalLogger.result
+
+    yield if block_given?
+
+    ThreadLocalLogger.reset
+    ThreadLocalLogger << "Message is a reply to #{opt_text} AT message with id: #{msg.id}"
+    via_channel.route_ao msg.new_reply(via_channel.send :"opt_#{opt_symbol}_message"), opt_text, options
+
+    logger_result += "\n"
+    logger_result += "AO message with id #{msg.id} created as a reply to #{opt_text}."
+
+    logger.info :at_message_id => msg.id, :channel_id => via_channel.id, :message => logger_result
   end
 
   def alert(message)
