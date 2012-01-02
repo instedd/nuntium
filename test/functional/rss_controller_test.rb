@@ -21,7 +21,7 @@ class RssControllerTest < ActionController::TestCase
     options.each do |k, v|
       @request.env[k] = v unless k == :expected_response
     end
-    get :index, :account_name => @account.name, :application_name => @application.name
+    get :index, :account_name => @account.name, :application_name => @application.name, :format => :xml
     assert_response (options[:expected_response] || :ok)
   end
 
@@ -132,7 +132,7 @@ class RssControllerTest < ActionController::TestCase
     @request.env["HTTP_IF_MODIFIED_SINCE"] = time_for_msg(0).to_s
 
     1.upto 5 do |try|
-      get :index, :account_name => @account.name, :application_name => @application.name
+      get :index, :account_name => @account.name, :application_name => @application.name, :format => :xml
 
       msgs = AtMessage.all
       assert_equal 2, msgs.length
