@@ -23,7 +23,7 @@ class SendSmppMessageJob
     sms = @msg.subject_and_body
 
     options = {}
-    msg.custom_attributes.each do |key, value|
+    @msg.custom_attributes.each do |key, value|
       option_key =
         if key =~ /^smpp_0x([\da-fA-F]+)$/
           $1.to_i(16)

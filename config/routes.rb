@@ -70,7 +70,7 @@ Nuntium::Application.routes.draw do
   end
 
   scope '/:account_name/:application_name', :constraints => {:account_name => /.*/, :application_name => /.*/} do
-    get '/rss' => 'rss#index', :as => :rss, :format => :xml
+    get '/rss' => 'rss#index', :as => :rss, :format => 'xml'
     post '/rss' => 'rss#create', :as => :create_rss, :constraints => {:account_name => /.*/, :application_name => /.*/}
 
     match '/send_ao' => 'ao_messages#create_via_api', :as => :send_ao, :constraints => {:account_name => /.*/, :application_name => /.*/}

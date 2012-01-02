@@ -15,7 +15,7 @@ class RoutesTest < ActionController::TestCase
   end
 
   test "interfaces" do
-    assert_routing({:path => "/account/app/rss", :method => :get }, { :controller => "rss", :action => "index", :account_name => 'account', :application_name => 'app' })
+    assert_routing({:path => "/account/app/rss", :method => :get }, { :controller => "rss", :action => "index", :account_name => 'account', :application_name => 'app', :format => 'xml' })
     assert_routing({:path => "/account/app/rss", :method => :post }, { :controller => "rss", :action => "create", :account_name => 'account', :application_name => 'app' })
     assert_routing({:path => "/account/app/send_ao"}, { :controller => "ao_messages", :action => "create_via_api", :account_name => 'account', :application_name => 'app' })
     assert_routing({:path => "/account/app/get_ao"}, { :controller => "ao_messages", :action => "get_ao", :account_name => 'account', :application_name => 'app' })

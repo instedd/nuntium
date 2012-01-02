@@ -47,6 +47,9 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 
     Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(MQ)).yields(header, job)
     @service.start
+
+    # Give EM the opportunity to run queued jobs (header.ack)
+    Thread.pass
   end
 
   test "should execute job notification when enqueued" do
