@@ -7,3 +7,4 @@ twitter_oauth_consumer.yml
 public/stylesheets/packaged
 public/javascripts/packaged
 config/settings.yml
+tmp/
