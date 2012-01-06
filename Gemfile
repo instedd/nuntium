@@ -37,15 +37,3 @@ group :test do
   gem 'ffaker'
   gem 'machinist'
 end
-
-group :cucumber do
-  gem 'test-unit', :require => 'test/unit'
-  gem "mocha"
-  gem "thoughtbot-shoulda", :require => "shoulda"
-  gem 'ffaker'
-  gem 'machinist'
-  gem 'cucumber'
-  gem 'cucumber-rails',   '>=0.3.1', :require => false
-  gem 'database_cleaner', '>=0.5.0', :require => false
-  gem 'capybara',         '>=0.3.5', :require => false
-end
