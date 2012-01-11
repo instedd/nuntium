@@ -46,7 +46,7 @@ ActiveRecord::Schema.define(:version => 20111201182318) do
     t.integer  "account_id"
     t.integer  "tries",                             :default => 0,         :null => false
     t.string   "subject"
-    t.string   "state",               :limit => 15, :default => "pending", :null => false
+    t.string   "state",                             :default => "pending", :null => false
     t.string   "channel_relative_id"
     t.integer  "channel_id"
     t.text     "custom_attributes"
@@ -57,8 +57,6 @@ ActiveRecord::Schema.define(:version => 20111201182318) do
     t.string   "token",               :limit => 36
   end
 
-  add_index "ao_messages", ["account_id", "channel_id", "state"], :name => "index_ao_messages_on_account_id_and_channel_id_and_state"
-  add_index "ao_messages", ["account_id", "id"], :name => "index_ao_messages_on_account_id_and_id"
   add_index "ao_messages", ["account_id", "state", "channel_id"], :name => "index_ao_messages_on_account_id_and_state_and_channel_id"
   add_index "ao_messages", ["account_id", "to", "id"], :name => "index_ao_messages_on_account_id_and_to_and_id"
   add_index "ao_messages", ["application_id", "token"], :name => "index_ao_messages_on_application_id_and_token"
