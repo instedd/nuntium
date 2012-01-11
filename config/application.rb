@@ -47,6 +47,7 @@ module Nuntium
     # Start AMQP after rails loads:
     config.after_initialize do
       Thread.new { EM.run { } }
+      sleep 0.1 until EM.reactor_running?
 
       EM.error_handler do |e|
         puts "Error raised during event loop: #{e.message}"
