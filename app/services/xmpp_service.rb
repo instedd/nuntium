@@ -55,14 +55,19 @@ class XmppConnection
 
   def receive_chats
     message :chat?, :body do |msg|
-      at = AtMessage.new
-      at.channel_relative_id = msg.id
-      at.from = msg.from.stripped.to_s.with_protocol 'xmpp'
-      at.to = msg.to.stripped.to_s.with_protocol 'xmpp'
-      at.subject = msg.subject
-      at.body = msg.body
+      begin
+        at = AtMessage.new
+        at.channel_relative_id = msg.id
+        at.from = msg.from.stripped.to_s.with_protocol 'xmpp'
+        at.to = msg.to.stripped.to_s.with_protocol 'xmpp'
+        at.subject = msg.subject
+        at.body = msg.body
 
-      @channel.route_at at
+        @channel.route_at at
+      rescue Exception => ex
+        Rails.logger.error "[#{@channel.name}] Error delivering incoming message: #{ex.message} - #{ex.backtrace}"
+      end
+      true
     end
   end
 
