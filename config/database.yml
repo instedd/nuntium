@@ -22,15 +22,6 @@ test:
   timeout: 5000
   encoding: utf8
 
-cucumber:
-  adapter: mysql2
-  database: nuntium_cucumber
-  username: root
-  password:
-  pool: 5
-  timeout: 5000
-  encoding: utf8
-
 production:
   adapter: mysql2
   database: nuntium_production

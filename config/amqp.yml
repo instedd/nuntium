@@ -7,11 +7,6 @@ test:
   vhost: /nuntium/test
   user: nuntium.test
   pass: nuntium.test
-  
-cucumber:
-  vhost: /nuntium/cucumber
-  user: nuntium.cucumber
-  pass: nuntium.cucumber
 
 production:
   vhost: /nuntium

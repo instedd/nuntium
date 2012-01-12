@@ -27,6 +27,10 @@ What are the benefits of using Nuntium?
 
 This way you don't have to repeat this logic in every application that needs to send and receive messages.
 
+Installing
+----------
+[Installation docs](https://bitbucket.org/instedd/nuntium/wiki/Installing)
+
 API
 ---
 
