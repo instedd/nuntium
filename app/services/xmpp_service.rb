@@ -102,11 +102,8 @@ class XmppConnection
     disconnected do
       self.channel_connected = false
 
-      @channel.reload
-
-      if @is_running && @channel.active?
+      if @is_running
         Rails.logger.info "[#{@channel.name}] Disconnected, trying to reconnect..."
-
         client.connect
       end
 
