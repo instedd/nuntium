@@ -2,7 +2,6 @@ source :rubygems
 
 gem 'rails', '3.0.9'
 gem 'mysql'
-gem 'libxml-ruby', :require => 'xml/libxml'
 gem "tmail"
 gem 'will_paginate', '~> 3.0'
 gem "guid"
