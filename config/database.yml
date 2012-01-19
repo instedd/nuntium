@@ -20,14 +20,6 @@ test:
   pool: 5
   timeout: 5000
 
-cucumber:
-  adapter: mysql
-  database: nuntium_cucumber
-  username: root
-  password:
-  pool: 5
-  timeout: 5000
-
 production:
   adapter: mysql
   database: nuntium_production

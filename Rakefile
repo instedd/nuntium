@@ -7,6 +7,5 @@ require 'rake'
 # ci_reporter
 gem 'ci_reporter'
 require 'ci/reporter/rake/test_unit' # use this if you're using Test::Unit
-require 'ci/reporter/rake/cucumber'  # use this if you're using Cucumber
 
 Nuntium::Application.load_tasks
