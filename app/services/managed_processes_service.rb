@@ -39,6 +39,9 @@ class ManagedProcessesService < Service
     logger.info "Starting #{proc.name}"
     controller = create_controller proc
     controller.start
+  rescue DaemonController::AlreadyStarted
+    logger.info "Process #{proc.name} was already started"
+    @controllers[proc.id] = controller
   rescue Exception => err
     logger.error "Error starting #{proc.name}: #{err} #{err.backtrace}"
   else
