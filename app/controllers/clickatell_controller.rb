@@ -44,7 +44,7 @@ class ClickatellController < ApplicationController
 
   def view_credit
     id = params[:id]
-    @channel = @account.channels.find_by_id id
+    @channel = account.channels.find_by_id id
     return redirect_to_home unless @channel && @channel.kind == 'clickatell'
 
     render :text => @channel.get_credit

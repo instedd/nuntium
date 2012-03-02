@@ -136,4 +136,11 @@ class ClickatellControllerTest < ActionController::TestCase
     end
   end
 
+  test "view credit" do
+    Clickatell.expects(:get_credit).with(:api_id => @chan.api_id, :user => @chan.user, :password => @chan.password).returns('xxx')
+    get :view_credit, {:id => @chan.id}, {:account_id => @account.id}
+
+    assert_equal 'xxx', @response.body
+  end
+
 end
