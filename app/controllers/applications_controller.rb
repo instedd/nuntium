@@ -12,7 +12,7 @@ class ApplicationsController < ApplicationController
 
   def create
     if application.save
-      redirect_to applications_path, :notice => "Application #{application.name} creaetd"
+      redirect_to applications_path, :notice => "Application #{application.name} created"
     else
       render :new
     end
