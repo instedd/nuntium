@@ -1,5 +1,5 @@
 syntax: glob
-.bundle/config
+.bundle
 log/*.log*
 *.orig
 tmp
