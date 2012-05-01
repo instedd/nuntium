@@ -28,11 +28,11 @@ module ServiceChannel
         ManagedProcess.create!(
           :account_id => account.id,
           :name => managed_process_name,
-          :start_command => "service_daemon_ctl.rb start -- #{Rails.env} #{id}",
-          :stop_command => "service_daemon_ctl.rb stop -- #{Rails.env} #{id}",
+          :start_command => "service_daemon_ctl.rb start #{Rails.env} #{id}",
+          :stop_command => "service_daemon_ctl.rb stop #{Rails.env} #{id}",
           # The dot after service_daemon is important: do not change it (the service won't start)
-          :pid_file => "service_daemon.#{id}.pid",
-          :log_file => "service_daemon_#{id}.log",
+          :pid_file => "service_daemon.#{id}..pid",
+          :log_file => "service_daemon_#{id}..log",
           :enabled => enabled
         )
       end
