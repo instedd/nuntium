@@ -1,6 +1,7 @@
 require 'daemon_controller'
 
 class ManagedProcessesService < Service
+  NUNTIUM_SERVICE_RUNNER = "#{Rails.root}/script/nuntium_service.sh"
 
   def start
     @controllers = {}
@@ -69,8 +70,8 @@ class ManagedProcessesService < Service
   def create_controller(proc)
     controller = DaemonController.new(
        :identifier    => proc.name,
-       :start_command => "#{Rails.root}/lib/services/#{proc.start_command}",
-       :stop_command => "#{Rails.root}/lib/services/#{proc.stop_command}",
+       :start_command => "#{NUNTIUM_SERVICE_RUNNER} #{proc.start_command}",
+       :stop_command => "#{NUNTIUM_SERVICE_RUNNER} #{proc.stop_command}",
        :ping_command => lambda { true },
        :pid_file      => "#{Rails.root}/tmp/pids/#{proc.pid_file}",
        :log_file      => "#{Rails.root}/log/#{proc.log_file}"
