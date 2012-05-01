@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 require(File.join(File.dirname(__FILE__), 'generic_daemon'))
 if ARGV.length != 3
   puts "Usage: ./generic_worker_daemon.rb <environment> <working_group> <instance_id>"

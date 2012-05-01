@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 require(File.join(File.dirname(__FILE__), 'generic_daemon'))
 if ARGV.length != 2
   puts "Usage: ./service_daemon.rb <environment> <channel_id>"
