@@ -13,6 +13,8 @@ else
       else
         Rails.logger.error "No channel found for id #{channel_id}"
       end
+    rescue SystemExit
+      Rails.logger.info "Stopping service normally"
     rescue Exception => ex
       puts ex.message
       puts ex.backtrace
