@@ -9,10 +9,10 @@ module ServiceChannelTest
     proc = procs[0]
     assert_equal @chan.account.id, proc.account_id
     assert_equal "#{@chan.kind}_daemon #{@chan.name}", proc.name
-    assert_equal "service_daemon_ctl.rb start -- test #{@chan.id}", proc.start_command
-    assert_equal "service_daemon_ctl.rb stop -- test #{@chan.id}", proc.stop_command
-    assert_equal "service_daemon.#{@chan.id}.pid", proc.pid_file
-    assert_equal "service_daemon_#{@chan.id}.log", proc.log_file
+    assert_equal "service_daemon_ctl.rb start test #{@chan.id}", proc.start_command
+    assert_equal "service_daemon_ctl.rb stop test #{@chan.id}", proc.stop_command
+    assert_equal "service_daemon.#{@chan.id}..pid", proc.pid_file
+    assert_equal "service_daemon_#{@chan.id}..log", proc.log_file
   end
 
   def test_on_create_binds_queue

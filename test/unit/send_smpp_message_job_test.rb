@@ -24,7 +24,7 @@ class SendSmppMessageJobTest < ActiveSupport::TestCase
   end
 
   test "send message" do
-    msg = AoMessage.make :account => @chan.account, :channel => @chan, :state => 'queued'
+    msg = AoMessage.make :account => @chan.account, :channel => @chan, :state => 'queued', :from => nil
 
     job = SendSmppMessageJob.new msg.account_id, @chan.id, msg.id
     delegate = mock('delegate')
