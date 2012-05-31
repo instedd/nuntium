@@ -1,0 +1,5 @@
+copyright: Copyright (C) 2009-2012, InSTEDD
+program_name: Nuntium
+exclude:
+  - db/schema.rb
+  - db/migrate/
