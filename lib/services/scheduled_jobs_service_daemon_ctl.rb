@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 # Copyright (C) 2009-2012, InSTEDD
 # 
 # This file is part of Nuntium.
@@ -15,6 +16,5 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-#!/usr/bin/env ruby
 require(File.join(File.dirname(__FILE__), 'generic_ctl'))
 run('scheduled_jobs_service_daemon')

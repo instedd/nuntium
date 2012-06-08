@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 # Copyright (C) 2009-2012, InSTEDD
 # 
 # This file is part of Nuntium.
@@ -15,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-#!/usr/bin/env ruby
 require(File.join(File.dirname(__FILE__), 'generic_daemon'))
 if ARGV.length != 3
   puts "Usage: ./generic_worker_daemon.rb <environment> <working_group> <instance_id>"
