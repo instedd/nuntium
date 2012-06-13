@@ -288,6 +288,10 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     receive_message "h\000o\000l\000a\000", 8, 'hola', :endianness_mo => :little, :accept_mo_hex_string => true
   end
 
+  test "receive with hex substring" do
+    receive_message "hola0061", 0, 'hola0061', :accept_mo_hex_string => true
+  end
+
   test "receive lao message" do
     pdubin = '0000003d000000050000000000002a6f00000038353632303232313032383900000032343838000000000000000000000c306538313065383230653834'
     pdu = Smpp::Pdu::Base.create(pdubin.scan(/../).map{|x| x.to_i(16).chr}.join)
