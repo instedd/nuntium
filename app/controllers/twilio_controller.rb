@@ -21,8 +21,8 @@ class TwilioController < ApplicationController
 
   def index
     msg = AtMessage.new
-    msg.from = "sms://1#{params[:From]}"
-    msg.to = "sms://1#{params[:To]}"
+    msg.from = "sms://#{params[:From]}"
+    msg.to = "sms://#{params[:To]}"
     msg.body = params[:Body]
     msg.channel_relative_id = params[:SmsSid]
     @account.route_at msg, @channel
