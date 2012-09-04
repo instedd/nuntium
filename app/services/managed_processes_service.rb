@@ -1,25 +1,23 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'daemon_controller'
 
 class ManagedProcessesService < Service
-  NUNTIUM_SERVICE_RUNNER = "#{Rails.root}/script/nuntium_service.sh"
-
   def start
     @controllers = {}
 
@@ -87,8 +85,8 @@ class ManagedProcessesService < Service
   def create_controller(proc)
     controller = DaemonController.new(
        :identifier    => proc.name,
-       :start_command => "#{NUNTIUM_SERVICE_RUNNER} #{proc.start_command}",
-       :stop_command => "#{NUNTIUM_SERVICE_RUNNER} #{proc.stop_command}",
+       :start_command => "#{Rails.root}/lib/services/#{proc.start_command}",
+       :stop_command => "#{Rails.root}/lib/services/#{proc.stop_command}",
        :ping_command => lambda { true },
        :pid_file      => "#{Rails.root}/tmp/pids/#{proc.pid_file}",
        :log_file      => "#{Rails.root}/log/#{proc.log_file}"
