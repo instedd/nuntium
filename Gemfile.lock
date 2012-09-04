@@ -69,7 +69,7 @@ GEM
     mocha (0.9.12)
     multi_json (1.0.3)
     mysql (2.8.1)
-    nokogiri (1.5.0)
+    nokogiri (1.5.5)
     oauth (0.3.6)
       ruby-hmac (>= 0.3.1)
     polyglot (0.3.2)
@@ -147,7 +147,7 @@ DEPENDENCIES
   memcache-client
   mocha
   mysql
-  nokogiri
+  nokogiri (>= 1.5.5)
   qst_client
   rails (= 3.0.9)
   rest-client
