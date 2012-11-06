@@ -13,7 +13,7 @@ gem 'memcache-client'
 gem 'xmpp4r'
 gem 'rest-client', :require => 'rest_client'
 gem 'qst_client'
-gem 'nokogiri'
+gem 'nokogiri', '>= 1.5.5'
 gem 'daemon_controller'
 gem 'ruby-cache', :require => 'cache'
 gem 'json'
@@ -27,6 +27,10 @@ gem 'daemons'
 gem 'decent_exposure'
 gem 'jquery-rails', '>= 1.0.12'
 gem 'twilio-ruby'
+
+group :development do
+  gem 'licit'
+end
 
 group :test do
   gem 'test-unit', :require => 'test/unit'
