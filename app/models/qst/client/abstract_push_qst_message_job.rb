@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'qst_client'
+
 class AbstractPushQstMessageJob
   include CronTask::QuotedTask
 

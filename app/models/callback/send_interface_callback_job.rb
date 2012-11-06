@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'rest_client'
+
 class SendInterfaceCallbackJob
   attr_accessor :account_id, :application_id, :message_id, :tries
 
