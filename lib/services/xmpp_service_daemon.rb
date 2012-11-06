@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'bundler/setup'
 require(File.expand_path('../generic_daemon', __FILE__))
 start_service 'xmpp_service_daemon' do
   XmppService.new.start
