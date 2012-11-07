@@ -30,6 +30,7 @@ gem 'twilio-ruby'
 
 group :development do
   gem 'licit'
+  gem 'foreman'
 end
 
 group :test do
