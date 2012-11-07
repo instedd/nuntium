@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/instedd/ruby-smpp.git
+  revision: bdbebae0bda8533aa03162e838ea9628ddbee5dc
+  branch: fixes
+  specs:
+    ruby-smpp (0.6.0)
+      eventmachine (>= 0.10.0)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -111,8 +119,6 @@ GEM
       rgviz
     ruby-cache (0.3.0)
     ruby-hmac (0.4.0)
-    ruby-smpp (0.2.1)
-      eventmachine (>= 0.10.0)
     smart_asset (0.5.4)
     test-unit (2.3.2)
     thor (0.14.6)
@@ -163,7 +169,7 @@ DEPENDENCIES
   rgviz
   rgviz-rails
   ruby-cache
-  ruby-smpp (= 0.2.1)
+  ruby-smpp!
   smart_asset
   test-unit
   thoughtbot-shoulda
