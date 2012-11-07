@@ -1,0 +1,13 @@
+<%= form_for_channel channel do |f| -%>
+  <%= render 'edit_header', :f => f, :exclude_address => true %>
+  <h5>MSN account info</h5>
+  <p>
+  <%= f.label :email -%><br/>
+  <%= f.text_field :email, :autocomplete => :off  -%>
+  </p>
+  <p>
+  <%= f.label :password -%><br/>
+  <%= f.password_field :password, :autocomplete => :off  -%>
+  </p>
+  <%= render 'edit_footer', :f => f %>
+<%- end -%>

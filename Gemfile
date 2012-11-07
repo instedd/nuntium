@@ -27,6 +27,7 @@ gem 'daemons'
 gem 'decent_exposure'
 gem 'jquery-rails', '>= 1.0.12'
 gem 'twilio-ruby'
+gem 'em-msn', '>= 0.2'
 
 group :development do
   gem 'licit'
