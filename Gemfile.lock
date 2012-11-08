@@ -53,7 +53,7 @@ GEM
     daemons (1.1.0)
     decent_exposure (1.0.1)
     dynamic_form (1.1.4)
-    em-msn (0.5)
+    em-msn (0.7)
       eventmachine
       guid
       nokogiri
@@ -155,7 +155,7 @@ DEPENDENCIES
   daemons
   decent_exposure
   dynamic_form
-  em-msn (>= 0.5)
+  em-msn (>= 0.7)
   eventmachine
   ffaker
   foreman
