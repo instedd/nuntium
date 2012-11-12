@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'twilio-ruby'
-
 class SendTwilioMessageJob < SendMessageJob
   @@max_length = 160
 

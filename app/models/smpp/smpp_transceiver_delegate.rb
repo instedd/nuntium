@@ -16,7 +16,6 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'iconv'
-require 'cache'
 
 class SmppTransceiverDelegate
 
