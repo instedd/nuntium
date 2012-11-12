@@ -39,15 +39,19 @@ class TwitterController < ChannelsController
   end
 
   def callback
-    oauth = TwitterChannel.new_oauth
-    oauth.authorize_from_request(session['twitter_token'], session['twitter_secret'], params[:oauth_verifier])
-    profile = Twitter::Base.new(oauth).verify_credentials
-    access_token = oauth.access_token
+    client = TwitterChannel.new_client
+    access_token = client.authorize session['twitter_token'], session['twitter_secret'], oauth_verifier: params[:oauth_verifier]
+
+    unless client.authorized?
+      raise "Client couldn't be verified"
+    end
+
+    profile = client.info
 
     @channel = Channel.find session['twitter_channel_id']
     @update = !@channel.new_record?
 
-    @channel.screen_name = profile.screen_name
+    @channel.screen_name = profile['screen_name']
     @channel.token = access_token.token
     @channel.secret = access_token.secret
 
@@ -63,22 +67,10 @@ class TwitterController < ChannelsController
     redirect_to channels_path
   end
 
-  def view_rate_limit_status
-    id = params[:id]
-    @channel = @account.channels.find_by_id id
-    if @channel.nil? || @channel.account_id != @account.id || @channel.kind != 'twitter'
-      return redirect_to_home
-    end
-
-    render :text => @channel.get_rate_limit_status
-  end
-
   protected
 
   def go_to_twitter
-    oauth = TwitterChannel.new_oauth
-
-    request_token = oauth.request_token
+    request_token = TwitterChannel.request_token
 
     session['twitter_token'] = request_token.token
     session['twitter_secret'] = request_token.secret

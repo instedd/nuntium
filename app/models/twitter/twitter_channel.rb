@@ -27,32 +27,44 @@ class TwitterChannel < Channel
     'twitter'
   end
 
-  def self.new_oauth
-    oauth = Twitter::OAuth.new Nuntium::TwitterConsumerConfig['token'], Nuntium::TwitterConsumerConfig['secret']
-    oauth.set_callback_url Nuntium::TwitterConsumerConfig['callback_url']
-    oauth
+  def self.consumer_key
+    Nuntium::TwitterConsumerConfig['token']
   end
 
-  def self.new_client(config)
-    oauth = new_oauth
-    oauth.authorize_from_access config[:token], config[:secret]
+  def self.consumer_secret
+    Nuntium::TwitterConsumerConfig['secret']
+  end
 
-    Twitter::Base.new(oauth)
+  def self.new_client
+    TwitterOAuth::Client.new(
+      consumer_key: consumer_key,
+      consumer_secret: consumer_secret,
+    )
+  end
+
+  def self.new_authorized_client(token, secret)
+    Twitter::Client.new(
+      consumer_key: consumer_key,
+      consumer_secret: consumer_secret,
+      oauth_token: token,
+      oauth_token_secret: secret,
+    )
+  end
+
+  def self.request_token
+    new_client.request_token oauth_callback: Nuntium::TwitterConsumerConfig['callback_url']
+  end
+
+  def new_client
+    self.class.new_authorized_client token, secret
   end
 
   def friendship_create(user, follow)
-    client = self.class.new_client(configuration)
-    client.friendship_create user, follow unless client.friendship_exists? user, screen_name
+    new_client.follow(user, follow: follow)
   end
 
   def info
-    "#{screen_name} <a href=\"#\" onclick=\"twitter_view_rate_limit_status(#{id}); return false;\">view rate limit status</a>"
-  end
-
-  def get_rate_limit_status
-    client = self.class.new_client configuration
-    stat = client.rate_limit_status
-    "Hourly limit: #{stat.hourly_limit}, Remaining hits for this hour: #{stat.remaining_hits}"
+    screen_name
   end
 
   def create_tasks

@@ -32,10 +32,10 @@ class ReceiveTwitterMessageJob
     @status = @channel.twitter_channel_statuses.first
 
     begin
-      @client = TwitterChannel.new_client @config
+      @client = @channel.new_client
       download_new_messages
       follow_and_send_welcome_to_new_followers
-    rescue Twitter::Unauthorized => ex
+    rescue Twitter::Error::Unauthorized => ex
       @channel.alert "#{ex}"
 
       @channel.enabled = false
@@ -52,7 +52,7 @@ class ReceiveTwitterMessageJob
     query = {:page => 1, :count => 200}
 
     # Use last_id if available
-    query[:since_id] = @status.last_id unless @status.nil?
+    query[:since_id] = @status.last_id.to_i unless @status.nil?
 
     begin
       msgs = @client.direct_messages(query)
@@ -60,15 +60,15 @@ class ReceiveTwitterMessageJob
 
       # Remember last_id
       if query[:page] == 1 && !msgs.empty?
-        @status[:last_id] = msgs[0].id
+        @status[:last_id] = msgs[0].id.to_i
       end
 
       msgs.each do |twit|
         msg = AtMessage.new
-        msg.from = "twitter://#{twit.sender_screen_name}"
-        msg.to ="twitter://#{twit.recipient_screen_name}"
+        msg.from = "twitter://#{twit.sender.screen_name}"
+        msg.to ="twitter://#{twit.recipient.screen_name}"
         msg.body = twit.text
-        msg.timestamp = Time.parse(twit.created_at)
+        msg.timestamp = twit.created_at
         msg.channel_relative_id = twit.id
 
         @account.route_at msg, @channel
@@ -87,40 +87,38 @@ class ReceiveTwitterMessageJob
     query = {:cursor => -1}
     begin
       follower_ids_result = @client.follower_ids(query)
-      follower_ids_result['ids'].each do |follower_id|
+      follower_ids_result.each do |follower_id|
         all_followers.push(follower_id)
       end
 
-      query[:cursor] = follower_ids_result['next_cursor']
-    end until query[:cursor] == 0 or not has_quota?
-    return if not has_quota?
+      query[:cursor] = follower_ids_result.next_cursor
+    end until query[:cursor] <= 0 || !has_quota?
+    return unless has_quota?
 
     # Get friends
     query = {:cursor => -1}
     begin
       friend_ids_result = @client.friend_ids(query)
-      friend_ids_result['ids'].each do |friend_id|
+      friend_ids_result.each do |friend_id|
         all_friends.push(friend_id)
       end
 
-      query[:cursor] = friend_ids_result['next_cursor']
-    end until query[:cursor] == 0 or not has_quota?
-    return if not has_quota?
+      query[:cursor] = friend_ids_result.next_cursor
+    end until query[:cursor] <= 0 || !has_quota?
+    return unless has_quota?
 
     # The new followers are:
     new_followers = all_followers - all_friends
 
+    @client.follow!(*new_followers, follow: true)
+
     # For each: follow them and send welcome message
     has_welcome_message = !@config[:welcome_message].blank?
-    new_followers.each do |follower|
-      begin
-        @client.friendship_create(follower, true)
-        @client.direct_message_create(follower, @config[:welcome_message]) if has_welcome_message
-      rescue Twitter::General => ex
-        # TODO do something?
+    if has_welcome_message
+      new_followers.each do |follower|
+        @client.direct_message_create(follower, @config[:welcome_message])
+        return unless has_quota?
       end
-      return if not has_quota?
     end
   end
-
 end

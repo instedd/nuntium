@@ -5,7 +5,9 @@ gem 'mysql2', '< 0.3'
 gem "mail"
 gem 'will_paginate', '~> 3.0'
 gem "guid"
-gem 'twitter', '0.9.4'
+gem 'multi_json', '~> 1.3'
+gem 'twitter', '4.2.0'
+gem 'twitter_oauth'
 gem 'ruby-smpp', :git => 'https://github.com/instedd/ruby-smpp.git', :branch => 'fixes', :require => 'smpp'
 gem "eventmachine"
 gem 'amqp'
