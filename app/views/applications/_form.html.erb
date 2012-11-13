@@ -72,70 +72,68 @@ var applications = <%= applications_names.to_json.html_safe -%>;
   <%= f.radio_button :interface, 'http_get_callback', :onclick => "interface_http_get_callback();"%> <%= f.label :interface, 'HTTP GET callback', :value => 'http_get_callback' -%><br/>
   <%= f.radio_button :interface, 'http_post_callback', :onclick => "interface_http_post_callback();"%> <%= f.label :interface, 'HTTP POST callback', :value => 'http_post_callback' -%><br/>
 
-  <%= f.fields_for :configuration do |c| -%>
-    <div id="config">
-      <h5>Interface configuration:</h5>
-      <p>
-      <%= c.label :url -%><br/>
-      <%= c.text_field :interface_url, :value => application.interface_url, :class => 'configurl' -%>
-      </p>
-      <p>
-      <%= c.label :user -%><br/>
-      <%= c.text_field :interface_user, :value => application.interface_user, :class => 'configurl' -%>
-      </p>
-      <p>
-      <%= c.label :password -%><br/>
-      <%= c.password_field :interface_password, :value => application.interface_password, :autocomplete => :off, :class => 'configurl' -%>
-      </p>
-      <p id="custom_format">
-      <%= c.label :custom_format, '<span id="custom_format_desc" /></span> (leave blank for default) <a href="http://code.google.com/p/nuntium/wiki/Interfaces#Custom_formats" target="_blank">Learn more...</a>'.html_safe -%><br/>
-      <%= c.text_area :interface_custom_format, :rows => 3, :cols => 80, :value => application.interface_custom_format -%>
-      </p>
-    </div>
-
-    <h5>Routing configuration:</h5>
-
+  <div id="config">
+    <h5>Interface configuration:</h5>
     <p>
-    Route via last AT channel used <acronym title="When an AO message needs to be routed, if it's 'to' field matches the 'from' field of the last AT message received, the channel used to receieve that AT message will be used.">?</acronym><br/>
-    <%= c.radio_button :use_address_source, 0, :checked => !application.use_address_source? -%> <%= c.label :use_address_source, 'No', :value => 0 -%><br/>
-    <%= c.radio_button :use_address_source, 1, :checked => application.use_address_source? -%> <%= c.label :use_address_source, 'Yes', :value => 1 -%>
-    </p>
-
-    <p>
-    Strategy:<br/>
-    <%- ['broadcast', 'single_priority'].each do |strategy| -%>
-      <%= c.radio_button :strategy, strategy, :checked => application.strategy == strategy -%> <%= c.label :strategy, Application.strategy_description(strategy), :value => strategy -%><br/>
-    <%- end -%>
-    </p>
-
-    <h5>Delivery acknowledgement:</h5>
-
-    <p>
-    This callback will be invoked when an AO message's state changes to either 'failed', 'delivered' or 'confirmed'.
-    </p>
-
-    <p>
-    Method:<br/>
-    <%- ['none', 'get', 'post'].each do |method| -%>
-      <%= c.radio_button :delivery_ack_method, method, :checked => application.delivery_ack_method == method, :onclick => "delivery_ack_#{method}();" -%> <%= c.label :delivery_ack_method, Application.delivery_ack_method_description(method), :value => method -%><br/>
-    <%- end -%>
-    </p>
-
-    <div id="delivery_ack_config">
-    <p>
-    <%= c.label :url -%>:<br/>
-    <%= c.text_field :delivery_ack_url, :value => application.delivery_ack_url -%>
+    <%= f.label :url -%><br/>
+    <%= f.text_field :interface_url, :class => 'configurl' -%>
     </p>
     <p>
-    <%= c.label :user -%>:<br/>
-    <%= c.text_field :delivery_ack_user, :value => application.delivery_ack_user -%>
+    <%= f.label :user -%><br/>
+    <%= f.text_field :interface_user, :class => 'configurl' -%>
     </p>
     <p>
-    <%= c.label :password -%>:<br/>
-    <%= c.password_field :delivery_ack_password, :value => application.delivery_ack_password -%>
+    <%= f.label :password -%><br/>
+    <%= f.password_field :interface_password, :autocomplete => :off, :class => 'configurl' -%>
     </p>
-    </div>
+    <p id="custom_format">
+    <%= f.label :custom_format, '<span id="custom_format_desc" /></span> (leave blank for default) <a href="http://code.google.com/p/nuntium/wiki/Interfaces#Custom_formats" target="_blank">Learn more...</a>'.html_safe -%><br/>
+    <%= f.text_area :interface_custom_format, :rows => 3, :cols => 80 -%>
+    </p>
+  </div>
+
+  <h5>Routing configuration:</h5>
+
+  <p>
+  Route via last AT channel used <acronym title="When an AO message needs to be routed, if it's 'to' field matches the 'from' field of the last AT message received, the channel used to receieve that AT message will be used.">?</acronym><br/>
+  <%= f.radio_button :use_address_source, 0, :checked => !application.use_address_source? -%> <%= f.label :use_address_source, 'No', :value => 0 -%><br/>
+  <%= f.radio_button :use_address_source, 1, :checked => application.use_address_source? -%> <%= f.label :use_address_source, 'Yes', :value => 1 -%>
+  </p>
+
+  <p>
+  Strategy:<br/>
+  <%- ['broadcast', 'single_priority'].each do |strategy| -%>
+    <%= f.radio_button :strategy, strategy, :checked => application.strategy == strategy -%> <%= f.label :strategy, Application.strategy_description(strategy), :value => strategy -%><br/>
   <%- end -%>
+  </p>
+
+  <h5>Delivery acknowledgement:</h5>
+
+  <p>
+  This callback will be invoked when an AO message's state changes to either 'failed', 'delivered' or 'confirmed'.
+  </p>
+
+  <p>
+  Method:<br/>
+  <%- ['none', 'get', 'post'].each do |method| -%>
+    <%= f.radio_button :delivery_ack_method, method, :checked => application.delivery_ack_method == method, :onclick => "delivery_ack_#{method}();" -%> <%= f.label :delivery_ack_method, Application.delivery_ack_method_description(method), :value => method -%><br/>
+  <%- end -%>
+  </p>
+
+  <div id="delivery_ack_config">
+  <p>
+  <%= f.label :url -%>:<br/>
+  <%= f.text_field :delivery_ack_url -%>
+  </p>
+  <p>
+  <%= f.label :user -%>:<br/>
+  <%= f.text_field :delivery_ack_user -%>
+  </p>
+  <p>
+  <%= f.label :password -%>:<br/>
+  <%= f.password_field :delivery_ack_password -%>
+  </p>
+  </div>
 
   <h5>AO Rules</h5>
 
