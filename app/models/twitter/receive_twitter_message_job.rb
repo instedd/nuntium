@@ -32,7 +32,7 @@ class ReceiveTwitterMessageJob
     @status = @channel.twitter_channel_statuses.first
 
     begin
-      @client = @channel.new_client
+      @client = @channel.new_authorized_client
       download_new_messages
       follow_and_send_welcome_to_new_followers
     rescue Twitter::Error::Unauthorized => ex
