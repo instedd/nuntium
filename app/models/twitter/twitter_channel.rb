@@ -42,7 +42,7 @@ class TwitterChannel < Channel
     )
   end
 
-  def self.new_authorized_client(token, secret)
+  def self.new_authorized_client(token, secret, consumer_key = self.consumer_key, consumer_secret = self.consumer_secret)
     Twitter::Client.new(
       consumer_key: consumer_key,
       consumer_secret: consumer_secret,
@@ -56,7 +56,11 @@ class TwitterChannel < Channel
   end
 
   def new_client
-    self.class.new_authorized_client token, secret
+    if application && application.twitter_consumer_key.present? && application.twitter_consumer_secret.present?
+      self.class.new_authorized_client token, secret, application.twitter_consumer_key.strip, application.twitter_consumer_secret.strip
+    else
+      self.class.new_authorized_client token, secret
+    end
   end
 
   def friendship_create(user, follow)

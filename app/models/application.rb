@@ -55,6 +55,7 @@ class Application < ActiveRecord::Base
   configuration_accessor :delivery_ack_method, :default => 'none'
   configuration_accessor :delivery_ack_url, :delivery_ack_user, :delivery_ack_password
   configuration_accessor :last_at_guid, :last_ao_guid
+  configuration_accessor :twitter_consumer_key, :twitter_consumer_secret
 
   def use_address_source?
     v = configuration[:use_address_source]

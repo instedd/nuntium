@@ -167,5 +167,22 @@ var applications = <%= applications_names.to_json.html_safe -%>;
   });
   </script>
 
+  <h5>Twitter</h5>
+
+  <p>
+  If you want your application's users to create channels on behalf of another Twitter Application
+  (not the Nuntium Application), enter its consumer key and secret here.
+  </p>
+
+  <p>
+  <%= f.label :twitter_consumer_key -%>:<br/>
+  <%= f.password_field :twitter_consumer_key, size: 60 -%>
+  </p>
+
+  <p>
+  <%= f.label :twitter_consumer_secret -%>:<br/>
+  <%= f.password_field :twitter_consumer_secret, size: 60 -%>
+  </p>
+
   <%= submit_tag (application.new_record? ? 'Create Application' : 'Update Application') -%>
 <%- end -%>
