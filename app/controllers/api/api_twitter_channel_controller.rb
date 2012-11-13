@@ -30,4 +30,16 @@ class ApiTwitterChannelController < ApiAuthenticatedController
 
     head :ok
   end
+
+  def authorize
+    raise "Missing callback parameter" unless params[:callback].present?
+
+    channel = @account.channels.find_by_name params[:name]
+
+    return head :not_found unless channel
+    return head :forbidden if @application && !channel.application_id
+    return head :bad_request if channel.kind != 'twitter'
+
+    render :text => channel.authorize_url(params[:callback]), :content_type => 'text/plain'
+  end
 end

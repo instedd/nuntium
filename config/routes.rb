@@ -123,6 +123,7 @@ Nuntium::Application.routes.draw do
       put '/:name' => 'api_channel#update', :as => :api_channels_update
       delete '/:name' => 'api_channel#destroy', :as => :api_channels_destroy
       get '/:name/twitter/friendships/create' => 'api_twitter_channel#friendship_create', :as => :api_twitter_follow
+      get '/:name/twitter/authorize' => 'api_twitter_channel#authorize', :as => :api_twitter_authorize
       get '/:name/xmpp/add_contact' => 'api_xmpp_channel#add_contact', :as => :api_xmpp_add_contact
     end
 

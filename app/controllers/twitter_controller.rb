@@ -22,6 +22,8 @@ class TwitterController < ChannelsController
   before_filter :set_channel_parameters, :only => [:create, :update]
   before_filter :check_twitter_properly_configured
 
+  skip_filter :check_login, :only => [:callback]
+
   def create
     if channel.save
       go_to_twitter
@@ -39,10 +41,10 @@ class TwitterController < ChannelsController
   end
 
   def callback
-    @channel = Channel.find session['twitter_channel_id']
+    @channel = Channel.find params[:channel_id]
 
     client = @channel.new_client
-    access_token = client.authorize session['twitter_token'], session['twitter_secret'], oauth_verifier: params[:oauth_verifier]
+    access_token = client.authorize @channel.authorize_token, @channel.authorize_secret, oauth_verifier: params[:oauth_verifier]
 
     unless client.authorized?
       raise "Client couldn't be verified"
@@ -56,28 +58,24 @@ class TwitterController < ChannelsController
     @channel.token = access_token.token
     @channel.secret = access_token.secret
 
-    session['twitter_token']  = nil
-    session['twitter_secret'] = nil
-    session['twitter_channel_id'] = nil
+    callback = @channel.authorize_callback
+
+    @channel.authorize_token = nil
+    @channel.authorize_secret = nil
+    @channel.authorize_callback = nil
 
     if @channel.save
       flash[:notice] = @update ? "Channel #{@channel.name} was updated" : "Channel #{@channel.name} was created"
     else
       flash[:notice] = "Channel #{@channel.name} couldn't be saved"
     end
-    redirect_to channels_path
+    redirect_to callback
   end
 
   protected
 
   def go_to_twitter
-    request_token = channel.request_token
-
-    session['twitter_token'] = request_token.token
-    session['twitter_secret'] = request_token.secret
-    session['twitter_channel_id'] = channel.id
-
-    redirect_to request_token.authorize_url
+    redirect_to channel.authorize_url(channels_path)
   end
 
   def check_twitter_properly_configured

@@ -23,6 +23,9 @@ class TwitterChannel < Channel
 
   configuration_accessor :token, :secret, :screen_name, :welcome_message
 
+  # For when using /api/channels/:name/twitter/authorize
+  configuration_accessor :authorize_token, :authorize_secret, :authorize_callback
+
   def self.default_protocol
     'twitter'
   end
@@ -67,8 +70,15 @@ class TwitterChannel < Channel
     application && application.twitter_consumer_secret.present? ? application.twitter_consumer_secret : self.class.consumer_secret
   end
 
-  def request_token
-    new_client.request_token oauth_callback: Nuntium::TwitterConsumerConfig['callback_url']
+  def authorize_url(callback_url)
+    request_token = new_client.request_token oauth_callback: "#{Nuntium::TwitterConsumerConfig['callback_url']}?channel_id=#{id}"
+
+    self.authorize_token = request_token.token
+    self.authorize_secret = request_token.secret
+    self.authorize_callback = callback_url
+    self.save!
+
+    request_token.authorize_url
   end
 
   def friendship_create(user, follow)
