@@ -59,6 +59,7 @@ class TwitterController < ChannelsController
     @channel.secret = access_token.secret
 
     callback = @channel.authorize_callback
+    callback = "#{callback}#{callback.include?('?') ? '&' : '?'}screen_name=#{@channel.screen_name}"
 
     @channel.authorize_token = nil
     @channel.authorize_secret = nil
@@ -69,6 +70,7 @@ class TwitterController < ChannelsController
     else
       flash[:notice] = "Channel #{@channel.name} couldn't be saved"
     end
+
     redirect_to callback
   end
 
