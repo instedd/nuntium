@@ -26,7 +26,7 @@ class ApiTwitterChannelControllerTest < ActionController::TestCase
       client = mock('client')
       client.expects(:follow).with('foo', follow: follow.to_b)
 
-      TwitterChannel.expects(:new_authorized_client).with(@channel.token, @channel.secret).returns(client)
+      TwitterChannel.expects(:new_authorized_client).with(@channel.token, @channel.secret, TwitterChannel.consumer_key, TwitterChannel.consumer_secret).returns(client)
 
       @request.env['HTTP_AUTHORIZATION'] = http_auth(@account.name, 'secret')
       get :friendship_create, :name => @channel.name, :user => 'foo', :follow => follow
@@ -43,7 +43,7 @@ class ApiTwitterChannelControllerTest < ActionController::TestCase
     client = mock('client')
     client.expects(:follow).with('foo', follow: false)
 
-    TwitterChannel.expects(:new_authorized_client).with(@channel.token, @channel.secret).returns(client)
+    TwitterChannel.expects(:new_authorized_client).with(@channel.token, @channel.secret, TwitterChannel.consumer_key, TwitterChannel.consumer_secret).returns(client)
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'secret2')
     get :friendship_create, :name => @channel.name, :user => 'foo'

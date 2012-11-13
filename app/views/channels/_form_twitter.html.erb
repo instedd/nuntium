@@ -2,7 +2,7 @@
   <%= render 'twitter_configuration_missing' -%>
 <%- else -%>
   <%= form_for channel, :as => :channel, :url => create_twitter_channel_path do |f| -%>
-    <%= render 'edit_header', :f => f, :exclude_address => true -%>
+    <%= render 'channels/edit_header', :f => f, :exclude_address => true -%>
     <%- if channel.persisted? -%>
       <p>
         <%= f.label :screen_name -%><br/>
@@ -14,7 +14,7 @@
     <%= f.text_field :welcome_message, :id => 'twitter_welcome_message' -%>
     </p>
     <%= render 'channels/edit_costs', :f => f -%>
-    <%= render 'edit_opt_in', :f => f %>
+    <%= render 'channels/edit_opt_in', :f => f %>
     <%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>
     <%= render 'channels/edit_ao_rules', :f => f -%>
     <%= render 'channels/edit_at_rules', :f => f -%>

@@ -25,7 +25,7 @@ class TwitterChannelTest < ActiveSupport::TestCase
 
   include GenericChannelTest
 
-  test "use nuntium twitter consumer key and secret when application isn't configured" do
+  test "use nuntium twitter consumer key and secret when application isn't configured for new authorized client" do
     app = @chan.application
     app.twitter_consumer_key = nil
     app.twitter_consumer_secret = nil
@@ -38,10 +38,10 @@ class TwitterChannelTest < ActiveSupport::TestCase
       oauth_token_secret: @chan.secret,
     )
 
-    @chan.new_client
+    @chan.new_authorized_client
   end
 
-  test "use application twitter consumer key and secret if configured" do
+  test "use application twitter consumer key and secret if configured for new authorized client" do
     app = @chan.application
     app.twitter_consumer_key = 'foo'
     app.twitter_consumer_secret = 'bar'
@@ -52,6 +52,34 @@ class TwitterChannelTest < ActiveSupport::TestCase
       consumer_secret: app.twitter_consumer_secret,
       oauth_token: @chan.token,
       oauth_token_secret: @chan.secret,
+    )
+
+    @chan.new_authorized_client
+  end
+
+  test "use nuntium twitter consumer key and secret when application isn't configured for new client" do
+    app = @chan.application
+    app.twitter_consumer_key = nil
+    app.twitter_consumer_secret = nil
+    app.save!
+
+    TwitterOAuth::Client.expects(:new).with(
+      consumer_key: Nuntium::TwitterConsumerConfig['token'],
+      consumer_secret: Nuntium::TwitterConsumerConfig['secret'],
+    )
+
+    @chan.new_client
+  end
+
+  test "use application twitter consumer key and secret if configured for new client" do
+    app = @chan.application
+    app.twitter_consumer_key = 'foo'
+    app.twitter_consumer_secret = 'bar'
+    app.save!
+
+    TwitterOAuth::Client.expects(:new).with(
+      consumer_key: app.twitter_consumer_key,
+      consumer_secret: app.twitter_consumer_secret,
     )
 
     @chan.new_client

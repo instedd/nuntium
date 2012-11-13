@@ -33,7 +33,7 @@ class SendTwitterMessageJobTest < ActiveSupport::TestCase
     client = mock('client')
     client.expects(:direct_message_create).with(@msg.to.without_protocol, @msg.subject_and_body).returns(response)
 
-    TwitterChannel.expects(:new_authorized_client).with(@channel.token, @channel.secret).returns(client)
+    TwitterChannel.expects(:new_authorized_client).with(@channel.token, @channel.secret, TwitterChannel.consumer_key, TwitterChannel.consumer_secret).returns(client)
 
     @job.perform
 
@@ -46,7 +46,7 @@ class SendTwitterMessageJobTest < ActiveSupport::TestCase
     client = mock('client')
     client.expects(:direct_message_create).with(@msg.to.without_protocol, @msg.subject_and_body).raises(Twitter::Error::Unauthorized.new(''))
 
-    TwitterChannel.expects(:new_authorized_client).with(@channel.token, @channel.secret).returns(client)
+    TwitterChannel.expects(:new_authorized_client).with(@channel.token, @channel.secret, TwitterChannel.consumer_key, TwitterChannel.consumer_secret).returns(client)
 
     begin
       @job.perform

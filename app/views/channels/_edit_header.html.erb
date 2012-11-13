@@ -1,12 +1,12 @@
 <%= f.error_messages -%>
 <%= f.hidden_field :kind, :value => channel.kind %>
-<%= render 'edit_name', :f => f -%>
-<%= render 'edit_protocol', :f => f, :default => channel.class.default_protocol -%>
-<%= render 'edit_priority', :f => f -%>
-<%= render 'edit_application', :f => f -%>
+<%= render 'channels/edit_name', :f => f -%>
+<%= render 'channels/edit_protocol', :f => f, :default => channel.class.default_protocol -%>
+<%= render 'channels/edit_priority', :f => f -%>
+<%= render 'channels/edit_application', :f => f -%>
 <% if defined?(direction) %>
   <%= f.hidden_field :direction, :value => direction -%>
 <% else %>
-  <%= render 'edit_direction', :on_change => (defined?(on_direction_change) ? on_direction_change : nil) -%>
+  <%= render 'channels/edit_direction', :on_change => (defined?(on_direction_change) ? on_direction_change : nil) -%>
 <% end %>
-<%= render 'edit_address', :f => f unless defined? exclude_address-%>
+<%= render 'channels/edit_address', :f => f unless defined? exclude_address-%>

@@ -35,7 +35,7 @@ class TwitterChannel < Channel
     Nuntium::TwitterConsumerConfig['secret']
   end
 
-  def self.new_client
+  def self.new_client(consumer_key = self.consumer_key, consumer_secret = self.consumer_secret)
     TwitterOAuth::Client.new(
       consumer_key: consumer_key,
       consumer_secret: consumer_secret,
@@ -51,20 +51,28 @@ class TwitterChannel < Channel
     )
   end
 
-  def self.request_token
-    new_client.request_token oauth_callback: Nuntium::TwitterConsumerConfig['callback_url']
+  def new_authorized_client
+    self.class.new_authorized_client token, secret, consumer_key, consumer_secret
   end
 
   def new_client
-    if application && application.twitter_consumer_key.present? && application.twitter_consumer_secret.present?
-      self.class.new_authorized_client token, secret, application.twitter_consumer_key.strip, application.twitter_consumer_secret.strip
-    else
-      self.class.new_authorized_client token, secret
-    end
+    self.class.new_client consumer_key, consumer_secret
+  end
+
+  def consumer_key
+    application && application.twitter_consumer_key.present? ? application.twitter_consumer_key : self.class.consumer_key
+  end
+
+  def consumer_secret
+    application && application.twitter_consumer_secret.present? ? application.twitter_consumer_secret : self.class.consumer_secret
+  end
+
+  def request_token
+    new_client.request_token oauth_callback: Nuntium::TwitterConsumerConfig['callback_url']
   end
 
   def friendship_create(user, follow)
-    new_client.follow(user, follow: follow)
+    new_authorized_client.follow(user, follow: follow)
   end
 
   def info

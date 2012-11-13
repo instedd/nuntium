@@ -39,7 +39,9 @@ class TwitterController < ChannelsController
   end
 
   def callback
-    client = TwitterChannel.new_client
+    @channel = Channel.find session['twitter_channel_id']
+
+    client = @channel.new_client
     access_token = client.authorize session['twitter_token'], session['twitter_secret'], oauth_verifier: params[:oauth_verifier]
 
     unless client.authorized?
@@ -48,7 +50,6 @@ class TwitterController < ChannelsController
 
     profile = client.info
 
-    @channel = Channel.find session['twitter_channel_id']
     @update = !@channel.new_record?
 
     @channel.screen_name = profile['screen_name']
@@ -70,7 +71,7 @@ class TwitterController < ChannelsController
   protected
 
   def go_to_twitter
-    request_token = TwitterChannel.request_token
+    request_token = channel.request_token
 
     session['twitter_token'] = request_token.token
     session['twitter_secret'] = request_token.secret

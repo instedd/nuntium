@@ -1,6 +1,6 @@
-<%= render 'edit_costs', :f => f unless defined?(exclude_costs) -%>
-<%= render 'edit_opt_in', :f => f %>
+<%= render 'channels/edit_costs', :f => f unless defined?(exclude_costs) -%>
+<%= render 'channels/edit_opt_in', :f => f %>
 <%= render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true -%>
-<%= render 'edit_ao_rules', :f => f -%>
-<%= render 'edit_at_rules', :f => f -%>
+<%= render 'channels/edit_ao_rules', :f => f -%>
+<%= render 'channels/edit_at_rules', :f => f -%>
 <%= f.submit -%>

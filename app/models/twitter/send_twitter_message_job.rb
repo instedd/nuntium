@@ -17,7 +17,7 @@
 
 class SendTwitterMessageJob < SendMessageJob
   def managed_perform
-    client = @channel.new_client
+    client = @channel.new_authorized_client
     dm = client.direct_message_create(@msg.to.without_protocol, @msg.subject_and_body)
     @msg.channel_relative_id = dm.id
   rescue Twitter::Error::Unauthorized => ex
