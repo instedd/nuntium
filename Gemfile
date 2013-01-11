@@ -1,6 +1,6 @@
 source :rubygems
 
-gem 'rails', '3.0.9'
+gem 'rails', '3.0.19'
 gem 'mysql2', '< 0.3'
 gem "mail"
 gem 'will_paginate', '~> 3.0'
