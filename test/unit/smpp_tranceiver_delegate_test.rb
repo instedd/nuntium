@@ -79,6 +79,7 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
 
     pdu_options = {:data_coding => input_coding}
     pdu_options[:esm_class] = options[:esm_class] if options.include? :esm_class
+    pdu_options[:udh] = options[:udh] if options.include? :udh
     if options.include? :optional_parameters
       optionals = convert_optional_parameters options[:optional_parameters]
       pdu_options[:optional_parameters] = optionals
@@ -314,40 +315,67 @@ class SmppTranceiverDelegateTest < ActiveSupport::TestCase
     assert_equal @chan.id, msg.channel_id
   end
 
+  test "receive ETL long message" do
+    require "pry-debugger"
+
+    pdubin1 = '000000d500000005000000000c04e44c313030310001013835363230323330343738353200000135353530004000000000000000009f05000300020174657374206164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a'
+    pdu1 = Smpp::Pdu::Base.create(pdubin1.scan(/../).map{|x| x.to_i(16).chr}.join)
+    pdubin2 = '0000007000000005000000000c04e456313030310001013835363230323330343738353200000135353530004000000000000000003a0500030002026d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d7074776164676a6d707477'
+    pdu2 = Smpp::Pdu::Base.create(pdubin2.scan(/../).map{|x| x.to_i(16).chr}.join)
+
+    @chan.configuration[:mt_encodings] = ['ascii']
+    @chan.configuration[:endianness_mo] = :big
+    @chan.configuration[:default_mo_encoding] = 'ascii'
+    @chan.configuration[:mt_csms_method] = 'udh'
+    @chan.configuration[:accept_mo_hex_string] = '1'
+    @chan.save!
+    @delegate = SmppTransceiverDelegate.new(@transceiver, @chan)
+
+    @delegate.mo_received @transceiver, pdu1
+    @delegate.mo_received @transceiver, pdu2
+    msgs = AtMessage.all
+    assert_equal 1, msgs.length
+    msg = msgs[0]
+    assert_equal 'sms://8562023047852', msg.from
+    assert_equal 'sms://5550', msg.to
+    assert_equal "test adgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptwadgjmptw", msg.body
+    assert_equal @chan.id, msg.channel_id
+  end
+
   test "receive unkonwn encoding" do
     receive_message "h\000o\000l\000a\000", 7, "h\000o\000l\000a\000"
   end
 
   test "receive concatenated sms with udh creates part" do
-    receive_message "\005\000\003\123\003\001hola", 0, 'hola', :part => true, :esm_class => 64, :reference_number => 0123, :part_count => 3, :part_number => 1
+    receive_message "hola", 0, 'hola', :part => true, :esm_class => 64, :udh => [5, 0, 3, 83, 3, 1], :reference_number => 0123, :part_count => 3, :part_number => 1
   end
 
   test "receive concatenated sms with udh creates message" do
-    receive_message "\005\000\003\123\003\001uno", 0, 'uno', :part => true, :esm_class => 64, :reference_number => 0123, :part_count => 3, :part_number => 1
-    receive_message "\005\000\003\123\003\002dos", 0, 'dos', :part => true, :esm_class => 64, :reference_number => 0123, :part_count => 3, :part_number => 2
-    receive_message "\005\000\003\123\003\003tres", 0, 'unodostres', :esm_class => 64
+    receive_message "uno", 0, 'uno', :part => true, :esm_class => 64, :udh => [5, 0, 3, 83, 3, 1], :reference_number => 0123, :part_count => 3, :part_number => 1
+    receive_message "dos", 0, 'dos', :part => true, :esm_class => 64, :udh => [5, 0, 3, 83, 3, 2], :reference_number => 0123, :part_count => 3, :part_number => 2
+    receive_message "tres", 0, 'unodostres', :esm_class => 64, :udh => [5, 0, 3, 83, 3, 3]
     assert_equal 0, SmppMessagePart.count
   end
 
   test "receive concatenated sms from two sources at the same time" do
-    receive_message "\005\000\003\001\002\001one", 0, 'one', :from => '8881', :part => true, :esm_class => 64, :reference_number => 0001, :part_count => 2, :part_number => 1
-    receive_message "\005\000\003\001\002\001two", 0, 'two', :from => '8882', :part => true, :esm_class => 64, :reference_number => 0001, :part_count => 2, :part_number => 1
-    receive_message "\005\000\003\001\002\002three", 0, 'onethree', :from => '8881', :esm_class => 64
+    receive_message "one", 0, 'one', :from => '8881', :part => true, :esm_class => 64, :udh => [5, 0, 3, 1, 2, 1], :reference_number => 0001, :part_count => 2, :part_number => 1
+    receive_message "two", 0, 'two', :from => '8882', :part => true, :esm_class => 64, :udh => [5, 0, 3, 1, 2, 1], :reference_number => 0001, :part_count => 2, :part_number => 1
+    receive_message "three", 0, 'onethree', :from => '8881', :esm_class => 64, :udh => [5, 0, 3, 1, 2, 2]
     AtMessage.delete_all
-    receive_message "\005\000\003\001\002\002four", 0, 'twofour', :from => '8882', :esm_class => 64
+    receive_message "four", 0, 'twofour', :from => '8882', :esm_class => 64, :udh => [5, 0, 3, 1, 2, 2]
   end
 
   test "obsolete message parts are discarded" do
-    receive_message "\005\000\003\001\002\001one", 0, 'one', :from => '8881', :part => true, :esm_class => 64, :reference_number => 0001, :part_count => 2, :part_number => 1
+    receive_message "one", 0, 'one', :from => '8881', :part => true, :esm_class => 64, :udh => [5, 0, 3, 1, 2, 1], :reference_number => 0001, :part_count => 2, :part_number => 1
     part = SmppMessagePart.first
     part.created_at = part.created_at - 2.hours
     part.save!
-    receive_message "\005\000\003\001\002\001two", 0, 'two', :from => '8882', :part => true, :esm_class => 64, :reference_number => 0001, :part_count => 2, :part_number => 1
+    receive_message "two", 0, 'two', :from => '8882', :part => true, :esm_class => 64, :udh => [5, 0, 3, 1, 2, 1], :reference_number => 0001, :part_count => 2, :part_number => 1
     assert_equal 1, SmppMessagePart.count
   end
 
   test "receive sms with udh" do
-    receive_message "\005\001\003\123\003\001hola", 0, 'hola', :part => false, :esm_class => 64
+    receive_message "hola", 0, 'hola', :part => false, :esm_class => 64, :udh => [5, 1, 3, 83, 3, 1]
   end
 
   test "receive concatenated sms with optional parameters" do

@@ -8,7 +8,7 @@ gem "guid"
 gem 'multi_json', '~> 1.3'
 gem 'twitter', '4.2.0'
 gem 'twitter_oauth'
-gem 'ruby-smpp', :git => 'https://github.com/instedd/ruby-smpp.git', :branch => 'fixes', :require => 'smpp'
+gem 'ruby-smpp', :git => 'https://github.com/instedd/ruby-smpp.git', :branch => 'array_pack', :require => 'smpp'
 gem "eventmachine"
 gem 'amqp'
 gem 'memcache-client'
@@ -34,6 +34,7 @@ gem 'em-msn', '>= 0.7'
 group :development do
   gem 'licit'
   gem 'foreman'
+  gem 'pry-debugger'
 end
 
 group :test do

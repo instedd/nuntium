@@ -137,8 +137,7 @@ class SmppTransceiverDelegate
 
     # Parse concatenated SMS from UDH
     if pdu.esm_class & 64 != 0
-      udh = Udh.new(text)
-      text = udh.skip text
+      udh = Udh.new(pdu.udh)
       if udh[0]
         ref = udh[0][:reference_number]
         total = udh[0][:part_count]
