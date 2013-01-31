@@ -100,6 +100,7 @@ GEM
     multi_json (1.3.7)
     multipart-post (1.1.5)
     mysql2 (0.2.18)
+    newrelic_rpm (3.5.6.46)
     niceogiri (0.0.4)
       nokogiri (>= 1.4.0)
     nokogiri (1.5.5)
@@ -191,6 +192,7 @@ DEPENDENCIES
   mocha
   multi_json (~> 1.3)
   mysql2 (< 0.3)
+  newrelic_rpm
   nokogiri (>= 1.5.5)
   pry-debugger
   qst_client

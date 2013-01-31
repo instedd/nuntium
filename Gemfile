@@ -30,6 +30,7 @@ gem 'decent_exposure'
 gem 'jquery-rails', '>= 1.0.12'
 gem 'twilio-ruby'
 gem 'em-msn', '>= 0.7'
+gem 'newrelic_rpm'
 
 group :development do
   gem 'licit'
