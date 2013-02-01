@@ -64,6 +64,11 @@ class ReceiveTwitterMessageJob
       end
 
       msgs.each do |twit|
+        if twit.created_at < @channel.created_at
+          Rails.logger.info "Skipping message from #{twit.sender.screen_name} (#{twit.text}) because it's old (#{twit.created_at})"
+          next
+        end
+
         msg = AtMessage.new
         msg.from = "twitter://#{twit.sender.screen_name}"
         msg.to ="twitter://#{twit.recipient.screen_name}"
