@@ -13,7 +13,7 @@ Messages sent from the world into Nuntium and then into your application are cal
   <%= render 'shared/create_channel' -%>
   </p>
 <%- else -%>
-  <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AT Message">Create new AT Message'.html_safe, new_at_message_path -%> &nbsp; &nbsp;
+  <%= link_to '<img src="/assets/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AT Message">Create new AT Message'.html_safe, new_at_message_path -%> &nbsp; &nbsp;
 <%- end -%>
 Search: <input type="text" name="search" value="<%= @search.try(:html_safe) -%>" size= "50" class="<%= @search.present? ? 'highlighted' : '' -%>"/> <a href="http://code.google.com/p/nuntium/wiki/AdvancedSearch" target="_blank" title="You can filter by field like 'id:5', 'before:&quot;20 minutes ago&quot;', 'state:queued', etc.">?</a> &nbsp; &nbsp;
 Select: <%= link_to_function 'all', 'select_all_at_messages()' -%>, <%= link_to_function 'none', 'select_none_at_messages()' -%> &nbsp; &nbsp;

@@ -10,7 +10,7 @@ Messages sent from your application into Nuntium and then into the world are cal
 <%- if applications.empty? -%>
   <%= link_to 'Create an Application', new_application_path -%> to create AO Messages.<br/><br/>
 <%- else -%>
-  <%= link_to '<img src="/images/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AO Message">Create new AO Message'.html_safe, new_ao_message_path -%> &nbsp; &nbsp;
+  <%= link_to '<img src="/assets/new_message.png" width="16" height="16" style="position:relative; top:4px" alt="Create new AO Message">Create new AO Message'.html_safe, new_ao_message_path -%> &nbsp; &nbsp;
 <%- end -%>
 Search: <input type="text" name="search" value="<%= @search.try(:html_safe) -%>" size="50" class="<%= @search.present? ? 'highlighted' : '' -%>"/> <a href="http://code.google.com/p/nuntium/wiki/AdvancedSearch" target="_blank" title="You can filter by field like 'id:5', 'before:&quot;20 minutes ago&quot;', 'state:queued', etc.">?</a> &nbsp; &nbsp;
 Select: <%= link_to_function 'all', 'select_all_ao_messages()' -%>, <%= link_to_function 'none', 'select_none_ao_messages()' -%> &nbsp; &nbsp;

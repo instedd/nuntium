@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -24,28 +24,12 @@ class ApplicationController < ActionController::Base
 
   ResultsPerPage = 10
 
-  expose(:account) do
-    if session[:account_id]
-      Account.find_by_id session[:account_id]
-    else
-      logged_in_application.try(:account)
-    end
-  end
+  expose(:account) { current_user.try(:current_account) }
 
-  expose(:applications) do
-    apps = account.applications
-    apps = apps.where(:id => logged_in_application.id) if logged_in_application
-    apps
-  end
+  expose(:applications) { account.applications }
   expose(:application)
 
-  expose(:logged_in_application) { session[:application_id] && Application.find_by_id(session[:application_id]) }
-
-  expose(:channels) do
-    channels = account.channels.includes(:application)
-    channels = channels.where("application_id IS NULL OR application_id = ?", logged_in_application.id) if logged_in_application
-    channels
-  end
+  expose(:channels) { account.channels.includes(:application) }
   expose(:channel) do
     channel = if params[:id] || params[:channel_id]
                 channel = channels.find(params[:id] || params[:channel_id])
@@ -58,7 +42,6 @@ class ApplicationController < ActionController::Base
               else
                 Channel.new
               end
-    channel.application = logged_in_application if !channel.persisted? && logged_in_application
     channel
   end
 
@@ -66,20 +49,11 @@ class ApplicationController < ActionController::Base
 
   before_filter :check_login
   def check_login
-    unless session[:account_id] || session[:application_id]
-      redirect_to new_session_path
-      return
-    end
-
-    unless account
-      session.delete :account_id
-      session.delete :application_id
-      redirect_to new_session_path
-      return
-    end
+    authenticate_user!
   end
 
-  def deny_access_if_logged_in_as_application
-    redirect_to root_path if logged_in_application
+  before_filter :check_account
+  def check_account
+    redirect_to new_account_path if user_signed_in? && !account
   end
 end

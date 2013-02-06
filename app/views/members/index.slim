@@ -1,0 +1,27 @@
+table.table
+  tr
+    th User
+    th Account Access
+    th Application
+    th Application Access
+  - users.each do |user|
+    - account_role = user_accounts.find { |ua| ua.user_id == user.id }.role
+    - applications.each_with_index do |app, i|
+      - if i == 0
+        tr
+          td= user.display_name
+          td= account_role
+          td= app.name
+          - if account_role == 'owner'
+            td= 'owner'
+          - else
+            td= user_applications.find { |ua| ua.application_id == app.id && ua.user_id == user.id }.try(:role) || 'none'
+      - else
+        tr
+          td
+          td
+          td= app.name
+          - if account_role == 'owner'
+            td= 'owner'
+          - else
+            td= user_applications.find { |ua| ua.application_id == app.id && ua.user_id == user.id }.try(:role) || 'none'

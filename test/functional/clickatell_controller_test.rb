@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -19,7 +19,9 @@ require 'test_helper'
 
 class ClickatellControllerTest < ActionController::TestCase
   def setup
-    @account = Account.make
+    @user = User.make
+    @account = @user.create_account Account.make_unsaved
+    sign_in @user
     @application = Application.make :account => @account, :password => 'secret'
     @chan = ClickatellChannel.make_unsaved :account => @account
     @chan.configuration[:incoming_password] = 'incoming'
@@ -155,7 +157,7 @@ class ClickatellControllerTest < ActionController::TestCase
 
   test "view credit" do
     Clickatell.expects(:get_credit).with(:api_id => @chan.api_id, :user => @chan.user, :password => @chan.password).returns('xxx')
-    get :view_credit, {:id => @chan.id}, {:account_id => @account.id}
+    get :view_credit, :id => @chan.id
 
     assert_equal 'xxx', @response.body
   end

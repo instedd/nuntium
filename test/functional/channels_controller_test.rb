@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -19,17 +19,19 @@ require 'test_helper'
 
 class ChannelsControllerTest < ActionController::TestCase
   def setup
-    @account = Account.make
+    @user = User.make
+    @account = @user.create_account Account.make_unsaved
+    sign_in @user
   end
 
   test "create qst server channel succeeds" do
-    attrs = QstServerChannel.plan.merge(:kind => 'qst_server')
+    attrs = QstServerChannel.make_unsaved.attributes.merge(:kind => 'qst_server')
 
-    post :create, {:channel => attrs}, {:account_id => @account.id}
+    post :create, :channel => attrs
 
     # Go to channels page
     assert_redirected_to channels_path
-    assert_equal "Channel #{attrs[:name]} was created", flash[:notice]
+    assert_equal "Channel #{attrs['name']} was created", flash[:notice]
 
     # The channel was created
     chans = Channel.all
@@ -37,16 +39,16 @@ class ChannelsControllerTest < ActionController::TestCase
 
     chan = chans[0]
     assert_equal @account.id, chan.account_id
-    assert_equal attrs[:name], chan.name
-    assert_equal attrs[:protocol], chan.protocol
-    assert_equal attrs[:kind], chan.kind
-    assert chan.authenticate(attrs[:configuration][:password])
+    assert_equal attrs['name'], chan.name
+    assert_equal attrs['protocol'], chan.protocol
+    assert_equal attrs['kind'], chan.kind
+    assert chan.authenticate(attrs['configuration'][:password])
   end
 
   test "edit channel change password succeeds" do
     chan = QstServerChannel.make :account => @account
 
-    put :update, {:id => chan.id, :channel => {:protocol => 'sms', :direction => Channel::Bidirectional, :configuration => {:password => 'new_pass', :password_confirmation => 'new_pass'}}}, {:account_id => @account.id}
+    put :update, :id => chan.id, :channel => {:protocol => 'sms', :direction => Channel::Bidirectional, :configuration => {:password => 'new_pass', :password_confirmation => 'new_pass'}}
 
     # Go to channels page
     assert_redirected_to channels_path
@@ -68,7 +70,7 @@ class ChannelsControllerTest < ActionController::TestCase
     chan.configuration.delete :salt
     chan.save!
 
-    put :update, {:id => chan.id, :channel => {:protocol => 'mail', :priority => 200, :application_id => app2.id, :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => @account.id}
+    put :update, :id => chan.id, :channel => {:protocol => 'mail', :priority => 200, :application_id => app2.id, :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}
 
     # Go to channels page
     assert_redirected_to channels_path
@@ -89,7 +91,7 @@ class ChannelsControllerTest < ActionController::TestCase
   test "delete channel" do
     chan = QstServerChannel.make :account => @account
 
-    delete :destroy, {:id => chan.id}, {:account_id => @account.id}
+    delete :destroy, :id => chan.id
 
     # Go to channels page
     assert_redirected_to channels_path
@@ -103,7 +105,7 @@ class ChannelsControllerTest < ActionController::TestCase
   test "edit channel fails protocol empty" do
     chan = QstServerChannel.make :account => @account
 
-    put :update, {:id => chan.id, :channel => {:protocol => '', :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}}, {:account_id => @account.id}
+    put :update, :id => chan.id, :channel => {:protocol => '', :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}
 
     assert_template "channels/edit"
   end
@@ -111,7 +113,7 @@ class ChannelsControllerTest < ActionController::TestCase
   test "enable channel" do
     chan = QstServerChannel.make :account => @account, :enabled => false
 
-    get :enable, {:id => chan.id}, {:account_id => @account.id}
+    get :enable, :id => chan.id
 
     # Go to channels page
     assert_response :ok
@@ -129,7 +131,7 @@ class ChannelsControllerTest < ActionController::TestCase
     app = Application.make :account => @account
     msg = AoMessage.make :account => @account, :application => app, :channel => chan1, :state => 'queued'
 
-    get :disable, {:id => chan1.id}, {:account_id => @account.id}
+    get :disable, :id => chan1.id
 
     chan1.reload
     chan2.reload
@@ -143,7 +145,7 @@ class ChannelsControllerTest < ActionController::TestCase
   test "pause channel" do
     chan = QstServerChannel.make :account => @account
 
-    get :pause, {:id => chan.id}, {:account_id => @account.id}
+    get :pause, :id => chan.id
 
     assert_response :ok
     assert_equal "Channel #{chan.name} was paused", @response.body
@@ -156,7 +158,7 @@ class ChannelsControllerTest < ActionController::TestCase
   test "resume channel" do
     chan = QstServerChannel.make :account => @account, :paused => true
 
-    get :resume, {:id => chan.id}, {:account_id => @account.id}
+    get :resume, :id => chan.id
 
     # Go to channels page
     assert_response :ok

@@ -3,11 +3,9 @@ A Nuntium Application simply represents your application.<br/>
 If you have many applications you would create many Nuntium Applications, and you can choose to interface with each of them in a different way.
 </p>
 
-<% unless logged_in_application %>
-  <p><%= link_to 'Create new Application', new_application_path -%></p>
-<% end %>
+<p><%= link_to 'Create new Application', new_application_path -%></p>
 
-<%- unless applications.empty? -%>
+<%- if applications.present? -%>
   <table class="table" cellspacing="4">
     <tr>
       <th>Name</th>
@@ -29,7 +27,7 @@ If you have many applications you would create many Nuntium Applications, and yo
           <%= link_to "view aos", ao_messages_path(:search => "application:#{app.name}") -%>
           <%= link_to "view ats", at_messages_path(:search => "application:#{app.name}") -%>
           <%= link_to "edit", edit_application_path(app) -%>
-          <%= link_to "delete", app, :method => :delete, :confirm => "Are you sure you want to delete the application #{app.name}?" unless logged_in_application -%>
+          <%= link_to "delete", app, :method => :delete, :confirm => "Are you sure you want to delete the application #{app.name}?" -%>
         </td>
       </tr>
     <%- end -%>
@@ -37,25 +35,25 @@ If you have many applications you would create many Nuntium Applications, and yo
 <%- end -%>
 
 <h5>Application Routing Rules</h5>
-  <% unless logged_in_application %>
+  <%-
+  applications_names = applications.map(&:name).sort!
+  if applications_names.length < 2
+    -%>
+    <p>
+    No need to specify these rules right now since you don't have more than one application.
+    </p>
     <%-
-    applications_names = applications.map(&:name).sort!
-    if applications_names.length < 2
+  else
+    if app_routing_rules.blank?
       -%>
-      <p>
-      No need to specify these rules right now since you don't have more than one application.
+      <p id="errorNotice">
+      Now that you have more than one application you should configure rules
+      to determine the application an AT message is routed to.
       </p>
       <%-
-    else
-      if app_routing_rules.blank?
-        -%>
-        <p id="errorNotice">
-        Now that you have more than one application you should configure rules
-        to determine the application an AT message is routed to.
-        </p>
-        <%-
-      end
-      -%>
+    end
+    -%>
+    <% if account %>
       <%= form_for account, :url => routing_rules_applications_path do |f| -%>
         <%= f.error_messages -%>
         <p>
@@ -81,7 +79,7 @@ If you have many applications you would create many Nuntium Applications, and yo
 
         <%= submit_tag 'Update rules' -%>
       <%- end -%>
-    <%- end -%>
+    <% end %>
   <%- end -%>
 
   <p>

@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
+require "builder/xchar"
 
 class SendInterfaceCallbackJob
   attr_accessor :account_id, :application_id, :message_id, :tries
@@ -158,7 +159,7 @@ class SendInterfaceCallbackJob
       end
       match ||= ''
       if looks_like_xml
-        match = match.to_xs
+        match = Builder::XChar.encode(match)
       elsif escape
         match = CGI.escape(match || '')
       end

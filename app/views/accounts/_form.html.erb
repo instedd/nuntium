@@ -1,0 +1,24 @@
+<%= form_for @account do |f| -%>
+  <%= f.error_messages -%>
+
+  <%- if @account.new_record? -%>
+    <p>
+    <%= f.label :name -%><br/>
+    <%= f.text_field :name -%>
+    </p>
+  <%- end -%>
+
+  <p>
+  <%- unless @account.new_record? -%>
+    <b>Leave blank if you don't want to change the password</b><br/>
+  <%- end -%>
+  <%= f.label :password -%><br/>
+  <%= f.password_field :password, :value => '', :autocomplete => :off -%>
+  </p>
+  <p>
+  <%= f.label :password_confirmation -%><br/>
+  <%= f.password_field :password_confirmation, :value => '', :autocomplete => :off -%>
+  </p>
+
+  <%= f.submit %>
+<%- end -%>

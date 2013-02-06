@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -30,16 +30,6 @@ class ChannelsController < ApplicationController
     channel.ao_rules = get_rules :aorules
     channel.at_rules = get_rules :atrules
     channel.must_check_valid_in_ui!
-  end
-
-  before_filter :ban_if_logged_in_as_application_and_channel_doesnt_belong_to_an_application
-  def ban_if_logged_in_as_application_and_channel_doesnt_belong_to_an_application
-    if logged_in_application && channel.persisted? && channel.application_id != logged_in_application.id
-      redirect_to channels_path
-      false
-    else
-      true
-    end
   end
 
   def create

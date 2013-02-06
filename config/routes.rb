@@ -16,9 +16,14 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 Nuntium::Application.routes.draw do
-  resource :session do
-    post :register
+  devise_for :users
+
+  resources :accounts do
+    member do
+      get :select
+    end
   end
+
   resources :applications do
     collection do
       put :routing_rules
@@ -58,6 +63,7 @@ Nuntium::Application.routes.draw do
   resources :custom_attributes, :except => :show
   resource :interactions
   resource :settings
+  resources :members
   resources :visualizations, :only => :index do
     get :messages_state_by_day, :on => :collection
   end
