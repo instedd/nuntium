@@ -6,7 +6,7 @@ gem "mail"
 gem 'will_paginate', '~> 3.0'
 gem "guid"
 gem 'multi_json', '~> 1.3'
-gem 'twitter', '4.2.0'
+gem 'twitter'
 gem 'twitter_oauth'
 gem 'ruby-smpp', :git => 'https://github.com/instedd/ruby-smpp.git', :branch => 'array_pack', :require => 'smpp'
 gem "eventmachine"
