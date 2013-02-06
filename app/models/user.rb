@@ -10,8 +10,10 @@ class User < ActiveRecord::Base
   belongs_to :current_account, :class_name => 'Account'
   has_many :user_accounts
   has_many :user_applications
+  has_many :user_channels
   has_many :accounts, :through => :user_accounts
   has_many :applications, :through => :user_applications
+  has_many :channels, :through => :user_channels
 
   def display_name
     email
@@ -29,6 +31,12 @@ class User < ActiveRecord::Base
     end
 
     account
+  end
+
+  def join_account(account)
+    make_default_account_if_first(account) do
+      UserAccount.create! user_id: id, account_id: account.id, role: :member
+    end
   end
 
   def make_default_account_if_first(account)

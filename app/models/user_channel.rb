@@ -1,3 +1,7 @@
 class UserChannel < ActiveRecord::Base
-  attr_accessible :channel_id, :user_id
+  belongs_to :user
+  belongs_to :channel
+
+  validates_presence_of :user
+  validates_presence_of :channel
 end

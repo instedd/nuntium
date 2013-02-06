@@ -1,27 +1,41 @@
-table.table
-  tr
-    th User
-    th Account Access
-    th Application
-    th Application Access
-  - users.each do |user|
-    - account_role = user_accounts.find { |ua| ua.user_id == user.id }.role
-    - applications.each_with_index do |app, i|
-      - if i == 0
-        tr
-          td= user.display_name
-          td= account_role
-          td= app.name
-          - if account_role == 'owner'
-            td= 'owner'
-          - else
-            td= user_applications.find { |ua| ua.application_id == app.id && ua.user_id == user.id }.try(:role) || 'none'
-      - else
-        tr
-          td
-          td
-          td= app.name
-          - if account_role == 'owner'
-            td= 'owner'
-          - else
-            td= user_applications.find { |ua| ua.application_id == app.id && ua.user_id == user.id }.try(:role) || 'none'
+b Users
+ul
+  li
+    ' Add a user:
+    input#new_email type="text" size="60" placeholder="john@example.com"
+    input type="button" value="Add" *ko(click: 'addUser')
+  /!ko foreach: $root.users
+  li
+    span *ko(text: 'name')
+    ' :
+    span *ko(text: 'role')
+    br
+    ' Applications
+    ul
+      /!ko foreach: applications
+      li
+        span *ko(text: 'name')
+        ' :
+        span *ko(text: 'computedRole')
+      /!/ko
+    ' Channels
+    ul
+      /!ko foreach: channels
+      li
+        span *ko(text: 'name')
+        ' :
+        span *ko(text: 'computedRole')
+      /!/ko
+  /!/ko
+
+javascript:
+  var model = {}
+  model.applications = #{applications.map { |app| {id: app.id, name: app.name} }.to_json.html_safe};
+  model.channels = #{channels.map { |app| {id: app.id, name: app.name} }.to_json.html_safe};
+  model.users = #{users.map { |user| {id: user.id, name: user.display_name} }.to_json.html_safe};
+  model.user_accounts = #{user_accounts.map { |ua| {user_id: ua.user_id, account_id: ua.account_id, role: ua.role} }.to_json.html_safe};
+  model.user_applications = #{user_applications.map { |ua| {user_id: ua.user_id, application_id: ua.application_id, role: ua.role} }.to_json.html_safe};
+  model.user_channels = #{user_channels.map { |ua| {user_id: ua.user_id, account_id: ua.account_id, role: ua.role} }.to_json.html_safe};
+
+  initMembers(model);
+

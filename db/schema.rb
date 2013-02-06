@@ -279,6 +279,7 @@ ActiveRecord::Schema.define(:version => 20130206151722) do
   create_table "user_channels", :force => true do |t|
     t.integer  "user_id"
     t.integer  "channel_id"
+    t.string   "role"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end

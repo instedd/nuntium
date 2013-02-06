@@ -63,7 +63,12 @@ Nuntium::Application.routes.draw do
   resources :custom_attributes, :except => :show
   resource :interactions
   resource :settings
-  resources :members
+  resources :members do
+    collection do
+      get :autocomplete
+      post :add
+    end
+  end
   resources :visualizations, :only => :index do
     get :messages_state_by_day, :on => :collection
   end
