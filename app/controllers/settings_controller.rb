@@ -16,6 +16,8 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class SettingsController < ApplicationController
+  before_filter :check_account_admin, only: [:update]
+
   def update
     if account.update_attributes params[:account]
       redirect_to settings_path, :notice => 'Settings updated'

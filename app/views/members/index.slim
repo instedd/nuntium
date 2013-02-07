@@ -1,46 +1,58 @@
 b Members and their permissions
 ul
-  li
-    ' Add a member:
-    input#new_email type="text" size="60" placeholder="john@example.com"
-    input type="button" value="Add" *ko(click: 'addUser')
+  - if account_admin?
+    li
+      ' Add a member:
+      input#new_email type="text" size="60" placeholder="john@example.com"
+      input type="button" value="Add" *ko(click: 'addUser')
   /!ko foreach: $root.users
   li
     span *ko(text: 'name')
-    /!ko if: id == current_user_id
-    ' : admin
-    /!/ko
-
-    /!ko if: id != current_user_id
-    ' :
-    select *ko(value: 'role', options: "['member', 'admin']")
-    '
-    a href="javascript:void(0)" *ko(click: '$root.removeUser') remove
-    /!/ko
+    - if account_admin?
+      /!ko if: id == current_user_id
+      ' : admin
+      /!/ko
+      /!ko if: id != current_user_id
+      ' :
+      select *ko(value: 'role', options: "['member', 'admin']")
+      '
+      a href="javascript:void(0)" *ko(click: '$root.removeUser') remove
+      /!/ko
+    - else
+      ' :
+      span *ko(text: 'role')
     br
     ' Applications
     ul
       /!ko foreach: applications
       li
         span *ko(text: 'name')
-        /!ko if: $parent.role() != 'admin'
-        /!ko if: $parent.id != current_user_id
-        ' :
-        select *ko(value: 'role', options: "['none', 'member', 'admin']")
-        /!/ko
-        /!/ko
+        - if account_admin?
+          /!ko if: $parent.role() != 'admin'
+          /!ko if: $parent.id != current_user_id
+          ' :
+          select *ko(value: 'role', options: "['none', 'member', 'admin']")
+          /!/ko
+          /!/ko
+        - else
+          ' :
+          span *ko(text: 'role')
       /!/ko
     ' Channels
     ul
       /!ko foreach: channels
       li
         span *ko(text: 'name')
-        /!ko if: $parent.role() != 'admin'
-        /!ko if: $parent.id != current_user_id
-        ' :
-        select *ko(value: 'role', options: "['none', 'member', 'admin']")
-        /!/ko
-        /!/ko
+        - if account_admin?
+          /!ko if: $parent.role() != 'admin'
+          /!ko if: $parent.id != current_user_id
+          ' :
+          select *ko(value: 'role', options: "['none', 'member', 'admin']")
+          /!/ko
+          /!/ko
+        - else
+          ' :
+          span *ko(text: 'role')
       /!/ko
   /!/ko
 
