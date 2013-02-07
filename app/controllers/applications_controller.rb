@@ -19,6 +19,8 @@ class ApplicationsController < ApplicationController
   include RulesControllerCommon
 
   before_filter :set_application_parameters, :only => [:create, :update]
+  before_filter :check_account_admin, :only => [:create]
+  before_filter :check_application_admin, :only => [:edit, :update, :destroy]
 
   def set_application_parameters
     application.account_id = account.id
@@ -55,5 +57,11 @@ class ApplicationsController < ApplicationController
     else
       render 'index'
     end
+  end
+
+  private
+
+  def check_application_admin
+    redirect_to applications_path unless application_admin?(application)
   end
 end

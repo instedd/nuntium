@@ -12,7 +12,6 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
       user = identity.user
     else
       attributes = yield auth
-      binding.pry
       attributes[:confirmed_at] = Time.now
 
       user = User.find_by_email(attributes[:email])

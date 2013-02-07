@@ -39,7 +39,7 @@ html
               = link_to "Logoff", destroy_user_session_path, method: :delete
         - if account
           = render 'shared/tabs'
-    #main
-      = yield
-    #version_separator
-    #version Version: #{nuntium_version}
+      #main
+        = yield
+      #version_separator
+      #version Version: #{nuntium_version}

@@ -19,6 +19,9 @@ class ChannelsController < ApplicationController
   include CustomAttributesControllerCommon
   include RulesControllerCommon
 
+  before_filter :check_account_owner, only: [:create]
+  before_filter :check_channel_admin, only: [:edit, :update, :destroy]
+
   expose(:queued_ao_messages_count_by_channel_id) { account.queued_ao_messages_count_by_channel_id }
   expose(:connected_by_channel_id) { Channel.connected(channels) }
 
@@ -96,5 +99,11 @@ class ChannelsController < ApplicationController
     @whitelists = @whitelists.where('address LIKE ?', "%#{@search.strip}%") if @search.present?
     @whitelists = @whitelists.paginate :page => @page, :per_page => ResultsPerPage
     @whitelists = @whitelists.all
+  end
+
+  private
+
+  def check_channel_admin
+    redirect_to channels_path unless channel_admin?(channel)
   end
 end

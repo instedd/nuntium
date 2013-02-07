@@ -1,7 +1,7 @@
-b Users
+b Members and their permissions
 ul
   li
-    ' Add a user:
+    ' Add a member:
     input#new_email type="text" size="60" placeholder="john@example.com"
     input type="button" value="Add" *ko(click: 'addUser')
   /!ko foreach: $root.users

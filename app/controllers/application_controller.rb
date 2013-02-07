@@ -25,11 +25,28 @@ class ApplicationController < ActionController::Base
   ResultsPerPage = 10
 
   expose(:account) { current_user.try(:current_account) }
+  expose(:account_admin?) { current_user.user_accounts(account_id: account.id).first.try(:role) == 'admin' }
 
-  expose(:applications) { account.applications }
+  expose(:user_applications) { current_user.user_applications.where(account_id: account.id).all }
+
+  expose(:applications) do
+    apps = account.applications
+    unless account_admin?
+      apps = apps.where(id: user_applications.map(&:application_id))
+    end
+    apps
+  end
   expose(:application)
 
-  expose(:channels) { account.channels.includes(:application) }
+  expose(:user_channels) { current_user.user_channels.where(account_id: account.id).all }
+
+  expose(:channels) do
+    chans = account.channels.includes(:application)
+    unless account_admin?
+      chans = chans.where("id IN (?) or application_id IN (?)", user_channels.map(&:channel_id), user_applications.map(&:application_id))
+    end
+    chans
+  end
   expose(:channel) do
     channel = if params[:id] || params[:channel_id]
                 channel = channels.find(params[:id] || params[:channel_id])
@@ -47,6 +64,19 @@ class ApplicationController < ActionController::Base
 
   expose(:app_routing_rules) { account.app_routing_rules }
 
+  def application_admin?(application)
+    return true if account_admin?
+    user_applications.find { |ua| ua.application_id == application.id }.try(:role) == 'admin'
+  end
+  helper_method :application_admin?
+
+  def channel_admin?(channel)
+    return true if account_admin?
+    (user_channels.find { |uc| uc.channel_id == channel.id }.try(:role) == 'admin') ||
+      (user_applications.find { |ua| ua.application_id == channel.application_id }.try(:role) == 'admin')
+  end
+  helper_method :channel_admin?
+
   before_filter :check_login
   def check_login
     authenticate_user!
@@ -55,5 +85,9 @@ class ApplicationController < ActionController::Base
   before_filter :check_account
   def check_account
     redirect_to new_account_path if user_signed_in? && !account
+  end
+
+  def check_account_admin
+    redirect_to root_path unless account_admin?
   end
 end
