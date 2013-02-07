@@ -7,24 +7,36 @@ ul
   /!ko foreach: $root.users
   li
     span *ko(text: 'name')
+    /!ko if: id == current_user_id
+    ' : admin
+    /!/ko
+
+    /!ko if: id != current_user_id
     ' :
-    span *ko(text: 'role')
+    select *ko(value: 'role', options: "['member', 'admin']")
+    '
+    a href="javascript:void(0)" *ko(click: '$root.removeUser') remove
+    /!/ko
     br
     ' Applications
     ul
       /!ko foreach: applications
       li
         span *ko(text: 'name')
+        /!ko if: $parent.id != current_user_id
         ' :
-        span *ko(text: 'computedRole')
+        select *ko(value: 'role', options: "['none', 'member', 'admin']")
+        /!/ko
       /!/ko
     ' Channels
     ul
       /!ko foreach: channels
       li
         span *ko(text: 'name')
+        /!ko if: $parent.id != current_user_id
         ' :
-        span *ko(text: 'computedRole')
+        select *ko(value: 'role', options: "['none', 'member', 'admin']")
+        /!/ko
       /!/ko
   /!/ko
 
@@ -35,7 +47,9 @@ javascript:
   model.users = #{users.map { |user| {id: user.id, name: user.display_name} }.to_json.html_safe};
   model.user_accounts = #{user_accounts.map { |ua| {user_id: ua.user_id, account_id: ua.account_id, role: ua.role} }.to_json.html_safe};
   model.user_applications = #{user_applications.map { |ua| {user_id: ua.user_id, application_id: ua.application_id, role: ua.role} }.to_json.html_safe};
-  model.user_channels = #{user_channels.map { |ua| {user_id: ua.user_id, account_id: ua.account_id, role: ua.role} }.to_json.html_safe};
+  model.user_channels = #{user_channels.map { |ua| {user_id: ua.user_id, channel_id: ua.channel_id, role: ua.role} }.to_json.html_safe};
+
+  var current_user_id = #{current_user.id};
 
   initMembers(model);
 

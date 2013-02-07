@@ -67,6 +67,10 @@ Nuntium::Application.routes.draw do
     collection do
       get :autocomplete
       post :add
+      post :remove
+      post :set_user_role
+      post :set_user_application_role
+      post :set_user_channel_role
     end
   end
   resources :visualizations, :only => :index do

@@ -27,7 +27,7 @@ class User < ActiveRecord::Base
     return false unless account.save
 
     make_default_account_if_first(account) do
-      UserAccount.create! user_id: id, account_id: account.id, role: :owner
+      UserAccount.create! user_id: id, account_id: account.id, role: :admin
     end
 
     account
@@ -38,6 +38,8 @@ class User < ActiveRecord::Base
       UserAccount.create! user_id: id, account_id: account.id, role: :member
     end
   end
+
+  private
 
   def make_default_account_if_first(account)
     had_accounts = has_accounts?

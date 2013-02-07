@@ -272,6 +272,64 @@ class Account < ActiveRecord::Base
     channels.each &:on_changed
   end
 
+  def remove_user(user)
+    user.user_accounts.where(account_id: id).destroy_all
+    user.user_applications.where(account_id: id).destroy_all
+    user.user_channels.where(account_id: id).destroy_all
+  end
+
+  def set_user_role(user, role)
+    return unless ['member', 'admin'].include?(role.to_s)
+
+    if role == 'admin'
+      user.user_applications.where(account_id: id).destroy_all
+      user.user_channels.where(account_id: id).destroy_all
+    end
+
+    user_account = user.user_accounts.where(account_id: id).first
+    user_account.update_attributes role: role
+  end
+
+  def set_user_application_role(user, application_id, role)
+    return unless ['none', 'member', 'admin'].include?(role.to_s)
+
+    if role == 'none'
+      user.user_applications.where(application_id: application_id).destroy_all
+    else
+      user_application = user.user_applications.where(application_id: application_id).first
+      if user_application
+        user_application.update_attributes role: role
+      else
+        user.user_applications.create! account_id: id, application_id: application_id, role: role
+      end
+    end
+
+    if role != 'admin'
+      user_account = user.user_accounts.where(account_id: id).first
+      user_account.update_attributes role: 'member'
+    end
+  end
+
+  def set_user_channel_role(user, channel_id, role)
+    return unless ['none', 'member', 'admin'].include?(role.to_s)
+
+    if role == 'none'
+      user.user_channels.where(channel_id: channel_id).destroy_all
+    else
+      user_channel = user.user_channels.where(channel_id: channel_id).first
+      if user_channel
+        user_channel.update_attributes role: role
+      else
+        user.user_channels.create! account_id: id, channel_id: channel_id, role: role
+      end
+    end
+
+    if role != 'admin'
+      user_account = user.user_accounts.where(account_id: id).first
+      user_account.update_attributes role: 'member'
+    end
+  end
+
   def to_s
     name || id || 'unknown'
   end

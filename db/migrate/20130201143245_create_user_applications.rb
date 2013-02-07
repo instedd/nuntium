@@ -1,6 +1,7 @@
 class CreateUserApplications < ActiveRecord::Migration
   def self.up
     create_table :user_applications do |t|
+      t.integer :account_id
       t.integer :user_id
       t.integer :application_id
       t.string :role

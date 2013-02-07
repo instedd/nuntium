@@ -1,4 +1,5 @@
 class UserChannel < ActiveRecord::Base
+  belongs_to :account
   belongs_to :user
   belongs_to :channel
 

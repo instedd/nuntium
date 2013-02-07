@@ -269,14 +269,16 @@ ActiveRecord::Schema.define(:version => 20130206151722) do
   end
 
   create_table "user_applications", :force => true do |t|
+    t.integer  "account_id"
     t.integer  "user_id"
     t.integer  "application_id"
     t.string   "role"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
   end
 
   create_table "user_channels", :force => true do |t|
+    t.integer  "account_id"
     t.integer  "user_id"
     t.integer  "channel_id"
     t.string   "role"
