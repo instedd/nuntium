@@ -23,9 +23,11 @@ ul
       /!ko foreach: applications
       li
         span *ko(text: 'name')
+        /!ko if: $parent.role() != 'admin'
         /!ko if: $parent.id != current_user_id
         ' :
         select *ko(value: 'role', options: "['none', 'member', 'admin']")
+        /!/ko
         /!/ko
       /!/ko
     ' Channels
@@ -33,9 +35,11 @@ ul
       /!ko foreach: channels
       li
         span *ko(text: 'name')
+        /!ko if: $parent.role() != 'admin'
         /!ko if: $parent.id != current_user_id
         ' :
         select *ko(value: 'role', options: "['none', 'member', 'admin']")
+        /!/ko
         /!/ko
       /!/ko
   /!/ko

@@ -51,9 +51,6 @@
       @role.subscribe =>
         return if @silence
 
-        if @role() != 'admin' && @user.role() == 'admin'
-          @user.role('member')
-
         $.post "/members/set_user_application_role", user_id: @user.id, application_id: @application.id, role: @role()
 
   class UserChannel
@@ -65,9 +62,6 @@
 
       @role.subscribe =>
         return if @silence
-
-        if @role() != 'admin' && @user.role() == 'admin'
-          @user.role('member')
 
         $.post "/members/set_user_channel_role", user_id: @user.id, channel_id: @channel.id, role: @role()
 
