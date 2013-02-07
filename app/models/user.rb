@@ -5,7 +5,7 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable, :confirmable, :omniauthable
 
   # Setup accessible (or protected) attributes for your model
-  attr_accessible :email, :password, :password_confirmation, :remember_me
+  # attr_accessible :email, :password, :password_confirmation, :remember_me
 
   belongs_to :current_account, :class_name => 'Account'
   has_many :user_accounts
@@ -14,9 +14,10 @@ class User < ActiveRecord::Base
   has_many :accounts, :through => :user_accounts
   has_many :applications, :through => :user_applications
   has_many :channels, :through => :user_channels
+  has_many :identities, dependent: :destroy
 
   def display_name
-    email
+    name || email
   end
 
   def has_accounts?

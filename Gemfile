@@ -35,7 +35,7 @@ gem "better_errors"
 gem "binding_of_caller"
 gem 'devise'
 gem 'omniauth'
-# gem 'omniauth-openid'
+gem 'omniauth-openid'
 gem 'slim'
 gem 'lodash-rails'
 gem 'knockoutjs-rails'

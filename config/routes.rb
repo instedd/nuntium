@@ -16,7 +16,7 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 Nuntium::Application.routes.draw do
-  devise_for :users
+  devise_for :users, controllers: {omniauth_callbacks: 'omniauth_callbacks'}
 
   resources :accounts do
     member do

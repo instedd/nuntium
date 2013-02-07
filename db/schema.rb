@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130206151722) do
+ActiveRecord::Schema.define(:version => 20130207174337) do
 
   create_table "accounts", :force => true do |t|
     t.string   "name"
@@ -187,6 +187,14 @@ ActiveRecord::Schema.define(:version => 20130206151722) do
 
   add_index "custom_attributes", ["account_id", "address"], :name => "index_custom_attributes_on_account_id_and_address", :unique => true
 
+  create_table "identities", :force => true do |t|
+    t.integer  "user_id"
+    t.string   "provider"
+    t.string   "token"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
   create_table "logs", :force => true do |t|
     t.integer  "account_id"
     t.integer  "channel_id"
@@ -303,6 +311,7 @@ ActiveRecord::Schema.define(:version => 20130206151722) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "current_account_id"
+    t.string   "name"
   end
 
   add_index "users", ["confirmation_token"], :name => "index_users_on_confirmation_token", :unique => true
