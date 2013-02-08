@@ -41,7 +41,7 @@ class AtMessagesController < ApplicationController
     msg.custom_attributes = get_custom_attributes
     account.route_at msg, msg.channel
 
-    redirect_to at_messages_path, :notice => %Q(AT Message was created with id #{msg.id} <a href="#{at_message_path(msg)}" target="_blank">view log</a> <a href="#{thread_at_message_path(msg)}" target="_blank">view thread</a>)
+    redirect_to at_messages_path, :notice => %Q(AT Message was created with id #{msg.id} <a href="#{at_message_path(msg)}" target="_blank">view log</a> <a href="#{thread_at_message_path(msg)}" target="_blank">view thread</a>).html_safe
   end
 
   def show
