@@ -27,11 +27,27 @@ module ApplicationHelper
   end
 
   def message_subject(msg)
-    msg.subject
+    if can_view_message?(msg)
+      msg.subject
+    else
+      '*' * (msg.subject.try(:length) || 0)
+    end
   end
 
   def message_body(msg)
-    msg.body
+    if can_view_message?(msg)
+      msg.body
+    else
+      '*' * (msg.body.try(:length) || 0)
+    end
+  end
+
+  def can_view_message?(msg)
+    return true if account_admin?
+
+    app_access = !msg.application_id || user_applications.find { |ua| ua.application_id == msg.application_id }
+    channel_access = !msg.channel_id || user_channels.find { |ua| ua.channel_id == msg.channel_id }
+    app_access || channel_access
   end
 
   def time_ago(time)

@@ -25,7 +25,8 @@ class ApplicationController < ActionController::Base
   ResultsPerPage = 10
 
   expose(:account) { current_user.try(:current_account) }
-  expose(:account_admin?) { current_user.user_accounts(account_id: account.id).first.try(:role) == 'admin' }
+  expose(:user_account) { current_user.user_accounts.where(account_id: account.id).first }
+  expose(:account_admin?) { user_account.try(:role) == 'admin' }
 
   expose(:user_applications) { current_user.user_applications.where(account_id: account.id).all }
 
