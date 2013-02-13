@@ -1,0 +1,24 @@
+hr
+h4 Opt-in/Opt-out
+label.checkbox
+  = f.check_box :opt_in_enabled
+  ' Handle opt-in/opt-out
+#opt_in_container style="#{channel.opt_in_enabled.to_b ? '' : 'display:none'}"
+  = f.label :opt_in_keyword, 'Opt-in keyword (users will start receiving messages when sending this keyword)'
+  = f.text_field :opt_in_keyword
+  = f.label :opt_in_message, 'Opt-in message (message sent to users when they send the opt-in keyword)'
+  = f.text_field :opt_in_message, :size => 100
+  = f.label :opt_out_keyword, 'Opt-out keyword (users will stop receiving messages when sending this keyword)'
+  = f.text_field :opt_out_keyword
+  = f.label :opt_out_message, 'Opt-out message (message sent to users when they send the opt-out keyword)'
+  = f.text_field :opt_out_message, :size => 100
+  = f.label :opt_help_keyword, 'Help keyword (users will receive a help message when sending this keyword)'
+  = f.text_field :opt_help_keyword
+  = f.label :opt_help_message, 'Help message'
+  = f.text_field :opt_help_message, :size => 100
+javascript:
+  $(function() {
+    $('#channel_opt_in_enabled').change(function() {
+      $('#opt_in_container').toggle('fast');
+    });
+  });

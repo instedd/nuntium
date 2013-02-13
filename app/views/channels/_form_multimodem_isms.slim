@@ -1,0 +1,15 @@
+= form_for_channel channel do |f|
+  = render 'edit_header', :f => f
+  hr
+  h4 Multimodem info
+  = f.label :host
+  = f.text_field :host
+  = f.label :port
+  = f.text_field :port
+  = f.label :user
+  = f.text_field :user, :autocomplete => :off
+  = f.label :password
+  = f.password_field :password, :autocomplete => :off
+  = f.label :time_zone
+  = f.select :time_zone, time_zone_options_for_select(channel.time_zone)
+  = render 'edit_footer', :f => f

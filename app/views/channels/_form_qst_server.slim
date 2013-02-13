@@ -1,0 +1,19 @@
+= form_for_channel channel do |f|
+  = render 'edit_header', :f => f
+  hr
+  h4 QST server authentication
+  - if channel.persisted?
+    b Leave blank if you don't want to change the password
+  = f.label :password
+  = f.password_field :password, :value => (channel.persisted? ? '' : channel.password), :autocomplete => :off
+  = f.label :password_confirmation
+  = f.password_field :password_confirmation, :value => (channel.persisted? ? '' : channel.password_confirmation), :autocomplete => :off
+  - unless channel.persisted?
+    hr
+    h4 Ticket
+    p Leave these fields blank unless you know what you are doing. #{link_to 'Learn more...', 'http://code.google.com/p/nuntium/wiki/Tickets', :target => '_blank'}
+    = f.label :ticket_code
+    = f.text_field :ticket_code
+    = f.label :ticket_message
+    = f.text_field :ticket_message
+  = render 'edit_footer', :f => f

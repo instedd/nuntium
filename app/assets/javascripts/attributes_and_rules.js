@@ -201,7 +201,7 @@ function add_rule_ui(ctx, prefix, rule, excluded_matchings, excluded_actions) {
   var rule_id = rules_newId();
   var rule_prefix = prefix + '[' + rule_id + ']'
 
-  var row = jQuery('<tr><td><a href="#" class="remove-rule">[x]</a></td><td><a href="#" class="add-matching">add condition</a></td><td><a href="#" class="add-action">add action</a></td><td><input type="checkbox" name="' + rule_prefix +'[stop]" value="yes"></td></tr>');
+  var row = jQuery('<tr><td><a href="#" class="remove-rule">[x]</a></td><td><a href="#" class="add-matching">Add condition</a></td><td><a href="#" class="add-action">Add action</a></td><td><input type="checkbox" name="' + rule_prefix +'[stop]" value="yes"></td></tr>');
   table.append(row);
   var add_matching = jQuery('.add-matching', row);
   var add_action = jQuery('.add-action', row);
@@ -340,8 +340,8 @@ function add_action_ui(rule_id, add_action, prefix, action, excluded_actions) {
 
 function init_rules(ctx, prefix, rules, excluded_matchings, excluded_actions) {
   // initial ui
-  ctx.append('<table class="table"><tr><th>&nbsp;</th><th>Condition</th><th>Action</th><th>Stop</th></tr></table>');
-  ctx.append('<div><a href="#" class="add-rule">add rule</a></div><br/>');
+  ctx.append('<table class="table table-striped table-bordered"><thead><tr><th>&nbsp;</th><th>Condition</th><th>Action</th><th>Stop</th></tr></thead></table>');
+  ctx.append('<div><a href="#" class="add-rule">Add rule</a></div><br/>');
 
   jQuery('.add-rule', ctx).click(function(){
     add_rule_ui(ctx, prefix, null, excluded_matchings, excluded_actions);

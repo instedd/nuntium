@@ -1,0 +1,11 @@
+= form_for_channel channel do |f|
+  = render 'edit_header', :f => f
+  hr
+  h4 QST client account info
+  = f.label :url
+  = f.text_field :url
+  = f.label :user
+  = f.text_field :user, :autocomplete => :off
+  = f.label :password
+  = f.password_field :password, :autocomplete => :off
+  = render 'edit_footer', :f => f

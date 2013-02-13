@@ -1,0 +1,15 @@
+= form_for_channel channel do |f|
+  = render 'edit_header', :f => f
+  hr
+  h4 MT POST
+  = f.label :mt_post_url, 'URL'
+  = f.text_field :mt_post_url
+  = f.label :mt_post_user, 'User (optional)'
+  = f.text_field :mt_post_user
+  = f.label :mt_post_password, 'Password (optional)'
+  = f.password_field :mt_post_password, :autocomplete => :off
+  = f.label :cid, 'Connection ID (cid)'
+  = f.text_field :cid
+  = f.label :bid, 'Billing Level (bid)'
+  = f.text_field :bid
+  = render 'edit_footer', :f => f

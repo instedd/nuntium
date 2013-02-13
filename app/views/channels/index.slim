@@ -2,7 +2,7 @@ p
   ' A channel lets Nuntium communicate with the world.<br/>
   ' By "the world" we mean anything that's not your particular application. For example: cellphone companies, email clients and twitter. <a href="http://code.google.com/p/nuntium/wiki/Channels" target="_blank">Learn more...</a>
 
-table#channels.table cellspacing="4" width="100%"
+table cellspacing="4" width="100%"
   tr
     td colspan="7" style="background:white"
       - if account_admin?
@@ -15,6 +15,7 @@ table#channels.table cellspacing="4" width="100%"
         td colspan="3" align="right" style="background:white"
           ' Show:
           = select_tag('kind', options_for_select(channel_kinds), :onchange => 'filter_channels_by_kind(this)')
+table#channels.table.table-striped.table-condensed
   - unless channels.empty?
     tr
       th Name
@@ -30,28 +31,36 @@ table#channels.table cellspacing="4" width="100%"
       tr class="#{i.even_to_s}" id="chan-#{chan.id}"
         td
           - status = chan.paused ? 'paused' : (chan.enabled ? 'enabled' : 'disabled')
-          = image_tag "#{status}.png", :size => '16x16', :style => 'position:relative; top:4px', :title => "This channel is #{status}", :class => "img"
+          = image_tag "#{status}.png", :size => '16x16', :title => "This channel is #{status}", :class => "img"
           - if chan.has_connection?
-            =' image_tag "#{connected_by_channel_id[chan.id] ? 'connected' : 'disconnected'}.png", :size => '16x16', :style => 'position:relative; top:4px', :title => "This channel is #{chan.connected? ? 'connected' : 'disconnected'}"
+            =' image_tag "#{connected_by_channel_id[chan.id] ? 'connected' : 'disconnected'}.png", :size => '16x16', :title => "This channel is #{chan.connected? ? 'connected' : 'disconnected'}"
           b=' chan.name
         td=' chan.kind
         td=' chan.direction_text
         td=' chan.protocol
         td=' chan.info.blank? ? '' : chan.info.html_safe
-        td=' chan.priority
+        td.right=' chan.priority
         td=' chan.application.try(:name)
         - queued = queued_ao_messages_count_by_channel_id[chan.id]
         - if queued > 0
-          td align="right"
+          td.right
             a href="/ao_messages?search=#{CGI.escape "channel:#{chan.name} state:queued"}"= queued
         - else
-          td align="right" 0
+          td.right 0
         td
+          i.icon-list-alt='
           a href="/logs?search=#{CGI.escape "channel:#{chan.name}"}" view logs
+          ' &nbsp;
           '
+          i.icon-share-alt
+          i.icon-envelope='
           a href="/ao_messages?search=#{CGI.escape "channel:#{chan.name}"}" view aos
+          ' &nbsp;
           '
+          i.icon-envelope
+          i.icon-share-alt='
           a href="/at_messages?search=#{CGI.escape "channel:#{chan.name}"}" view ats
+          ' &nbsp;
           '
           - if chan.opt_in_enabled?
             a href="/channels/#{chan.id}/whitelist" view whitelist
@@ -59,6 +68,9 @@ table#channels.table cellspacing="4" width="100%"
               a onclick="#{name}_channel(#{chan.id}, '#{chan.name}'); return false;" class="#{name}" style="#{shown ? '' : 'display:none'}" href="#"= name
           - if channel_admin?(chan)
             '
+            i.icon-pencil='
             a href="/channels/#{chan.id}/edit" edit
+            ' &nbsp;
             '
+            i.icon-trash='
             a href="/channels/#{chan.id}" data-method="delete" data-confirm="Are you sure you want to delete the channel #{chan.name}?" delete

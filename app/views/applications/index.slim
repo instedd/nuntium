@@ -2,50 +2,67 @@ p
   ' A Nuntium Application simply represents your application.<br/>
   ' If you have many applications you would create many Nuntium Applications, and you can choose to interface with each of them in a different way.
 
+hr
+
 - if account_admin?
-  p= link_to 'Create new Application', new_application_path
+  p= link_to 'Create a new Application', new_application_path, class: 'btn btn-primary'
 
 - if applications.present?
-  table.table cellspacing="4"
-    tr
-      th Name
-      th Interface
-      th Route via last channel?
-      th Strategy
-      th Delivery ACK
-      th
-    - applications.each_with_index do |app, i|
-      tr class="#{i.even_to_s}"
-        td= app.name
-        td= app.interface_description
-        td= app.use_address_source? ? 'Yes' : 'No'
-        td= app.strategy_description
-        td= app.delivery_ack_method_description
-        td
-          =' link_to "view log", logs_path(:search => "application:#{app.name}")
-          =' link_to "view aos", ao_messages_path(:search => "application:#{app.name}")
-          =' link_to "view ats", at_messages_path(:search => "application:#{app.name}")
-          - if application_admin?(app)
-            =' link_to "edit", edit_application_path(app)
-            =' link_to "delete", app, :method => :delete, :confirm => "Are you sure you want to delete the application #{app.name}?"
+  table.table.table-striped.table-condensed
+    thead
+      tr
+        th Name
+        th Interface
+        th Route via last channel?
+        th Strategy
+        th Delivery ACK
+        th
+    tbody
+      - applications.each_with_index do |app, i|
+        tr class="#{i.even_to_s}"
+          td= app.name
+          td= app.interface_description
+          td= app.use_address_source? ? 'Yes' : 'No'
+          td= app.strategy_description
+          td= app.delivery_ack_method_description
+          td
+            i.icon-list-alt='
+            =' link_to "view logs", logs_path(:search => "application:#{app.name}")
+            ' &nbsp;
+            i.icon-share-alt
+            i.icon-envelope='
+            =' link_to "view aos", ao_messages_path(:search => "application:#{app.name}")
+            ' &nbsp;
+            i.icon-envelope
+            i.icon-share-alt='
+            =' link_to "view ats", at_messages_path(:search => "application:#{app.name}")
+            ' &nbsp;
+            - if application_admin?(app)
+              i.icon-pencil='
+              =' link_to "edit", edit_application_path(app)
+              ' &nbsp;
+              i.icon-trash='
+              =' link_to "delete", app, :method => :delete, :confirm => "Are you sure you want to delete the application #{app.name}?"
 
 - if account_admin?
-  h5 Application Routing Rules
+  hr
+  h4 Application Routing Rules
 
   - applications_names = applications.map(&:name).sort!
   - if applications_names.length < 2
     p No need to specify these rules right now since you don't have more than one application.
   - else
     - if app_routing_rules.blank?
-      p#errorNotice
+      p.text-error
         ' Now that you have more than one application you should configure rules
         ' to determine the application an AT message is routed to.
     - if account
       = form_for account, :url => routing_rules_applications_path do |f|
         = f.error_messages
         p
-          ' Specify here rules to route AT messages to specific applications.<br/>
-          ' These rules will not be executed if an AT message is received via a channel that belongs to an application<br/>
+          ' Specify here rules to route AT messages to specific applications.
+        p
+          ' These rules will not be executed if an AT message is received via a channel that belongs to an application
           ' or when a message specifies the custom attribute "application".
           a href="http://code.google.com/p/nuntium/wiki/Rules" target="_blank" Learn more...
 
@@ -60,6 +77,6 @@ p
               init_rules(jQuery('.apprules'), 'apprules', #{app_routing_rules.to_json.html_safe}, null, {include: ['application']});
           });
 
-        = submit_tag 'Update rules'
+        = submit_tag 'Update rules', class: 'btn'
 
   p Routing can also be manipulated setting #{link_to 'custom attributes', custom_attributes_path} to specific users.

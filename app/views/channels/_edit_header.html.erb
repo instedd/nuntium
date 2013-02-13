@@ -1,4 +1,8 @@
-<%= f.error_messages -%>
+<% if channel.errors.present? %>
+  <div class="alert alert-error">
+    <%= f.error_messages -%>
+  </div>
+<% end %>
 <%= f.hidden_field :kind, :value => channel.kind %>
 <%= render 'channels/edit_name', :f => f -%>
 <%= render 'channels/edit_protocol', :f => f, :default => channel.class.default_protocol -%>

@@ -2,44 +2,59 @@ doctype 5
 html
   head
     meta charset="utf-8"
+    meta name="viewport" content="width=device-width, initial-scale=1.0"
     title nuntium #{' - ' + current_user.display_name if user_signed_in?}
     = stylesheet_link_tag    "application"
     = javascript_include_tag "application"
-    - yield :head
+    = yield :head
   body
-    #container
-      - if @hide_title.nil?
-        #header
-          a#title href="/" Nuntium
-          - if flash[:notice].present?
-            span.notice= flash[:notice]
-          - if flash[:alert].present?
-            span.alert= flash[:alert]
+    .navbar.navbar-inverse.navbar-fixed-top
+      .navbar-inner
+        .container-fluid
+          button.btn.btn-navbar type="button" data-toggle="collapse" data-target=".nav-collapse"
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          a.brand href="/" Nuntium
           - if user_signed_in?
-            span#toolbar
-              = current_user.display_name
-              - if account
-                '  |
-                a#accounts_link href="javascript:void(0)" onclick="toggleAccountsPopup()"= account.name
-                '
-                a href="javascript:void(0)" onclick="toggleAccountsPopup()" style="text-decoration:none" &#9662
-                #accounts_popup style="position:absolute;display:none"
-                  ' Switch to
-                  ul
-                    - current_user.accounts.sort_by(&:name).each do |other_account|
-                      - if other_account != account
-                        li= link_to other_account.name, select_account_path(other_account)
-                    li= link_to 'new account...', new_account_path
-              '  |
-              a href="http://tech.groups.yahoo.com/group/nuntiumusers/" target="_blank" Have a question?
-              '  |
-              a href="http://code.google.com/p/nuntium/" target="_blank" Help
-              '  |
-
-              = link_to "Logoff", destroy_user_session_path, method: :delete
-        - if account
-          = render 'shared/tabs'
-      #main
-        = yield
-      #version_separator
-      #version Version: #{nuntium_version}
+            .navbar-text.pull-right
+              a.navbar-link data-toggle="dropdown" href="#"
+                = current_user.display_name
+                - if account
+                  '  @
+                  = account.name
+              ul.dropdown-menu
+                - other_accounts = current_user.accounts.sort_by(&:name) - [account]
+                - if other_accounts.present?
+                  li.disabled &nbsp; Switch to account
+                  - other_accounts.each do |other_account|
+                    li= link_to other_account.name, select_account_path(other_account)
+                  li.divider
+                li= link_to 'Create an account...', new_account_path
+                li.divider
+                li
+                  = link_to "Sign out", destroy_user_session_path, method: :delete
+            ul.nav
+              - [\
+                    ['Applications', :applications],\
+                    ['Channels', :channels],\
+                    ['AO messages', :ao_messages],\
+                    ['AT messages', :at_messages],\
+                    ['Logs', :logs],\
+                    ['Interactions', :interactions],\
+                    ['Members', :members],\
+                    ['Settings', :settings],\
+                    ['Visualizations', :visualizations]\
+                  ].each do |name, action|
+                li class="#{params[:controller].to_s == action.to_s ? 'active' : ''}"
+                  = link_to name, eval("#{action}_path")
+    .container-fluid
+      - if flash[:notice].present?
+        .alert.alert-success.alert-autoclose
+          button.close data-dismiss="alert" type="button" x
+          = flash[:notice]
+      - if flash[:alert].present?
+        .alert.alert-error.alert-autoclose
+          button.close data-dismiss="alert" type="button" x
+          = flash[:alert]
+      = yield

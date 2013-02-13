@@ -1,0 +1,21 @@
+= f.label :throttle
+label.radio
+  = f.radio_button :throttle_opt, 'off', :checked => true
+  ' Unlimited
+label.radio
+  = f.radio_button :throttle_opt, 'on'
+  = f.text_field :throttle, :style => 'width:40px;display:inline'
+  = f.label :throttle, ' messages per minute', :value => 'on', :style => 'display:inline'
+javascript:
+  $(function() {
+    $("#channel_throttle_opt_on").click(function() {
+      $("#channel_throttle").attr('disabled', false);
+      $("#channel_throttle").focus();
+    });
+    $("#channel_throttle_opt_off").click(function() {
+      $("#channel_throttle").attr('disabled', true);
+    });
+    if ($("#channel_throttle_opt_off").attr('checked')) {
+      $("#channel_throttle").attr('disabled', true);
+    }
+  });

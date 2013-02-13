@@ -1,0 +1,10 @@
+hr
+h4 Costs
+
+- if !defined?(hide_ao)
+  = f.label :ao_cost, 'Cost for sending an AO message'
+  = f.text_field :ao_cost
+
+- if !defined?(hide_at)
+  = f.label :at_cost, 'Cost for receiving an AT message'
+  = f.text_field :at_cost

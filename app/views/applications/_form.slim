@@ -1,0 +1,170 @@
+- content_for :head do
+  javascript:
+    function interface_rss() {
+      $('#config').hide();
+    }
+    function interface_qst_client() {
+      $('#config').show();
+      $('#custom_format').hide();
+    }
+    function interface_http_get_callback() {
+      $('#config').show();
+      $('#custom_format').show();
+      $('#custom_format_desc').html("Custom HTTP GET format");
+    }
+    function interface_http_post_callback() {
+      $('#config').show();
+      $('#custom_format').show();
+      $('#custom_format_desc').html("Custom HTTP POST format");
+    }
+
+    function delivery_ack_none() {
+      $('#delivery_ack_config').hide();
+    }
+    function delivery_ack_get() {
+      $('#delivery_ack_config').show();
+    }
+    function delivery_ack_post() {
+      $('#delivery_ack_config').show();
+    }
+
+    $(function() {
+      interface_#{application.interface || 'rss'}();
+      delivery_ack_#{application.delivery_ack_method}();
+    });
+
+- # Write the applications in javascript so we can fill the combobox without
+- # going to the server...
+- applications_names = applications.map(&:name).compact.sort!
+javascript:
+  var applications = #{applications_names.to_json.html_safe};
+
+= form_for application do |f|
+  - if application.errors.present?
+    .alert.alert-error
+      = f.error_messages
+
+  - if application.new_record?
+    = f.label :name
+    = f.text_field :name
+
+  p
+    - unless application.new_record?
+      b Leave blank if you don't want to change the password
+      br
+  = f.label :password
+  = f.password_field :password, :value => '', :autocomplete => :off
+  = f.label :password_confirmation
+  = f.password_field :password_confirmation, :value => '', :autocomplete => :off
+
+  = f.label :interface
+  label.radio
+    = f.radio_button :interface, 'rss', :onclick => "interface_rss();"
+    ' RSS
+  label.radio
+    = f.radio_button :interface, 'qst_client', :onclick => "interface_qst_client();"
+    ' QST client
+  label.radio
+    = f.radio_button :interface, 'http_get_callback', :onclick => "interface_http_get_callback();"
+    ' HTTP GET callback
+  label.radio
+    = f.radio_button :interface, 'http_post_callback', :onclick => "interface_http_post_callback();"
+    ' HTTP POST callback
+
+  #config
+    hr
+    h4 Interface configuration:
+    = f.label :url
+    = f.text_field :interface_url, :class => 'configurl'
+    = f.label :user
+    = f.text_field :interface_user, :class => 'configurl'
+    = f.label :password
+    = f.password_field :interface_password, :autocomplete => :off, :class => 'configurl'
+    #custom_format
+      = f.label :custom_format, '<span id="custom_format_desc" /></span> (leave blank for default) <a href="http://code.google.com/p/nuntium/wiki/Interfaces#Custom_formats" target="_blank">Learn more...</a>'.html_safe
+      br
+      = f.text_area :interface_custom_format, :rows => 3, :cols => 80
+
+  hr
+  h4 Routing configuration:
+
+  p
+    ' Route via last AT channel used <acronym title="When an AO message needs to be routed, if it's 'to' field matches the 'from' field of the last AT message received, the channel used to receieve that AT message will be used.">?</acronym>
+    label.radio
+      = f.radio_button :use_address_source, 0, :checked => !application.use_address_source?
+      ' No
+    label.radio
+      = f.radio_button :use_address_source, 1, :checked => application.use_address_source?
+      ' Yes
+
+  p
+    ' Strategy:
+    - ['broadcast', 'single_priority'].each do |strategy|
+      label.radio
+        = f.radio_button :strategy, strategy, :checked => application.strategy == strategy
+        = Application.strategy_description(strategy)
+
+  hr
+  h4 Delivery acknowledgement:
+
+  p
+    ' This callback will be invoked when an AO message's state changes to either 'failed', 'delivered' or 'confirmed'.
+
+  p
+    ' Method:
+    - ['none', 'get', 'post'].each do |method|
+      label.radio
+        = f.radio_button :delivery_ack_method, method, :checked => application.delivery_ack_method == method, :onclick => "delivery_ack_#{method}();"
+        = Application.delivery_ack_method_description(method)
+
+  #delivery_ack_config
+    = f.label :url
+    = f.text_field :delivery_ack_url
+    = f.label :user
+    = f.text_field :delivery_ack_user
+    = f.label :password
+    = f.password_field :delivery_ack_password
+
+  hr
+  h4 AO Rules
+
+  p
+    ' These rules will be executed when an AO message is received via this application.
+    a href="http://code.google.com/p/nuntium/wiki/Rules" target="_blank" Learn more...
+
+  .aorules
+
+  javascript:
+    jQuery(function(){
+        init_rules(jQuery('.aorules'), 'aorules', #{application.ao_rules.to_json.html_safe}, {exclude: ['application']}, {exclude: ['application']});
+    });
+
+  hr
+  h4 AT Rules
+
+  p
+    ' These rules will be executed when an AT message is sent to this application.
+    a href="http://code.google.com/p/nuntium/wiki/Rules" target="_blank" Learn more...
+
+  .atrules
+
+  javascript:
+    jQuery(function(){
+        init_rules(jQuery('.atrules'), 'atrules', #{application.at_rules.to_json.html_safe}, {exclude: ['application']}, {exclude: ['application']});
+    });
+
+  hr
+  h4 Twitter
+
+  p
+    ' If you want your application's users to create channels on behalf of another Twitter Application
+    ' (not the Nuntium Application), enter its consumer key and secret here.
+
+  = f.label :twitter_consumer_key
+  = f.password_field :twitter_consumer_key, size: 60
+  = f.label :twitter_consumer_secret
+  = f.password_field :twitter_consumer_secret, size: 60
+
+  hr
+  p
+    = submit_tag (application.new_record? ? 'Create Application' : 'Update Application'), class: 'btn'

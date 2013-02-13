@@ -1,0 +1,61 @@
+= form_for_channel channel do |f|
+  = render 'edit_header', :f => f, :direction => Channel::Bidirectional
+  = render 'throttle', :f => f
+  = f.label :max_unacknowledged_messages
+  = f.text_field :max_unacknowledged_messages
+  hr
+  h4 SMPP configuration
+  = f.label :host
+  = f.text_field :host
+  = f.label :port
+  = f.text_field :port
+  = f.label :user
+  = f.text_field :user, :autocomplete => :off
+  = f.label :password
+  = f.password_field :password, :autocomplete => :off
+  = f.label :system_type
+  = f.text_field :system_type
+  = f.label :source_ton
+  = f.text_field :source_ton
+  = f.label :source_npi
+  = f.text_field :source_npi
+  = f.label :destination_ton
+  = f.text_field :destination_ton
+  = f.label :destination_npi
+  = f.text_field :destination_npi
+  = f.label :service_type
+  = f.text_field :service_type
+  hr
+  h4 Encoding
+  label.checkbox
+    = f.check_box :endianness_mo, {:checked => channel.endianness_mo == 'little'}, :little, :big
+    ' Use little endian for ucs-2 MO messages
+  label.checkbox
+    = f.check_box :endianness_mt, {:checked => channel.endianness_mt == 'little'}, :little, :big
+    ' Use little endian for ucs-2 MT messages
+  label.checkbox
+    = f.check_box :accept_mo_hex_string
+    ' Hex strings
+  - encodings = [['ASCII', 'ascii'], ['Latin1', 'latin1'], ['UCS-2', 'ucs-2'], ['GSM 03.38', 'gsm']]
+  = f.label 'Default MO encoding:'
+  = f.select :default_mo_encoding, options_for_select(encodings, channel.default_mo_encoding)
+  = f.label 'MT encodings:'
+  - channel.mt_encodings = encodings.map{|x|x[1]} unless channel.mt_encodings.present?
+  - encodings.each do |encoding|
+    - next if encoding[1] == 'gsm'
+    label.checkbox
+      input id="channel_configuration_mt_encodings" name="channel[mt_encodings][]" type="checkbox" value="#{encoding[1]}" checked="#{channel.mt_encodings.include? encoding[1].to_s}" #{encoding[0]}
+  = f.label 'MT max length:'
+  = f.select :mt_max_length, options_for_select(['140', '160', '254'], channel.mt_max_length)
+  = f.label 'MT CSMS method:'
+  = f.select :mt_csms_method, options_for_select([['UDH', 'udh'], ['Optional parameters', 'optional_parameters'], ['Message payload', 'message_payload']], channel.mt_csms_method)
+  hr
+  h4 Vendor custom error codes
+  p
+    ' Enter here error codes known by your SMPP vendor that either must suspend the delivery of AO messages
+    ' or reject them.
+    = f.label :suspension_codes, 'Suspension codes (comma separated):'
+    = f.text_field :suspension_codes
+  = f.label :rejection_codes, 'Rejection codes (comma separated):'
+  = f.text_field :rejection_codes
+  = render 'edit_footer', :f => f

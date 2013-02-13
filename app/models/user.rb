@@ -17,7 +17,7 @@ class User < ActiveRecord::Base
   has_many :identities, dependent: :destroy
 
   def display_name
-    name || email
+    name || (email =~ /(.*)@.*/ && $1)
   end
 
   def has_accounts?

@@ -1,0 +1,4 @@
+- apps = applications.map{|x| [x.name, x.id]}
+- apps.insert 0, ['(none)', '']
+= f.label :application
+= f.select :application_id, apps

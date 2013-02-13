@@ -1,0 +1,14 @@
+= form_for_channel channel do |f|
+  = render 'edit_header', :f => f
+  hr
+  h4 DTAC account info
+  = f.label :user
+  = f.text_field :user
+  = f.label :password
+  = f.password_field :password, :autocomplete => :off
+  p
+    ' Callback urls for incoming messages:<br/>
+    code= "/dtac/#{account.name}/incoming"
+    br
+    code= "/dtac/#{account.id}/incoming"
+  = render 'edit_footer', :f => f

@@ -1,0 +1,18 @@
+= form_for @account do |f|
+  - if @account.errors.present?
+    .alert.alert-error
+      = f.error_messages
+
+  - if @account.new_record?
+    = f.label :name
+    = f.text_field :name
+
+  p
+    - unless @account.new_record?
+      b Leave blank if you don't want to change the password
+      = f.label :password
+      = f.password_field :password, :value => '', :autocomplete => :off
+    = f.label :password_confirmation
+    = f.password_field :password_confirmation, :value => '', :autocomplete => :off
+
+  = f.submit class: 'btn'

@@ -1,0 +1,11 @@
+= form_for_channel channel do |f|
+  = render 'edit_header', :f => f, :direction => Channel::Outgoing, :exclude_address => true
+  hr
+  h4 SMTP account info
+  = render 'edit_mail_configuration', :f => f
+  = render 'edit_costs', :f => f, :hide_at => true
+  = render 'edit_opt_in', :f => f
+  = render 'shared/edit_custom_attributes', :f => f, :entity => channel, :as_restriction => true
+  = render 'edit_ao_rules', :f => f
+  hr
+  = f.submit :class => 'btn'

@@ -1,0 +1,9 @@
+= form_for_channel channel do |f|
+  = render 'edit_header', :f => f, :exclude_address => true
+  hr
+  h4 MSN account info
+  = f.label :email
+  = f.text_field :email, :autocomplete => :off
+  = f.label :password
+  = f.password_field :password, :autocomplete => :off
+  = render 'edit_footer', :f => f

@@ -1,0 +1,15 @@
+= f.label :host
+= f.text_field :host
+= f.label :port
+= f.text_field :port
+= f.label :user
+= f.text_field :user
+= f.label :password
+= f.password_field :password
+label.checkbox
+  = f.check_box :use_ssl
+  ' Use SSL
+- if channel.kind == 'pop3'
+  label.checkbox
+    = f.check_box :remove_quoted_text_or_text_after_first_empty_line
+    ' Remove quoted text after first empty line

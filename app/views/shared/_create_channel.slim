@@ -1,3 +1,11 @@
-- channel_kinds = [['Create new...', '']] + Channel.kinds
-- channel_kinds[1..-1].map!{|x| x[0] << ' channel'; x}
-= select_tag('new_channel', options_for_select(channel_kinds), :onchange => 'create_channel(this)')
+- channel_kinds = Channel.kinds.map!{|x| x[0] << ' channel'; x}
+
+.btn-group
+  button.btn.btn-primary.dropdown-toggle data-toggle="dropdown" href="#"
+    ' Create new...
+    .caret
+  ul.dropdown-menu
+    - channel_kinds.each do |channel|
+      li= link_to channel[0], new_channel_path(kind: channel[1])
+br
+br

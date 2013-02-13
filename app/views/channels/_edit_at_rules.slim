@@ -1,0 +1,13 @@
+hr
+h4 AT Rules
+
+p
+  ' These rules will be executed when an AT message is received via this channel.
+  a href="http://code.google.com/p/nuntium/wiki/Rules" target="_blank" Learn more...
+
+.atrules
+
+javascript:
+  jQuery(function(){
+  	init_rules(jQuery('.atrules'), 'atrules', #{channel.at_rules.to_json.html_safe});
+  });

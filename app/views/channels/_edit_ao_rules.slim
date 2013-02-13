@@ -1,0 +1,13 @@
+hr
+h4 AO Rules
+
+p
+  ' These rules will be executed when an AO message is routed to this channel.
+  a href="http://code.google.com/p/nuntium/wiki/Rules" target="_blank" Learn more...
+
+.aorules
+
+javascript:
+  jQuery(function(){
+  	init_rules(jQuery('.aorules'), 'aorules', #{channel.ao_rules.to_json.html_safe});
+  });
