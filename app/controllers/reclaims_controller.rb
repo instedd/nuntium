@@ -1,0 +1,2 @@
+class ReclaimsController < ApplicationController
+end

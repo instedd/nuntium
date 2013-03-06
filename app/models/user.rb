@@ -34,9 +34,12 @@ class User < ActiveRecord::Base
     account
   end
 
-  def join_account(account)
+  def join_account(account, role = :member)
     make_default_account_if_first(account) do
-      UserAccount.create! user_id: id, account_id: account.id, role: :member
+      existing = UserAccount.find_by_user_id_and_account_id id, account.id
+      unless existing
+        UserAccount.create! user_id: id, account_id: account.id, role: role
+      end
     end
   end
 

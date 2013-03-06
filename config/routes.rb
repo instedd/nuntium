@@ -22,7 +22,12 @@ Nuntium::Application.routes.draw do
     member do
       get :select
     end
+    collection do
+      post :reclaim
+    end
   end
+
+  resources :reclaims
 
   resources :applications do
     collection do
