@@ -1,6 +1,7 @@
 <p>If you already own an account, fill this form and you'll become its administrator.</p>
 
 <%= form_for :account, url: reclaim_accounts_path do |f| -%>
+  <input type="hidden" name="from_reclaim" value="<%= from_reclaim %>"/>
   <% if @acount_reclaim_error %>
   <p style="color: red">Invalid account name/password</p>
   <% end %>

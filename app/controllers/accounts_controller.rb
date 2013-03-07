@@ -33,7 +33,7 @@ class AccountsController < ApplicationController
     else
       @account = Account.new
       @acount_reclaim_error = true
-      if request.referer =~ /reclaim/
+      if params[:from_reclaim] == '1'
         render 'reclaims/index'
       else
         render 'new'
