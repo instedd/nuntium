@@ -46,7 +46,7 @@ module ApplicationHelper
     return true if account_admin?
 
     app_access = !msg.application_id || user_applications.find { |ua| ua.application_id == msg.application_id }
-    channel_access = !msg.channel_id || user_channels.find { |ua| ua.channel_id == msg.channel_id }
+    channel_access = msg.channel_id && user_channels.find { |ua| ua.channel_id == msg.channel_id }
     app_access || channel_access
   end
 
