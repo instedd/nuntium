@@ -34,7 +34,7 @@ class QstServerChannel < Channel
 
   attr_accessor :ticket_code, :ticket_message
   before_save :ticket_record_password, :if => lambda { ticket_code.present? }
-  after_create :ticket_mark_as_complete, :if => lambda { ticket_code.present? }
+  after_save :ticket_mark_as_complete, :if => lambda { ticket_code.present? }
   before_create :ensure_use_ticket
 
   def self.title
