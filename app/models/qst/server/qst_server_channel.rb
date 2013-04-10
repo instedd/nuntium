@@ -1,38 +1,41 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'digest/sha1'
+require 'iconv'
 
 class QstServerChannel < Channel
   has_many :qst_outgoing_messages, :foreign_key => 'channel_id'
 
   validates_presence_of :password
 
-  configuration_accessor :password, :password_confirmation, :salt
+  configuration_accessor :password, :password_confirmation, :salt, :use_ticket
 
   before_validation :reset_password, :if => lambda { persisted? && password.blank? }
   before_create :hash_password
   before_update :hash_password, :if => lambda { salt.blank? }
 
   validate :validate_password_confirmation
+  validates_presence_of :ticket_code, :if => lambda { use_ticket.present? }
 
   attr_accessor :ticket_code, :ticket_message
   before_save :ticket_record_password, :if => lambda { ticket_code.present? }
   after_create :ticket_mark_as_complete, :if => lambda { ticket_code.present? }
+  before_create :ensure_use_ticket
 
   def self.title
     "QST server (local gateway)"
@@ -110,5 +113,12 @@ class QstServerChannel < Channel
       attributes[sym] = value if value.present?
     end
     attributes
+  end
+
+  def ensure_use_ticket
+    if self.use_ticket.nil?
+      self.use_ticket = self.ticket_code.present?
+    end
+    true
   end
 end

@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -57,5 +57,22 @@ class QstServerChannelTest < ActiveSupport::TestCase
 
   test "should update" do
     assert @chan.save
+  end
+
+  test "should validate presence of ticket if use_ticket is set to true" do
+    assert @chan.valid?
+    @chan.ticket_code = ''
+    @chan.use_ticket = true
+    assert_false @chan.valid?
+  end
+
+  test "should set use_ticket to false when ticket isn't present" do
+    chan = QstServerChannel.make :configuration => {:password => 'foo', :password_confirmation => 'foo'}
+    assert_false chan.use_ticket
+  end
+
+  test "should set use_ticket to true when ticket is present" do
+    chan = QstServerChannel.make :configuration => {:password => 'foo', :password_confirmation => 'foo', :ticket_code => '123'}
+    assert chan.use_ticket
   end
 end
