@@ -65,14 +65,4 @@ class QstServerChannelTest < ActiveSupport::TestCase
     @chan.use_ticket = true
     assert_false @chan.valid?
   end
-
-  test "should set use_ticket to false when ticket isn't present" do
-    chan = QstServerChannel.make :configuration => {:password => 'foo', :password_confirmation => 'foo'}
-    assert_false chan.use_ticket
-  end
-
-  test "should set use_ticket to true when ticket is present" do
-    chan = QstServerChannel.make :configuration => {:password => 'foo', :password_confirmation => 'foo', :ticket_code => '123'}
-    assert chan.use_ticket
-  end
 end

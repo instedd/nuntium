@@ -23,7 +23,7 @@ class QstServerChannel < Channel
 
   validates_presence_of :password
 
-  configuration_accessor :password, :password_confirmation, :salt, :use_ticket
+  configuration_accessor :password, :password_confirmation, :salt
 
   before_validation :reset_password, :if => lambda { persisted? && password.blank? }
   before_create :hash_password
@@ -32,10 +32,9 @@ class QstServerChannel < Channel
   validate :validate_password_confirmation
   validates_presence_of :ticket_code, :if => lambda { use_ticket.present? }
 
-  attr_accessor :ticket_code, :ticket_message
+  attr_accessor :ticket_code, :ticket_message, :use_ticket
   before_save :ticket_record_password, :if => lambda { ticket_code.present? }
   after_save :ticket_mark_as_complete, :if => lambda { ticket_code.present? }
-  before_create :ensure_use_ticket
 
   def self.title
     "QST server (local gateway)"
@@ -113,12 +112,5 @@ class QstServerChannel < Channel
       attributes[sym] = value if value.present?
     end
     attributes
-  end
-
-  def ensure_use_ticket
-    if self.use_ticket.nil?
-      self.use_ticket = self.ticket_code.present?
-    end
-    true
   end
 end
