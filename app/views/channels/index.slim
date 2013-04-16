@@ -55,9 +55,10 @@ table#channels.table cellspacing="4" width="100%"
           '
           - if chan.opt_in_enabled?
             a href="/channels/#{chan.id}/whitelist" view whitelist
+          - if channel_admin?(chan)
             - [['resume', chan.paused?], ['disable', !chan.paused? && chan.enabled?], ['pause', !chan.paused? && chan.enabled?], ['enable', !chan.paused? && !chan.enabled?]].each do |name, shown|
               a onclick="#{name}_channel(#{chan.id}, '#{chan.name}'); return false;" class="#{name}" style="#{shown ? '' : 'display:none'}" href="#"= name
-          - if channel_admin?(chan)
+              '
             '
             a href="/channels/#{chan.id}/edit" edit
             '
