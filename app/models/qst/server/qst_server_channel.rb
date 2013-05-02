@@ -30,10 +30,11 @@ class QstServerChannel < Channel
   before_update :hash_password, :if => lambda { salt.blank? }
 
   validate :validate_password_confirmation
+  validates_presence_of :ticket_code, :if => lambda { use_ticket.present? }
 
-  attr_accessor :ticket_code, :ticket_message
+  attr_accessor :ticket_code, :ticket_message, :use_ticket
   before_save :ticket_record_password, :if => lambda { ticket_code.present? }
-  after_create :ticket_mark_as_complete, :if => lambda { ticket_code.present? }
+  after_save :ticket_mark_as_complete, :if => lambda { ticket_code.present? }
 
   def self.title
     "QST server (local gateway)"
