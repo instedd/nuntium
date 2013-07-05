@@ -22,7 +22,18 @@ class SendShujaaMessageJob < SendMessageJob
       msg_id = $1
       msg_status_code = $2
 
-      @msg.channel_relative_id = msg_id
+      if msg_id.strip == '0'
+        msg_status_code = msg_status_code.to_i
+
+        error = ShujaaChannel::SHUJAA_ERRORS[msg_status_code]
+
+        raise response.body if error.nil?
+        raise PermanentException.new(Exception.new(error[:description])) if error[:kind] == :fatal
+        raise MessageException.new(Exception.new(error[:description])) if error[:kind] == :message
+        raise response.body
+      else
+        @msg.channel_relative_id = msg_id
+      end
     else
       raise response.body
     end

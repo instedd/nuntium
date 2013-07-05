@@ -30,7 +30,7 @@ class SendShukaaMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain',
       :body => '1234:0')
 
-    msg = AoMessage.make :account => Account.make, :channel => @chan
+    msg = AoMessage.make :account => @chan.account, :channel => @chan
 
     expect_rest msg, response
 
@@ -50,7 +50,7 @@ class SendShukaaMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain',
       :body => '1234:0')
 
-    msg = AoMessage.make :account => Account.make, :channel => @chan, :to => '0720123456'
+    msg = AoMessage.make :account => @chan.account, :channel => @chan, :to => '0720123456'
 
     expect_rest msg, response, :destination => '254720123456'
 
@@ -60,6 +60,30 @@ class SendShukaaMessageJobTest < ActiveSupport::TestCase
     assert_equal '1234', msg.channel_relative_id
     assert_equal 1, msg.tries
     assert_equal 'delivered', msg.state
+  end
+
+  should "perform and get message error" do
+    response = mock('Net::HTTPResponse')
+    response.stubs(
+      :code => '200',
+      :message => 'OK',
+      :content_type => 'text/plain',
+      :body => '0:2')
+
+    msg = AoMessage.make :account => @chan.account, :channel => @chan
+
+    expect_rest msg, response
+
+    deliver msg
+
+    msg = AoMessage.first
+    assert_equal nil, msg.channel_relative_id
+    assert_equal 1, msg.tries
+    assert_equal 'failed', msg.state
+
+    logs = Log.all
+    assert_equal 1, logs.length
+    assert logs[0].message =~ %r(#{ShujaaChannel::SHUJAA_ERRORS[2][:description]})
   end
 
   def expect_rest(msg, response, overrides = {})
