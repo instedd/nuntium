@@ -1,0 +1,21 @@
+<%= form_for_channel channel do |f| -%>
+  <%= render 'edit_header', :f => f, :exclude_address => true -%>
+  <h5>Shujaa account info</h5>
+  <p>
+  <%= f.label :username -%> (your account's username or email)<br/>
+  <%= f.text_field :username, :autocomplete => :off -%>
+  </p>
+  <p>
+  <%= f.label :password -%> (your account's password)<br/>
+  <%= f.password_field :password, :autocomplete => :off -%>
+  </p>
+  <p>
+  <%= f.label :shujaa_account, 'Account' -%><br/>
+  <%= f.select :shujaa_account, options_for_select([['Live', 'live'], ['Developer', 'developer']]) -%>
+  </p>
+  <p>
+  <%= f.label :address, 'Source (the short code or mask which will be used as the origin of this SMS)' -%><br/>
+  <%= f.text_field :address -%>
+  </p>
+  <%= render 'edit_footer', :f => f, :exclude_costs => true %>
+<%- end -%>
