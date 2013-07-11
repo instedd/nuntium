@@ -18,9 +18,15 @@
 class ShujaaChannel < Channel
   include GenericChannel
 
-  configuration_accessor :username, :password, :shujaa_account
+  configuration_accessor :username, :password, :shujaa_account, :callback_guid
 
-  validates_presence_of :address
+  validates_presence_of :address, :username, :password, :shujaa_account, :callback_guid
+
+  before_create :autogenerate_callback_guid
+  def autogenerate_callback_guid
+    callback_guid
+    true
+  end
 
   def self.default_protocol
     'sms'
@@ -28,6 +34,10 @@ class ShujaaChannel < Channel
 
   def info
     "#{username} (#{account})"
+  end
+
+  def callback_guid
+    configuration[:callback_guid] ||= Guid.new
   end
 
 =begin
