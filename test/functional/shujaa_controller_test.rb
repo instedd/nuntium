@@ -22,6 +22,9 @@ class ShujaaControllerTest < ActionController::TestCase
     @account = Account.make
     @application = Application.make :account => @account, :password => 'secret'
     @chan = ShujaaChannel.make :account => @account
+    @kenya = Country.make
+    @safaricom = @kenya.carriers.make guid: ShujaaChannel::SAFARICOM
+    @airtel = @kenya.carriers.make guid: ShujaaChannel::AIRTEL
   end
 
   test "index" do
@@ -35,6 +38,7 @@ class ShujaaControllerTest < ActionController::TestCase
     msg = msgs[0]
     assert_equal @account.id, msg.account_id
     assert_equal @chan.id, msg.channel_id
+    assert_equal @safaricom.guid, msg.carrier
     assert_equal "sms://1234", msg.from
     assert_equal "sms://5678", msg.to
     assert_equal "Hello", msg.body

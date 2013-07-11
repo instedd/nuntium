@@ -50,6 +50,18 @@ class SendShujaaMessageJob < SendMessageJob
     params[:source] = @channel.address
     params[:destination] = destination
     params[:message] = @msg.subject_and_body
+
+    case @msg.carrier
+    when ShujaaChannel::AIRTEL
+      params[:network] = 'airtel'
+    when ShujaaChannel::ORANGE
+      params[:network] = 'orange'
+    when ShujaaChannel::SAFARICOM
+      params[:network] = 'safaricom'
+    when ShujaaChannel::YU
+      params[:network] = 'yu'
+    end
+
     params
   end
 end

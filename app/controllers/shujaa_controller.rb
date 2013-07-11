@@ -36,6 +36,17 @@ class ShujaaController < ApplicationController
     msg.channel_relative_id = params[:messageId]
     msg.custom_attributes['network'] = params[:network]
 
+    case params[:network]
+    when 'airtel'
+      msg.carrier = ShujaaChannel::AIRTEL
+    when 'orange'
+      msg.carrier = ShujaaChannel::ORANGE
+    when 'safaricom'
+      msg.carrier = ShujaaChannel::SAFARICOM
+    when 'yu'
+      msg.carrier = ShujaaChannel::YU
+    end
+
     account.route_at msg, chan
 
     head :ok

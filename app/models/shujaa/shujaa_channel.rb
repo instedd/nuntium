@@ -18,6 +18,11 @@
 class ShujaaChannel < Channel
   include GenericChannel
 
+  AIRTEL = "10a23e2c-6449-983c-55ac-ba9643d4c423"
+  ORANGE = "0614982d-5492-41a6-b7f8-dc49b8ee87aa"
+  SAFARICOM = "4c14ffca-0a77-b014-c2fa-39d06dcae2fc"
+  YU = "1e772e3a-c675-44ca-b954-70ab2fa1f1fd"
+
   configuration_accessor :username, :password, :shujaa_account, :callback_guid
 
   validates_presence_of :address, :username, :password, :shujaa_account, :callback_guid

@@ -17,9 +17,12 @@
 
 require 'test_helper'
 
-class SendShukaaMessageJobTest < ActiveSupport::TestCase
+class SendShujaaMessageJobTest < ActiveSupport::TestCase
   def setup
     @chan = ShujaaChannel.make
+    @kenya = Country.make
+    @safaricom = @kenya.carriers.make guid: ShujaaChannel::SAFARICOM
+    @airtel = @kenya.carriers.make guid: ShujaaChannel::AIRTEL
   end
 
   should "perform" do
@@ -31,8 +34,11 @@ class SendShukaaMessageJobTest < ActiveSupport::TestCase
       :body => '1234:0')
 
     msg = AoMessage.make :account => @chan.account, :channel => @chan
+    msg.country = @kenya.iso2
+    msg.carrier = @safaricom.guid
+    msg.save!
 
-    expect_rest msg, response
+    expect_rest msg, response, :network => 'safaricom'
 
     deliver msg
 
@@ -83,7 +89,7 @@ class SendShukaaMessageJobTest < ActiveSupport::TestCase
 
     logs = Log.all
     assert_equal 1, logs.length
-    assert logs[0].message =~ %r(#{ShujaaChannel::SHUJAA_ERRORS[2][:description]})
+    assert logs[0].message =~ %r(#{Regexp.escape ShujaaChannel::SHUJAA_ERRORS[2][:description]})
   end
 
   def expect_rest(msg, response, overrides = {})
