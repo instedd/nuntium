@@ -37,13 +37,13 @@ class ShujaaController < ApplicationController
     msg.custom_attributes['network'] = params[:network]
 
     case params[:network]
-    when 'airtel'
+    when /airtel/i
       msg.carrier = ShujaaChannel::AIRTEL
-    when 'orange'
+    when /orange/i
       msg.carrier = ShujaaChannel::ORANGE
-    when 'safaricom'
+    when /safaricom/i
       msg.carrier = ShujaaChannel::SAFARICOM
-    when 'yu'
+    when /yu/i
       msg.carrier = ShujaaChannel::YU
     end
 
