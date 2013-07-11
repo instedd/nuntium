@@ -4,6 +4,10 @@
   <%= render 'edit_header', :f => f, :exclude_address => true -%>
   <h5>Shujaa account info</h5>
   <p>
+  <%= f.label :shujaa_url, 'Shujaa URL' -%><br/>
+  <%= f.text_field :shujaa_url, :value => channel.shujaa_url || ShujaaChannel::DEFAULT_URL, :autocomplete => :off -%>
+  <p>
+  <p>
   <%= f.label :username -%> (your account's username or email)<br/>
   <%= f.text_field :username, :autocomplete => :off -%>
   </p>

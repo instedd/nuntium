@@ -17,7 +17,7 @@
 
 class SendShujaaMessageJob < SendMessageJob
   def managed_perform
-    response = RestClient.get "http://sms.shujaa.mobi/sendsms?#{query_parameters.to_query}"
+    response = RestClient.get "#{@channel.shujaa_url}/sendsms?#{query_parameters.to_query}"
     if response.body =~ /(.+)\:(.+)/
       msg_id = $1
       msg_status_code = $2

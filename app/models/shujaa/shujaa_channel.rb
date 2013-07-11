@@ -18,13 +18,14 @@
 class ShujaaChannel < Channel
   include GenericChannel
 
+  DEFAULT_URL = "http://sms.shujaa.mobi"
+
   AIRTEL = "10a23e2c-6449-983c-55ac-ba9643d4c423"
   ORANGE = "0614982d-5492-41a6-b7f8-dc49b8ee87aa"
   SAFARICOM = "4c14ffca-0a77-b014-c2fa-39d06dcae2fc"
   YU = "1e772e3a-c675-44ca-b954-70ab2fa1f1fd"
 
-  configuration_accessor :username, :password, :shujaa_account, :callback_guid
-
+  configuration_accessor :shujaa_url, :username, :password, :shujaa_account, :callback_guid
   validates_presence_of :address, :username, :password, :shujaa_account, :callback_guid
 
   before_create :autogenerate_callback_guid
@@ -43,6 +44,32 @@ class ShujaaChannel < Channel
 
   def callback_guid
     configuration[:callback_guid] ||= Guid.new
+  end
+
+  def shujaa_url
+    configuration[:shujaa_url] || DEFAULT_URL
+  end
+
+  def more_info(ao_msg)
+    return {} if ao_msg.channel_relative_id.nil?
+
+    params = {}
+    params[:username] = username
+    params[:password] = password
+    params[:account] = account
+    params[:messageId] = ao_msg.channel_relative_id
+
+    response = RestClient.get "#{shujaa_url}/querystatus?#{params.to_query}"
+    if response.body =~ /(.+)\:(.+)/
+      msg_status_code = $2
+      entry = SHUJAA_ERRORS[msg_status_code.to_i]
+      return {
+        "Shujaa Status Code" => msg_status_code,
+        "Shujaa Status Description" => entry[:description],
+      }
+    end
+
+    {}
   end
 
 =begin
