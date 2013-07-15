@@ -43,7 +43,7 @@ class ShujaaChannel < Channel
   end
 
   def callback_guid
-    configuration[:callback_guid] ||= Guid.new
+    configuration[:callback_guid] ||= Guid.new.to_s
   end
 
   def shujaa_url
