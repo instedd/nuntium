@@ -64,6 +64,18 @@
     </ul>
   <%- end -%>
 
+  <%- if channels.any?{|c| c.kind == 'shujaa'} -%>
+    <div><b>Via <%= link_to 'Shujaa', 'http://sms.shujaa.mobi/', :target => '_blank' -%></b></div>
+    <ul>
+      <%- channels.select{|c| c.kind == 'shujaa'}.each do |channel| -%>
+        <li><span class="url">GET <%= shujaa_url(:account_id => account.name, :callback_guid => channel.callback_guid) -%></span>
+          create Application Terminated Messages in channel <%= channel.name %></li>
+          <li><span class="url">GET <%= clickatell_ack_url(:account_id => account.id, :callback_guid => channel.callback_guid) -%></span>
+          create Application Terminated Messages in channel <%= channel.name %></li>
+      <%- end -%>
+    </ul>
+  <%- end -%>
+
   <%- unless applications.empty? -%>
     <div><b>Via <%= link_to 'RSS', 'http://en.wikipedia.org/wiki/RSS', :target => '_blank' -%></b></div>
     Use <%= link_to 'Http Basic Authentication', 'http://en.wikipedia.org/wiki/Basic_access_authentication', :target => '_blank' -%> with application credentials (use "account/application" as username).

@@ -1,0 +1,33 @@
+<%= form_for_channel channel do |f| -%>
+  <%= f.hidden_field :callback_guid, value: channel.callback_guid %>
+
+  <%= render 'edit_header', :f => f, :exclude_address => true -%>
+  <h5>Shujaa account info</h5>
+  <p>
+  <%= f.label :shujaa_url, 'Shujaa URL' -%><br/>
+  <%= f.text_field :shujaa_url, :value => channel.shujaa_url || ShujaaChannel::DEFAULT_URL, :autocomplete => :off -%>
+  <p>
+  <p>
+  <%= f.label :username -%> (your account's username or email)<br/>
+  <%= f.text_field :username, :autocomplete => :off -%>
+  </p>
+  <p>
+  <%= f.label :password -%> (your account's password)<br/>
+  <%= f.password_field :password, :autocomplete => :off -%>
+  </p>
+  <p>
+  <%= f.label :shujaa_account, 'Account' -%><br/>
+  <%= f.select :shujaa_account, options_for_select([['Live', 'live'], ['Developer', 'developer']]) -%>
+  </p>
+  <p>
+  <%= f.label :address, 'Source (the short code or mask which will be used as the origin of this SMS)' -%><br/>
+  <%= f.text_field :address -%>
+  </p>
+
+  <p>
+  Callback urls for incoming messages:<br/>
+  <code><%= shujaa_url(:account_id => account.name, :callback_guid => channel.callback_guid) -%></code><br/>
+  </p>
+
+  <%= render 'edit_footer', :f => f, :exclude_costs => true %>
+<%- end -%>

@@ -153,6 +153,16 @@ Pop3Channel.blueprint do
   configuration { {:host => Sham.url, :port => rand(1000) + 1, :user => Sham.username, :password => Sham.password}}
 end
 
+ShujaaChannel.blueprint do
+  account
+  name { Sham.guid }
+  direction { Channel::Bidirectional }
+  protocol { "sms" }
+  enabled { true }
+  address { Sham.number8 }
+  configuration { {:username => Sham.username, :password => Sham.password, :shujaa_account => 'live' }}
+end
+
 SmtpChannel.blueprint do
   account
   name { Sham.guid }

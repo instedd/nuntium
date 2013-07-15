@@ -94,6 +94,10 @@ Nuntium::Application.routes.draw do
     put '/update/:id' => 'twitter#update', :as => :update_twitter_channel
   end
 
+  scope '/:account_id/shujaa', :constraints => {:account_id => /.*/} do
+    match '/incoming/:callback_guid' => 'shujaa#index', :as => :shujaa
+  end
+
   scope '/twitter' do
     match '/callback' => 'twitter#callback', :as => :twitter_callback
   end

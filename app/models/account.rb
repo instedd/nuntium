@@ -25,6 +25,7 @@ class Account < ActiveRecord::Base
   has_many :clickatell_channels
   has_many :qst_server_channels
   has_many :twilio_channels
+  has_many :shujaa_channels
   has_many :address_sources
   has_many :ao_messages
   has_many :at_messages
