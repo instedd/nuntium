@@ -19,7 +19,7 @@ class ChannelsController < ApplicationController
   include CustomAttributesControllerCommon
   include RulesControllerCommon
 
-  before_filter :check_account_owner, only: [:create]
+  before_filter :check_account_admin, only: [:create]
   before_filter :check_channel_admin, only: [:edit, :update, :destroy]
 
   expose(:queued_ao_messages_count_by_channel_id) { account.queued_ao_messages_count_by_channel_id }
