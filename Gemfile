@@ -31,8 +31,6 @@ gem 'jquery-rails', '>= 1.0.12'
 gem 'jquery-ui-rails'
 gem 'twilio-ruby'
 gem 'em-msn', '>= 0.7'
-gem "better_errors"
-gem "binding_of_caller"
 gem 'devise'
 gem 'omniauth'
 gem 'omniauth-openid'

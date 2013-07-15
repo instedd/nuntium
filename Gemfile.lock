@@ -40,10 +40,6 @@ GEM
       eventmachine
     arel (3.0.2)
     bcrypt-ruby (3.0.1)
-    better_errors (0.5.0)
-      coderay (>= 1.0.0)
-      erubis (>= 2.6.6)
-    binding_of_caller (0.6.8)
     blather (0.8.2)
       activesupport (>= 2.3.11)
       eventmachine (>= 1.0.0)
@@ -239,8 +235,6 @@ PLATFORMS
 
 DEPENDENCIES
   amqp
-  better_errors
-  binding_of_caller
   blather
   ci_reporter
   coffee-rails (~> 3.2.0)
