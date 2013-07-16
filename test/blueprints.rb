@@ -30,6 +30,13 @@ Sham.define do
   guid { (1..10).map { ('a'..'z').to_a.rand }.join }
 end
 
+User.blueprint do
+  email
+  password
+  password_confirmation { password }
+  confirmed_at { Time.now - 1.day }
+end
+
 Account.blueprint do
   name { Sham.username }
   password

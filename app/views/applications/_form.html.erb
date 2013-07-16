@@ -38,7 +38,7 @@
 <%-
 # Write the applications in javascript so we can fill the combobox without
 # going to the server...
-applications_names = applications.map(&:name).sort!
+applications_names = applications.map(&:name).compact.sort!
 -%>
 <script type="text/javascript">
 var applications = <%= applications_names.to_json.html_safe -%>;

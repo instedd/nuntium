@@ -1,3 +1,12 @@
+/*
+ * This is a manifest file that'll automatically include all the stylesheets available in this directory
+ * and any sub-directories. You're free to add application-wide styles to this file and they'll appear at
+ * the top of the compiled file, but it's generally better to create a new file per style scope.
+ *= require_self
+ *= require jquery.ui.autocomplete
+ *= require_tree .
+*/
+
 body { background-color: #fff; color: #333; margin: 0px; height:100%;}
 
 body, p, ol, ul, td {
@@ -173,6 +182,18 @@ acronym {
   clear: both;
 }
 
+.alert {
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  background:#FFAAAA;
+  padding:4px 10px 4px 10px;
+  font-weight:bold;
+  margin-left:35%;
+  display:inline-block;
+  text-align:center;
+  clear: both;
+}
+
 #errorNotice {
   border-radius: 4px;
   -moz-border-radius: 4px;
@@ -206,7 +227,7 @@ acronym {
 #tabs li {
   float: left;
   display: block;
-  padding: 2 8 2 8;
+  padding: 2px 8px 2px 8px;
   margin-left: 4px;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
@@ -260,3 +281,15 @@ acronym {
   font-size: 8pt;
 }
 
+#accounts_popup {
+  border: 1px solid black;
+  padding: 10px;
+  background: white;
+  z-index: 1;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-top-right-radius: 8px;
+  -moz-border-radius-bottomleft: 8px;
+  -moz-border-radius-bottomright: 8px;
+  -moz-border-radius-topright: 8px;
+}

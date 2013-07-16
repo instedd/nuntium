@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.0.19'
-gem 'mysql2', '< 0.3'
+gem 'rails', '3.2.11'
+gem 'mysql2'
 gem "mail"
 gem 'will_paginate', '~> 3.0'
 gem "guid"
@@ -28,14 +28,28 @@ gem 'ci_reporter'
 gem 'daemons'
 gem 'decent_exposure'
 gem 'jquery-rails', '>= 1.0.12'
+gem 'jquery-ui-rails'
 gem 'twilio-ruby'
 gem 'em-msn', '>= 0.7'
+gem 'devise'
+gem 'omniauth'
+gem 'omniauth-openid'
+gem 'slim'
+gem 'lodash-rails'
+gem 'knockoutjs-rails'
 gem 'newrelic_rpm'
+
+# Gems used only for assets and not required
+# in production environments by default.
+group :assets do
+  gem 'sass-rails', "  ~> 3.2.0"
+  gem 'coffee-rails', "~> 3.2.0"
+  gem 'uglifier'
+end
 
 group :development do
   gem 'licit'
   gem 'foreman'
-  gem 'pry-debugger'
 end
 
 group :test do
@@ -44,4 +58,9 @@ group :test do
   gem "thoughtbot-shoulda", :require => "shoulda"
   gem 'ffaker'
   gem 'machinist'
+end
+
+group :development, :test do
+  gem 'pry'
+  gem 'pry-debugger'
 end

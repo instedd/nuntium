@@ -74,7 +74,7 @@ class QstServerChannel < Channel
   end
 
   def hash_password
-    self.salt = ActiveSupport::SecureRandom.base64 8
+    self.salt = SecureRandom.base64 8
     self.password = self.password_confirmation = encode_password(decoded_salt, password)
   end
 

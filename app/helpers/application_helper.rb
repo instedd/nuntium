@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -27,19 +27,27 @@ module ApplicationHelper
   end
 
   def message_subject(msg)
-    if logged_in_application && msg.application != logged_in_application
-      '*' * (msg.subject.try(:length) || 0)
-    else
+    if can_view_message?(msg)
       msg.subject
+    else
+      '*' * (msg.subject.try(:length) || 0)
     end
   end
 
   def message_body(msg)
-    if logged_in_application && msg.application != logged_in_application
-      '*' * (msg.body.try(:length) || 0)
-    else
+    if can_view_message?(msg)
       msg.body
+    else
+      '*' * (msg.body.try(:length) || 0)
     end
+  end
+
+  def can_view_message?(msg)
+    return true if account_admin?
+
+    app_access = !msg.application_id || user_applications.find { |ua| ua.application_id == msg.application_id }
+    channel_access = msg.channel_id && user_channels.find { |ua| ua.channel_id == msg.channel_id }
+    app_access || channel_access
   end
 
   def time_ago(time)

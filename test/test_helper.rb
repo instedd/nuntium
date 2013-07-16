@@ -192,3 +192,7 @@ class ActiveSupport::TestCase
     assert_equal msg.id, jobs[0].message_id
   end
 end
+
+class ActionController::TestCase
+  include Devise::TestHelpers
+end

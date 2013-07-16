@@ -166,7 +166,7 @@ class Application < ActiveRecord::Base
       end
 
       channels.each do |channel|
-        copy = msg.clone
+        copy = msg.dup
         copy.state = 'pending'
         copy.guid = Guid.new.to_s
         copy.parent_id = msg.id

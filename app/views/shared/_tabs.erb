@@ -1,0 +1,20 @@
+<ul id="tabs">
+  <%-
+    [
+      ['Applications', :applications],
+      ['Channels', :channels],
+      ['AO messages', :ao_messages],
+      ['AT messages', :at_messages],
+      ['Logs', :logs],
+      ['Interactions', :interactions],
+      ['Members', :members],
+      ['Settings', :settings],
+      ['Reclaim Account', :reclaims],
+      ['Visualizations', :visualizations]
+    ].each do |name, action|
+    -%>
+      <li<%= (params[:controller].to_sym == action ? ' class="selected"' : '').html_safe %>><%= link_to name, eval("#{action}_path") -%></li>
+    <%-
+  end
+  -%>
+</ul>

@@ -1,54 +1,52 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 module MessageSerialization
   extend ActiveSupport::Concern
 
-  module InstanceMethods
-    def write_xml(xml)
-      options = {:id => self.guid, :from => self.from, :to => self.to}
-      options[:when] = self.timestamp.xmlschema if self.timestamp
-      xml.message(options) do
-        xml.text self.subject_and_body
-        custom_attributes.each_multivalue do |name, values|
-          values.each { |value| xml.property :name => name, :value => value }
-        end
-        xml.property :name => 'token', :value => self.token if self.token
+  def write_xml(xml)
+    options = {:id => self.guid, :from => self.from, :to => self.to}
+    options[:when] = self.timestamp.xmlschema if self.timestamp
+    xml.message(options) do
+      xml.text self.subject_and_body
+      custom_attributes.each_multivalue do |name, values|
+        values.each { |value| xml.property :name => name, :value => value }
       end
+      xml.property :name => 'token', :value => self.token if self.token
     end
+  end
 
-    def to_qst
-      hash = {'id' => guid, 'from' => from, 'to' => to, 'text' => subject_and_body, 'when' => timestamp}
-      hash['properties'] = custom_attributes if custom_attributes.present?
-      hash
-    end
+  def to_qst
+    hash = {'id' => guid, 'from' => from, 'to' => to, 'text' => subject_and_body, 'when' => timestamp}
+    hash['properties'] = custom_attributes if custom_attributes.present?
+    hash
+  end
 
-    def as_json(options = {})
-      hash = {}
-      MessageCommon::Fields.each do |field|
-        value = send field
-        hash[field] = value if value
-      end
-      hash['channel'] = channel.try(:name)
-      hash['channel_kind'] = channel.try(:kind)
-      hash['state'] = state
-      hash.merge!(custom_attributes)
-      hash
+  def as_json(options = {})
+    hash = {}
+    MessageCommon::Fields.each do |field|
+      value = send field
+      hash[field] = value if value
     end
+    hash['channel'] = channel.try(:name)
+    hash['channel_kind'] = channel.try(:kind)
+    hash['state'] = state
+    hash.merge!(custom_attributes)
+    hash
   end
 
   module ClassMethods

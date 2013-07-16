@@ -9,47 +9,56 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    abstract (1.0.0)
-    actionmailer (3.0.19)
-      actionpack (= 3.0.19)
-      mail (~> 2.2.19)
-    actionpack (3.0.19)
-      activemodel (= 3.0.19)
-      activesupport (= 3.0.19)
-      builder (~> 2.1.2)
-      erubis (~> 2.6.6)
-      i18n (~> 0.5.0)
-      rack (~> 1.2.5)
-      rack-mount (~> 0.6.14)
-      rack-test (~> 0.5.7)
-      tzinfo (~> 0.3.23)
-    activemodel (3.0.19)
-      activesupport (= 3.0.19)
-      builder (~> 2.1.2)
-      i18n (~> 0.5.0)
-    activerecord (3.0.19)
-      activemodel (= 3.0.19)
-      activesupport (= 3.0.19)
-      arel (~> 2.0.10)
-      tzinfo (~> 0.3.23)
-    activeresource (3.0.19)
-      activemodel (= 3.0.19)
-      activesupport (= 3.0.19)
-    activesupport (3.0.19)
+    actionmailer (3.2.11)
+      actionpack (= 3.2.11)
+      mail (~> 2.4.4)
+    actionpack (3.2.11)
+      activemodel (= 3.2.11)
+      activesupport (= 3.2.11)
+      builder (~> 3.0.0)
+      erubis (~> 2.7.0)
+      journey (~> 1.0.4)
+      rack (~> 1.4.0)
+      rack-cache (~> 1.2)
+      rack-test (~> 0.6.1)
+      sprockets (~> 2.2.1)
+    activemodel (3.2.11)
+      activesupport (= 3.2.11)
+      builder (~> 3.0.0)
+    activerecord (3.2.11)
+      activemodel (= 3.2.11)
+      activesupport (= 3.2.11)
+      arel (~> 3.0.2)
+      tzinfo (~> 0.3.29)
+    activeresource (3.2.11)
+      activemodel (= 3.2.11)
+      activesupport (= 3.2.11)
+    activesupport (3.2.11)
+      i18n (~> 0.6)
+      multi_json (~> 1.0)
     amqp (0.7.4)
       eventmachine
-    arel (2.0.10)
-    blather (0.5.3)
-      activesupport (>= 3.0.7)
-      eventmachine (~> 0.12.6)
-      minitest (>= 1.7.1)
-      niceogiri (>= 0.0.4)
-      nokogiri (>= 1.4.0)
-    builder (2.1.2)
+    arel (3.0.2)
+    bcrypt-ruby (3.0.1)
+    blather (0.8.5)
+      activesupport (>= 2.3.11)
+      eventmachine (>= 1.0.0)
+      girl_friday
+      niceogiri (~> 1.0)
+      nokogiri (~> 1.5, >= 1.5.6)
+    builder (3.0.4)
     ci_reporter (1.6.5)
       builder (>= 2.1.2)
     coderay (1.0.8)
+    coffee-rails (3.2.2)
+      coffee-script (>= 2.2.0)
+      railties (~> 3.2.0)
+    coffee-script (2.2.0)
+      coffee-script-source
+      execjs
+    coffee-script-source (1.4.0)
     columnize (0.3.6)
+    connection_pool (1.1.0)
     crack (0.1.6)
     daemon_controller (0.2.5)
     daemons (1.1.0)
@@ -61,50 +70,75 @@ GEM
       debugger-ruby_core_source (>= 1.1.1)
     debugger-ruby_core_source (1.1.4)
     decent_exposure (1.0.1)
+    devise (1.5.4)
+      bcrypt-ruby (~> 3.0)
+      orm_adapter (~> 0.0.3)
+      warden (~> 1.1)
     dynamic_form (1.1.4)
     em-msn (0.7)
       eventmachine
       guid
       nokogiri
       rest-client
-    erubis (2.6.6)
-      abstract (>= 1.0.0)
-    eventmachine (0.12.10)
-    faraday (0.8.5)
+    erubis (2.7.0)
+    eventmachine (1.0.3)
+    execjs (1.4.0)
+      multi_json (~> 1.0)
+    faraday (0.8.4)
       multipart-post (~> 1.1)
     ffaker (1.8.0)
     foreman (0.60.2)
       thor (>= 0.13.6)
+    girl_friday (0.11.2)
+      connection_pool (~> 1.0)
+      rubinius-actor
     guid (0.1.1)
+    hashie (1.2.0)
+    hike (1.2.1)
     httparty (0.5.2)
       crack (= 0.1.6)
-    i18n (0.5.0)
+    i18n (0.6.4)
+    journey (1.0.4)
     jquery-rails (1.0.13)
       railties (~> 3.0)
       thor (~> 0.14)
+    jquery-ui-rails (4.0.0)
+      jquery-rails
+      railties (>= 3.1.0)
     json (1.7.6)
     jwt (0.1.3)
       json (>= 1.2.4)
+    knockoutjs-rails (2.2.0)
+      railties (~> 3.1)
     licit (0.2.1)
+    lodash-rails (0.10.0)
+      railties (~> 3.1)
     machinist (1.0.6)
-    mail (2.2.19)
-      activesupport (>= 2.3.6)
+    mail (2.4.4)
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     memcache-client (1.8.5)
     method_source (0.8.1)
-    mime-types (1.19)
-    minitest (2.7.0)
+    mime-types (1.20.1)
+    mini_portile (0.5.1)
     mocha (0.9.12)
-    multi_json (1.5.0)
+    multi_json (1.7.7)
     multipart-post (1.1.5)
-    mysql2 (0.2.18)
+    mysql2 (0.3.11)
     newrelic_rpm (3.6.0.83)
-    niceogiri (0.0.4)
-      nokogiri (>= 1.4.0)
-    nokogiri (1.5.5)
+    niceogiri (1.1.2)
+      nokogiri (~> 1.5)
+    nokogiri (1.6.0)
+      mini_portile (~> 0.5.0)
     oauth (0.4.7)
+    omniauth (1.1.1)
+      hashie (~> 1.2)
+      rack
+    omniauth-openid (1.0.1)
+      omniauth (~> 1.0)
+      rack-openid (~> 1.3.1)
+    orm_adapter (0.0.7)
     polyglot (0.3.3)
     pry (0.9.10)
       coderay (~> 1.0.5)
@@ -115,39 +149,65 @@ GEM
       pry (~> 0.9.9)
     qst_client (0.5)
       httparty
-    rack (1.2.6)
-    rack-mount (0.6.14)
-      rack (>= 1.0.0)
-    rack-test (0.5.7)
+    rack (1.4.4)
+    rack-cache (1.2)
+      rack (>= 0.4)
+    rack-openid (1.3.1)
+      rack (>= 1.1.0)
+      ruby-openid (>= 2.1.8)
+    rack-ssl (1.3.3)
+      rack
+    rack-test (0.6.2)
       rack (>= 1.0)
-    rails (3.0.19)
-      actionmailer (= 3.0.19)
-      actionpack (= 3.0.19)
-      activerecord (= 3.0.19)
-      activeresource (= 3.0.19)
-      activesupport (= 3.0.19)
+    rails (3.2.11)
+      actionmailer (= 3.2.11)
+      actionpack (= 3.2.11)
+      activerecord (= 3.2.11)
+      activeresource (= 3.2.11)
+      activesupport (= 3.2.11)
       bundler (~> 1.0)
-      railties (= 3.0.19)
-    railties (3.0.19)
-      actionpack (= 3.0.19)
-      activesupport (= 3.0.19)
+      railties (= 3.2.11)
+    railties (3.2.11)
+      actionpack (= 3.2.11)
+      activesupport (= 3.2.11)
+      rack-ssl (~> 1.3.2)
       rake (>= 0.8.7)
       rdoc (~> 3.4)
-      thor (~> 0.14.4)
+      thor (>= 0.14.6, < 2.0)
     rake (10.0.3)
-    rdoc (3.9.4)
+    rdoc (3.12)
+      json (~> 1.4)
     rest-client (1.6.7)
       mime-types (>= 1.16)
     rgviz (0.42)
     rgviz-rails (0.48)
       rgviz
+    rubinius-actor (0.0.2)
+      rubinius-core-api
+    rubinius-core-api (0.0.1)
     ruby-cache (0.3.0)
+    ruby-openid (2.2.2)
+    sass (3.2.5)
+    sass-rails (3.2.6)
+      railties (~> 3.2.0)
+      sass (>= 3.1.10)
+      tilt (~> 1.3)
     simple_oauth (0.2.0)
+    slim (1.3.6)
+      temple (~> 0.5.5)
+      tilt (~> 1.3.3)
     slop (3.3.3)
     smart_asset (0.5.4)
+    sprockets (2.2.2)
+      hike (~> 1.2)
+      multi_json (~> 1.0)
+      rack (~> 1.0)
+      tilt (~> 1.1, != 1.3.0)
+    temple (0.5.5)
     test-unit (2.3.2)
-    thor (0.14.6)
+    thor (0.17.0)
     thoughtbot-shoulda (2.11.1)
+    tilt (1.3.3)
     treetop (1.4.12)
       polyglot
       polyglot (>= 0.3.1)
@@ -164,6 +224,11 @@ GEM
       mime-types (>= 1.16)
       oauth (>= 0.4.1)
     tzinfo (0.3.35)
+    uglifier (1.3.0)
+      execjs (>= 0.3.0)
+      multi_json (~> 1.0, >= 1.0.2)
+    warden (1.2.1)
+      rack (>= 1.0)
     will_paginate (3.0.0)
     xmpp4r (0.5)
 
@@ -174,9 +239,11 @@ DEPENDENCIES
   amqp
   blather
   ci_reporter
+  coffee-rails (~> 3.2.0)
   daemon_controller
   daemons
   decent_exposure
+  devise
   dynamic_form
   em-msn (>= 0.7)
   eventmachine
@@ -184,29 +251,38 @@ DEPENDENCIES
   foreman
   guid
   jquery-rails (>= 1.0.12)
+  jquery-ui-rails
   json
+  knockoutjs-rails
   licit
+  lodash-rails
   machinist
   mail
   memcache-client
   mocha
   multi_json (~> 1.3)
-  mysql2 (< 0.3)
+  mysql2
   newrelic_rpm
   nokogiri (>= 1.5.5)
+  omniauth
+  omniauth-openid
+  pry
   pry-debugger
   qst_client
-  rails (= 3.0.19)
+  rails (= 3.2.11)
   rest-client
   rgviz
   rgviz-rails
   ruby-cache
   ruby-smpp!
+  sass-rails (~> 3.2.0)
+  slim
   smart_asset
   test-unit
   thoughtbot-shoulda
   twilio-ruby
   twitter
   twitter_oauth
+  uglifier
   will_paginate (~> 3.0)
   xmpp4r

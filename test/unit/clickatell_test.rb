@@ -30,15 +30,13 @@ class ClickatellTest < ActiveSupport::TestCase
     @tel = Carrier.make :name => 'Telstra', :clickatell_name => 'Telstra', :country => @aus
 
     @s = <<-EOF
-Country, Country Code, Network, +41,+44 [A] *,+46,+61,+49,+45,+44 [B]
-"Argentina","54"
-,,"AMX(Claro)","1","2","3","4","x","x","x"
-,,"Nextel (iDEN)","5","6","7","x","x","x","x"
-"Australia","61"
-,,"Telstra","x","8","x","9","x","10","11"
+Country, Network, +41,+44 [A] *,+46,+61,+49,+45,+44 [B]
+"Argentina","AMX(Claro)","1","2","3","4","x","x","x"
+"Argentina","Nextel (iDEN)","5","6","7","x","x","x","x"
+"Australia","Telstra","x","8","x","9","x","10","11"
 EOF
 
-    RestClient.expects(:get).with("http://www.clickatell.com/pricing/standard_mo_coverage.php?action=export&country=").returns(@s)
+    RestClient.expects(:get).with("http://www.clickatell.com/pricing-and-coverage/advanced-pricing-advanced-coverage/?apexport=true&country_numbers=all&index_limit=10").returns(@s)
   end
 
   test "create coverage tables" do

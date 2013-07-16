@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -19,7 +19,8 @@ class ApplicationsController < ApplicationController
   include RulesControllerCommon
 
   before_filter :set_application_parameters, :only => [:create, :update]
-  before_filter :deny_access_if_logged_in_as_application, :only => [:create, :destroy, :routing_rules]
+  before_filter :check_account_admin, :only => [:create, :routing_rules]
+  before_filter :check_application_admin, :only => [:edit, :update, :destroy]
 
   def set_application_parameters
     application.account_id = account.id
@@ -56,5 +57,11 @@ class ApplicationsController < ApplicationController
     else
       render 'index'
     end
+  end
+
+  private
+
+  def check_application_admin
+    redirect_to applications_path unless application_admin?(application)
   end
 end

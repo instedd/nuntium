@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -19,7 +19,9 @@ require 'test_helper'
 
 class AoMessagesControllerTest < ActionController::TestCase
   def setup
-    @account = Account.make
+    @user = User.make
+    @account = @user.create_account Account.make_unsaved
+    sign_in @user
     @chan = QstServerChannel.make :account => @account
     @application = Application.make :account => @account, :password => 'app_pass'
 
@@ -72,7 +74,7 @@ class AoMessagesControllerTest < ActionController::TestCase
   test "mark ao messages as cancelled" do
     create_test_ao_messages
 
-    post :mark_as_cancelled, {:ao_messages => [@ao_msg1.id, @ao_msg2.id]}, {:account_id => @account.id}
+    post :mark_as_cancelled, :ao_messages => [@ao_msg1.id, @ao_msg2.id]
 
     assert_redirected_to ao_messages_path(:ao_messages => [@ao_msg1.id, @ao_msg2.id])
     assert_equal '2 Application Originated messages were marked as cancelled', flash[:notice]
@@ -83,7 +85,7 @@ class AoMessagesControllerTest < ActionController::TestCase
   test "mark ao messages as cancelled using search" do
     create_test_ao_messages
 
-    post :mark_as_cancelled, {:ao_all => 1, :search => 'one'}, {:account_id => @account.id}
+    post :mark_as_cancelled, :ao_all => 1, :search => 'one'
 
     assert_redirected_to ao_messages_path(:ao_all => 1, :search => 'one')
     assert_equal '2 Application Originated messages were marked as cancelled', flash[:notice]
@@ -94,7 +96,7 @@ class AoMessagesControllerTest < ActionController::TestCase
   test "re-route ao messages" do
     create_test_ao_messages
 
-    post :reroute, {:ao_messages => [@ao_msg1.id, @ao_msg2.id]}, {:account_id => @account.id}
+    post :reroute, :ao_messages => [@ao_msg1.id, @ao_msg2.id]
 
     assert_redirected_to ao_messages_path(:ao_messages => [@ao_msg1.id, @ao_msg2.id])
     assert_equal '2 Application Originated messages were re-routed', flash[:notice]
@@ -106,7 +108,7 @@ class AoMessagesControllerTest < ActionController::TestCase
   test "re-route ao messages using search" do
     create_test_ao_messages
 
-    post :reroute, {:ao_all => 1, :search => 'one'}, {:account_id => @account.id}
+    post :reroute, :ao_all => 1, :search => 'one'
 
     assert_redirected_to ao_messages_path(:ao_all => 1, :search => 'one')
     assert_equal '2 Application Originated messages were re-routed', flash[:notice]
@@ -124,7 +126,7 @@ class AoMessagesControllerTest < ActionController::TestCase
 
     assert_equal 1, @account.queued_ao_messages_count_by_channel_id[@chan.id]
 
-    post :mark_as_cancelled, {:ao_messages => [@ao_msg1.id, @ao_msg2.id]}, {:account_id => @account.id}
+    post :mark_as_cancelled, :ao_messages => [@ao_msg1.id, @ao_msg2.id]
 
     assert_equal 0, @account.queued_ao_messages_count_by_channel_id[@chan.id]
   end
@@ -138,7 +140,7 @@ class AoMessagesControllerTest < ActionController::TestCase
 
     assert_equal 1, @account.queued_ao_messages_count_by_channel_id[@chan.id]
 
-    post :mark_as_cancelled, {:ao_all => 1, :search => 'one'}, {:account_id => @account.id}
+    post :mark_as_cancelled, :ao_all => 1, :search => 'one'
 
     assert_equal 0, @account.queued_ao_messages_count_by_channel_id[@chan.id]
   end

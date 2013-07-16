@@ -16,9 +16,19 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 Nuntium::Application.routes.draw do
-  resource :session do
-    post :register
+  devise_for :users, controllers: {omniauth_callbacks: 'omniauth_callbacks'}
+
+  resources :accounts do
+    member do
+      get :select
+    end
+    collection do
+      post :reclaim
+    end
   end
+
+  resources :reclaims
+
   resources :applications do
     collection do
       put :routing_rules
@@ -58,6 +68,16 @@ Nuntium::Application.routes.draw do
   resources :custom_attributes, :except => :show
   resource :interactions
   resource :settings
+  resources :members do
+    collection do
+      get :autocomplete
+      post :add
+      post :remove
+      post :set_user_role
+      post :set_user_application_role
+      post :set_user_channel_role
+    end
+  end
   resources :visualizations, :only => :index do
     get :messages_state_by_day, :on => :collection
   end
