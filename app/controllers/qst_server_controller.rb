@@ -47,7 +47,7 @@ class QstServerController < ApplicationController
     # return head(:not_found) unless request.head?
     msg = AtMessage.select(:guid).where(:account_id => @account.id, :channel_id => @channel.id).order(:timestamp).last
     etag = msg.nil? ? nil : msg.guid
-    head :ok, 'Etag' => etag
+    head :ok, 'ETag' => etag
   end
 
   # POST /qst/:account_id/incoming
@@ -60,7 +60,7 @@ class QstServerController < ApplicationController
       last_id = msg.guid
     end
 
-    head :ok, 'Etag' => last_id
+    head :ok, 'ETag' => last_id
   end
 
   # GET /qst/:account_id/outgoing
@@ -128,7 +128,7 @@ class QstServerController < ApplicationController
 
     @ao_messages.sort!{|x,y| x.timestamp <=> y.timestamp}
 
-    response.headers['Etag'] = @ao_messages.last.id.to_s if @ao_messages.present?
+    response.headers['ETag'] = @ao_messages.last.id.to_s if @ao_messages.present?
     response.headers["Content-Type"] = "application/xml; charset=utf-8"
     render :text => AoMessage.write_xml(@ao_messages)
   end
