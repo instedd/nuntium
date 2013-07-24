@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130207174337) do
+ActiveRecord::Schema.define(:version => 20130724025105) do
 
   create_table "accounts", :force => true do |t|
     t.string   "name"
@@ -99,6 +99,7 @@ ActiveRecord::Schema.define(:version => 20130207174337) do
 
   add_index "at_messages", ["account_id", "channel_id", "timestamp"], :name => "index_at_messages_on_account_id_and_channel_id_and_timestamp"
   add_index "at_messages", ["account_id", "from", "id"], :name => "index_at_messages_on_account_id_and_from_and_id"
+  add_index "at_messages", ["account_id", "guid"], :name => "index_at_messages_on_account_id_and_guid"
 
   create_table "carriers", :force => true do |t|
     t.integer  "country_id"
@@ -272,8 +273,8 @@ ActiveRecord::Schema.define(:version => 20130207174337) do
     t.integer  "user_id"
     t.integer  "account_id"
     t.string   "role"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "user_applications", :force => true do |t|
@@ -308,8 +309,8 @@ ActiveRecord::Schema.define(:version => 20130207174337) do
     t.string   "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                            :null => false
+    t.datetime "updated_at",                                            :null => false
     t.integer  "current_account_id"
     t.string   "name"
   end
