@@ -23,7 +23,12 @@ class TwilioControllerTest < ActionController::TestCase
     @account = @user.create_account Account.make_unsaved
     sign_in @user
     @application = @account.applications.make :password => 'secret'
-    @chan = @account.twilio_channels.make
+    @chan = @account.twilio_channels.make_unsaved
+    def @chan.configure_phone_number
+      self.incoming_password = Devise.friendly_token
+      true
+    end
+    @chan.save!
   end
 
   test "receive message" do
