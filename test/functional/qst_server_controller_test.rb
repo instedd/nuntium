@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -51,7 +51,7 @@ class QstServerControllerTest < ActionController::TestCase
     head :get_last_id, :account_id => @account.name
     assert_response :ok
 
-    assert_equal expected, @response.headers['Etag']
+    assert_equal expected, @response.headers['ETag']
   end
 
   test "get last message id" do
@@ -72,12 +72,6 @@ class QstServerControllerTest < ActionController::TestCase
 
     @chan.reload
     assert_in_delta Time.now.utc, @chan.last_activity_at, 5
-  end
-
-  test "can't read" do
-    @request.env['HTTP_AUTHORIZATION'] = http_auth @chan.name, 'chan_pass'
-    get :get_last_id, :account_id => @account.name
-    assert_response :not_found
   end
 
   def push(data)
@@ -103,7 +97,7 @@ class QstServerControllerTest < ActionController::TestCase
       </messages>
     eos
 
-    assert_equal msg.guid.to_s, @response.headers['Etag']
+    assert_equal msg.guid.to_s, @response.headers['ETag']
 
     assert_equal @account.id, msg.account_id
     assert_equal @application1.id, msg.application_id
@@ -179,7 +173,7 @@ class QstServerControllerTest < ActionController::TestCase
     @request.env['HTTP_AUTHORIZATION'] = http_auth @chan.name, 'chan_pass'
     get :pull, :account_id => @account.name
 
-    assert_equal msg.id.to_s, @response.headers['Etag']
+    assert_equal msg.id.to_s, @response.headers['ETag']
 
     assert_select "message", {:count => 1}
     assert_shows_message msg
@@ -266,7 +260,7 @@ class QstServerControllerTest < ActionController::TestCase
     @request.env["HTTP_IF_NONE_MATCH"] = msg0.guid
     get :pull, :account_id => @account.name
 
-    assert_equal msg1.id.to_s, @response.headers['Etag']
+    assert_equal msg1.id.to_s, @response.headers['ETag']
 
     assert_select "message", {:count => 1}
     assert_shows_message msg1
@@ -291,7 +285,7 @@ class QstServerControllerTest < ActionController::TestCase
     @request.env["HTTP_IF_NONE_MATCH"] = msgs[1].guid.to_s
     get :pull, :account_id => @account.name, :max => 1
 
-    assert_equal msgs[2].id.to_s, @response.headers['Etag']
+    assert_equal msgs[2].id.to_s, @response.headers['ETag']
 
     assert_select "message", {:count => 1}
     assert_shows_message msgs[2]
@@ -316,7 +310,7 @@ class QstServerControllerTest < ActionController::TestCase
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
     get :pull, :account_id => @account.name
 
-    assert_equal msg.id.to_s, @response.headers['Etag']
+    assert_equal msg.id.to_s, @response.headers['ETag']
 
     assert_select "message", {:count => 1}
     assert_shows_message msg
@@ -328,7 +322,7 @@ class QstServerControllerTest < ActionController::TestCase
     @request.env["HTTP_IF_NONE_MATCH"] = msg.guid.to_s
     get :pull, :account_id => @account.name
 
-    assert_equal msg1.id.to_s, @response.headers['Etag']
+    assert_equal msg1.id.to_s, @response.headers['ETag']
 
     assert_select "message", {:count => 1}
     assert_shows_message msg1
@@ -345,7 +339,7 @@ class QstServerControllerTest < ActionController::TestCase
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
     get :pull, :account_id => @account.name
 
-    assert_equal msg11.id.to_s, @response.headers['Etag']
+    assert_equal msg11.id.to_s, @response.headers['ETag']
 
     assert_select "message", {:count => 1}
     assert_shows_message msg11
@@ -363,7 +357,7 @@ class QstServerControllerTest < ActionController::TestCase
     @request.env["HTTP_IF_NONE_MATCH"] = "someguid 3"
     get :pull, :account_id => @account.name
 
-    assert_equal msg.id.to_s, @response.headers['Etag']
+    assert_equal msg.id.to_s, @response.headers['ETag']
 
     assert_select "message", {:count => 1}
     assert_shows_message msg

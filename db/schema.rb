@@ -273,8 +273,8 @@ ActiveRecord::Schema.define(:version => 20130724025105) do
     t.integer  "user_id"
     t.integer  "account_id"
     t.string   "role"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "user_applications", :force => true do |t|
@@ -309,8 +309,8 @@ ActiveRecord::Schema.define(:version => 20130724025105) do
     t.string   "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
-    t.datetime "created_at",                                            :null => false
-    t.datetime "updated_at",                                            :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.integer  "current_account_id"
     t.string   "name"
   end
