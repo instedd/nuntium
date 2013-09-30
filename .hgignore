@@ -1,6 +1,6 @@
 syntax: glob
 .bundle
-log/*.log*
+log/*
 *.orig
 tmp
 twitter_oauth_consumer.yml

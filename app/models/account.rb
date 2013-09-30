@@ -266,7 +266,7 @@ class Account < ActiveRecord::Base
   end
 
   def alert_emails
-    users.pluck(&:email)
+    users.pluck(:email)
   end
 
   def restart_channel_processes
