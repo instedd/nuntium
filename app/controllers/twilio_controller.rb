@@ -21,13 +21,18 @@ class TwilioController < ApplicationController
 
   def index
     msg = AtMessage.new
-    msg.from = "sms://#{params[:From]}"
-    msg.to = "sms://#{params[:To]}"
+    msg.from = format_phone_number(params[:From], params[:FromCountry])
+    msg.to = format_phone_number(params[:To], params[:ToCountry])
     msg.body = params[:Body]
     msg.channel_relative_id = params[:SmsSid]
     @account.route_at msg, @channel
 
     head :ok
+  end
+
+  def format_phone_number(number, country)
+    number = "1" + number if country == "US" && !number.start_with?('1')
+    "sms://#{number}"
   end
 
   def ack

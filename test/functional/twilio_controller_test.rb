@@ -41,6 +41,17 @@ class TwilioControllerTest < ActionController::TestCase
     assert_message message
   end
 
+  test "receive message in USA without country code" do
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])
+    message = {:From => '2343839922', :To => '4567772222', :Body => 'Hello!', :SmsSid => 'sms_sid', :AccountSid => @chan.configuration[:account_sid],
+      :FromCountry => 'US', :ToCountry => 'US'}
+
+    post :index, message.merge(:account_id => @account.name)
+
+    assert_response :ok
+    assert_message message.merge(:From => '12343839922', :To => '14567772222')
+  end
+
   test "receive confirmed ack" do
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])
     msg = AoMessage.make :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'sms_sid'
