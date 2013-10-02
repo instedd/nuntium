@@ -38,6 +38,7 @@ class TwilioChannel < Channel
     end
 
     self.incoming_password = Devise.friendly_token
+    self.address = target_phone.phone_number.mobile_number.with_protocol("sms")
 
     protocol = Settings.protocol
     host_name = Settings.host_name
