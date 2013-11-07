@@ -31,8 +31,9 @@ class TwilioController < ApplicationController
   end
 
   def format_phone_number(number, country)
+    number = number.mobile_number
     number = "1" + number if country == "US" && !number.start_with?('1')
-    "sms://#{number}"
+    number.with_protocol("sms")
   end
 
   def ack
