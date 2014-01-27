@@ -41,10 +41,12 @@ class ClickatellController < ApplicationController
     msg = AoMessage.find_by_channel_id_and_channel_relative_id @channel.id, params[:apiMsgId]
     return head :ok unless msg
 
-    msg.state = case params[:status].to_i
-                when 4 then msg.state = 'confirmed'
-                when 5, 6, 7, 12 then msg.state = 'failed'
-                end
+    case params[:status].to_i
+    when 4
+      msg.state = 'confirmed'
+    when 5, 6, 7, 12
+      msg.state = 'failed'
+    end
 
     unless msg.custom_attributes[:cost]
       cost_per_credit = (@channel.cost_per_credit || '1').to_f
