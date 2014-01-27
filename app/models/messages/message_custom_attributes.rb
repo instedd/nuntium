@@ -24,6 +24,7 @@ module MessageCustomAttributes
     custom_attributes_accessor :strategy
     custom_attributes_accessor :suggested_channel
     custom_attributes_accessor :cost
+    custom_attributes_accessor :fragment
   end
 
   # A Hash where each value can be a string or an Array of strings

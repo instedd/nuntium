@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -150,11 +150,42 @@ class Channel < ActiveRecord::Base
     msg.state = 'queued'
     msg.save! unless simulate || dont_save
 
+    # Check if we need to fragment the message
+    if msg.fragment
+      return route_ao_fragments(msg, simulate, dont_save)
+    end
+
     unless simulate
       logger.info :application_id => msg.application_id, :channel_id => self.id, :ao_message_id => msg.id, :message => ThreadLocalLogger.result
 
       # Handle the message
       handle msg
+    end
+  end
+
+  def route_ao_fragments(msg, simulate, dont_save)
+    fragments = msg.build_fragments
+
+    ThreadLocalLogger << "Fragmenting into #{fragments.length} messages."
+
+    unless simulate
+      logger.info :application_id => msg.application_id, :channel_id => self.id, :ao_message_id => msg.id, :message => ThreadLocalLogger.result
+    end
+
+    fragments.each_with_index do |fragment, index|
+      ThreadLocalLogger.reset
+      ThreadLocalLogger << "Message created as fragment ##{index} of '#{msg.id}'"
+
+      fragment.channel = self
+      fragment.state = 'queued'
+      fragment.save! unless simulate || dont_save
+
+      # Handle the fragment
+      unless simulate
+        logger.info :application_id => fragment.application_id, :channel_id => self.id, :ao_message_id => fragment.id, :message => ThreadLocalLogger.result
+
+        handle fragment
+      end
     end
   end
 
