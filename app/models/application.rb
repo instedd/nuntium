@@ -251,15 +251,20 @@ class Application < ActiveRecord::Base
     if msg.state == 'canceled'
       ThreadLocalLogger << "Message was canceled by application at rules."
     else
-      # Check if callback interface is configured
-      if self.interface == 'http_get_callback' || self.interface == 'http_post_callback'
-        unless simulate
-          Queues.publish_application self, SendInterfaceCallbackJob.new(msg.account_id, msg.application_id, msg.id)
-        end
-        if self.interface == 'http_get_callback'
-          ThreadLocalLogger << "Enqueued GET callback"
-        else
-          ThreadLocalLogger << "Enqueued POST callback"
+      if msg.handle_fragmentation_command
+        # The message was a command like 'resend some fragments' or 'ack':
+        # nothing left to be done.
+      else
+        # Check if callback interface is configured
+        if self.interface == 'http_get_callback' || self.interface == 'http_post_callback'
+          unless simulate
+            Queues.publish_application self, SendInterfaceCallbackJob.new(msg.account_id, msg.application_id, msg.id)
+          end
+          if self.interface == 'http_get_callback'
+            ThreadLocalLogger << "Enqueued GET callback"
+          else
+            ThreadLocalLogger << "Enqueued POST callback"
+          end
         end
       end
     end

@@ -46,8 +46,8 @@ class FragmentationTest < ActiveSupport::TestCase
     first_base64 = base64[0 ... 131]
     second_base64 = base64[131 .. -1]
 
-    first_packet = "&&#{ao.fragment_id}A0|#{first_base64}|"
-    second_packet = "&&#{ao.fragment_id}B1|#{second_base64}|"
+    first_packet = "&&A#{ao.fragment_id}0|#{first_base64}|"
+    second_packet = "&&B#{ao.fragment_id}1|#{second_base64}|"
 
     fragments = ao.build_fragments
     assert_equal 2, fragments.length
@@ -78,8 +78,8 @@ class FragmentationTest < ActiveSupport::TestCase
 
     @app.route_ao msg, 'test'
 
-    first_packet = "&&#{msg.fragment_id}A0|#{first_base64}|"
-    second_packet = "&&#{msg.fragment_id}B1|#{second_base64}|"
+    first_packet = "&&A#{msg.fragment_id}0|#{first_base64}|"
+    second_packet = "&&B#{msg.fragment_id}1|#{second_base64}|"
 
     msgs = AoMessage.all
     assert_equal 3, msgs.length
@@ -92,5 +92,51 @@ class FragmentationTest < ActiveSupport::TestCase
 
     assert_equal second_packet, msgs[2].body
     assert_equal msgs[0].id, msgs[2].parent_id
+
+    fragments = AoMessageFragment.all
+    assert_equal 2, fragments.length
+
+    assert_equal @account.id, fragments[0].account_id
+    assert_equal @chan.id, fragments[0].channel_id
+    assert_equal msgs[1].id, fragments[0].ao_message_id
+    assert_equal msg.fragment_id, fragments[0].fragment_id
+    assert_equal 0, fragments[0].number
+
+    assert_equal @account.id, fragments[1].account_id
+    assert_equal @chan.id, fragments[1].channel_id
+    assert_equal msgs[2].id, fragments[1].ao_message_id
+    assert_equal msg.fragment_id, fragments[1].fragment_id
+    assert_equal 1, fragments[1].number
+  end
+
+  test "resend some fragments" do
+    body = ("Hello world. This is a relly long message. " * 2000).strip
+
+    ao = AoMessage.make_unsaved to: "sms://1234", body: body
+    ao.fragment = true
+
+    @app.route_ao ao, 'test'
+
+    msgs = AoMessage.all
+    assert_equal 5, msgs.length
+
+    msgs[1 .. -1].each do |piece|
+      piece.state = "delivered"
+      piece.save!
+    end
+
+    at = AtMessage.make_unsaved from: "sms://1234", body: "&&C#{ao.fragment_id}0,2,3"
+    @account.route_at at, @chan
+
+    at.reload
+
+    assert_not_nil at.id
+
+    msgs.each &:reload
+
+    assert_equal "queued", msgs[1].state
+    assert_equal "delivered", msgs[2].state
+    assert_equal "queued", msgs[3].state
+    assert_equal "queued", msgs[4].state
   end
 end

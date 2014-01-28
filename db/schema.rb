@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130724025105) do
+ActiveRecord::Schema.define(:version => 20140128140635) do
 
   create_table "accounts", :force => true do |t|
     t.string   "name"
@@ -35,6 +35,18 @@ ActiveRecord::Schema.define(:version => 20130724025105) do
   end
 
   add_index "address_sources", ["application_id", "address", "channel_id"], :name => "address_sources_idx", :unique => true
+
+  create_table "ao_message_fragments", :force => true do |t|
+    t.integer  "account_id"
+    t.integer  "channel_id"
+    t.integer  "ao_message_id"
+    t.string   "fragment_id"
+    t.integer  "number"
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
+  end
+
+  add_index "ao_message_fragments", ["account_id", "channel_id", "fragment_id", "number"], :name => "index_ao_message_fragments"
 
   create_table "ao_messages", :force => true do |t|
     t.string   "from"

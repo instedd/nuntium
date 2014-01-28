@@ -164,6 +164,7 @@ class Channel < ActiveRecord::Base
   end
 
   def route_ao_fragments(msg, simulate, dont_save)
+    fragment_id = msg.fragment_id
     fragments = msg.build_fragments
 
     ThreadLocalLogger << "Fragmenting into #{fragments.length} messages."
@@ -180,8 +181,9 @@ class Channel < ActiveRecord::Base
       fragment.state = 'queued'
       fragment.save! unless simulate || dont_save
 
-      # Handle the fragment
       unless simulate
+        AoMessageFragment.create! account_id: account_id, channel_id: id, ao_message_id: fragment.id, fragment_id: fragment_id, number: index
+
         logger.info :application_id => fragment.application_id, :channel_id => self.id, :ao_message_id => fragment.id, :message => ThreadLocalLogger.result
 
         handle fragment

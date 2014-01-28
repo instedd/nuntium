@@ -22,7 +22,7 @@ module MessageFragmentation
 
   # Fragment format is:
   #
-  #   &&XXXTNNN|msg|
+  #   &&TXXXNNN|msg|
   #   123456...7...8
   #
   # where:
@@ -56,7 +56,7 @@ module MessageFragmentation
       fragment = AoMessage.new account_id: account_id, application_id: application_id, from: from, to: to
 
       kind = index >= base64.length ? 'B' : 'A'
-      fragment.body = "&&#{fragment_id}#{kind}#{num_s}|#{piece}|"
+      fragment.body = "&&#{kind}#{fragment_id}#{num_s}|#{piece}|"
       fragment.parent_id = id
       fragment.failover_channels = failover_channels
       fragment.custom_attributes = custom_attributes.dup
@@ -71,6 +71,23 @@ module MessageFragmentation
 
   def fragment_id
     self.class.fragment_id(id)
+  end
+
+  def handle_fragmentation_command
+    if body && body.start_with?('&&C')
+      ThreadLocalLogger.nest do
+        fragment_id = body[3 ... 6]
+        nums = body[6 .. -1].split(',').map { |p| p.strip.to_i }
+        ao_messages_ids = AoMessageFragment.where(fragment_id: fragment_id, number: nums).pluck(:ao_message_id)
+        aos = AoMessage.where(id: ao_messages_ids)
+        aos.each do |ao|
+          application.reroute_ao(ao)
+        end
+      end
+      true
+    end
+
+    false
   end
 
   module ClassMethods

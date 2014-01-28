@@ -21,6 +21,7 @@ class AoMessage < ActiveRecord::Base
   belongs_to :channel
   has_many :logs
   has_many :children, :foreign_key => 'parent_id', :class_name => name
+  has_many :ao_message_fragments
 
   validates_presence_of :account
   serialize :custom_attributes, Hash
@@ -28,6 +29,9 @@ class AoMessage < ActiveRecord::Base
 
   after_save :send_delivery_ack
   before_save :route_failover
+
+  before_save :truncate_body, :if => :fragment
+  after_save :untruncate_body, :if => :fragment
 
   include MessageCommon
   include MessageGetter
@@ -105,5 +109,14 @@ class AoMessage < ActiveRecord::Base
     ThreadLocalLogger.reset
     ThreadLocalLogger << "Re-route failover"
     chan.route_ao self, 're-route', :dont_save => true
+  end
+
+  def truncate_body
+    @body_before_truncate = body
+    self.body = self.body[0 ... 65000]
+  end
+
+  def untruncate_body
+    self.body = @body_before_truncate
   end
 end
