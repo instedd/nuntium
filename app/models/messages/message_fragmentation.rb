@@ -74,17 +74,28 @@ module MessageFragmentation
   end
 
   def handle_fragmentation_command
-    if body && body.start_with?('&&C')
-      ThreadLocalLogger.nest do
-        fragment_id = body[3 ... 6]
-        nums = body[6 .. -1].split(',').map { |p| p.strip.to_i }
-        ao_messages_ids = AoMessageFragment.where(fragment_id: fragment_id, number: nums).pluck(:ao_message_id)
-        aos = AoMessage.where(id: ao_messages_ids)
-        aos.each do |ao|
-          application.reroute_ao(ao)
+    if body
+      if body.start_with?('&&C')
+        ThreadLocalLogger.nest do
+          fragment_id = body[3 ... 6]
+          nums = body[6 .. -1].split(',').map { |p| p.strip.to_i }
+          ao_messages_ids = AoMessageFragment.where(fragment_id: fragment_id, number: nums).pluck(:ao_message_id)
+          aos = AoMessage.where(id: ao_messages_ids)
+          aos.each do |ao|
+            application.reroute_ao(ao)
+          end
+        end
+        true
+      elsif body.start_with?('&&D')
+        ThreadLocalLogger.nest do
+          fragment_id = body[3 ... 6]
+          fragment = AoMessageFragment.where(fragment_id: fragment_id).first
+          ao_fragment = fragment.ao_message
+          ao = AoMessage.find(ao_fragment.parent_id)
+          ao.state = "confirmed"
+          ao.save!
         end
       end
-      true
     end
 
     false

@@ -139,4 +139,23 @@ class FragmentationTest < ActiveSupport::TestCase
     assert_equal "queued", msgs[3].state
     assert_equal "queued", msgs[4].state
   end
+
+  test "ack" do
+    body = ("Hello world. This is a relly long message. " * 1000).strip
+
+    ao = AoMessage.make_unsaved to: "sms://1234", body: body
+    ao.fragment = true
+
+    @app.route_ao ao, 'test'
+
+    at = AtMessage.make_unsaved from: "sms://1234", body: "&&D#{ao.fragment_id}"
+    @account.route_at at, @chan
+
+    at.reload
+
+    assert_not_nil at.id
+
+    ao.reload
+    assert_equal "confirmed", ao.state
+  end
 end
