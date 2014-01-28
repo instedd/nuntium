@@ -79,9 +79,19 @@ module MessageFragmentation
         ThreadLocalLogger.nest do
           fragment_id = body[3 ... 6]
           nums = body[6 .. -1].split(',').map { |p| p.strip.to_i }
-          ao_messages_ids = AoMessageFragment.where(fragment_id: fragment_id, number: nums).pluck(:ao_message_id)
+          ao_messages_ids = AoMessageFragment.where(fragment_id: fragment_id, number: nums).order('id desc').pluck(:ao_message_id)
           aos = AoMessage.where(id: ao_messages_ids)
+
+          # Make sure to re-route only the last AO messages that share the same parent_id
+          parent_id = nil
           aos.each do |ao|
+            if ao.parent_id != parent_id
+              if parent_id
+                break
+              else
+                parent_id = ao.parent_id
+              end
+            end
             application.reroute_ao(ao)
           end
         end
@@ -89,7 +99,7 @@ module MessageFragmentation
       elsif body.start_with?('&&D')
         ThreadLocalLogger.nest do
           fragment_id = body[3 ... 6]
-          fragment = AoMessageFragment.where(fragment_id: fragment_id).first
+          fragment = AoMessageFragment.where(fragment_id: fragment_id).last
           ao_fragment = fragment.ao_message
           ao = AoMessage.find(ao_fragment.parent_id)
           ao.state = "confirmed"
