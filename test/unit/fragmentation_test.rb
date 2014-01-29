@@ -109,6 +109,17 @@ class FragmentationTest < ActiveSupport::TestCase
     assert_equal 1, fragments[1].number
   end
 
+  test "don't send fragmented message if length is less or equal than then maximum" do
+    body = "a" * MessageFragmentation::MAX_MESSAGE_LENGTH
+
+    msg = AoMessage.make_unsaved to: "sms://1234", body: body
+    msg.fragment = true
+
+    @app.route_ao msg, 'test'
+
+    assert_equal 1, AoMessage.count
+  end
+
   test "resend some fragments" do
     body = ("Hello world. This is a relly long message. " * 2000).strip
 

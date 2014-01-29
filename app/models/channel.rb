@@ -151,7 +151,7 @@ class Channel < ActiveRecord::Base
     msg.save! unless simulate || dont_save
 
     # Check if we need to fragment the message
-    if msg.fragment
+    if msg.fragment && msg.needs_fragmentation?
       return route_ao_fragments(msg, simulate, dont_save)
     end
 

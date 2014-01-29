@@ -20,6 +20,8 @@ require 'base64'
 module MessageFragmentation
   extend ActiveSupport::Concern
 
+  MAX_MESSAGE_LENGTH = 140
+
   # Fragment format is:
   #
   #   &&TXXXNNN|msg|
@@ -36,6 +38,10 @@ module MessageFragmentation
   #
   # That is, 8 chars are always lost and extra chars are lost because of the fragment number.
 
+  def needs_fragmentation?
+    body && body.length > MAX_MESSAGE_LENGTH
+  end
+
   def build_fragments
     compressed = Zlib::Deflate.deflate(body)
     base64 = Base64.strict_encode64(compressed).strip
@@ -48,7 +54,7 @@ module MessageFragmentation
 
     while index < base64.length
       num_s = num.to_s
-      count = 132 - num_s.length
+      count = MAX_MESSAGE_LENGTH - 8 - num_s.length
       piece = base64[index, count]
       index += count
       num += 1
