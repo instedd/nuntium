@@ -22,6 +22,7 @@ end
 
 class MsnConnection
   include Msn
+  include ChannelConnection
 
   PrefetchCount = 5
 
@@ -152,22 +153,6 @@ class MsnConnection
     @subscribed = true
   end
 
-  def reschedule(job, header, ex)
-    job.reschedule ex
-  rescue => ex
-    Rails.logger.info "[#{@channel.name}] Exception rescheduling #{job}: #{ex.class} #{ex} #{ex.backtrace}"
-    unsubscribe_temporarily
-  else
-    header.ack
-  end
-
-  def unsubscribe_temporarily
-    if @subscribed
-      unsubscribe_queue
-      EM.add_timer(5) { subscribe_queue }
-    end
-  end
-
   def unsubscribe_queue
     Rails.logger.info "[#{@channel.name}] Unsubscribing from message queue"
 
@@ -175,14 +160,5 @@ class MsnConnection
     @mq.prefetch PrefetchCount
 
     @subscribed = false
-  end
-
-  def channel_connected=(value)
-    @connected = value
-    @channel.connected = value
-  end
-
-  def notify_connection_status
-    @channel.connected = @connected
   end
 end

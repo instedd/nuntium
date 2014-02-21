@@ -50,6 +50,8 @@ class MyTransceiver < Smpp::Transceiver
 end
 
 class SmppGateway < SmppTransceiverDelegate
+  include ChannelConnection
+
   def initialize(channel)
     super nil, channel
     @prefetch_count = channel.max_unacknowledged_messages.to_i
@@ -113,10 +115,7 @@ class SmppGateway < SmppTransceiverDelegate
 
     subscribe_queue
 
-    if @alert_on_reconnect
-      @channel.notify_reconnected
-      @alert_on_reconnect = false
-    end
+    check_alert_on_reconnect
   end
 
   def message_accepted(transceiver, mt_message_id, pdu)
@@ -173,15 +172,6 @@ class SmppGateway < SmppTransceiverDelegate
     end
   end
 
-  def alert_user_if_couldnt_reconnect_soon
-    EM.add_timer(60) do
-      unless @connected
-        @channel.notify_disconnected
-        @alert_on_reconnect = true
-      end
-    end
-  end
-
   def subscribe_queue
     Rails.logger.info "[#{@channel.name}] Subscribing to message queue"
 
@@ -213,22 +203,6 @@ class SmppGateway < SmppTransceiverDelegate
     @subscribed = false
   end
 
-  def reschedule(job, header, ex)
-    job.reschedule ex
-  rescue => ex
-    Rails.logger.info "[#{@channel.name}] Exception rescheduling #{job}: #{ex.class} #{ex} #{ex.backtrace}"
-    unsubscribe_temporarily
-  else
-    header.ack
-  end
-
-  def unsubscribe_temporarily
-    if @subscribed
-      unsubscribe_queue
-      EM.add_timer(5) { subscribe_queue }
-    end
-  end
-
   def send_ack(message_id)
     header = @pending_headers.delete(message_id)
     if header
@@ -242,14 +216,5 @@ class SmppGateway < SmppTransceiverDelegate
     if @channel.throttle and @channel.throttle > 0
       sleep(60.0 / @channel.throttle)
     end
-  end
-
-  def channel_connected=(value)
-    @connected = value
-    @channel.connected = value
-  end
-
-  def notify_connection_status
-    @channel.connected = @connected
   end
 end
