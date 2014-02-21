@@ -52,6 +52,8 @@ class XmppConnection
 
       set_status :chat, @channel.status if @channel.status.present?
       subscribe_queue
+
+      check_alert_on_reconnect
     end
 
     receive_chats
@@ -123,9 +125,12 @@ class XmppConnection
 
   def handle_disconnections
     disconnected do
+      was_connected = @connected
       self.channel_connected = false
 
       if @is_running
+        alert_user_if_couldnt_reconnect_soon if was_connected
+
         Rails.logger.info "[#{@channel.name}] Disconnected, trying to reconnect..."
         client.connect
       end

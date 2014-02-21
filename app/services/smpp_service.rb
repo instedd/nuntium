@@ -154,16 +154,13 @@ class SmppGateway < SmppTransceiverDelegate
     Rails.logger.info "[#{@channel.name}] Delegate: transceiver unbound"
 
     was_connected = @connected
-
     self.channel_connected = false
 
     if @is_running
       unsubscribe_queue
 
       if @is_running
-        if was_connected
-          alert_user_if_couldnt_reconnect_soon
-        end
+        alert_user_if_couldnt_reconnect_soon if was_connected
 
         Rails.logger.warn "[#{@channel.name}] Disconnected. Reconnecting in 5 seconds..."
         sleep 5

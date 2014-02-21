@@ -47,6 +47,8 @@ class MsnConnection
       @msn.set_online_status :online
       check_pending_contacts
       subscribe_queue
+
+      check_alert_on_reconnect
     end
 
     receive_messages
@@ -102,9 +104,12 @@ class MsnConnection
 
   def handle_disconnections
     @msn.on_disconnect do
+      was_connected = @connected
       self.channel_connected = false
 
       if @is_running
+        alert_user_if_couldnt_reconnect_soon if was_connected
+
         Rails.logger.info "[#{@channel.name}] Disconnected, trying to reconnect..."
         @msn.connect
       end
