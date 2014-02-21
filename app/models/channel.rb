@@ -282,6 +282,14 @@ class Channel < ActiveRecord::Base
     AlertMailer.error(account, "Error in account #{account.name}, channel #{self.name}", message).deliver
   end
 
+  def notify_disconnected
+    alert "Warning: channel '#{name}' is disconnected"
+  end
+
+  def notify_reconnected
+    alert "Notice: channel '#{name}' is now connected"
+  end
+
   def has_connection?
     false
   end

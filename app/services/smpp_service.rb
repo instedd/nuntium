@@ -50,7 +50,6 @@ class MyTransceiver < Smpp::Transceiver
 end
 
 class SmppGateway < SmppTransceiverDelegate
-
   def initialize(channel)
     super nil, channel
     @prefetch_count = channel.max_unacknowledged_messages.to_i
@@ -113,6 +112,11 @@ class SmppGateway < SmppTransceiverDelegate
     self.channel_connected = true
 
     subscribe_queue
+
+    if @alert_on_reconnect
+      @channel.notify_reconnected
+      @alert_on_reconnect = false
+    end
   end
 
   def message_accepted(transceiver, mt_message_id, pdu)
@@ -150,15 +154,30 @@ class SmppGateway < SmppTransceiverDelegate
   def unbound(transceiver)
     Rails.logger.info "[#{@channel.name}] Delegate: transceiver unbound"
 
+    was_connected = @connected
+
     self.channel_connected = false
 
     if @is_running
       unsubscribe_queue
 
       if @is_running
+        if was_connected
+          alert_user_if_couldnt_reconnect_soon
+        end
+
         Rails.logger.warn "[#{@channel.name}] Disconnected. Reconnecting in 5 seconds..."
         sleep 5
         connect if @is_running
+      end
+    end
+  end
+
+  def alert_user_if_couldnt_reconnect_soon
+    EM.add_timer(60) do
+      unless @connected
+        @channel.notify_disconnected
+        @alert_on_reconnect = true
       end
     end
   end
