@@ -25,9 +25,8 @@ class QstServerChannel < Channel
 
   configuration_accessor :password, :password_confirmation, :salt
 
-  before_validation :reset_password, :if => lambda { persisted? && password.blank? }
   before_create :hash_password
-  before_update :hash_password, :if => lambda { salt.blank? }
+  before_validation :rehash_password_if_changed, :on => :update
 
   validate :validate_password_confirmation
   validates_presence_of :ticket_code, :if => lambda { use_ticket.present? }
@@ -67,15 +66,19 @@ class QstServerChannel < Channel
 
   private
 
-  def reset_password
-    old_configuration = configuration_was.dup
-    self.password = self.password_confirmation = old_configuration[:password]
-    self.salt = old_configuration[:salt]
-  end
-
   def hash_password
     self.salt = SecureRandom.base64 8
     self.password = self.password_confirmation = encode_password(decoded_salt, password)
+  end
+
+  def rehash_password_if_changed
+    if password.blank?
+      old_configuration = configuration_was.dup
+      self.password = self.password_confirmation = old_configuration[:password]
+      self.salt = old_configuration[:salt]
+    elsif configuration_was[:password] != password && password == password_confirmation
+      hash_password
+    end
   end
 
   def decoded_salt

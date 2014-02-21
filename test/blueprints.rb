@@ -135,6 +135,15 @@ IpopChannel.blueprint do
   configuration { {:mt_post_url => Sham.url, :bid => '1', :cid => Sham.number8 } }
 end
 
+MsnChannel.blueprint do
+  account
+  name { Sham.guid }
+  direction { Channel::Bidirectional }
+  protocol { "msn" }
+  enabled { true }
+  configuration { {:email => Sham.email, :password => Sham.password } }
+end
+
 MultimodemIsmsChannel.blueprint do
   account
   name { Sham.guid }

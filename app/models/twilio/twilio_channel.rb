@@ -20,6 +20,7 @@ class TwilioChannel < Channel
 
   configuration_accessor :account_sid, :auth_token, :from, :incoming_password
   validates_presence_of :account_sid, :auth_token, :from, :incoming_password
+  handle_password_change :auth_token
 
   before_validation :configure_phone_number
   def configure_phone_number

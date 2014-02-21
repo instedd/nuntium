@@ -191,6 +191,17 @@ class ActiveSupport::TestCase
     assert_equal chan.account_id, jobs[0].account_id
     assert_equal msg.id, jobs[0].message_id
   end
+
+  def assert_can_leave_password_empty(chan, field = :password)
+    old_password = chan.send(field)
+
+    chan.send "#{field}=", ''
+    chan.save!
+
+    chan.reload
+
+    assert_equal old_password, chan.send(field)
+  end
 end
 
 class ActionController::TestCase

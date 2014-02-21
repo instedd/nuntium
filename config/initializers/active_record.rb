@@ -30,4 +30,14 @@ class ActiveRecord::Base
       end
     end
   end
+
+  def self.handle_password_change(name = :password)
+    class_eval %Q(
+      before_validation :_restore_#{name}, :on => :update
+
+      def _restore_#{name}
+        self.#{name} = self.configuration_was[:#{name}] if self.#{name}.blank?
+      end
+    )
+  end
 end

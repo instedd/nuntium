@@ -31,6 +31,9 @@ class ClickatellChannel < Channel
   before_destroy :clear_restrictions_cache
   after_update :clear_restrictions_cache
 
+  handle_password_change
+  handle_password_change :incoming_password
+
   def self.default_protocol
     'sms'
   end

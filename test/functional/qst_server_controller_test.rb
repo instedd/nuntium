@@ -21,8 +21,8 @@ class QstServerControllerTest < ActionController::TestCase
   def setup
     @account = Account.make :password
     @chan = QstServerChannel.make_unsaved :account => @account
-    @chan.configuration[:password] = 'chan_pass'
-    @chan.configuration[:password_confirmation] = 'chan_pass'
+    @chan.password = 'chan_pass'
+    @chan.password_confirmation = 'chan_pass'
     @chan.configuration.delete :salt
     @chan.save!
 
@@ -218,7 +218,7 @@ class QstServerControllerTest < ActionController::TestCase
     assert_select "message", {:count => 0}
   end
 
-  test "get one increments retires" do
+  test "get one increments retries" do
     msg = create_qst_ao @account, @chan
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')

@@ -26,6 +26,7 @@ class MultimodemIsmsChannel < Channel
 
   validates_presence_of :host, :port, :user, :password
   validates_numericality_of :port, :greater_than => 0
+  handle_password_change
 
   def self.title
     "Multimodem iSms"

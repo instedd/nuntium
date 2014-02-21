@@ -19,8 +19,8 @@ class MsnChannel < Channel
   include ServiceChannel
 
   configuration_accessor :email, :password
-  
   validates_presence_of :email, :password
+  handle_password_change
 
   def self.title
     "MSN"

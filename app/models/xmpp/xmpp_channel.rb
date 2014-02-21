@@ -28,6 +28,8 @@ class XmppChannel < Channel
   validates_presence_of :user, :domain, :password
   validates_numericality_of :port, :greater_than => 0
 
+  handle_password_change
+
   def self.title
     "XMPP"
   end

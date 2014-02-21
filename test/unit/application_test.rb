@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -593,5 +593,42 @@ class ApplicationTest < ActiveSupport::TestCase
     msg.reload
 
     assert_equal 1.2, msg.cost
+  end
+
+  test "should not create if password is blank" do
+    app = Application.make_unsaved
+    app.password = app.password_confirmation = ''
+    assert_false app.save
+  end
+
+  test "should not save if password confirmation is wrong" do
+    app = Application.make password: 'foo'
+    app.password_confirmation = 'foo2'
+    assert_false app.save
+  end
+
+  test "should authenticate" do
+    app = Application.make password: 'foo', password_confirmation: 'foo'
+    assert app.authenticate('foo')
+  end
+
+  test "should keep old password if save with blank password" do
+    app = Application.make password: 'foo', password_confirmation: 'foo'
+    app.password = app.password_confirmation = ''
+    app.save!
+
+    app.reload
+
+    assert app.authenticate('foo')
+  end
+
+  test "should rehash password after password changed" do
+    app = Application.make password: 'foo', password_confirmation: 'foo'
+    app.password = app.password_confirmation = 'foo2'
+    app.save!
+
+    app.reload
+
+    assert app.authenticate('foo2')
   end
 end

@@ -22,9 +22,10 @@ class QstServerChannelTest < ActiveSupport::TestCase
     @chan = QstServerChannel.make :configuration => {:password => 'foo', :password_confirmation => 'foo'}
   end
 
-  test "should not save if password is blank" do
-    @chan.configuration.delete :password
-    assert_false @chan.save
+  test "should not create if password is blank" do
+    chan = QstServerChannel.make_unsaved
+    chan.password = chan.password_confirmation = ''
+    assert_false chan.save
   end
 
   test "should not save if password confirmation is wrong" do
@@ -37,8 +38,8 @@ class QstServerChannelTest < ActiveSupport::TestCase
     assert_false @chan.authenticate('foo2')
   end
 
-  test "should authenticate if save with blank password" do
-    @chan.configuration = {:password => '', :password_confirmation => ''}
+  test "should keep old password if save with blank password" do
+    @chan.password = @chan.password_confirmation = ''
     @chan.save!
 
     @chan.reload
@@ -46,8 +47,8 @@ class QstServerChannelTest < ActiveSupport::TestCase
     assert @chan.authenticate('foo')
   end
 
-  test "should authenticate after password changed" do
-    @chan.configuration = {:password => 'foo2', :password_confirmation => 'foo2'}
+  test "should rehash password after password changed" do
+    @chan.password = @chan.password_confirmation = 'foo2'
     @chan.save!
 
     @chan.reload

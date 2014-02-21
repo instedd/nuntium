@@ -39,4 +39,8 @@ class TwilioChannelTest < ActiveSupport::TestCase
       assert_validates_configuration_presence_of @chan, field
     end
   end
+
+  test "can leave password empty for update" do
+    assert_can_leave_password_empty @chan, :auth_token
+  end
 end

@@ -21,8 +21,8 @@ class DtacChannel < Channel
   include GenericChannel
 
   configuration_accessor :user, :password
-
   validates_presence_of :user, :password
+  handle_password_change
 
   def self.title
     "DTAC"

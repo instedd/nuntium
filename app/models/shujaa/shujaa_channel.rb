@@ -27,6 +27,7 @@ class ShujaaChannel < Channel
 
   configuration_accessor :shujaa_url, :username, :password, :shujaa_account, :callback_guid
   validates_presence_of :address, :username, :password, :shujaa_account, :callback_guid
+  handle_password_change
 
   before_create :autogenerate_callback_guid
   def autogenerate_callback_guid
