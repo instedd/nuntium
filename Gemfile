@@ -38,6 +38,7 @@ gem 'slim'
 gem 'lodash-rails'
 gem 'knockoutjs-rails'
 gem 'newrelic_rpm'
+gem 'foreman'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -49,7 +50,6 @@ end
 
 group :development do
   gem 'licit'
-  gem 'foreman'
 end
 
 group :test do
