@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140808205547) do
+ActiveRecord::Schema.define(:version => 20140808210710) do
 
   create_table "accounts", :force => true do |t|
     t.string   "name"
@@ -191,6 +191,8 @@ ActiveRecord::Schema.define(:version => 20140808205547) do
     t.string   "name"
     t.string   "locked_tag"
   end
+
+  add_index "cron_tasks", ["next_run"], :name => "index_cron_tasks_on_next_run"
 
   create_table "custom_attributes", :force => true do |t|
     t.integer  "account_id"
