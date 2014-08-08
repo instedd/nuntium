@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140128140635) do
+ActiveRecord::Schema.define(:version => 20140808205547) do
 
   create_table "accounts", :force => true do |t|
     t.string   "name"
@@ -145,6 +145,8 @@ ActiveRecord::Schema.define(:version => 20140128140635) do
     t.decimal  "at_cost",          :precision => 10, :scale => 2
     t.datetime "last_activity_at"
   end
+
+  add_index "channels", ["account_id", "name"], :name => "index_channels_on_account_id_and_name"
 
   create_table "clickatell_coverage_mos", :force => true do |t|
     t.integer  "country_id"
@@ -285,8 +287,8 @@ ActiveRecord::Schema.define(:version => 20140128140635) do
     t.integer  "user_id"
     t.integer  "account_id"
     t.string   "role"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "user_applications", :force => true do |t|
@@ -321,8 +323,8 @@ ActiveRecord::Schema.define(:version => 20140128140635) do
     t.string   "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                            :null => false
+    t.datetime "updated_at",                                            :null => false
     t.integer  "current_account_id"
     t.string   "name"
   end
