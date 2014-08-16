@@ -381,7 +381,8 @@ class ApplicationTest < ActiveSupport::TestCase
   test "route ao broadcast" do
     app = Application.make :broadcast
 
-    chans = [QstServerChannel.make(:account_id => app.account_id), QstServerChannel.make(:account_id => app.account_id)]
+    2.times { QstServerChannel.make(:account_id => app.account_id) }
+    chans = app.account.channels
 
     msg = AoMessage.make_unsaved
     app.route_ao msg, 'test'

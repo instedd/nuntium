@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -381,9 +381,9 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
   end
 
   def create_channels(ammount = 3)
-    @chan1 = QstServerChannel.make :account_id => @app.account_id, :protocol => 'sms' if ammount >= 1
-    @chan2 = QstServerChannel.make :account_id => @app.account_id, :protocol => 'sms' if ammount >= 2
-    @chan3 = QstServerChannel.make :account_id => @app.account_id, :protocol => 'foo' if ammount >= 3
+    @chan1 = QstServerChannel.make :account_id => @app.account_id, :name => 'channel1', :protocol => 'sms' if ammount >= 1
+    @chan2 = QstServerChannel.make :account_id => @app.account_id, :name => 'channel2', :protocol => 'sms' if ammount >= 2
+    @chan3 = QstServerChannel.make :account_id => @app.account_id, :name => 'channel3', :protocol => 'foo' if ammount >= 3
   end
 
   def assert_in_log(message)
