@@ -24,7 +24,7 @@ class AbstractPushQstMessageJob
     client = QstClient.new *get_url_user_and_password
     last_id = client.get_last_id
 
-    last_msg = last_id ? message_class.find_by_guid(last_id) : nil
+    last_msg = last_id ? messages.find_by_guid(last_id) : nil
 
     mark_older_as_confirmed last_msg if last_msg
 
