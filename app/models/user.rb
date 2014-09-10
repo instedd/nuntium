@@ -43,6 +43,14 @@ class User < ActiveRecord::Base
     end
   end
 
+  def self.authenticate(email, token, options = {})
+    user = User.find_by_email email
+    if user && user.authentication_token == token
+      return user
+    end
+    nil
+  end
+
   private
 
   def make_default_account_if_first(account)
