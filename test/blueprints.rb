@@ -43,6 +43,12 @@ Account.blueprint do
   password_confirmation { password }
 end
 
+UserAccount.blueprint do
+  user
+  account
+  role { Sham.username }
+end
+
 Application.blueprint do
   name { Sham.username }
   account
