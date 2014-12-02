@@ -29,9 +29,9 @@ This way you don't have to repeat this logic in every application that needs to 
 
 Installing
 ----------
-[Installation docs](https://bitbucket.org/instedd/nuntium/wiki/Installing)
+[Installation docs](https://github.com/instedd/nuntium/wiki/Installing)
 
 API
 ---
 
-[API documentation](https://bitbucket.org/instedd/nuntium/wiki/API)
+[API documentation](https://github.com/instedd/nuntium/wiki/API)
