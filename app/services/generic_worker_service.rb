@@ -29,11 +29,11 @@ class GenericWorkerService < Service
 
   def start
     Rails.logger.info "Starting"
-    MQ.error { |err| Rails.logger.error err }
 
     @sessions = {}
     @temporarily_unsubscribed = Set.new
-    @notifications_session = MQ.new
+    @notifications_session = $amqp_conn.create_channel
+    @notifications_session.on_error { |err| Rails.logger.error err }
 
     subscribe_to_queues
     subscribe_to_notifications
@@ -47,7 +47,9 @@ class GenericWorkerService < Service
 
   def subscribe_to_notifications
     Queues.subscribe_notifications(@id, @working_group, @notifications_session) do |header, job|
-      job.perform self
+      EM.schedule {
+        job.perform self
+      }
     end
   end
 
@@ -60,11 +62,11 @@ class GenericWorkerService < Service
     return if @sessions.include? wq.queue_name
 
     Rails.logger.info "Subscribing to queue #{wq.queue_name} with ack #{wq.ack} and durable #{wq.durable}"
-    wq.subscribe(mq_for wq) { |header, job| Fiber.new { perform job, header, wq }.resume }
+    wq.subscribe(mq_for wq) { |header, job| EM.schedule { perform job, header, wq }}
   end
 
   def mq_for(wq)
-    mq = MQ.new
+    mq = $amqp_conn.create_channel
     mq.prefetch PrefetchCount
     @sessions[wq.queue_name] = mq
   end

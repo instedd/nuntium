@@ -18,6 +18,13 @@
 
 require(File.expand_path('../generic_daemon', __FILE__))
 start_service 'xmpp_service_daemon' do
-  XmppService.new.start
-  EM.reactor_thread.join
+  service = XmppService.new
+  service.start
+
+  trap 'INT' do
+    puts "Stopping daemon..."
+    service.stop
+  end
+
+  puts "XMPP service daemon ready"
 end

@@ -28,7 +28,7 @@ class MsnConnection
 
   def initialize(channel)
     @channel = channel
-    @mq = MQ.new
+    @mq = $amqp_conn.create_channel
     @mq.prefetch PrefetchCount
     @message_ids = {}
   end
@@ -145,14 +145,16 @@ class MsnConnection
     Rails.logger.info "[#{@channel.name}] Subscribing to message queue"
 
     Queues.subscribe_ao(@channel, @mq) do |header, job|
-      Rails.logger.debug "[#{@channel.name}] Executing job #{job}"
-      begin
-        job.perform self
-        header.ack
-      rescue Exception => ex
-        Rails.logger.info "[#{@channel.name}] Exception executing #{job}: #{ex.class} #{ex} #{ex.backtrace}"
-        reschedule job, header, ex
-      end
+      EM.schedule {
+        Rails.logger.debug "[#{@channel.name}] Executing job #{job}"
+        begin
+          job.perform self
+          header.ack
+        rescue Exception => ex
+          Rails.logger.info "[#{@channel.name}] Exception executing #{job}: #{ex.class} #{ex} #{ex.backtrace}"
+          reschedule job, header, ex
+        end
+      }
     end
 
     @subscribed = true

@@ -10,7 +10,7 @@ gem 'twitter'
 gem 'twitter_oauth'
 gem 'ruby-smpp', :git => 'https://github.com/instedd/ruby-smpp.git', :branch => 'array_pack', :require => 'smpp'
 gem "eventmachine"
-gem 'amqp'
+gem 'bunny', '>= 1.6.2'
 gem 'memcache-client'
 gem 'xmpp4r'
 gem 'rest-client', :require => 'rest_client'

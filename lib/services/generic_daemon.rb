@@ -23,7 +23,9 @@ def start_service(log_name)
   require File.expand_path('../../../config/boot',  __FILE__)
   require File.expand_path('../../../config/environment',  __FILE__)
 
-  yield
+  EM.run {
+    yield
+  }
 rescue SystemExit
   Rails.logger.info "Stopping service normally"
 rescue Exception => err

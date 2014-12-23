@@ -7,7 +7,9 @@ namespace :rabbit do
     `rabbitmqctl reset`
     `rabbitmqctl start_app`
   end
-  
+
+  # FIXME(ggiraldez): This doesn't work since we try to connect with these
+  # credentials at initialization time, ie. before this is executed
   desc "Creates the user and vhost for the current environment configuration"
   task :prepare => :environment do
     `rabbitmqctl add_user #{$amqp_config[:user]} #{$amqp_config[:pass]}`

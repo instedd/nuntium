@@ -23,6 +23,9 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
   @@working_group = 'fast'
 
   def setup
+    Thread.new { EM.run }
+    sleep 0.1 until EM.reactor_running?
+
     @@id = @@id + 1
     @account = Account.make
     @service = GenericWorkerService.new(@@id, @@working_group)
@@ -34,10 +37,13 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
 
   def teardown
     @service.stop false # do not stop event machine
+
+    EM.stop
+    sleep 0.1 while EM.reactor_running?
   end
 
   test "should subscribe to enabled channels" do
-    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(MQ))
+    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(Bunny::Channel))
 
     @service.start
   end
@@ -50,7 +56,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
   end
 
   test "should subscribe to notifications" do
-    Queues.expects(:subscribe_notifications).with(@@id, @@working_group, kind_of(MQ))
+    Queues.expects(:subscribe_notifications).with(@@id, @@working_group, kind_of(Bunny::Channel))
 
     @service.start
   end
@@ -62,7 +68,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     job = mock('job')
     job.expects(:perform).returns(true)
 
-    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(MQ)).yields(header, job)
+    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(Bunny::Channel)).yields(header, job)
     @service.start
 
     # Give EM the opportunity to run queued jobs (header.ack)
@@ -73,8 +79,10 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     header = mock('header')
     job = mock('job')
     job.expects(:perform).with(@service)
-    Queues.expects(:subscribe_notifications).with(@@id, @@working_group, kind_of(MQ)).yields(header, job)
+    Queues.expects(:subscribe_notifications).with(@@id, @@working_group, kind_of(Bunny::Channel)).yields(header, job)
     @service.start
+
+    Thread.pass
   end
 
   test "should reschedule on unknown exception" do
@@ -85,7 +93,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     job.expects(:perform).raises(RuntimeError.new)
     job.expects(:reschedule)
 
-    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(MQ)).yields(header, job)
+    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(Bunny::Channel)).yields(header, job)
 
     @service.start
   end
@@ -98,7 +106,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     job.expects(:perform).raises(Timeout::Error.new)
     job.expects(:reschedule)
 
-    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(MQ)).yields(header, job)
+    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(Bunny::Channel)).yields(header, job)
 
     @service.start
   end
@@ -110,7 +118,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     job.expects(:perform).raises(RuntimeError.new)
     job.expects(:reschedule).raises(RuntimeError.new)
 
-    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(MQ)).yields(header, job)
+    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(Bunny::Channel)).yields(header, job)
 
     jobs = []
     Queues.expects(:publish_notification).with do |job, working_group, mq|
@@ -139,7 +147,7 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     @service.start
     @service.unsubscribe_from_queue Queues.ao_queue_name_for(@chan)
 
-    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(MQ))
+    Queues.expects(:subscribe).with(Queues.ao_queue_name_for(@chan), true, true, kind_of(Bunny::Channel))
 
     @service.subscribe_to_queue Queues.ao_queue_name_for(@chan)
   end

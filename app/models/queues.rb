@@ -16,9 +16,25 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 module Queues
+  class Header
+    attr_reader :delivery_info
+    attr_reader :properties
+
+    def initialize(mq, delivery_info, properties = {})
+      @channel = mq
+      @delivery_info = delivery_info
+      @properties = properties
+    end
+
+    def ack
+      @channel.ack(delivery_info.delivery_tag, false)
+    end
+  end
+
   class << self
+    # TODO(ggiraldez): This is actually an AMQP channel. Rename accordingly throughout the system.
     def default_mq
-      @default_mq ||= MQ.new
+      @default_mq ||= $amqp_conn.create_channel
     end
 
     def publish_application(application, job)
@@ -50,8 +66,10 @@ module Queues
     def subscribe_ao(channel, mq = nil)
       mq ||= default_mq
 
-      bind_ao(channel, mq).subscribe(:ack => true) do |header, job|
-        yield header, job.deserialize_job
+      bind_ao(channel, mq).subscribe(:manual_ack => true) do |delivery_info, properties, payload|
+        job = payload.deserialize_job
+        header = Header.new(mq, delivery_info, properties)
+        yield header, job
       end
     end
 
@@ -88,16 +106,20 @@ module Queues
     def subscribe_notifications(id, routing_key, mq = nil)
       mq ||= default_mq
 
-      bind_notifications(id, routing_key, mq).subscribe do |header, task|
-        yield header, task.deserialize_job
+      bind_notifications(id, routing_key, mq).subscribe do |delivery_info, properties, payload|
+        task = payload.deserialize_job
+        header = Header.new(mq, delivery_info, properties)
+        yield header, task
       end
     end
 
     def subscribe(queue_name, ack, durable, mq = nil)
       mq ||= default_mq
 
-      mq.queue(queue_name, :durable => durable).subscribe(:ack => ack) do |header, job|
-        yield header, job.deserialize_job
+      mq.queue(queue_name, :durable => durable).subscribe(:manual_ack => ack) do |delivery_info, properties, payload|
+        job = payload.deserialize_job
+        header = Header.new(mq, delivery_info, properties)
+        yield header, job
       end
     end
 
@@ -107,8 +129,9 @@ module Queues
       mq.queue(queue_name, :durable => durable).delete
     end
 
+    # This method recreates a channel
     def reconnect(mq)
-      new_mq = MQ.new
+      new_mq = $amqp_conn.create_channel
       mq.close
       new_mq
     end

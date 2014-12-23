@@ -70,21 +70,20 @@ module Nuntium
     config.logger.level = Logger.const_get(config.log_level.to_s.upcase)
     config.logger.formatter = Logger::Formatter.new
 
+    config.i18n.enforce_available_locales = false
+
     # Start AMQP after rails loads:
     config.after_initialize do
-      Thread.new { EM.run { } }
-      sleep 0.1 until EM.reactor_running?
-
-      EM.error_handler do |e|
-        puts "Error raised during event loop: #{e.message}"
-      end
-
-      require 'amqp'
       amqp_yaml = YAML.load_file "#{Rails.root}/config/amqp.yml"
       $amqp_config = amqp_yaml[Rails.env || 'development']
       $amqp_config.symbolize_keys!
-      AMQP.start $amqp_config
 
+      # FIXME(ggiraldez): make this work properly with Passenger pre-fork loader
+      $amqp_conn = Bunny.new $amqp_config
+      $amqp_conn.start
+
+      # TODO(ggiraldez): This should probably check for errors instead of
+      # ignoring the exceptions
       ::Application.all.each(&:bind_queue) rescue nil
       ::Channel.all.each(&:bind_queue) rescue nil
 
@@ -97,7 +96,7 @@ module Nuntium
         puts error
         exit 1
       else
-        ::Nuntium::TwitterConsumerConfig = nil
+        ::Nuntium::TwitterConsumerConfig = {}
       end
     end
   end

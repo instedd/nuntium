@@ -17,7 +17,7 @@
 
 class ChannelService < Service
   def initialize
-    @notifications_session = MQ.new
+    @notifications_session = $amqp_conn.create_channel
     @connections = {}
   end
 
@@ -35,7 +35,9 @@ class ChannelService < Service
 
   def subscribe_to_notifications
     Queues.subscribe_notifications(kind, kind, @notifications_session) do |header, job|
-      job.perform self
+      EM.schedule {
+        job.perform self
+      }
     end
   end
 
@@ -69,7 +71,7 @@ class ChannelService < Service
   end
 
   def stop_connections
-    @connections.each &:stop
+    @connections.each_value &:stop
   end
 
   def identifier

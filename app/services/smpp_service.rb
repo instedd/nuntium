@@ -75,16 +75,15 @@ class SmppGateway < SmppTransceiverDelegate
     @pending_headers = {}
     @is_running = false
     @subscribed = false
-    @mq = MQ.new
+    @mq = $amqp_conn.create_channel
     @mq.prefetch @prefetch_count
+    @mq.on_error { |err| Rails.logger.error err }
 
     @suspension_codes = [Smpp::Pdu::Base::ESME_RMSGQFUL, Smpp::Pdu::Base::ESME_RTHROTTLED]
     @suspension_codes += channel.suspension_codes_as_array
 
     @rejection_codes = [Smpp::Pdu::Base::ESME_RINVSRCADR, Smpp::Pdu::Base::ESME_RINVDSTADR]
     @rejection_codes += channel.rejection_codes_as_array
-
-    MQ.error { |err| Rails.logger.error err }
   end
 
   def start
@@ -173,19 +172,21 @@ class SmppGateway < SmppTransceiverDelegate
     Rails.logger.info "[#{@channel.name}] Subscribing to message queue"
 
     Queues.subscribe_ao(@channel, @mq) do |header, job|
-      Rails.logger.debug "[#{@channel.name}] Executing job #{job}"
-      begin
-        if job.perform(self)
-          @pending_headers[job.message_id] = header
-        else
-          header.ack
+      EM.schedule {
+        Rails.logger.debug "[#{@channel.name}] Executing job #{job}"
+        begin
+          if job.perform(self)
+            @pending_headers[job.message_id] = header
+          else
+            header.ack
+          end
+        rescue Exception => ex
+          Rails.logger.info "[#{@channel.name}] Error when performing job. Exception: #{ex.class} #{ex}"
+          reschedule job, header, ex
         end
-      rescue Exception => ex
-        Rails.logger.info "[#{@channel.name}] Error when performing job. Exception: #{ex.class} #{ex}"
-        reschedule job, header, ex
-      end
 
-      sleep_time
+        sleep_time
+      }
     end
 
     @subscribed = true
@@ -196,6 +197,7 @@ class SmppGateway < SmppTransceiverDelegate
 
     @mq = Queues.reconnect(@mq)
     @mq.prefetch @prefetch_count
+    @mq.on_error { |err| Rails.logger.error err }
 
     @subscribed = false
   end

@@ -18,8 +18,13 @@
 
 require(File.expand_path('../generic_daemon', __FILE__))
 start_service 'msn_service_daemon' do
-  EM.schedule do
-    MsnService.new.start
+  service = MsnService.new
+  service.start
+
+  trap 'INT' do
+    puts "Stopping daemon..."
+    service.stop
   end
-  EM.reactor_thread.join
+
+  puts "MSN service daemon ready"
 end

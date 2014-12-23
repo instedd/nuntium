@@ -19,6 +19,13 @@
 require(File.expand_path('../generic_daemon', __FILE__))
 start_service 'smpp_service_daemon' do
   Smpp::Base.logger = Rails.logger
-  SmppService.new.start
-  EM.reactor_thread.join
+  service = SmppService.new
+  service.start
+
+  trap 'INT' do
+    puts "Stopping daemon..."
+    service.stop
+  end
+
+  puts "SMPP service daemon ready"
 end
