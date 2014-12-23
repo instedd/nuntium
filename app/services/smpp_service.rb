@@ -75,7 +75,7 @@ class SmppGateway < SmppTransceiverDelegate
     @pending_headers = {}
     @is_running = false
     @subscribed = false
-    @mq = $amqp_conn.create_channel
+    @mq = Queues.new_mq
     @mq.prefetch @prefetch_count
     @mq.on_error { |err| Rails.logger.error err }
 
@@ -195,7 +195,7 @@ class SmppGateway < SmppTransceiverDelegate
   def unsubscribe_queue
     Rails.logger.info "[#{@channel.name}] Unsubscribing from message queue"
 
-    @mq = Queues.reconnect(@mq)
+    @mq = Queues.recycle_mq(@mq)
     @mq.prefetch @prefetch_count
     @mq.on_error { |err| Rails.logger.error err }
 

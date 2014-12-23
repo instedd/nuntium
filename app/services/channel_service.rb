@@ -17,7 +17,7 @@
 
 class ChannelService < Service
   def initialize
-    @notifications_session = $amqp_conn.create_channel
+    @notifications_session = Queues.new_mq
     @connections = {}
   end
 

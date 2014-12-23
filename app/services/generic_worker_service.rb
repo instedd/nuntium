@@ -32,7 +32,7 @@ class GenericWorkerService < Service
 
     @sessions = {}
     @temporarily_unsubscribed = Set.new
-    @notifications_session = $amqp_conn.create_channel
+    @notifications_session = Queues.new_mq
     @notifications_session.on_error { |err| Rails.logger.error err }
 
     subscribe_to_queues
@@ -66,7 +66,7 @@ class GenericWorkerService < Service
   end
 
   def mq_for(wq)
-    mq = $amqp_conn.create_channel
+    mq = Queues.new_mq
     mq.prefetch PrefetchCount
     @sessions[wq.queue_name] = mq
   end

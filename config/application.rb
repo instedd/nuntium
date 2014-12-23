@@ -79,6 +79,7 @@ module Nuntium
       $amqp_config.symbolize_keys!
 
       # FIXME(ggiraldez): make this work properly with Passenger pre-fork loader
+      # Assumes connection autorecovery in configuration
       $amqp_conn = Bunny.new $amqp_config
       $amqp_conn.start
 

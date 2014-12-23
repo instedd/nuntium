@@ -28,7 +28,7 @@ class XmppConnection
 
   def initialize(channel)
     @channel = channel
-    @mq = $amqp_conn.create_channel
+    @mq = Queues.new_mq
     @mq.prefetch PrefetchCount
     @online_contacts = Set.new
   end
@@ -184,7 +184,7 @@ class XmppConnection
   def unsubscribe_queue
     Rails.logger.info "[#{@channel.name}] Unsubscribing from message queue"
 
-    @mq = Queues.reconnect(@mq)
+    @mq = Queues.recycle_mq(@mq)
     @mq.prefetch PrefetchCount
 
     @subscribed = false

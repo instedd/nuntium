@@ -21,20 +21,29 @@ module Queues
     attr_reader :properties
 
     def initialize(mq, delivery_info, properties = {})
-      @channel = mq
+      @mq = mq
       @delivery_info = delivery_info
       @properties = properties
     end
 
     def ack
-      @channel.ack(delivery_info.delivery_tag, false)
+      @mq.ack(delivery_info.delivery_tag, false)
     end
   end
 
   class << self
-    # TODO(ggiraldez): This is actually an AMQP channel. Rename accordingly throughout the system.
     def default_mq
       @default_mq ||= $amqp_conn.create_channel
+    end
+
+    def new_mq
+      $amqp_conn.create_channel
+    end
+
+    def recycle_mq(mq)
+      new_mq = $amqp_conn.create_channel
+      mq.close
+      new_mq
     end
 
     def publish_application(application, job)
@@ -127,13 +136,6 @@ module Queues
       mq ||= default_mq
 
       mq.queue(queue_name, :durable => durable).delete
-    end
-
-    # This method recreates a channel
-    def reconnect(mq)
-      new_mq = $amqp_conn.create_channel
-      mq.close
-      new_mq
     end
 
     def application_exchange(mq = nil)
