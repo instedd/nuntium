@@ -47,6 +47,8 @@ class GenericWorkerService < Service
 
   def subscribe_to_notifications
     Queues.subscribe_notifications(@id, @working_group, @notifications_session) do |header, job|
+      # Use EM.schedule to make sure the job is performed in the EM thread
+      # instead of the Bunny listener thread
       EM.schedule {
         job.perform self
       }
@@ -62,7 +64,13 @@ class GenericWorkerService < Service
     return if @sessions.include? wq.queue_name
 
     Rails.logger.info "Subscribing to queue #{wq.queue_name} with ack #{wq.ack} and durable #{wq.durable}"
-    wq.subscribe(mq_for wq) { |header, job| EM.schedule { perform job, header, wq }}
+    wq.subscribe(mq_for wq) { |header, job| 
+      # Use EM.schedule to make sure the job is performed in the EM thread
+      # instead of the Bunny listener thread
+      EM.schedule {
+        perform job, header, wq
+      }
+    }
   end
 
   def mq_for(wq)

@@ -28,8 +28,6 @@ class XmppConnection
 
   def initialize(channel)
     @channel = channel
-    @mq = Queues.new_mq
-    @mq.prefetch PrefetchCount
     @online_contacts = Set.new
   end
 
@@ -39,7 +37,6 @@ class XmppConnection
       @channel.enabled = false
       @channel.save!
 
-      @mq.close
       return false
     end
 
@@ -68,8 +65,8 @@ class XmppConnection
 
   def stop
     @is_running = false
-    @mq.close
     client.close
+    unsubscribe_queue
     self.channel_connected = false
   end
 
@@ -165,6 +162,9 @@ class XmppConnection
   def subscribe_queue
     Rails.logger.info "[#{@channel.name}] Subscribing to message queue"
 
+    @mq = Queues.new_mq
+    @mq.prefetch PrefetchCount
+
     Queues.subscribe_ao(@channel, @mq) do |header, job|
       EM.schedule {
         Rails.logger.debug "[#{@channel.name}] Executing job #{job}"
@@ -184,8 +184,8 @@ class XmppConnection
   def unsubscribe_queue
     Rails.logger.info "[#{@channel.name}] Unsubscribing from message queue"
 
-    @mq = Queues.recycle_mq(@mq)
-    @mq.prefetch PrefetchCount
+    @mq.close unless @mq.nil?
+    @mq = nil
 
     @subscribed = false
   end

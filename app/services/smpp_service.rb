@@ -75,9 +75,6 @@ class SmppGateway < SmppTransceiverDelegate
     @pending_headers = {}
     @is_running = false
     @subscribed = false
-    @mq = Queues.new_mq
-    @mq.prefetch @prefetch_count
-    @mq.on_error { |err| Rails.logger.error err }
 
     @suspension_codes = [Smpp::Pdu::Base::ESME_RMSGQFUL, Smpp::Pdu::Base::ESME_RTHROTTLED]
     @suspension_codes += channel.suspension_codes_as_array
@@ -171,6 +168,10 @@ class SmppGateway < SmppTransceiverDelegate
   def subscribe_queue
     Rails.logger.info "[#{@channel.name}] Subscribing to message queue"
 
+    @mq = Queues.new_mq
+    @mq.prefetch @prefetch_count
+    @mq.on_error { |err| Rails.logger.error err }
+
     Queues.subscribe_ao(@channel, @mq) do |header, job|
       EM.schedule {
         Rails.logger.debug "[#{@channel.name}] Executing job #{job}"
@@ -195,9 +196,8 @@ class SmppGateway < SmppTransceiverDelegate
   def unsubscribe_queue
     Rails.logger.info "[#{@channel.name}] Unsubscribing from message queue"
 
-    @mq = Queues.recycle_mq(@mq)
-    @mq.prefetch @prefetch_count
-    @mq.on_error { |err| Rails.logger.error err }
+    @mq.close unless @mq.nil?
+    @mq = nil
 
     @subscribed = false
   end
