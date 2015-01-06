@@ -258,12 +258,20 @@ class Application < ActiveRecord::Base
         # Check if callback interface is configured
         if self.interface == 'http_get_callback' || self.interface == 'http_post_callback'
           unless simulate
-            Queues.publish_application self, SendInterfaceCallbackJob.new(msg.account_id, msg.application_id, msg.id)
+            begin
+              Queues.publish_application self, SendInterfaceCallbackJob.new(msg.account_id, msg.application_id, msg.id)
+            rescue Exception => e
+              msg.state = 'failed'
+              msg.save!
+              logger.error :at_message_id => msg.id, :channel_id => via_channel.id, :message => "Failed to enqueue job: #{e.class} #{e.message}"
+            end
           end
-          if self.interface == 'http_get_callback'
-            ThreadLocalLogger << "Enqueued GET callback"
-          else
-            ThreadLocalLogger << "Enqueued POST callback"
+          unless msg.state == 'failed'
+            if self.interface == 'http_get_callback'
+              ThreadLocalLogger << "Enqueued GET callback"
+            else
+              ThreadLocalLogger << "Enqueued POST callback"
+            end
           end
         end
       end

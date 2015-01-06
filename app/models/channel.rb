@@ -159,7 +159,18 @@ class Channel < ActiveRecord::Base
       logger.info :application_id => msg.application_id, :channel_id => self.id, :ao_message_id => msg.id, :message => ThreadLocalLogger.result
 
       # Handle the message
-      handle msg
+      begin
+        handle msg
+      rescue Exception => e
+        # We use update_column here to bypass the send_delivery_ack callback
+        if dont_save
+          msg.state = 'failed'
+        else
+          msg.update_column :state, 'failed'
+        end
+        logger.error :application_id => msg.application_id, :channel_id => self.id, :ao_message_id => msg.id, :message => "Failed to enqueue message: #{e.class} #{e.message}"
+      end
+
     end
   end
 
@@ -186,7 +197,17 @@ class Channel < ActiveRecord::Base
 
         logger.info :application_id => fragment.application_id, :channel_id => self.id, :ao_message_id => fragment.id, :message => ThreadLocalLogger.result
 
-        handle fragment
+        begin
+          handle fragment
+        rescue Exception => e
+          # We use update_column here to bypass the send_delivery_ack callback
+          if dont_save
+            fragment.state = 'failed'
+          else
+            fragment.update_column :state, 'failed'
+          end
+          logger.error :application_id => fragment.application_id, :channel_id => self.id, :ao_message_id => fragment.id, :message => "Failed to enqueue message: #{e.class} #{e.message}"
+        end
       end
     end
   end
