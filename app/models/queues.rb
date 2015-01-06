@@ -32,6 +32,12 @@ module Queues
   end
 
   class << self
+    def init
+      $amqp_conn = Bunny.new $amqp_config
+      $amqp_conn.start
+      @default_mq = nil
+    end
+
     def default_mq
       @default_mq ||= $amqp_conn.create_channel
     end

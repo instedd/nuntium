@@ -78,15 +78,20 @@ module Nuntium
       $amqp_config = amqp_yaml[Rails.env || 'development']
       $amqp_config.symbolize_keys!
 
-      # FIXME(ggiraldez): make this work properly with Passenger pre-fork loader
-      # Assumes connection autorecovery in configuration
-      $amqp_conn = Bunny.new $amqp_config
-      $amqp_conn.start
+      Queues.init
 
       # TODO(ggiraldez): This should probably check for errors instead of
       # ignoring the exceptions
       ::Application.all.each(&:bind_queue) rescue nil
       ::Channel.all.each(&:bind_queue) rescue nil
+
+      if defined?(PhusionPassenger)
+        PhusionPassenger.on_event(:starting_worker_process) do |forked|
+          if forked
+            Queues.init
+          end
+        end
+      end
 
       # Twitter OAuth configuration
       if File.exists? "#{Rails.root}/config/twitter_oauth_consumer.yml"
