@@ -8,10 +8,12 @@ namespace :rabbit do
     `rabbitmqctl start_app`
   end
 
-  # FIXME(ggiraldez): This doesn't work since we try to connect with these
-  # credentials at initialization time, ie. before this is executed
   desc "Creates the user and vhost for the current environment configuration"
-  task :prepare => :environment do
+  task :prepare do
+    amqp_yaml = YAML.load_file "#{Rails.root}/config/amqp.yml"
+    $amqp_config = amqp_yaml[Rails.env || 'development']
+    $amqp_config.symbolize_keys!
+
     `rabbitmqctl add_user #{$amqp_config[:user]} #{$amqp_config[:pass]}`
     `rabbitmqctl add_vhost #{$amqp_config[:vhost]}`
     `rabbitmqctl set_permissions -p #{$amqp_config[:vhost]} #{$amqp_config[:user]} ".*" ".*" ".*"`
