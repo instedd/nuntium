@@ -28,8 +28,6 @@ class MsnConnection
 
   def initialize(channel)
     @channel = channel
-    @mq = Queues.new_mq
-    @mq.prefetch PrefetchCount
     @message_ids = {}
   end
 
@@ -62,7 +60,7 @@ class MsnConnection
 
   def stop
     @is_running = false
-    @mq.close
+    unsubscribe_queue
     @msn.close
     self.channel_connected = false
   end
@@ -144,6 +142,9 @@ class MsnConnection
   def subscribe_queue
     Rails.logger.info "[#{@channel.name}] Subscribing to message queue"
 
+    @mq = Queues.new_mq
+    @mq.prefetch PrefetchCount
+
     Queues.subscribe_ao(@channel, @mq) do |header, job|
       EM.schedule {
         Rails.logger.debug "[#{@channel.name}] Executing job #{job}"
@@ -163,8 +164,8 @@ class MsnConnection
   def unsubscribe_queue
     Rails.logger.info "[#{@channel.name}] Unsubscribing from message queue"
 
-    @mq = Queues.recycle_mq(@mq)
-    @mq.prefetch PrefetchCount
+    @mq.close unless @mq.nil?
+    @mq = nil
 
     @subscribed = false
   end
