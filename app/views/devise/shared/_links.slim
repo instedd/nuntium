@@ -21,7 +21,6 @@
 br
 - if devise_mapping.omniauthable?
   - resource_class.omniauth_providers.each do |provider|
-    - next unless ['Google'].include? provider.to_s.titleize
     =' image_tag "#{provider.to_s.downcase}.png"
     = link_to "Log in with #{provider.to_s.titleize}", omniauth_authorize_path(resource_name, provider, origin: session[:user_return_to])
     br

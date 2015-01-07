@@ -1,0 +1,16 @@
+# Copy/rename to google_oauth2.yml to enable OAuth2 authentication with Google.
+#
+# The provided credentials will work on development only. For production, you
+# need to generate a new project in the Google Developers Console and use your
+# own credentials.
+#
+# 1. Go to 'https://console.developers.google.com'
+# 2. Select your project.
+# 3. Click 'APIs & auth'
+# 4. Make sure "Contacts API" and "Google+ API" are on.
+# 5. Go to Consent Screen, and provide an 'EMAIL ADDRESS' and a 'PRODUCT NAME'
+# 6. Go to Credentials and generate a new Client ID for Web application.
+
+client_id: '314800721017-l2qbbhtlb2loj379ed3ofsrggorhtg0f.apps.googleusercontent.com'
+client_secret: 'qswxFyKGi3A8KRwB3e_m70Tx'
+
