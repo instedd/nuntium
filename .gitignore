@@ -16,3 +16,4 @@
 
 config/twitter_oauth_consumer.yml
 config/google_oauth2.yml
+config/guisso.yml

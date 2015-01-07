@@ -1,5 +1,15 @@
 class OmniauthCallbacksController < Devise::OmniauthCallbacksController
+  skip_before_filter :verify_authenticity_token
+  skip_before_filter :check_login
+  skip_before_filter :check_guisso_cookie
+
   def google
+    generic do |auth|
+      {email: auth.info['email'], name: auth.info['name']}
+    end
+  end
+
+  def instedd
     generic do |auth|
       {email: auth.info['email'], name: auth.info['name']}
     end
