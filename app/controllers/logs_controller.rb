@@ -23,8 +23,7 @@ class LogsController < ApplicationController
     @page = 1 if @previous_search.present? && @previous_search != @search
 
     @logs = account.logs.includes(:application, :channel).order 'logs.id DESC'
-    @logs = @logs.search @search if @search.present?
-    @logs = @logs.paginate :page => @page, :per_page => ResultsPerPage
-    @logs = @logs.all
+    @logs = @logs.search @search, account: account if @search.present?
+    @logs = @logs.paginate_logs :page => @page
   end
 end

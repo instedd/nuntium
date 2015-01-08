@@ -33,6 +33,7 @@ class Channel < ActiveRecord::Base
   has_many :at_messages, :conditions => proc { { :account_id => self.account_id } }
   has_many :address_sources
   has_many :whitelists, :conditions => proc { { :account_id => self.account_id } }
+  has_many :logs
 
   serialize :configuration, Hash
   serialize :restrictions

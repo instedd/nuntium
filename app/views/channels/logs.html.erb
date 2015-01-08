@@ -1,0 +1,9 @@
+<h4>Channel <%= channel.name %>'s log entries</h4>
+
+<%= will_paginate @logs -%>
+
+<%= render partial: "logs/table", locals: { logs: @logs, hidden_columns: [:channel] } -%>
+
+<%= will_paginate @logs -%>
+
+<%= link_to 'Go back', channels_path -%>

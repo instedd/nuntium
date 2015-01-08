@@ -1,0 +1,9 @@
+<h4>Application <%= application.name %>'s log entries</h4>
+
+<%= will_paginate @logs -%>
+
+<%= render partial: "logs/table", locals: { logs: @logs, hidden_columns: [:application] } -%>
+
+<%= will_paginate @logs -%>
+
+<%= link_to 'Go back', applications_path -%>

@@ -26,6 +26,8 @@ class Log < ActiveRecord::Base
   Warning = 2
   Error = 3
 
+  ResultsPerPage = 10
+
   def severity_text
     case severity
     when Info then 'info'
@@ -50,7 +52,7 @@ class Log < ActiveRecord::Base
     return 0
   end
 
-  def self.search(search)
+  def self.search(search, options = {})
     result = self
 
     search = Search.new search
@@ -86,8 +88,44 @@ class Log < ActiveRecord::Base
       before = Time.smart_parse search[:before]
       result = result.where 'created_at <= ?', before if before
     end
-    result = result.joins(:channel).where 'channels.name = ?', search[:channel] if search[:channel]
-    result = result.joins(:application).where 'applications.name = ?', search[:application] if search[:application]
+    if search[:channel]
+      if options[:account]
+        channel = options[:account].channels.select(:id).find_by_name search[:channel]
+        if channel
+          result = result.where :channel_id => channel.id
+        else
+          result = result.where '1 = 2'
+        end
+      else
+        result = result.joins(:channel).where 'channels.name = ?', search[:channel]
+      end
+    end
+    if search[:application]
+      if options[:account]
+        app = options[:account].applications.select(:id).find_by_name search[:application]
+        if app
+          result = result.where :application_id => app.id
+        else
+          result = result.where '1 = 2'
+        end
+      else
+        result = result.joins(:application).where 'applications.name = ?', search[:application]
+      end
+    end
+    result
+  end
+
+  def self.paginate_logs(options = {})
+    result = self
+
+    # Set total_entries to prevent execution of a SELECT COUNT(*) query but
+    # still enable Next links
+    page = (options[:page] || 1).to_i
+    per_page = options[:per_page] || ResultsPerPage
+    result = result.paginate :page => page, :per_page => per_page, :total_entries => page * per_page + 1
+    result = result.all
+    result.total_entries -= 1 if result.size == 0
+
     result
   end
 end

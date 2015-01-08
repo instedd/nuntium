@@ -47,7 +47,7 @@ table#channels.table cellspacing="4" width="100%"
         - else
           td align="right" 0
         td
-          a href="/logs?search=#{CGI.escape "channel:#{chan.name}"}" view logs
+          = link_to 'view logs', logs_channel_path(chan)
           '
           a href="/ao_messages?search=#{CGI.escape "channel:#{chan.name}"}" view aos
           '

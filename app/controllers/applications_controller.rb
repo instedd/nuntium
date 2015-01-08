@@ -59,6 +59,13 @@ class ApplicationsController < ApplicationController
     end
   end
 
+  def logs
+    @page = params[:page].presence || 1
+
+    @logs = application.logs.includes(:channel).order('logs.id DESC')
+    @logs = @logs.paginate_logs :page => @page
+  end
+
   private
 
   def check_application_admin

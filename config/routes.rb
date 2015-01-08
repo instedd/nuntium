@@ -34,6 +34,9 @@ Nuntium::Application.routes.draw do
     collection do
       put :routing_rules
     end
+    member do
+      get :logs
+    end
   end
   resources :channels do
     member do
@@ -42,6 +45,7 @@ Nuntium::Application.routes.draw do
       get :pause
       get :resume
       get :whitelist
+      get :logs
     end
   end
   resources :ao_messages do

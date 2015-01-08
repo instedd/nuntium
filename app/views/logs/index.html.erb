@@ -1,37 +1,10 @@
 <form id="logs_form" action="#logs">
-<input type="hidden" name="page" value="<%= @page -%>" />
-<input type="hidden" name="previous_search" value="<%= @search -%>" />
 
 Search: <input type="text" name="search" value="<%= @search.try(:html_safe) -%>" size= "50" class="<%= @search.present? ? 'highlighted' : '' -%>"/> <a href="http://code.google.com/p/nuntium/wiki/AdvancedSearch" target="_blank" title="You can filter by field like 'severity:warning', 'before:&quot;20 minutes ago&quot;' etc.">?</a> &nbsp; &nbsp;
 
-<div><%= page_entries_info @logs, :model => 'log entry' -%></div>
 <%= will_paginate @logs, :param_name => 'page', :params => { :previous_search => @search } -%>
 
-<%- if @logs.present? -%>
-  <table border="1" class="table">
-    <tr>
-      <th>When</th>
-      <th>Severity</th>
-      <th>Application</th>
-      <th>Channel</th>
-      <th>AO Message</th>
-      <th>AT Message</th>
-      <th>Text</th>
-    </tr>
-    <tr>
-    <%- @logs.each_with_index do |log, i| -%>
-      <tr class="<%= i.even_to_s -%>">
-        <td><%= time_ago log.created_at -%></td>
-        <td><%= log.severity_html.html_safe -%></td>
-        <td><%= log.application.try(:name) -%></td>
-        <td><%= log.channel.try(:name) -%></td>
-        <td><%= link_to "#{log.ao_message_id}", ao_message_path(:id => log.ao_message_id), :target => '_blank' if !log.ao_message_id.nil? -%></td>
-        <td><%= link_to "#{log.at_message_id}", at_message_path(:id => log.at_message_id), :target => '_blank' if !log.at_message_id.nil? -%></td>
-        <td><%= short_html log.message, 100 -%></td>
-      </tr>
-    <%- end -%>
-  </table>
-<%- end -%>
+<%= render partial: 'table', locals: { logs: @logs, hidden_columns: [] } %>
 
 <%= will_paginate @logs, :param_name => 'page', :params => { :previous_search => @search } -%>
 </form>

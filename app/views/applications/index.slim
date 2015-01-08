@@ -22,7 +22,7 @@ p
         td= app.strategy_description
         td= app.delivery_ack_method_description
         td
-          =' link_to "view log", logs_path(:search => "application:#{app.name}")
+          =' link_to "view log", logs_application_path(app)
           =' link_to "view aos", ao_messages_path(:search => "application:#{app.name}")
           =' link_to "view ats", at_messages_path(:search => "application:#{app.name}")
           - if application_admin?(app)

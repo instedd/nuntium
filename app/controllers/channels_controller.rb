@@ -101,6 +101,13 @@ class ChannelsController < ApplicationController
     @whitelists = @whitelists.all
   end
 
+  def logs
+    @page = params[:page].presence || 1
+
+    @logs = channel.logs.includes(:application).order('logs.id DESC')
+    @logs = @logs.paginate_logs :page => @page
+  end
+
   private
 
   def check_channel_admin

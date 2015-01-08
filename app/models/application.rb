@@ -25,6 +25,7 @@ class Application < ActiveRecord::Base
   has_many :at_messages
   has_many :address_sources
   has_many :cron_tasks, :as => :parent, :dependent => :destroy
+  has_many :logs
 
   attr_accessor :password_confirmation
 
