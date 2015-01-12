@@ -53,6 +53,7 @@ end
 
 group :development do
   gem 'licit'
+  gem 'capistrano', "~> 2.15"
 end
 
 group :test do

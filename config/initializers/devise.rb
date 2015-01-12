@@ -208,7 +208,7 @@ Devise.setup do |config|
   # end
 
   credentials = YAML.load_file("#{Rails.root}/config/google_oauth2.yml") rescue nil
-  if credentials and credentials['client_id']
+  if credentials and credentials['client_id'].present?
     config.omniauth :google_oauth2, credentials['client_id'], credentials['client_secret'], name: 'google'
   end
 end
