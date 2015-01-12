@@ -72,4 +72,12 @@ Nuntium::Application.configure do
 
   # Send deprecation notices to registered listeners
   config.active_support.deprecation = :notify
+
+  SettingsPath = "#{::Rails.root.to_s}/config/settings.yml"
+
+  if FileTest.exists?(SettingsPath)
+    settings = YAML.load_file(SettingsPath)[::Rails.env].with_indifferent_access
+    config.action_mailer.default_url_options = { :host => settings[:host_name],
+                                                 :protocol => settings[:protocol] }
+  end
 end
