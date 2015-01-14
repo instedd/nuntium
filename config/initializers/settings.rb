@@ -41,4 +41,5 @@ class Settings
   # Settings with default value
   setting :protocol, 'https'
   setting :host_name, Socket.gethostname
+  setting :email_sender, 'nuntium@instedd.org'
 end

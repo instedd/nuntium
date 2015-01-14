@@ -1,10 +1,12 @@
 # Use this hook to configure devise mailer, warden hooks and so forth.
 # Many of these configuration options can be set straight in your model.
 Devise.setup do |config|
+  settings = YAML.load_file("#{::Rails.root.to_s}/config/settings.yml")[::Rails.env].with_indifferent_access rescue {}
+
   # ==> Mailer Configuration
   # Configure the e-mail address which will be shown in Devise::Mailer,
   # note that it will be overwritten if you use your own mailer class with default "from" parameter.
-  config.mailer_sender = "please-change-me-at-config-initializers-devise@example.com"
+  config.mailer_sender = settings[:email_sender] || "nuntium@instedd.org"
 
   # Configure the class responsible to send e-mails.
   # config.mailer = "Devise::Mailer"

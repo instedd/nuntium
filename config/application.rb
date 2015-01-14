@@ -77,6 +77,14 @@ module Nuntium
 
     config.i18n.enforce_available_locales = false
 
+    SettingsPath = "#{::Rails.root.to_s}/config/settings.yml"
+
+    if FileTest.exists?(SettingsPath)
+      settings = YAML.load_file(SettingsPath)[::Rails.env].with_indifferent_access
+      config.action_mailer.default_url_options = { :host => settings[:host_name],
+                                                   :protocol => settings[:protocol] }
+    end
+
     # Start AMQP after rails loads:
     config.after_initialize do
       amqp_yaml = YAML.load_file "#{Rails.root}/config/amqp.yml"
@@ -113,7 +121,6 @@ module Nuntium
   end
 
   ActionMailer::Base.delivery_method = :sendmail
-
 
   # Disable account creation from UI
   AccountCreationDisabled = false

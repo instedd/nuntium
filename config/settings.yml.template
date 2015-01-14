@@ -1,6 +1,7 @@
 defaults: &defaults
   protocol: https
   host_name: nuntium.instedd.org
+  email_sender: nuntium@instedd.org
 
 development:
   <<: *defaults

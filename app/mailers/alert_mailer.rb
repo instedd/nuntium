@@ -16,7 +16,7 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class AlertMailer < ActionMailer::Base
-  default :from => 'nuntium@instedd.org'
+  default :from => Settings.email_sender
 
   def error(account, subject, body)
     subject = "[Nuntium Alerts] #{subject}"
