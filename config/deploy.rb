@@ -40,7 +40,7 @@ namespace :deploy do
   end
 
   task :symlink_configs, :roles => :app do
-    %W(amqp database google_oauth2 guisso settings twitter_oauth_consumer).each do |file|
+    %W(amqp database google_oauth2 guisso newrelic settings twitter_oauth_consumer).each do |file|
       run "ln -nfs #{shared_path}/#{file}.yml #{release_path}/config/"
     end
   end
