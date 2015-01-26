@@ -135,6 +135,11 @@ Nuntium::Application.routes.draw do
   end
 
   scope '/api' do
+
+    scope '/users' do
+      match '/request_token' => 'api_user_authentication#request_token', :as => :request_token, :via => :get
+    end
+
     scope '/carriers' do
       match '/' => 'api_carrier#index', :as => :carriers
       match '/:guid' => 'api_carrier#show', :as => :carrier
@@ -143,6 +148,10 @@ Nuntium::Application.routes.draw do
     scope '/countries' do
       match '/' => 'api_country#index', :as => :countries
       match '/:iso' => 'api_country#show', :as => :country
+    end
+
+    scope '/user_channels' do
+      match '/' => 'api_user_channel#index', :as => :user_channels
     end
 
     scope '/channels' do
