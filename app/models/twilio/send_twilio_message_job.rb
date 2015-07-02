@@ -52,7 +52,7 @@ class SendTwilioMessageJob < SendMessageJob
   def sms_params(body)
     {
       :from => @config[:from],
-      :to => @msg.to.without_protocol,
+      :to => "+#{@msg.to.without_protocol}",
       :body => body,
       :status_callback => ack_callback
     }

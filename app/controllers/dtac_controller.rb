@@ -32,7 +32,9 @@ class DtacController < ApplicationController
     msg.channel_relative_id = params[:ID]
     msg.timestamp = Time.now.utc
 
-    @account.route_at msg, nil
+    # FIXME: this doesn't look correct; taken from production environment
+    channel = @account.channels.select {|x| x.kind == 'dtac'}.first
+    @account.route_at msg, channel
 
     head :ok
   end

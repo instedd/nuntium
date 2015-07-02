@@ -123,6 +123,9 @@ Nuntium::Application.routes.draw do
   end
 
   match '/:account_id/dtac/incoming' => 'dtac#index', :as => :dtac, :constraints => {:account_id => /.*/}
+  # TODO: are these necessary/correct? taken from production environment
+  match '/dtac/geochat/incoming' => 'dtac#index', :account_id => 'instedd'
+  match '/dtac/:account_id/incoming' => 'dtac#index'
 
   scope '/:account_id/ipop/:channel_name', :constraints => {:account_id => /.*/} do
     post '/incoming' => 'ipop#index', :as => :ipop

@@ -80,7 +80,7 @@ class SendTwilioMessageJobTest < ActiveSupport::TestCase
 
     @messages.expects(:create).with do |params|
       params[:from] == @config[:from] &&
-      params[:to] == @msg.to.without_protocol &&
+      params[:to] == "+#{@msg.to.without_protocol}" &&
       params[:body] == @msg.subject_and_body
     end.returns(response)
 
@@ -107,7 +107,7 @@ class SendTwilioMessageJobTest < ActiveSupport::TestCase
     response = mock('response')
     @messages.expects(:create).with do |params|
       params[:from] == @config[:from] &&
-      params[:to] == long_msg.to.without_protocol &&
+      params[:to] == "+#{long_msg.to.without_protocol}" &&
       params[:body] == "a" * 160
     end.returns(response)
     response.expects(:sid).returns('sms_sid')
@@ -115,7 +115,7 @@ class SendTwilioMessageJobTest < ActiveSupport::TestCase
     # Second part
     @messages.expects(:create).with do |params|
       params[:from] == @config[:from] &&
-      params[:to] == long_msg.to.without_protocol &&
+      params[:to] == "+#{long_msg.to.without_protocol}" &&
       params[:body] == "b" * 40
     end
 
