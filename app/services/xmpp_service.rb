@@ -122,6 +122,7 @@ class XmppConnection
 
   def handle_disconnections
     disconnected do
+      unsubscribe_queue
       was_connected = @connected
       self.channel_connected = false
 
@@ -160,6 +161,8 @@ class XmppConnection
   end
 
   def subscribe_queue
+    return if @subscribed
+
     Rails.logger.info "[#{@channel.name}] Subscribing to message queue"
 
     @mq = Queues.new_mq
@@ -182,6 +185,8 @@ class XmppConnection
   end
 
   def unsubscribe_queue
+    return unless @subscribed
+
     Rails.logger.info "[#{@channel.name}] Unsubscribing from message queue"
 
     @mq.close unless @mq.nil?

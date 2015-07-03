@@ -79,8 +79,10 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     header = mock('header')
     job = mock('job')
     job.expects(:perform).with(@service)
+    Queues.expects(:subscribe)
     Queues.expects(:subscribe_notifications).with(@@id, @@working_group, kind_of(Bunny::Channel)).yields(header, job)
     @service.start
+    sleep 0.2
 
     Thread.pass
   end
