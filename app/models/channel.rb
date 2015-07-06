@@ -69,15 +69,15 @@ class Channel < ActiveRecord::Base
   def opt_in_enabled?; opt_in_enabled.to_b; end
 
   def self.after_enabled(method, options = {})
-    after_update method, options.merge(:if => lambda { (enabled_changed? && enabled) || (paused_changed? && !paused) })
+    after_commit method, options.merge(:if => lambda { (previous_changes.include?('enabled') && enabled) || (previous_changes.include?('paused') && !paused) })
   end
 
   def self.after_changed(method, options = {})
-    after_update method, options.merge(:if => lambda { changed? && !enabled_changed? && !paused_changed? && active? })
+    after_commit method, options.merge(:on => :update, :if => lambda { previous_changes.present? && !previous_changes.include?('enabled') && !previous_changes.include?('paused') && active? })
   end
 
   def self.after_disabled(method, options = {})
-    after_update method, options.merge(:if => lambda { (enabled_changed? && !enabled) || (paused_changed? && paused) })
+    after_commit method, options.merge(:if => lambda { (previous_changes.include?('enabled') && !enabled) || (previous_changes.include?('paused') && paused) })
   end
 
   def self.sort_candidate!(chans)

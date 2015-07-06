@@ -49,6 +49,7 @@ class ChannelService < Service
 
   def start_channel(channel)
     channel = Channel.find channel unless channel.is_a? Channel
+    return unless channel.active?
     connection = connection_class.new channel
     if connection.start
       @connections[channel.id] = connection

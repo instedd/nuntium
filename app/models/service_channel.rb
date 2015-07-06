@@ -24,10 +24,10 @@ module ServiceChannel
 
   included do
     after_create :bind_queue
-    after_commit :publish_start_channel, :on => :create
+    after_create :publish_start_channel
     after_enabled :publish_start_channel
     after_disabled :publish_stop_channel
-    after_commit :publish_restart_channel, :on => :update
+    after_changed :publish_restart_channel
     before_destroy :publish_stop_channel
   end
 

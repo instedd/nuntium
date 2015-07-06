@@ -111,6 +111,9 @@ class AccountLogger
   def create(hash_or_message, severity)
     if hash_or_message.class.to_s == 'String'
       hash_or_message = {:message => hash_or_message}
+    elsif !hash_or_message.respond_to?(:[])
+      hash_or_message = {:message => exception_msg(hash_or_message)}
+      pp hash_or_message
     end
 
     now = Time.now.utc.to_s(:db)

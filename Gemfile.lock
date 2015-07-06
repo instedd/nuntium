@@ -260,6 +260,8 @@ GEM
       tilt (~> 1.1, != 1.3.0)
     temple (0.5.5)
     test-unit (2.3.2)
+    test_after_commit (0.4.0)
+      activerecord (>= 3.2)
     thor (0.19.1)
     thoughtbot-shoulda (2.11.1)
     tilt (1.3.7)
@@ -338,6 +340,7 @@ DEPENDENCIES
   slim
   smart_asset
   test-unit
+  test_after_commit
   thoughtbot-shoulda
   twilio-ruby
   twitter

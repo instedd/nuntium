@@ -62,6 +62,7 @@ group :test do
   gem "thoughtbot-shoulda", :require => "shoulda"
   gem 'ffaker'
   gem 'machinist'
+  gem 'test_after_commit'
 end
 
 group :development, :test do
