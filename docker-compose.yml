@@ -1,0 +1,68 @@
+mysql:
+  image: mysql:5.6
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+
+rabbitmq:
+  image: rabbitmq:3.5.3
+
+memcached:
+  image: memcached:1.4.24
+
+web: &base
+  build: .
+  links: &links
+    - mysql
+    - rabbitmq
+    - memcached
+  environment: &environment
+    RAILS_ENV: production
+    DATABASE_URL: mysql2://root:root@mysql/nuntium
+  ports:
+    - 80
+
+workerfast:
+  build: .
+  links: *links
+  environment:
+    <<: *environment
+    INSTANCE_ID: 1000
+  command: "bundle exec lib/services/generic_worker_daemon.rb ${RAILS_ENV} fast ${INSTANCE_ID}"
+
+workerslow:
+  build: .
+  links: *links
+  environment:
+    <<: *environment
+    INSTANCE_ID: 2000
+  command: "bundle exec lib/services/generic_worker_daemon.rb ${RAILS_ENV} slow ${INSTANCE_ID}"
+
+xmpp:
+  build: .
+  links: *links
+  environment: *environment
+  command: "bundle exec lib/services/xmpp_service_daemon.rb"
+
+smpp:
+  build: .
+  links: *links
+  environment: *environment
+  command: "bundle exec lib/services/smpp_service_daemon.rb"
+
+msn:
+  build: .
+  links: *links
+  environment: *environment
+  command: "bundle exec lib/services/msn_service_daemon.rb"
+
+cron:
+  build: .
+  links: *links
+  environment: *environment
+  command: "bundle exec lib/services/cron_daemon.rb"
+
+sched:
+  build: .
+  links: *links
+  environment: *environment
+  command: "bundle exec lib/services/scheduled_jobs_service_daemon.rb"
