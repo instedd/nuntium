@@ -196,6 +196,7 @@ GEM
     pry-debugger (0.2.2)
       debugger (~> 1.3)
       pry (~> 0.9.10)
+    puma (2.12.3)
     qst_client (0.5)
       httparty
     rack (1.4.5)
@@ -329,6 +330,7 @@ DEPENDENCIES
   omniauth-openid
   pry
   pry-debugger
+  puma
   qst_client
   rails (= 3.2.19)
   rest-client
