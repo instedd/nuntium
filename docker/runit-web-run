@@ -1,0 +1,6 @@
+#!/bin/bash
+WEB_BIND_URI="${WEB_BIND_URI:-tcp://0.0.0.0:80}"
+
+source /etc/envvars
+cd /app
+exec puma --preload -w 4 -e $RAILS_ENV -b $WEB_BIND_URI

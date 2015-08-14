@@ -1,0 +1,5 @@
+production:
+  vhost: /nuntium
+  user: nuntium
+  pass: nuntium
+  host: rabbitmq
