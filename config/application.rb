@@ -69,6 +69,9 @@ module Nuntium
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
 
+    # Do not initialize full app on assets precompile
+    config.assets.initialize_on_precompile = false
+
     $log_path = "#{Rails.root}/log/#{Rails.env}.log" if $log_path.nil?
     config.paths['log'] = $log_path
     config.logger = Logger.new($log_path)
