@@ -10,7 +10,4 @@ $RAKE_COMMAND db:create && \
 if [ `$RAKE_COMMAND db:version | cut -f2 -d ':'` == 0 ];
   then $RAKE_COMMAND db:schema:load db:seed;
   else $RAKE_COMMAND db:migrate;
-fi && \
-
-# Rabbit prepare
-$RAKE_COMMAND rabbit:prepare;
+fi;
