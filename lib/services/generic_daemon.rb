@@ -29,5 +29,5 @@ def start_service(log_name)
 rescue SystemExit
   Rails.logger.info "Stopping service normally"
 rescue Exception => err
-  Rails.logger.error "Daemon failure: #{err} #{err.backtrace}"
+  Rails.logger.error("Daemon failure: #{err} #{err.backtrace}") rescue STDERR.puts("Daemon failure: #{err} #{err.backtrace}")
 end
