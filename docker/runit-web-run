@@ -1,5 +1,5 @@
 #!/bin/bash
-WEB_BIND_URI="${WEB_BIND_URI:-tcp://0.0.0.0:80}"
+WEB_BIND_URI="${WEB_BIND_URI:-unix:///var/run/app.sock}"
 
 source /etc/envvars
 cd /app
