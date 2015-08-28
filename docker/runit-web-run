@@ -1,6 +1,7 @@
 #!/bin/bash
 WEB_BIND_URI="${WEB_BIND_URI:-unix:///var/run/app.sock}"
+WEB_PUMA_FLAGS="${WEB_PUMA_FLAGS:---preload -w 4}"
 
 source /etc/envvars
 cd /app
-exec puma --preload -w 4 -e $RAILS_ENV -b $WEB_BIND_URI
+exec puma $WEB_PUMA_FLAGS -e $RAILS_ENV -b $WEB_BIND_URI
