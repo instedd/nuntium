@@ -18,6 +18,7 @@
 Nuntium::Application.routes.draw do
   devise_for :users, controllers: {omniauth_callbacks: 'omniauth_callbacks'}
   guisso_for :user
+  mount InsteddTelemetry::Engine => "/instedd_telemetry"
 
   resources :accounts do
     member do

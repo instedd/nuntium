@@ -27,6 +27,12 @@ GIT
     ruby-smpp (0.6.0)
       eventmachine (>= 0.10.0)
 
+PATH
+  remote: ../telemetry_rails
+  specs:
+    instedd_telemetry (0.0.1)
+      rails
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -311,6 +317,7 @@ DEPENDENCIES
   ffaker
   foreman
   guid
+  instedd_telemetry!
   jquery-rails (>= 1.0.12)
   jquery-ui-rails
   json
@@ -350,3 +357,6 @@ DEPENDENCIES
   uglifier
   will_paginate (~> 3.0)
   xmpp4r
+
+BUNDLED WITH
+   1.10.6

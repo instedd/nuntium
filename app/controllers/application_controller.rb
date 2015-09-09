@@ -20,6 +20,7 @@
 
 class ApplicationController < ActionController::Base
   helper :all # include all helpers, all the time
+  helper InsteddTelemetry::WarningHelper
   # protect_from_forgery # See ActionController::RequestForgeryProtection for details
 
   ResultsPerPage = 10
