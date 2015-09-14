@@ -31,6 +31,8 @@ PATH
   remote: ../telemetry_rails
   specs:
     instedd_telemetry (0.0.1)
+      global_phone
+      global_phone_dbgen
       rails
 
 GEM
@@ -126,6 +128,9 @@ GEM
     girl_friday (0.11.2)
       connection_pool (~> 1.0)
       rubinius-actor
+    global_phone (1.0.1)
+    global_phone_dbgen (1.0.0)
+      nokogiri (~> 1.5)
     guid (0.1.1)
     hashie (1.2.0)
     highline (1.6.21)
