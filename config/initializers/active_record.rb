@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
+require 'active_record_telemetry'
 
 class ActiveRecord::Base
   def self.configuration_accessor(*names)

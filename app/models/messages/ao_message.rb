@@ -33,6 +33,9 @@ class AoMessage < ActiveRecord::Base
   before_save :truncate_body, :if => :fragment
   after_save :untruncate_body, :if => :fragment
 
+  after_save :update_application_lifespan
+  after_save :update_account_lifespan
+
   include MessageCommon
   include MessageGetter
   include MessageSerialization
@@ -118,5 +121,13 @@ class AoMessage < ActiveRecord::Base
 
   def untruncate_body
     self.body = @body_before_truncate
+  end
+
+  def update_application_lifespan
+    touch_application_lifespan(self.application)
+  end
+
+  def update_account_lifespan
+    touch_account_lifespan(self.account)
   end
 end

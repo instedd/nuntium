@@ -5,4 +5,17 @@ class UserApplication < ActiveRecord::Base
 
   validates_presence_of :user
   validates_presence_of :application
+
+  after_save :update_application_lifespan
+  after_save :update_account_lifespan
+
+  private
+
+  def update_application_lifespan
+    touch_application_lifespan(self.application)
+  end
+
+  def update_account_lifespan
+    touch_account_lifespan(self.account)
+  end
 end

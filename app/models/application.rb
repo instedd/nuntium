@@ -49,6 +49,9 @@ class Application < ActiveRecord::Base
 
   after_save :restart_channel_processes
 
+  after_save :update_lifespan
+  after_save :update_account_lifespan
+
   include(CronTask::CronTaskOwner)
 
   configuration_accessor :interface_url, :interface_user, :interface_password, :interface_custom_format
@@ -489,5 +492,13 @@ class Application < ActiveRecord::Base
 
   def restart_channel_processes
     account.restart_channel_processes
+  end
+
+  def update_lifespan
+    touch_application_lifespan(self)
+  end
+
+  def update_account_lifespan
+    touch_account_lifespan(self.account)
   end
 end
