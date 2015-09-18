@@ -5,7 +5,7 @@ module Telemetry::AtCountCollector
     {
       counters: [
         {
-          type: 'at_messages',
+          kind: 'at_messages',
           key: {},
           value: at_messages
         }

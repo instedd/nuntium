@@ -37,7 +37,7 @@ class Telemetry::AtCountCollectorTest < ActiveSupport::TestCase
 
     assert_equal({
       counters: [{
-        type: 'at_messages',
+        kind: 'at_messages',
         key: {},
         value: 3
       }]

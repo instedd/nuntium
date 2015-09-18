@@ -40,11 +40,11 @@ class Telemetry::ChannelsByTypeCollectorTest < ActiveSupport::TestCase
 
     assert_equal({
       counters: [{
-        type: 'channels_by_type',
+        kind: 'channels_by_type',
         key: {type: 'pop3'},
         value: 2
       }, {
-        type: 'channels_by_type',
+        kind: 'channels_by_type',
         key: {type: 'qst_client'},
         value: 3
       }]

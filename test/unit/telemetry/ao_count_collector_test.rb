@@ -37,7 +37,7 @@ class Telemetry::AoCountCollectorTest < ActiveSupport::TestCase
 
     assert_equal({
       counters: [{
-        type: 'ao_messages',
+        kind: 'ao_messages',
         key: {},
         value: 3
       }]
