@@ -4,6 +4,6 @@ InsteddTelemetry.setup do |conf|
   conf.add_collector Telemetry::ActiveChannelsCollector
   conf.add_collector Telemetry::AoCountCollector
   conf.add_collector Telemetry::AtCountCollector
-  conf.add_collector Telemetry::ChannelsByTypeCollector
+  conf.add_collector Telemetry::ChannelsByKindCollector
   conf.add_collector Telemetry::NumbersByCountryCodeCollector
 end

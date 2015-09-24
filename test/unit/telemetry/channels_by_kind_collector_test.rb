@@ -17,7 +17,7 @@
 
 require 'test_helper'
 
-class Telemetry::ChannelsByTypeCollectorTest < ActiveSupport::TestCase
+class Telemetry::ChannelsByKindCollectorTest < ActiveSupport::TestCase
 
   def setup
     @now = Time.now
@@ -35,17 +35,17 @@ class Telemetry::ChannelsByTypeCollectorTest < ActiveSupport::TestCase
     Pop3Channel.make created_at: @end + 3.days
   end
 
-  test 'should collect channels grouped by type' do
-    stats = Telemetry::ChannelsByTypeCollector.collect_stats(@period)
+  test 'should collect channels grouped by kind' do
+    stats = Telemetry::ChannelsByKindCollector.collect_stats(@period)
 
     assert_equal({
       counters: [{
-        metric: 'channels_by_type',
-        key: {type: 'pop3'},
+        metric: 'channels_by_kind',
+        key: {kind: 'pop3'},
         value: 2
       }, {
-        metric: 'channels_by_type',
-        key: {type: 'qst_client'},
+        metric: 'channels_by_kind',
+        key: {kind: 'qst_client'},
         value: 3
       }]
     }, stats)
