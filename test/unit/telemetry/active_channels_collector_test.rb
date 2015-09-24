@@ -36,7 +36,7 @@ class Telemetry::ActiveChannelsCollectorTest < ActiveSupport::TestCase
 
     assert_equal({
       counters: [{
-        kind: 'active_channels',
+        metric: 'active_channels',
         key: {},
         value: 2
       }]
