@@ -3,8 +3,8 @@ module Telemetry::ChannelsByTypeCollector
     channels_by_kind = Channel.where('created_at < ?', period.end).group(:kind).count
     counters = channels_by_kind.map do |kind, count|
       {
-        kind: 'channels_by_type',
-        key: {type: kind},
+        metric: 'channels_by_kind',
+        key: {kind: kind},
         value: count
       }
     end

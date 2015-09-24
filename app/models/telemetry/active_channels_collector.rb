@@ -5,7 +5,7 @@ module Telemetry::ActiveChannelsCollector
     {
       counters: [
         {
-          kind: 'active_channels',
+          metric: 'active_channels',
           key: {},
           value: active_channels
         }

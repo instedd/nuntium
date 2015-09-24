@@ -5,7 +5,7 @@ module Telemetry::AoCountCollector
     {
       counters: [
         {
-          kind: 'ao_messages',
+          metric: 'ao_messages',
           key: {},
           value: ao_messages
         }
