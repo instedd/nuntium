@@ -42,7 +42,7 @@ gem 'lodash-rails'
 gem 'knockoutjs-rails'
 gem 'newrelic_rpm'
 gem 'foreman'
-gem 'instedd_telemetry', path: '../telemetry_rails' #git: "https://github.com/instedd/telemetry_rails", branch: 'master'
+gem 'instedd_telemetry', git: "https://github.com/instedd/telemetry_rails", branch: 'master'
 
 # Gems used only for assets and not required
 # in production environments by default.

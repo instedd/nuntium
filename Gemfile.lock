@@ -27,8 +27,10 @@ GIT
     ruby-smpp (0.6.0)
       eventmachine (>= 0.10.0)
 
-PATH
-  remote: ../telemetry_rails
+GIT
+  remote: https://github.com/instedd/telemetry_rails
+  revision: 5be5b1878c3c6c8b17620d7204148f8e1814e49f
+  branch: master
   specs:
     instedd_telemetry (0.0.1)
       global_phone
