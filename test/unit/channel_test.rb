@@ -463,4 +463,60 @@ class ChannelTest < ActiveSupport::TestCase
     assert_equal chan2.id, msg.channel_id
     assert_equal 1, @chan.requeued_messages_count
   end
+
+  test "should update application lifespan when created" do
+    application = Application.make
+    channel = QstServerChannel.make_unsaved application: application
+
+    Telemetry::Lifespan.expects(:touch_application).with(application)
+
+    channel.save
+  end
+
+  test "should update application lifespan when updated" do
+    application = Application.make
+    channel = QstServerChannel.make application: application
+
+    Telemetry::Lifespan.expects(:touch_application).with(application)
+
+    channel.touch
+    channel.save
+  end
+
+  test "should update application lifespan when destroyed" do
+    application = Application.make
+    channel = QstServerChannel.make application: application
+
+    Telemetry::Lifespan.expects(:touch_application).with(application)
+
+    channel.destroy
+  end
+
+  test "should update account lifespan when created" do
+    account = Account.make
+    channel = QstServerChannel.make_unsaved account: account
+
+    Telemetry::Lifespan.expects(:touch_account).with(account)
+
+    channel.save
+  end
+
+  test "should update account lifespan when updated" do
+    account = Account.make
+    channel = QstServerChannel.make account: account
+
+    Telemetry::Lifespan.expects(:touch_account).with(account)
+
+    channel.touch
+    channel.save
+  end
+
+  test "should update account lifespan when destroyed" do
+    account = Account.make
+    channel = QstServerChannel.make account: account
+
+    Telemetry::Lifespan.expects(:touch_account).with(account)
+
+    channel.destroy
+  end
 end

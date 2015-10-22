@@ -22,8 +22,10 @@ class AtMessage < ActiveRecord::Base
   validates_presence_of :account
   serialize :custom_attributes, Hash
 
-  after_save :update_application_lifespan
-  after_save :update_account_lifespan
+  after_save :touch_application_lifespan
+  after_destroy :touch_application_lifespan
+  after_save :touch_account_lifespan
+  after_destroy :touch_account_lifespan
 
   include MessageCommon
   include MessageGetter
@@ -56,13 +58,5 @@ class AtMessage < ActiveRecord::Base
 
   def new_reply(body)
     AoMessage.new :account_id => account_id, :from => to, :to => from, :body => body
-  end
-
-  def update_application_lifespan
-    touch_application_lifespan(self.application)
-  end
-
-  def update_account_lifespan
-    touch_account_lifespan(self.account)
   end
 end

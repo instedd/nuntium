@@ -308,4 +308,29 @@ class AccountTest < ActiveSupport::TestCase
     assert_nil account
     assert_nil app
   end
+
+  test "should update account lifespan when created" do
+    account = Account.make_unsaved
+
+    Telemetry::Lifespan.expects(:touch_account).with(account)
+
+    account.save
+  end
+
+  test "should update account lifespan when updated" do
+    account = Account.make
+
+    Telemetry::Lifespan.expects(:touch_account).with(account)
+
+    account.touch
+    account.save
+  end
+
+  test "should update account lifespan when destroyed" do
+    account = Account.make
+
+    Telemetry::Lifespan.expects(:touch_account).with(account)
+
+    account.destroy
+  end
 end

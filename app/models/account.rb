@@ -46,6 +46,7 @@ class Account < ActiveRecord::Base
   after_save :restart_channel_processes
 
   after_save :update_lifespan
+  after_destroy :update_lifespan
 
   def self.find_by_id_or_name(id_or_name)
     account = self.find_by_id(id_or_name) if id_or_name =~ /\A\d+\Z/ or id_or_name.kind_of? Integer
@@ -345,6 +346,6 @@ class Account < ActiveRecord::Base
   end
 
   def update_lifespan
-    touch_account_lifespan(self)
+    Telemetry::Lifespan.touch_account self
   end
 end

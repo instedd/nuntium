@@ -64,4 +64,63 @@ class AtMessageTest < ActiveSupport::TestCase
     assert_equal 'xmpp://+1234', msg.from
     assert_equal 'xmpp://+5678', msg.to
   end
+
+  test "should update application lifespan when created" do
+    application = Application.make
+    account = Account.make
+    at_message = AtMessage.make_unsaved application: application, account: account
+
+    Telemetry::Lifespan.expects(:touch_application).with(application)
+
+    at_message.save
+  end
+
+  test "should update application lifespan when updated" do
+    application = Application.make
+    account = Account.make
+    at_message = AtMessage.make application: application, account: account
+
+    Telemetry::Lifespan.expects(:touch_application).with(application)
+
+    at_message.touch
+    at_message.save
+  end
+
+  test "should update application lifespan when destroyed" do
+    application = Application.make
+    account = Account.make
+    at_message = AtMessage.make application: application, account: account
+
+    Telemetry::Lifespan.expects(:touch_application).with(application)
+
+    at_message.destroy
+  end
+
+  test "should update account lifespan when created" do
+    account = Account.make
+    at_message = AtMessage.make_unsaved account: account
+
+    Telemetry::Lifespan.expects(:touch_account).with(account)
+
+    at_message.save
+  end
+
+  test "should update account lifespan when updated" do
+    account = Account.make
+    at_message = AtMessage.make account: account
+
+    Telemetry::Lifespan.expects(:touch_account).with(account)
+
+    at_message.touch
+    at_message.save
+  end
+
+  test "should update account lifespan when destroyed" do
+    account = Account.make
+    at_message = AtMessage.make account: account
+
+    Telemetry::Lifespan.expects(:touch_account).with(account)
+
+    at_message.destroy
+  end
 end

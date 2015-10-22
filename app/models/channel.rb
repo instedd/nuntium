@@ -62,8 +62,10 @@ class Channel < ActiveRecord::Base
 
   after_update :reroute_messages, :if => lambda { enabled_changed? && !enabled }
 
-  after_save :update_application_lifespan
-  after_save :update_account_lifespan
+  after_save :touch_application_lifespan
+  after_destroy :touch_application_lifespan
+  after_save :touch_account_lifespan
+  after_destroy :touch_account_lifespan
 
   configuration_accessor :opt_in_enabled
   configuration_accessor :opt_in_keyword, :opt_in_message
@@ -405,13 +407,5 @@ class Channel < ActiveRecord::Base
 
   def requeued_messages_count
     @requeued_messages_count || 0
-  end
-
-  def update_application_lifespan
-    touch_application_lifespan(self.application)
-  end
-
-  def update_account_lifespan
-    touch_account_lifespan(self.account)
   end
 end

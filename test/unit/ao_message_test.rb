@@ -302,4 +302,63 @@ class AoMessageTest < ActiveSupport::TestCase
     msg.timestamp = time
     assert_equal time, msg.timestamp
   end
+
+  test "should update application lifespan when created" do
+    application = Application.make
+    account = Account.make
+    ao_message = AoMessage.make_unsaved application: application, account: account
+
+    Telemetry::Lifespan.expects(:touch_application).with(application)
+
+    ao_message.save
+  end
+
+  test "should update application lifespan when updated" do
+    application = Application.make
+    account = Account.make
+    ao_message = AoMessage.make application: application, account: account
+
+    Telemetry::Lifespan.expects(:touch_application).with(application)
+
+    ao_message.touch
+    ao_message.save
+  end
+
+  test "should update application lifespan when destroyed" do
+    application = Application.make
+    account = Account.make
+    ao_message = AoMessage.make application: application, account: account
+
+    Telemetry::Lifespan.expects(:touch_application).with(application)
+
+    ao_message.destroy
+  end
+
+  test "should update account lifespan when created" do
+    account = Account.make
+    ao_message = AoMessage.make_unsaved account: account
+
+    Telemetry::Lifespan.expects(:touch_account).with(account)
+
+    ao_message.save
+  end
+
+  test "should update account lifespan when updated" do
+    account = Account.make
+    ao_message = AoMessage.make account: account
+
+    Telemetry::Lifespan.expects(:touch_account).with(account)
+
+    ao_message.touch
+    ao_message.save
+  end
+
+  test "should update account lifespan when destroyed" do
+    account = Account.make
+    ao_message = AoMessage.make account: account
+
+    Telemetry::Lifespan.expects(:touch_account).with(account)
+
+    ao_message.destroy
+  end
 end

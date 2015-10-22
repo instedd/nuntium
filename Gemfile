@@ -64,6 +64,7 @@ group :test do
   gem 'ffaker'
   gem 'machinist'
   gem 'test_after_commit'
+  gem 'timecop'
 end
 
 group :development, :test do

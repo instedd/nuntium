@@ -232,3 +232,19 @@ Country.blueprint do
   iso3 { (1..3).map { ('a'..'z').to_a.rand }.join }
   phone_prefix { Sham.number2 }
 end
+
+UserApplication.blueprint do
+  user
+  application
+  account { application.account }
+end
+
+UserAccount.blueprint do
+  user
+  account
+end
+
+UserChannel.blueprint do
+  user
+  channel { QstClientChannel.make }
+end

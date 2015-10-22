@@ -50,7 +50,9 @@ class Application < ActiveRecord::Base
   after_save :restart_channel_processes
 
   after_save :update_lifespan
-  after_save :update_account_lifespan
+  after_destroy :update_lifespan
+  after_save :touch_account_lifespan
+  after_destroy :touch_account_lifespan
 
   include(CronTask::CronTaskOwner)
 
@@ -495,10 +497,6 @@ class Application < ActiveRecord::Base
   end
 
   def update_lifespan
-    touch_application_lifespan(self)
-  end
-
-  def update_account_lifespan
-    touch_account_lifespan(self.account)
+    Telemetry::Lifespan.touch_application self
   end
 end

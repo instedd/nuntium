@@ -632,4 +632,58 @@ class ApplicationTest < ActiveSupport::TestCase
 
     assert app.authenticate('foo2')
   end
+
+  test "should update application lifespan when created" do
+    account = Account.make
+    application = Application.make_unsaved account: account
+
+    Telemetry::Lifespan.expects(:touch_application).with(application)
+
+    application.save
+  end
+
+  test "should update application lifespan when updated" do
+    application = Application.make
+
+    Telemetry::Lifespan.expects(:touch_application).with(application)
+
+    application.touch
+    application.save
+  end
+
+  test "should update application lifespan when destroyed" do
+    application = Application.make
+
+    Telemetry::Lifespan.expects(:touch_application).with(application)
+
+    application.destroy
+  end
+
+  test "should update account lifespan when created" do
+    account = Account.make
+    application = Application.make_unsaved account: account
+
+    Telemetry::Lifespan.expects(:touch_account).with(account)
+
+    application.save
+  end
+
+  test "should update account lifespan when updated" do
+    account = Account.make
+    application = Application.make account: account
+
+    Telemetry::Lifespan.expects(:touch_account).with(account)
+
+    application.touch
+    application.save
+  end
+
+  test "should update account lifespan when destroyed" do
+    account = Account.make
+    application = Application.make account: account
+
+    Telemetry::Lifespan.expects(:touch_account).with(account)
+
+    application.destroy
+  end
 end
