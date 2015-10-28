@@ -26,22 +26,42 @@ class Telemetry::AoCountCollectorTest < ActiveSupport::TestCase
     @period = InsteddTelemetry::Period.new beginning: @beginning, end: @end
 
     account = Account.make
-    AoMessage.make account: account, created_at: @end - 1.day
-    AoMessage.make account: account, created_at: @end - 10.days
-    AoMessage.make account: account, created_at: @end - 365.days
-    AoMessage.make account: account, created_at: @end + 1.day
+
+    @channel_1 = QstServerChannel.make account: account
+    @channel_2 = QstServerChannel.make account: account
+    @channel_3 = QstServerChannel.make account: account
+
+    AoMessage.make account: account, channel: @channel_1, created_at: @end - 1.day
+    AoMessage.make account: account, channel: @channel_1, created_at: @end - 10.days
+    AoMessage.make account: account, channel: @channel_1, created_at: @end - 365.days
+    AoMessage.make account: account, channel: @channel_1, created_at: @end + 1.day
+
+    AoMessage.make account: account, channel: @channel_2, created_at: @end - 30.days
+    AoMessage.make account: account, channel: @channel_2, created_at: @end - 40.days
+
+    AoMessage.make account: account, channel: @channel_3, created_at: @end + 7.day
   end
 
   test 'should collect ao messages' do
     stats = Telemetry::AoCountCollector.collect_stats(@period)
+    counters = stats[:counters]
 
-    assert_equal({
-      counters: [{
-        metric: 'ao_messages',
-        key: {},
-        value: 3
-      }]
-    }, stats)
+    assert_equal(2, counters.size)
+
+    channel_1_stats = counters.find{|x| x[:key][:channel_id] == @channel_1.id}
+    channel_2_stats = counters.find{|x| x[:key][:channel_id] == @channel_2.id}
+
+    assert_equal(channel_1_stats, {
+      metric: 'ao_messages',
+      key: {channel_id: @channel_1.id},
+      value: 3
+    })
+
+    assert_equal(channel_2_stats, {
+      metric: 'ao_messages',
+      key: {channel_id: @channel_2.id},
+      value: 2
+    })
   end
 
 end
