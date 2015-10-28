@@ -3,9 +3,9 @@ module Telemetry::NumbersByCountryCodeCollector
     period_end = ActiveRecord::Base.sanitize(period.end)
 
     results = ActiveRecord::Base.connection.execute <<-SQL
-      (SELECT ao.to FROM ao_messages ao WHERE ao.created_at < #{period_end})
+      (SELECT ao.to FROM ao_messages ao WHERE ao.to IS NOT NULL AND ao.created_at < #{period_end})
       UNION
-      (SELECT at.from FROM at_messages at WHERE at.created_at < #{period_end})
+      (SELECT at.from FROM at_messages at WHERE at.from IS NOT NULL AND at.created_at < #{period_end})
     SQL
 
     numbers_by_country_code = Hash.new(0)
