@@ -5,7 +5,7 @@
 // the compiled file.
 //
 //= require jquery
-//= require jquery-migrate-min
+//= require jquery-migrate
 //= require jquery_ujs
 //= require jquery.ui.autocomplete
 //= require lodash
