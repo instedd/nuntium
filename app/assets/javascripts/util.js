@@ -1,6 +1,6 @@
 $(function() {
   // This is to expand shortened text in tables
-  $("td").live('click', function() {
+  $(document).on('click', 'td', function() {
     spans = $(this).children("span");
     if (spans.length > 0) {
       $span = $(spans[0]);
