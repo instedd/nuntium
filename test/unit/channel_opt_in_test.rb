@@ -102,7 +102,7 @@ class ChannelOptInTest < ActiveSupport::TestCase
     assert_equal msg.from, msgs[0].to
     assert_equal @chan.opt_in_message, msgs[0].body
 
-    assert_equal 1, @chan.whitelists.find_all_by_account_id_and_address(@chan.account_id, 'sms://1').count
+    assert_equal 1, @chan.whitelists.where(account_id: @chan.account_id, address: 'sms://1').count
   end
 
   test "routes to app if message is opt-in but already in whitelist" do
@@ -138,7 +138,7 @@ class ChannelOptInTest < ActiveSupport::TestCase
     assert_equal msg.from, msgs[0].to
     assert_equal @chan.opt_out_message, msgs[0].body
 
-    assert_equal 0, @chan.whitelists.find_all_by_account_id_and_address(@chan.account_id, 'sms://1').count
+    assert_equal 0, @chan.whitelists.where(account_id: @chan.account_id, address: 'sms://1').count
   end
 
   test "removes from whitelist if message is opt-out but not in whitelist" do
@@ -158,6 +158,6 @@ class ChannelOptInTest < ActiveSupport::TestCase
     assert_equal msg.from, msgs[0].to
     assert_equal @chan.opt_out_message, msgs[0].body
 
-    assert_equal 0, @chan.whitelists.find_all_by_account_id_and_address(@chan.account_id, 'sms://1').count
+    assert_equal 0, @chan.whitelists.where(account_id: @chan.account_id, address: 'sms://1').count
   end
 end

@@ -113,7 +113,7 @@ class AoMessagesController < ApplicationController
 
   # GET /:account_name/:application_name/get_ao.:format
   def get_ao
-    render :json => AoMessage.find_all_by_application_id_and_token(@application.id, params[:token])
+    render :json => AoMessage.where(application_id: @application.id, token: params[:token])
   end
 
   def rgviz

@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.22'
+gem 'rails', '4.0.13'
 gem 'mysql2'
 gem "mail"
 gem 'will_paginate', '~> 3.0'
@@ -11,7 +11,7 @@ gem 'twitter_oauth'
 gem 'ruby-smpp', :git => 'https://github.com/instedd/ruby-smpp.git', :branch => 'array_pack', :require => 'smpp'
 gem "eventmachine"
 gem 'bunny', '>= 1.6.2'
-gem 'memcache-client'
+gem 'dalli'
 gem 'xmpp4r'
 gem 'rest-client', :require => 'rest_client'
 gem 'qst_client'
@@ -21,7 +21,6 @@ gem 'ruby-cache', :require => 'cache'
 gem 'json'
 gem 'rgviz'
 gem 'rgviz-rails', :require => 'rgviz_rails'
-gem 'smart_asset'
 gem 'blather'
 gem 'dynamic_form'
 gem 'ci_reporter'
@@ -32,7 +31,7 @@ gem 'jquery-migrate-rails'
 gem 'jquery-ui-rails'
 gem 'twilio-ruby'
 gem 'em-msn', '>= 0.7'
-gem 'devise'
+gem 'devise', '~> 3.5.3'
 gem 'omniauth'
 gem 'omniauth-openid'
 gem 'omniauth-google-oauth2'
@@ -44,14 +43,15 @@ gem 'knockoutjs-rails'
 gem 'newrelic_rpm'
 gem 'foreman'
 gem 'instedd_telemetry', git: "https://github.com/instedd/telemetry_rails", branch: 'master'
+gem 'protected_attributes'
 
-# Gems used only for assets and not required
-# in production environments by default.
-group :assets do
-  gem 'sass-rails', "  ~> 3.2.0"
-  gem 'coffee-rails', "~> 3.2.0"
-  gem 'uglifier'
-end
+gem 'sass-rails', '~> 4.0.2'
+gem 'coffee-rails', '~> 4.0.0'
+gem 'uglifier', '>= 1.3.0'
+
+gem 'turbolinks'
+
+gem 'jbuilder', '~> 1.2'
 
 group :development do
   gem 'licit'
@@ -75,4 +75,9 @@ end
 
 group :webserver do
   gem 'puma'
+end
+
+group :doc do
+  # bundle exec rake doc:rails generates the API under doc/api.
+  gem 'sdoc', require: false
 end
