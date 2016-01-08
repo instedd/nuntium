@@ -22,7 +22,7 @@ Search: <input type="text" name="search" value="<%= h @search -%>" size= "50" cl
     <td><%=short_html custom_attribute.custom_attributes.to_human %></td>
     <td>
       <%= link_to 'Edit', edit_custom_attribute_path(custom_attribute) %>
-      <%= link_to 'Delete', custom_attribute, :confirm => 'Are you sure?', :method => :delete %>
+      <%= link_to 'Delete', custom_attribute, data: {confirm: 'Are you sure?'}, method: :delete %>
     </td>
   </tr>
 <% end %>

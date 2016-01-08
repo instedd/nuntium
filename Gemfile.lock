@@ -63,48 +63,49 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    actionmailer (3.2.22)
-      actionpack (= 3.2.22)
-      mail (~> 2.5.4)
-    actionpack (3.2.22)
-      activemodel (= 3.2.22)
-      activesupport (= 3.2.22)
-      builder (~> 3.0.0)
+    actionmailer (4.0.13)
+      actionpack (= 4.0.13)
+      mail (~> 2.5, >= 2.5.4)
+    actionpack (4.0.13)
+      activesupport (= 4.0.13)
+      builder (~> 3.1.0)
       erubis (~> 2.7.0)
-      journey (~> 1.0.4)
-      rack (~> 1.4.5)
-      rack-cache (~> 1.2)
-      rack-test (~> 0.6.1)
-      sprockets (~> 2.2.1)
-    activemodel (3.2.22)
-      activesupport (= 3.2.22)
-      builder (~> 3.0.0)
-    activerecord (3.2.22)
-      activemodel (= 3.2.22)
-      activesupport (= 3.2.22)
-      arel (~> 3.0.2)
-      tzinfo (~> 0.3.29)
-    activeresource (3.2.22)
-      activemodel (= 3.2.22)
-      activesupport (= 3.2.22)
-    activesupport (3.2.22)
-      i18n (~> 0.6, >= 0.6.4)
-      multi_json (~> 1.0)
+      rack (~> 1.5.2)
+      rack-test (~> 0.6.2)
+    activemodel (4.0.13)
+      activesupport (= 4.0.13)
+      builder (~> 3.1.0)
+    activerecord (4.0.13)
+      activemodel (= 4.0.13)
+      activerecord-deprecated_finders (~> 1.0.2)
+      activesupport (= 4.0.13)
+      arel (~> 4.0.0)
+    activerecord-deprecated_finders (1.0.4)
+    activesupport (4.0.13)
+      i18n (~> 0.6, >= 0.6.9)
+      minitest (~> 4.2)
+      multi_json (~> 1.3)
+      thread_safe (~> 0.1)
+      tzinfo (~> 0.3.37)
     addressable (2.4.0)
     amq-protocol (1.9.2)
-    arel (3.0.3)
+    arel (4.0.2)
     attr_required (1.0.0)
+<<<<<<< HEAD
     bcrypt-ruby (3.0.1)
     bert (1.1.6)
     bertrpc (1.3.1)
       bert (>= 1.1.0, < 2.0.0)
+=======
+    bcrypt (3.1.10)
+>>>>>>> Migrated to Rails 4.0 and devise 3.5
     blather (0.8.5)
       activesupport (>= 2.3.11)
       eventmachine (>= 1.0.0)
       girl_friday
       niceogiri (~> 1.0)
       nokogiri (~> 1.5, >= 1.5.6)
-    builder (3.0.4)
+    builder (3.1.4)
     bunny (1.6.3)
       amq-protocol (>= 1.9.2)
     capistrano (2.15.5)
@@ -116,17 +117,18 @@ GEM
     ci_reporter (1.6.5)
       builder (>= 2.1.2)
     coderay (1.1.0)
-    coffee-rails (3.2.2)
+    coffee-rails (4.0.1)
       coffee-script (>= 2.2.0)
-      railties (~> 3.2.0)
-    coffee-script (2.2.0)
+      railties (>= 4.0.0, < 5.0)
+    coffee-script (2.4.1)
       coffee-script-source
       execjs
-    coffee-script-source (1.4.0)
+    coffee-script-source (1.10.0)
     columnize (0.3.6)
     connection_pool (1.1.0)
     daemon_controller (0.2.5)
     daemons (1.1.0)
+    dalli (2.7.5)
     debugger (1.6.5)
       columnize (>= 0.3.1)
       debugger-linecache (~> 1.2.0)
@@ -134,10 +136,13 @@ GEM
     debugger-linecache (1.2.0)
     debugger-ruby_core_source (1.3.8)
     decent_exposure (1.0.1)
-    devise (1.5.4)
-      bcrypt-ruby (~> 3.0)
-      orm_adapter (~> 0.0.3)
-      warden (~> 1.1)
+    devise (3.5.3)
+      bcrypt (~> 3.0)
+      orm_adapter (~> 0.1)
+      railties (>= 3.2.6, < 5)
+      responders
+      thread_safe (~> 0.1)
+      warden (~> 1.2.3)
     domain_name (0.5.25)
       unf (>= 0.0.5, < 1.0.0)
     dynamic_form (1.1.4)
@@ -171,30 +176,30 @@ GEM
       multi_xml (>= 0.5.2)
     httpclient (2.6.0.1)
     i18n (0.7.0)
-    journey (1.0.4)
+    jbuilder (1.5.3)
+      activesupport (>= 3.0.0)
+      multi_json (>= 1.2.0)
     jquery-migrate-rails (1.2.1)
     jquery-rails (3.1.4)
       railties (>= 3.0, < 5.0)
       thor (>= 0.14, < 2.0)
-    jquery-ui-rails (4.0.0)
-      jquery-rails
-      railties (>= 3.1.0)
+    jquery-ui-rails (5.0.5)
+      railties (>= 3.2.16)
     json (1.8.3)
     jwt (1.5.2)
-    knockoutjs-rails (2.2.0)
-      railties (~> 3.1)
+    knockoutjs-rails (3.4.0)
+      railties (>= 3.1, < 5)
     licit (0.2.1)
-    lodash-rails (0.10.0)
-      railties (~> 3.1)
+    lodash-rails (3.10.1)
+      railties (>= 3.1)
     machinist (1.0.6)
-    mail (2.5.4)
-      mime-types (~> 1.16)
-      treetop (~> 1.4.8)
-    memcache-client (1.8.5)
+    mail (2.6.3)
+      mime-types (>= 1.16, < 3)
     metaclass (0.0.4)
     method_source (0.8.2)
-    mime-types (1.25.1)
+    mime-types (2.99)
     mini_portile2 (2.0.0)
+    minitest (4.7.5)
     mocha (1.0.0)
       metaclass (~> 0.0.1)
     multi_json (1.11.2)
@@ -241,9 +246,15 @@ GEM
     omniauth-openid (1.0.1)
       omniauth (~> 1.0)
       rack-openid (~> 1.3.1)
+<<<<<<< HEAD
     orm_adapter (0.0.7)
     polyglot (0.3.5)
     power_assert (0.3.1)
+=======
+    orm_adapter (0.5.0)
+    protected_attributes (1.1.3)
+      activemodel (>= 4.0.1, < 5.0)
+>>>>>>> Migrated to Rails 4.0 and devise 3.5
     pry (0.9.12.4)
       coderay (~> 1.0)
       method_source (~> 0.8)
@@ -254,9 +265,7 @@ GEM
     puma (2.12.3)
     qst_client (0.5)
       httparty
-    rack (1.4.7)
-    rack-cache (1.5.1)
-      rack (>= 0.4)
+    rack (1.5.5)
     rack-oauth2 (1.0.9)
       activesupport (>= 2.3)
       attr_required (>= 0.0.5)
@@ -266,10 +275,9 @@ GEM
     rack-openid (1.3.1)
       rack (>= 1.1.0)
       ruby-openid (>= 2.1.8)
-    rack-ssl (1.3.4)
-      rack
     rack-test (0.6.3)
       rack (>= 1.0)
+<<<<<<< HEAD
     rails (3.2.22)
       actionmailer (= 3.2.22)
       actionpack (= 3.2.22)
@@ -285,12 +293,26 @@ GEM
       actionpack (= 3.2.19)
       activesupport (= 3.2.19)
       rack-ssl (~> 1.3.2)
+=======
+    rails (4.0.13)
+      actionmailer (= 4.0.13)
+      actionpack (= 4.0.13)
+      activerecord (= 4.0.13)
+      activesupport (= 4.0.13)
+      bundler (>= 1.3.0, < 2.0)
+      railties (= 4.0.13)
+      sprockets-rails (~> 2.0)
+    railties (4.0.13)
+      actionpack (= 4.0.13)
+      activesupport (= 4.0.13)
+>>>>>>> Migrated to Rails 4.0 and devise 3.5
       rake (>= 0.8.7)
-      rdoc (~> 3.4)
-      thor (>= 0.14.6, < 2.0)
+      thor (>= 0.18.1, < 2.0)
     rake (10.4.2)
-    rdoc (3.12.2)
+    rdoc (4.2.1)
       json (~> 1.4)
+    responders (1.1.2)
+      railties (>= 3.2, < 4.2)
     rest-client (1.8.0)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 3.0)
@@ -303,22 +325,29 @@ GEM
     rubinius-core-api (0.0.1)
     ruby-cache (0.3.0)
     ruby-openid (2.2.2)
-    sass (3.2.5)
-    sass-rails (3.2.6)
-      railties (~> 3.2.0)
-      sass (>= 3.1.10)
-      tilt (~> 1.3)
+    sass (3.2.19)
+    sass-rails (4.0.5)
+      railties (>= 4.0.0, < 5.0)
+      sass (~> 3.2.2)
+      sprockets (~> 2.8, < 3.0)
+      sprockets-rails (~> 2.0)
+    sdoc (0.4.1)
+      json (~> 1.7, >= 1.7.7)
+      rdoc (~> 4.0)
     simple_oauth (0.2.0)
     slim (1.3.6)
       temple (~> 0.5.5)
       tilt (~> 1.3.3)
     slop (3.4.7)
-    smart_asset (0.5.4)
-    sprockets (2.2.3)
+    sprockets (2.12.4)
       hike (~> 1.2)
       multi_json (~> 1.0)
       rack (~> 1.0)
       tilt (~> 1.1, != 1.3.0)
+    sprockets-rails (2.3.3)
+      actionpack (>= 3.0)
+      activesupport (>= 3.0)
+      sprockets (>= 2.8, < 4.0)
     temple (0.5.5)
     test-unit (3.1.9)
       power_assert
@@ -326,11 +355,11 @@ GEM
       activerecord (>= 3.2)
     thor (0.19.1)
     thoughtbot-shoulda (2.11.1)
+    thread_safe (0.3.5)
     tilt (1.3.7)
     timecop (0.8.0)
-    treetop (1.4.15)
-      polyglot
-      polyglot (>= 0.3.1)
+    turbolinks (2.5.3)
+      coffee-rails
     twilio-ruby (3.3.1)
       builder (>= 2.1.2)
       jwt (>= 0.1.2)
@@ -350,7 +379,7 @@ GEM
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.1)
-    warden (1.2.1)
+    warden (1.2.4)
       rack (>= 1.0)
     will_paginate (3.1.0)
     xmpp4r (0.5)
@@ -365,11 +394,12 @@ DEPENDENCIES
   bunny (>= 1.6.2)
   capistrano (~> 2.15)
   ci_reporter
-  coffee-rails (~> 3.2.0)
+  coffee-rails (~> 4.0.0)
   daemon_controller
   daemons
+  dalli
   decent_exposure
-  devise
+  devise (~> 3.5.3)
   dynamic_form
   em-msn (>= 0.7)
   eventmachine
@@ -378,6 +408,7 @@ DEPENDENCIES
   guid
   instedd-pigeon!
   instedd_telemetry!
+  jbuilder (~> 1.2)
   jquery-migrate-rails
   jquery-rails (>= 1.0.12)
   jquery-ui-rails
@@ -387,7 +418,6 @@ DEPENDENCIES
   lodash-rails
   machinist
   mail
-  memcache-client
   mocha
   multi_json (~> 1.3)
   mysql2 (~> 0.3.17)
@@ -396,30 +426,44 @@ DEPENDENCIES
   omniauth
   omniauth-google-oauth2
   omniauth-openid
+<<<<<<< HEAD
   poirot_rails!
+=======
+  protected_attributes
+>>>>>>> Migrated to Rails 4.0 and devise 3.5
   pry
   pry-debugger
   puma
   qst_client
+<<<<<<< HEAD
   rails (= 3.2.19)
   rails-dev-tweaks
   rake
+=======
+  rails (= 4.0.13)
+>>>>>>> Migrated to Rails 4.0 and devise 3.5
   rest-client
   rgviz
   rgviz-rails
   ruby-cache
   ruby-smpp!
-  sass-rails (~> 3.2.0)
+  sass-rails (~> 4.0.2)
+  sdoc
   slim
+<<<<<<< HEAD
   smart_asset
   test-unit (~> 3.1.8)
+=======
+  test-unit
+>>>>>>> Migrated to Rails 4.0 and devise 3.5
   test_after_commit
   thoughtbot-shoulda
   timecop
+  turbolinks
   twilio-ruby
   twitter
   twitter_oauth
-  uglifier
+  uglifier (>= 1.3.0)
   will_paginate (~> 3.0)
   xmpp4r
 

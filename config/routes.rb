@@ -98,11 +98,11 @@ Nuntium::Application.routes.draw do
   end
 
   scope '/:account_id/clickatell', :constraints => {:account_id => /.*/} do
-    match '/incoming' => 'clickatell#index', :as => :clickatell
-    match '/ack' => 'clickatell#ack', :as => :clickatell_ack, :constraints => {:account_id => /.*/}
+    match '/incoming' => 'clickatell#index', :as => :clickatell, via: [:get, :post]
+    match '/ack' => 'clickatell#ack', :as => :clickatell_ack, :constraints => {:account_id => /.*/}, via: [:get, :post]
   end
 
-  match '/clickatell/view_credit' => 'clickatell#view_credit', :as => :clickatel_credit
+  match '/clickatell/view_credit' => 'clickatell#view_credit', :as => :clickatel_credit, via: [:get, :post]
 
   scope '/:account_id/:channel_id/nexmo/:callback_token', :constraints => {:account_id => /.*/, :channel_id => /.*/} do
     match '/incoming' => 'nexmo#incoming', :as => :nexmo_incoming, :constraints => {:account_id => /.*/, :channel_id => /.*/}
@@ -120,32 +120,32 @@ Nuntium::Application.routes.draw do
   end
 
   scope '/:account_id/shujaa', :constraints => {:account_id => /.*/} do
-    match '/incoming/:callback_guid' => 'shujaa#index', :as => :shujaa
+    match '/incoming/:callback_guid' => 'shujaa#index', :as => :shujaa, via: [:get, :post]
   end
 
   scope '/twitter' do
-    match '/callback' => 'twitter#callback', :as => :twitter_callback
+    match '/callback' => 'twitter#callback', :as => :twitter_callback, via: [:get, :post]
   end
 
   scope '/:account_id/qst', :constraints => {:account_id => /.*/}  do
     post '/incoming' => 'qst_server#push', :as => :qst_push
     get '/incoming' => 'qst_server#get_last_id', :as => :qst_get_last_id, :constraints => {:account_id => /.*/}
-    match '/outgoing' => 'qst_server#pull', :as => :qst_pull, :constraints => {:account_id => /.*/}
-    match '/setaddress' => 'qst_server#set_address', :as => :qst_set_address, :constraints => {:account_id => /.*/}
+    get '/outgoing' => 'qst_server#pull', :as => :qst_pull, :constraints => {:account_id => /.*/}
+    match '/setaddress' => 'qst_server#set_address', :as => :qst_set_address, :constraints => {:account_id => /.*/}, via: [:get, :post]
   end
 
   scope '/:account_name/:application_name', :constraints => {:account_name => /.*/, :application_name => /.*/} do
     get '/rss' => 'rss#index', :as => :rss, :format => 'xml'
     post '/rss' => 'rss#create', :as => :create_rss, :constraints => {:account_name => /.*/, :application_name => /.*/}
 
-    match '/send_ao' => 'ao_messages#create_via_api', :as => :send_ao, :constraints => {:account_name => /.*/, :application_name => /.*/}
+    match '/send_ao' => 'ao_messages#create_via_api', :as => :send_ao, :constraints => {:account_name => /.*/, :application_name => /.*/}, via: [:get, :post]
     get '/get_ao' => 'ao_messages#get_ao', :as => :get_ao, :constraints => {:account_name => /.*/, :application_name => /.*/}
   end
 
-  match '/:account_id/dtac/incoming' => 'dtac#index', :as => :dtac, :constraints => {:account_id => /.*/}
+  match '/:account_id/dtac/incoming' => 'dtac#index', :as => :dtac, :constraints => {:account_id => /.*/}, via: [:get, :post]
   # TODO: are these necessary/correct? taken from production environment
-  match '/dtac/geochat/incoming' => 'dtac#index', :account_id => 'instedd'
-  match '/dtac/:account_id/incoming' => 'dtac#index'
+  match '/dtac/geochat/incoming' => 'dtac#index', :account_id => 'instedd', via: [:get, :post]
+  match '/dtac/:account_id/incoming' => 'dtac#index', via: [:get, :post]
 
   scope '/:account_id/ipop/:channel_name', :constraints => {:account_id => /.*/} do
     post '/incoming' => 'ipop#index', :as => :ipop
@@ -153,19 +153,19 @@ Nuntium::Application.routes.draw do
   end
 
   scope '/:account_id/twilio', :constraints => {:account_id => /.*/} do
-    match '/incoming' => 'twilio#index', :as => :twilio
-    match '/ack' => 'twilio#ack', :as => :twilio_ack
+    match '/incoming' => 'twilio#index', :as => :twilio, via: [:get, :post]
+    match '/ack' => 'twilio#ack', :as => :twilio_ack, via: [:get, :post]
   end
 
   scope '/api' do
     scope '/carriers' do
-      match '/' => 'api_carrier#index', :as => :carriers
-      match '/:guid' => 'api_carrier#show', :as => :carrier
+      match '/' => 'api_carrier#index', :as => :carriers, via: [:get, :post]
+      match '/:guid' => 'api_carrier#show', :as => :carrier, via: [:get, :post]
     end
 
     scope '/countries' do
-      match '/' => 'api_country#index', :as => :countries
-      match '/:iso' => 'api_country#show', :as => :country
+      match '/' => 'api_country#index', :as => :countries, via: [:get, :post]
+      match '/:iso' => 'api_country#show', :as => :country, via: [:get, :post]
     end
 
     scope '/channels' do
@@ -183,7 +183,7 @@ Nuntium::Application.routes.draw do
 
     scope '/custom_attributes' do
       get '/' => 'api_custom_attributes#show', :as => :api_custom_attributes_show
-      post '/' => 'api_custom_attributes#create_or_update', :as => :api_custom_attributes_show
+      post '/' => 'api_custom_attributes#create_or_update', :as => :api_custom_attributes_create_or_update
     end
 
     resources :ao_messages, only: [:create], controller: 'api_ao_messages'

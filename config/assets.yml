@@ -1,9 +1,0 @@
-javascripts:
-  default:
-    - jquery.min
-    - jquery_ujs
-    - application
-
-stylesheets:
-  default:
-    - scaffold
