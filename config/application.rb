@@ -52,6 +52,9 @@ module Nuntium
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
 
+    # Disabl strong parameters
+    config.action_controller.permit_all_parameters = true
+
     $log_path = "#{Rails.root}/log/#{Rails.env}.log" if $log_path.nil?
     config.paths['log'] = $log_path
     config.logger = Logger.new($log_path)
