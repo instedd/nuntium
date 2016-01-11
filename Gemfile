@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'rails', '4.0.13'
-gem 'mysql2'
+gem 'rails', '4.1.14'
+gem 'mysql2', '~> 0.3.20'
 gem "mail"
 gem 'will_paginate', '~> 3.0'
 gem "guid"
@@ -45,17 +45,18 @@ gem 'foreman'
 gem 'instedd_telemetry', git: "https://github.com/instedd/telemetry_rails", branch: 'master'
 gem 'protected_attributes'
 
-gem 'sass-rails', '~> 4.0.2'
+gem 'sass-rails', '~> 4.0.3'
 gem 'coffee-rails', '~> 4.0.0'
 gem 'uglifier', '>= 1.3.0'
 
 gem 'turbolinks'
 
-gem 'jbuilder', '~> 1.2'
+gem 'jbuilder', '~> 2.0'
 
 group :development do
   gem 'licit'
   gem 'capistrano', "~> 2.15"
+  gem 'spring'
 end
 
 group :test do
@@ -79,5 +80,5 @@ end
 
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.
-  gem 'sdoc', require: false
+  gem 'sdoc', '~> 0.4.0'
 end

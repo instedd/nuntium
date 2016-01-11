@@ -8,4 +8,4 @@ require 'rake'
 gem 'ci_reporter'
 require 'ci/reporter/rake/test_unit' # use this if you're using Test::Unit
 
-Nuntium::Application.load_tasks
+Rails.application.load_tasks
