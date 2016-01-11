@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-Nuntium::Application.routes.draw do
+Rails.application.routes.draw do
   devise_for :users, controllers: {omniauth_callbacks: 'omniauth_callbacks'}
   guisso_for :user
   mount InsteddTelemetry::Engine => "/instedd_telemetry"

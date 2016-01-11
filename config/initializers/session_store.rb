@@ -17,5 +17,5 @@
 
 if defined? Nuntium
   # Be sure to restart your server when you modify this file.
-  Nuntium::Application.config.session_store :cookie_store, :key => '_nuntium_session'
+  Rails.application.config.session_store :cookie_store, :key => '_nuntium_session'  
 end

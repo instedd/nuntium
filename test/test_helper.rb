@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-ENV["RAILS_ENV"] ||= "test"
+ENV["RAILS_ENV"] ||= 'test'
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require File.expand_path(File.dirname(__FILE__) + "/blueprints")
 require 'rails/test_help'
@@ -53,8 +53,6 @@ class ActiveSupport::TestCase
   # instantiated fixtures translates to a database query per test method),
   # then set this back to true.
   self.use_instantiated_fixtures  = false
-
-  ActiveRecord::Migration.check_pending!
 
   include Mocha::API
 
