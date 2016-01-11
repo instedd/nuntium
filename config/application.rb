@@ -49,6 +49,9 @@ module Nuntium
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
+    # Do not swallow errors in after_commit/after_rollback callbacks.
+    config.active_record.raise_in_transactional_callbacks = true
+
     $log_path = "#{Rails.root}/log/#{Rails.env}.log" if $log_path.nil?
     config.paths['log'] = $log_path
     config.logger = Logger.new($log_path)
