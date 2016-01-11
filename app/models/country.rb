@@ -28,7 +28,7 @@ class Country < ActiveRecord::Base
     return @@countries if @@countries
 
     @@countries = super
-    @@countries.sort!{|x, y| x.name <=> y.name}
+    @@countries = @@countries.to_a.sort!{|x, y| x.name <=> y.name}
     @@countries
   end
 
