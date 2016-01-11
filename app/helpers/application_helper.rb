@@ -52,7 +52,7 @@ module ApplicationHelper
 
   def time_ago(time)
     return '' if time.nil?
-    ('<span title="' << time.utc.to_s << '">' << time_ago_in_words(time.utc, true) << ' ago</span>').html_safe
+    ('<span title="' << time.utc.to_s << '">' << time_ago_in_words(time.utc, include_seconds: true) << ' ago</span>').html_safe
   end
 
   def go_back_link
