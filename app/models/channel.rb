@@ -29,10 +29,10 @@ class Channel < ActiveRecord::Base
   belongs_to :account
   belongs_to :application
 
-  has_many :ao_messages, :conditions => proc { { :account_id => self.account_id } }
-  has_many :at_messages, :conditions => proc { { :account_id => self.account_id } }
+  has_many :ao_messages, -> { where(account_id: self.account_id) }
+  has_many :at_messages, -> { where(account_id: self.account_id) }
   has_many :address_sources
-  has_many :whitelists, :conditions => proc { { :account_id => self.account_id } }
+  has_many :whitelists, -> { where(account_id: self.account_id) }
   has_many :logs
 
   serialize :configuration, Hash
