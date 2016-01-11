@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '4.1.14'
+gem 'rails', '4.2.5'
 gem 'mysql2', '~> 0.3.20'
 gem "mail"
 gem 'will_paginate', '~> 3.0'
@@ -45,8 +45,8 @@ gem 'foreman'
 gem 'instedd_telemetry', git: "https://github.com/instedd/telemetry_rails", branch: 'master'
 gem 'protected_attributes'
 
-gem 'sass-rails', '~> 4.0.3'
-gem 'coffee-rails', '~> 4.0.0'
+gem 'sass-rails', '~> 5.0'
+gem 'coffee-rails', '~> 4.1.0'
 gem 'uglifier', '>= 1.3.0'
 
 gem 'turbolinks'
@@ -60,6 +60,8 @@ group :development do
 end
 
 group :debug do
+  gem 'spring'
+  gem 'web-console', '~> 2.0'
 end
 
 group :test do
