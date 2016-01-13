@@ -79,7 +79,7 @@ class ClickatellController < ApplicationController
   def index_multipart_message(udh)
     # Search other received parts
     parts = ClickatellMessagePart.where(:originating_isdn => params[:from], :reference_number => udh[0][:reference_number])
-    all_parts = parts.all
+    all_parts = parts.to_a
 
     # If all other parts are there
     if all_parts.length == udh[0][:part_count] - 1

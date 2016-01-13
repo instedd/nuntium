@@ -34,7 +34,7 @@ class RssController < ApplicationController
     @at_messages = @at_messages.where :application_id => @application.id
     @at_messages = @at_messages.with_state 'queued', 'delivered'
     @at_messages = @at_messages.where 'timestamp > ?', DateTime.parse(last_modified) if last_modified
-    @at_messages = @at_messages.all
+    @at_messages = @at_messages.all.to_a
 
     return head :not_modified if @at_messages.empty?
 

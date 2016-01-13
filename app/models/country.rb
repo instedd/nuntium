@@ -24,11 +24,11 @@ class Country < ActiveRecord::Base
 
   @@countries = nil
 
-  def self.all
+  def self.all_countries
     return @@countries if @@countries
 
-    @@countries = super
-    @@countries = @@countries.to_a.sort!{|x, y| x.name <=> y.name}
+    @@countries = self.all.to_a
+    @@countries.sort!{|x, y| x.name <=> y.name}
     @@countries
   end
 

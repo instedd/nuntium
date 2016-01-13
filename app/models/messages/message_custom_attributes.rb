@@ -41,8 +41,16 @@ module MessageCustomAttributes
 
     number = address.mobile_number
 
-    # Infer country and carrier from phone number
-    countries, carriers = Carrier.infer_from_phone_number(number, self.country, self.carrier)
+    # Infer country from phone number
+    unless self.country
+      countries = Country.all_countries.select{|x| number.start_with? x.phone_prefix}
+      if countries.length > 0
+        # Slipt countries with and without area codes
+        with_area_codes, without_area_codes = countries.partition{|x| x.area_codes.present?}
+        # From those with area codes, select only the ones for which the number start with them
+        with_area_codes = with_area_codes.select{|x| x.area_codes.split(',').any?{|y| number.start_with?(x.phone_prefix + y.strip)}}
+        # If we find matches with area codes, use them. Otherwise, use those without area codes
+        countries = with_area_codes.present? ? with_area_codes : without_area_codes
 
     unless countries.empty?
       if countries.length == 1

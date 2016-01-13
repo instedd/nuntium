@@ -119,7 +119,7 @@ class QstServerController < ApplicationController
           joins('INNER JOIN qst_outgoing_messages ON ao_messages.id = qst_outgoing_messages.ao_message_id').
           order('qst_outgoing_messages.id').
           where("state = ? AND qst_outgoing_messages.channel_id = ?", 'queued', @channel.id).
-          limit(max).all
+          limit(max).to_a
       end
 
       if @ao_messages.present?

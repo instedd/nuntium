@@ -24,16 +24,16 @@ class Carrier < ActiveRecord::Base
 
   @@carriers = nil
 
-  def self.all
+  def self.all_carriers
     return @@carriers if @@carriers
 
-    @@carriers = super
+    @@carriers = self.all.to_a
     @@carriers.sort!{|x, y| x.name <=> y.name}
     @@carriers
   end
 
   def self.all_with_countries
-    countries = Country.all.inject({}) { |memo, obj| memo[obj.id] = obj; memo }
+    countries = Country.all_countries.inject({}) { |memo, obj| memo[obj.id] = obj; memo }
 
     carriers = all
     carriers.each {|c| c.country = countries[c.country_id]}

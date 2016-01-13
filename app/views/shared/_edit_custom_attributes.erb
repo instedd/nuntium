@@ -40,7 +40,7 @@ end
 # going to the server...
 applications = account.applications.map(&:name).sort!
 channels = account.channels.map(&:name).sort!
-countries = Country.all
+countries = Country.all_countries
 carriers = Carrier.all_with_countries
 -%>
 <script type="text/javascript">
