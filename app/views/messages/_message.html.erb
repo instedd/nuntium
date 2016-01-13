@@ -91,11 +91,11 @@ channel = channels.find_by_id msg.channel_id
       values.map! do |value|
         case key
         when 'country'
-          countries ||= Country.all
+          countries ||= Country.all_countries
           result = countries.select{|x| x.iso2.casecmp(value) == 0}.first
           result ? result.name : value
         when 'carrier'
-          carriers ||= Carrier.all
+          carriers ||= Carrier.all_carriers
           result = carriers.select{|x| x.guid == value}.first
           result ? result.name : value
         else

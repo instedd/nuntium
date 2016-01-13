@@ -41,7 +41,7 @@ class ApiCountryController < ApplicationController
   private
 
   def countries
-    Country.all
+    Country.all_countries
   end
 
 end

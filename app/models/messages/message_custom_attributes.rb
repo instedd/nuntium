@@ -43,7 +43,7 @@ module MessageCustomAttributes
 
     # Infer country from phone number
     unless self.country
-      countries = Country.all.select{|x| number.start_with? x.phone_prefix}
+      countries = Country.all_countries.select{|x| number.start_with? x.phone_prefix}
       if countries.length > 0
         # Slipt countries with and without area codes
         with_area_codes, without_area_codes = countries.partition{|x| x.area_codes.present?}

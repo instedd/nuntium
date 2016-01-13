@@ -80,7 +80,7 @@ class AoMessagesController < ApplicationController
 
     flash[:notice] = "#{messages.length} Application Originated messages #{messages.length == 1 ? 'was' : 'were'} marked as cancelled"
     params[:action] = :index
-    redirect_to params
+    redirect_to params.to_hash
   end
 
   def reroute
@@ -89,7 +89,7 @@ class AoMessagesController < ApplicationController
 
     flash[:notice] = "#{messages.length} Application Originated #{messages.length == 1 ? 'message was' : 'messages were'} re-routed"
     params[:action] = :index
-    redirect_to params
+    redirect_to params.to_hash
   end
 
   def simulate_route
