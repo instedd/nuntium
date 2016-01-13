@@ -19,7 +19,7 @@ require 'test_helper'
 
 class Pop3ChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = Pop3Channel.make
+    @chan = Pop3Channel.make!
   end
 
   [:host, :user, :password, :port].each do |field|

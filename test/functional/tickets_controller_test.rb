@@ -58,8 +58,8 @@ class TicketsControllerTest < ActionController::TestCase
   end
 
   test "clean expired tickets on checkout" do
-    ticket1 = Ticket.make :pending, :expiration => (base_time - 25.hours)
-    ticket2 = Ticket.make :status => 'complete', :expiration => (base_time - 26.hours)
+    ticket1 = Ticket.make! :pending, :expiration => (base_time - 25.hours)
+    ticket2 = Ticket.make! :status => 'complete', :expiration => (base_time - 26.hours)
 
     post :create, :format => 'json'
 

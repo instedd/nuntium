@@ -20,10 +20,10 @@ require 'test_helper'
 class ApiCarrierControllerTest < ActionController::TestCase
 
   def setup
-    @country = Country.make
-    @carrier = Carrier.make :country => @country
-    @country2 = Country.make
-    @carrier2 = Carrier.make :country => @country2
+    @country = Country.make!
+    @carrier = Carrier.make! :country => @country
+    @country2 = Country.make!
+    @carrier2 = Carrier.make! :country => @country2
   end
 
   def index_xml_for_country_code(code)

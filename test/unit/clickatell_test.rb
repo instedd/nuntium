@@ -20,14 +20,14 @@ require "test_helper"
 class ClickatellTest < ActiveSupport::TestCase
 
   def setup
-    @usa = Country.make :name => 'USA', :iso2 => 'US'
+    @usa = Country.make! :name => 'USA', :iso2 => 'US'
 
-    @arg = Country.make :name => 'Argentina', :clickatell_name => 'Argentina'
-    @aus = Country.make :name => 'Australia', :clickatell_name => 'Australia'
+    @arg = Country.make! :name => 'Argentina', :clickatell_name => 'Argentina'
+    @aus = Country.make! :name => 'Australia', :clickatell_name => 'Australia'
 
-    @amx = Carrier.make :name => 'AMX(Claro)', :clickatell_name => 'AMX(Claro)', :country => @arg
-    @nex = Carrier.make :name => 'Nextel (iDEN)', :clickatell_name => 'Nextel (iDEN)', :country => @arg
-    @tel = Carrier.make :name => 'Telstra', :clickatell_name => 'Telstra', :country => @aus
+    @amx = Carrier.make! :name => 'AMX(Claro)', :clickatell_name => 'AMX(Claro)', :country => @arg
+    @nex = Carrier.make! :name => 'Nextel (iDEN)', :clickatell_name => 'Nextel (iDEN)', :country => @arg
+    @tel = Carrier.make! :name => 'Telstra', :clickatell_name => 'Telstra', :country => @aus
 
     @s = <<-EOF
 Country, Network, +41,+44 [A] *,+46,+61,+49,+45,+44 [B]
@@ -53,7 +53,7 @@ EOF
   test "clears cache" do
     ClickatellCoverageMO.create! :country_id => @arg.id, :carrier_id => @amx.id, :network => '44a', :cost => 10
 
-    chan = ClickatellChannel.make
+    chan = ClickatellChannel.make!
     chan.configuration[:network] = '44a'
     chan.save!
 

@@ -19,7 +19,7 @@ require 'test_helper'
 
 class SmtpChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = SmtpChannel.make
+    @chan = SmtpChannel.make!
   end
 
   [:host, :port].each do |field|

@@ -19,7 +19,7 @@ require 'test_helper'
 
 class PullQstChannelMessageJobTest < ActiveSupport::TestCase
   def setup
-    @channel = QstClientChannel.make
+    @channel = QstClientChannel.make!
 
     @job = PullQstChannelMessageJob.new @channel.account_id, @channel.id
     @job.batch_size = 3
@@ -37,7 +37,7 @@ class PullQstChannelMessageJobTest < ActiveSupport::TestCase
   end
 
   test "one message no last id" do
-    @msg = AtMessage.make_unsaved
+    @msg = AtMessage.make
 
     @client.expects(:get_messages).with(:max => @job.batch_size).returns([@msg.to_qst])
 
@@ -62,8 +62,8 @@ class PullQstChannelMessageJobTest < ActiveSupport::TestCase
   end
 
   test "two messages because has quota" do
-    @msg1 = AtMessage.make_unsaved
-    @msg2 = AtMessage.make_unsaved
+    @msg1 = AtMessage.make
+    @msg2 = AtMessage.make
 
     @client.expects(:get_messages).with(:max => @job.batch_size, :from_id => @msg1.guid).returns([@msg2.to_qst])
     @client.expects(:get_messages).with(:max => @job.batch_size).returns([@msg1.to_qst])

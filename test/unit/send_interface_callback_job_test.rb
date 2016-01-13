@@ -20,9 +20,9 @@ require 'builder/xchar'
 
 class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
   def setup
-    @application = Application.make
-    @chan = QstServerChannel.make :account => @application.account, :application => @application
-    @msg = AtMessage.make :account => @application.account, :application => @application, :channel => @chan
+    @application = Application.make!
+    @chan = QstServerChannel.make! :account => @application.account, :application => @application
+    @msg = AtMessage.make! :account => @application.account, :application => @application, :channel => @chan
     @query = {
       :application => @application.name,
       :from => @msg.from,
@@ -288,7 +288,7 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     @application.interface_url = 'http://www.domain.com'
     @application.save!
 
-    xml = AoMessage.make_unsaved :subject => nil
+    xml = AoMessage.make :subject => nil
     xml.country = 'ar'
 
     expect_post :url => @application.interface_url,
@@ -318,7 +318,7 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     @application.interface_url = 'http://www.domain.com'
     @application.save!
 
-    xml = AoMessage.make_unsaved :subject => nil
+    xml = AoMessage.make :subject => nil
     xml.token = 'my_token'
 
     expect_post :url => @application.interface_url,

@@ -19,9 +19,9 @@ require 'test_helper'
 
 class IpopControllerTest < ActionController::TestCase
   def setup
-    @account = Account.make
-    @application = Application.make :account => @account
-    @chan = IpopChannel.make :account => @account
+    @account = Account.make!
+    @application = Application.make! :account => @account
+    @chan = IpopChannel.make! :account => @account
   end
 
   test "index" do
@@ -53,7 +53,7 @@ class IpopControllerTest < ActionController::TestCase
   end
 
   test "ack ok" do
-    msg = AoMessage.make :account => @account, :application => @application, :channel => @chan, :channel_relative_id => '1234-5678'
+    msg = AoMessage.make! :account => @account, :application => @application, :channel => @chan, :channel_relative_id => '1234-5678'
     params = {
       :account_id => @chan.account.name,
       :channel_name => @chan.name,
@@ -75,7 +75,7 @@ class IpopControllerTest < ActionController::TestCase
   end
 
   test "ack not ok" do
-    msg = AoMessage.make :account => @account, :application => @application, :channel => @chan, :channel_relative_id => '1234-5678'
+    msg = AoMessage.make! :account => @account, :application => @application, :channel => @chan, :channel_relative_id => '1234-5678'
     params = {
       :account_id => @chan.account.name,
       :channel_name => @chan.name,

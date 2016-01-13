@@ -19,9 +19,9 @@ require 'test_helper'
 
 class SendDeliveryAckJobTest < ActiveSupport::TestCase
   def setup
-    @application = Application.make
-    @chan = QstServerChannel.make :account => @application.account, :application => @application
-    @msg = AoMessage.make :account => @application.account, :application => @application, :channel => @chan
+    @application = Application.make!
+    @chan = QstServerChannel.make! :account => @application.account, :application => @application
+    @msg = AoMessage.make! :account => @application.account, :application => @application, :channel => @chan
     @query = {:guid => @msg.guid, :channel => @chan.name, :state => @msg.state}
   end
 

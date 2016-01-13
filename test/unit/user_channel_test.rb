@@ -20,8 +20,8 @@ require 'test_helper'
 class UserChannelTest < ActiveSupport::TestCase
 
   test "should update account lifespan when created" do
-    account = Account.make
-    user_channel = UserChannel.make_unsaved account: account, user: User.make, channel: QstServerChannel.make
+    account = Account.make!
+    user_channel = UserChannel.make account: account, user: User.make!, channel: QstServerChannel.make!
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 
@@ -29,8 +29,8 @@ class UserChannelTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when updated" do
-    account = Account.make
-    user_channel = UserChannel.make account: account
+    account = Account.make!
+    user_channel = UserChannel.make! account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 
@@ -39,8 +39,8 @@ class UserChannelTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when destroyed" do
-    account = Account.make
-    user_channel = UserChannel.make account: account
+    account = Account.make!
+    user_channel = UserChannel.make! account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 

@@ -21,11 +21,11 @@ require 'net/smtp'
 class SendSmtpMessageJobTest < ActiveSupport::TestCase
   def setup
     @time = Time.now
-    @chan = SmtpChannel.make
+    @chan = SmtpChannel.make!
   end
 
   test "perform no ssl" do
-    msg = AoMessage.make :account => @chan.account, :channel => @chan
+    msg = AoMessage.make! :account => @chan.account, :channel => @chan
     msgstr = msg_as_email msg
     expect_smtp msg, msgstr
     deliver msg
@@ -36,7 +36,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
     @chan.configuration[:user] = @chan.configuration[:password] = nil
     @chan.save!
 
-    msg = AoMessage.make :account => @chan.account, :channel => @chan
+    msg = AoMessage.make! :account => @chan.account, :channel => @chan
     msgstr = msg_as_email msg
     expect_smtp msg, msgstr
     deliver msg
@@ -47,7 +47,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
     @chan.configuration[:use_ssl] = '1'
     @chan.save!
 
-    msg = AoMessage.make :account => @chan.account, :channel => @chan
+    msg = AoMessage.make! :account => @chan.account, :channel => @chan
     msgstr = msg_as_email msg
     expect_smtp msg, msgstr
     deliver msg
@@ -55,7 +55,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
   end
 
   test "perform with thread" do
-    msg = AoMessage.make :account => @chan.account, :channel => @chan
+    msg = AoMessage.make! :account => @chan.account, :channel => @chan
     msg.custom_attributes['references_thread'] = 'foo'
     msg.save!
 
@@ -66,7 +66,7 @@ class SendSmtpMessageJobTest < ActiveSupport::TestCase
   end
 
   test "perform with references" do
-    msg = AoMessage.make :account => @chan.account, :channel => @chan
+    msg = AoMessage.make! :account => @chan.account, :channel => @chan
     msg.custom_attributes['references_foo'] = 'a'
     msg.custom_attributes['references_bar'] = 'b'
     msg.save!

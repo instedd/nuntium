@@ -21,8 +21,8 @@ class SendTwitterMessageJobTest < ActiveSupport::TestCase
   include Mocha::API
 
   def setup
-    @channel = TwitterChannel.make
-    @msg = AoMessage.make :account_id => @channel.account_id, :channel_id => @channel.id, :state => 'queued'
+    @channel = TwitterChannel.make!
+    @msg = AoMessage.make! :account_id => @channel.account_id, :channel_id => @channel.id, :state => 'queued'
     @job = SendTwitterMessageJob.new @channel.account_id, @channel.id, @msg.id
   end
 

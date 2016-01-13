@@ -19,8 +19,8 @@ require 'test_helper'
 
 class SendIpopMessageJobTest < ActiveSupport::TestCase
   def setup
-    @chan = IpopChannel.make
-    @msg = AoMessage.make :account => Account.make, :channel => @chan, :timestamp => Time.utc(2001, 02, 03, 04, 05, 06)
+    @chan = IpopChannel.make!
+    @msg = AoMessage.make! :account => Account.make!, :channel => @chan, :timestamp => Time.utc(2001, 02, 03, 04, 05, 06)
     @query = {
       :sc => @chan.address,
       :hp => @msg.to.mobile_number,

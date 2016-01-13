@@ -19,7 +19,7 @@ require 'test_helper'
 
 class MsnChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = MsnChannel.make
+    @chan = MsnChannel.make!
   end
 
   [:email, :password].each do |field|

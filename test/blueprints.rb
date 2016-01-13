@@ -16,39 +16,68 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'machinist/active_record'
-require 'sham'
 
-Sham.define do
-  name { Faker::Name.name }
-  email { Faker::Internet.email }
-  username { Faker::Internet.user_name }
-  url { Faker::Internet.domain_name }
-  password { Faker::Name.name }
-  number2(:unique => false) { (1..2).map { ('1'..'9').to_a.rand }.join }
-  number8 { (1..8).map { ('1'..'9').to_a.rand }.join }
-  number4 { (1..4).map { ('1'..'9').to_a.rand }.join }
-  guid { (1..10).map { ('a'..'z').to_a.rand }.join }
+module Fake
+  def self.name
+    Faker::Name.name
+  end
+
+  def self.email
+    Faker::Internet.email
+  end
+
+  def self.username
+    Faker::Internet.user_name
+  end
+
+  def self.url
+    Faker::Internet.domain_name
+  end
+
+  def self.password
+    Faker::Name.name
+  end
+
+  def self.number2
+    self.number(2)
+  end
+
+  def self.number8
+    self.number(8)
+  end
+
+  def self.number4
+    self.number(4)
+  end
+
+  def self.guid
+    self.number(10)
+  end
+
+  def self.number(n)
+    (1..n).map { ('1'..'9').to_a.rand }.join
+  end
 end
 
 User.blueprint do
-  email
-  password
-  password_confirmation { password }
+  email { Fake.email }
+  password { Fake.password }
+  password_confirmation { object.password }
   confirmed_at { Time.now - 1.day }
 end
 
 Account.blueprint do
-  name { Sham.username }
-  password
-  password_confirmation { password }
+  name { Fake.username }
+  password { Fake.password }
+  password_confirmation { object.password }
 end
 
 Application.blueprint do
-  name { Sham.username }
-  account
+  name { Fake.username }
+  account { Account.make! }
   interface { "rss" }
-  password
-  password_confirmation { password }
+  password { Fake.password }
+  password_confirmation { object.password }
 end
 
 Application.blueprint :rss do
@@ -61,96 +90,96 @@ end
 [:http_get_callback, :http_post_callback, :qst_client].each do |kind|
   Application.blueprint kind do
     interface { kind.to_s }
-    configuration { {:interface_url => Sham.url, :interface_user => Sham.username, :interface_password => Sham.password} }
+    configuration { {:interface_url => Fake.url, :interface_user => Fake.username, :interface_password => Fake.password} }
   end
 end
 
 [AoMessage, AtMessage].each do |message|
   message.blueprint do
-    from { "sms://#{Sham.number8}" }
-    to { "sms://#{Sham.number8}" }
+    from { "sms://#{Fake.number8}" }
+    to { "sms://#{Fake.number8}" }
     subject { Faker::Lorem.sentence }
     body { Faker::Lorem.paragraph }
     timestamp { Time.at(946702800 + 86400 * rand(100)).getgm }
-    guid
+    guid { Fake.guid }
     state { 'queued' }
   end
   message.blueprint :email do
-    from { "mailto://#{Sham.email}" }
-    to { "mailto://#{Sham.email}" }
+    from { "mailto://#{Fake.email}" }
+    to { "mailto://#{Fake.email}" }
   end
 end
 
 Carrier.blueprint do
   country
-  name
-  guid
-  prefixes { Sham.number2 }
+  name { Fake.name }
+  guid { Fake.guid }
+  prefixes { Fake.number2 }
 end
 
 QstClientChannel.blueprint do
   account
-  name { Sham.guid }
+  name { Fake.guid }
   direction { Channel::Bidirectional }
   protocol { "sms" }
   enabled { true }
-  configuration { {:url => Sham.url, :user => Sham.username, :password => Sham.password} }
+  configuration { {:url => Fake.url, :user => Fake.username, :password => Fake.password} }
 end
 
 QstServerChannel.blueprint do
   account
-  name { Sham.guid }
+  name { Fake.guid }
   direction { Channel::Bidirectional }
   protocol { "sms" }
   enabled { true }
-  address { Sham.number8 }
+  address { Fake.number8 }
   configuration { {:password => 'secret', :password_confirmation => 'secret'} }
 end
 
 ClickatellChannel.blueprint do
   account
-  name { Sham.guid }
+  name { Fake.guid }
   direction { Channel::Bidirectional }
   protocol { "sms" }
   enabled { true }
-  configuration { {:user => Sham.username, :password => Sham.password, :api_id => Sham.guid, :from => Sham.number8, :incoming_password => Sham.password, :cost_per_credit => rand }}
+  configuration { {:user => Fake.username, :password => Fake.password, :api_id => Fake.guid, :from => Fake.number8, :incoming_password => Fake.password, :cost_per_credit => rand }}
 end
 
 DtacChannel.blueprint do
   account
-  name { Sham.guid }
+  name { Fake.guid }
   direction { Channel::Bidirectional }
   protocol { "sms" }
   enabled { true }
-  configuration { {:user => Sham.username, :password => Sham.password } }
+  configuration { {:user => Fake.username, :password => Fake.password } }
 end
 
 IpopChannel.blueprint do
   account
-  name { Sham.guid }
+  name { Fake.guid }
   direction { Channel::Bidirectional }
   protocol { "sms" }
   enabled { true }
-  address { Sham.number8 }
-  configuration { {:mt_post_url => Sham.url, :bid => '1', :cid => Sham.number8 } }
+  address { Fake.number8 }
+  configuration { {:mt_post_url => Fake.url, :bid => '1', :cid => Fake.number8 } }
 end
 
 MsnChannel.blueprint do
   account
-  name { Sham.guid }
+  name { Fake.guid }
   direction { Channel::Bidirectional }
   protocol { "msn" }
   enabled { true }
-  configuration { {:email => Sham.email, :password => Sham.password } }
+  configuration { {:email => Fake.email, :password => Fake.password } }
 end
 
 MultimodemIsmsChannel.blueprint do
   account
-  name { Sham.guid }
+  name { Fake.guid }
   direction { Channel::Bidirectional }
   protocol { "sms" }
   enabled { true }
-  configuration {{:host => Sham.url, :port => rand(1000) + 1, :user => Sham.username, :password => Sham.password, :time_zone => ActiveSupport::TimeZone.all.rand.name}}
+  configuration {{:host => Fake.url, :port => rand(1000) + 1, :user => Fake.username, :password => Fake.password, :time_zone => ActiveSupport::TimeZone.all.rand.name}}
 end
 
 NexmoChannel.blueprint do
@@ -164,71 +193,71 @@ end
 
 Pop3Channel.blueprint do
   account
-  name { Sham.guid }
+  name { Fake.guid }
   protocol { "mailto" }
   direction { Channel::Incoming }
   enabled { true }
-  configuration { {:host => Sham.url, :port => rand(1000) + 1, :user => Sham.username, :password => Sham.password}}
+  configuration { {:host => Fake.url, :port => rand(1000) + 1, :user => Fake.username, :password => Fake.password}}
 end
 
 ShujaaChannel.blueprint do
   account
-  name { Sham.guid }
+  name { Fake.guid }
   direction { Channel::Bidirectional }
   protocol { "sms" }
   enabled { true }
-  address { Sham.number8 }
-  configuration { {:username => Sham.username, :password => Sham.password, :shujaa_account => 'live' }}
+  address { Fake.number8 }
+  configuration { {:username => Fake.username, :password => Fake.password, :shujaa_account => 'live' }}
 end
 
 SmtpChannel.blueprint do
   account
-  name { Sham.guid }
+  name { Fake.guid }
   protocol { "mailto" }
   direction { Channel::Outgoing }
   enabled { true }
-  configuration { {:host => Sham.url, :port => rand(1000) + 1, :user => Sham.username, :password => Sham.password}}
+  configuration { {:host => Fake.url, :port => rand(1000) + 1, :user => Fake.username, :password => Fake.password}}
 end
 
 SmppChannel.blueprint do
   account
-  name { Sham.guid }
+  name { Fake.guid }
   direction { Channel::Bidirectional }
   protocol { "sms" }
   enabled { true }
-  configuration {{:host => Sham.url, :port => rand(1000) + 1, :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => Sham.username, :password => Sham.password, :system_type => 'smpp', :mt_encodings => ['ascii'], :default_mo_encoding => 'ascii', :mt_csms_method => 'udh' } }
+  configuration {{:host => Fake.url, :port => rand(1000) + 1, :source_ton => 0, :source_npi => 0, :destination_ton => 0, :destination_npi => 0, :user => Fake.username, :password => Fake.password, :system_type => 'smpp', :mt_encodings => ['ascii'], :default_mo_encoding => 'ascii', :mt_csms_method => 'udh' } }
 end
 
 TwilioChannel.blueprint do
   account
-  name { Sham.guid }
+  name { Fake.guid }
   direction { Channel::Bidirectional }
   protocol { "sms" }
   enabled { true }
-  configuration { {:account_sid => Sham.guid, :auth_token => Sham.guid, :from => Sham.number8, :incoming_password => Sham.guid } }
+  configuration { {:account_sid => Fake.guid, :auth_token => Fake.guid, :from => Fake.number8, :incoming_password => Fake.guid } }
 end
 
 TwitterChannel.blueprint do
   account
-  name { Sham.guid }
+  name { Fake.guid }
   direction { Channel::Bidirectional }
   protocol { "twitter" }
   enabled { true }
-  configuration { {:token => Sham.guid, :secret => Sham.guid, :screen_name => Sham.username} }
+  configuration { {:token => Fake.guid, :secret => Fake.guid, :screen_name => Fake.username} }
 end
 
 XmppChannel.blueprint do
   account
-  name { Sham.guid }
+  name { Fake.guid }
   direction { Channel::Bidirectional }
   protocol { "xmpp" }
   enabled { true }
-  configuration { {:user => Sham.username, :domain => Sham.url, :password => Sham.password, :server => Sham.url, :port => 1 + rand(1000), :resource => Sham.username} }
+  configuration { {:user => Fake.username, :domain => Fake.url, :password => Fake.password, :server => Fake.url, :port => 1 + rand(1000), :resource => Fake.username} }
 end
 
 Ticket.blueprint do
-  code { Sham.number4 }
-  secret_key { Sham.guid }
+  code { Fake.number4 }
+  secret_key { Fake.guid }
 end
 
 Ticket.blueprint :pending do
@@ -236,16 +265,16 @@ Ticket.blueprint :pending do
 end
 
 Country.blueprint do
-  name
+  name { Fake.name }
   iso2 { (1..2).map { ('a'..'z').to_a.rand }.join }
   iso3 { (1..3).map { ('a'..'z').to_a.rand }.join }
-  phone_prefix { Sham.number2 }
+  phone_prefix { Fake.number2 }
 end
 
 UserApplication.blueprint do
   user
   application
-  account { application.account }
+  account { object.application.account }
 end
 
 UserAccount.blueprint do

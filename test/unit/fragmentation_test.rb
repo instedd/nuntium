@@ -19,9 +19,9 @@ require 'test_helper'
 
 class FragmentationTest < ActiveSupport::TestCase
   def setup
-    @account = Account.make :password => 'secret1'
-    @app = @account.applications.make :password => 'secret2'
-    @chan = QstServerChannel.make :account_id => @account.id
+    @account = Account.make! :password => 'secret1'
+    @app = @account.applications.make! :password => 'secret2'
+    @chan = QstServerChannel.make! :account_id => @account.id
   end
 
   # Fragment format is:
@@ -40,7 +40,7 @@ class FragmentationTest < ActiveSupport::TestCase
     compressed = Zlib::Deflate.deflate(body)
     base64 = Base64.strict_encode64(compressed).strip
 
-    ao = AoMessage.make account: @account, application: @app, to: "sms://1234", body: body
+    ao = AoMessage.make! account: @account, application: @app, to: "sms://1234", body: body
     ao.fragment = true
 
     first_base64 = base64[0 ... 131]
@@ -73,7 +73,7 @@ class FragmentationTest < ActiveSupport::TestCase
     first_base64 = base64[0 ... 131]
     second_base64 = base64[131 .. -1]
 
-    msg = AoMessage.make_unsaved to: "sms://1234", body: body
+    msg = AoMessage.make to: "sms://1234", body: body
     msg.fragment = true
 
     @app.route_ao msg, 'test'
@@ -112,7 +112,7 @@ class FragmentationTest < ActiveSupport::TestCase
   test "don't send fragmented message if length is less or equal than then maximum" do
     body = "a" * MessageFragmentation::MAX_MESSAGE_LENGTH
 
-    msg = AoMessage.make_unsaved to: "sms://1234", body: body
+    msg = AoMessage.make to: "sms://1234", body: body
     msg.fragment = true
 
     @app.route_ao msg, 'test'
@@ -123,7 +123,7 @@ class FragmentationTest < ActiveSupport::TestCase
   test "resend some fragments" do
     body = ("Hello world. This is a relly long message. " * 2000).strip
 
-    ao = AoMessage.make_unsaved to: "sms://1234", body: body
+    ao = AoMessage.make to: "sms://1234", body: body
     ao.fragment = true
 
     @app.route_ao ao, 'test'
@@ -136,7 +136,7 @@ class FragmentationTest < ActiveSupport::TestCase
       piece.save!
     end
 
-    at = AtMessage.make_unsaved from: "sms://1234", body: "&&C#{ao.fragment_id}0,2,3"
+    at = AtMessage.make from: "sms://1234", body: "&&C#{ao.fragment_id}0,2,3"
     @account.route_at at, @chan
 
     at.reload
@@ -154,12 +154,12 @@ class FragmentationTest < ActiveSupport::TestCase
   test "ack" do
     body = ("Hello world. This is a relly long message. " * 1000).strip
 
-    ao = AoMessage.make_unsaved to: "sms://1234", body: body
+    ao = AoMessage.make to: "sms://1234", body: body
     ao.fragment = true
 
     @app.route_ao ao, 'test'
 
-    at = AtMessage.make_unsaved from: "sms://1234", body: "&&D#{ao.fragment_id}"
+    at = AtMessage.make from: "sms://1234", body: "&&D#{ao.fragment_id}"
     @account.route_at at, @chan
 
     at.reload

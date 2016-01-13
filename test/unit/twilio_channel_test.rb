@@ -24,7 +24,7 @@ class TwilioChannelTest < ActiveSupport::TestCase
   end
 
   def new_unsaved_channel
-    chan = TwilioChannel.make_unsaved
+    chan = TwilioChannel.make
     def chan.configure_phone_number
       self.incoming_password = Devise.friendly_token
       true

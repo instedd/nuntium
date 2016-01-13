@@ -19,10 +19,10 @@ require 'test_helper'
 
 class SendShujaaMessageJobTest < ActiveSupport::TestCase
   def setup
-    @chan = ShujaaChannel.make
-    @kenya = Country.make
-    @safaricom = @kenya.carriers.make guid: ShujaaChannel::SAFARICOM
-    @airtel = @kenya.carriers.make guid: ShujaaChannel::AIRTEL
+    @chan = ShujaaChannel.make!
+    @kenya = Country.make!
+    @safaricom = @kenya.carriers.make! guid: ShujaaChannel::SAFARICOM
+    @airtel = @kenya.carriers.make! guid: ShujaaChannel::AIRTEL
   end
 
   should "perform" do
@@ -33,7 +33,7 @@ class SendShujaaMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain',
       :body => '1234:0')
 
-    msg = AoMessage.make :account => @chan.account, :channel => @chan
+    msg = AoMessage.make! :account => @chan.account, :channel => @chan
     msg.country = @kenya.iso2
     msg.carrier = @safaricom.guid
     msg.save!
@@ -56,7 +56,7 @@ class SendShujaaMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain',
       :body => '1234:0')
 
-    msg = AoMessage.make :account => @chan.account, :channel => @chan, :to => '0720123456'
+    msg = AoMessage.make! :account => @chan.account, :channel => @chan, :to => '0720123456'
 
     expect_rest msg, response, :destination => '254720123456'
 
@@ -76,7 +76,7 @@ class SendShujaaMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain',
       :body => '0:2')
 
-    msg = AoMessage.make :account => @chan.account, :channel => @chan
+    msg = AoMessage.make! :account => @chan.account, :channel => @chan
 
     expect_rest msg, response
 

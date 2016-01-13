@@ -19,7 +19,7 @@ require 'test_helper'
 
 class ChannelOptInTest < ActiveSupport::TestCase
   def setup
-    @chan = QstServerChannel.make_unsaved :priority => 1
+    @chan = QstServerChannel.make :priority => 1
     @chan.opt_in_enabled = true
     @chan.opt_in_keyword = 'in'
     @chan.opt_in_message = 'in message'
@@ -29,9 +29,9 @@ class ChannelOptInTest < ActiveSupport::TestCase
     @chan.opt_help_message = 'help message'
     @chan.save!
 
-    @chan2 = QstServerChannel.make :account_id => @chan.account_id, :priority => 2
+    @chan2 = QstServerChannel.make! :account_id => @chan.account_id, :priority => 2
 
-    @app = @chan.account.applications.make
+    @app = @chan.account.applications.make!
   end
 
   test "replies help message for opt-in help keyword" do

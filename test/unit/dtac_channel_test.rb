@@ -19,7 +19,7 @@ require 'test_helper'
 
 class DtacChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = DtacChannel.make
+    @chan = DtacChannel.make!
   end
 
   [:user, :password].each do |field|

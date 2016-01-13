@@ -24,7 +24,7 @@ module GenericChannelTest
     if respond_to?(:new_unsaved_channel)
       chan = new_unsaved_channel
     else
-      chan = @chan.class.make_unsaved
+      chan = @chan.class.make
     end
     Queues.expects(:bind_ao).with(chan)
     chan.save!

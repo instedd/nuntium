@@ -31,7 +31,7 @@ class CronTaskTest < ActiveSupport::TestCase
   end
 
   test "should create task when creating qst account and drop if changed" do
-    application = Application.make :qst_client
+    application = Application.make! :qst_client
 
     assert_equal 2, application.cron_tasks.size
     t1, t2 = application.cron_tasks.all
@@ -48,7 +48,7 @@ class CronTaskTest < ActiveSupport::TestCase
   end
 
   test "should create task when changing account to qst" do
-    application = Application.make :rss
+    application = Application.make! :rss
 
     assert_equal 0, application.cron_tasks.size
     assert_equal 0, CronTask.all.size
@@ -67,27 +67,27 @@ class CronTaskTest < ActiveSupport::TestCase
   end
 
   test "should drop task with account" do
-    application = Application.make :qst_client
+    application = Application.make! :qst_client
     application.destroy
     assert_equal 0, CronTask.all.size
   end
 
   test "should create twitter task for channel" do
-    ch = TwitterChannel.make
+    ch = TwitterChannel.make!
     assert_equal 1, CronTask.all.size
     assert_equal ch.id, CronTask.first.get_handler.channel_id
     assert_equal ReceiveTwitterMessageJob, CronTask.first.get_handler.class
   end
 
   test "should create pop3 task for channel" do
-    ch = Pop3Channel.make
+    ch = Pop3Channel.make!
     assert_equal 1, CronTask.all.size
     assert_equal ch.id, CronTask.first.get_handler.channel_id
     assert_equal ReceivePop3MessageJob, CronTask.first.get_handler.class
   end
 
   test "should not create task for non task channel" do
-    ch = QstServerChannel.make
+    ch = QstServerChannel.make!
     assert_equal 0, CronTask.all.size
   end
 
@@ -97,7 +97,7 @@ class CronTaskTest < ActiveSupport::TestCase
   end
 
   test "should save account task" do
-    account = Account.make
+    account = Account.make!
     task = CronTask.new :parent => account, :interval => 10
     assert task.save!
 
@@ -107,7 +107,7 @@ class CronTaskTest < ActiveSupport::TestCase
   end
 
   test "should save channel task" do
-    ch = QstServerChannel.make
+    ch = QstServerChannel.make!
 
     task = CronTask.new :parent => ch, :interval => 50
     assert task.save!

@@ -21,7 +21,7 @@ module ServiceChannelTest
   end
 
   def test_on_create_publishes_start_channel
-    chan = @chan.class.make_unsaved
+    chan = @chan.class.make
 
     Queues.expects(:publish_notification).with do |job, kind|
       job.class == StartChannelJob && job.id == chan.id && kind == chan.class.kind
@@ -31,7 +31,7 @@ module ServiceChannelTest
   end
 
   def test_on_create_binds_queue
-    chan = @chan.class.make_unsaved
+    chan = @chan.class.make
     Queues.expects(:bind_ao).with(chan)
     chan.save!
   end
@@ -108,6 +108,6 @@ module ServiceChannelTest
       job.class == RestartChannelJob && job.id == @chan.id && kind == @chan.class.kind
     end
 
-    Application.make :account => @chan.account
+    Application.make! :account => @chan.account
   end
 end

@@ -19,11 +19,11 @@ require 'test_helper'
 
 class SendSmppMessageJobTest < ActiveSupport::TestCase
   def setup
-    @chan = SmppChannel.make
+    @chan = SmppChannel.make!
   end
 
   test "dont sent message if its not queued" do
-    msg = AoMessage.make :account => @chan.account, :channel => @chan, :state => 'delivered'
+    msg = AoMessage.make! :account => @chan.account, :channel => @chan, :state => 'delivered'
 
     job = SendSmppMessageJob.new msg.account_id, @chan.id, msg.id
     job.perform nil
@@ -32,7 +32,7 @@ class SendSmppMessageJobTest < ActiveSupport::TestCase
   end
 
   test "dont sent message if in another channel" do
-    msg = AoMessage.make :account => @chan.account, :state => 'delivered'
+    msg = AoMessage.make! :account => @chan.account, :state => 'delivered'
 
     job = SendSmppMessageJob.new msg.account_id, @chan.id, msg.id
     job.perform nil
@@ -41,7 +41,7 @@ class SendSmppMessageJobTest < ActiveSupport::TestCase
   end
 
   test "send message" do
-    msg = AoMessage.make :account => @chan.account, :channel => @chan, :state => 'queued'
+    msg = AoMessage.make! :account => @chan.account, :channel => @chan, :state => 'queued'
 
     job = SendSmppMessageJob.new msg.account_id, @chan.id, msg.id
     delegate = mock('delegate')
@@ -50,7 +50,7 @@ class SendSmppMessageJobTest < ActiveSupport::TestCase
   end
 
   test "send message with smpp custom options" do
-    msg = AoMessage.make :account => @chan.account, :channel => @chan, :state => 'queued',
+    msg = AoMessage.make! :account => @chan.account, :channel => @chan, :state => 'queued',
       :custom_attributes => {'smpp_1234' => 'foo', 'smpp_0x1234' => 'bar', 'something' => 'baz'}
 
     job = SendSmppMessageJob.new msg.account_id, @chan.id, msg.id

@@ -19,8 +19,8 @@ require 'test_helper'
 
 class TwitterChannelTest < ActiveSupport::TestCase
   def setup
-    @app = Application.make
-    @chan = TwitterChannel.make application_id: @app.id, account_id: @app.account_id
+    @app = Application.make!
+    @chan = TwitterChannel.make! application_id: @app.id, account_id: @app.account_id
   end
 
   include GenericChannelTest

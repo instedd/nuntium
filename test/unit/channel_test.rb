@@ -19,7 +19,7 @@ require 'test_helper'
 
 class ChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = QstServerChannel.make
+    @chan = QstServerChannel.make!
   end
 
   def assert_eq_rules_xml(expected, actual)
@@ -57,13 +57,13 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "should not save if name is taken" do
-    chan2 = QstServerChannel.make_unsaved :name => @chan.name, :account => @chan.account
+    chan2 = QstServerChannel.make :name => @chan.name, :account => @chan.account
     assert_false chan2.save
   end
 
   test "should save if name is taken in another account" do
-    account2 = Account.make
-    chan2 = QstServerChannel.make_unsaved :name => @chan.name, :account => account2
+    account2 = Account.make!
+    chan2 = QstServerChannel.make :name => @chan.name, :account => account2
     assert chan2.save
   end
 
@@ -114,7 +114,7 @@ class ChannelTest < ActiveSupport::TestCase
       ])
     ]
 
-    msg = AoMessage.make_unsaved :from => 'sms://1', :account => @chan.account, :application => @chan.application
+    msg = AoMessage.make :from => 'sms://1', :account => @chan.account, :application => @chan.application
     @chan.route_ao msg, 'test'
 
     assert_equal 'sms://2', msg.from
@@ -129,7 +129,7 @@ class ChannelTest < ActiveSupport::TestCase
       ])
     ]
 
-    msg = AoMessage.make_unsaved :from => 'sms://1', :account => @chan.account, :application => @chan.application
+    msg = AoMessage.make :from => 'sms://1', :account => @chan.account, :application => @chan.application
     @chan.route_ao msg, 'test'
 
     assert_equal 'canceled', msg.state
@@ -138,7 +138,7 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "route ao discards message with same from and to" do
-    msg = AoMessage.make_unsaved :from => 'sms://123', :to => 'sms://123', :account => @chan.account, :application => @chan.application
+    msg = AoMessage.make :from => 'sms://123', :to => 'sms://123', :account => @chan.account, :application => @chan.application
     @chan.expects(:handle).never
     @chan.route_ao msg, 'test'
 
@@ -146,7 +146,7 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "route ao discards message with invalid to address" do
-    msg = AoMessage.make_unsaved :to => 'sms://hello', :account => @chan.account, :application => @chan.application
+    msg = AoMessage.make :to => 'sms://hello', :account => @chan.account, :application => @chan.application
     @chan.route_ao msg, 'test'
 
     msg.reload
@@ -166,7 +166,7 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "to xml with application" do
-    @chan.application = Application.make(:account => @chan.account)
+    @chan.application = Application.make!(:account => @chan.account)
 
     xml = Hash.from_xml(@chan.to_xml).with_indifferent_access
     chan = xml[:channel]
@@ -280,7 +280,7 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "to json with application" do
-    @chan.application = Application.make(:account => @chan.account)
+    @chan.application = Application.make!(:account => @chan.account)
 
     chan = JSON.parse(@chan.to_json).with_indifferent_access
     assert_equal @chan.application.name, chan[:application]
@@ -379,7 +379,7 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "to json queued ao messages count" do
-    AoMessage.make :account => @chan.account, :channel => @chan, :state => 'queued'
+    AoMessage.make! :account => @chan.account, :channel => @chan, :state => 'queued'
     chan = JSON.parse(@chan.to_json).with_indifferent_access
     assert_equal 1, chan[:queued_ao_messages_count]
   end
@@ -397,12 +397,12 @@ class ChannelTest < ActiveSupport::TestCase
     three_was_fifth = false
     10.times do
       chans = []
-      chans << QstServerChannel.make_unsaved(:name => '0', :priority => 1)
-      chans << QstServerChannel.make_unsaved(:name => '1', :priority => 1)
-      chans << QstServerChannel.make_unsaved(:name => '2', :priority => 1, :paused => true)
-      chans << QstServerChannel.make_unsaved(:name => '3', :priority => 2)
-      chans << QstServerChannel.make_unsaved(:name => '4', :priority => 2)
-      chans << QstServerChannel.make_unsaved(:name => '5', :priority => 2, :paused => true)
+      chans << QstServerChannel.make(:name => '0', :priority => 1)
+      chans << QstServerChannel.make(:name => '1', :priority => 1)
+      chans << QstServerChannel.make(:name => '2', :priority => 1, :paused => true)
+      chans << QstServerChannel.make(:name => '3', :priority => 2)
+      chans << QstServerChannel.make(:name => '4', :priority => 2)
+      chans << QstServerChannel.make(:name => '5', :priority => 2, :paused => true)
 
       names = chans.map &:name
 
@@ -446,10 +446,10 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "disable channel re-routes" do
-    chan2 = QstServerChannel.make :account => @chan.account
+    chan2 = QstServerChannel.make! :account => @chan.account
 
-    app = Application.make :account => @chan.account
-    msg = AoMessage.make :account => @chan.account, :application => @chan.account.applications.make, :channel => @chan, :state => 'queued'
+    app = Application.make! :account => @chan.account
+    msg = AoMessage.make! :account => @chan.account, :application => @chan.account.applications.make!, :channel => @chan, :state => 'queued'
 
     @chan.enabled = false
     @chan.save!
@@ -465,8 +465,8 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "should update application lifespan when created" do
-    application = Application.make
-    channel = QstServerChannel.make_unsaved application: application
+    application = Application.make!
+    channel = QstServerChannel.make application: application
 
     Telemetry::Lifespan.expects(:touch_application).with(application)
 
@@ -474,8 +474,8 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "should update application lifespan when updated" do
-    application = Application.make
-    channel = QstServerChannel.make application: application
+    application = Application.make!
+    channel = QstServerChannel.make! application: application
 
     Telemetry::Lifespan.expects(:touch_application).with(application)
 
@@ -484,8 +484,8 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "should update application lifespan when destroyed" do
-    application = Application.make
-    channel = QstServerChannel.make application: application
+    application = Application.make!
+    channel = QstServerChannel.make! application: application
 
     Telemetry::Lifespan.expects(:touch_application).with(application)
 
@@ -493,8 +493,8 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when created" do
-    account = Account.make
-    channel = QstServerChannel.make_unsaved account: account
+    account = Account.make!
+    channel = QstServerChannel.make account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 
@@ -502,8 +502,8 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when updated" do
-    account = Account.make
-    channel = QstServerChannel.make account: account
+    account = Account.make!
+    channel = QstServerChannel.make! account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 
@@ -512,8 +512,8 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when destroyed" do
-    account = Account.make
-    channel = QstServerChannel.make account: account
+    account = Account.make!
+    channel = QstServerChannel.make! account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 

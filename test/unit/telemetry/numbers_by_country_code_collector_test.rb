@@ -25,25 +25,25 @@ class Telemetry::NumbersByCountryCodeCollectorTest < ActiveSupport::TestCase
     @end = @now
     @period = InsteddTelemetry::Period.new beginning: @beginning, end: @end
 
-    @account = Account.make
+    @account = Account.make!
 
-    AoMessage.make account: @account, to: 'sms://541144445555', created_at: @end - 1.day
-    AoMessage.make account: @account, to: 'sms://541144445555', created_at: @end - 10.days
-    AoMessage.make account: @account, to: 'sms://541166667777', created_at: @end + 1.day
-    AoMessage.make account: @account, to: 'sms://541144445555', created_at: @end - 10.days
-    AoMessage.make account: @account, to: 'sms://541144445555', from: 'sms://541188889999', created_at: @end - 15.days
+    AoMessage.make! account: @account, to: 'sms://541144445555', created_at: @end - 1.day
+    AoMessage.make! account: @account, to: 'sms://541144445555', created_at: @end - 10.days
+    AoMessage.make! account: @account, to: 'sms://541166667777', created_at: @end + 1.day
+    AoMessage.make! account: @account, to: 'sms://541144445555', created_at: @end - 10.days
+    AoMessage.make! account: @account, to: 'sms://541144445555', from: 'sms://541188889999', created_at: @end - 15.days
 
-    AoMessage.make account: @account, to: 'sms://85523217391', created_at: @end - 365.days
-    AoMessage.make account: @account, to: 'sms://85563337444', created_at: @end + 1.day
-    AoMessage.make account: @account, to: 'sms://85523217391', from: 'sms://85564447555', created_at: @end - 7.day
+    AoMessage.make! account: @account, to: 'sms://85523217391', created_at: @end - 365.days
+    AoMessage.make! account: @account, to: 'sms://85563337444', created_at: @end + 1.day
+    AoMessage.make! account: @account, to: 'sms://85523217391', from: 'sms://85564447555', created_at: @end - 7.day
 
-    AtMessage.make account: @account, from: 'sms://541122223333', created_at: @end - 10.days
-    AtMessage.make account: @account, from: 'sms://541112345678', created_at: @end + 1.day
-    AtMessage.make account: @account, from: 'sms://541122223333', to: 'sms://541167891234', created_at: @end - 10.days
+    AtMessage.make! account: @account, from: 'sms://541122223333', created_at: @end - 10.days
+    AtMessage.make! account: @account, from: 'sms://541112345678', created_at: @end + 1.day
+    AtMessage.make! account: @account, from: 'sms://541122223333', to: 'sms://541167891234', created_at: @end - 10.days
 
-    AtMessage.make account: @account, from: 'sms://85523217391', created_at: @end - 10.days
-    AtMessage.make account: @account, from: 'sms://85511111111', created_at: @end + 1.day
-    AtMessage.make account: @account, from: 'sms://85523217391', to: 'sms://85522222222', created_at: @end - 10.days
+    AtMessage.make! account: @account, from: 'sms://85523217391', created_at: @end - 10.days
+    AtMessage.make! account: @account, from: 'sms://85511111111', created_at: @end + 1.day
+    AtMessage.make! account: @account, from: 'sms://85523217391', to: 'sms://85522222222', created_at: @end - 10.days
   end
 
   test 'should collect numbers grouped by country code' do
@@ -63,9 +63,9 @@ class Telemetry::NumbersByCountryCodeCollectorTest < ActiveSupport::TestCase
   end
 
   test 'should not fail if address is null' do
-    AoMessage.make account: @account, to: nil, created_at: @end - 1.day
+    AoMessage.make! account: @account, to: nil, created_at: @end - 1.day
 
-    AtMessage.make account: @account, from: nil, created_at: @end - 1.day
+    AtMessage.make! account: @account, from: nil, created_at: @end - 1.day
 
     Telemetry::NumbersByCountryCodeCollector.collect_stats(@period)
   end

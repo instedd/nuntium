@@ -19,7 +19,7 @@ require 'test_helper'
 
 class SmppChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = SmppChannel.make
+    @chan = SmppChannel.make!
   end
 
   [:host, :port, :source_ton, :source_npi, :destination_ton, :destination_npi, :user, :password, :mt_csms_method].each do |field|
