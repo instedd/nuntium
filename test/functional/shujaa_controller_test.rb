@@ -19,12 +19,12 @@ require 'test_helper'
 
 class ShujaaControllerTest < ActionController::TestCase
   def setup
-    @account = Account.make
-    @application = Application.make :account => @account, :password => 'secret'
-    @chan = ShujaaChannel.make :account => @account
-    @kenya = Country.make
-    @safaricom = @kenya.carriers.make guid: ShujaaChannel::SAFARICOM
-    @airtel = @kenya.carriers.make guid: ShujaaChannel::AIRTEL
+    @account = Account.make!
+    @application = Application.make! :account => @account, :password => 'secret'
+    @chan = ShujaaChannel.make! :account => @account
+    @kenya = Country.make!
+    @safaricom = @kenya.carriers.make! guid: ShujaaChannel::SAFARICOM
+    @airtel = @kenya.carriers.make! guid: ShujaaChannel::AIRTEL
   end
 
   test "index" do

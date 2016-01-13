@@ -19,11 +19,11 @@ require 'test_helper'
 
 class TwilioControllerTest < ActionController::TestCase
   def setup
-    @user = User.make
-    @account = @user.create_account Account.make_unsaved
+    @user = User.make!
+    @account = @user.create_account Account.make
     sign_in @user
-    @application = @account.applications.make :password => 'secret'
-    @chan = @account.twilio_channels.make_unsaved
+    @application = @account.applications.make! :password => 'secret'
+    @chan = @account.twilio_channels.make
     def @chan.configure_phone_number
       self.incoming_password = Devise.friendly_token
       true
@@ -65,7 +65,7 @@ class TwilioControllerTest < ActionController::TestCase
 
   test "receive confirmed ack" do
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])
-    msg = AoMessage.make :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'sms_sid'
+    msg = AoMessage.make! :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'sms_sid'
 
     post :ack, :account_id => @account.name, :SmsStatus => 'sent', :AccountSid => @chan.configuration[:account_sid], :SmsSid => 'sms_sid'
 
@@ -75,7 +75,7 @@ class TwilioControllerTest < ActionController::TestCase
 
   test "receive failed ack" do
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])
-    msg = AoMessage.make :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'sms_sid'
+    msg = AoMessage.make! :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'sms_sid'
 
     post :ack, :account_id => @account.name, :SmsStatus => 'failed', :AccountSid => @chan.configuration[:account_sid], :SmsSid => 'sms_sid'
 

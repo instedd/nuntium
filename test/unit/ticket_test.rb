@@ -20,9 +20,9 @@ require 'test_helper'
 class TicketTest < ActiveSupport::TestCase
 
   test "Code is unique" do
-    Ticket.make :pending, :code => '1234'
+    Ticket.make! :pending, :code => '1234'
     assert_raise ActiveRecord::RecordInvalid do
-      Ticket.make :pending, :code => '1234'
+      Ticket.make! :pending, :code => '1234'
     end
   end
 

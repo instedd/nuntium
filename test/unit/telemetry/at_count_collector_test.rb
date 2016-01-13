@@ -25,23 +25,23 @@ class Telemetry::AtCountCollectorTest < ActiveSupport::TestCase
     @end = @now
     @period = InsteddTelemetry::Period.new beginning: @beginning, end: @end
 
-    @account = Account.make
+    @account = Account.make!
 
-    @channel_1 = QstServerChannel.make account: @account, created_at: @end - 400.days
-    @channel_2 = QstServerChannel.make account: @account, created_at: @end - 45.days
-    @channel_3 = QstServerChannel.make account: @account, created_at: @end + 1.day
+    @channel_1 = QstServerChannel.make! account: @account, created_at: @end - 400.days
+    @channel_2 = QstServerChannel.make! account: @account, created_at: @end - 45.days
+    @channel_3 = QstServerChannel.make! account: @account, created_at: @end + 1.day
   end
 
   test 'should collect at messages' do
-    AtMessage.make account: @account, channel: @channel_1, created_at: @end - 1.day
-    AtMessage.make account: @account, channel: @channel_1, created_at: @end - 10.days
-    AtMessage.make account: @account, channel: @channel_1, created_at: @end - 365.days
-    AtMessage.make account: @account, channel: @channel_1, created_at: @end + 1.day
+    AtMessage.make! account: @account, channel: @channel_1, created_at: @end - 1.day
+    AtMessage.make! account: @account, channel: @channel_1, created_at: @end - 10.days
+    AtMessage.make! account: @account, channel: @channel_1, created_at: @end - 365.days
+    AtMessage.make! account: @account, channel: @channel_1, created_at: @end + 1.day
 
-    AtMessage.make account: @account, channel: @channel_2, created_at: @end - 30.days
-    AtMessage.make account: @account, channel: @channel_2, created_at: @end - 40.days
+    AtMessage.make! account: @account, channel: @channel_2, created_at: @end - 30.days
+    AtMessage.make! account: @account, channel: @channel_2, created_at: @end - 40.days
 
-    AtMessage.make account: @account, channel: @channel_3, created_at: @end + 7.day
+    AtMessage.make! account: @account, channel: @channel_3, created_at: @end + 7.day
 
     stats = Telemetry::AtCountCollector.collect_stats(@period)
     counters = stats[:counters]
@@ -65,8 +65,8 @@ class Telemetry::AtCountCollectorTest < ActiveSupport::TestCase
   end
 
   test 'should count channels with 0 at messages' do
-    AtMessage.make account: @account, channel: @channel_2, created_at: @end + 1.day
-    AtMessage.make account: @account, channel: @channel_3, created_at: @end + 3.days
+    AtMessage.make! account: @account, channel: @channel_2, created_at: @end + 1.day
+    AtMessage.make! account: @account, channel: @channel_3, created_at: @end + 3.days
 
     stats = Telemetry::AtCountCollector.collect_stats(@period)
     counters = stats[:counters]

@@ -19,8 +19,8 @@ require 'test_helper'
 
 class SettingsControllerTest < ActionController::TestCase
   setup do
-    @user = User.make
-    @account = @user.create_account Account.make_unsaved(:password => 'account_pass')
+    @user = User.make!
+    @account = @user.create_account Account.make(:password => 'account_pass')
     sign_in @user
   end
 

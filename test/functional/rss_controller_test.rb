@@ -22,9 +22,9 @@ require 'yaml'
 
 class RssControllerTest < ActionController::TestCase
   def setup
-    @account = Account.make
-    @chan = QstServerChannel.make :account => @account
-    @application = Application.make :account => @account, :password => 'app_pass'
+    @account = Account.make!
+    @chan = QstServerChannel.make! :account => @account
+    @application = Application.make! :account => @account, :password => 'app_pass'
     @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')
   end
 
@@ -43,7 +43,7 @@ class RssControllerTest < ActionController::TestCase
   end
 
   test "should convert one rss item to out message" do
-    expected = AoMessage.make_unsaved
+    expected = AoMessage.make
     create expected
 
     messages = AoMessage.all
@@ -61,7 +61,7 @@ class RssControllerTest < ActionController::TestCase
   end
 
   test "should create qst outgoing message" do
-    create AoMessage.make_unsaved
+    create AoMessage.make
 
     messages = AoMessage.all
     assert_equal 1, messages.length
@@ -73,10 +73,10 @@ class RssControllerTest < ActionController::TestCase
   end
 
   test "should convert one message to rss item" do
-    application2 = Application.make :account => @account
+    application2 = Application.make! :account => @account
 
-    msg = AtMessage.make :account => @account, :application => @application, :state => 'queued'
-    AtMessage.make :account => @account, :application => application2, :state => 'queued'
+    msg = AtMessage.make! :account => @account, :application => @application, :state => 'queued'
+    AtMessage.make! :account => @account, :application => application2, :state => 'queued'
 
     index
 
@@ -91,7 +91,7 @@ class RssControllerTest < ActionController::TestCase
   end
 
   test "should convert one message with empty subject to rss item" do
-    msg = AtMessage.make :account => @account, :application => @application, :state => 'queued', :subject => ''
+    msg = AtMessage.make! :account => @account, :application => @application, :state => 'queued', :subject => ''
 
     index
 
@@ -106,13 +106,13 @@ class RssControllerTest < ActionController::TestCase
   end
 
   test "should convert one message without subject to rss item" do
-    msg = AtMessage.make :account => @account, :application => @application, :state => 'queued', :subject => nil
+    msg = AtMessage.make! :account => @account, :application => @application, :state => 'queued', :subject => nil
     index
     assert_shows_message_as_rss_item msg
   end
 
   test "should convert two messages to rss items ordered by timestamp" do
-    2.times { |i| AtMessage.make :account => @account, :application => @application, :timestamp => time_for_msg(i), :state => 'queued' }
+    2.times { |i| AtMessage.make! :account => @account, :application => @application, :timestamp => time_for_msg(i), :state => 'queued' }
 
     index
 
@@ -125,13 +125,13 @@ class RssControllerTest < ActionController::TestCase
   end
 
   test "should return not modified for HTTP_IF_MODIFIED_SINCE" do
-    2.times { AtMessage.make :account => @account, :application => @application, :timestamp => time_for_msg(0), :state => 'queued' }
+    2.times { AtMessage.make! :account => @account, :application => @application, :timestamp => time_for_msg(0), :state => 'queued' }
     index "HTTP_IF_MODIFIED_SINCE" => time_for_msg(1).to_s, :expected_response => :not_modified
   end
 
   test "should apply HTTP_IF_MODIFIED_SINCE" do
-    AtMessage.make :account => @account, :application => @application, :state => 'queued', :timestamp => time_for_msg(0)
-    msg = AtMessage.make :account => @account, :application => @application, :state => 'queued', :timestamp => time_for_msg(1)
+    AtMessage.make! :account => @account, :application => @application, :state => 'queued', :timestamp => time_for_msg(0)
+    msg = AtMessage.make! :account => @account, :application => @application, :state => 'queued', :timestamp => time_for_msg(1)
 
     index "HTTP_IF_MODIFIED_SINCE" => time_for_msg(0).to_s
 

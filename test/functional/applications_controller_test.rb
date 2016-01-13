@@ -19,16 +19,16 @@ require 'test_helper'
 
 class ApplicationsControllerTest < ActionController::TestCase
   test "index" do
-    user = User.make
-    account = user.create_account Account.make_unsaved
+    user = User.make!
+    account = user.create_account Account.make
     sign_in user
     get :index, {}
     assert_template "index"
   end
 
   test "update rules in order" do
-    user = User.make
-    account = user.create_account Account.make_unsaved
+    user = User.make!
+    account = user.create_account Account.make
     sign_in user
     apprules = {
       "7" => {

@@ -19,11 +19,11 @@ require 'test_helper'
 
 class QstServerChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = QstServerChannel.make :configuration => {:password => 'foo', :password_confirmation => 'foo'}
+    @chan = QstServerChannel.make! :configuration => {:password => 'foo', :password_confirmation => 'foo'}
   end
 
   test "should not create if password is blank" do
-    chan = QstServerChannel.make_unsaved
+    chan = QstServerChannel.make
     chan.password = chan.password_confirmation = ''
     assert_false chan.save
   end

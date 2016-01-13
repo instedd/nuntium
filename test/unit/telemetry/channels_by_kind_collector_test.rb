@@ -25,14 +25,14 @@ class Telemetry::ChannelsByKindCollectorTest < ActiveSupport::TestCase
     @end = @now
     @period = InsteddTelemetry::Period.new beginning: @beginning, end: @end
 
-    QstClientChannel.make created_at: @end - 1.day
-    QstClientChannel.make created_at: @end - 10.days
-    QstClientChannel.make created_at: @end - 365.days
-    QstClientChannel.make created_at: @end + 1.day
+    QstClientChannel.make! created_at: @end - 1.day
+    QstClientChannel.make! created_at: @end - 10.days
+    QstClientChannel.make! created_at: @end - 365.days
+    QstClientChannel.make! created_at: @end + 1.day
 
-    Pop3Channel.make created_at: @end - 3.days
-    Pop3Channel.make created_at: @end - 8.days
-    Pop3Channel.make created_at: @end + 3.days
+    Pop3Channel.make! created_at: @end - 3.days
+    Pop3Channel.make! created_at: @end - 8.days
+    Pop3Channel.make! created_at: @end + 3.days
   end
 
   test 'should collect channels grouped by kind' do

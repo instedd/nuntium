@@ -19,15 +19,15 @@ require 'test_helper'
 
 class ApiChannelControllerTest < ActionController::TestCase
   def setup
-    @account = Account.make :password => 'secret'
-    @application = Application.make :account => @account, :password => 'secret'
-    @application2 = Application.make :account => @account
+    @account = Account.make! :password => 'secret'
+    @application = Application.make! :account => @account, :password => 'secret'
+    @application2 = Application.make! :account => @account
 
-    account2 = Account.make
-    app2 = Application.make :account => account2
+    account2 = Account.make!
+    app2 = Application.make! :account => account2
 
-    chan2 = QstServerChannel.make :account => account2
-    chan3 = QstServerChannel.make :account => @account, :application => @application2
+    chan2 = QstServerChannel.make! :account => account2
+    chan3 = QstServerChannel.make! :account => @account, :application => @application2
   end
 
   def authorize
@@ -109,14 +109,14 @@ class ApiChannelControllerTest < ActionController::TestCase
 
     test "index #{format} two channels" do
       index format, 2 do
-        2.times {|i| QstServerChannel.make :account => @account, :application => @application }
+        2.times {|i| QstServerChannel.make! :account => @account, :application => @application }
       end
     end
 
     test "index #{format} should also include channels that don't belong to any application" do
       index format, 3 do
-        2.times {|i| QstServerChannel.make :account => @account, :application => @application }
-        QstServerChannel.make :account => @account
+        2.times {|i| QstServerChannel.make! :account => @account, :application => @application }
+        QstServerChannel.make! :account => @account
       end
     end
 
@@ -126,18 +126,18 @@ class ApiChannelControllerTest < ActionController::TestCase
 
     test "show #{format} for application found" do
       show 'hola', format, 1 do
-        QstServerChannel.make :account => @account, :application => @application, :name => 'hola'
+        QstServerChannel.make! :account => @account, :application => @application, :name => 'hola'
       end
     end
 
     test "show #{format} for no application found" do
       show 'hola', format, 1 do
-        QstServerChannel.make :account => @account, :name => 'hola'
+        QstServerChannel.make! :account => @account, :name => 'hola'
       end
     end
 
     test "create #{format} channel succeeds" do
-      chan = QstServerChannel.make_unsaved :qst_client, :enabled => false
+      chan = QstServerChannel.make :qst_client, :enabled => false
       chan.restrictions['foo'] = ['a', 'b', 'c']
       chan.restrictions['bar'] = 'baz'
 
@@ -156,7 +156,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "create #{format} channel with at_rules and ao_rules succeeds" do
-      chan = QstServerChannel.make_unsaved :qst_client, :enabled => false
+      chan = QstServerChannel.make :qst_client, :enabled => false
       chan.ao_rules = [
         RulesEngine.rule([
           RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1')
@@ -197,8 +197,8 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "create #{format} channel with using ticket succeeds and complete ticket" do
-      ticket = Ticket.make :pending, :data => { :address => '8346-2355' }
-      chan = QstServerChannel.make_unsaved :qst_server, :enabled => false, :ticket_code => ticket.code, :ticket_message => 'Phone plugged to app'
+      ticket = Ticket.make! :pending, :data => { :address => '8346-2355' }
+      chan = QstServerChannel.make :qst_server, :enabled => false, :ticket_code => ticket.code, :ticket_message => 'Phone plugged to app'
 
       create chan, format
 
@@ -223,7 +223,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "create #{format} channel fails missing name" do
-      chan = QstServerChannel.make_unsaved :qst_server, :name => nil
+      chan = QstServerChannel.make :qst_server, :name => nil
 
       before_count = Channel.all.length
       create chan, format, :bad_request
@@ -242,7 +242,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "create #{format} channel fails missing password" do
-      chan = QstServerChannel.make_unsaved :qst_server, :name => 'coco'
+      chan = QstServerChannel.make :qst_server, :name => 'coco'
       chan.password = nil
 
       before_count = Channel.all.length
@@ -251,7 +251,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "create #{format} channel using invalid ticket fails" do
-      chan = QstServerChannel.make_unsaved :qst_server, :ticket_code => 'wrong-ticket'
+      chan = QstServerChannel.make :qst_server, :ticket_code => 'wrong-ticket'
 
       before_count = Channel.all.length
       create chan, format, :bad_request
@@ -270,7 +270,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "update #{format} channel succeeds" do
-      chan = QstServerChannel.make :account => @account, :application => @application, :priority => 20, :address => 'sms://1'
+      chan = QstServerChannel.make! :account => @account, :application => @application, :priority => 20, :address => 'sms://1'
       update chan.name, Channel.new(:protocol => 'foobar', :priority => nil, :enabled => false, :address => 'sms://2'), format
       chan.reload
 
@@ -281,7 +281,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "update #{format} channel configuration succeeds" do
-      chan = QstServerChannel.make :qst_client, :account => @account, :application => @application
+      chan = QstServerChannel.make! :qst_client, :account => @account, :application => @application
       update chan.name, Channel.new(:configuration => {:url => 'x', :user => 'y', :password => 'z'}), format
       chan.reload
 
@@ -290,7 +290,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "update #{format} channel restrictions succeeds" do
-      chan = QstServerChannel.make :account => @account, :application => @application
+      chan = QstServerChannel.make! :account => @account, :application => @application
       update chan.name, Channel.new(:restrictions => {'x' => 'z'}), format
       chan.reload
 
@@ -298,7 +298,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "update #{format} channel can override completely rules" do
-      chan = QstServerChannel.make :qst_client, { :account => @account, :application => @application, :enabled => false,
+      chan = QstServerChannel.make! :qst_client, { :account => @account, :application => @application, :enabled => false,
           :ao_rules => [RulesEngine.rule([],[RulesEngine.action('from','sms://3')])],
           :at_rules => [RulesEngine.rule([],[RulesEngine.action('from','sms://6')])] }
 
@@ -347,7 +347,7 @@ class ApiChannelControllerTest < ActionController::TestCase
 
     #
     test "update #{format} channel avoid touching rules if not specified" do
-      chan = QstServerChannel.make :qst_client, :account => @account, :application => @application, :enabled => false
+      chan = QstServerChannel.make! :qst_client, :account => @account, :application => @application, :enabled => false
       chan.ao_rules = [
         RulesEngine.rule([
           RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1')
@@ -397,7 +397,7 @@ class ApiChannelControllerTest < ActionController::TestCase
   end
 
   test "update channel fails not owner" do
-    chan = QstServerChannel.make :account => @account
+    chan = QstServerChannel.make! :account => @account
 
     authorize
     put :update, :format => 'xml', :name => chan.name
@@ -405,7 +405,7 @@ class ApiChannelControllerTest < ActionController::TestCase
   end
 
   test "delete channel succeeds" do
-    chan = QstServerChannel.make :account => @account, :application => @application
+    chan = QstServerChannel.make! :account => @account, :application => @application
 
     authorize
     delete :destroy, :name => chan.name
@@ -421,7 +421,7 @@ class ApiChannelControllerTest < ActionController::TestCase
   end
 
   test "delete channel fails, does not own channel" do
-    chan = QstServerChannel.make :account => @account
+    chan = QstServerChannel.make! :account => @account
 
     authorize
     delete :destroy, :name => chan.name
@@ -429,7 +429,7 @@ class ApiChannelControllerTest < ActionController::TestCase
   end
 
   test "authenticate with application@account" do
-    chan = QstServerChannel.make :account => @account, :application => @application
+    chan = QstServerChannel.make! :account => @account, :application => @application
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@application.name}@#{@account.name}", 'secret')
     delete :destroy, :name => chan.name

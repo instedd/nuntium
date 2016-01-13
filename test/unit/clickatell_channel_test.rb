@@ -19,7 +19,7 @@ require 'test_helper'
 
 class ClickatellChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = ClickatellChannel.make
+    @chan = ClickatellChannel.make!
   end
 
   include GenericChannelTest
@@ -41,8 +41,8 @@ class ClickatellChannelTest < ActiveSupport::TestCase
   end
 
   test "should use network for channel ao rounting filtering" do
-    one = Country.make
-    two = Country.make
+    one = Country.make!
+    two = Country.make!
 
     @chan.configuration[:network] = '44'
     @chan.save!
@@ -58,8 +58,8 @@ class ClickatellChannelTest < ActiveSupport::TestCase
   end
 
   test "should skip network if channel defines restrictions on country" do
-    one = Country.make
-    two = Country.make
+    one = Country.make!
+    two = Country.make!
 
     @chan.configuration[:network] = '44'
     @chan.restrictions['country'] = two.id # this overrides clickatell's coverage
@@ -77,9 +77,9 @@ class ClickatellChannelTest < ActiveSupport::TestCase
   end
 
   test "should use network for carrier ao rounting filtering" do
-    country = Country.make
-    carrier1 = Carrier.make :country => country
-    carrier2 = Carrier.make :country => country
+    country = Country.make!
+    carrier1 = Carrier.make! :country => country
+    carrier2 = Carrier.make! :country => country
 
     @chan.configuration[:network] = '44'
     @chan.save!
@@ -96,9 +96,9 @@ class ClickatellChannelTest < ActiveSupport::TestCase
   end
 
   test "should skip network if channel defines restrictions on carrier" do
-    country = Country.make
-    carrier1 = Carrier.make :country => country
-    carrier2 = Carrier.make :country => country
+    country = Country.make!
+    carrier1 = Carrier.make! :country => country
+    carrier2 = Carrier.make! :country => country
 
     @chan.configuration[:network] = '44'
     @chan.restrictions['carrier'] = carrier2.guid # this overrides clickatell's coverage
@@ -116,12 +116,12 @@ class ClickatellChannelTest < ActiveSupport::TestCase
   end
 
   test "clickatell channel augmented restrictions made based on coverage table" do
-    country1 = Country.make
-    carrier1 = Carrier.make :country => country1
-    carrier2 = Carrier.make :country => country1
-    country2 = Country.make
-    carrier3 = Carrier.make :country => country2
-    carrier4 = Carrier.make :country => country2
+    country1 = Country.make!
+    carrier1 = Carrier.make! :country => country1
+    carrier2 = Carrier.make! :country => country1
+    country2 = Country.make!
+    carrier3 = Carrier.make! :country => country2
+    carrier4 = Carrier.make! :country => country2
 
     @chan.configuration[:network] = '44'
     @chan.save!
@@ -138,8 +138,8 @@ class ClickatellChannelTest < ActiveSupport::TestCase
   end
 
   test "clickatell channel can send a message within coverage table" do
-    country = Country.make
-    carrier = Carrier.make :country => country
+    country = Country.make!
+    carrier = Carrier.make! :country => country
 
     @chan.configuration[:network] = '44'
     @chan.save!
@@ -150,8 +150,8 @@ class ClickatellChannelTest < ActiveSupport::TestCase
   end
 
   test "clickatell channel can send a message within coverage table only with country" do
-    country = Country.make
-    carrier = Carrier.make :country => country
+    country = Country.make!
+    carrier = Carrier.make! :country => country
 
     @chan.configuration[:network] = '44'
     @chan.save!

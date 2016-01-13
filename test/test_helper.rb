@@ -23,7 +23,7 @@ require 'base64'
 require 'digest/md5'
 require 'digest/sha2'
 require 'shoulda'
-require 'mocha'
+require 'mocha/mini_test'
 
 require File.expand_path(File.dirname(__FILE__) + "/unit/generic_channel_test")
 require File.expand_path(File.dirname(__FILE__) + "/unit/service_channel_test")
@@ -60,7 +60,6 @@ class ActiveSupport::TestCase
     Rails.cache.clear
     Country.clear_cache
     Carrier.clear_cache
-    Sham.reset
   end
 
   def expect_get(options = {})
@@ -168,6 +167,14 @@ class ActiveSupport::TestCase
     return Time.at(946702800).utc
   end
 
+  def assert_true(test, msg=nil)
+    assert test, msg
+  end
+
+  def assert_false(test, msg=nil)
+    assert_not test, msg
+  end
+
   def assert_validates_configuration_presence_of(chan, field)
     chan.configuration.delete field
     assert !chan.save
@@ -181,7 +188,7 @@ class ActiveSupport::TestCase
       jobs << job
     end
 
-    msg = AoMessage.make :account_id => chan.account_id, :channel_id => chan.id
+    msg = AoMessage.make! :account_id => chan.account_id, :channel_id => chan.id
     chan.handle(msg)
 
     assert_equal 1, jobs.length

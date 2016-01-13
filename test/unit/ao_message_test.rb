@@ -55,7 +55,7 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "infer attributes one country" do
-    country = Country.make
+    country = Country.make!
 
     msg = AoMessage.new :to => "sms://+#{country.phone_prefix}1234"
     msg.infer_custom_attributes
@@ -65,9 +65,9 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "infer attributes two countries" do
-    one = Country.make :phone_prefix => '12'
-    two = Country.make :phone_prefix => '1'
-    three = Country.make :phone_prefix => '2'
+    one = Country.make! :phone_prefix => '12'
+    two = Country.make! :phone_prefix => '1'
+    three = Country.make! :phone_prefix => '2'
 
     msg = AoMessage.new :to => 'sms://+1234'
     msg.infer_custom_attributes
@@ -77,8 +77,8 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "infer country from area code" do
-    usa = Country.make :phone_prefix => '1'
-    canada = Country.make :phone_prefix => '1', :area_codes => '250, 204'
+    usa = Country.make! :phone_prefix => '1'
+    canada = Country.make! :phone_prefix => '1', :area_codes => '250, 204'
 
     msg = AoMessage.new :to => 'sms://+12501345'
     msg.infer_custom_attributes
@@ -90,9 +90,9 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "infer many countries because of lack of area code" do
-    usa = Country.make :phone_prefix => '1'
-    usa2 = Country.make :phone_prefix => '1'
-    canada = Country.make :phone_prefix => '1', :area_codes => '250, 204'
+    usa = Country.make! :phone_prefix => '1'
+    usa2 = Country.make! :phone_prefix => '1'
+    canada = Country.make! :phone_prefix => '1', :area_codes => '250, 204'
 
     msg = AoMessage.new :to => 'sms://+1234567'
     msg.infer_custom_attributes
@@ -100,7 +100,7 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "don't infer country if already specified" do
-    country = Country.make :iso2 => 'ar'
+    country = Country.make! :iso2 => 'ar'
 
     msg = AoMessage.new :to => 'sms://+#{country.phone_prefix}1234'
     msg.country = 'br'
@@ -111,8 +111,8 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "infer attributes one carrier" do
-    country = Country.make
-    carrier = Carrier.make :country => country
+    country = Country.make!
+    carrier = Carrier.make! :country => country
 
     msg = AoMessage.new :to => "sms://+#{country.phone_prefix}#{carrier.prefixes}1234"
     msg.infer_custom_attributes
@@ -122,10 +122,10 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "infer attributes two carriers" do
-    country = Country.make :phone_prefix => '12'
-    c1 = Carrier.make :country => country, :prefixes => '34, 56'
-    c2 = Carrier.make :country => country, :prefixes => '3'
-    c3 = Carrier.make :country => country, :prefixes => '4'
+    country = Country.make! :phone_prefix => '12'
+    c1 = Carrier.make! :country => country, :prefixes => '34, 56'
+    c2 = Carrier.make! :country => country, :prefixes => '3'
+    c3 = Carrier.make! :country => country, :prefixes => '4'
 
     msg = AoMessage.new(:to => 'sms://+1234')
     msg.infer_custom_attributes
@@ -135,8 +135,8 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "don't infer carrier if present" do
-    country = Country.make :iso2 => 'ar'
-    carrier = Carrier.make :country => country, :guid => 'personal'
+    country = Country.make! :iso2 => 'ar'
+    carrier = Carrier.make! :country => country, :guid => 'personal'
 
     msg = AoMessage.new(:to => 'sms://+#{country.phone_prefix}#{carrier.prefixes}1234')
     msg.country = country.iso2
@@ -148,8 +148,8 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "infer from mobile numbers" do
-    country = Country.make :iso2 => 'ar', :phone_prefix => '0'
-    carrier = Carrier.make :country => country, :guid => 'personal'
+    country = Country.make! :iso2 => 'ar', :phone_prefix => '0'
+    carrier = Carrier.make! :country => country, :guid => 'personal'
     mob = MobileNumber.create! :number => '1234', :country => country, :carrier => carrier
 
     msg = AoMessage.new :to => 'sms://1234'
@@ -160,8 +160,8 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "infer partially from mobile numbers" do
-    country = Country.make :iso2 => 'ar', :phone_prefix => '0'
-    carrier = Carrier.make :country => country, :guid => 'personal'
+    country = Country.make! :iso2 => 'ar', :phone_prefix => '0'
+    carrier = Carrier.make! :country => country, :guid => 'personal'
     mob = MobileNumber.create! :number => '1234', :carrier => carrier
 
     msg = AoMessage.new :to => 'sms://1234'
@@ -174,14 +174,14 @@ class AoMessageTest < ActiveSupport::TestCase
 
   ['failed', 'confirmed', 'delivered'].each do |state|
     test "delivery ack when #{state}" do
-      account = Account.make
-      app = account.applications.make_unsaved
+      account = Account.make!
+      app = account.applications.make
       app.delivery_ack_method = 'get'
       app.delivery_ack_url = 'foo'
       app.save!
-      chan = QstServerChannel.make :account_id => account.id
+      chan = QstServerChannel.make! :account_id => account.id
 
-      msg = account.ao_messages.make :application => app, :channel => chan
+      msg = account.ao_messages.make! :application => app, :channel => chan
 
       Queues.expects(:publish_application).with do |a, j|
         a.id == app.id and
@@ -198,14 +198,14 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "don't delivery ack when queued" do
-    account = Account.make
-    app = account.applications.make_unsaved
+    account = Account.make!
+    app = account.applications.make
     app.delivery_ack_method = 'get'
     app.delivery_ack_url = 'foo'
     app.save!
-    chan = QstServerChannel.make :account_id => account.id
+    chan = QstServerChannel.make! :account_id => account.id
 
-    msg = account.ao_messages.make :application => app, :channel => chan
+    msg = account.ao_messages.make! :application => app, :channel => chan
 
     Queues.expects(:publish_application).times(0)
 
@@ -214,13 +214,13 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "don't delivery ack when method is none" do
-    account = Account.make
-    app = account.applications.make_unsaved
+    account = Account.make!
+    app = account.applications.make
     app.delivery_ack_method = 'none'
     app.save!
-    chan = QstServerChannel.make :account_id => account.id
+    chan = QstServerChannel.make! :account_id => account.id
 
-    msg = account.ao_messages.make :application => app, :channel => chan
+    msg = account.ao_messages.make! :application => app, :channel => chan
 
     Queues.expects(:publish_application).times(0)
 
@@ -229,14 +229,14 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "don't delivery ack when channel is not set" do
-    account = Account.make
-    app = account.applications.make_unsaved
+    account = Account.make!
+    app = account.applications.make
     app.delivery_ack_method = 'get'
     app.delivery_ack_url = 'foo'
     app.save!
-    chan = QstServerChannel.make :account_id => account.id
+    chan = QstServerChannel.make! :account_id => account.id
 
-    msg = account.ao_messages.make :application => app
+    msg = account.ao_messages.make! :application => app
 
     Queues.expects(:publish_application).times(0)
 
@@ -245,16 +245,16 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "delivery ack when changed" do
-    account = Account.make
-    app = account.applications.make_unsaved
+    account = Account.make!
+    app = account.applications.make
     app.delivery_ack_method = 'get'
     app.delivery_ack_url = 'foo'
     app.save!
-    chan = QstServerChannel.make :account_id => account.id
+    chan = QstServerChannel.make! :account_id => account.id
 
     Queues.expects(:publish_application).times(2)
 
-    msg = account.ao_messages.make :application => app, :channel => chan, :state => 'delivered'
+    msg = account.ao_messages.make! :application => app, :channel => chan, :state => 'delivered'
 
     msg.custom_attributes[:cost] = '1'
     msg.custom_attributes_will_change!
@@ -262,16 +262,16 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "don't delivery ack when not changed" do
-    account = Account.make
-    app = account.applications.make_unsaved
+    account = Account.make!
+    app = account.applications.make
     app.delivery_ack_method = 'get'
     app.delivery_ack_url = 'foo'
     app.save!
-    chan = QstServerChannel.make :account_id => account.id
+    chan = QstServerChannel.make! :account_id => account.id
 
     Queues.expects(:publish_application).times(1)
 
-    msg = account.ao_messages.make :application => app, :channel => chan, :state => 'delivered'
+    msg = account.ao_messages.make! :application => app, :channel => chan, :state => 'delivered'
 
     msg.save!
   end
@@ -304,9 +304,9 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "should update application lifespan when created" do
-    application = Application.make
-    account = Account.make
-    ao_message = AoMessage.make_unsaved application: application, account: account
+    application = Application.make!
+    account = Account.make!
+    ao_message = AoMessage.make application: application, account: account
 
     Telemetry::Lifespan.expects(:touch_application).with(application)
 
@@ -314,9 +314,9 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "should update application lifespan when updated" do
-    application = Application.make
-    account = Account.make
-    ao_message = AoMessage.make application: application, account: account
+    application = Application.make!
+    account = Account.make!
+    ao_message = AoMessage.make! application: application, account: account
 
     Telemetry::Lifespan.expects(:touch_application).with(application)
 
@@ -325,9 +325,9 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "should update application lifespan when destroyed" do
-    application = Application.make
-    account = Account.make
-    ao_message = AoMessage.make application: application, account: account
+    application = Application.make!
+    account = Account.make!
+    ao_message = AoMessage.make! application: application, account: account
 
     Telemetry::Lifespan.expects(:touch_application).with(application)
 
@@ -335,8 +335,8 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when created" do
-    account = Account.make
-    ao_message = AoMessage.make_unsaved account: account
+    account = Account.make!
+    ao_message = AoMessage.make account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 
@@ -344,8 +344,8 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when updated" do
-    account = Account.make
-    ao_message = AoMessage.make account: account
+    account = Account.make!
+    ao_message = AoMessage.make! account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 
@@ -354,8 +354,8 @@ class AoMessageTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when destroyed" do
-    account = Account.make
-    ao_message = AoMessage.make account: account
+    account = Account.make!
+    ao_message = AoMessage.make! account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 

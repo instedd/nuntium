@@ -22,24 +22,24 @@ class ApplicationTest < ActiveSupport::TestCase
   include RulesEngine
 
   test "check modified" do
-    app = Application.make
-    chan1 = QstServerChannel.make :account_id => app.account_id
-    chan2 = QstServerChannel.make :account_id => app.account_id, :priority => chan1.priority - 10
+    app = Application.make!
+    chan1 = QstServerChannel.make! :account_id => app.account_id
+    chan2 = QstServerChannel.make! :account_id => app.account_id, :priority => chan1.priority - 10
 
-    msg = AoMessage.make_unsaved
+    msg = AoMessage.make
     app.route_ao msg, 'test'
     assert_equal chan2.id, msg.channel_id
 
     chan2.priority = chan1.priority + 10
     chan2.save!
 
-    msg = AoMessage.make_unsaved
+    msg = AoMessage.make
     app.route_ao msg, 'test'
     assert_equal chan1.id, msg.channel_id
   end
 
   test "should create worker queue on create" do
-    app = Application.make
+    app = Application.make!
     wqs = WorkerQueue.all
     assert_equal 1, wqs.length
     assert_equal "application_queue.#{app.id}", wqs[0].queue_name
@@ -49,7 +49,7 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "should destroy worker queue on destroy" do
-    app = Application.make
+    app = Application.make!
     app.destroy
 
     assert_equal 0, WorkerQueue.count
@@ -63,13 +63,13 @@ class ApplicationTest < ActiveSupport::TestCase
       true
     end
 
-    app = Application.make
+    app = Application.make!
     assert_same app, binded
   end
 
   ['get', 'post'].each do |method|
     test "should enqueue http #{method} callback" do
-      app = Application.make :"http_#{method}_callback"
+      app = Application.make! :"http_#{method}_callback"
 
       msg = AtMessage.create!(:account => app.account, :subject => 'foo')
 
@@ -81,14 +81,14 @@ class ApplicationTest < ActiveSupport::TestCase
           j.message_id == msg.id
       end
 
-      app.route_at msg, QstServerChannel.make(:account_id => app.account_id)
+      app.route_at msg, QstServerChannel.make!(:account_id => app.account_id)
     end
   end
 
   test "route ao protocol not found in message" do
-    app = Application.make
+    app = Application.make!
 
-    msg = AoMessage.make_unsaved :to => '+5678'
+    msg = AoMessage.make :to => '+5678'
     app.route_ao msg, 'test'
 
     messages = AoMessage.all
@@ -97,9 +97,9 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao channel not found for protocol" do
-    app = Application.make
+    app = Application.make!
 
-    msg = AoMessage.make_unsaved :to => 'unknown://+5678'
+    msg = AoMessage.make :to => 'unknown://+5678'
     app.route_ao msg, 'test'
 
     messages = AoMessage.all
@@ -108,47 +108,47 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route select channel based on protocol" do
-    app = Application.make
+    app = Application.make!
 
-    chan1 = QstServerChannel.make :account_id => app.account_id, :protocol => 'protocol'
-    chan2 = QstServerChannel.make :account_id => app.account_id, :protocol => 'protocol2'
+    chan1 = QstServerChannel.make! :account_id => app.account_id, :protocol => 'protocol'
+    chan2 = QstServerChannel.make! :account_id => app.account_id, :protocol => 'protocol2'
 
-    msg = AoMessage.make_unsaved :to => 'protocol2://Someone else'
+    msg = AoMessage.make :to => 'protocol2://Someone else'
     app.route_ao msg, 'test'
 
     assert_equal chan2.id, msg.channel_id
   end
 
   test "candidate channels" do
-    app = Application.make
+    app = Application.make!
 
-    chan1 = QstServerChannel.make :account_id => app.account_id, :protocol => 'protocol'
-    chan2 = QstServerChannel.make :account_id => app.account_id, :protocol => 'protocol2'
+    chan1 = QstServerChannel.make! :account_id => app.account_id, :protocol => 'protocol'
+    chan2 = QstServerChannel.make! :account_id => app.account_id, :protocol => 'protocol2'
 
-    msg = AoMessage.make_unsaved :to => 'protocol2://Someone else'
+    msg = AoMessage.make :to => 'protocol2://Someone else'
     channels = app.candidate_channels_for_ao msg
 
     assert_equal [chan2], channels
   end
 
   test "candidate channels ordered by priority" do
-    app = Application.make
+    app = Application.make!
 
-    chan1 = QstServerChannel.make :account_id => app.account_id, :protocol => 'protocol', :priority => 2
-    chan2 = QstServerChannel.make :account_id => app.account_id, :protocol => 'protocol', :priority => 1
+    chan1 = QstServerChannel.make! :account_id => app.account_id, :protocol => 'protocol', :priority => 2
+    chan2 = QstServerChannel.make! :account_id => app.account_id, :protocol => 'protocol', :priority => 1
 
-    msg = AoMessage.make_unsaved :to => 'protocol://Someone else'
+    msg = AoMessage.make :to => 'protocol://Someone else'
     channels = app.candidate_channels_for_ao msg
 
     assert_equal [chan2.id, chan1.id], channels.map(&:id)
   end
 
   test "route ao saves mobile numbers" do
-    app = Application.make
-    country = Country.make
-    carrier = country.carriers.make
+    app = Application.make!
+    country = Country.make!
+    carrier = Carrier.make! country: country
 
-    msg = AoMessage.make_unsaved
+    msg = AoMessage.make
     msg.custom_attributes['country'] = country.iso2
     msg.custom_attributes['carrier'] = carrier.guid
 
@@ -162,9 +162,9 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao does not save mobile numbers if more than one country and/or carrier" do
-    app = Application.make
+    app = Application.make!
 
-    msg = AoMessage.make_unsaved
+    msg = AoMessage.make
     msg.custom_attributes['country'] = ['ar', 'br']
     msg.custom_attributes['carrier'] = ['ABC123', 'XYZ']
 
@@ -174,13 +174,13 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao updates mobile numbers" do
-    app = Application.make
-    country = Country.make
-    carrier = country.carriers.make
+    app = Application.make!
+    country = Country.make!
+    carrier = Carrier.make! country: country
 
     MobileNumber.create! :number => '5678', :country_id => country.id + 1
 
-    msg = AoMessage.make_unsaved :to => 'sms://+5678'
+    msg = AoMessage.make :to => 'sms://+5678'
     msg.custom_attributes['country'] = country.iso2
     msg.custom_attributes['carrier'] = carrier.guid
 
@@ -194,12 +194,12 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao completes country and carrier if missing" do
-    app = Application.make
-    country = Country.make
-    carrier = country.carriers.make
+    app = Application.make!
+    country = Country.make!
+    carrier = Carrier.make! country: country
     MobileNumber.create! :number => '5678', :country_id => country.id, :carrier_id => carrier.id
 
-    msg = AoMessage.make_unsaved :to => 'sms://+5678'
+    msg = AoMessage.make :to => 'sms://+5678'
 
     app.route_ao msg, 'test'
 
@@ -208,12 +208,12 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao doesnt complete country or carrier if present" do
-    app = Application.make
-    country = Country.make
-    carrier = country.carriers.make
+    app = Application.make!
+    country = Country.make!
+    carrier = Carrier.make! country: country
     MobileNumber.create! :number => '5678', :country_id => country.id, :carrier_id => carrier.id
 
-    msg = AoMessage.make_unsaved :to => 'sms://+5678', :country => 'foo_country', :carrier => 'foo_carrier'
+    msg = AoMessage.make :to => 'sms://+5678', :country => 'foo_country', :carrier => 'foo_carrier'
 
     app.route_ao msg, 'test'
 
@@ -222,9 +222,9 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao doesnt complete country or carrier if mobile number is missing" do
-    app = Application.make
+    app = Application.make!
 
-    msg = AoMessage.make_unsaved :to => 'sms://+5678'
+    msg = AoMessage.make :to => 'sms://+5678'
 
     app.route_ao msg, 'test'
 
@@ -233,12 +233,12 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao filter channel because of country" do
-    app = Application.make
+    app = Application.make!
 
-    msg = AoMessage.make_unsaved
+    msg = AoMessage.make
     msg.custom_attributes['country'] = 'br'
 
-    chan1 = QstServerChannel.make_unsaved :account_id => app.account_id
+    chan1 = QstServerChannel.make :account_id => app.account_id
     chan1.restrictions['country'] = 'ar'
     chan1.save!
 
@@ -248,12 +248,12 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao filter channel because of country 2" do
-    app = Application.make
+    app = Application.make!
 
-    msg = AoMessage.make_unsaved
+    msg = AoMessage.make
     msg.custom_attributes['country'] = ['br', 'bz']
 
-    chan1 = QstServerChannel.make_unsaved :account_id => app.account_id
+    chan1 = QstServerChannel.make :account_id => app.account_id
     chan1.restrictions['country'] = ['ar', 'br']
     chan1.save!
 
@@ -263,14 +263,14 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao filter channel because belongs to application" do
-    account = Account.make
-    app1 = account.applications.make
-    app2 = account.applications.make
+    account = Account.make!
+    app1 = account.applications.make!
+    app2 = account.applications.make!
 
-    msg = AoMessage.make_unsaved
+    msg = AoMessage.make
 
-    chan1 = QstServerChannel.make :account_id => account.id, :application => app2
-    chan2 = QstServerChannel.make :account_id => account.id
+    chan1 = QstServerChannel.make! :account_id => account.id, :application => app2
+    chan2 = QstServerChannel.make! :account_id => account.id
 
     app1.route_ao msg, 'test'
 
@@ -279,11 +279,11 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao test filter when empty value passes" do
-    app = Application.make
+    app = Application.make!
 
-    msg = AoMessage.make_unsaved
+    msg = AoMessage.make
 
-    chan1 = QstServerChannel.make_unsaved :account_id => app.account_id
+    chan1 = QstServerChannel.make :account_id => app.account_id
     chan1.restrictions['country'] = ['ar', '']
     chan1.save!
 
@@ -293,11 +293,11 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao test filter when empty value does not pass" do
-    app = Application.make
+    app = Application.make!
 
-    msg = AoMessage.make_unsaved
+    msg = AoMessage.make
 
-    chan1 = QstServerChannel.make_unsaved :account_id => app.account_id
+    chan1 = QstServerChannel.make :account_id => app.account_id
     chan1.restrictions['country'] = ['ar']
     chan1.save!
 
@@ -307,12 +307,12 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao use last channel" do
-    app = Application.make
+    app = Application.make!
 
-    chan1 = QstServerChannel.make :account_id => app.account_id
-    chan2 = QstServerChannel.make :account_id => app.account_id, :priority => chan1.priority + 10
+    chan1 = QstServerChannel.make! :account_id => app.account_id
+    chan2 = QstServerChannel.make! :account_id => app.account_id, :priority => chan1.priority + 10
 
-    msg = AoMessage.make_unsaved :to => 'sms://+5678'
+    msg = AoMessage.make :to => 'sms://+5678'
 
     AddressSource.create! :account_id => app.account.id, :application_id => app.id, :channel_id => chan2.id, :address => msg.to
 
@@ -322,13 +322,13 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao use last recent channel" do
-    app = Application.make
+    app = Application.make!
 
-    chan1 = QstServerChannel.make :account_id => app.account_id
-    chan2 = QstServerChannel.make :account_id => app.account_id,  :priority => chan1.priority + 10
-    chan3 = QstServerChannel.make :account_id => app.account_id,  :priority => chan1.priority + 20
+    chan1 = QstServerChannel.make! :account_id => app.account_id
+    chan2 = QstServerChannel.make! :account_id => app.account_id,  :priority => chan1.priority + 10
+    chan3 = QstServerChannel.make! :account_id => app.account_id,  :priority => chan1.priority + 20
 
-    msg = AoMessage.make_unsaved :to => 'sms://+5678'
+    msg = AoMessage.make :to => 'sms://+5678'
 
     app.account.address_sources.create! :application_id => app.id, :channel_id => chan1.id, :address => msg.to, :updated_at => (Time.now - 10)
     app.account.address_sources.create! :application_id => app.id, :channel_id => chan3.id, :address => msg.to
@@ -339,13 +339,13 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao use last recent channel that is a candidate" do
-    app = Application.make
+    app = Application.make!
 
-    chan1 = QstServerChannel.make :account_id => app.account_id
-    chan2 = QstServerChannel.make :account_id => app.account_id,  :priority => chan1.priority + 10
-    chan3 = QstServerChannel.make :account_id => app.account_id,  :priority => chan1.priority + 20, :enabled => false
+    chan1 = QstServerChannel.make! :account_id => app.account_id
+    chan2 = QstServerChannel.make! :account_id => app.account_id,  :priority => chan1.priority + 10
+    chan3 = QstServerChannel.make! :account_id => app.account_id,  :priority => chan1.priority + 20, :enabled => false
 
-    msg = AoMessage.make_unsaved :to => 'sms://+5678'
+    msg = AoMessage.make :to => 'sms://+5678'
 
     app.account.address_sources.create! :application_id => app.id, :channel_id => chan1.id, :address => msg.to, :updated_at => (Time.now - 10)
     app.account.address_sources.create! :application_id => app.id, :channel_id => chan3.id, :address => msg.to
@@ -356,11 +356,11 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao use suggested channel" do
-    app = Application.make
-    chan1 = QstServerChannel.make :account_id => app.account_id
-    chan2 = QstServerChannel.make :account_id => app.account_id,  :priority => chan1.priority + 10
+    app = Application.make!
+    chan1 = QstServerChannel.make! :account_id => app.account_id
+    chan2 = QstServerChannel.make! :account_id => app.account_id,  :priority => chan1.priority + 10
 
-    msg = AoMessage.make_unsaved
+    msg = AoMessage.make
     msg.suggested_channel = chan2.name
     app.route_ao msg, 'test'
 
@@ -368,23 +368,23 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao infer country" do
-    app = Application.make
-    chan = QstServerChannel.make :account_id => app.account_id
-    country = Country.make
+    app = Application.make!
+    chan = QstServerChannel.make! :account_id => app.account_id
+    country = Country.make!
 
-    msg = AoMessage.make_unsaved :to => "sms://+#{country.phone_prefix}1234"
+    msg = AoMessage.make :to => "sms://+#{country.phone_prefix}1234"
     app.route_ao msg, 'test'
 
     assert_equal country.iso2, msg.country
   end
 
   test "route ao broadcast" do
-    app = Application.make :broadcast
+    app = Application.make! :broadcast
 
-    2.times { QstServerChannel.make(:account_id => app.account_id) }
+    2.times { QstServerChannel.make!(:account_id => app.account_id) }
     chans = app.account.channels
 
-    msg = AoMessage.make_unsaved
+    msg = AoMessage.make
     app.route_ao msg, 'test'
 
     assert_nil msg.channel
@@ -402,11 +402,11 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao broadcast override" do
-    app = Application.make
+    app = Application.make!
 
-    chans = [QstServerChannel.make(:account_id => app.account_id), QstServerChannel.make(:account_id => app.account_id)]
+    chans = [QstServerChannel.make!(:account_id => app.account_id), QstServerChannel.make!(:account_id => app.account_id)]
 
-    msg = AoMessage.make_unsaved
+    msg = AoMessage.make
     msg.strategy = 'broadcast'
     app.route_ao msg, 'test'
 
@@ -414,7 +414,7 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "application at rules" do
-    app = Application.make
+    app = Application.make!
     app.at_rules = [
       rule([
         matching('from', OP_EQUALS, 'sms://1')
@@ -422,9 +422,9 @@ class ApplicationTest < ActiveSupport::TestCase
         action('from','sms://2')
       ])
     ]
-    chan = QstServerChannel.make :account_id => app.account_id
+    chan = QstServerChannel.make! :account_id => app.account_id
 
-    msg = app.account.at_messages.make_unsaved :from => 'sms://1'
+    msg = app.account.at_messages.make :from => 'sms://1'
 
     app.route_at msg, chan
 
@@ -432,7 +432,7 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "application at rules cancels message" do
-    app = Application.make
+    app = Application.make!
     app.interface = 'http_get_callback'
     app.at_rules = [
       rule([
@@ -441,9 +441,9 @@ class ApplicationTest < ActiveSupport::TestCase
         action('cancel','true')
       ])
     ]
-    chan = QstServerChannel.make :account_id => app.account_id
+    chan = QstServerChannel.make! :account_id => app.account_id
 
-    msg = app.account.at_messages.make_unsaved :from => 'sms://1'
+    msg = app.account.at_messages.make :from => 'sms://1'
 
     Queues.expects(:publish_application).never
 
@@ -455,10 +455,10 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao failover" do
-    app = Application.make
-    chans = 3.times.map {|i| QstServerChannel.make :account_id => app.account_id,  :priority => i }
+    app = Application.make!
+    chans = 3.times.map {|i| QstServerChannel.make! :account_id => app.account_id,  :priority => i }
     ids = chans.map &:id
-    msg = app.account.ao_messages.make_unsaved
+    msg = app.account.ao_messages.make
     app.route_ao msg, 'test'
 
     assert_equal 'queued', msg.state
@@ -500,7 +500,7 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao rules cancels message" do
-    app = Application.make
+    app = Application.make!
     app.ao_rules = [
         rule([
           matching('from', OP_EQUALS, 'sms://1')
@@ -508,7 +508,7 @@ class ApplicationTest < ActiveSupport::TestCase
           action('cancel', "true")
         ])
     ]
-    msg = app.account.ao_messages.make_unsaved :from => 'sms://1'
+    msg = app.account.ao_messages.make :from => 'sms://1'
     app.route_ao msg, 'test'
 
     assert_equal 'canceled', msg.state
@@ -517,8 +517,8 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao failover resets to original before rerouting" do
-    app = Application.make
-    chans = 2.times.map {|i| QstServerChannel.make_unsaved :account_id => app.account_id, :priority => i }
+    app = Application.make!
+    chans = 2.times.map {|i| QstServerChannel.make :account_id => app.account_id, :priority => i }
     chans.each_with_index do |chan, i|
       chan.ao_rules = [
         rule([
@@ -530,7 +530,7 @@ class ApplicationTest < ActiveSupport::TestCase
     end
     chans.each &:'save!'
 
-    msg = app.account.ao_messages.make_unsaved :from => 'sms://1'
+    msg = app.account.ao_messages.make :from => 'sms://1'
     app.route_ao msg, 'test'
 
     msg.reload
@@ -548,8 +548,8 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao failover resets to original before rerouting using custom attributes" do
-    app = Application.make
-    chans = 2.times.map {|i| QstServerChannel.make_unsaved :account_id => app.account_id, :priority => i }
+    app = Application.make!
+    chans = 2.times.map {|i| QstServerChannel.make :account_id => app.account_id, :priority => i }
     chans[0].ao_rules = [
       rule([
         matching('cust', OP_EQUALS, 'foo')
@@ -566,7 +566,7 @@ class ApplicationTest < ActiveSupport::TestCase
     ]
     chans.each &:'save!'
 
-    msg = app.account.ao_messages.make_unsaved :from => 'sms://1'
+    msg = app.account.ao_messages.make :from => 'sms://1'
     msg.custom_attributes['cust'] = 'foo'
     app.route_ao msg, 'test'
 
@@ -585,10 +585,10 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "route ao assigns cost" do
-    app = Application.make
-    chan = QstServerChannel.make :account_id => app.account_id, :ao_cost => 1.2
+    app = Application.make!
+    chan = QstServerChannel.make! :account_id => app.account_id, :ao_cost => 1.2
 
-    msg = app.account.ao_messages.make_unsaved
+    msg = app.account.ao_messages.make
     app.route_ao msg, 'test'
 
     msg.reload
@@ -597,24 +597,24 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "should not create if password is blank" do
-    app = Application.make_unsaved
+    app = Application.make
     app.password = app.password_confirmation = ''
     assert_false app.save
   end
 
   test "should not save if password confirmation is wrong" do
-    app = Application.make password: 'foo'
+    app = Application.make! password: 'foo'
     app.password_confirmation = 'foo2'
     assert_false app.save
   end
 
   test "should authenticate" do
-    app = Application.make password: 'foo', password_confirmation: 'foo'
+    app = Application.make! password: 'foo', password_confirmation: 'foo'
     assert app.authenticate('foo')
   end
 
   test "should keep old password if save with blank password" do
-    app = Application.make password: 'foo', password_confirmation: 'foo'
+    app = Application.make! password: 'foo', password_confirmation: 'foo'
     app.password = app.password_confirmation = ''
     app.save!
 
@@ -624,7 +624,7 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "should rehash password after password changed" do
-    app = Application.make password: 'foo', password_confirmation: 'foo'
+    app = Application.make! password: 'foo', password_confirmation: 'foo'
     app.password = app.password_confirmation = 'foo2'
     app.save!
 
@@ -634,8 +634,8 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "should update application lifespan when created" do
-    account = Account.make
-    application = Application.make_unsaved account: account
+    account = Account.make!
+    application = Application.make account: account
 
     Telemetry::Lifespan.expects(:touch_application).with(application)
 
@@ -643,7 +643,7 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "should update application lifespan when updated" do
-    application = Application.make
+    application = Application.make!
 
     Telemetry::Lifespan.expects(:touch_application).with(application)
 
@@ -652,7 +652,7 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "should update application lifespan when destroyed" do
-    application = Application.make
+    application = Application.make!
 
     Telemetry::Lifespan.expects(:touch_application).with(application)
 
@@ -660,8 +660,8 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when created" do
-    account = Account.make
-    application = Application.make_unsaved account: account
+    account = Account.make!
+    application = Application.make account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 
@@ -669,8 +669,8 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when updated" do
-    account = Account.make
-    application = Application.make account: account
+    account = Account.make!
+    application = Application.make! account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 
@@ -679,8 +679,8 @@ class ApplicationTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when destroyed" do
-    account = Account.make
-    application = Application.make account: account
+    account = Account.make!
+    application = Application.make! account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 

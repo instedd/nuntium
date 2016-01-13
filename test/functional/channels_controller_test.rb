@@ -19,13 +19,13 @@ require 'test_helper'
 
 class ChannelsControllerTest < ActionController::TestCase
   def setup
-    @user = User.make
-    @account = @user.create_account Account.make_unsaved
+    @user = User.make!
+    @account = @user.create_account Account.make
     sign_in @user
   end
 
   test "create qst server channel succeeds" do
-    attrs = QstServerChannel.make_unsaved.attributes.merge(:kind => 'qst_server')
+    attrs = QstServerChannel.make.attributes.merge(:kind => 'qst_server')
 
     post :create, :channel => attrs
 
@@ -46,7 +46,7 @@ class ChannelsControllerTest < ActionController::TestCase
   end
 
   test "edit channel change password succeeds" do
-    chan = QstServerChannel.make :account => @account
+    chan = QstServerChannel.make! :account => @account
 
     put :update, :id => chan.id, :channel => {:protocol => 'sms', :direction => Channel::Bidirectional, :configuration => {:password => 'new_pass', :password_confirmation => 'new_pass'}}
 
@@ -62,9 +62,9 @@ class ChannelsControllerTest < ActionController::TestCase
   end
 
   test "edit qst server channel succeeds" do
-    app1 = Application.make :account => @account
-    app2 = Application.make :account => @account
-    chan = QstServerChannel.make_unsaved :account => @account, :priority => 100, :application_id => app1.id
+    app1 = Application.make! :account => @account
+    app2 = Application.make! :account => @account
+    chan = QstServerChannel.make :account => @account, :priority => 100, :application_id => app1.id
     chan.configuration[:password] = 'chan_pass'
     chan.configuration[:password_confirmation] = 'chan_pass'
     chan.configuration.delete :salt
@@ -89,7 +89,7 @@ class ChannelsControllerTest < ActionController::TestCase
   end
 
   test "delete channel" do
-    chan = QstServerChannel.make :account => @account
+    chan = QstServerChannel.make! :account => @account
 
     delete :destroy, :id => chan.id
 
@@ -103,7 +103,7 @@ class ChannelsControllerTest < ActionController::TestCase
   end
 
   test "edit channel fails protocol empty" do
-    chan = QstServerChannel.make :account => @account
+    chan = QstServerChannel.make! :account => @account
 
     put :update, :id => chan.id, :channel => {:protocol => '', :direction => Channel::Bidirectional, :configuration => {:password => '', :password_confirmation => ''}}
 
@@ -111,7 +111,7 @@ class ChannelsControllerTest < ActionController::TestCase
   end
 
   test "enable channel" do
-    chan = QstServerChannel.make :account => @account, :enabled => false
+    chan = QstServerChannel.make! :account => @account, :enabled => false
 
     get :enable, :id => chan.id
 
@@ -125,11 +125,11 @@ class ChannelsControllerTest < ActionController::TestCase
   end
 
   test "disable channel re-routes" do
-    chan1 = QstServerChannel.make :account => @account
-    chan2 = QstServerChannel.make :account => @account
+    chan1 = QstServerChannel.make! :account => @account
+    chan2 = QstServerChannel.make! :account => @account
 
-    app = Application.make :account => @account
-    msg = AoMessage.make :account => @account, :application => app, :channel => chan1, :state => 'queued'
+    app = Application.make! :account => @account
+    msg = AoMessage.make! :account => @account, :application => app, :channel => chan1, :state => 'queued'
 
     get :disable, :id => chan1.id
 
@@ -143,7 +143,7 @@ class ChannelsControllerTest < ActionController::TestCase
   end
 
   test "pause channel" do
-    chan = QstServerChannel.make :account => @account
+    chan = QstServerChannel.make! :account => @account
 
     get :pause, :id => chan.id
 
@@ -156,7 +156,7 @@ class ChannelsControllerTest < ActionController::TestCase
   end
 
   test "resume channel" do
-    chan = QstServerChannel.make :account => @account, :paused => true
+    chan = QstServerChannel.make! :account => @account, :paused => true
 
     get :resume, :id => chan.id
 

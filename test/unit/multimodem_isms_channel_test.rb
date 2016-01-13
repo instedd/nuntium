@@ -19,7 +19,7 @@ require 'test_helper'
 
 class MultimodemIsmsChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = MultimodemIsmsChannel.make
+    @chan = MultimodemIsmsChannel.make!
   end
 
   [:host, :user, :password].each do |field|

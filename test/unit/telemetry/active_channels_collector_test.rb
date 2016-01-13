@@ -25,10 +25,10 @@ class Telemetry::ActiveChannelsCollectorTest < ActiveSupport::TestCase
     @end = @now
     @period = InsteddTelemetry::Period.new beginning: @beginning, end: @end
 
-    QstServerChannel.make   last_activity_at: @end - 1.day
-    ClickatellChannel.make  last_activity_at: @end - 3.day
-    QstServerChannel.make   last_activity_at: @end + 1.day
-    ClickatellChannel.make  last_activity_at: @beginning - 1.day
+    QstServerChannel.make!   last_activity_at: @end - 1.day
+    ClickatellChannel.make!  last_activity_at: @end - 3.day
+    QstServerChannel.make!   last_activity_at: @end + 1.day
+    ClickatellChannel.make!  last_activity_at: @beginning - 1.day
   end
 
   test 'should collect active channels' do

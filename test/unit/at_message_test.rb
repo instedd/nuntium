@@ -19,7 +19,7 @@ require 'test_helper'
 
 class AtMessageTest < ActiveSupport::TestCase
   test "at rules context include common fiels and custom attributes" do
-    msg = AtMessage.make_unsaved
+    msg = AtMessage.make
     msg.custom_attributes = { "ca1" => 'e', "ca2" => 'f' }
 
     context = msg.rules_context
@@ -46,7 +46,7 @@ class AtMessageTest < ActiveSupport::TestCase
   end
 
   test "infer attributes one country" do
-    country = Country.make
+    country = Country.make!
 
     msg = AtMessage.new :from => "sms://+#{country.phone_prefix}1234"
     msg.infer_custom_attributes
@@ -66,9 +66,9 @@ class AtMessageTest < ActiveSupport::TestCase
   end
 
   test "should update application lifespan when created" do
-    application = Application.make
-    account = Account.make
-    at_message = AtMessage.make_unsaved application: application, account: account
+    application = Application.make!
+    account = Account.make!
+    at_message = AtMessage.make application: application, account: account
 
     Telemetry::Lifespan.expects(:touch_application).with(application)
 
@@ -76,9 +76,9 @@ class AtMessageTest < ActiveSupport::TestCase
   end
 
   test "should update application lifespan when updated" do
-    application = Application.make
-    account = Account.make
-    at_message = AtMessage.make application: application, account: account
+    application = Application.make!
+    account = Account.make!
+    at_message = AtMessage.make! application: application, account: account
 
     Telemetry::Lifespan.expects(:touch_application).with(application)
 
@@ -87,9 +87,9 @@ class AtMessageTest < ActiveSupport::TestCase
   end
 
   test "should update application lifespan when destroyed" do
-    application = Application.make
-    account = Account.make
-    at_message = AtMessage.make application: application, account: account
+    application = Application.make!
+    account = Account.make!
+    at_message = AtMessage.make! application: application, account: account
 
     Telemetry::Lifespan.expects(:touch_application).with(application)
 
@@ -97,8 +97,8 @@ class AtMessageTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when created" do
-    account = Account.make
-    at_message = AtMessage.make_unsaved account: account
+    account = Account.make!
+    at_message = AtMessage.make account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 
@@ -106,8 +106,8 @@ class AtMessageTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when updated" do
-    account = Account.make
-    at_message = AtMessage.make account: account
+    account = Account.make!
+    at_message = AtMessage.make! account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 
@@ -116,8 +116,8 @@ class AtMessageTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when destroyed" do
-    account = Account.make
-    at_message = AtMessage.make account: account
+    account = Account.make!
+    at_message = AtMessage.make! account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 

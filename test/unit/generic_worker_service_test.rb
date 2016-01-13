@@ -27,10 +27,10 @@ class GenericWorkerServiceTest < ActiveSupport::TestCase
     sleep 0.1 until EM.reactor_running?
 
     @@id = @@id + 1
-    @account = Account.make
+    @account = Account.make!
     @service = GenericWorkerService.new(@@id, @@working_group)
 
-    @chan = ClickatellChannel.make :account => @account
+    @chan = ClickatellChannel.make! :account => @account
 
     super
   end

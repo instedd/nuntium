@@ -19,11 +19,11 @@ require 'test_helper'
 
 class AoMessagesControllerTest < ActionController::TestCase
   def setup
-    @user = User.make
-    @account = @user.create_account Account.make_unsaved
+    @user = User.make!
+    @account = @user.create_account Account.make
     sign_in @user
-    @chan = QstServerChannel.make :account => @account
-    @application = Application.make :account => @account, :password => 'app_pass'
+    @chan = QstServerChannel.make! :account => @account
+    @application = Application.make! :account => @account, :password => 'app_pass'
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'app_pass')
   end
@@ -45,7 +45,7 @@ class AoMessagesControllerTest < ActionController::TestCase
 
   test "get ao as json matches one" do
     token = 1234
-    msg = AoMessage.make :account_id => @account.id, :application_id => @application.id, :channel_id => @chan.id, :token => token
+    msg = AoMessage.make! :account_id => @account.id, :application_id => @application.id, :channel_id => @chan.id, :token => token
     msg.country = 'ar'
     msg.save!
 

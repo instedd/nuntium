@@ -19,7 +19,7 @@ require 'test_helper'
 
 class SendDtacMessageJobTest < ActiveSupport::TestCase
   def setup
-    @chan = DtacChannel.make
+    @chan = DtacChannel.make!
   end
 
   should "perform" do
@@ -30,7 +30,7 @@ class SendDtacMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain',
       :read_body => 'Status=0')
 
-    msg = AoMessage.make :account => Account.make, :channel => @chan
+    msg = AoMessage.make! :account => Account.make!, :channel => @chan
 
     expect_http_post msg, response
     deliver msg
@@ -48,7 +48,7 @@ class SendDtacMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain',
       :read_body => 'Status=-111') # Message length too long
 
-    msg = AoMessage.make :account => Account.make, :channel => @chan
+    msg = AoMessage.make! :account => Account.make!, :channel => @chan
 
     expect_http_post msg, response
     deliver msg
@@ -73,7 +73,7 @@ class SendDtacMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain',
       :read_body => 'Status=-110') # Invalid User / Invalid Password: Not valid User or Password
 
-    msg = AoMessage.make :account => Account.make, :channel => @chan
+    msg = AoMessage.make! :account => Account.make!, :channel => @chan
 
     expect_http_post msg, response
     begin

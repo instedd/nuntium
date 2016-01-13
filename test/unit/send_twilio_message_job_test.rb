@@ -19,7 +19,7 @@ require 'test_helper'
 
 class SendTwilioMessageJobTest < ActiveSupport::TestCase
   def setup
-    @chan = TwilioChannel.make_unsaved
+    @chan = TwilioChannel.make
     def @chan.configure_phone_number
       self.incoming_password = Devise.friendly_token
       true
@@ -27,7 +27,7 @@ class SendTwilioMessageJobTest < ActiveSupport::TestCase
     @chan.save!
     @config = @chan.configuration
     stub_twilio
-    @msg = AoMessage.make :account => @chan.account, :channel => @chan, :guid => '1-2', :subject => "a subject", :body => "a body"
+    @msg = AoMessage.make! :account => @chan.account, :channel => @chan, :guid => '1-2', :subject => "a subject", :body => "a body"
   end
 
   should "perform" do
@@ -101,7 +101,7 @@ class SendTwilioMessageJobTest < ActiveSupport::TestCase
   end
 
   should "perform with long messages" do
-    long_msg = AoMessage.make :account => @chan.account, :channel => @chan, :guid => '1-2', :subject => nil, :body => ("a" * 160 + "b" * 40)
+    long_msg = AoMessage.make! :account => @chan.account, :channel => @chan, :guid => '1-2', :subject => nil, :body => ("a" * 160 + "b" * 40)
 
     # First part of the message
     response = mock('response')

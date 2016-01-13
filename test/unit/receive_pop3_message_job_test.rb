@@ -21,8 +21,8 @@ require 'yaml'
 
 class ReceivePop3MessageJobTest < ActiveSupport::TestCase
   def setup
-    @chan = Pop3Channel.make
-    @email = AtMessage.make_unsaved :email
+    @chan = Pop3Channel.make!
+    @email = AtMessage.make :email
   end
 
   should "perform no ssl" do

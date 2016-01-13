@@ -60,9 +60,8 @@ group :development do
 end
 
 group :test do
-  gem 'test-unit', :require => 'test/unit'
-  gem "mocha"
-  gem "thoughtbot-shoulda", :require => "shoulda"
+  gem 'mocha'
+  gem 'shoulda'
   gem 'ffaker'
   gem 'machinist'
   gem 'test_after_commit'

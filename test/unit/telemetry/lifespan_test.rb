@@ -31,7 +31,7 @@ class Telemetry::LifespanTest < ActiveSupport::TestCase
   end
 
   test 'updates the application lifespan' do
-    application = Application.make created_at: @from
+    application = Application.make! created_at: @from
 
     InsteddTelemetry.expects(:timespan_update).with('application_lifespan', {application_id: application.id}, application.created_at, @now)
 
@@ -39,7 +39,7 @@ class Telemetry::LifespanTest < ActiveSupport::TestCase
   end
 
   test 'updates the account lifespan' do
-    account = Account.make created_at: @from
+    account = Account.make! created_at: @from
 
     InsteddTelemetry.expects(:timespan_update).with('account_lifespan', {account_id: account.id}, account.created_at, @now)
 

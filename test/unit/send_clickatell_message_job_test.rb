@@ -19,7 +19,7 @@ require 'test_helper'
 
 class SendClickatellMessageJobTest < ActiveSupport::TestCase
   def setup
-    @chan = ClickatellChannel.make
+    @chan = ClickatellChannel.make!
   end
 
   should "perform" do
@@ -30,7 +30,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain',
       :body => 'ID: msgid')
 
-    msg = AoMessage.make :account => Account.make, :channel => @chan, :guid => '1-2'
+    msg = AoMessage.make! :account => Account.make!, :channel => @chan, :guid => '1-2'
 
     expect_rest msg, response
     deliver msg
@@ -49,7 +49,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain',
       :body => 'ERR: 105, Invalid destination address')
 
-    msg = AoMessage.make :account => Account.make, :channel => @chan
+    msg = AoMessage.make! :account => Account.make!, :channel => @chan
 
     expect_rest msg, response
     deliver msg
@@ -74,7 +74,7 @@ class SendClickatellMessageJobTest < ActiveSupport::TestCase
       :content_type => 'text/plain',
       :body => 'ERR: 002, Unknown username or password')
 
-    msg = AoMessage.make :account => Account.make, :channel => @chan
+    msg = AoMessage.make! :account => Account.make!, :channel => @chan
 
     expect_rest msg, response
     begin

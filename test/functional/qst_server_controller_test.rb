@@ -19,22 +19,22 @@ require 'test_helper'
 
 class QstServerControllerTest < ActionController::TestCase
   def setup
-    @account = Account.make :password
-    @chan = QstServerChannel.make_unsaved :account => @account
+    @account = Account.make!
+    @chan = QstServerChannel.make :account => @account
     @chan.password = 'chan_pass'
     @chan.password_confirmation = 'chan_pass'
     @chan.configuration.delete :salt
     @chan.save!
 
-    @application1 = Application.make :account => @account
+    @application1 = Application.make! :account => @account
 
     # This is so that we have another channel but the one we are looking for is used
-    QstServerChannel.make :account => @account
+    QstServerChannel.make! :account => @account
 
     # This is to see that this doesn't interfere with the test
-    @account2 = Account.make
-    @chan2 = QstServerChannel.make :account => @account2
-    @application2 = Application.make :account => @account2
+    @account2 = Account.make!
+    @chan2 = QstServerChannel.make! :account => @account2
+    @application2 = Application.make! :account => @account2
   end
 
   test "set address" do
@@ -153,7 +153,7 @@ class QstServerControllerTest < ActionController::TestCase
   end
 
   def create_qst_ao(account, channel)
-    msg = AoMessage.make :account => account, :channel => channel, :state => 'queued'
+    msg = AoMessage.make! :account => account, :channel => channel, :state => 'queued'
     QstOutgoingMessage.create! :channel => channel, :ao_message_id => msg.id
     msg
   end
@@ -196,7 +196,7 @@ class QstServerControllerTest < ActionController::TestCase
   end
 
   test "get one with custom properties" do
-    msg = AoMessage.make_unsaved :account => @account
+    msg = AoMessage.make :account => @account
     msg.custom_attributes['foo1'] = 'bar1'
     msg.custom_attributes['foo2'] = 'bar2'
     msg.save!
@@ -211,7 +211,7 @@ class QstServerControllerTest < ActionController::TestCase
   end
 
   test "get one not unread" do
-    AoMessage.make :account => @account
+    AoMessage.make! :account => @account
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
     get :pull, :account_id => @account.name
@@ -330,7 +330,7 @@ class QstServerControllerTest < ActionController::TestCase
 
   test "should skip failed messages" do
     10.times do |i|
-      msg = AoMessage.make :account => @account, :tries => 4
+      msg = AoMessage.make! :account => @account, :tries => 4
       QstOutgoingMessage.create! :channel => @chan, :ao_message_id => msg.id
     end
 

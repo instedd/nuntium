@@ -19,11 +19,11 @@ require 'test_helper'
 
 class ClickatellControllerTest < ActionController::TestCase
   def setup
-    @user = User.make
-    @account = @user.create_account Account.make_unsaved
+    @user = User.make!
+    @account = @user.create_account Account.make
     sign_in @user
-    @application = Application.make :account => @account, :password => 'secret'
-    @chan = ClickatellChannel.make_unsaved :account => @account
+    @application = Application.make! :account => @account, :password => 'secret'
+    @chan = ClickatellChannel.make :account => @account
     @chan.configuration[:incoming_password] = 'incoming'
     @chan.save!
   end
@@ -115,7 +115,7 @@ class ClickatellControllerTest < ActionController::TestCase
   end
 
   test "ack 003 (delivered to gateway)" do
-    @msg = AoMessage.make :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'foo'
+    @msg = AoMessage.make! :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'foo'
 
     charge = 0.3
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])
@@ -128,7 +128,7 @@ class ClickatellControllerTest < ActionController::TestCase
   end
 
   test "ack 004 (received by recipient)" do
-    @msg = AoMessage.make :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'foo'
+    @msg = AoMessage.make! :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'foo'
 
     charge = 0.3
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])
@@ -142,7 +142,7 @@ class ClickatellControllerTest < ActionController::TestCase
 
   ['005', '006', '007', '012'].each do |status|
     test "ack #{status} (failed)" do
-      @msg = AoMessage.make :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'foo'
+      @msg = AoMessage.make! :account => @account, :channel => @chan, :state => 'delivered', :channel_relative_id => 'foo'
 
       charge = 0.3
       @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, @chan.configuration[:incoming_password])

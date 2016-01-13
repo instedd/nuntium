@@ -20,8 +20,8 @@ require 'test_helper'
 class ApiTwitterChannelControllerTest < ActionController::TestCase
   [nil, false, true].each do |follow|
     test "account authenticated with follow #{follow}" do
-      @account = Account.make :password => 'secret'
-      @channel = TwitterChannel.make :account => @account
+      @account = Account.make! :password => 'secret'
+      @channel = TwitterChannel.make! :account => @account
 
       client = mock('client')
       client.expects(:follow).with('foo', follow: follow.to_b)
@@ -36,9 +36,9 @@ class ApiTwitterChannelControllerTest < ActionController::TestCase
   end
 
   test "application authenticated" do
-    @account = Account.make :password => 'secret'
-    @application = Application.make :account => @account, :password => 'secret2'
-    @channel = TwitterChannel.make :account => @account, :application => @application
+    @account = Account.make! :password => 'secret'
+    @application = Application.make! :account => @account, :password => 'secret2'
+    @channel = TwitterChannel.make! :account => @account, :application => @application
 
     client = mock('client')
     client.expects(:follow).with('foo', follow: false)
@@ -52,9 +52,9 @@ class ApiTwitterChannelControllerTest < ActionController::TestCase
   end
 
   test "application authenticated can't access account channel" do
-    @account = Account.make :password => 'secret'
-    @application = Application.make :account => @account, :password => 'secret2'
-    @channel = TwitterChannel.make :account => @account
+    @account = Account.make! :password => 'secret'
+    @application = Application.make! :account => @account, :password => 'secret2'
+    @channel = TwitterChannel.make! :account => @account
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'secret2')
     get :friendship_create, :name => @channel.name, :user => 'foo'
@@ -63,7 +63,7 @@ class ApiTwitterChannelControllerTest < ActionController::TestCase
   end
 
   test "channel not found" do
-    @account = Account.make :password => 'secret'
+    @account = Account.make! :password => 'secret'
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@account.name, 'secret')
     get :friendship_create, :name => 'not_exists', :user => 'foo'
@@ -72,8 +72,8 @@ class ApiTwitterChannelControllerTest < ActionController::TestCase
   end
 
   test "channel not twitter" do
-    @account = Account.make :password => 'secret'
-    @channel = QstServerChannel.make :account => @account
+    @account = Account.make! :password => 'secret'
+    @channel = QstServerChannel.make! :account => @account
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth(@account.name, 'secret')
     get :friendship_create, :name => @channel.name, :user => 'foo'

@@ -19,8 +19,8 @@ require 'test_helper'
 
 class UserApplicationTest < ActiveSupport::TestCase
   test "should update application lifespan when created" do
-    application = Application.make
-    user_application = UserApplication.make_unsaved application: application
+    application = Application.make!
+    user_application = UserApplication.make application: application
 
     Telemetry::Lifespan.expects(:touch_application).with(application)
 
@@ -28,8 +28,8 @@ class UserApplicationTest < ActiveSupport::TestCase
   end
 
   test "should update application lifespan when updated" do
-    application = Application.make
-    user_application = UserApplication.make application: application
+    application = Application.make!
+    user_application = UserApplication.make! application: application
 
     Telemetry::Lifespan.expects(:touch_application).with(application)
 
@@ -38,8 +38,8 @@ class UserApplicationTest < ActiveSupport::TestCase
   end
 
   test "should update application lifespan when destroyed" do
-    application = Application.make
-    user_application = UserApplication.make application: application
+    application = Application.make!
+    user_application = UserApplication.make! application: application
 
     Telemetry::Lifespan.expects(:touch_application).with(application)
 
@@ -47,8 +47,8 @@ class UserApplicationTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when created" do
-    account = Account.make
-    user_application = UserApplication.make_unsaved account: account
+    account = Account.make!
+    user_application = UserApplication.make account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 
@@ -56,8 +56,8 @@ class UserApplicationTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when updated" do
-    account = Account.make
-    user_application = UserApplication.make account: account
+    account = Account.make!
+    user_application = UserApplication.make! account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 
@@ -66,8 +66,8 @@ class UserApplicationTest < ActiveSupport::TestCase
   end
 
   test "should update account lifespan when destroyed" do
-    account = Account.make
-    user_application = UserApplication.make account: account
+    account = Account.make!
+    user_application = UserApplication.make! account: account
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 

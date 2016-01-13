@@ -22,14 +22,14 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
   include RulesEngine
 
   def setup
-    @app = Application.make
+    @app = Application.make!
     @account = @app.account
-    @channel = QstServerChannel.make
+    @channel = QstServerChannel.make!
   end
 
   [false, true].each do |simulate|
     test "message received via channel simulate = #{simulate}" do
-      @msg = AtMessage.make_unsaved
+      @msg = AtMessage.make
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate
@@ -41,7 +41,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
       @channel.application = @app
       @channel.save!
 
-      @msg = AtMessage.make_unsaved
+      @msg = AtMessage.make
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate
@@ -55,7 +55,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
       ]
       @channel.save!
 
-      @msg = AtMessage.make_unsaved :from => 'sms://1234'
+      @msg = AtMessage.make :from => 'sms://1234'
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate
@@ -70,7 +70,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
       ]
       @channel.save!
 
-      @msg = AtMessage.make_unsaved :from => 'sms://1234'
+      @msg = AtMessage.make :from => 'sms://1234'
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate
@@ -85,7 +85,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
       ]
       @app.save!
 
-      @msg = AtMessage.make_unsaved :from => 'sms://1234'
+      @msg = AtMessage.make :from => 'sms://1234'
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate
@@ -100,7 +100,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
       ]
       @app.save!
 
-      @msg = AtMessage.make_unsaved :from => 'sms://1234'
+      @msg = AtMessage.make :from => 'sms://1234'
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate
@@ -110,9 +110,9 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "save country mobile number information simulate = #{simulate}" do
-      country = Country.make
+      country = Country.make!
 
-      @msg = AtMessage.make_unsaved
+      @msg = AtMessage.make
       @msg.country = country.iso2
       @account.route_at @msg, @channel, :simulate => simulate
 
@@ -122,9 +122,9 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "save carrier mobile number information simulate = #{simulate}" do
-      carrier = Carrier.make
+      carrier = Carrier.make!
 
-      @msg = AtMessage.make_unsaved
+      @msg = AtMessage.make
       @msg.carrier = carrier.guid
       @account.route_at @msg, @channel, :simulate => simulate
 
@@ -134,9 +134,9 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "inferred country simulate = #{simulate}" do
-      country = Country.make
+      country = Country.make!
 
-      @msg = AtMessage.make_unsaved :from => "sms://#{country.phone_prefix}12"
+      @msg = AtMessage.make :from => "sms://#{country.phone_prefix}12"
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate
@@ -145,9 +145,9 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "inferred carrier simulate = #{simulate}" do
-      carrier = Carrier.make
+      carrier = Carrier.make!
 
-      @msg = AtMessage.make_unsaved :from => "sms://#{carrier.country.phone_prefix}#{carrier.prefixes}"
+      @msg = AtMessage.make :from => "sms://#{carrier.country.phone_prefix}#{carrier.prefixes}"
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate
@@ -156,8 +156,8 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "inferred country from mobile number simulate = #{simulate}" do
-      country = Country.make
-      @msg = AtMessage.make_unsaved :from => "sms://xx12"
+      country = Country.make!
+      @msg = AtMessage.make :from => "sms://xx12"
       MobileNumber.create! :number => @msg.from.mobile_number, :country_id => country.id
       @account.route_at @msg, @channel, :simulate => simulate
 
@@ -167,8 +167,8 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "inferred carrier from mobile number simulate = #{simulate}" do
-      carrier = Carrier.make
-      @msg = AtMessage.make_unsaved :from => "sms://xx12"
+      carrier = Carrier.make!
+      @msg = AtMessage.make :from => "sms://xx12"
       MobileNumber.create! :number => @msg.from.mobile_number, :carrier_id => carrier.id
       @account.route_at @msg, @channel, :simulate => simulate
 
@@ -180,7 +180,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     test "no application found simulate = #{simulate}" do
       @app.destroy
 
-      @msg = AtMessage.make_unsaved
+      @msg = AtMessage.make
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate
@@ -189,9 +189,9 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "no application was determined simulate = #{simulate}" do
-      app2 = @app.account.applications.make
+      app2 = @app.account.applications.make!
 
-      @msg = AtMessage.make_unsaved
+      @msg = AtMessage.make
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate
@@ -200,7 +200,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "one application simulate = #{simulate}" do
-      @msg = AtMessage.make_unsaved
+      @msg = AtMessage.make
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate
@@ -210,9 +210,9 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "account at rules simulate = #{simulate}" do
-      app2 = Application.make :account_id => @app.account_id
+      app2 = Application.make! :account_id => @app.account_id
 
-      @msg = AtMessage.make_unsaved
+      @msg = AtMessage.make
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate
@@ -221,14 +221,14 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "account at rules app not found simulate = #{simulate}" do
-      app2 = @app.account.applications.make
+      app2 = @app.account.applications.make!
 
       @account.app_routing_rules= [
           rule(nil,[action('application','foobar')])
       ]
       @account.save!
 
-      @msg = AtMessage.make_unsaved
+      @msg = AtMessage.make
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate
@@ -237,14 +237,14 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "account at rules app found simulate = #{simulate}" do
-      app2 = @app.account.applications.make
+      app2 = @app.account.applications.make!
 
       @account.app_routing_rules= [
           rule(nil,[action('application',@app.name)])
       ]
       @account.save!
 
-      @msg = AtMessage.make_unsaved
+      @msg = AtMessage.make
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate
@@ -254,7 +254,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "address source created simulate = #{simulate}" do
-      @msg = AtMessage.make_unsaved
+      @msg = AtMessage.make
 
       @account.address_sources.create! :application_id => @app.id, :address => @msg.from, :channel_id => @channel.id
 
@@ -266,7 +266,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "address source updated simulate = #{simulate}" do
-      @msg = AtMessage.make_unsaved
+      @msg = AtMessage.make
       @account.route_at @msg, @channel, :simulate => simulate
 
       @log = check_log :simulate => simulate

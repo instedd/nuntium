@@ -19,7 +19,7 @@ require 'test_helper'
 
 class IpopChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = IpopChannel.make
+    @chan = IpopChannel.make!
   end
 
   include GenericChannelTest
