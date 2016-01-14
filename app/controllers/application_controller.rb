@@ -55,7 +55,7 @@ class ApplicationController < ActionController::Base
                 channel.attributes = params[:channel] if params[:channel]
                 channel
               elsif params[:channel]
-                params[:channel][:kind].to_channel.new params[:channel]
+                params[:channel][:kind].to_channel.new params[:channel].except(:kind)
               elsif params[:kind]
                 params[:kind].to_channel.new
               else

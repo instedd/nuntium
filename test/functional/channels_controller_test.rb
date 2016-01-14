@@ -25,7 +25,7 @@ class ChannelsControllerTest < ActionController::TestCase
   end
 
   test "create qst server channel succeeds" do
-    attrs = QstServerChannel.make.attributes.merge(:kind => 'qst_server')
+    attrs = QstServerChannel.make.attributes.merge('kind' => 'qst_server')
 
     post :create, :channel => attrs
 
