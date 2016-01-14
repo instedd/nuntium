@@ -140,7 +140,7 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
     sjobs = ScheduledJob.all
     assert_equal 1, sjobs.length
 
-    republish = sjobs.first.job.deserialize_job
+    republish = sjobs.first.job
     assert_true republish.kind_of?(RepublishApplicationJob)
     assert_equal @application.id, republish.application_id
 
