@@ -121,7 +121,7 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     sjobs = ScheduledJob.all
     assert_equal 1, sjobs.length
 
-    republish = sjobs.first.job.deserialize_job
+    republish = sjobs.first.job
     assert_true republish.kind_of?(RepublishAtJob)
     assert_equal @application.id, republish.application_id
     assert_equal @msg.id, republish.message_id

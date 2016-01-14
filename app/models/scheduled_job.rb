@@ -16,19 +16,13 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class ScheduledJob < ActiveRecord::Base
-  before_save :serialize_job
+  serialize :job
 
   def self.due_to_run
     where('run_at <= ?', Time.now.utc).all
   end
 
   def perform
-    self.job.deserialize_job.perform
-  end
-
-  private
-
-  def serialize_job
-    self.job = self.job.to_yaml
+    self.job.perform
   end
 end
