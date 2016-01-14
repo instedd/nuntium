@@ -137,7 +137,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "create #{format} channel succeeds" do
-      chan = QstServerChannel.make :qst_client, :enabled => false
+      chan = QstServerChannel.make :enabled => false
       chan.restrictions['foo'] = ['a', 'b', 'c']
       chan.restrictions['bar'] = 'baz'
 
@@ -156,7 +156,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "create #{format} channel with at_rules and ao_rules succeeds" do
-      chan = QstServerChannel.make :qst_client, :enabled => false
+      chan = QstServerChannel.make :enabled => false
       chan.ao_rules = [
         RulesEngine.rule([
           RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1')
@@ -198,7 +198,7 @@ class ApiChannelControllerTest < ActionController::TestCase
 
     test "create #{format} channel with using ticket succeeds and complete ticket" do
       ticket = Ticket.make! :pending, :data => { :address => '8346-2355' }
-      chan = QstServerChannel.make :qst_server, :enabled => false, :ticket_code => ticket.code, :ticket_message => 'Phone plugged to app'
+      chan = QstServerChannel.make :enabled => false, :ticket_code => ticket.code, :ticket_message => 'Phone plugged to app'
 
       create chan, format
 
@@ -223,7 +223,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "create #{format} channel fails missing name" do
-      chan = QstServerChannel.make :qst_server, :name => nil
+      chan = QstServerChannel.make :name => nil
 
       before_count = Channel.all.length
       create chan, format, :bad_request
@@ -242,7 +242,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "create #{format} channel fails missing password" do
-      chan = QstServerChannel.make :qst_server, :name => 'coco'
+      chan = QstServerChannel.make :name => 'coco'
       chan.password = nil
 
       before_count = Channel.all.length
@@ -251,7 +251,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "create #{format} channel using invalid ticket fails" do
-      chan = QstServerChannel.make :qst_server, :ticket_code => 'wrong-ticket'
+      chan = QstServerChannel.make :ticket_code => 'wrong-ticket'
 
       before_count = Channel.all.length
       create chan, format, :bad_request
@@ -281,7 +281,7 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "update #{format} channel configuration succeeds" do
-      chan = QstServerChannel.make! :qst_client, :account => @account, :application => @application
+      chan = QstServerChannel.make! :account => @account, :application => @application
       update chan.name, Channel.new(:configuration => {:url => 'x', :user => 'y', :password => 'z'}), format
       chan.reload
 
@@ -298,9 +298,9 @@ class ApiChannelControllerTest < ActionController::TestCase
     end
 
     test "update #{format} channel can override completely rules" do
-      chan = QstServerChannel.make! :qst_client, { :account => @account, :application => @application, :enabled => false,
+      chan = QstServerChannel.make! :account => @account, :application => @application, :enabled => false,
           :ao_rules => [RulesEngine.rule([],[RulesEngine.action('from','sms://3')])],
-          :at_rules => [RulesEngine.rule([],[RulesEngine.action('from','sms://6')])] }
+          :at_rules => [RulesEngine.rule([],[RulesEngine.action('from','sms://6')])]
 
       to_update = Channel.new(:enabled => true)
       to_update.ao_rules = [
@@ -347,7 +347,7 @@ class ApiChannelControllerTest < ActionController::TestCase
 
     #
     test "update #{format} channel avoid touching rules if not specified" do
-      chan = QstServerChannel.make! :qst_client, :account => @account, :application => @application, :enabled => false
+      chan = QstServerChannel.make! :account => @account, :application => @application, :enabled => false
       chan.ao_rules = [
         RulesEngine.rule([
           RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1')
