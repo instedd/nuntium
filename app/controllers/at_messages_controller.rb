@@ -84,7 +84,7 @@ class AtMessagesController < ApplicationController
 
     flash[:notice] = "#{messages.length} Application Terminated messages #{messages.length == 1 ? 'was' : 'were'} marked as cancelled"
     params[:action] = :index
-    redirect_to params
+    redirect_to params.to_hash
   end
 
   def rgviz
