@@ -23,8 +23,8 @@ class ApplicationTest < ActiveSupport::TestCase
 
   test "check modified" do
     app = Application.make!
-    chan1 = QstServerChannel.make! :account_id => app.account_id
-    chan2 = QstServerChannel.make! :account_id => app.account_id, :priority => chan1.priority - 10
+    chan1 = QstServerChannel.make! :account => app.account
+    chan2 = QstServerChannel.make! :account => app.account, :priority => chan1.priority - 10
 
     msg = AoMessage.make
     app.route_ao msg, 'test'
@@ -81,7 +81,7 @@ class ApplicationTest < ActiveSupport::TestCase
           j.message_id == msg.id
       end
 
-      app.route_at msg, QstServerChannel.make!(:account_id => app.account_id)
+      app.route_at msg, QstServerChannel.make!(:account => app.account)
     end
   end
 
@@ -110,8 +110,8 @@ class ApplicationTest < ActiveSupport::TestCase
   test "route select channel based on protocol" do
     app = Application.make!
 
-    chan1 = QstServerChannel.make! :account_id => app.account_id, :protocol => 'protocol'
-    chan2 = QstServerChannel.make! :account_id => app.account_id, :protocol => 'protocol2'
+    chan1 = QstServerChannel.make! :account => app.account, :protocol => 'protocol'
+    chan2 = QstServerChannel.make! :account => app.account, :protocol => 'protocol2'
 
     msg = AoMessage.make :to => 'protocol2://Someone else'
     app.route_ao msg, 'test'
@@ -122,8 +122,8 @@ class ApplicationTest < ActiveSupport::TestCase
   test "candidate channels" do
     app = Application.make!
 
-    chan1 = QstServerChannel.make! :account_id => app.account_id, :protocol => 'protocol'
-    chan2 = QstServerChannel.make! :account_id => app.account_id, :protocol => 'protocol2'
+    chan1 = QstServerChannel.make! :account => app.account, :protocol => 'protocol'
+    chan2 = QstServerChannel.make! :account => app.account, :protocol => 'protocol2'
 
     msg = AoMessage.make :to => 'protocol2://Someone else'
     channels = app.candidate_channels_for_ao msg
@@ -134,8 +134,8 @@ class ApplicationTest < ActiveSupport::TestCase
   test "candidate channels ordered by priority" do
     app = Application.make!
 
-    chan1 = QstServerChannel.make! :account_id => app.account_id, :protocol => 'protocol', :priority => 2
-    chan2 = QstServerChannel.make! :account_id => app.account_id, :protocol => 'protocol', :priority => 1
+    chan1 = QstServerChannel.make! :account => app.account, :protocol => 'protocol', :priority => 2
+    chan2 = QstServerChannel.make! :account => app.account, :protocol => 'protocol', :priority => 1
 
     msg = AoMessage.make :to => 'protocol://Someone else'
     channels = app.candidate_channels_for_ao msg
@@ -238,7 +238,7 @@ class ApplicationTest < ActiveSupport::TestCase
     msg = AoMessage.make
     msg.custom_attributes['country'] = 'br'
 
-    chan1 = QstServerChannel.make :account_id => app.account_id
+    chan1 = QstServerChannel.make :account => app.account
     chan1.restrictions['country'] = 'ar'
     chan1.save!
 
@@ -253,7 +253,7 @@ class ApplicationTest < ActiveSupport::TestCase
     msg = AoMessage.make
     msg.custom_attributes['country'] = ['br', 'bz']
 
-    chan1 = QstServerChannel.make :account_id => app.account_id
+    chan1 = QstServerChannel.make :account => app.account
     chan1.restrictions['country'] = ['ar', 'br']
     chan1.save!
 
@@ -264,13 +264,13 @@ class ApplicationTest < ActiveSupport::TestCase
 
   test "route ao filter channel because belongs to application" do
     account = Account.make!
-    app1 = account.applications.make!
-    app2 = account.applications.make!
+    app1 = Application.make! account: account
+    app2 = Application.make! account: account
 
     msg = AoMessage.make
 
-    chan1 = QstServerChannel.make! :account_id => account.id, :application => app2
-    chan2 = QstServerChannel.make! :account_id => account.id
+    chan1 = QstServerChannel.make! :account => account, :application => app2
+    chan2 = QstServerChannel.make! :account => account
 
     app1.route_ao msg, 'test'
 
@@ -283,7 +283,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
     msg = AoMessage.make
 
-    chan1 = QstServerChannel.make :account_id => app.account_id
+    chan1 = QstServerChannel.make :account => app.account
     chan1.restrictions['country'] = ['ar', '']
     chan1.save!
 
@@ -297,7 +297,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
     msg = AoMessage.make
 
-    chan1 = QstServerChannel.make :account_id => app.account_id
+    chan1 = QstServerChannel.make :account => app.account
     chan1.restrictions['country'] = ['ar']
     chan1.save!
 
@@ -309,8 +309,8 @@ class ApplicationTest < ActiveSupport::TestCase
   test "route ao use last channel" do
     app = Application.make!
 
-    chan1 = QstServerChannel.make! :account_id => app.account_id
-    chan2 = QstServerChannel.make! :account_id => app.account_id, :priority => chan1.priority + 10
+    chan1 = QstServerChannel.make! :account => app.account
+    chan2 = QstServerChannel.make! :account => app.account, :priority => chan1.priority + 10
 
     msg = AoMessage.make :to => 'sms://+5678'
 
@@ -324,9 +324,9 @@ class ApplicationTest < ActiveSupport::TestCase
   test "route ao use last recent channel" do
     app = Application.make!
 
-    chan1 = QstServerChannel.make! :account_id => app.account_id
-    chan2 = QstServerChannel.make! :account_id => app.account_id,  :priority => chan1.priority + 10
-    chan3 = QstServerChannel.make! :account_id => app.account_id,  :priority => chan1.priority + 20
+    chan1 = QstServerChannel.make! :account => app.account
+    chan2 = QstServerChannel.make! :account => app.account,  :priority => chan1.priority + 10
+    chan3 = QstServerChannel.make! :account => app.account,  :priority => chan1.priority + 20
 
     msg = AoMessage.make :to => 'sms://+5678'
 
@@ -341,9 +341,9 @@ class ApplicationTest < ActiveSupport::TestCase
   test "route ao use last recent channel that is a candidate" do
     app = Application.make!
 
-    chan1 = QstServerChannel.make! :account_id => app.account_id
-    chan2 = QstServerChannel.make! :account_id => app.account_id,  :priority => chan1.priority + 10
-    chan3 = QstServerChannel.make! :account_id => app.account_id,  :priority => chan1.priority + 20, :enabled => false
+    chan1 = QstServerChannel.make! :account => app.account
+    chan2 = QstServerChannel.make! :account => app.account,  :priority => chan1.priority + 10
+    chan3 = QstServerChannel.make! :account => app.account,  :priority => chan1.priority + 20, :enabled => false
 
     msg = AoMessage.make :to => 'sms://+5678'
 
@@ -357,8 +357,8 @@ class ApplicationTest < ActiveSupport::TestCase
 
   test "route ao use suggested channel" do
     app = Application.make!
-    chan1 = QstServerChannel.make! :account_id => app.account_id
-    chan2 = QstServerChannel.make! :account_id => app.account_id,  :priority => chan1.priority + 10
+    chan1 = QstServerChannel.make! :account => app.account
+    chan2 = QstServerChannel.make! :account => app.account,  :priority => chan1.priority + 10
 
     msg = AoMessage.make
     msg.suggested_channel = chan2.name
@@ -369,7 +369,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
   test "route ao infer country" do
     app = Application.make!
-    chan = QstServerChannel.make! :account_id => app.account_id
+    chan = QstServerChannel.make! :account => app.account
     country = Country.make!
 
     msg = AoMessage.make :to => "sms://+#{country.phone_prefix}1234"
@@ -381,7 +381,7 @@ class ApplicationTest < ActiveSupport::TestCase
   test "route ao broadcast" do
     app = Application.make! :broadcast
 
-    2.times { QstServerChannel.make!(:account_id => app.account_id) }
+    2.times { QstServerChannel.make!(:account => app.account) }
     chans = app.account.channels
 
     msg = AoMessage.make
@@ -404,7 +404,7 @@ class ApplicationTest < ActiveSupport::TestCase
   test "route ao broadcast override" do
     app = Application.make!
 
-    chans = [QstServerChannel.make!(:account_id => app.account_id), QstServerChannel.make!(:account_id => app.account_id)]
+    chans = [QstServerChannel.make!(:account => app.account), QstServerChannel.make!(:account => app.account)]
 
     msg = AoMessage.make
     msg.strategy = 'broadcast'
@@ -422,7 +422,7 @@ class ApplicationTest < ActiveSupport::TestCase
         action('from','sms://2')
       ])
     ]
-    chan = QstServerChannel.make! :account_id => app.account_id
+    chan = QstServerChannel.make! :account => app.account
 
     msg = app.account.at_messages.make :from => 'sms://1'
 
@@ -441,7 +441,7 @@ class ApplicationTest < ActiveSupport::TestCase
         action('cancel','true')
       ])
     ]
-    chan = QstServerChannel.make! :account_id => app.account_id
+    chan = QstServerChannel.make! :account => app.account
 
     msg = app.account.at_messages.make :from => 'sms://1'
 
@@ -456,7 +456,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
   test "route ao failover" do
     app = Application.make!
-    chans = 3.times.map {|i| QstServerChannel.make! :account_id => app.account_id,  :priority => i }
+    chans = 3.times.map {|i| QstServerChannel.make! :account => app.account,  :priority => i }
     ids = chans.map &:id
     msg = app.account.ao_messages.make
     app.route_ao msg, 'test'
@@ -518,7 +518,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
   test "route ao failover resets to original before rerouting" do
     app = Application.make!
-    chans = 2.times.map {|i| QstServerChannel.make :account_id => app.account_id, :priority => i }
+    chans = 2.times.map {|i| QstServerChannel.make :account => app.account, :priority => i }
     chans.each_with_index do |chan, i|
       chan.ao_rules = [
         rule([
@@ -549,7 +549,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
   test "route ao failover resets to original before rerouting using custom attributes" do
     app = Application.make!
-    chans = 2.times.map {|i| QstServerChannel.make :account_id => app.account_id, :priority => i }
+    chans = 2.times.map {|i| QstServerChannel.make :account => app.account, :priority => i }
     chans[0].ao_rules = [
       rule([
         matching('cust', OP_EQUALS, 'foo')
@@ -586,7 +586,7 @@ class ApplicationTest < ActiveSupport::TestCase
 
   test "route ao assigns cost" do
     app = Application.make!
-    chan = QstServerChannel.make! :account_id => app.account_id, :ao_cost => 1.2
+    chan = QstServerChannel.make! :account => app.account, :ao_cost => 1.2
 
     msg = app.account.ao_messages.make
     app.route_ao msg, 'test'
