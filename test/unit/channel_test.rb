@@ -449,7 +449,8 @@ class ChannelTest < ActiveSupport::TestCase
     chan2 = QstServerChannel.make! :account => @chan.account
 
     app = Application.make! :account => @chan.account
-    msg = AoMessage.make! :account => @chan.account, :application => @chan.account.applications.make!, :channel => @chan, :state => 'queued'
+    msg = AoMessage.make! :account => @chan.account, :application =>
+    Application.make!(account: @chan.account), :channel => @chan, :state => 'queued'
 
     @chan.enabled = false
     @chan.save!
