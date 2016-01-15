@@ -22,10 +22,15 @@ class MsnChannelTest < ActiveSupport::TestCase
     @chan = MsnChannel.make!
   end
 
-  [:email, :password].each do |field|
+  [:email].each do |field|
     test "should validate configuration presence of #{field}" do
       assert_validates_configuration_presence_of @chan, field
     end
+  end
+
+  test "should validate configuration presence of password" do
+    @chan = MsnChannel.make
+    assert_validates_configuration_presence_of @chan, :password
   end
 
   test "can leave password empty for update" do

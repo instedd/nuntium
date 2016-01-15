@@ -22,10 +22,15 @@ class XmppChannelTest < ActiveSupport::TestCase
     @chan = XmppChannel.make!
   end
 
-  [:user, :domain, :password].each do |field|
+  [:user, :domain].each do |field|
     test "should validate configuration presence of #{field}" do
       assert_validates_configuration_presence_of @chan, field
     end
+  end
+
+  test "should validate configuration presence of password" do
+    @chan = XmppChannel.make
+    assert_validates_configuration_presence_of @chan, :password
   end
 
   test "can leave password empty for update" do
