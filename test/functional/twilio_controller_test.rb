@@ -22,8 +22,8 @@ class TwilioControllerTest < ActionController::TestCase
     @user = User.make!
     @account = @user.create_account Account.make
     sign_in @user
-    @application = @account.applications.make! :password => 'secret'
-    @chan = @account.twilio_channels.make
+    @application = Application.make! account: @account, password: 'secret'
+    @chan = TwilioChannel.make account: @account
     def @chan.configure_phone_number
       self.incoming_password = Devise.friendly_token
       true
