@@ -34,10 +34,15 @@ class TwilioChannelTest < ActiveSupport::TestCase
 
   include GenericChannelTest
 
-  [:account_sid, :auth_token, :from].each do |field|
+  [:account_sid, :from].each do |field|
     test "should validate configuration presence of #{field}" do
       assert_validates_configuration_presence_of @chan, field
     end
+  end
+
+  test "should validate configuration presence of auth_token" do
+    @chan = new_unsaved_channel
+    assert_validates_configuration_presence_of @chan, :auth_token
   end
 
   test "can leave password empty for update" do
