@@ -119,8 +119,8 @@ class RssControllerTest < ActionController::TestCase
     assert_select "title", "Outbox"
     assert_select "pubDate" do |es|
       assert_equal 2, es.length
-      assert_select es[0], "pubDate", 'Sun, 02 Jan 2000 05:00:00 +0000'
-      assert_select es[1], "pubDate", 'Mon, 03 Jan 2000 05:00:00 +0000'
+      assert_equal 'Sun, 02 Jan 2000 05:00:00 +0000', es[0].text
+      assert_equal 'Mon, 03 Jan 2000 05:00:00 +0000', es[1].text
     end
   end
 
@@ -162,7 +162,9 @@ class RssControllerTest < ActionController::TestCase
         assert_equal try, msgs[1].tries
         assert_equal 'delivered', msgs[1].state
       else
-        assert_select "guid", {:count => 0}
+        assert_response :not_modified
+        assert response.body.blank?
+
         assert_equal 4, msgs[1].tries
         assert_equal 'failed', msgs[1].state
       end
