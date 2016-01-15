@@ -20,8 +20,8 @@ require 'test_helper'
 class FragmentationTest < ActiveSupport::TestCase
   def setup
     @account = Account.make! :password => 'secret1'
-    @app = @account.applications.make! :password => 'secret2'
-    @chan = QstServerChannel.make! :account_id => @account.id
+    @app = Application.make! account: @account, password: 'secret2'
+    @chan = QstServerChannel.make! :account => @account
   end
 
   # Fragment format is:

@@ -22,10 +22,15 @@ class Pop3ChannelTest < ActiveSupport::TestCase
     @chan = Pop3Channel.make!
   end
 
-  [:host, :user, :password, :port].each do |field|
+  [:host, :user, :port].each do |field|
     test "should validate configuration presence of #{field}" do
       assert_validates_configuration_presence_of @chan, field
     end
+  end
+
+  test "should validate configuration presence of password" do
+    @chan = Pop3Channel.make
+    assert_validates_configuration_presence_of @chan, :password
   end
 
   test "should not save if port is not a number" do

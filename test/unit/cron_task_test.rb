@@ -22,6 +22,7 @@ class CronTaskTest < ActiveSupport::TestCase
   self.use_transactional_fixtures = false
 
   setup :clean_database
+  teardown :clean_database
 
   test "should save empty task" do
     task = CronTask.new :interval => 0
