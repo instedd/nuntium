@@ -36,7 +36,7 @@ class Channel < ActiveRecord::Base
   has_many :logs
 
   serialize :configuration, Hash
-  serialize :restrictions
+  serialize :restrictions, Hash
   serialize :ao_rules
   serialize :at_rules
 

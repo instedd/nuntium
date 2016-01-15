@@ -24,8 +24,15 @@ class ClickatellChannelTest < ActiveSupport::TestCase
 
   include GenericChannelTest
 
-  [:user, :password, :from, :api_id, :incoming_password, :cost_per_credit].each do |field|
+  [:user, :from, :api_id, :cost_per_credit].each do |field|
     test "should validate configuration presence of #{field}" do
+      assert_validates_configuration_presence_of @chan, field
+    end
+  end
+
+  [:password, :incoming_password].each do |field|
+    test "should validate configuration presence of #{field}" do
+      @chan = ClickatellChannel.make
       assert_validates_configuration_presence_of @chan, field
     end
   end
