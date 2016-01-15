@@ -381,9 +381,9 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
   end
 
   def create_channels(ammount = 3)
-    @chan1 = QstServerChannel.make! :account_id => @app.account_id, :name => 'channel1', :protocol => 'sms' if ammount >= 1
-    @chan2 = QstServerChannel.make! :account_id => @app.account_id, :name => 'channel2', :protocol => 'sms' if ammount >= 2
-    @chan3 = QstServerChannel.make! :account_id => @app.account_id, :name => 'channel3', :protocol => 'foo' if ammount >= 3
+    @chan1 = QstServerChannel.make! :account => @app.account, :name => 'channel1', :protocol => 'sms' if ammount >= 1
+    @chan2 = QstServerChannel.make! :account => @app.account, :name => 'channel2', :protocol => 'sms' if ammount >= 2
+    @chan3 = QstServerChannel.make! :account => @app.account, :name => 'channel3', :protocol => 'foo' if ammount >= 3
   end
 
   def assert_in_log(message)

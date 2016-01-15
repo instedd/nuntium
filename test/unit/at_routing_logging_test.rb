@@ -189,7 +189,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "no application was determined simulate = #{simulate}" do
-      app2 = @app.account.applications.make!
+      app2 = Application.make! account: @app.account
 
       @msg = AtMessage.make
       @account.route_at @msg, @channel, :simulate => simulate
@@ -210,7 +210,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "account at rules simulate = #{simulate}" do
-      app2 = Application.make! :account_id => @app.account_id
+      app2 = Application.make! :account => @app.account
 
       @msg = AtMessage.make
       @account.route_at @msg, @channel, :simulate => simulate
@@ -221,7 +221,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "account at rules app not found simulate = #{simulate}" do
-      app2 = @app.account.applications.make!
+      app2 = Application.make! account: @app.account
 
       @account.app_routing_rules= [
           rule(nil,[action('application','foobar')])
@@ -237,7 +237,7 @@ class ATRoutingLoggingTest < ActiveSupport::TestCase
     end
 
     test "account at rules app found simulate = #{simulate}" do
-      app2 = @app.account.applications.make!
+      app2 = Application.make! account: @app.account
 
       @account.app_routing_rules= [
           rule(nil,[action('application',@app.name)])
