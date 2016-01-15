@@ -72,7 +72,7 @@ class AoMessageTest < ActiveSupport::TestCase
     msg = AoMessage.new :to => 'sms://+1234'
     msg.infer_custom_attributes
 
-    assert_equal [one.iso2, two.iso2], msg.country
+    assert_equal [one.iso2, two.iso2].sort, msg.country.sort
     assert_nil msg.carrier
   end
 
@@ -96,7 +96,7 @@ class AoMessageTest < ActiveSupport::TestCase
 
     msg = AoMessage.new :to => 'sms://+1234567'
     msg.infer_custom_attributes
-    assert_equal [usa.iso2, usa2.iso2], msg.country
+    assert_equal [usa.iso2, usa2.iso2].sort, msg.country.sort
   end
 
   test "don't infer country if already specified" do
