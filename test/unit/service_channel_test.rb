@@ -108,6 +108,11 @@ module ServiceChannelTest
       job.class == RestartChannelJob && job.id == @chan.id && kind == @chan.class.kind
     end
 
+    # Stub other calls to publish_notification
+    Queues.stubs(:publish_notification).with do |job, kind|
+      job.class == SubscribeToQueueJob
+    end
+
     Application.make! :account => @chan.account
   end
 end
