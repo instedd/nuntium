@@ -199,7 +199,7 @@ class SmppTransceiverDelegate
     reference_id = normalize(pdu.message_id)
 
     # Blank all messages with that reference id in case the reference id is already used
-    AoMessage.update_all(['channel_relative_id = ?', nil], ['channel_id = ? AND channel_relative_id = ?', @channel.id, reference_id])
+    AoMessage.where(channel_id: @channel.id, channel_relative_id: reference_id).update_all(channel_relative_id: nil)
 
     # And set this message's channel relative id to later look it up
     # in the delivery_report_received method
@@ -267,14 +267,14 @@ class SmppTransceiverDelegate
     SmppMessagePart.where('created_at < ?', Time.current - 1.hour).delete_all
 
     parts = @channel.smpp_message_parts.where(:source => source, :reference_number => ref)
-    all_parts = parts.all
+    all_parts = parts.to_a
 
     # If all other parts are here
-    if parts.length == total-1
+    if all_parts.length == total-1
       # Add this new part, sort and get text
-      parts.push SmppMessagePart.new(:part_number => partn, :text => text)
-      parts.sort! { |x,y| x.part_number <=> y.part_number }
-      text = parts.map(&:text).join
+      all_parts.push SmppMessagePart.new(:part_number => partn, :text => text)
+      all_parts.sort! { |x,y| x.part_number <=> y.part_number }
+      text = all_parts.map(&:text).join
 
       # Create message from the resulting text
       create_at_message source, destination, data_coding, text
