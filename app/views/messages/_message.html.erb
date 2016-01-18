@@ -1,4 +1,4 @@
-<h4><%= link_to_function title, "toggle('details_#{@msg.guid}')" -%></h4>
+<h4><%= link_to title, '#', data: {function: "toggle('details_#{@msg.guid}')"} -%></h4>
 
 <%
 application = applications.find_by_id msg.application_id

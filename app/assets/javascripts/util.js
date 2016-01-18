@@ -10,6 +10,11 @@ $(function() {
       }
     }
   });
+
+  $(document).on('click', 'a[data-function]', function(){
+    eval($(this).data('function'));
+    return false;
+  });
 });
 
 function $n(id) {
