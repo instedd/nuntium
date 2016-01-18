@@ -15,12 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-# TODO AR RAILS4 remove these requires?
-require 'rubygems'
-require 'yaml'
-require 'syck'
-YAML::ENGINE.yamler = 'syck'
-
 ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../../Gemfile', __FILE__)
 
 require 'bundler/setup' # Set up gems listed in the Gemfile.

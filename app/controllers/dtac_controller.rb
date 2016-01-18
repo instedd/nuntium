@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'iconv'
-
 class DtacController < ApplicationController
   skip_filter :check_login
   before_filter :authenticate

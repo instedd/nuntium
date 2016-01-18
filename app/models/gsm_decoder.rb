@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'iconv'
-
 class GsmDecoder
 
  @@base_charset =  %W[@ £ $ ¥ è é ù ì ò Ç \x0a Ø ø \x0d Å å]
