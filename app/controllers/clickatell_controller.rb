@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'iconv'
-
 class ClickatellController < ApplicationController
   before_filter :authenticate, :only => [:index, :ack]
   skip_filter :check_login, :except => [:view_credit]

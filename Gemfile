@@ -43,6 +43,7 @@ gem 'knockoutjs-rails'
 gem 'newrelic_rpm'
 gem 'foreman'
 gem 'instedd_telemetry', git: "https://github.com/instedd/telemetry_rails", branch: 'master'
+gem 'iconv'
 
 gem 'sass-rails', '~> 5.0'
 gem 'coffee-rails', '~> 4.1.0'
@@ -70,7 +71,7 @@ end
 
 group :development, :test do
   gem 'pry'
-  gem 'pry-debugger'
+  gem 'pry-byebug'
 end
 
 group :webserver do

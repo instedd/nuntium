@@ -16,7 +16,6 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'digest/sha1'
-require 'iconv'
 
 class QstServerChannel < Channel
   has_many :qst_outgoing_messages, :foreign_key => 'channel_id'

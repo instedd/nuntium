@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'iconv'
-
 class SmppTransceiverDelegate
 
   EncodingCode = { "ascii" => 1, "latin1" => 3, "ucs-2be" => 8, "ucs-2le" => 8 }
