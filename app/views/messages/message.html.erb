@@ -1,6 +1,6 @@
 <h2>Application <%= @kind == 'ao' ? 'Originated' : 'Terminated' -%> Message #<%= @msg.id -%></h2>
 
-<h4><%= link_to_function 'Log', "toggle('log')" -%></h4>
+<h4><%= link_to 'Log', '#', data: {function: "toggle('log')"} -%></h4>
 
 <div id="log">
 <table border="1" class="table">
