@@ -48,7 +48,8 @@ class UserApplicationTest < ActiveSupport::TestCase
 
   test "should update account lifespan when created" do
     account = Account.make!
-    user_application = UserApplication.make account: account
+    application = Application.make! account: account
+    user_application = UserApplication.make application: application
 
     Telemetry::Lifespan.expects(:touch_account).with(account)
 
