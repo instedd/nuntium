@@ -34,7 +34,6 @@ module Nuntium
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
 
-    # TODO AR RAILS4 move this where?
     # Custom directories with classes and modules you want to be autoloadable.
     # config.autoload_paths += %W(#{config.root}/extras)
     config.autoload_paths += Dir["#{Rails.root}/app/controllers/**/**"].select {|x| !x.end_with? '.rb'}
