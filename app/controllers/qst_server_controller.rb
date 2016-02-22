@@ -79,7 +79,11 @@ class QstServerController < ApplicationController
         # Mark messsages as delivered
         outs = @channel.qst_outgoing_messages.select(:ao_message_id).where 'ao_message_id <= ?', last.id
         outs.each do |out|
-          AoMessage.where(:id => out.ao_message_id, :state => 'queued').update_all "state = 'delivered'"
+          # Don't use update_all because we want save callbacks like delivery ack
+          AoMessage.where(:id => out.ao_message_id, :state => 'queued').each do |ao_message|
+            ao_message.state = 'delivered'
+            ao_message.save!
+          end
         end
 
         # Delete previous messages in qst including it
