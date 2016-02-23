@@ -143,4 +143,16 @@ class QstServerController < ApplicationController
     @channel.save!
     head :ok
   end
+
+  # GET /qst/:account_id/set_state
+  def set_state
+    ao_message = AoMessage.where(:guid => params[:guid], :channel_id => @channel.id).first
+    unless ao_message
+      return head :not_found
+    end
+
+    ao_message.state = params[:state]
+    ao_message.save!
+    head :ok
+  end
 end
