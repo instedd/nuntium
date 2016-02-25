@@ -421,6 +421,18 @@ class QstServerControllerTest < ActionController::TestCase
     assert_equal 'cancelled', msg1.state
   end
 
+  test "sets state of ao message" do
+    msg1 = create_qst_ao @account, @chan
+    msg1.save!
+
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
+
+    post :set_state, :account_id => @account.name, :guid => msg1.guid, :state => 'confirmed'
+
+    msg1.reload
+    assert_equal msg1.state, 'confirmed'
+  end
+
   def assert_shows_message(msg)
     assert_select "message[id=?]", msg.guid
     assert_select "message[from=?]", msg.from
