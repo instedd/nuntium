@@ -71,6 +71,22 @@ class QstServerController < ApplicationController
     # Default max to 10 if not specified
     max = max.nil? ? 10 : max.to_i
 
+    if request.raw_post.present?
+      post_json = JSON.parse(request.raw_post)
+      %w(confirmed failed).each do |state|
+        guids = post_json[state]
+        if guids
+          guids.each do |guid|
+            ao_message = AoMessage.find_by_guid(guid)
+            if ao_message
+              ao_message.state = state
+              ao_message.save!
+            end
+          end
+        end
+      end
+    end
+
     # If there's an etag
     if !etag.nil?
       # Find the message by guid

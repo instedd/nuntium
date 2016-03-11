@@ -433,6 +433,27 @@ class QstServerControllerTest < ActionController::TestCase
     assert_equal msg1.state, 'confirmed'
   end
 
+  test "marks messages as confirmed/failed" do
+    msg0 = create_qst_ao @account, @chan
+    msg1 = create_qst_ao @account, @chan
+    msg2 = create_qst_ao @account, @chan
+    msg3 = create_qst_ao @account, @chan
+
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(@chan.name, 'chan_pass')
+    @request.env['RAW_POST_DATA'] = {
+      "confirmed" => [msg1.guid, msg2.guid],
+      "failed" => [msg3.guid],
+      }.to_json
+    post :pull, :account_id => @account.name
+
+    msgs = AoMessage.all
+
+    assert_equal 'queued', msgs[0].state
+    assert_equal 'confirmed', msgs[1].state
+    assert_equal 'confirmed', msgs[2].state
+    assert_equal 'failed', msgs[3].state
+  end
+
   def assert_shows_message(msg)
     assert_select "message[id=?]", msg.guid
     assert_select "message[from=?]", msg.from
