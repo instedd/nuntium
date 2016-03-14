@@ -113,7 +113,6 @@ Nuntium::Application.routes.draw do
     get '/incoming' => 'qst_server#get_last_id', :as => :qst_get_last_id, :constraints => {:account_id => /.*/}
     match '/outgoing' => 'qst_server#pull', :as => :qst_pull, :constraints => {:account_id => /.*/}
     match '/setaddress' => 'qst_server#set_address', :as => :qst_set_address, :constraints => {:account_id => /.*/}
-    match '/set_state' => 'qst_server#set_state', :as => :qst_set_state, :constraints => {:account_id => /.*/}
   end
 
   scope '/:account_name/:application_name', :constraints => {:account_name => /.*/, :application_name => /.*/} do
