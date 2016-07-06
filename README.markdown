@@ -1,6 +1,8 @@
 Nuntium
 =======
 
+[![Build Status](https://travis-ci.org/instedd/nuntium.svg?branch=master)](https://travis-ci.org/instedd/nuntium)
+
 Nuntium is an open source and free platform -developed by [InSTEDD](http://www.instedd.org)- that allows applications to send and receive all type of messages. Examples of messages are sms, emails and twitter direct messages.
 
 Read about some of the [new features in the last release](http://ndt.instedd.org/2010/08/make-your-sms-apps-scale.html).

@@ -363,6 +363,7 @@ DEPENDENCIES
   puma
   qst_client
   rails (= 3.2.19)
+  rake
   rest-client
   rgviz
   rgviz-rails
@@ -383,4 +384,4 @@ DEPENDENCIES
   xmpp4r
 
 BUNDLED WITH
-   1.11.2
+   1.12.5
