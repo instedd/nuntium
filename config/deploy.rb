@@ -54,7 +54,7 @@ namespace :foreman do
   desc 'Export the Procfile to Ubuntu upstart scripts'
   task :export, :roles => :app do
     run "echo -e \"HOME=$HOME\\nPATH=$PATH\\nRAILS_ENV=production\" >  #{current_path}/.env"
-    run "cd #{current_path} && #{try_sudo} `which bundle` exec foreman export upstart /etc/init -f #{current_path}/Procfile -a #{application} -u #{user} --concurrency=\"worker_fast=1,worker_slow=1,xmpp=1,smpp=1,msn=1,cron=1,sched=1\""
+    run "cd #{current_path} && #{try_sudo} `which bundle` exec foreman export upstart /etc/init -f #{current_path}/Procfile -a #{application} -u #{user} --concurrency=\"worker_fast=1,worker_slow=1,xmpp=1,smpp=1,msn=0,cron=1,sched=1\""
   end
 
   desc "Start the application services"
