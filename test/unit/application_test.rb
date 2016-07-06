@@ -596,6 +596,21 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal 1.2, msg.cost
   end
 
+  test "route ao prefer channel with matching carrier" do
+    app = Application.make
+    carrier = Carrier.make :prefixes => "99"
+    chan1 = QstServerChannel.make :account_id => app.account_id, :priority => 0, :address => "12"
+    chan2 = QstServerChannel.make :account_id => app.account_id, :priority => 100, :carrier_guid => carrier.guid
+
+    address = "#{carrier.country.phone_prefix}#{carrier.prefixes}987654321"
+    msg = app.account.ao_messages.make_unsaved :to => "sms://#{address}"
+    app.route_ao msg, 'test'
+
+    msg.reload
+
+    assert_equal chan2.id, msg.channel_id
+  end
+
   test "should not create if password is blank" do
     app = Application.make_unsaved
     app.password = app.password_confirmation = ''

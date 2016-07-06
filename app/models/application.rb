@@ -328,6 +328,14 @@ class Application < ActiveRecord::Base
     # Filter them according to custom attributes
     channels = channels.select{|x| x.can_route_ao? msg}
 
+    # If the message has an associated carrier, try to keep channels
+    # that have that carrier. If there's no such channel, keep them all.
+    if carrier = msg.carrier
+      carriers = Array(carrier)
+      matching_channels = channels.select { |chan| carriers.include?(chan.carrier_guid) }
+      channels = matching_channels unless matching_channels.empty?
+    end
+
     channels.sort!{|x, y| (x.priority || 100) <=> (y.priority || 100)}
 
     if channels.empty?
