@@ -332,7 +332,7 @@ class Application < ActiveRecord::Base
     # that have that carrier. If there's no such channel, keep them all.
     if carrier = msg.carrier
       carriers = Array(carrier)
-      matching_channels = channels.select { |chan| carriers.include?(chan.carrier_guid) }
+      matching_channels = channels.select { |chan| chan.matches_carrier_guids?(carriers) }
       channels = matching_channels unless matching_channels.empty?
     end
 

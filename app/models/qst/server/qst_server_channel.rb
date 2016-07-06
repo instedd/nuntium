@@ -66,6 +66,13 @@ class QstServerChannel < Channel
     true
   end
 
+  def matches_carrier_guids?(carrier_guids)
+    return false unless self.carrier_guid
+
+    self_carrier_guids = self.carrier_guid.split(",")
+    self_carrier_guids.any? { |self_carrier_guid| carrier_guids.include?(self_carrier_guid) }
+  end
+
   private
 
   def hash_password
@@ -123,7 +130,7 @@ class QstServerChannel < Channel
     if address.present?
       countries, carriers = Carrier.infer_from_phone_number(address.mobile_number)
       unless carriers.empty?
-        self.carrier_guid = carriers.first.guid
+        self.carrier_guid = carriers.map(&:guid).join(",")
       end
     else
       self.carrier_guid = nil
