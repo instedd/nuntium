@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160311152059) do
+ActiveRecord::Schema.define(:version => 20160706151602) do
 
   create_table "accounts", :force => true do |t|
     t.string   "name"
@@ -142,6 +142,7 @@ ActiveRecord::Schema.define(:version => 20160311152059) do
     t.decimal  "ao_cost",          :precision => 10, :scale => 2
     t.decimal  "at_cost",          :precision => 10, :scale => 2
     t.datetime "last_activity_at"
+    t.string   "carrier_guid"
   end
 
   add_index "channels", ["account_id", "name"], :name => "index_channels_on_account_id_and_name"
