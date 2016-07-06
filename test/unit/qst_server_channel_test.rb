@@ -66,4 +66,17 @@ class QstServerChannelTest < ActiveSupport::TestCase
     @chan.use_ticket = true
     assert_false @chan.valid?
   end
+
+  test "should add carrier if matches number" do
+    carrier = Carrier.make
+    address = "#{carrier.country.phone_prefix}#{carrier.prefixes}987654321"
+    chan = QstServerChannel.make :address => address, :configuration => {:password => 'foo', :password_confirmation => 'foo'}
+    assert_equal carrier.guid, chan.carrier_guid
+  end
+
+  test "should not add carrier if doesn't match number" do
+    carrier = Carrier.make
+    chan = QstServerChannel.make :address => "1234", :configuration => {:password => 'foo', :password_confirmation => 'foo'}
+    assert_equal nil, chan.carrier_guid
+  end
 end
