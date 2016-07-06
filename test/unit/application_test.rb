@@ -598,12 +598,79 @@ class ApplicationTest < ActiveSupport::TestCase
 
   test "route ao prefer channel with matching carrier" do
     app = Application.make
-    carrier = Carrier.make :prefixes => "99"
+    country = Country.make :phone_prefix => "98"
+    carrier = country.carriers.make :prefixes => "76"
     chan1 = QstServerChannel.make :account_id => app.account_id, :priority => 0, :address => "12"
-    chan2 = QstServerChannel.make :account_id => app.account_id, :priority => 100, :carrier_guid => carrier.guid
+    chan2 = QstServerChannel.make :account_id => app.account_id, :priority => 100, :address => "987654"
 
-    address = "#{carrier.country.phone_prefix}#{carrier.prefixes}987654321"
-    msg = app.account.ao_messages.make_unsaved :to => "sms://#{address}"
+    msg = app.account.ao_messages.make_unsaved :to => "sms://987612"
+    app.route_ao msg, 'test'
+
+    msg.reload
+
+    assert_equal chan2.id, msg.channel_id
+  end
+
+  test "route ao without carrier through a set of channels with carriers" do
+    app = Application.make
+    country = Country.make :phone_prefix => "98"
+    carrier1 = country.carriers.make :prefixes => "76"
+    carrier2 = country.carriers.make :prefixes => "54"
+    chan1 = QstServerChannel.make :account_id => app.account_id, :priority => 0, :address => "985400"
+    chan2 = QstServerChannel.make :account_id => app.account_id, :priority => 100, :address => "987600"
+
+    msg = app.account.ao_messages.make_unsaved :to => "sms://1234"
+    app.route_ao msg, 'test'
+
+    msg.reload
+
+    assert_equal chan1.id, msg.channel_id
+  end
+
+  test "route ao without carrier through a set of channels with and without carriers" do
+    app = Application.make
+    country = Country.make :phone_prefix => "98"
+    carrier1 = country.carriers.make :prefixes => "76"
+    carrier2 = country.carriers.make :prefixes => "54"
+    chan1 = QstServerChannel.make :account_id => app.account_id, :priority => 0, :address => "0101"
+    chan2 = QstServerChannel.make :account_id => app.account_id, :priority => 100, :address => "987600"
+
+    msg = app.account.ao_messages.make_unsaved :to => "sms://1234"
+    app.route_ao msg, 'test'
+
+    msg.reload
+
+    assert_equal chan1.id, msg.channel_id
+  end
+
+  test "route ao with carrier through a set of channels with carriers but where none matches" do
+    app = Application.make
+    country = Country.make :phone_prefix => "98"
+    carrier1 = country.carriers.make :prefixes => "76"
+    carrier2 = country.carriers.make :prefixes => "54"
+    carrier3 = country.carriers.make :prefixes => "32"
+    chan1 = QstServerChannel.make :account_id => app.account_id, :priority => 0, :address => "9876"
+    chan2 = QstServerChannel.make :account_id => app.account_id, :priority => 100, :address => "9854"
+
+    msg = app.account.ao_messages.make_unsaved :to => "sms://9832"
+    app.route_ao msg, 'test'
+
+    msg.reload
+
+    assert_equal chan1.id, msg.channel_id
+  end
+
+  test "route ao with carrier through a set of channels with carriers where more than one (yet not all) match" do
+    app = Application.make
+    country = Country.make :phone_prefix => "98"
+    carrier1 = country.carriers.make :prefixes => "1"
+    carrier2 = country.carriers.make :prefixes => "12"
+    carrier3 = country.carriers.make :prefixes => "34"
+    chan1 = QstServerChannel.make :account_id => app.account_id, :priority => 100, :address => "9812"
+    chan2 = QstServerChannel.make :account_id => app.account_id, :priority => 50, :address => "98123"
+    chan3 = QstServerChannel.make :account_id => app.account_id, :priority => 0, :address => "9834"
+
+    msg = app.account.ao_messages.make_unsaved :to => "sms://98124"
     app.route_ao msg, 'test'
 
     msg.reload
