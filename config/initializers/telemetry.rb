@@ -14,4 +14,5 @@ InsteddTelemetry.setup do |config|
   config.add_collector Telemetry::AtCountCollector
   config.add_collector Telemetry::ChannelsByKindCollector
   config.add_collector Telemetry::NumbersByCountryCodeCollector
+  config.add_collector Telemetry::AccountsCollector
 end
