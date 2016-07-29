@@ -39,9 +39,6 @@ Nuntium::Application.configure do
   # Expands the lines which load the assets
   config.assets.debug = true
 
-  # Use memcached
-  config.cache_store = :mem_cache_store
-
   # Print deprecation notices to the Rails logger
   config.active_support.deprecation = :log
 

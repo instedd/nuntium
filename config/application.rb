@@ -78,6 +78,9 @@ module Nuntium
     config.logger.level = Logger.const_get(config.log_level.to_s.upcase)
     config.logger.formatter = Logger::Formatter.new
 
+    # Use memcached
+    config.cache_store = :mem_cache_store, *ENV.fetch("MEMCACHE_SERVER", "").split(",")
+
     config.i18n.enforce_available_locales = false
 
     SettingsPath = "#{::Rails.root.to_s}/config/settings.yml"

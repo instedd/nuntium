@@ -1,68 +1,95 @@
-mysql:
-  image: mysql:5.6
-  environment:
-    MYSQL_ROOT_PASSWORD: root
+version: '2.0'
 
-rabbitmq:
-  image: rabbitmq:3.5.3
+services:
+  db:
+    image: mysql:5.6
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - db:/var/lib/mysql
 
-memcached:
-  image: memcached:1.4.24
+  rabbitmq:
+    build:
+      context: .
+      dockerfile: Dockerfile-rabbitmq-dev
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+    ports:
+      - 5672:5672
 
-web: &base
-  build: .
-  links: &links
-    - mysql
-    - rabbitmq
-    - memcached
-  environment: &environment
-    RAILS_ENV: production
-    DATABASE_URL: mysql2://root:root@mysql/nuntium
-  ports:
-    - 80
+  memcached:
+    image: memcached:1.4.24
+    ports:
+      - 11211:11211
 
-workerfast:
-  build: .
-  links: *links
-  environment:
-    <<: *environment
-    INSTANCE_ID: 1000
-  command: "bundle exec lib/services/generic_worker_daemon.rb ${RAILS_ENV} fast ${INSTANCE_ID}"
+  web:
+    extends:
+      file: docker-compose-base.yml
+      service: rails
+    command: bash -c "(rm tmp/pids/server.pid 2> /dev/null || true) && sleep 8 && bundle exec rails server -b 0.0.0.0"
+    links: &links
+      - db
+      - rabbitmq
+      - memcached
+    ports:
+      - 3000:3000
 
-workerslow:
-  build: .
-  links: *links
-  environment:
-    <<: *environment
-    INSTANCE_ID: 2000
-  command: "bundle exec lib/services/generic_worker_daemon.rb ${RAILS_ENV} slow ${INSTANCE_ID}"
+  workerfast:
+    extends:
+      file: docker-compose-base.yml
+      service: rails
+    links: *links
+    environment:
+      RAILS_ENV: development
+      INSTANCE_ID: 1000
+    command: "bundle exec lib/services/generic_worker_daemon.rb $$RAILS_ENV fast $$INSTANCE_ID"
 
-xmpp:
-  build: .
-  links: *links
-  environment: *environment
-  command: "bundle exec lib/services/xmpp_service_daemon.rb"
+  workerslow:
+    extends:
+      file: docker-compose-base.yml
+      service: rails
+    links: *links
+    environment:
+      RAILS_ENV: development
+      INSTANCE_ID: 2000
+    command: "bundle exec lib/services/generic_worker_daemon.rb $$RAILS_ENV slow $$INSTANCE_ID"
 
-smpp:
-  build: .
-  links: *links
-  environment: *environment
-  command: "bundle exec lib/services/smpp_service_daemon.rb"
+  xmpp:
+    extends:
+      file: docker-compose-base.yml
+      service: rails
+    links: *links
+    command: "bundle exec lib/services/xmpp_service_daemon.rb"
 
-msn:
-  build: .
-  links: *links
-  environment: *environment
-  command: "bundle exec lib/services/msn_service_daemon.rb"
+  smpp:
+    extends:
+      file: docker-compose-base.yml
+      service: rails
+    links: *links
+    command: "bundle exec lib/services/smpp_service_daemon.rb"
 
-cron:
-  build: .
-  links: *links
-  environment: *environment
-  command: "bundle exec lib/services/cron_daemon.rb"
+  msn:
+    extends:
+      file: docker-compose-base.yml
+      service: rails
+    links: *links
+    command: "bundle exec lib/services/msn_service_daemon.rb"
 
-sched:
-  build: .
-  links: *links
-  environment: *environment
-  command: "bundle exec lib/services/scheduled_jobs_service_daemon.rb"
+  cron:
+    extends:
+      file: docker-compose-base.yml
+      service: rails
+    links: *links
+    command: "bundle exec lib/services/cron_daemon.rb"
+
+  sched:
+    extends:
+      file: docker-compose-base.yml
+      service: rails
+    links: *links
+    command: "bundle exec lib/services/scheduled_jobs_service_daemon.rb"
+
+volumes:
+  db:
+  bundle:
+  rabbitmq:

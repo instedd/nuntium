@@ -51,7 +51,6 @@ Nuntium::Application.configure do
   # config.logger = SyslogLogger.new
 
   # Use a different cache store in production
-  config.cache_store = :mem_cache_store, *ENV.fetch("MEMCACHE_SERVER", "").split(",")
 
   # Disable Rails's static asset server
   # In production, Apache or nginx will already do this
