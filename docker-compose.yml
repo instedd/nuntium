@@ -9,18 +9,14 @@ services:
       - db:/var/lib/mysql
 
   rabbitmq:
-    build:
-      context: .
-      dockerfile: Dockerfile-rabbitmq-dev
+    image: rabbitmq:3.5.3
+    command: /app/docker-compose-rabbitmq-cmd.sh
     volumes:
       - rabbitmq:/var/lib/rabbitmq
-    ports:
-      - 5672:5672
+      - .:/app
 
   memcached:
     image: memcached:1.4.24
-    ports:
-      - 11211:11211
 
   web:
     extends:
