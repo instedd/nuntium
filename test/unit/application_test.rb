@@ -678,6 +678,24 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal chan2.id, msg.channel_id
   end
 
+  [ClickatellChannel, DtacChannel, IpopChannel, MsnChannel, MultimodemIsmsChannel, QstClientChannel, QstServerChannel, ShujaaChannel, SmppChannel, SmtpChannel, TwitterChannel, XmppChannel].each do |channel_class|
+    test "route ao with carrier through a set of #{channel_class.name.underscore.humanize.pluralize}" do
+      app = Application.make
+      country = Country.make :phone_prefix => "98"
+      carrier = country.carriers.make :prefixes => "1"
+
+      chan1 = channel_class.make :account_id => app.account_id, :protocol => 'sms', :priority => 100
+      chan2 = channel_class.make :account_id => app.account_id, :protocol => 'sms', :priority => 50
+
+      msg = app.account.ao_messages.make_unsaved :to => 'sms://98124'
+      assert_true app.route_ao(msg, 'test')
+
+      msg.reload
+      assert_equal chan2.id, msg.channel_id
+    end
+  end
+
+
   test "should not create if password is blank" do
     app = Application.make_unsaved
     app.password = app.password_confirmation = ''

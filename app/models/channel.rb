@@ -408,4 +408,9 @@ class Channel < ActiveRecord::Base
   def requeued_messages_count
     @requeued_messages_count || 0
   end
+
+  # Overridden in QstServerChannel
+  def matches_carrier_guids?(carrier_guids)
+    return true
+  end
 end
