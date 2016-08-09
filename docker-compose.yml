@@ -18,72 +18,65 @@ services:
   memcached:
     image: memcached:1.4.24
 
-  web:
-    extends:
-      file: docker-compose-base.yml
-      service: rails
-    command: bash -c "(rm tmp/pids/server.pid 2> /dev/null || true) && sleep 8 && bundle exec rails server -b 0.0.0.0"
-    links: &links
+  web: &rails
+    image: instedd/nginx-rails:1.9
+    environment:
+      RAILS_ENV:
+      DATABASE_HOST: 'db'
+      RABBITMQ_URL: 'amqp://rabbitmq'
+      MEMCACHE_SERVER: 'memcached:11211'
+    pid: host
+    volumes:
+      - .:/app
+      - bundle:/usr/local/bundle
+    depends_on:
       - db
       - rabbitmq
       - memcached
+    command: sleep 8 && rails server -b 0.0.0.0 # wait for rabbitmq setup
     ports:
       - 3000:3000
 
   workerfast:
-    extends:
-      file: docker-compose-base.yml
-      service: rails
-    links: *links
+    <<: *rails
     environment:
       RAILS_ENV: development
       INSTANCE_ID: 1000
     command: "bundle exec lib/services/generic_worker_daemon.rb $$RAILS_ENV fast $$INSTANCE_ID"
+    ports: []
 
   workerslow:
-    extends:
-      file: docker-compose-base.yml
-      service: rails
-    links: *links
+    <<: *rails
     environment:
       RAILS_ENV: development
       INSTANCE_ID: 2000
     command: "bundle exec lib/services/generic_worker_daemon.rb $$RAILS_ENV slow $$INSTANCE_ID"
+    ports: []
 
   xmpp:
-    extends:
-      file: docker-compose-base.yml
-      service: rails
-    links: *links
+    <<: *rails
     command: "bundle exec lib/services/xmpp_service_daemon.rb"
+    ports: []
 
   smpp:
-    extends:
-      file: docker-compose-base.yml
-      service: rails
-    links: *links
+    <<: *rails
     command: "bundle exec lib/services/smpp_service_daemon.rb"
+    ports: []
 
   msn:
-    extends:
-      file: docker-compose-base.yml
-      service: rails
-    links: *links
+    <<: *rails
     command: "bundle exec lib/services/msn_service_daemon.rb"
+    ports: []
 
   cron:
-    extends:
-      file: docker-compose-base.yml
-      service: rails
-    links: *links
+    <<: *rails
     command: "bundle exec lib/services/cron_daemon.rb"
+    ports: []
 
   sched:
-    extends:
-      file: docker-compose-base.yml
-      service: rails
-    links: *links
+    <<: *rails
     command: "bundle exec lib/services/scheduled_jobs_service_daemon.rb"
+    ports: []
 
 volumes:
   db:

@@ -47,30 +47,9 @@ Run the following commands to have a stable development environment.
 
 ```
 $ docker-compose run --rm --no-deps web bundle install
-$ docker-compose run --rm web rake db:create db:schema:load db:seed
-```
-
-To run a development environment
-
-```
+$ docker-compose run --rm web bash
+root@web_1 $ rake db:setup db:seed
 $ docker-compose up
 ```
-
-Or to load just an environment to run test
-
-```
-$ docker-compose run --rm web bash
-root@web_run_1:/app $ rake test
-...
-```
-
-Or reuse the already running instance
-
-```
-$ docker exec -it nuntium_web_1 bash
-root@web_1:/app $ rake test
-...
-```
-
 
 
