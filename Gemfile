@@ -58,7 +58,13 @@ group :development do
   gem 'capistrano', "~> 2.15"
 end
 
+group :debug do
+  gem 'pry'
+  gem 'pry-debugger'
+end
+
 group :test do
+  gem "rake"
   gem 'test-unit', :require => 'test/unit'
   gem "mocha"
   gem "thoughtbot-shoulda", :require => "shoulda"
@@ -66,11 +72,6 @@ group :test do
   gem 'machinist'
   gem 'test_after_commit'
   gem 'timecop'
-end
-
-group :development, :test do
-  gem 'pry'
-  gem 'pry-debugger'
 end
 
 group :webserver do

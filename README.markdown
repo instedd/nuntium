@@ -1,6 +1,8 @@
 Nuntium
 =======
 
+[![Build Status](https://travis-ci.org/instedd/nuntium.svg?branch=master)](https://travis-ci.org/instedd/nuntium)
+
 Nuntium is an open source and free platform -developed by [InSTEDD](http://www.instedd.org)- that allows applications to send and receive all type of messages. Examples of messages are sms, emails and twitter direct messages.
 
 Read about some of the [new features in the last release](http://ndt.instedd.org/2010/08/make-your-sms-apps-scale.html).
@@ -35,3 +37,19 @@ API
 ---
 
 [API documentation](https://github.com/instedd/nuntium/wiki/API)
+
+Docker development
+------------------
+
+`docker-compose.yml` file build a development environment mounting the current folder and running rails in development environment.
+
+Run the following commands to have a stable development environment.
+
+```
+$ docker-compose run --rm --no-deps web bundle install
+$ docker-compose run --rm web bash
+root@web_1 $ rake db:setup db:seed
+$ docker-compose up
+```
+
+
