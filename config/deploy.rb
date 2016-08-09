@@ -36,7 +36,11 @@ namespace :deploy do
   task :start do ; end
   task :stop do ; end
   task :restart, :roles => :app, :except => { :no_release => true } do
-    run "rvmsudo touch #{File.join(current_path,'tmp','restart.txt')}"
+    if ENV['RVM']
+      run "rvmsudo touch #{File.join(current_path,'tmp','restart.txt')}"
+    else
+      run "#{try_sudo} touch #{File.join(current_path,'tmp','restart.txt')}"
+    end
   end
 
   task :symlink_configs, :roles => :app do
@@ -54,7 +58,11 @@ namespace :foreman do
   desc 'Export the Procfile to Ubuntu upstart scripts'
   task :export, :roles => :app do
     run "echo -e \"HOME=$HOME\\nPATH=$PATH\\nRAILS_ENV=production\" >  #{current_path}/.env"
-    run "cd #{current_path} && rvmsudo `which bundle` exec foreman export upstart /etc/init -f #{current_path}/Procfile -a #{application} -u #{user} --concurrency=\"worker_fast=1,worker_slow=1,xmpp=1,smpp=1,msn=0,cron=1,sched=1\""
+    if ENV['RVM']
+      run "cd #{current_path} && rvmsudo `which bundle` exec foreman export upstart /etc/init -f #{current_path}/Procfile -a #{application} -u #{user} --concurrency=\"worker_fast=1,worker_slow=1,xmpp=1,smpp=1,msn=0,cron=1,sched=1\""
+    else
+      run "cd #{current_path} && #{try_sudo} `which bundle` exec foreman export upstart /etc/init -f #{current_path}/Procfile -a #{application} -u #{user} --concurrency=\"worker_fast=1,worker_slow=1,xmpp=1,smpp=1,msn=0,cron=1,sched=1\""
+    end
   end
 
   desc "Start the application services"
