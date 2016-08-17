@@ -51,11 +51,11 @@ class Telemetry::NumbersByCountryCodeCollectorTest < ActiveSupport::TestCase
 
     assert_equal({
       counters: [{
-        metric: 'numbers_by_country_code',
+        metric: 'unique_phone_numbers_by_country',
         key: {country_code: '54'},
         value: 2
       }, {
-        metric: 'numbers_by_country_code',
+        metric: 'unique_phone_numbers_by_country',
         key: {country_code: '855'},
         value: 1
       }]

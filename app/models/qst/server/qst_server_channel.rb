@@ -34,6 +34,8 @@ class QstServerChannel < Channel
   before_save :ticket_record_password, :if => lambda { ticket_code.present? }
   after_save :ticket_mark_as_complete, :if => lambda { ticket_code.present? }
 
+  before_save :infer_carrier
+
   def self.title
     "QST server (local gateway)"
   end
@@ -61,6 +63,13 @@ class QstServerChannel < Channel
 
   def has_connection?
     true
+  end
+
+  def matches_carrier_guids?(carrier_guids)
+    return false unless self.carrier_guid
+
+    self_carrier_guids = self.carrier_guid.split(",")
+    self_carrier_guids.any? { |self_carrier_guid| carrier_guids.include?(self_carrier_guid) }
   end
 
   private
@@ -114,5 +123,17 @@ class QstServerChannel < Channel
       attributes[sym] = value if value.present?
     end
     attributes
+  end
+
+  def infer_carrier
+    if address.present?
+      countries, carriers = Carrier.infer_from_phone_number(address.mobile_number)
+      unless carriers.empty?
+        self.carrier_guid = carriers.map(&:guid).join(",")
+      end
+    else
+      self.carrier_guid = nil
+    end
+    true
   end
 end

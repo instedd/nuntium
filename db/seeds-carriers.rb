@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -871,3 +871,15 @@ Carrier.create!(:country => Country.find_by_iso3('ZWE'), :name => 'Econet', :cli
 Carrier.create!(:country => Country.find_by_iso3('ZWE'), :name => 'NetOne', :clickatell_name => 'NetOne', :guid => 'a9f5c192-53e6-8f80-b56f-0332c628ca29')
 Carrier.create!(:country => Country.find_by_iso3('ZWE'), :name => 'Telecel (P+T Corp.)', :clickatell_name => 'Telecel (P+T Corp.)', :guid => '61b5fc8d-a50b-a573-e15c-9df60520e363')
 Carrier.create!(:country => Country.find_by_iso3('ZWE'), :name => '', :clickatell_name => '', :guid => '')
+
+Carrier.create!(:country => Country.find_by_iso3('SOM'), :name => 'Africa Online', :clickatell_name => 'Africa Online', :guid => '2a02ffa7-4d68-19aa-168d-7777b46e27d8', :prefixes => '624')
+Carrier.create!(:country => Country.find_by_iso3('SOM'), :name => 'Golis', :clickatell_name => 'Golis', :guid => '1aa49890-b1c6-add3-e44e-0f4e75f2f37b', :prefixes => '57,58,68,88,90')
+Carrier.create!(:country => Country.find_by_iso3('SOM'), :name => 'Hormuud', :clickatell_name => 'Hormuud', :guid => 'fa261e02-ee4d-0063-fb22-175843782254', :prefixes => '15,16,18,34,39,43,47,61')
+Carrier.create!(:country => Country.find_by_iso3('SOM'), :name => 'Miccom', :clickatell_name => 'Miccom', :guid => '9b75ae3c-a23d-f7ee-5d3c-f18bf0733d40', :prefixes => '619')
+Carrier.create!(:country => Country.find_by_iso3('SOM'), :name => 'Mobile', :clickatell_name => 'Mobile', :guid => '6c4c5c6e-a529-fb7c-7d71-b28bd86ff355', :prefixes => "28,29,642,643,644,6489,649")
+Carrier.create!(:country => Country.find_by_iso3('SOM'), :name => 'Nation Link', :clickatell_name => 'Nation Link', :guid => '7fe275b1-3cdb-da88-8606-f6b99319a06d', :prefixes => "17,19,227,228,50,51,53,56,59,67,69")
+Carrier.create!(:country => Country.find_by_iso3('SOM'), :name => 'Onkotel', :clickatell_name => 'Onkotel', :guid => 'c1ef6ee6-ad1e-c25a-73d9-a075560ffe4f', :prefixes => "9")
+Carrier.create!(:country => Country.find_by_iso3('SOM'), :name => 'Soltelco', :clickatell_name => 'Soltelco', :guid => '0f91ced6-1e07-e377-c4af-3bfe23a93413', :prefixes => "225,825,828,829")
+Carrier.create!(:country => Country.find_by_iso3('SOM'), :name => 'Somtel', :clickatell_name => 'Somtel', :guid => '4a7912fe-c908-05c6-00e8-ea0f076436ad', :prefixes => "731,732,741,742,743,751,761,762,766,767,781,793")
+Carrier.create!(:country => Country.find_by_iso3('SOM'), :name => 'Telcom', :clickatell_name => 'Telcom', :guid => 'df2ebb4c-197e-7567-a3cd-ed1283361dbe', :prefixes => '12,13,14,23,33,620,621,622,623,625,626,627,628,629,65,66')
+Carrier.create!(:country => Country.find_by_iso3('SOM'), :name => 'Telesom', :clickatell_name => 'Telesom', :guid => '12727507-5a71-ef4e-4fe1-6a2fff05d71e', :prefixes => "24,25,26,27")

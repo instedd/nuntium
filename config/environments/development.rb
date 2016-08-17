@@ -56,8 +56,8 @@ Rails.application.configure do
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 
-  # Use memcached
-  config.cache_store = :mem_cache_store
+  # whitelist all ips for web_console in development mode (so it works in docker development)
+  config.web_console.whitelisted_ips = '0.0.0.0/0'
 
   config.action_mailer.default_url_options = { host: 'localhost:3000' }
 end

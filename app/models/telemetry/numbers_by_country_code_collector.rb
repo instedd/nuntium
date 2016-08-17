@@ -21,7 +21,7 @@ module Telemetry::NumbersByCountryCodeCollector
 
     counters = numbers_by_country_code.map do |country_code, count|
       {
-        metric: 'numbers_by_country_code',
+        metric: 'unique_phone_numbers_by_country',
         key: {country_code: country_code},
         value: count
       }

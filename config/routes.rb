@@ -111,7 +111,7 @@ Rails.application.routes.draw do
   scope '/:account_id/qst', :constraints => {:account_id => /.*/}  do
     post '/incoming' => 'qst_server#push', :as => :qst_push
     get '/incoming' => 'qst_server#get_last_id', :as => :qst_get_last_id, :constraints => {:account_id => /.*/}
-    get '/outgoing' => 'qst_server#pull', :as => :qst_pull, :constraints => {:account_id => /.*/}
+    match '/outgoing' => 'qst_server#pull', :as => :qst_pull, :constraints => {:account_id => /.*/}, via: [:get, :post]
     match '/setaddress' => 'qst_server#set_address', :as => :qst_set_address, :constraints => {:account_id => /.*/}, via: [:get, :post]
   end
 

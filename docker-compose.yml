@@ -1,68 +1,85 @@
-mysql:
-  image: mysql:5.6
-  environment:
-    MYSQL_ROOT_PASSWORD: root
+version: '2.0'
 
-rabbitmq:
-  image: rabbitmq:3.5.3
+services:
+  db:
+    image: mysql:5.6
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - db:/var/lib/mysql
 
-memcached:
-  image: memcached:1.4.24
+  rabbitmq:
+    image: rabbitmq:3.5.3
+    command: /app/docker-compose-rabbitmq-cmd.sh
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+      - .:/app
 
-web: &base
-  build: .
-  links: &links
-    - mysql
-    - rabbitmq
-    - memcached
-  environment: &environment
-    RAILS_ENV: production
-    DATABASE_URL: mysql2://root:root@mysql/nuntium
-  ports:
-    - 80
+  memcached:
+    image: memcached:1.4.24
 
-workerfast:
-  build: .
-  links: *links
-  environment:
-    <<: *environment
-    INSTANCE_ID: 1000
-  command: "bundle exec lib/services/generic_worker_daemon.rb ${RAILS_ENV} fast ${INSTANCE_ID}"
+  web: &rails
+    image: instedd/nginx-rails:2.3
+    environment:
+      RAILS_ENV:
+      DATABASE_HOST: 'db'
+      RABBITMQ_URL: 'amqp://rabbitmq'
+      MEMCACHE_SERVER: 'memcached:11211'
+    # pid: host
+    volumes:
+      - .:/app
+      - bundle:/usr/local/bundle
+    depends_on:
+      - db
+      - rabbitmq
+      - memcached
+    command: rails server -b 0.0.0.0
+    ports:
+      - 3000:3000
+    tmpfs: /app/tmp
 
-workerslow:
-  build: .
-  links: *links
-  environment:
-    <<: *environment
-    INSTANCE_ID: 2000
-  command: "bundle exec lib/services/generic_worker_daemon.rb ${RAILS_ENV} slow ${INSTANCE_ID}"
+  workerfast:
+    <<: *rails
+    environment:
+      RAILS_ENV: development
+      INSTANCE_ID: 1000
+    command: "bundle exec lib/services/generic_worker_daemon.rb $$RAILS_ENV fast $$INSTANCE_ID"
+    ports: []
 
-xmpp:
-  build: .
-  links: *links
-  environment: *environment
-  command: "bundle exec lib/services/xmpp_service_daemon.rb"
+  workerslow:
+    <<: *rails
+    environment:
+      RAILS_ENV: development
+      INSTANCE_ID: 2000
+    command: "bundle exec lib/services/generic_worker_daemon.rb $$RAILS_ENV slow $$INSTANCE_ID"
+    ports: []
 
-smpp:
-  build: .
-  links: *links
-  environment: *environment
-  command: "bundle exec lib/services/smpp_service_daemon.rb"
+  xmpp:
+    <<: *rails
+    command: "bundle exec lib/services/xmpp_service_daemon.rb"
+    ports: []
 
-msn:
-  build: .
-  links: *links
-  environment: *environment
-  command: "bundle exec lib/services/msn_service_daemon.rb"
+  smpp:
+    <<: *rails
+    command: "bundle exec lib/services/smpp_service_daemon.rb"
+    ports: []
 
-cron:
-  build: .
-  links: *links
-  environment: *environment
-  command: "bundle exec lib/services/cron_daemon.rb"
+  msn:
+    <<: *rails
+    command: "bundle exec lib/services/msn_service_daemon.rb"
+    ports: []
 
-sched:
-  build: .
-  links: *links
-  environment: *environment
-  command: "bundle exec lib/services/scheduled_jobs_service_daemon.rb"
+  cron:
+    <<: *rails
+    command: "bundle exec lib/services/cron_daemon.rb"
+    ports: []
+
+  sched:
+    <<: *rails
+    command: "bundle exec lib/services/scheduled_jobs_service_daemon.rb"
+    ports: []
+
+volumes:
+  db:
+  bundle:
+  rabbitmq:

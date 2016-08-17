@@ -71,6 +71,52 @@ class Carrier < ActiveRecord::Base
     @@carriers = nil
   end
 
+  # Returns [countries, carriers]
+  def self.infer_from_phone_number(number, country_iso = nil, carrier_iso = nil)
+    countries = []
+    carriers = []
+
+    # Infer country from phone number
+    unless country_iso
+      countries = Country.all_countries.select{|x| number.start_with? x.phone_prefix}
+      if countries.length > 0
+        # Slipt countries with and without area codes
+        with_area_codes, without_area_codes = countries.partition{|x| x.area_codes.present?}
+        # From those with area codes, select only the ones for which the number start with them
+        with_area_codes = with_area_codes.select{|x| x.area_codes.split(',').any?{|y| number.start_with?(x.phone_prefix + y.strip)}}
+        # If we find matches with area codes, use them. Otherwise, use those without area codes
+        countries = with_area_codes.present? ? with_area_codes : without_area_codes
+
+        if countries.length == 1
+          country_iso = countries[0].iso2
+        else
+          country_iso = countries.map(&:iso2)
+        end
+      end
+    end
+
+    # Infer carrier from phone number (if country is present)
+    if country_iso && !carrier_iso
+      carrier_countries = country_iso
+      carrier_countries = [carrier_countries] unless carrier_countries.kind_of? Array
+      carrier_countries = carrier_countries.map{|x| Country.find_by_iso2_or_iso3 x}
+
+      carrier_countries.each do |c|
+        next unless c
+        cs = Carrier.find_by_country_id c.id
+        cs.each do |carrier|
+          next unless carrier.prefixes.present?
+          prefixes = carrier.prefixes.split ','
+          if prefixes.any?{|p| number.start_with?(c.phone_prefix + p.strip)}
+            carriers << carrier
+          end
+        end
+      end
+    end
+
+    [countries, carriers]
+  end
+
   private
 
   def clear_cache
