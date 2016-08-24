@@ -21,6 +21,7 @@ class DummyControllerTest < ActionController::TestCase
   end
 
   def teardown
+    Guisso.unstub(:enabled?)
     Rails.application.reload_routes!
   end
 
@@ -126,6 +127,4 @@ class DummyControllerTest < ActionController::TestCase
     assert_equal "Client App", application.name
     assert_equal "#{account.id}/#{application.id}", @response.body
   end
-
-
 end
