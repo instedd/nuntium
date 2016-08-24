@@ -29,11 +29,12 @@ services:
     volumes:
       - .:/app
       - bundle:/usr/local/bundle
+    tmpfs: /app/tmp
     depends_on:
       - db
       - rabbitmq
       - memcached
-    command: sleep 8 && rails server -b 0.0.0.0 # wait for rabbitmq setup
+    command: rails server -b 0.0.0.0
     ports:
       - 3000:3000
 

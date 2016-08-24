@@ -8,7 +8,7 @@ GIT
 
 GIT
   remote: git://github.com/instedd/alto_guisso_rails.git
-  revision: d9dcdce816f0633acb2515724157aa0d8c48fda2
+  revision: 7744de77433a5713bb1fa852e62faecda4a36188
   branch: master
   specs:
     alto_guisso_rails (0.0.1)
@@ -40,7 +40,7 @@ GIT
 
 GIT
   remote: https://github.com/instedd/telemetry_rails
-  revision: b361d4cf3167a7184f77c678d77c517f5680f032
+  revision: db0ef5c0e72b8a944befb7b9b88beedb876b296c
   branch: master
   specs:
     instedd_telemetry (0.0.1)
@@ -250,6 +250,9 @@ GEM
       activesupport (= 3.2.19)
       bundler (~> 1.0)
       railties (= 3.2.19)
+    rails-dev-tweaks (1.2.0)
+      actionpack (>= 3.1)
+      railties (>= 3.1)
     railties (3.2.19)
       actionpack (= 3.2.19)
       activesupport (= 3.2.19)
@@ -363,6 +366,7 @@ DEPENDENCIES
   puma
   qst_client
   rails (= 3.2.19)
+  rails-dev-tweaks
   rake
   rest-client
   rgviz

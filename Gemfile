@@ -56,14 +56,15 @@ end
 group :development do
   gem 'licit'
   gem 'capistrano', "~> 2.15"
+  gem 'rails-dev-tweaks'
 end
 
 group :debug do
-  gem 'pry'
-  gem 'pry-debugger'
 end
 
 group :test do
+  gem 'pry'
+  gem 'pry-debugger'
   gem "rake"
   gem 'test-unit', :require => 'test/unit'
   gem "mocha"
