@@ -20,6 +20,18 @@ GIT
       ruby-openid
 
 GIT
+  remote: https://bitbucket.org/instedd/pigeon.git
+  revision: 50f5268e3690071937cdcce581a29922ef723bf7
+  branch: master
+  specs:
+    instedd-pigeon (0.3.1)
+      json
+      rails (~> 3.2)
+      rest-client
+      twilio-ruby
+      twitter_oauth
+
+GIT
   remote: https://github.com/instedd/poirot_rails.git
   revision: c3e8ceeacd07a226b941a8cabb2dd762fa73846f
   branch: master
@@ -342,6 +354,7 @@ DEPENDENCIES
   ffaker
   foreman
   guid
+  instedd-pigeon!
   instedd_telemetry!
   jquery-rails (>= 1.0.12)
   jquery-ui-rails

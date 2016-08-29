@@ -1,0 +1,4 @@
+= form_tag(new_pigeon_path, method: :get) do
+    ' Create new
+    = select_tag :kind, pigeon_nuntium_channel_kinds_for_select
+    = submit_tag "Go"
