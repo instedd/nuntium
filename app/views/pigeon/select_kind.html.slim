@@ -1,4 +1,5 @@
 = form_tag(new_pigeon_path, method: :get) do
+    = hidden_field_tag :access_token, params[:access_token]
     ' Create new
     = select_tag :kind, pigeon_nuntium_channel_kinds_for_select
     = submit_tag "Go"

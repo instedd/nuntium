@@ -1,5 +1,6 @@
 h4 New #{@pigeon_channel.kind.humanize} channel
 = form_for @channel, as: :channel, url: create_pigeon_path do |f|
+  = hidden_field_tag :access_token, params[:access_token]
   = f.error_messages
   = f.hidden_field :kind, value: @pigeon_channel.kind
 

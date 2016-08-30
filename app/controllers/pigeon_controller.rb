@@ -1,4 +1,4 @@
-class PigeonController < ApplicationController
+class PigeonController < ApiAuthenticatedController
   helper Pigeon::Engine.helpers
   layout 'pigeon'
 
@@ -17,7 +17,8 @@ class PigeonController < ApplicationController
     @channel = Channel.from_hash @pigeon_channel.attributes.reject { |k,v| k == 'configuration' }, :json
     @channel.name = params[:channel][:name]
     @channel.configuration = @pigeon_channel.attributes[:configuration]
-    @channel.account = account
+    @channel.account = @account
+    @channel.application = @application
     if @channel.save
       render :done
     else

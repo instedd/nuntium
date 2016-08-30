@@ -17,10 +17,11 @@
 
 class ApiAuthenticatedController < ApplicationController
   skip_filter :check_login
-  before_filter :authenticate
+  before_filter :authenticate_with_oauth2
+  before_filter :authenticate_with_basic
 
-  def authenticate
-    return if authenticate_with_oauth2
+  def authenticate_with_basic
+    return if @account && @application
 
     authenticate_or_request_with_http_basic do |username, password|
       @account, @application = Account.authenticate username, password
@@ -48,10 +49,6 @@ class ApiAuthenticatedController < ApplicationController
       @application = @account.applications.find_by_name(token['client']['name']) || begin
         @account.applications.create! name: token['client']['name'], password: SecureRandom.base64
       end
-
-      true
-    else
-      false
     end
   end
 
