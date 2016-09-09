@@ -29,14 +29,15 @@ services:
     volumes:
       - .:/app
       - bundle:/usr/local/bundle
+      - /Users/waj/Devel/alto_guisso_rails:/alto_guisso_rails
     tmpfs: /app/tmp
     depends_on:
       - db
       - rabbitmq
       - memcached
-    command: rails server -b 0.0.0.0
+    command: rails server -b 0.0.0.0 -p 80
     ports:
-      - 3000:3000
+      - 3000:80
 
   workerfast:
     <<: *rails
