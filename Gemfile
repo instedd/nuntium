@@ -44,6 +44,7 @@ gem 'newrelic_rpm'
 gem 'foreman'
 gem 'instedd_telemetry', git: "https://github.com/instedd/telemetry_rails", branch: 'master'
 gem 'poirot_rails', git: 'https://github.com/instedd/poirot_rails.git', branch: 'master'
+gem 'instedd-pigeon', git: "https://bitbucket.org/instedd/pigeon.git", branch: 'master', :require => 'pigeon'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -56,14 +57,15 @@ end
 group :development do
   gem 'licit'
   gem 'capistrano', "~> 2.15"
+  gem 'rails-dev-tweaks'
 end
 
 group :debug do
-  gem 'pry'
-  gem 'pry-debugger'
 end
 
 group :test do
+  gem 'pry'
+  gem 'pry-debugger'
   gem "rake"
   gem 'test-unit', :require => 'test/unit'
   gem "mocha"

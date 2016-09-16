@@ -20,6 +20,10 @@ Nuntium::Application.routes.draw do
   guisso_for :user
   mount InsteddTelemetry::Engine => "/instedd_telemetry"
 
+  authenticate :user do
+    mount Pigeon::Engine => '/pigeon_engine', as: "pigeon_engine"
+  end
+
   resources :accounts do
     member do
       get :select
@@ -86,6 +90,11 @@ Nuntium::Application.routes.draw do
   end
   resources :visualizations, :only => :index do
     get :messages_state_by_day, :on => :collection
+  end
+
+  scope '/pigeon' do
+    get '/new' => 'pigeon#new', as: 'new_pigeon'
+    post '/create' => 'pigeon#create', as: 'create_pigeon'
   end
 
   scope '/:account_id/clickatell', :constraints => {:account_id => /.*/} do

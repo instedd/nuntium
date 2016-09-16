@@ -9,4 +9,5 @@
 //= require jquery.ui.autocomplete
 //= require lodash
 //= require knockout
+//= require pigeon
 //= require_tree .
