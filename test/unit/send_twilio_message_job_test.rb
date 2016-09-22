@@ -71,7 +71,7 @@ class SendTwilioMessageJobTest < ActiveSupport::TestCase
     assert_equal 'queued', msg.state
 
     @chan.reload
-    assert @chan.enabled
+    assert_false @chan.enabled
   end
 
   should "perform with expected parameters" do
