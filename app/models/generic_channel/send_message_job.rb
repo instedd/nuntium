@@ -50,6 +50,7 @@ class SendMessageJob
     rescue PermanentException => ex
       alert_msg = "Permanent exception when trying to send message with id #{@msg.id}: #{ex}"
       @channel.alert alert_msg
+      @channel.update_attribute :enabled, false
       raise alert_msg
     end
   end
