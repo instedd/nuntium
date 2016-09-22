@@ -56,6 +56,6 @@ class SendTwitterMessageJobTest < ActiveSupport::TestCase
     end
 
     @channel.reload
-    assert_true @channel.enabled
+    assert_false @channel.enabled
   end
 end
