@@ -29,7 +29,6 @@ services:
     volumes:
       - .:/app
       - bundle:/usr/local/bundle
-      - /Users/waj/Devel/alto_guisso_rails:/alto_guisso_rails
     tmpfs: /app/tmp
     depends_on:
       - db
