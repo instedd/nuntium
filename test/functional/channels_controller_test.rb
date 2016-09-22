@@ -142,6 +142,16 @@ class ChannelsControllerTest < ActionController::TestCase
     assert_equal chan2.id, msg.channel_id
   end
 
+  test "can disable channel even if it does not validate" do
+    chan = QstServerChannel.make :account => @account
+    chan.update_attribute :name, ""
+
+    get :disable, :id => chan.id
+
+    chan.reload
+    assert_false chan.enabled
+  end
+
   test "pause channel" do
     chan = QstServerChannel.make :account => @account
 
