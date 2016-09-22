@@ -65,7 +65,7 @@ class ChannelsController < ApplicationController
 
   def disable
     channel.enabled = false
-    channel.save!
+    channel.save!(:validate => false)
 
     case channel.requeued_messages_count
     when 0
