@@ -18,6 +18,7 @@
 class AoMessagesController < ApplicationController
   include ApplicationAuthenticatedController
   include CustomAttributesControllerCommon
+  include AoMessageCreateCommon
 
   skip_filter :check_login, :only => [:create_via_api, :get_ao]
   before_filter :authenticate, :only => [:create_via_api, :get_ao]
@@ -101,14 +102,7 @@ class AoMessagesController < ApplicationController
   end
 
   def create_via_api
-    case params[:format]
-    when nil
-      create_single
-    when 'json'
-      create_many_json
-    when 'xml'
-      create_many_xml
-    end
+    create_from_request
   end
 
   # GET /:account_name/:application_name/get_ao.:format
@@ -130,41 +124,5 @@ class AoMessagesController < ApplicationController
       messages = messages.where 'id IN (?)', params[:ao_messages]
     end
     messages.all
-  end
-
-  def create_single
-    msg = AoMessage.from_hash params
-    msg.token = params.delete(:token) || Guid.new.to_s
-    route msg
-
-    response.headers['X-Nuntium-Id'] = msg.id.to_s
-    response.headers['X-Nuntium-Guid'] = msg.guid.to_s
-    response.headers['X-Nuntium-Token'] = msg.token.to_s
-    head :ok
-  end
-
-  def create_many_json
-    create_many :from_json
-  end
-
-  def create_many_xml
-    create_many :parse_xml
-  end
-
-  def create_many(method)
-    token = Guid.new.to_s
-    AoMessage.send(method, request.raw_post) do |msg|
-      token = msg.token if msg.token
-      msg.token = token
-      route msg
-    end
-    response.headers['X-Nuntium-Token'] = token
-    head :ok
-  end
-
-  def route(msg)
-    msg.account_id = @account.id
-    msg.token ||= Guid.new.to_s
-    @application.route_ao msg, 'http'
   end
 end
