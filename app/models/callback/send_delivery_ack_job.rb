@@ -35,6 +35,14 @@ class SendDeliveryAckJob
     return unless @app and @chan and @app.delivery_ack_method != 'none'
 
     data = {:guid => @msg.guid, :channel => @chan.name, :state => @state}.merge(@msg.custom_attributes)
+    delivery_url = URI.parse(@app.delivery_ack_url)
+    if @app.delivery_ack_method == 'get' && (query = delivery_url.query)
+      uri_query = Rack::Utils.parse_nested_query(query)
+      data.merge!(uri_query)
+      delivery_url.query = nil
+    end
+
+    delivery_url = delivery_url.to_s
 
     options = {:headers => {:content_type => "application/x-www-form-urlencoded"}}
     if @app.delivery_ack_user.present?
@@ -43,7 +51,7 @@ class SendDeliveryAckJob
     end
 
     begin
-      res = RestClient::Resource.new @app.delivery_ack_url, options
+      res = RestClient::Resource.new delivery_url, options
       res = @app.delivery_ack_method == 'get' ? res["?#{data.to_query}"].get : res.post(data)
       res = res.net_http_res
 

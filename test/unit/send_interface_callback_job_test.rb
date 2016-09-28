@@ -64,6 +64,20 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     job.perform
   end
 
+  test "get when interface url has query params" do
+    @application.interface = 'http_get_callback'
+    @application.interface_url = 'http://www.domain.com?foo=bar&baz=qux'
+    @application.save!
+
+    expect_get :url => 'http://www.domain.com',
+      :query_params => @query.merge("foo" => "bar", "baz" => "qux"),
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPSuccess
+
+    job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
+    job.perform
+  end
+
   test "post" do
     @application.interface = 'http_post_callback'
     @application.interface_url = 'http://www.domain.com'

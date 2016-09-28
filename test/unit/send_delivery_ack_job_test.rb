@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -49,6 +49,20 @@ class SendDeliveryAckJobTest < ActiveSupport::TestCase
     expect_get :url => @application.delivery_ack_url,
       :query_params => @query,
       :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}, :user => @application.delivery_ack_user, :password => @application.delivery_ack_password},
+      :returns => Net::HTTPSuccess
+
+    job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state
+    job.perform
+  end
+
+  test "get when interface url has query params" do
+    @application.delivery_ack_method = 'get'
+    @application.delivery_ack_url = 'http://www.domain.com?foo=bar&baz=qux'
+    @application.save!
+
+    expect_get :url => 'http://www.domain.com',
+      :query_params => @query.merge("foo" => "bar", "baz" => "qux"),
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
       :returns => Net::HTTPSuccess
 
     job = SendDeliveryAckJob.new @application.account_id, @application.id, @msg.id, @msg.state

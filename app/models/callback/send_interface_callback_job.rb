@@ -36,6 +36,7 @@ class SendInterfaceCallbackJob
     @msg.save!
 
     content_type = "application/x-www-form-urlencoded"
+    interface_uri = URI.parse(@app.interface_url)
 
     if @app.interface_custom_format.present?
       looks_like_xml = looks_like_xml?(@app.interface_custom_format)
@@ -53,8 +54,19 @@ class SendInterfaceCallbackJob
         :guid => @msg.guid,
         :channel => @msg.channel.try(:name)
       }.merge(@msg.custom_attributes)
-      data = data.to_query if @app.interface == 'http_get_callback'
+
+      if @app.interface == 'http_get_callback'
+        # If the interface URI has query params, merge them into the data we'll send
+        if query = interface_uri.query
+          uri_query = Rack::Utils.parse_nested_query(query)
+          data.merge!(uri_query)
+          interface_uri.query = nil
+        end
+        data = data.to_query
+      end
     end
+
+    interface_uri = interface_uri.to_s
 
     options = {:headers => {:content_type => content_type}}
     if @app.interface_user.present?
@@ -67,7 +79,7 @@ class SendInterfaceCallbackJob
     @app.logger.info :at_message_id => @msg.id, :channel_id => @msg.channel.try(:id), :message => "Executing #{http_method} callback to #{@app.interface_url}"
 
     begin
-      res = RestClient::Resource.new(@app.interface_url, options)
+      res = RestClient::Resource.new(interface_uri, options)
       res = @app.interface == 'http_get_callback' ? res["?#{data}"].get : res.post(data)
       netres = res.net_http_res
 
@@ -106,7 +118,7 @@ class SendInterfaceCallbackJob
             end
           end
         when Net::HTTPUnauthorized
-          alert_msg = "#{http_method} callback to #{@app.interface_url} received unauthorized: invalid credentials"
+          alert_msg = "#{http_method} callback to #{interface_uri} received unauthorized: invalid credentials"
           @app.alert alert_msg
           raise alert_msg
         else
