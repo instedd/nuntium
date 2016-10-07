@@ -435,6 +435,45 @@ class Application < ActiveRecord::Base
     true
   end
 
+  def as_json(options = {})
+    {
+      name: name,
+      interface: {
+        type: interface,
+        url: interface_url,
+        user: interface_user
+      },
+      use_address_source: use_address_source?,
+      strategy: strategy,
+      delivery_ack: {
+        url: delivery_ack_url,
+        user: delivery_ack_user,
+        method: delivery_ack_method,
+      },
+      twitter: {
+        consumer_key: twitter_consumer_key
+      }
+    }
+  end
+
+  def update_from(data)
+    if data_interface = data["interface"]
+      self.interface = data_interface["type"] if data_interface.has_key?("type")
+      self.interface_url = data_interface["url"] if data_interface.has_key?("url")
+      self.interface_user = data_interface["user"] if data_interface.has_key?("user")
+      self.interface_password = data_interface["password"] if data_interface.has_key?("password")
+    end
+
+    if data_ack = data["delivery_ack"]
+      self.delivery_ack_url = data_ack["url"] if data_ack.has_key?("url")
+      self.delivery_ack_user = data_ack["user"] if data_ack.has_key?("user")
+      self.delivery_ack_password = data_ack["password"] if data_ack.has_key?("password")
+      self.delivery_ack_method = data_ack["method"] if data_ack.has_key?("method")
+    end
+
+    self.use_address_source = data["use_address_source"] if data.has_key?("use_address_source")
+    self.strategy = data["strategy"] if data.has_key?("strategy")
+  end
 
   protected
 

@@ -177,6 +177,7 @@ Nuntium::Application.routes.draw do
     end
 
     resources :ao_messages, only: [:create], controller: 'api_ao_messages'
+    resources :applications, controller: 'api_applications'
   end
 
   scope '/tickets' do
