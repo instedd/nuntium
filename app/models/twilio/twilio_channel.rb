@@ -22,8 +22,16 @@ class TwilioChannel < Channel
   validates_presence_of :account_sid, :auth_token, :from, :incoming_password
   handle_password_change :auth_token
 
-  before_validation :configure_phone_number
+  before_validation :generate_incoming_password
+  after_validation :configure_phone_number
+
+  def generate_incoming_password
+    self.incoming_password = Devise.friendly_token
+  end
+
   def configure_phone_number
+    return unless errors.empty?
+
     client = Twilio::REST::Client.new account_sid, auth_token
     incoming_phones = client.account.incoming_phone_numbers.list
 
@@ -38,7 +46,6 @@ class TwilioChannel < Channel
       return false
     end
 
-    self.incoming_password = Devise.friendly_token
     self.address = target_phone.phone_number.mobile_number.with_protocol("sms")
 
     protocol = Settings.protocol
