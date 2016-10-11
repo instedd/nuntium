@@ -17,6 +17,7 @@
 
 class ApiAuthenticatedController < ApplicationController
   skip_filter :check_login
+  skip_filter :check_account
   before_filter :authenticate_with_oauth2
   before_filter :authenticate_with_basic
 

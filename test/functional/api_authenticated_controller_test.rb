@@ -30,6 +30,13 @@ class DummyControllerTest < ActionController::TestCase
     assert_response :unauthorized
   end
 
+  test "ignore session" do
+    user = User.make
+    sign_in user
+    get :index
+    assert_response :unauthorized
+  end
+
   test "login with basic credentials" do
     @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'secret')
     get :index
