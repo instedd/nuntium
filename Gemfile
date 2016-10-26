@@ -67,7 +67,7 @@ group :test do
   gem 'pry'
   gem 'pry-debugger'
   gem "rake"
-  gem 'test-unit', :require => 'test/unit'
+  gem 'test-unit', '~> 3.1.8', :require => 'test/unit'
   gem "mocha"
   gem "thoughtbot-shoulda", :require => "shoulda"
   gem 'ffaker'
