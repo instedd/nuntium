@@ -37,7 +37,7 @@ class ChannelsController < ApplicationController
 
   def create
     if channel.save
-      redirect_to channels_path, :notice => "Channel #{channel.name} was created"
+      redirect_to channels_path, :notice => (channel.ui_save_notice || "Channel #{channel.name} was created")
     else
       render :new
     end
@@ -45,7 +45,7 @@ class ChannelsController < ApplicationController
 
   def update
     if channel.save
-      redirect_to channels_path, :notice => "Channel #{channel.name} was updated"
+      redirect_to channels_path, :notice => (channel.ui_save_notice || "Channel #{channel.name} was updated")
     else
       render :edit
     end
