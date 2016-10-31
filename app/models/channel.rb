@@ -413,4 +413,9 @@ class Channel < ActiveRecord::Base
   def matches_carrier_guids?(carrier_guids)
     return true
   end
+
+  # Override to provide an UI notice when saving a channel
+  def ui_save_notice
+    nil
+  end
 end

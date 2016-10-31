@@ -1,0 +1,17 @@
+<%= form_for_channel channel do |f| -%>
+  <%= render 'edit_header', :f => f, :exclude_address => true -%>
+  <h5>Nexmo account info</h5>
+  <p>
+  <%= f.label :from, "From (SenderId)" -%><br/>
+  <%= f.text_field :from -%>
+  </p>
+  <p>
+  <%= f.label :api_key, "API key" -%><br/>
+  <%= f.text_field :api_key, :autocomplete => :off -%>
+  </p>
+  <p>
+  <%= f.label :api_secret, "API secret" %><br/>
+  <%= f.password_field :api_secret, :autocomplete => :off -%>
+  </p>
+  <%= render 'edit_footer', :f => f, :exclude_costs => true %>
+<%- end -%>
