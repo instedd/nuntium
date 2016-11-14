@@ -101,7 +101,7 @@ class NexmoChannel < Channel
     url = "https://rest.nexmo.com/account/settings?#{query.to_query}"
     headers = {"Content-Type" => "application/x-www-form-urlencoded"}
     begin
-      RestClient.post(url, headers: headers)
+      RestClient::Request.execute(method: :post, url: url, headers: headers, timeout: 30)
       @configured_nexmo_incoming_callback = true
     rescue => ex
       @configured_nexmo_incoming_callback = false
