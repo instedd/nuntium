@@ -104,6 +104,11 @@ Nuntium::Application.routes.draw do
 
   match '/clickatell/view_credit' => 'clickatell#view_credit', :as => :clickatel_credit
 
+  scope '/:account_id/:channel_id/nexmo/:callback_token', :constraints => {:account_id => /.*/, :channel_id => /.*/} do
+    match '/incoming' => 'nexmo#incoming', :as => :nexmo_incoming, :constraints => {:account_id => /.*/, :channel_id => /.*/}
+    match '/ack' => 'nexmo#ack', :as => :nexmo_ack, :constraints => {:account_id => /.*/, :channel_id => /.*/}
+  end
+
   scope '/channels/twitter' do
     post '/create' => 'twitter#create', :as => :create_twitter_channel
     put '/update/:id' => 'twitter#update', :as => :update_twitter_channel

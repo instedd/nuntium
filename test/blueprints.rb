@@ -153,6 +153,15 @@ MultimodemIsmsChannel.blueprint do
   configuration {{:host => Sham.url, :port => rand(1000) + 1, :user => Sham.username, :password => Sham.password, :time_zone => ActiveSupport::TimeZone.all.rand.name}}
 end
 
+NexmoChannel.blueprint do
+  account
+  name { Sham.guid }
+  direction { Channel::Bidirectional }
+  protocol { "sms" }
+  enabled { true }
+  configuration {{:from => Sham.number8, :api_key => Sham.username, :api_secret => Sham.password}}
+end
+
 Pop3Channel.blueprint do
   account
   name { Sham.guid }
