@@ -1,4 +1,5 @@
 class ApiApplicationsController < ApiAuthenticatedController
+  before_filter :require_account_and_application!
 
   def show
     return head :not_found unless params[:id] == 'me'

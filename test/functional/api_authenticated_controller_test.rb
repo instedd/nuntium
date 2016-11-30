@@ -2,7 +2,10 @@ require 'test_helper'
 
 class DummyController < ApiAuthenticatedController
   def index
-    render text: "#{@account.id}/#{@application.id}"
+    user = current_user.try(&:id)
+    account = @account.try(&:id)
+    application = @application.try(&:id)
+    render text: "#{user}/#{account}/#{application}"
   end
 
   def guisso_request
@@ -41,7 +44,7 @@ class DummyControllerTest < ActionController::TestCase
     @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}/#{@application.name}", 'secret')
     get :index
     assert_response :ok
-    assert_equal "#{@account.id}/#{@application.id}", @response.body
+    assert_equal "/#{@account.id}/#{@application.id}", @response.body
   end
 
   test "login with OAuth" do
@@ -63,13 +66,13 @@ class DummyControllerTest < ActionController::TestCase
 
     get :index
     assert_response :ok
-    assert_equal "#{account.id}/#{application.id}", @response.body
+    assert_equal "#{user.id}//", @response.body
   end
 
-  test "login with OAuth creates application" do
+  test "login with OAuth and account creates the application" do
     Guisso.stubs(:enabled?).returns(true)
     user = User.make
-    account = Account.make_unsaved(name: user.email)
+    account = Account.make_unsaved(name: "foo")
     user.create_account account
     token = {
       "user" => user.email,
@@ -82,14 +85,14 @@ class DummyControllerTest < ActionController::TestCase
     }
     AltoGuissoRails.stubs(:validate_oauth2_request).returns(token)
 
-    get :index
+    get :index, account: "foo"
     assert_response :ok
     application = account.applications.first
     assert_equal "Client App", application.name
-    assert_equal "#{account.id}/#{application.id}", @response.body
+    assert_equal "#{user.id}/#{account.id}/#{application.id}", @response.body
   end
 
-  test "login with OAuth creates account and application" do
+  test "login with OAuth and invalid accounts forbid access" do
     Guisso.stubs(:enabled?).returns(true)
     user = User.make
     token = {
@@ -103,35 +106,7 @@ class DummyControllerTest < ActionController::TestCase
     }
     AltoGuissoRails.stubs(:validate_oauth2_request).returns(token)
 
-    get :index
-    assert_response :ok
-    account = user.accounts.first
-    application = account.applications.first
-    assert_equal user.email, account.name
-    assert_equal "Client App", application.name
-    assert_equal "#{account.id}/#{application.id}", @response.body
-  end
-
-  test "login with OAuth creates user, account and application" do
-    Guisso.stubs(:enabled?).returns(true)
-    token = {
-      "user" => "user@domain.com",
-      "expires_at" => "3016-08-23T15:11:21.000Z",
-      "token_type" => "bearer",
-      "client" => {
-        "name" => "Client App",
-        "client_id" => "CBl1h6joPyisXkYCvgHz7g"
-      }
-    }
-    AltoGuissoRails.stubs(:validate_oauth2_request).returns(token)
-
-    get :index
-    assert_response :ok
-    user = User.find_by_email!("user@domain.com")
-    account = user.accounts.first
-    application = account.applications.first
-    assert_equal user.email, account.name
-    assert_equal "Client App", application.name
-    assert_equal "#{account.id}/#{application.id}", @response.body
+    get :index, account: "foo"
+    assert_response :unauthorized
   end
 end

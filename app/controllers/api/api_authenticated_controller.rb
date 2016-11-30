@@ -22,7 +22,7 @@ class ApiAuthenticatedController < ApplicationController
   before_filter :authenticate_with_basic
 
   def authenticate_with_basic
-    return if @account && @application
+    return if @current_user || @account || @application
 
     authenticate_or_request_with_http_basic do |username, password|
       @account, @application = Account.authenticate username, password
@@ -35,20 +35,20 @@ class ApiAuthenticatedController < ApplicationController
       token = AltoGuissoRails.validate_oauth2_request(req) or return false
 
       # Find or create the user
-      user = User.find_by_email(token['user']) || begin
+      @current_user = User.find_by_email(token['user']) || begin
         User.create! email: token['user'], password: SecureRandom.base64, confirmed_at: Time.now
       end
 
-      # Find or create the default account for the user
-      @account = user.accounts.find_by_name(user.email) || begin
-        account = Account.create! name: user.email, password: SecureRandom.base64
-        user.create_account account
-        account
-      end
+      if params[:account]
+        @account = @current_user.accounts.find_by_name(params[:account])
+        unless @account
+          return head :unauthorized
+        end
 
-      # Find or create the OAuth client application
-      @application = @account.applications.find_by_name(token['client']['name']) || begin
-        @account.applications.create! name: token['client']['name'], password: SecureRandom.base64
+        # Find or create the OAuth client application
+        @application = @account.applications.find_by_name(token['client']['name']) || begin
+          @account.applications.create! name: token['client']['name'], password: SecureRandom.base64
+        end
       end
     end
   end
@@ -57,4 +57,15 @@ class ApiAuthenticatedController < ApplicationController
     env["guisso.oauth2.req"]
   end
 
+  def require_account!
+    unless @account
+      return head :unauthorized
+    end
+  end
+
+  def require_account_and_application!
+    unless @account && @application
+      return head :unauthorized
+    end
+  end
 end
