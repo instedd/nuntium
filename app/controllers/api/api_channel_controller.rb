@@ -16,7 +16,7 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class ApiChannelController < ApiAuthenticatedController
-  before_filter :require_account_and_application!
+  before_filter :require_account!
 
   # GET /api/channels.:format
   def index
@@ -71,9 +71,9 @@ class ApiChannelController < ApiAuthenticatedController
     end
     chan.merge(update)
 
-    new_app_name = data[:application] || (data[:channel] && data[:channel][:application])
+    new_app_name = data["application"] || (data["channel"] && data["channel"]["application"])
     if new_app_name
-      chan.application = @account.applications.find_name new_app_name
+      chan.application = @account.applications.find_by_name new_app_name
     end
     save chan, 'updating'
   end

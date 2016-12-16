@@ -45,9 +45,11 @@ class ApiAuthenticatedController < ApplicationController
           return head :unauthorized
         end
 
-        # Find or create the OAuth client application
-        @application = @account.applications.find_by_name(token['client']['name']) || begin
-          @account.applications.create! name: token['client']['name'], password: SecureRandom.base64
+        unless params[:application] == "-"
+          # Find or create the OAuth client application
+          @application = @account.applications.find_by_name(token['client']['name']) || begin
+            @account.applications.create! name: token['client']['name'], password: SecureRandom.base64
+          end
         end
       end
     end
