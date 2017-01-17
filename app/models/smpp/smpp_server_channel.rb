@@ -15,15 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-class SmppChannel < BaseSmppChannel
+class SmppServerChannel < BaseSmppChannel
   def self.title
-    "SMPP Client"
+    "SMPP Server"
+  end
+
+  def system_id
+    if self.id
+      "nuntium_#{id}"
+    end
+  end
+
+  def check_password(password)
+    self.password == password
   end
 
   def self.abstract?
     false
   end
 
-  configuration_accessor :user
-  validates_presence_of :user
+  def self.find_by_system_id(id)
+    if id =~ /^nuntium_(\d+)$/
+      self.where(id: $1.to_i).where(kind: "smpp_server").first
+    end
+  end
 end

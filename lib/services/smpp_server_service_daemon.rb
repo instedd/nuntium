@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 # Copyright (C) 2009-2012, InSTEDD
 #
 # This file is part of Nuntium.
@@ -15,15 +16,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-class SmppChannel < BaseSmppChannel
-  def self.title
-    "SMPP Client"
+require(File.expand_path('../generic_daemon', __FILE__))
+start_service 'smpp_server_service_daemon' do
+  Smpp::Base.logger = Rails.logger
+  service = SmppServerService.new("127.0.0.1", 2775)
+  service.start
+
+  trap 'INT' do
+    puts "Stopping daemon..."
+    service.stop
   end
 
-  def self.abstract?
-    false
-  end
-
-  configuration_accessor :user
-  validates_presence_of :user
+  puts "SMPP server service daemon ready"
 end

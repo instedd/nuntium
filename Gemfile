@@ -63,9 +63,12 @@ end
 group :debug do
 end
 
-group :test do
+group :development, :test do
   gem 'pry'
   gem 'pry-debugger'
+end
+
+group :test do
   gem "rake"
   gem 'test-unit', '~> 3.1.8', :require => 'test/unit'
   gem "mocha"

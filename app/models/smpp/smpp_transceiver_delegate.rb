@@ -188,6 +188,40 @@ class SmppTransceiverDelegate
     AccountLogger.exception_in_channel @channel, e
   end
 
+  def message_accepted_by_client(transceiver, mt_message_id)
+    logger.info "Delegate: message_accepted_by_client: id #{mt_message_id}"
+
+    # Find message with mt_message_id
+    msg = AoMessage.find_by_id mt_message_id
+    return logger.info "AoMessage with id #{mt_message_id} not found" if msg.nil?
+
+    msg.state = 'delivered'
+    msg.tries += 1
+    msg.save!
+
+    @channel.account.logger.ao_message_status_receieved msg, 'ACK'
+  rescue Exception => e
+    logger.error "Error in message_accepted: #{e.class} #{e.to_s}"
+    AccountLogger.exception_in_channel @channel, e
+  end
+
+  def message_rejected_by_client(transceiver, mt_message_id)
+    logger.info "Delegate: message_rejected_by_client: id #{mt_message_id}"
+
+    # Find message with mt_message_id
+    msg = AoMessage.find_by_id mt_message_id
+    return logger.info "AoMessage with id #{mt_message_id} not found" if msg.nil?
+
+    msg.state = 'failed'
+    msg.tries += 1
+    msg.save!
+
+    @channel.account.logger.ao_message_status_warning msg, "Message rejected by client"
+  rescue Exception => e
+    logger.error "Error in message_accepted: #{e.class} #{e.to_s}"
+    AccountLogger.exception_in_channel @channel, e
+  end
+
   def message_accepted(transceiver, mt_message_id, pdu)
     logger.info "Delegate: message_accepted: id #{mt_message_id} smsc ref id: #{pdu.message_id}"
 
@@ -260,6 +294,7 @@ class SmppTransceiverDelegate
     end
 
     @channel.route_at msg
+    msg
   end
 
   def part_received(source, destination, data_coding, text, ref, total, partn)
