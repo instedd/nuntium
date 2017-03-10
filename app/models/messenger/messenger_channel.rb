@@ -1,6 +1,8 @@
 class MessengerChannel < Channel
   include GenericChannel
 
+  configuration_accessor :page_access_token
+  validates_presence_of :page_access_token
 
   def self.title
     "Facebook Messenger"
@@ -11,6 +13,6 @@ class MessengerChannel < Channel
   end
 
   def info
-    email
+    page_access_token
   end
 end
