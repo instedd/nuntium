@@ -1,0 +1,17 @@
+<%= form_for_channel channel do |f| -%>
+  <%= render 'edit_header', :f => f, :exclude_address => true -%>
+  <h5>Chikka account info</h5>
+  <p>
+  <%= f.label :shortcode, "ShortCode / Access Code (SenderId)" -%><br/>
+  <%= f.text_field :shortcode -%>
+  </p>
+  <p>
+  <%= f.label :client_id, "Client ID" -%><br/>
+  <%= f.text_field :client_id, :autocomplete => :off -%>
+  </p>
+  <p>
+  <%= f.label :secret_key, "Secret key" %><br/>
+  <%= f.password_field :secret_key, :autocomplete => :off -%>
+  </p>
+  <%= render 'edit_footer', :f => f, :exclude_costs => true %>
+<%- end -%>
