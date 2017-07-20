@@ -9,7 +9,7 @@
 #
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -27,6 +27,6 @@ class Chikka
   }
 
   def self.send_status(status)
-    SEND_STATUS[status['status']] || [:system_error, "Unknown error code: #{status['status']} - #{status['message']}"]
+    SEND_STATUS[status['status'].to_s] || [:system_error, "Unknown error code: #{status['status']} - #{status['message']}"]
   end
 end

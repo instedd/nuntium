@@ -29,14 +29,19 @@ class SendChikkaMessageJob < SendMessageJob
       :client_id => @config[:client_id],
       :secret_key => @config[:secret_key]
     }
-
-    puts "\n\n\n\n#{query_parameters.to_query}\n\n\n\n"
-
-    response = RestClient.post "https://post.chikka.com/smsapi/request?#{query_parameters.to_query}",
-      headers: {"Content-Type" => "application/json"}
+    begin
+      response = RestClient.post("https://post.chikka.com/smsapi/request", query_parameters, headers: {"Content-Type" => "application/json"})
+    rescue RestClient::BadRequest => e
+      response = e.response
+    rescue Exception => e
+      response = e.response
+    end
     result = JSON.parse(response.body)
 
-    status, description = Chikka.send_status(result['status'])
+
+    status, description = Chikka.send_status(result)
+
+
     case status
     when :success
       @msg.channel_relative_id = message_id
@@ -46,7 +51,6 @@ class SendChikkaMessageJob < SendMessageJob
     else # FIXME: which option should be the default?
       raise PermanentException.new(Exception.new(description))
     end
-
     # messages = result["messages"]
     # statuses = messages.map { |msg| msg["status"] }
     # remaining_balance = messages.map { |msg| msg["remaining-balance"] }
