@@ -109,6 +109,10 @@ Nuntium::Application.routes.draw do
     match '/ack' => 'nexmo#ack', :as => :nexmo_ack, :constraints => {:account_id => /.*/, :channel_id => /.*/}
   end
 
+  scope '/:account_id/:channel_id/chikka', :constraints => {:account_id => /.*/, :channel_id => /.*/} do
+    post '/ack' => 'chikka#ack'
+  end
+
   scope '/channels/twitter' do
     post '/create' => 'twitter#create', :as => :create_twitter_channel
     put '/update/:id' => 'twitter#update', :as => :update_twitter_channel
