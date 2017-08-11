@@ -110,6 +110,7 @@ Nuntium::Application.routes.draw do
   end
 
   scope '/:account_id/:channel_id/chikka', :constraints => {:account_id => /.*/, :channel_id => /.*/} do
+    post '/incoming' => 'chikka#incoming'
     post '/ack' => 'chikka#ack'
   end
 
