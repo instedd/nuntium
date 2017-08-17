@@ -18,19 +18,10 @@
 class ChikkaController < ApplicationController
   skip_filter :check_login
 
-
-  # POST /:account_id/:channel_id/chikka/incoming
-
+  # POST /:account_name/:channel_name/chikka/incoming
   def incoming
-    Rails.logger.debug("-------------==================== PARAMS  ====================-------------")
-    Rails.logger.debug(params)
-    puts "-------------==================== PARAMS 2  ====================-------------"
-    puts params
-    account = Account.find_by_id_or_name(params[:account_id])
-    channel = account.chikka_channels.find(params[:channel_id])
-    Rails.logger.debug("-------------==================== ACCOUNT & CHANNEL ====================-------------")
-    Rails.logger.debug(account)
-    Rails.logger.debug(channel)
+    account = Account.find_by_id_or_name(params[:account_name])
+    channel = account.chikka_channels.find_by_name(params[:channel_name])
 
     if channel.shortcode != params[:shortcode]
       return head :unauthorized
@@ -46,13 +37,10 @@ class ChikkaController < ApplicationController
     head :ok
   end
 
-  # {"timestamp"=>"1502239412.36", "request_id"=>"5048303030303053554E303030303239323930303031303030303030303030303030303036333933323835393531363330303030303930383137303034333236", "mobile_number"=>"639328595163", "message"=>"Hi again", "shortcode"=>"29290514844", "message_type"=>"incoming", "account_id"=>"1", "channel_id"=>"1"}
-
-
-  # GET /:account_id/:channel_id/chikka/ack
+  # GET /:account_name/:channel_name/chikka/ack
   def ack
-    account = Account.find_by_id_or_name(params[:account_id])
-    channel = account.chikka_channels.find(params[:channel_id])
+    account = Account.find_by_id_or_name(params[:account_name])
+    channel = account.chikka_channels.find_by_name(params[:channel_name])
 
     ao = channel.ao_messages.find_by_channel_relative_id(params[:message_id])
     return head :ok unless ao

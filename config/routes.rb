@@ -109,7 +109,7 @@ Nuntium::Application.routes.draw do
     match '/ack' => 'nexmo#ack', :as => :nexmo_ack, :constraints => {:account_id => /.*/, :channel_id => /.*/}
   end
 
-  scope '/:account_id/:channel_id/chikka', :constraints => {:account_id => /.*/, :channel_id => /.*/} do
+  scope '/:account_name/:channel_name/chikka', :constraints => {:account_id => /.*/, :channel_id => /.*/} do
     post '/incoming' => 'chikka#incoming'
     post '/ack' => 'chikka#ack'
   end

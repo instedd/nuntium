@@ -2,6 +2,15 @@
   <%= render 'edit_header', :f => f, :exclude_address => true -%>
   <h5>Chikka account info</h5>
   <p>
+    On the API Settings for the Chikka account, for the Notification Receiver URL:
+    <br />
+    http://[nuntium-url]/[account-name]/[channel-name]/chikka/ack
+    <br />
+    For the Message Receiver URL:
+    <br />
+    http://[nuntium-url]/[account-name]/[channel-name]/chikka/incoming
+  </p>
+  <p>
   <%= f.label :shortcode, "ShortCode / Access Code (SenderId)" -%><br/>
   <%= f.text_field :shortcode -%>
   </p>
