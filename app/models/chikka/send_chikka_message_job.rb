@@ -17,14 +17,11 @@
 
 class SendChikkaMessageJob < SendMessageJob
   def managed_perform
-    # TODO - check if @msg.guid works here
-    message_id = SecureRandom.uuid.delete('-')
-
     query_parameters = {
       :message_type => 'SEND',
       :mobile_number => @msg.to.without_protocol,
       :shortcode => @config[:shortcode],
-      :message_id => message_id,
+      :message_id => @msg.guid.delete('-'),
       :message => @msg.body,
       :client_id => @config[:client_id],
       :secret_key => @config[:secret_key]
@@ -44,34 +41,14 @@ class SendChikkaMessageJob < SendMessageJob
 
     case status
     when :success
-      @msg.channel_relative_id = message_id
+      @msg.channel_relative_id = @msg.guid.delete('-')
       true
+    when :temporal_error
+      raise ChikkaException.new(Exception.new(description))
     when :message_error
       raise MessageException.new(Exception.new(description))
-    else # FIXME: which option should be the default?
+    else
       raise PermanentException.new(Exception.new(description))
     end
-    # messages = result["messages"]
-    # statuses = messages.map { |msg| msg["status"] }
-    # remaining_balance = messages.map { |msg| msg["remaining-balance"] }
-    # message_price = messages.map { |msg| msg["message-price"] }
-    # network = messages.map { |msg| msg["network"] }
-    # uniq_statuses = statuses.uniq
-    #
-    # @msg.custom_attributes["nexmo_status"] = statuses
-    # @msg.custom_attributes["nexmo_remaining_balance"] = remaining_balance
-    # @msg.custom_attributes["nexmo_message_price"] = message_price
-    # @msg.custom_attributes["nexmo_network"] = network
-    #
-    # # Means all messages were sent OK
-    # if uniq_statuses == ["0"]
-    #   ids = messages.map { |msg| msg["message-id"] }
-    #
-    #   # Only keep the first ID so at least we can track that one
-    #   @msg.channel_relative_id = ids.first
-    # else
-    #   error = messages.map { |msg| msg["error-text"] }.compact.join(", ")
-    #   raise MessageException.new(Exception.new(error))
-    # end
   end
 end

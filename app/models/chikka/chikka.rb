@@ -21,9 +21,9 @@ class Chikka
     '200' => [:success, 'Accepted'],
     '400' => [:message_error, 'Bad Request'], # FIXME: :message or :permanent depends on the description
     '401' => [:system_error, 'Unauthorized'],
-    '403' => [:system_error, 'Method Not Allowed'],
-    '404' => [:system_error, 'URI Not Found'],
-    '500' => [:system_error, 'General System Error']
+    '403' => [:message_error, 'Method Not Allowed'],
+    '404' => [:message_error, 'URI Not Found'],
+    '500' => [:temporal_error, 'General System Error']
   }
 
   def self.send_status(status)
