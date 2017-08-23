@@ -16,7 +16,6 @@
   <p>
     <%= f.label :secret_token, "Secret Token" %><br/>
     <%= f.text_field :secret_token, :autocomplete => :off, :maxlength => 8 -%>
-    <!-- <button id="button_regenerate">Regenerate Token</button> -->
     <input type="button" onClick="regenerate_token()" value="Regenerate Token" />
   </p>
   <%= render 'edit_footer', :f => f, :exclude_costs => true %>
