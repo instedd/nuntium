@@ -35,9 +35,7 @@ class SendChikkaMessageJob < SendMessageJob
     end
     result = JSON.parse(response.body)
 
-
     status, description = Chikka.send_status(result)
-
 
     case status
     when :success

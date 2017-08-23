@@ -18,12 +18,13 @@
 class ChikkaController < ApplicationController
   skip_filter :check_login
 
-  # POST /:account_name/:channel_name/chikka/incoming
+  # POST /:account_name/:channel_name/:secret_token/chikka/incoming
   def incoming
     account = Account.find_by_id_or_name(params[:account_name])
     channel = account.chikka_channels.find_by_name(params[:channel_name])
 
-    if channel.shortcode != params[:shortcode]
+
+    if channel.shortcode != params[:shortcode] || channel.secret_token != params[:secret_token]
       return head :unauthorized
     end
 
@@ -37,10 +38,14 @@ class ChikkaController < ApplicationController
     head :ok
   end
 
-  # GET /:account_name/:channel_name/chikka/ack
+  # GET /:account_name/:channel_name/:secret_token/chikka/ack
   def ack
     account = Account.find_by_id_or_name(params[:account_name])
     channel = account.chikka_channels.find_by_name(params[:channel_name])
+
+    if channel.secret_token != params[:secret_token]
+      return head :unauthorized
+    end
 
     ao = channel.ao_messages.find_by_channel_relative_id(params[:message_id])
     return head :ok unless ao

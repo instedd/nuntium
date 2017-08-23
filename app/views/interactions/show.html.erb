@@ -80,9 +80,9 @@
     <div><b>Via <%= link_to 'chikka', 'http://api.chikka.com/', :target => '_blank' -%></b></div>
     <ul>
       <%- channels.select{|c| c.kind == 'chikka'}.each do |channel| -%>
-        <li>Notification Receiver URL: <span class="url">POST <%= chikka_ack_url(:account_name => account.name, :channel_name => channel.name) -%></span>
+        <li>Notification Receiver URL: <span class="url">POST <%= chikka_ack_url(:account_name => account.name, :channel_name => channel.name, :secret_token => channel.secret_token) -%></span>
           receive delivery notifications in channel <%= channel.name %></li>
-        <li>Message Receiver URL: <span class="url">POST <%= chikka_url(:account_name => account.name, :channel_name => channel.name) -%></span>
+        <li>Message Receiver URL: <span class="url">POST <%= chikka_url(:account_name => account.name, :channel_name => channel.name, :secret_token => channel.secret_token) -%></span>
           create Application Terminated Messages in channel <%= channel.name %></li>
       <%- end -%>
     </ul>

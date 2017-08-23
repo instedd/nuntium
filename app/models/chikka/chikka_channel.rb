@@ -18,8 +18,8 @@
 class ChikkaChannel < Channel
   include GenericChannel
 
-  configuration_accessor :shortcode, :client_id, :secret_key #, :callback_token
-  validates_presence_of :shortcode, :client_id, :secret_key #, :callback_token
+  configuration_accessor :shortcode, :client_id, :secret_key, :secret_token
+  validates_presence_of :shortcode, :client_id, :secret_key, :secret_token
 
   def self.default_protocol
     'sms'
