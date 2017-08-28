@@ -30,8 +30,8 @@ class ChikkaController < ApplicationController
 
     msg = AtMessage.new
     msg.from = params[:mobile_number]
-    msg.to   = params[:shortcode]
-    msg.body = params[:message]
+    msg.to   = "sms://#{params[:shortcode]}"
+    msg.body = "sms://#{params[:message]}"
     msg.custom_attributes["chikka_request_id"] = params[:request_id]
     account.route_at msg, channel
 
