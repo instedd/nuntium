@@ -76,6 +76,7 @@ module Nuntium
 
     $log_path = "#{Rails.root}/log/#{Rails.env}.log" if $log_path.nil?
     config.paths['log'] = $log_path
+    $log_path = STDOUT if ENV["RAILS_LOG_TO_STDOUT"].present?
     config.logger = Logger.new($log_path)
     config.logger.level = Logger.const_get(config.log_level.to_s.upcase)
     config.logger.formatter = Logger::Formatter.new
