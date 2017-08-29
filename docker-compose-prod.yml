@@ -1,0 +1,67 @@
+version: '2.0'
+
+services:
+  db:
+    image: mysql:5.6
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - db:/var/lib/mysql
+
+  rabbitmq:
+    image: rabbitmq:3.5.3
+    hostname: nuntium_rabbitmq
+    volumes:
+      - rabbitmq_prod:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: nuntium
+      RABBITMQ_DEFAULT_PASS: nuntium
+      RABBITMQ_DEFAULT_VHOST: /nuntium
+
+  memcached:
+    image: memcached:1.4.24
+
+  web: &rails
+    build: .
+    environment:
+      DATABASE_URL: mysql2://db/nuntium
+      RABBITMQ_URL: 'amqp://rabbitmq'
+      MEMCACHE_SERVER: 'memcached:11211'
+    depends_on:
+      - db
+      - rabbitmq
+      - memcached
+
+  workerfast:
+    <<: *rails
+    command: "bundle exec lib/services/generic_worker_daemon.rb production fast 1000"
+    ports: []
+
+  workerslow:
+    <<: *rails
+    command: "bundle exec lib/services/generic_worker_daemon.rb production slow 2000"
+    ports: []
+
+  xmpp:
+    <<: *rails
+    command: "bundle exec lib/services/xmpp_service_daemon.rb"
+    ports: []
+
+  smpp:
+    <<: *rails
+    command: "bundle exec lib/services/smpp_service_daemon.rb"
+    ports: []
+
+  cron:
+    <<: *rails
+    command: "bundle exec lib/services/cron_daemon.rb"
+    ports: []
+
+  sched:
+    <<: *rails
+    command: "bundle exec lib/services/scheduled_jobs_service_daemon.rb"
+    ports: []
+
+volumes:
+  db:
+  rabbitmq_prod:
