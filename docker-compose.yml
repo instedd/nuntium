@@ -10,10 +10,14 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.5.3
-    command: /app/docker-compose-rabbitmq-cmd.sh
+    hostname: nuntium_rabbitmq
     volumes:
       - rabbitmq:/var/lib/rabbitmq
       - .:/app
+    environment:
+      RABBITMQ_DEFAULT_USER: nuntium.development
+      RABBITMQ_DEFAULT_PASS: nuntium.development
+      RABBITMQ_DEFAULT_VHOST: /nuntium/development
 
   memcached:
     image: memcached:1.4.24
@@ -40,18 +44,12 @@ services:
 
   workerfast:
     <<: *rails
-    environment:
-      RAILS_ENV: development
-      INSTANCE_ID: 1000
-    command: "bundle exec lib/services/generic_worker_daemon.rb $$RAILS_ENV fast $$INSTANCE_ID"
+    command: "bundle exec lib/services/generic_worker_daemon.rb development fast 1000"
     ports: []
 
   workerslow:
     <<: *rails
-    environment:
-      RAILS_ENV: development
-      INSTANCE_ID: 2000
-    command: "bundle exec lib/services/generic_worker_daemon.rb $$RAILS_ENV slow $$INSTANCE_ID"
+    command: "bundle exec lib/services/generic_worker_daemon.rb development slow 2000"
     ports: []
 
   xmpp:
@@ -62,11 +60,6 @@ services:
   smpp:
     <<: *rails
     command: "bundle exec lib/services/smpp_service_daemon.rb"
-    ports: []
-
-  msn:
-    <<: *rails
-    command: "bundle exec lib/services/msn_service_daemon.rb"
     ports: []
 
   cron:
