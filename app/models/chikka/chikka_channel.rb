@@ -21,6 +21,8 @@ class ChikkaChannel < Channel
   configuration_accessor :shortcode, :client_id, :secret_key, :secret_token
   validates_presence_of :shortcode, :client_id, :secret_key, :secret_token
 
+  handle_password_change :secret_key
+
   def self.default_protocol
     'sms'
   end
