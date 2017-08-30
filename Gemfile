@@ -44,7 +44,7 @@ gem 'newrelic_rpm'
 gem 'foreman'
 gem 'instedd_telemetry', git: "https://github.com/instedd/telemetry_rails", branch: 'master'
 gem 'poirot_rails', git: 'https://github.com/instedd/poirot_rails.git', branch: 'master'
-gem 'instedd-pigeon', git: "https://bitbucket.org/instedd/pigeon.git", branch: 'master', :require => 'pigeon'
+gem 'instedd-pigeon', git: "https://github.com/instedd/pigeon.git", branch: 'master', :require => 'pigeon'
 
 # Gems used only for assets and not required
 # in production environments by default.

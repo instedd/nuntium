@@ -20,13 +20,13 @@ GIT
       ruby-openid
 
 GIT
-  remote: https://bitbucket.org/instedd/pigeon.git
-  revision: 50f5268e3690071937cdcce581a29922ef723bf7
+  remote: https://github.com/instedd/pigeon.git
+  revision: 5940f2eb41a98a5824ba66e298746bb8cf825afb
   branch: master
   specs:
     instedd-pigeon (0.3.1)
       json
-      rails (~> 3.2)
+      rails (> 3.2)
       rest-client
       twilio-ruby
       twitter_oauth
