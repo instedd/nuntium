@@ -1,5 +1,5 @@
 #!ruby
-class SendMyKindMessageJob < SendMessageJob
+class SendMessengerMessageJob < SendMessageJob
   def managed_perform
     # Here you have:
     # @msg: the AO message to be sent. Most notably, you will use
