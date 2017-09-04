@@ -38,7 +38,7 @@ class ChikkaController < ApplicationController
     head :ok
   end
 
-  # GET /:account_name/:channel_name/:secret_token/chikka/ack
+  # POST /:account_name/:channel_name/:secret_token/chikka/ack
   def ack
     account = Account.find_by_id_or_name(params[:account_name])
     channel = account.chikka_channels.find_by_name(params[:channel_name])
