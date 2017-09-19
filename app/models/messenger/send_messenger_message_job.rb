@@ -12,13 +12,25 @@ class SendMessengerMessageJob < SendMessageJob
 
     # Do whatever you want with the message...
     # For example, issue an HTTP get with it:
+
+
+    recipient = @msg.to
+    recipient.sub! 'sms://', ''
+
     data = { 
-      :from => @msg.from,
-      :to => @msg.to, 
-      :text => @msg.subject_and_body
+      :recipient => { 
+        :id => recipient
+       }, 
+      :message => { 
+        :text => @msg.subject_and_body
+      }
     }
-    res = RestClient::Resource.new(@channel.url).post data
+    
+
+    url = "https://graph.facebook.com/me/messages?access_token=EAAJE3BUFZCQYBAEcWYtbvYUFdiYXk5pUHST9qAQnJuknIPLMehPFskZBlHmaCZB9ZAcILrgTDCqKUQQkzfmUkxnzvakO4iP1BTZCLuSubnhPbCfzTWfX7JvryfFNBAlDkdeACAkFfQsfke77g1rBWZB8RAOgOzvfo1y5nvRHMb3AZDZD"
+    res = RestClient::Resource.new(url).post data
     netres = res.net_http_res
+    
     case netres
     when Net::HTTPSuccess, Net::HTTPRedirection
       # Message was sent, must return "true"
