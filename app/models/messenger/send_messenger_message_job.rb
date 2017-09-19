@@ -27,7 +27,7 @@ class SendMessengerMessageJob < SendMessageJob
     }
     
 
-    url = "https://graph.facebook.com/me/messages?access_token=EAAJE3BUFZCQYBAEcWYtbvYUFdiYXk5pUHST9qAQnJuknIPLMehPFskZBlHmaCZB9ZAcILrgTDCqKUQQkzfmUkxnzvakO4iP1BTZCLuSubnhPbCfzTWfX7JvryfFNBAlDkdeACAkFfQsfke77g1rBWZB8RAOgOzvfo1y5nvRHMb3AZDZD"
+    url = "https://graph.facebook.com/me/messages?access_token="+@channel.page_access_token
     res = RestClient::Resource.new(url).post data
     netres = res.net_http_res
     
