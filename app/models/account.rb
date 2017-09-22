@@ -24,6 +24,7 @@ class Account < ActiveRecord::Base
   has_many :channels
   has_many :clickatell_channels
   has_many :nexmo_channels
+  has_many :chikka_channels
   has_many :qst_server_channels
   has_many :twilio_channels
   has_many :messenger_channels

@@ -5,6 +5,8 @@ ADD Gemfile /app/
 ADD Gemfile.lock /app/
 RUN bundle install --jobs 3 --deployment --without development test
 
+ENV RAILS_LOG_TO_STDOUT true
+
 # Install the application
 ADD . /app
 

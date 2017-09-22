@@ -7,51 +7,39 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
     volumes:
       - db:/var/lib/mysql
-    ports:
-      - 3306:3306
 
   rabbitmq:
     image: rabbitmq:3.5.3
     hostname: nuntium_rabbitmq
     volumes:
-      - rabbitmq:/var/lib/rabbitmq
-      - .:/app
+      - rabbitmq_prod:/var/lib/rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: nuntium.development
-      RABBITMQ_DEFAULT_PASS: nuntium.development
-      RABBITMQ_DEFAULT_VHOST: /nuntium/development
+      RABBITMQ_DEFAULT_USER: nuntium
+      RABBITMQ_DEFAULT_PASS: nuntium
+      RABBITMQ_DEFAULT_VHOST: /nuntium
 
   memcached:
     image: memcached:1.4.24
 
   web: &rails
-    image: instedd/nginx-rails:1.9
+    build: .
     environment:
-      RAILS_ENV:
-      DATABASE_HOST: 'db'
+      DATABASE_URL: mysql2://db/nuntium
       RABBITMQ_URL: 'amqp://rabbitmq'
       MEMCACHE_SERVER: 'memcached:11211'
-    pid: host
-    volumes:
-      - .:/app
-      - bundle:/usr/local/bundle
-    tmpfs: /app/tmp
     depends_on:
       - db
       - rabbitmq
       - memcached
-    command: rails server -b 0.0.0.0 -p 80
-    ports:
-      - 3000:80
 
   workerfast:
     <<: *rails
-    command: "bundle exec lib/services/generic_worker_daemon.rb development fast 1000"
+    command: "bundle exec lib/services/generic_worker_daemon.rb production fast 1000"
     ports: []
 
   workerslow:
     <<: *rails
-    command: "bundle exec lib/services/generic_worker_daemon.rb development slow 2000"
+    command: "bundle exec lib/services/generic_worker_daemon.rb production slow 2000"
     ports: []
 
   xmpp:
@@ -76,5 +64,4 @@ services:
 
 volumes:
   db:
-  bundle:
-  rabbitmq:
+  rabbitmq_prod:
