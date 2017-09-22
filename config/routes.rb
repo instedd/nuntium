@@ -74,6 +74,7 @@ Nuntium::Application.routes.draw do
       get :rgviz
     end
   end
+
   resources :logs
   resources :custom_attributes, :except => :show
   resource :interactions
@@ -150,6 +151,10 @@ Nuntium::Application.routes.draw do
   scope '/:account_id/twilio', :constraints => {:account_id => /.*/} do
     match '/incoming' => 'twilio#index', :as => :twilio
     match '/ack' => 'twilio#ack', :as => :twilio_ack
+  end
+
+  scope '/:account_id/messenger', :constraints => {:account_id => /.*/} do
+    match '/incoming' => 'messenger#index', :as => :messenger
   end
 
   scope '/api' do
