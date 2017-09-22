@@ -1,0 +1,16 @@
+defaults: &defaults
+  protocol: https
+  host_name: 1522ea00.ngrok.io
+  email_sender: nuntium@instedd.org
+
+development:
+  <<: *defaults
+
+test: &test
+  <<: *defaults
+
+staging:
+  <<: *defaults
+
+production:
+  <<: *defaults

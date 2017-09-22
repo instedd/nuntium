@@ -8,7 +8,6 @@ services:
     volumes:
       - db:/var/lib/mysql
 
-
   rabbitmq:
     image: rabbitmq:3.5.3
     hostname: nuntium_rabbitmq
