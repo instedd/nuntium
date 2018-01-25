@@ -28,25 +28,26 @@ class SendChikkaMessageJob < SendMessageJob
     }
     begin
       response = RestClient.post("https://post.chikka.com/smsapi/request", query_parameters, headers: {"Content-Type" => "application/json"})
-    rescue RestClient::BadRequest => e
-      response = e.response
-    rescue Exception => e
-      response = e.response
-    end
-    result = JSON.parse(response.body)
-
-    status, description = Chikka.send_status(result)
-
-    case status
-    when :success
       @msg.channel_relative_id = @msg.guid.delete('-')
       true
-    when :temporal_error
-      raise ChikkaException.new(Exception.new(description))
-    when :message_error
-      raise MessageException.new(Exception.new(description))
-    else
-      raise PermanentException.new(Exception.new(description))
+
+    rescue RestClient::ExceptionWithResponse => e
+      unless e.response
+        raise e
+      end
+
+      result = JSON.parse(e.response.body)
+      status, status_description = Chikka.send_status(result)
+      description = result["description"] || result["message"] || status_description
+
+      case status
+      when :system_error
+        raise PermanentException.new(Exception.new(description))
+      when :message_error
+        raise MessageException.new(Exception.new(description))
+      else
+        raise Exception.new(description)
+      end
     end
   end
 end

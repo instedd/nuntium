@@ -19,14 +19,14 @@ class Chikka
   # From https://api.chikka.com/docs/handling-messages#send-sms
   SEND_STATUS = {
     '200' => [:success, 'Accepted'],
-    '400' => [:message_error, 'Bad Request'], # FIXME: :message or :permanent depends on the description
+    '400' => [:temporal_error, 'Bad Request'], # FIXME: :message or :permanent depends on the description
     '401' => [:system_error, 'Unauthorized'],
-    '403' => [:message_error, 'Method Not Allowed'],
-    '404' => [:message_error, 'URI Not Found'],
+    '403' => [:system_error, 'Method Not Allowed'],
+    '404' => [:system_error, 'URI Not Found'],
     '500' => [:temporal_error, 'General System Error']
   }
 
   def self.send_status(status)
-    SEND_STATUS[status['status'].to_s] || [:system_error, "Unknown error code: #{status['status']} - #{status['message']}"]
+    SEND_STATUS[status['status'].to_s] || [:temporal_error, "Unknown error code: #{status['status']} - #{status['message']}"]
   end
 end
