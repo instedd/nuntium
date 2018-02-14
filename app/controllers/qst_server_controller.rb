@@ -16,9 +16,9 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class QstServerController < ApplicationController
-  skip_filter :check_login
+  skip_before_action :check_login
 
-  before_filter :authenticate
+  before_action :authenticate
   def authenticate
     authenticate_or_request_with_http_basic do |username, password|
       @account = Account.find_by_id_or_name params[:account_id]
@@ -36,7 +36,7 @@ class QstServerController < ApplicationController
     end
   end
 
-  before_filter :update_channel_last_activity_at
+  before_action :update_channel_last_activity_at
   def update_channel_last_activity_at
     @channel.last_activity_at = Time.now.utc
     @channel.save!

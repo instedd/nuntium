@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-class AoMessage < ActiveRecord::Base
+class AoMessage < ApplicationRecord
   belongs_to :account
   belongs_to :application
   belongs_to :channel
@@ -85,7 +85,8 @@ class AoMessage < ActiveRecord::Base
   private
 
   def send_delivery_ack
-    return unless changed? && changes.keys != ["updated_at"]
+    # return unless saved_changes? && changes.keys != ["updated_at"]
+    return unless saved_changes?
 
     return true unless state == 'failed' || state == 'delivered' || state == 'confirmed'
     return true unless channel_id

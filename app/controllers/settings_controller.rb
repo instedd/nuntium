@@ -16,7 +16,7 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class SettingsController < ApplicationController
-  before_filter :check_account_admin, only: [:update]
+  before_action :check_account_admin, only: [:update]
 
   def update
     if account.update_attributes params[:account]

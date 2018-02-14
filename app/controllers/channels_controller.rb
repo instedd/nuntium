@@ -19,13 +19,13 @@ class ChannelsController < ApplicationController
   include CustomAttributesControllerCommon
   include RulesControllerCommon
 
-  before_filter :check_account_admin, only: [:create]
-  before_filter :check_channel_admin, only: [:edit, :update, :destroy]
+  before_action :check_account_admin, only: [:create]
+  before_action :check_channel_admin, only: [:edit, :update, :destroy]
 
   expose(:queued_ao_messages_count_by_channel_id) { account.queued_ao_messages_count_by_channel_id }
   expose(:connected_by_channel_id) { Channel.connected(channels) }
 
-  before_filter :set_channel_parameters, :only => [:create, :update]
+  before_action :set_channel_parameters, :only => [:create, :update]
   def set_channel_parameters
     channel.account_id = account.id
     channel.throttle = params[:channel][:throttle_opt] == 'on' ? params[:channel][:throttle].to_i : nil

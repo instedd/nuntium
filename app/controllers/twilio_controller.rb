@@ -16,8 +16,8 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class TwilioController < ApplicationController
-  skip_filter :check_login
-  before_filter :authenticate, :only => [:index, :ack]
+  skip_before_action :check_login
+  before_action :authenticate, :only => [:index, :ack]
 
   def index
     msg = AtMessage.new

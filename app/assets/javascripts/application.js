@@ -8,7 +8,7 @@
 //= require jquery-migrate
 //= require jquery_ujs
 //= require turbolinks
-//= require jquery-ui/autocomplete
+//= require jquery-ui/widgets/autocomplete
 //= require lodash
 //= require knockout
 //= require_tree .

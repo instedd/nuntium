@@ -257,8 +257,8 @@ Devise.setup do |config|
   # config.omniauth_path_prefix = '/my_engine/users/auth'
 end
 
-# TODO move these to new a controller 
-Devise::SessionsController.skip_filter :check_account
+# TODO move these to new a controller
+Devise::SessionsController.skip_before_action :check_account
 
 Devise::RegistrationsController
 class Devise::RegistrationsController

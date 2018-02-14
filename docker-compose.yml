@@ -20,11 +20,7 @@ services:
 
   web: &rails
     image: instedd/nginx-rails:2.3
-    environment:
-      RAILS_ENV:
-      DATABASE_HOST: 'db'
-      RABBITMQ_URL: 'amqp://rabbitmq'
-      MEMCACHE_SERVER: 'memcached:11211'
+    env_file: dev.env
     # pid: host
     volumes:
       - .:/app
@@ -41,17 +37,15 @@ services:
   workerfast:
     <<: *rails
     environment:
-      RAILS_ENV: development
       INSTANCE_ID: 1000
-    command: "bundle exec lib/services/generic_worker_daemon.rb $$RAILS_ENV fast $$INSTANCE_ID"
+    command: sh -c 'bundle exec lib/services/generic_worker_daemon.rb $$RAILS_ENV fast $$INSTANCE_ID'
     ports: []
 
   workerslow:
     <<: *rails
     environment:
-      RAILS_ENV: development
       INSTANCE_ID: 2000
-    command: "bundle exec lib/services/generic_worker_daemon.rb $$RAILS_ENV slow $$INSTANCE_ID"
+    command: sh -c 'bundle exec lib/services/generic_worker_daemon.rb $$RAILS_ENV slow $$INSTANCE_ID'
     ports: []
 
   xmpp:
@@ -64,10 +58,10 @@ services:
     command: "bundle exec lib/services/smpp_service_daemon.rb"
     ports: []
 
-  msn:
-    <<: *rails
-    command: "bundle exec lib/services/msn_service_daemon.rb"
-    ports: []
+  # msn:
+  #   <<: *rails
+  #   command: "bundle exec lib/services/msn_service_daemon.rb"
+  #   ports: []
 
   cron:
     <<: *rails

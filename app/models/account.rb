@@ -17,7 +17,7 @@
 
 require 'digest/sha2'
 
-class Account < ActiveRecord::Base
+class Account < ApplicationRecord
   include Authenticable
 
   has_many :applications

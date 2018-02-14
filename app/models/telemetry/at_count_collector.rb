@@ -1,6 +1,6 @@
 module Telemetry::AtCountCollector
   def self.collect_stats(period)
-    period_end = ActiveRecord::Base.sanitize(period.end)
+    period_end = ActiveRecord::Base.sanitize_sql(period.end)
 
     results = ActiveRecord::Base.connection.execute <<-SQL
       SELECT channels.id, COUNT(at_messages.channel_id)

@@ -17,7 +17,7 @@
 
 require 'digest/sha2'
 
-class Application < ActiveRecord::Base
+class Application < ApplicationRecord
   include Authenticable
 
   belongs_to :account
@@ -439,7 +439,7 @@ class Application < ActiveRecord::Base
 
   # Ensures tasks for this account are correct
   def handle_tasks(force = false)
-    if self.interface_changed? || force
+    if self.saved_change_to_interface? || force
       case self.interface
         when 'qst_client'
           create_task('qst-push', QST_PUSH_INTERVAL, PushQstMessageJob.new(self.id))

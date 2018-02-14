@@ -19,23 +19,23 @@ require 'machinist/active_record'
 
 module Fake
   def self.name
-    Faker::Name.name
+    FFaker::Name.name
   end
 
   def self.email
-    Faker::Internet.email
+    FFaker::Internet.email
   end
 
   def self.username
-    Faker::Internet.user_name
+    FFaker::Internet.user_name
   end
 
   def self.url
-    Faker::Internet.domain_name
+    FFaker::Internet.domain_name
   end
 
   def self.password
-    Faker::Name.name
+    FFaker::Name.name
   end
 
   def self.number2
@@ -98,8 +98,8 @@ end
   message.blueprint do
     from { "sms://#{Fake.number8}" }
     to { "sms://#{Fake.number8}" }
-    subject { Faker::Lorem.sentence }
-    body { Faker::Lorem.paragraph }
+    subject { FFaker::Lorem.sentence }
+    body { FFaker::Lorem.paragraph }
     timestamp { Time.at(946702800 + 86400 * rand(100)).getgm }
     guid { Fake.guid }
     state { 'queued' }

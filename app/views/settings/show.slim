@@ -2,20 +2,20 @@
   = form_for account, :url => settings_path, :method => :put do |f|
     = f.error_messages
     p
-      =' f.label :max_tries
-      =' f.text_field :max_tries
+      = f.label :max_tries
+      = f.text_field :max_tries
     h5 Password
     p
       b Leave blank if you don't want to change the password
       br
-      =' f.label :password
+      = f.label :password
       br
-      =' f.password_field :password, :value => '', :autocomplete => :off
+      = f.password_field :password, :value => '', :autocomplete => :off
     p
-      =' f.label :password_confirmation
+      = f.label :password_confirmation
       br
-      =' f.password_field :password_confirmation, :value => '', :autocomplete => :off
+      = f.password_field :password_confirmation, :value => '', :autocomplete => :off
       br
-    =' f.submit 'Update'
+    = f.submit 'Update'
 - else
   ' Max tries: #{account.max_tries}

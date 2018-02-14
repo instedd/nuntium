@@ -86,6 +86,6 @@ class QstServerChannelTest < ActiveSupport::TestCase
   test "should not add carrier if doesn't match number" do
     carrier = Carrier.make!
     chan = QstServerChannel.make :address => "1234", :configuration => {:password => 'foo', :password_confirmation => 'foo'}
-    assert_equal nil, chan.carrier_guid
+    assert_nil chan.carrier_guid
   end
 end
