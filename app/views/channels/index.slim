@@ -32,14 +32,14 @@ table#channels.table cellspacing="4" width="100%"
           - status = chan.paused ? 'paused' : (chan.enabled ? 'enabled' : 'disabled')
           = image_tag "#{status}.png", :size => '16x16', :style => 'position:relative; top:4px', :title => "This channel is #{status}", :class => "img"
           - if chan.has_connection?
-            =' image_tag "#{connected_by_channel_id[chan.id] ? 'connected' : 'disconnected'}.png", :size => '16x16', :style => 'position:relative; top:4px', :title => "This channel is #{chan.connected? ? 'connected' : 'disconnected'}"
-          b=' chan.name
-        td=' chan.kind
-        td=' chan.direction_text
-        td=' chan.protocol
-        td=' chan.info.blank? ? '' : chan.info.html_safe
-        td=' chan.priority
-        td=' chan.application.try(:name)
+            = image_tag "#{connected_by_channel_id[chan.id] ? 'connected' : 'disconnected'}.png", :size => '16x16', :style => 'position:relative; top:4px', :title => "This channel is #{chan.connected? ? 'connected' : 'disconnected'}"
+          b= chan.name
+        td= chan.kind
+        td= chan.direction_text
+        td= chan.protocol
+        td= chan.info.blank? ? '' : chan.info.html_safe
+        td= chan.priority
+        td= chan.application.try(:name)
         - queued = queued_ao_messages_count_by_channel_id[chan.id]
         - if queued > 0
           td align="right"

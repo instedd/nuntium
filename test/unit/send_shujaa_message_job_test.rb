@@ -83,7 +83,7 @@ class SendShujaaMessageJobTest < ActiveSupport::TestCase
     deliver msg
 
     msg = AoMessage.first
-    assert_equal nil, msg.channel_relative_id
+    assert_nil msg.channel_relative_id
     assert_equal 1, msg.tries
     assert_equal 'failed', msg.state
 

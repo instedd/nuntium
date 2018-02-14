@@ -21,7 +21,7 @@ module Authenticable
   included do
     before_create :hash_password
     before_validation :reset_password, :if => lambda { persisted? && password.blank? && password_confirmation.blank? }
-    before_update :hash_password, :if => lambda { password.present? && password_changed? }
+    before_update :hash_password, :if => lambda { password.present? && saved_change_to_password? }
   end
 
   def authenticate(password)

@@ -26,7 +26,7 @@ br
   = f.password_field :password
   - if devise_mapping.rememberable?
     br
-    =' f.check_box :remember_me
+    = f.check_box :remember_me
     = f.label :remember_me, nil, style: 'display:inline'
   p= f.submit "Log in"
 

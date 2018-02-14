@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-class AtMessage < ActiveRecord::Base
+class AtMessage < ApplicationRecord
   belongs_to :account
   belongs_to :application
   belongs_to :channel

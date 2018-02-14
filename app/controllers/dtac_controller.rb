@@ -16,8 +16,8 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class DtacController < ApplicationController
-  skip_filter :check_login
-  before_filter :authenticate
+  skip_before_action :check_login
+  before_action :authenticate
 
   def index
     converter = Iconv.new('UTF-8','TIS-620')

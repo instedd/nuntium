@@ -17,7 +17,7 @@
 
 require 'digest/sha2'
 
-class Channel < ActiveRecord::Base
+class Channel < ApplicationRecord
   include ChannelMetadata
   include ChannelSerialization
 
@@ -60,7 +60,7 @@ class Channel < ActiveRecord::Base
   scope :incoming, -> { where(:direction => [Incoming, Bidirectional]) }
   scope :active, -> { where(:enabled => true, :paused => false) }
 
-  after_update :reroute_messages, :if => lambda { enabled_changed? && !enabled }
+  after_update :reroute_messages, :if => lambda { saved_change_to_enabled? && !enabled }
 
   after_save :touch_application_lifespan
   after_destroy :touch_application_lifespan

@@ -18,9 +18,9 @@
 class ApplicationsController < ApplicationController
   include RulesControllerCommon
 
-  before_filter :set_application_parameters, :only => [:create, :update]
-  before_filter :check_account_admin, :only => [:create, :routing_rules]
-  before_filter :check_application_admin, :only => [:edit, :update, :destroy]
+  before_action :set_application_parameters, :only => [:create, :update]
+  before_action :check_account_admin, :only => [:create, :routing_rules]
+  before_action :check_application_admin, :only => [:edit, :update, :destroy]
 
   def set_application_parameters
     application.account_id = account.id

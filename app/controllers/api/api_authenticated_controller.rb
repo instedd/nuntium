@@ -16,10 +16,10 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class ApiAuthenticatedController < ApplicationController
-  skip_filter :check_login
-  skip_filter :check_account
-  before_filter :authenticate_with_oauth2
-  before_filter :authenticate_with_basic
+  skip_before_action :check_login
+  skip_before_action :check_account
+  before_action :authenticate_with_oauth2
+  before_action :authenticate_with_basic
 
   def authenticate_with_basic
     return if @current_user || @account || @application

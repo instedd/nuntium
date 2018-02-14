@@ -1,4 +1,4 @@
-class UserApplication < ActiveRecord::Base
+class UserApplication < ApplicationRecord
   belongs_to :account
   belongs_to :user
   belongs_to :application

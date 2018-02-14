@@ -98,6 +98,7 @@ module Nuntium
       amqp_yaml = YAML.load_file "#{Rails.root}/config/amqp.yml"
       $amqp_config = amqp_yaml[ENV["TRAVIS"] ? "travis" : (Rails.env || 'development')]
       $amqp_config.symbolize_keys!
+      $amqp_config['host'] = ENV["RABBITMQ_HOST"]
 
       Queues.init
 

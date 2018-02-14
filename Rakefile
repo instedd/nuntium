@@ -4,8 +4,4 @@
 require File.expand_path('../config/application', __FILE__)
 require 'rake'
 
-# ci_reporter
-gem 'ci_reporter'
-require 'ci/reporter/rake/test_unit' # use this if you're using Test::Unit
-
 Rails.application.load_tasks

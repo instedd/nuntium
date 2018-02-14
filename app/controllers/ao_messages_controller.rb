@@ -20,8 +20,8 @@ class AoMessagesController < ApplicationController
   include CustomAttributesControllerCommon
   include AoMessageCreateCommon
 
-  skip_filter :check_login, :only => [:create_via_api, :get_ao]
-  before_filter :authenticate, :only => [:create_via_api, :get_ao]
+  skip_before_action :check_login, :only => [:create_via_api, :get_ao]
+  before_action :authenticate, :only => [:create_via_api, :get_ao]
 
   def index
     @page = params[:page].presence || 1

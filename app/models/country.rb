@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-class Country < ActiveRecord::Base
+class Country < ApplicationRecord
   has_many :carriers
   has_many :mobile_numbers
 

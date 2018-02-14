@@ -19,10 +19,10 @@ class TwitterController < ChannelsController
   include CustomAttributesControllerCommon
   include RulesControllerCommon
 
-  before_filter :set_channel_parameters, :only => [:create, :update]
-  before_filter :check_twitter_properly_configured
+  before_action :set_channel_parameters, :only => [:create, :update]
+  before_action :check_twitter_properly_configured
 
-  skip_filter :check_login, :only => [:callback]
+  skip_before_action :check_login, :only => [:callback]
 
   def create
     if channel.save

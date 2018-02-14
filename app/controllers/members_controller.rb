@@ -5,7 +5,7 @@ class MembersController < ApplicationController
   expose(:users) { user_accounts.map(&:user).uniq.sort_by(&:email) }
   expose(:channels) { account.channels.where(application_id: nil) }
 
-  before_filter :check_account_admin, except: [:index]
+  before_action :check_account_admin, except: [:index]
 
   def index
   end
