@@ -21,6 +21,6 @@
 br
 - if devise_mapping.omniauthable?
   - resource_class.omniauth_providers.each do |provider|
-    =' image_tag "#{provider.to_s.downcase}.png"
+    = image_tag "#{provider.to_s.downcase}.png"
     = link_to "Log in with #{provider.to_s.titleize}", omniauth_authorize_path(resource_name, provider, origin: session[:user_return_to])
     br

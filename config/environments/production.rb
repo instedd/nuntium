@@ -38,6 +38,8 @@ Nuntium::Application.configure do
   # Generate digests for assets URLs
   config.assets.digest = true
 
+  # Do not eager load code on boot.
+  config.eager_load = true
   # For nginx:
   # config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect'
 

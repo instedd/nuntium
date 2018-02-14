@@ -1,4 +1,4 @@
-class UserChannel < ActiveRecord::Base
+class UserChannel < ApplicationRecord
   belongs_to :account
   belongs_to :user
   belongs_to :channel

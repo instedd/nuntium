@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-class Country < ActiveRecord::Base
+class Country < ApplicationRecord
   has_many :carriers
   has_many :mobile_numbers
 
@@ -28,7 +28,7 @@ class Country < ActiveRecord::Base
     return @@countries if @@countries
 
     @@countries = super
-    @@countries.sort!{|x, y| x.name <=> y.name}
+    @@countries.sort{|x, y| x.name <=> y.name}
     @@countries
   end
 

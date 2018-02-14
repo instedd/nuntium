@@ -228,8 +228,8 @@ class ApplicationTest < ActiveSupport::TestCase
 
     app.route_ao msg, 'test'
 
-    assert_equal nil, msg.country
-    assert_equal nil, msg.carrier
+    assert_nil msg.country
+    assert_nil msg.carrier
   end
 
   test "route ao filter channel because of country" do

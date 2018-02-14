@@ -1,7 +1,7 @@
 class OmniauthCallbacksController < Devise::OmniauthCallbacksController
-  skip_before_filter :verify_authenticity_token
-  skip_before_filter :check_login
-  skip_before_filter :check_guisso_cookie
+  skip_before_action :verify_authenticity_token
+  skip_before_action :check_login
+  skip_before_action :check_guisso_cookie
 
   def google
     generic do |auth|

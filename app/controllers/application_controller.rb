@@ -79,12 +79,12 @@ class ApplicationController < ActionController::Base
   end
   helper_method :channel_admin?
 
-  before_filter :check_login
+  before_action :check_login
   def check_login
     authenticate_user!
   end
 
-  before_filter :check_account
+  before_action :check_account
   def check_account
     redirect_to new_account_path if user_signed_in? && !account
   end

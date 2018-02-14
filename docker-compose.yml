@@ -23,7 +23,8 @@ services:
     image: memcached:1.4.24
 
   web: &rails
-    image: instedd/nginx-rails:1.9
+    image: instedd/nginx-rails:2.3
+    env_file: dev.env
     environment:
       RAILS_ENV:
       DATABASE_HOST: 'db'
@@ -38,7 +39,7 @@ services:
       - db
       - rabbitmq
       - memcached
-    command: rails server -b 0.0.0.0 -p 80
+    # command: rails server -b 0.0.0.0 -p 80
     ports:
       - 3000:80
 

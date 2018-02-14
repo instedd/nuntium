@@ -18,7 +18,7 @@
 class CustomAttributesController < ApplicationController
   include CustomAttributesControllerCommon
 
-  before_filter :check_account_admin
+  before_action :check_account_admin
 
   # GET /custom_attributes
   def index

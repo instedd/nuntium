@@ -1,5 +1,5 @@
 class AccountsController < ApplicationController
-  skip_filter :check_account, :only => [:new, :create, :reclaim]
+  skip_before_action :check_account, :only => [:new, :create, :reclaim]
 
   def new
     @account = Account.new

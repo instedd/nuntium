@@ -17,6 +17,8 @@ Devise.setup do |config|
   # available as additional gems.
   require 'devise/orm/active_record'
 
+  config.secret_key = '093dc79893f8230072fa8029e053142077da9e4966d22987afc5dbaf6712ad9aefed6edf9b89a508f1021d617cd14fe0504ae5e623a565ab2ce2fc3929396f93'
+
   # ==> Configuration for any authentication mechanism
   # Configure which keys are used when authenticating a user. The default is
   # just :email. You can configure it to use [:username, :subdomain], so for
@@ -93,10 +95,6 @@ Devise.setup do |config|
 
   # If true, extends the user's remember period when remembered via cookie.
   # config.extend_remember_period = false
-
-  # If true, uses the password salt as remember token. This should be turned
-  # to false if you are not using database authenticatable.
-  config.use_salt_as_remember_token = true
 
   # Options to be passed to the created cookie. For instance, you can set
   # :secure => true in order to force SSL only cookies.
@@ -215,7 +213,8 @@ Devise.setup do |config|
   end
 end
 
-Devise::SessionsController.skip_filter :check_account
+# TODO move these to new a controller
+Devise::SessionsController.skip_before_action :check_account
 
 Devise::RegistrationsController
 class Devise::RegistrationsController

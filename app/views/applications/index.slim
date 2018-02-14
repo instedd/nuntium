@@ -22,12 +22,12 @@ p
         td= app.strategy_description
         td= app.delivery_ack_method_description
         td
-          =' link_to "view log", logs_application_path(app)
-          =' link_to "view aos", ao_messages_path(:search => "application:#{app.name}")
-          =' link_to "view ats", at_messages_path(:search => "application:#{app.name}")
+          = link_to "view log", logs_application_path(app)
+          = link_to "view aos", ao_messages_path(:search => "application:#{app.name}")
+          = link_to "view ats", at_messages_path(:search => "application:#{app.name}")
           - if application_admin?(app)
-            =' link_to "edit", edit_application_path(app)
-            =' link_to "delete", app, :method => :delete, :confirm => "Are you sure you want to delete the application #{app.name}?"
+            = link_to "edit", edit_application_path(app)
+            = link_to "delete", app, :method => :delete, :confirm => "Are you sure you want to delete the application #{app.name}?"
 
 - if account_admin?
   h5 Application Routing Rules

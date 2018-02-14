@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-class Ticket < ActiveRecord::Base
+class Ticket < ApplicationRecord
 
   validates_inclusion_of :status, :in => ['pending', 'complete']
   serialize :data, Hash

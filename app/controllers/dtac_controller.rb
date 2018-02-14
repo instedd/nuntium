@@ -18,8 +18,8 @@
 require 'iconv'
 
 class DtacController < ApplicationController
-  skip_filter :check_login
-  before_filter :authenticate
+  skip_before_action :check_login
+  before_action :authenticate
 
   def index
     converter = Iconv.new('UTF-8','TIS-620')

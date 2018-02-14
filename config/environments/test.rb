@@ -30,6 +30,9 @@ Nuntium::Application.configure do
   # Raise exceptions instead of rendering exception templates
   config.action_dispatch.show_exceptions = false
 
+  # Do not eager load code on boot.
+  config.eager_load = false
+
   # Disable request forgery protection in test environment
   config.action_controller.allow_forgery_protection    = false
 

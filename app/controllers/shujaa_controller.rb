@@ -16,7 +16,7 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class ShujaaController < ApplicationController
-  skip_filter :check_login
+  skip_before_action :check_login
 
   def index
     account = Account.find_by_id_or_name(params[:account_id]) or return head(:not_found)

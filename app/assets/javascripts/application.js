@@ -6,7 +6,8 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require jquery.ui.autocomplete
+//= require turbolinks
+//= require jquery-ui/widgets/autocomplete
 //= require lodash
 //= require knockout
 //= require pigeon
