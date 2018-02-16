@@ -16,7 +16,7 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class ApiXmppChannelController < ApiAuthenticatedController
-  before_filter :require_account!
+  before_action :require_account!
 
   def add_contact
     channel = @account.channels.find_by_name params[:name]

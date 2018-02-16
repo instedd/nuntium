@@ -16,7 +16,7 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class ChikkaController < ApplicationController
-  skip_filter :check_login
+  skip_before_action :check_login
 
   # POST /:account_name/:channel_name/:secret_token/chikka/incoming
   def incoming

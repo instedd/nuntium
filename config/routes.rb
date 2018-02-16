@@ -104,10 +104,10 @@ Rails.application.routes.draw do
 
   match '/clickatell/view_credit' => 'clickatell#view_credit', :as => :clickatel_credit, via: [:get, :post]
 
-  scope '/:account_id/:channel_id/nexmo/:callback_token', :constraints => {:account_id => /.*/, :channel_id => /.*/} do
-    match '/incoming' => 'nexmo#incoming', :as => :nexmo_incoming, :constraints => {:account_id => /.*/, :channel_id => /.*/}
-    match '/ack' => 'nexmo#ack', :as => :nexmo_ack, :constraints => {:account_id => /.*/, :channel_id => /.*/}
-  end
+  # scope '/:account_id/:channel_id/nexmo/:callback_token', :constraints => {:account_id => /.*/, :channel_id => /.*/} do
+  #   match '/incoming' => 'nexmo#incoming', :as => :nexmo_incoming, :constraints => {:account_id => /.*/, :channel_id => /.*/}
+  #   match '/ack' => 'nexmo#ack', :as => :nexmo_ack, :constraints => {:account_id => /.*/, :channel_id => /.*/}
+  # end
 
   scope '/:account_name/:channel_name/:secret_token/chikka', :constraints => {:account_name => /.*/, :channel_name => /.*/} do
     post '/incoming' => 'chikka#incoming', :as => :chikka

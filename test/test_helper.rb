@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-ENV["RAILS_ENV"] ||= 'test'
+ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require File.expand_path(File.dirname(__FILE__) + "/blueprints")
 require 'rails/test_help'
@@ -23,7 +23,10 @@ require 'base64'
 require 'digest/md5'
 require 'digest/sha2'
 require 'shoulda'
-require 'mocha/mini_test'
+# require 'mocha'
+# require 'mocha/setup'
+require "test/unit"
+require "mocha/test_unit"
 
 require File.expand_path(File.dirname(__FILE__) + "/unit/generic_channel_test")
 require File.expand_path(File.dirname(__FILE__) + "/unit/service_channel_test")
@@ -52,7 +55,7 @@ class ActiveSupport::TestCase
   # then set this back to true.
   self.use_instantiated_fixtures  = false
 
-  include Mocha::API
+  # include Mocha::API
 
   setup do
     Rails.cache.clear
@@ -165,14 +168,6 @@ class ActiveSupport::TestCase
     return Time.at(946702800).utc
   end
 
-  def assert_true(test, msg=nil)
-    assert test, msg
-  end
-
-  def assert_false(test, msg=nil)
-    assert_not test, msg
-  end
-
   def assert_validates_configuration_presence_of(chan, field)
     chan.configuration.delete field
     assert !chan.save
@@ -186,7 +181,7 @@ class ActiveSupport::TestCase
       jobs << job
     end
 
-    msg = AoMessage.make! :account_id => chan.account_id, :channel_id => chan.id
+    msg = AoMessage.make :account_id => chan.account_id, :channel_id => chan.id
     chan.handle(msg)
 
     assert_equal 1, jobs.length

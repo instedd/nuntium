@@ -33,11 +33,12 @@ module Queues
 
   class << self
     def init
-      $amqp_conn = Bunny.new(host: $amqp_config['host'],
-                  port:  '5672',
-                  vhost: $amqp_config['vhost'],
-                  user:  $amqp_config['user'],
-                  pass:  $amqp_config['pass'])
+      $amqp_conn = Bunny.new $amqp_config, host: ENV["RABBITMQ_HOST"]
+      # (host: $amqp_config['host'],
+      #             port:  '5672',
+      #             vhost: $amqp_config['vhost'],
+      #             user:  $amqp_config['user'],
+      #             pass:  $amqp_config['pass'])
 
       $amqp_conn.start
       @default_mq = nil

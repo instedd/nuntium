@@ -16,7 +16,7 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class ApiTwitterChannelController < ApiAuthenticatedController
-  before_filter :require_account!
+  before_action :require_account!
 
   def friendship_create
     channel = @account.channels.find_by_name params[:name]

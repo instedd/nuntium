@@ -67,8 +67,6 @@ module Nuntium
     config.assets.initialize_on_precompile = false
 
     config.assets.precompile += ['pigeonui.js']
-    # Do not swallow errors in after_commit/after_rollback callbacks.
-    config.active_record.raise_in_transactional_callbacks = true
 
     # Disabl strong parameters
     config.action_controller.permit_all_parameters = true
@@ -98,7 +96,6 @@ module Nuntium
       amqp_yaml = YAML.load_file "#{Rails.root}/config/amqp.yml"
       $amqp_config = amqp_yaml[ENV["TRAVIS"] ? "travis" : (Rails.env || 'development')]
       $amqp_config.symbolize_keys!
-      $amqp_config['host'] = ENV["RABBITMQ_HOST"]
 
       Queues.init
 

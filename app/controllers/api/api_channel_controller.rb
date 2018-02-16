@@ -16,7 +16,7 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class ApiChannelController < ApiAuthenticatedController
-  before_filter :require_account!
+  before_action :require_account!
 
   # GET /api/channels.:format
   def index

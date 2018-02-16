@@ -8,7 +8,6 @@ gem "guid"
 gem 'multi_json', '~> 1.3'
 gem 'twitter'
 gem 'twitter_oauth'
-gem 'ruby-smpp', git: 'https://github.com/instedd/ruby-smpp', branch: 'array_pack', require: 'smpp'
 gem "eventmachine"
 gem 'bunny'
 gem 'dalli'
@@ -20,7 +19,6 @@ gem 'daemon_controller'
 gem 'ruby-cache', :require => 'cache'
 gem 'json'
 gem 'rgviz'
-gem 'rgviz-rails', git: 'https://github.com/manastech/rgviz-rails', branch: 'rails-5.1'
 gem 'blather'
 gem 'dynamic_form'
 gem 'daemons'
@@ -34,39 +32,35 @@ gem 'devise'
 gem 'omniauth'
 gem 'omniauth-openid'
 gem 'omniauth-google-oauth2'
-gem 'alto_guisso', git: 'https://github.com/instedd/alto_guisso', branch: 'master'
-gem 'alto_guisso_rails', git: 'https://github.com/instedd/alto_guisso_rails', branch: 'rails-5.1'
 gem 'slim'
 gem 'lodash-rails'
 gem 'knockoutjs-rails'
 gem 'newrelic_rpm'
 gem 'foreman'
-gem 'instedd_telemetry', git: 'https://github.com/instedd/telemetry_rails', branch: 'rails-5.1'
 gem 'iconv'
 gem 'poirot_rails', git: 'https://github.com/instedd/poirot_rails', branch: 'rails-5.1'
-
-gem 'sass-rails', '~> 5.0'
-gem 'coffee-rails'
-gem 'uglifier', '>= 1.3.0'
-
+gem 'instedd-pigeon', git: 'https://github.com/instedd/pigeon', branch: 'master', require: 'pigeon'
+gem 'instedd_telemetry', git: 'https://github.com/instedd/telemetry_rails', branch: 'rails-5.1'
+gem 'alto_guisso', git: 'https://github.com/instedd/alto_guisso', branch: 'master'
+gem 'alto_guisso_rails', git: 'https://github.com/instedd/alto_guisso_rails', branch: 'rails-5.1'
+gem 'rgviz-rails', git: 'https://github.com/manastech/rgviz-rails', branch: 'rails-5.1'
+gem 'ruby-smpp', git: 'https://github.com/instedd/ruby-smpp', branch: 'array_pack', require: 'smpp'
 gem 'turbolinks'
-
 gem 'jbuilder', '~> 2.0'
+
+group :assets do
+  gem 'sass-rails'
+  gem 'coffee-rails'
+  gem 'uglifier'
+end
 
 group :development do
   gem 'licit'
   gem 'capistrano', "~> 2.15"
-  gem 'rails-dev-tweaks'
-end
-
-group :debug do
-  gem 'spring'
-  gem 'web-console'
 end
 
 group :test do
-  gem 'pry'
-  gem 'pry-debugger'
+  gem 'sham', '~> 1.1'
   gem "rake"
   gem 'test-unit', '~> 3.1.8', :require => 'test/unit'
   gem "mocha"
@@ -78,15 +72,11 @@ end
 
 group :development, :test do
   gem 'pry'
+  gem 'pry-rails'
   gem 'pry-byebug'
   gem 'byebug'
 end
 
 group :webserver do
   gem 'puma'
-end
-
-group :doc do
-  # bundle exec rake doc:rails generates the API under doc/api.
-  gem 'sdoc', '~> 0.4.0'
 end

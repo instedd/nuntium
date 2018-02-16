@@ -16,7 +16,7 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class NexmoController < ApplicationController
-  skip_filter :check_login
+  skip_before_action :check_login
 
   # GET /nexmo/:account_id/:channel_id/incoming
   def incoming
