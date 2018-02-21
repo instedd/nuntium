@@ -16,6 +16,8 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 Nuntium::Application.configure do
+  config.logger = Logger.new(STDOUT)
+  config.log_level = :error
   # Settings specified here will take precedence over those in config/environment.rb
 
   # In the development environment your application's code is reloaded on

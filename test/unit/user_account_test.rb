@@ -18,33 +18,32 @@
 require 'test_helper'
 
 class UserAccountTest < ActiveSupport::TestCase
-  
-  test "should update account lifespan when created" do
-    account = Account.make
-    user_account = UserAccount.make_unsaved account: account
+  setup do
+    @account = FactoryBot.build(:account)
+  end
 
-    Telemetry::Lifespan.expects(:touch_account).with(account)
+  test "should update account lifespan when created" do
+    user_account = FactoryBot.create(:user_account, account: @account)
+
+    Telemetry::Lifespan.expects(:touch_account).with(@account)
 
     user_account.save
   end
 
   test "should update account lifespan when updated" do
-    account = Account.make
-    user_account = UserAccount.make account: account
+    user_account = FactoryBot.create(:user_account, account: @account)
 
-    Telemetry::Lifespan.expects(:touch_account).with(account)
+    Telemetry::Lifespan.expects(:touch_account).with(@account)
 
     user_account.touch
     user_account.save
   end
 
   test "should update account lifespan when destroyed" do
-    account = Account.make
-    user_account = UserAccount.make account: account
+    user_account = FactoryBot.create(:user_account, account: @account)
 
-    Telemetry::Lifespan.expects(:touch_account).with(account)
+    Telemetry::Lifespan.expects(:touch_account).with(@account)
 
     user_account.destroy
   end
-
 end

@@ -69,6 +69,14 @@ GIT
       rails
       rgviz (>= 0.50)
 
+GIT
+  remote: https://github.com/stympy/faker.git
+  revision: 679fd508c9f41f41b6df62024d67bc2281953395
+  branch: master
+  specs:
+    faker (1.8.7)
+      i18n (>= 0.7)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -164,9 +172,13 @@ GEM
     erubi (1.7.0)
     eventmachine (1.2.5)
     execjs (2.7.0)
+    factory_bot (4.8.2)
+      activesupport (>= 3.0.0)
+    factory_bot_rails (4.8.2)
+      factory_bot (~> 4.8.2)
+      railties (>= 3.0.0)
     faraday (0.12.2)
       multipart-post (>= 1.2, < 3)
-    ffaker (2.8.1)
     ffi (1.9.21)
     foreman (0.84.0)
       thor (~> 0.19.1)
@@ -215,7 +227,6 @@ GEM
     loofah (2.2.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
-    machinist (2.0)
     mail (2.7.0)
       mini_mime (>= 0.1.1)
     memcache-client (1.8.5)
@@ -420,7 +431,8 @@ DEPENDENCIES
   devise
   dynamic_form
   eventmachine
-  ffaker
+  factory_bot_rails
+  faker!
   foreman
   guid
   iconv
@@ -433,7 +445,6 @@ DEPENDENCIES
   knockoutjs-rails
   licit
   lodash-rails
-  machinist
   mail
   memcache-client
   mocha
@@ -459,7 +470,7 @@ DEPENDENCIES
   ruby-smpp!
   sass-rails
   slim
-  test-unit (~> 3.1.8)
+  test-unit
   thoughtbot-shoulda
   timecop
   turbolinks

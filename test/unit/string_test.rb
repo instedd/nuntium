@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -49,8 +49,8 @@ class StringTest < ActiveSupport::TestCase
   end
 
   test "starts with" do
-    assert_true 'HolaATodos'.starts_with?('Hola')
-    assert_false 'HolaATodos'.starts_with?('HolaT')
+    assert 'HolaATodos'.starts_with?('Hola')
+    assert !'HolaATodos'.starts_with?('HolaT')
   end
 
   test "mobile_number" do
@@ -66,25 +66,25 @@ class StringTest < ActiveSupport::TestCase
   end
 
   test "valid sms address" do
-    assert_true "sms://1234".valid_address?
-    assert_true "sms://+1234".valid_address?
-    assert_false "sms://foo".valid_address?
-    assert_false "sms://+foo".valid_address?
-    assert_false "sms://".valid_address?
-    assert_false "sms:// ".valid_address?
-    assert_false "sms:// 123".valid_address?
-    assert_false "sms://123 4".valid_address?
+    assert "sms://1234".valid_address?
+    assert "sms://+1234".valid_address?
+    assert !"sms://foo".valid_address?
+    assert !"sms://+foo".valid_address?
+    assert !"sms://".valid_address?
+    assert !"sms:// ".valid_address?
+    assert !"sms:// 123".valid_address?
+    assert !"sms://123 4".valid_address?
   end
 
   test "valid email address" do
-    assert_true "mailto://foo@bar.com".valid_address?
-    assert_true "mailto://foo.bar+baz@example.com".valid_address?
-    assert_false "mailto://foo".valid_address?
-    assert_false "mailto://!()@foo.com".valid_address?
-    assert_false "mailto://%$\#@foo.com".valid_address?
-    assert_false "mailto://".valid_address?
-    assert_false "mailto:// ".valid_address?
-    assert_false "mailto:// foo@bar.com".valid_address?
+    assert "mailto://foo@bar.com".valid_address?
+    assert "mailto://foo.bar+baz@example.com".valid_address?
+    assert !"mailto://foo".valid_address?
+    assert !"mailto://!()@foo.com".valid_address?
+    assert !"mailto://%$\#@foo.com".valid_address?
+    assert !"mailto://".valid_address?
+    assert !"mailto:// ".valid_address?
+    assert !"mailto:// foo@bar.com".valid_address?
   end
 
   test "sanitize" do

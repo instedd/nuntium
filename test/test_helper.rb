@@ -17,13 +17,12 @@
 
 ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
-require File.expand_path(File.dirname(__FILE__) + "/blueprints")
 require 'rails/test_help'
 require 'base64'
 require 'digest/md5'
 require 'digest/sha2'
 require 'shoulda'
-require 'mocha'
+require 'mocha/test_unit'
 
 require File.expand_path(File.dirname(__FILE__) + "/unit/generic_channel_test")
 require File.expand_path(File.dirname(__FILE__) + "/unit/service_channel_test")
@@ -50,16 +49,8 @@ class ActiveSupport::TestCase
   # test cases which use the @david style and don't mind the speed hit (each
   # instantiated fixtures translates to a database query per test method),
   # then set this back to true.
-  self.use_instantiated_fixtures  = false
-
+  include FactoryBot::Syntax::Methods
   include Mocha::API
-
-  setup do
-    Rails.cache.clear
-    Country.clear_cache
-    Carrier.clear_cache
-    Sham.reset
-  end
 
   def expect_get(options = {})
     resource2 = mock('RestClient::Resource')

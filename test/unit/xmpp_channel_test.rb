@@ -19,7 +19,7 @@ require 'test_helper'
 
 class XmppChannelTest < ActiveSupport::TestCase
   def setup
-    @chan = XmppChannel.make
+    @chan = FactoryBot.build(:xmpp_channel)
   end
 
   [:user, :domain, :password].each do |field|

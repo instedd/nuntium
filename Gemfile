@@ -63,12 +63,12 @@ end
 
 group :test do
   gem "rake"
-  gem 'test-unit', '~> 3.1.8', :require => 'test/unit'
+  gem 'test-unit'
   gem "mocha"
   gem "thoughtbot-shoulda", :require => "shoulda"
-  gem 'ffaker'
-  gem 'machinist'
+  gem 'faker', :git => 'https://github.com/stympy/faker.git', :branch => 'master'
   gem 'timecop'
+  gem 'factory_bot_rails'
 end
 
 group :development, :test do

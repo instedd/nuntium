@@ -29,10 +29,10 @@ class Channel < ApplicationRecord
   belongs_to :account
   belongs_to :application
 
-  has_many :ao_messages, :conditions => proc { { :account_id => self.account_id } }
-  has_many :at_messages, :conditions => proc { { :account_id => self.account_id } }
+  has_many :ao_messages, -> (object){ where(account_id: object.account_id) }, class_name: 'AoMessage'
+  has_many :at_messages, -> (object){ where(account_id: object.account_id) }, class_name: 'AtMessage'
   has_many :address_sources
-  has_many :whitelists, :conditions => proc { { :account_id => self.account_id } }
+  has_many :whitelists, -> (object){ where(account_id: object.account_id) }, class_name: 'Whitelist'
   has_many :logs
 
   serialize :configuration, Hash
@@ -43,7 +43,7 @@ class Channel < ApplicationRecord
   attr_accessor :throttle_opt
 
   validates_presence_of :name, :protocol, :kind, :account
-  validates_format_of :name, :with => /^[a-zA-Z0-9\-_]+$/, :message => "can only contain alphanumeric characters, '_' or '-' (no spaces allowed)", :unless => proc {|c| c.name.blank?}
+  validates_format_of :name, :with => /^[a-zA-Z0-9\-_]+$/, :message => "can only contain alphanumeric characters, '_' or '-' (no spaces allowed)", :unless => proc {|c| c.name.blank?}, multiline: true
   validates_uniqueness_of :name, :scope => :account_id, :message => 'has already been used by another channel in the account'
   validates_inclusion_of :direction, :in => [Incoming, Outgoing, Bidirectional], :message => "must be 'incoming', 'outgoing' or 'bidirectional'"
   validates_numericality_of :throttle, :allow_nil => true, :only_integer => true, :greater_than_or_equal_to => 0
@@ -52,13 +52,13 @@ class Channel < ApplicationRecord
   validate :check_valid_in_ui, :if => lambda { @must_check_valid_in_ui }
   validates_presence_of :opt_in_keyword, :opt_in_message, :opt_out_keyword, :opt_out_message, :opt_help_keyword, :opt_help_message, :if => lambda { opt_in_enabled.to_b }
 
-  scope :enabled, where(:enabled => true)
-  scope :disabled, where(:enabled => false)
-  scope :paused, where(:paused => true)
-  scope :unpaused, where(:paused => false)
-  scope :outgoing, where(:direction => [Outgoing, Bidirectional])
-  scope :incoming, where(:direction => [Incoming, Bidirectional])
-  scope :active, where(:enabled => true, :paused => false)
+  scope :enabled, -> { where(enabled: true) }
+  scope :disabled, -> { where(enabled: false) }
+  scope :paused, -> { where(paused: true) }
+  scope :unpaused, -> { where(paused: false) }
+  scope :outgoing, -> { where(direction: [Outgoing, Bidirectional]) }
+  scope :incoming, -> { where(direction: [Incoming, Bidirectional]) }
+  scope :active, -> { where(enabled: true, paused: false) }
 
   after_update :reroute_messages, :if => lambda { saved_change_to_enabled? && !enabled }
 
