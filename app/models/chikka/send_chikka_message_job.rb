@@ -46,7 +46,7 @@ class SendChikkaMessageJob < SendMessageJob
       when :message_error
         raise MessageException.new(Exception.new(description))
       else
-        raise Exception.new(description)
+        raise description
       end
     end
   end
