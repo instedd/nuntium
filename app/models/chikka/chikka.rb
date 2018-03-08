@@ -16,17 +16,28 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class Chikka
-  # From https://api.chikka.com/docs/handling-messages#send-sms
-  SEND_STATUS = {
-    '200' => [:success, 'Accepted'],
-    '400' => [:temporal_error, 'Bad Request'], # FIXME: :message or :permanent depends on the description
-    '401' => [:system_error, 'Unauthorized'],
-    '403' => [:system_error, 'Method Not Allowed'],
-    '404' => [:system_error, 'URI Not Found'],
-    '500' => [:temporal_error, 'General System Error']
-  }
-
   def self.send_status(status)
-    SEND_STATUS[status['status'].to_s] || [:temporal_error, "Unknown error code: #{status['status']} - #{status['message']}"]
+    # From https://api.chikka.com/docs/handling-messages#send-sms
+    case status['status'].to_s
+    when '200'
+      [:success, 'Accepted']
+    when '400'
+      case status['description']
+      when 'Invalid Mobile Number'
+        [:message_error, 'Invalid Mobile Number']
+      else
+        [:temporal_error, 'Bad Request']
+      end
+    when '401'
+      [:system_error, 'Unauthorized']
+    when '403'
+      [:system_error, 'Method Not Allowed']
+    when '404'
+      [:system_error, 'URI Not Found']
+    when '500'
+      [:temporal_error, 'General System Error']
+    else
+      [:temporal_error, "Unknown error code: #{status['status']} - #{status['message']}"]
+    end
   end
 end
