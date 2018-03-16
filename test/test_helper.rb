@@ -24,6 +24,7 @@ require 'digest/md5'
 require 'digest/sha2'
 require 'shoulda'
 require 'mocha'
+require 'webmock/test_unit'
 
 require File.expand_path(File.dirname(__FILE__) + "/unit/generic_channel_test")
 require File.expand_path(File.dirname(__FILE__) + "/unit/service_channel_test")

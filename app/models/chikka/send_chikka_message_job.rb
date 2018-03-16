@@ -26,6 +26,21 @@ class SendChikkaMessageJob < SendMessageJob
       :client_id => @config[:client_id],
       :secret_key => @config[:secret_key]
     }
+
+    replied_at = @channel.at_messages
+      .where(from: @msg.to)
+      .where('created_at > ?', Time.now - 1.hour)
+      .order(:id)
+      .last
+
+    if replied_at
+      query_parameters.merge!({
+        message_type: 'REPLY',
+        request_id: replied_at.channel_relative_id,
+        request_cost: 'FREE'
+      })
+    end
+
     begin
       response = RestClient.post("https://post.chikka.com/smsapi/request", query_parameters, headers: {"Content-Type" => "application/json"})
       @msg.channel_relative_id = @msg.guid.delete('-')

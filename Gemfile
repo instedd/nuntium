@@ -74,6 +74,8 @@ group :test do
   gem 'machinist'
   gem 'test_after_commit'
   gem 'timecop'
+  gem 'addressable', '~> 2.4.0' # Fixing version available for Ruby 1.9
+  gem 'webmock', '~> 1.8.0'
 end
 
 group :webserver do

@@ -226,6 +226,15 @@ XmppChannel.blueprint do
   configuration { {:user => Sham.username, :domain => Sham.url, :password => Sham.password, :server => Sham.url, :port => 1 + rand(1000), :resource => Sham.username} }
 end
 
+ChikkaChannel.blueprint do
+  account
+  name { Sham.guid }
+  direction { Channel::Bidirectional }
+  protocol { "sms" }
+  enabled { true }
+  configuration { { :shortcode => Sham.number8, :client_id => Sham.number8, :secret_key => Sham.number8, :secret_token => Sham.number8 } }
+end
+
 Ticket.blueprint do
   code { Sham.number4 }
   secret_key { Sham.guid }

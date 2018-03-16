@@ -23,19 +23,18 @@ class ChikkaController < ApplicationController
     account = Account.find_by_id_or_name(params[:account_name])
     channel = account.chikka_channels.find_by_name(params[:channel_name])
 
-
     if channel.shortcode != params[:shortcode] || channel.secret_token != params[:secret_token]
-      return head :unauthorized
+      return render text: "Error", status: :unauthorized
     end
 
     msg = AtMessage.new
     msg.from = "sms://#{params[:mobile_number]}"
     msg.to   = "sms://#{params[:shortcode]}"
     msg.body = params[:message]
-    msg.custom_attributes["chikka_request_id"] = params[:request_id]
+    msg.channel_relative_id = params[:request_id]
     account.route_at msg, channel
 
-    head :ok
+    render text: "Accepted"
   end
 
   # POST /:account_name/:channel_name/:secret_token/chikka/ack
@@ -44,34 +43,31 @@ class ChikkaController < ApplicationController
     channel = account.chikka_channels.find_by_name(params[:channel_name])
 
     if channel.secret_token != params[:secret_token]
-      return head :unauthorized
+      return render text: "Error", status: :unauthorized
     end
 
     ao = channel.ao_messages.find_by_channel_relative_id(params[:message_id])
-    return head :ok unless ao
-
-    status = params[:status]
-    status = status.downcase if status
-
-    rb_cost = params[:rb_cost]
-    credits_cost= params[:credits_cost]
-
-    account.logger.info :channel_id => channel.id, :ao_message_id => ao.id,
-      :message => "Recieved status notification with status #{status.inspect} (rb_cost: #{rb_cost}, credits_cost: #{credits_cost})"
-
-    ao.custom_attributes["chikka_delivery_status"] = status if status
-    ao.custom_attributes["chikka_delivery_rb_cost"] = rb_cost if rb_cost
-    ao.custom_attributes["chikka_delivery_credits_cost"] = credits_cost if credits_cost
-
-    case status
-      when "sent"
-        ao.state = 'confirmed'
-      else
-        ao.state = 'failed'
+    unless ao
+      return render text: "Error", status: :not_found
     end
 
+    status = params[:status]
+    credits_cost = params[:credits_cost]
+
+    case status
+    when "SENT"
+      ao.state = "confirmed"
+    when "FAILED"
+      ao.state = "failed"
+    end
+
+    account.logger.info :channel_id => channel.id, :ao_message_id => ao.id,
+      :message => "Recieved delivery notification with status #{status.inspect} (credits_cost: #{credits_cost})"
+
+    ao.custom_attributes["chikka_status"] = status if status
+    ao.custom_attributes["chikka_credits_cost"] = credits_cost if credits_cost
     ao.save!
 
-    head :ok
+    render text: "Accepted"
   end
 end
