@@ -27,13 +27,15 @@ class SendChikkaMessageJob < SendMessageJob
       :secret_key => @config[:secret_key]
     }
 
-    replied_at = @channel.at_messages
-      .where(from: @msg.to)
-      .where('created_at > ?', Time.now - 1.hour)
-      .order(:id)
-      .last
+    replied_at =
+      if @msg.custom_attributes['reply_sequence'] == '0' && reply_to = @msg.custom_attributes['reply_to']
+        @channel.at_messages.find_by_guid(reply_to)
+      end
 
     if replied_at
+      @account.logger.info(channel_id: @channel.id, ao_message_id: @msg.id,
+        message: "Sending to Chikka as REPLY of AT message with id #{replied_at.id}")
+
       query_parameters.merge!({
         message_type: 'REPLY',
         request_id: replied_at.channel_relative_id,

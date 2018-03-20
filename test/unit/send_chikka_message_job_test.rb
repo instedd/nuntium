@@ -29,22 +29,21 @@ class SendChikkaMessageJobTest < ActiveSupport::TestCase
     assert_equal 'failed', msg.state
   end
 
-  test "send message as a reply when there is a recent AT message for the same number" do
+  test "send message as a REPLY when it's marked as a repy of another one" do
     from = 'sms://123456789'
-    at1 = AtMessage.make account: @chan.account, channel: @chan, from: from, channel_relative_id: '12345'
-    at2 = AtMessage.make account: @chan.account, channel: @chan, from: from, channel_relative_id: '67890'
-    ao = AoMessage.make account: @chan.account, channel: @chan, to: from
+    at = AtMessage.make account: @chan.account, channel: @chan, from: from, channel_relative_id: '12345'
+    ao = AoMessage.make account: @chan.account, channel: @chan, to: from, custom_attributes: { 'reply_to' => at.guid, 'reply_sequence' => '0' }
 
-    stub = expect_smsapi_request(ao, {message_type: 'REPLY', request_id: '67890', request_cost: 'FREE'})
+    stub = expect_smsapi_request(ao, {message_type: 'REPLY', request_id: '12345', request_cost: 'FREE'})
       .to_return(accepted_response)
     deliver ao
     assert_requested stub
   end
 
-  test "do not send a reply when the latest AT message was received an hour ago" do
+  test "do not send as REPLY when the reply by the application is not the first message" do
     from = 'sms://123456789'
-    at = AtMessage.make account: @chan.account, channel: @chan, from: from, channel_relative_id: '12345', created_at: Time.now - 1.hour
-    ao = AoMessage.make account: @chan.account, channel: @chan, to: from
+    at = AtMessage.make account: @chan.account, channel: @chan, from: from, channel_relative_id: '12345'
+    ao = AoMessage.make account: @chan.account, channel: @chan, to: from, custom_attributes: { 'reply_to' => at.guid, 'reply_sequence' => '1' }
 
     stub = expect_smsapi_request(ao).to_return(accepted_response)
     deliver ao
