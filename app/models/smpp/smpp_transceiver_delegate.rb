@@ -84,7 +84,8 @@ class SmppTransceiverDelegate
 
       options.merge!(
         :esm_class => 64,               # This message contains a UDH header.
-        :udh => udh,
+        # UDH are bytes - not chars - so we use 8 bit encoding without interpretation
+        :udh => udh.force_encoding("ASCII-8BIT"),
         :data_coding => msg_coding
       )
 
