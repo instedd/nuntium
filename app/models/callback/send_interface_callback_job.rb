@@ -101,6 +101,7 @@ class SendInterfaceCallbackJob
               hashes.each do |hash|
                 parsed = AoMessage.from_hash hash
                 parsed.token ||= @msg.token
+                add_reply_attributes(parsed)
                 @app.route_ao parsed, "http #{http_method.downcase} callback"
               end
             when 'application/xml'
@@ -108,12 +109,14 @@ class SendInterfaceCallbackJob
 
               AoMessage.parse_xml(res.body) do |parsed|
                 parsed.token ||= @msg.token
+                add_reply_attributes(parsed)
                 @app.route_ao parsed, "http #{http_method.downcase} callback"
               end
             else
               @app.logger.info :at_message_id => @msg.id, :channel_id => @msg.channel.try(:id), :message => "#{http_method} callback returned text: routed an AO message reply"
               reply = @msg.new_reply res.body
               reply.token = @msg.token
+              add_reply_attributes(reply)
               @app.route_ao reply, "http #{http_method.downcase} callback"
             end
           end
@@ -181,5 +184,16 @@ class SendInterfaceCallbackJob
 
   def looks_like_xml?(string)
     string =~ %r(</(.*?)>) && %r(<#{$1})
+  end
+
+  def add_reply_attributes(ao_message)
+    @seq_by_guid ||= Hash.new { |h, k| h[k] = 0 }
+    guid = ao_message.custom_attributes['reply_to'] ||= @msg.guid
+    ao_message.custom_attributes['reply_sequence'] ||=
+      begin
+        reply_sequence = @seq_by_guid[guid].to_s
+        @seq_by_guid[guid] += 1
+        reply_sequence
+      end
   end
 end

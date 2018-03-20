@@ -207,6 +207,8 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     assert_equal @msg.from, msgs[0].to
     assert_equal 'foo', msgs[0].body
     assert_equal @msg.token, msgs[0].token
+    assert_equal @msg.guid, msgs[0].custom_attributes['reply_to']
+    assert_equal '0', msgs[0].custom_attributes['reply_sequence']
   end
 
   test "post response is a json array, route it back" do
@@ -234,6 +236,65 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     assert_equal 'Hello!', msgs[0].body
     assert_equal 'ar', msgs[0].country
     assert_equal @msg.token, msgs[0].token
+    assert_equal @msg.guid, msgs[0].custom_attributes['reply_to']
+    assert_equal '0', msgs[0].custom_attributes['reply_sequence']
+  end
+
+  test "post response is a json array with reply_to" do
+    @application.interface = 'http_post_callback'
+    @application.interface_url = 'http://www.domain.com'
+    @application.save!
+
+    expect_post :url => @application.interface_url,
+      :data => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPSuccess,
+      :returns_body => [{reply_to: "my_guid"}].to_json,
+      :returns_content_type => 'application/json'
+
+    job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
+    job.perform
+
+    msgs = AoMessage.all
+    assert_equal 1, msgs.count
+    assert_equal "my_guid", msgs[0].custom_attributes['reply_to']
+    assert_equal '0', msgs[0].custom_attributes['reply_sequence']
+  end
+
+  test "post response is a json array with mixed items with and without reply_to / reply_sequence" do
+    @application.interface = 'http_post_callback'
+    @application.interface_url = 'http://www.domain.com'
+    @application.save!
+
+    expect_post :url => @application.interface_url,
+      :data => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPSuccess,
+      :returns_body => [
+        {body: 'm1'},
+        {body: 'm2'},
+        {body: 'm3', reply_to: 'guid_1'},
+        {body: 'm4', reply_to: 'guid_1'},
+        {body: 'm5', reply_to: 'guid_2', reply_sequence: '1'},
+        {body: 'm6', reply_to: 'guid_2', reply_sequence: '0'}
+      ].to_json,
+      :returns_content_type => 'application/json'
+
+    job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
+    job.perform
+
+    def test_values(msg)
+      [msg.body, msg.custom_attributes['reply_to'], msg.custom_attributes['reply_sequence']]
+    end
+
+    msgs = AoMessage.all
+    assert_equal 6, msgs.count
+    assert_equal ['m1', @msg.guid, '0'], test_values(msgs[0])
+    assert_equal ['m2', @msg.guid, '1'], test_values(msgs[1])
+    assert_equal ['m3', 'guid_1', '0'], test_values(msgs[2])
+    assert_equal ['m4', 'guid_1', '1'], test_values(msgs[3])
+    assert_equal ['m5', 'guid_2', '1'], test_values(msgs[4])
+    assert_equal ['m6', 'guid_2', '0'], test_values(msgs[5])
   end
 
   test "post response is a json hash, route it back" do
@@ -261,6 +322,8 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     assert_equal 'Hello!', msgs[0].body
     assert_equal 'ar', msgs[0].country
     assert_equal @msg.token, msgs[0].token
+    assert_equal @msg.guid, msgs[0].custom_attributes['reply_to']
+    assert_equal '0', msgs[0].custom_attributes['reply_sequence']
   end
 
   test "post response is a json hash with token" do
@@ -311,6 +374,8 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     assert_equal xml.body, msgs[0].body
     assert_equal xml.country, msgs[0].country
     assert_equal @msg.token, msgs[0].token
+    assert_equal @msg.guid, msgs[0].custom_attributes['reply_to']
+    assert_equal '0', msgs[0].custom_attributes['reply_sequence']
   end
 
   test "post response is an xml with a token" do
@@ -334,6 +399,42 @@ class SendInterfaceCallbackJobTest < ActiveSupport::TestCase
     msgs = AoMessage.all
     assert_equal 1, msgs.count
     assert_equal 'my_token', msgs[0].token
+  end
+
+  test "post response is a xml with mixed items with and without reply_to / reply_sequence" do
+    @application.interface = 'http_post_callback'
+    @application.interface_url = 'http://www.domain.com'
+    @application.save!
+
+    expect_post :url => @application.interface_url,
+      :data => @query,
+      :options => {:headers => {:content_type => "application/x-www-form-urlencoded"}},
+      :returns => Net::HTTPSuccess,
+      :returns_body => AoMessage.write_xml([
+        AoMessage.make_unsaved(subject: nil, body: 'm1'),
+        AoMessage.make_unsaved(subject: nil, body: 'm2'),
+        AoMessage.make_unsaved(subject: nil, body: 'm3').tap { |m| m.custom_attributes = { reply_to: 'guid_1' } },
+        AoMessage.make_unsaved(subject: nil, body: 'm4').tap { |m| m.custom_attributes = { reply_to: 'guid_1' } },
+        AoMessage.make_unsaved(subject: nil, body: 'm5').tap { |m| m.custom_attributes = { reply_to: 'guid_2', reply_sequence: '1' } },
+        AoMessage.make_unsaved(subject: nil, body: 'm6').tap { |m| m.custom_attributes = { reply_to: 'guid_2', reply_sequence: '0' } }
+      ]),
+      :returns_content_type => 'application/xml'
+
+    job = SendInterfaceCallbackJob.new @application.account_id, @application.id, @msg.id
+    job.perform
+
+    def test_values(msg)
+      [msg.body, msg.custom_attributes['reply_to'], msg.custom_attributes['reply_sequence']]
+    end
+
+    msgs = AoMessage.all
+    assert_equal 6, msgs.count
+    assert_equal ['m1', @msg.guid, '0'], test_values(msgs[0])
+    assert_equal ['m2', @msg.guid, '1'], test_values(msgs[1])
+    assert_equal ['m3', 'guid_1', '0'], test_values(msgs[2])
+    assert_equal ['m4', 'guid_1', '1'], test_values(msgs[3])
+    assert_equal ['m5', 'guid_2', '1'], test_values(msgs[4])
+    assert_equal ['m6', 'guid_2', '0'], test_values(msgs[5])
   end
 
   test "post with custom attributes" do
