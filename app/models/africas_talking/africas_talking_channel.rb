@@ -20,8 +20,8 @@ class AfricasTalkingChannel < Channel
 
   # configuration_accessor :shortcode, :client_id, :secret_key, :secret_token
   # validates_presence_of :shortcode, :client_id, :secret_key, :secret_token
-  configuration_accessor :username, :api_key, :use_sandbox, :secret_token
-  validates_presence_of :username, :api_key, :use_sandbox, :secret_token
+  configuration_accessor :username, :api_key, :shortcode, :use_sandbox, :secret_token
+  validates_presence_of :username, :api_key, :shortcode, :use_sandbox, :secret_token
 
   def self.default_protocol
     'sms'

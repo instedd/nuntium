@@ -10,6 +10,10 @@
     <%= f.text_field :api_key, :autocomplete => :off -%>
   </p>
   <p>
+    <%= f.label :shortcode, "Shortcode" %><br/>
+    <%= f.text_field :shortcode, :autocomplete => :off -%>
+  </p>
+  <p>
     <%= f.label :secret_token, "Secret Token" %><br/>
     <%= f.text_field :secret_token, :autocomplete => :off, :maxlength => 8 -%>
     <input type="button" onClick="regenerate_token()" value="Regenerate Token" />

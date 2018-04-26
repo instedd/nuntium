@@ -22,11 +22,11 @@ class SendAfricasTalkingMessageJob < SendMessageJob
 
     begin
       destination_number = @msg.to.sub(/^sms:\/\//, '+')
-      # source_number = @msg.from.sub(/^sms:\/\//, '+')
-      reports = gateway.sendMessage(destination_number, @msg.body) #, source_number)
+      reports = gateway.sendMessage(destination_number, @msg.body, @config[:shortcode])
       true
     rescue AfricasTalkingGatewayException => ex
       puts 'Encountered an error: ' + ex.message
+      false
     end
 
     # query_parameters = {
