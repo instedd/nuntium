@@ -23,51 +23,52 @@ class AfricasTalkingController < ApplicationController
     account = Account.find_by_id_or_name(params[:account_name])
     channel = account.africas_talking_channels.find_by_name(params[:channel_name])
 
-    puts "\n\n\n" + params.to_json + "\n\n\n"
+    if channel.shortcode != params[:to] || channel.secret_token != params[:secret_token]
+      return render text: "Error", status: :unauthorized
+    end
 
-    # if channel.shortcode != params[:shortcode] || channel.secret_token != params[:secret_token]
-    #   return render text: "Error", status: :unauthorized
-    # end
-
-    # msg = AtMessage.new
-    # msg.from = "sms://#{params[:mobile_number]}"
-    # msg.to   = "sms://#{params[:shortcode]}"
-    # msg.body = params[:message]
-    # msg.channel_relative_id = params[:request_id]
-    # account.route_at msg, channel
+    msg = AtMessage.new
+    msg.from = "sms://#{params[:from]}"
+    msg.to   = "sms://#{params[:to]}"
+    msg.body = params[:text]
+    msg.channel_relative_id = params[:id]
+    msg.custom_attributes["africas_talking_link_id"] = params[:linkId]
+    account.route_at msg, channel
 
     render text: "Accepted"
   end
 
-  # POST /:account_name/:channel_name/:secret_token/chikka/ack
-  def ack
+  # POST /:account_name/:channel_name/:secret_token/africas_talking/delivery_reports
+  def delivery_reports
     account = Account.find_by_id_or_name(params[:account_name])
-    channel = account.chikka_channels.find_by_name(params[:channel_name])
+    channel = account.africas_talking_channels.find_by_name(params[:channel_name])
 
-    if channel.secret_token != params[:secret_token]
+    if channel && channel.secret_token != params[:secret_token]
       return render text: "Error", status: :unauthorized
     end
 
-    ao = channel.ao_messages.find_by_channel_relative_id(params[:message_id])
+    ao = channel.ao_messages.find_by_channel_relative_id(params[:id])
     unless ao
       return render text: "Error", status: :not_found
     end
 
     status = params[:status]
-    credits_cost = params[:credits_cost]
+    retry_count = params[:retryCount]
 
     case status
-    when "SENT"
+    when "Success"
       ao.state = "confirmed"
-    when "FAILED"
+    when "Failed", "Rejected"
+      ao.state = "failed"
+      ao.custom_attributes["africas_talking_failure_reason"] = params[:failureReason] if params[:failureReason]
+    else
       ao.state = "failed"
     end
 
     account.logger.info :channel_id => channel.id, :ao_message_id => ao.id,
-      :message => "Recieved delivery notification with status #{status.inspect} (credits_cost: #{credits_cost})"
+      :message => "Recieved delivery notification with status #{status.inspect} (retried #{retry_count} times)"
 
-    ao.custom_attributes["chikka_status"] = status if status
-    ao.custom_attributes["chikka_credits_cost"] = credits_cost if credits_cost
+    ao.custom_attributes["africas_talking_retries"] = retry_count if retry_count
     ao.save!
 
     render text: "Accepted"
