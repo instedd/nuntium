@@ -22,13 +22,14 @@ class SMSMessages
 end
 
 class StatusReport
-	attr_accessor :number, :status, :cost, :messageId
+	attr_accessor :number, :status, :cost, :messageId, :statusCode
 
-	def initialize(number_, status_, cost_,messageId_)
+	def initialize(number_, status_, cost_, messageId_, statusCode_)
 		@number = number_
 		@status = status_
 		@cost   = cost_
 		@messageId = messageId_
+		@statusCode = statusCode_
 	end
 end
 
@@ -124,7 +125,7 @@ class AfricasTalkingGateway
 
 			if recipients.length > 0
 				reports = recipients.collect { |entry|
-					StatusReport.new entry["number"], entry["status"], entry["cost"], entry["messageId"]
+					StatusReport.new entry["number"], entry["status"], entry["cost"], entry["messageId"], entry["statusCode"]
 				}
 				return reports
 			end
