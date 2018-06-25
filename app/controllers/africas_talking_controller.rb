@@ -70,7 +70,10 @@ class AfricasTalkingController < ApplicationController
     account.logger.info :channel_id => channel.id, :ao_message_id => ao.id,
       :message => "Recieved delivery notification with status #{status.inspect} (retried #{retry_count} times)"
 
-    ao.custom_attributes["africas_talking_network_code"] = translate_network_code(params[:networkCode]) if params[:networkCode]
+    if params[:networkCode]
+      ao.custom_attributes["africas_talking_network_name"] = translate_network_code(params[:networkCode])
+      ao.custom_attributes["africas_talking_network_code"] = params[:networkCode]
+    end
     ao.custom_attributes["africas_talking_retries"] = retry_count if retry_count
     ao.save!
 
