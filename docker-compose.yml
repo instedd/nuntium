@@ -75,7 +75,7 @@ services:
   ngrok:
     image: wernight/ngrok
     ports:
-      - 4048:4048
+      - 4048:4040
     environment:
       NGROK_PORT: 'web:80'
 

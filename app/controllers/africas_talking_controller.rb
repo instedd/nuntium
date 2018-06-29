@@ -23,13 +23,13 @@ class AfricasTalkingController < ApplicationController
     account = Account.find_by_id_or_name(params[:account_name])
     channel = account.africas_talking_channels.find_by_name(params[:channel_name])
 
-    if channel.shortcode != params[:to] || channel.secret_token != params[:secret_token]
+    if channel.secret_token != params[:secret_token]
       return render text: "Error", status: :unauthorized
     end
 
     msg = AtMessage.new
     msg.from = "sms://#{params[:from]}"
-    msg.to   = "sms://#{params[:to]}"
+    msg.to   = "sms://#{params[:to].tr('+', '')}"
     msg.body = params[:text]
     msg.channel_relative_id = params[:id]
     msg.custom_attributes["africas_talking_link_id"] = params[:linkId]
