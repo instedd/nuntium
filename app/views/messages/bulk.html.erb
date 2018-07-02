@@ -1,0 +1,15 @@
+<h4>Bulk Application Originated Messages</h4>
+
+<%= form_tag(bulk_send_ao_messages_path, method: :post) do %>
+  <p>Input a JSON representing a single message or an array of them to be bulk imported</p>
+  <p>
+    <%= text_area_tag(:body, '{}', :rows => 20, :cols => 80) %>
+  </p>
+  <p>
+    <%= label_tag :application -%><br/>
+    <%= select_tag :application_id, options_from_collection_for_select(account.applications, :id, :name) -%>
+  </p>
+  <%= submit_tag "Send" %>
+<% end %>
+
+<%= link_to 'Go back', eval("ao_messages_path") -%>

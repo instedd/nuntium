@@ -57,6 +57,27 @@ class AoMessagesController < ApplicationController
     render "messages/message"
   end
 
+  def bulk
+    render "messages/bulk"
+  end
+
+  def bulk_send
+    application = account.applications.find_by_id params[:application_id]
+    sent = 0
+    failed = 0
+    AoMessage.from_json(params[:body]) do |msg|
+      if application.route_ao(msg, 'user_bulk')
+        sent += 1
+      else
+        logger.error "Error routing bulk AO message through application #{params[:application_id]}: #{msg.to_json}"
+        failed += 1
+      end
+    end
+    notice_msg = "#{sent > 0 ? sent : "No"} Application Originated #{sent == 1 ? 'message was' : 'messages were'} routed"
+    notice_msg << "(#{failed} failed)" if failed > 0
+    redirect_to ao_messages_path, :notice => notice_msg
+  end
+
   def thread
     @msg = account.ao_messages.find_by_id params[:id]
     @address = @msg.to

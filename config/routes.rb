@@ -58,6 +58,8 @@ Nuntium::Application.routes.draw do
       get :thread
     end
     collection do
+      get :bulk
+      post :bulk_send
       post :mark_as_cancelled
       post :reroute
       post :simulate_route
