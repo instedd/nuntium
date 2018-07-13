@@ -70,8 +70,8 @@ class SendAfricasTalkingMessageJob < SendMessageJob
 
   def success_delivery report
     @msg.channel_relative_id = report.messageId if report.messageId
-    @msg.custom_attributes["africas_taliking_status"] = report.status if report.status
-    @msg.custom_attributes["africas_taliking_credits_cost"] = report.cost if report.cost
+    @msg.custom_attributes["africas_talking_status"] = report.status if report.status
+    @msg.custom_attributes["africas_talking_credits_cost"] = report.cost if report.cost
     true
   end
 end
