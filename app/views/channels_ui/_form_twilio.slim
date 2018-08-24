@@ -1,0 +1,8 @@
+.row
+  = f.text_field :account_sid, label: 'Twilio account SID'
+
+.row
+  = f.password_field :auth_token, label: 'Twilio auth token', value: @config.auth_token
+
+.row
+  = f.text_field :from, label: 'Twilio phone number'

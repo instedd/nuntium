@@ -91,6 +91,8 @@ Nuntium::Application.routes.draw do
   resources :visualizations, :only => :index do
     get :messages_state_by_day, :on => :collection
   end
+  resources :channels_ui, only: [:new, :create, :show, :update] do
+  end
 
   scope '/pigeon' do
     get '/new' => 'pigeon#new', as: 'new_pigeon'

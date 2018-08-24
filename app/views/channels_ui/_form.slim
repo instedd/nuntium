@@ -1,0 +1,23 @@
+.row
+  h4.col.s12
+    - if @channel.new_record?
+      | Setup a new #{@channel.kind} Channel
+      - form_action = {action: :create}
+      - form_method = :post
+    - else
+      | Edit #{@channel.name_was} channel
+      - form_action = {action: :update}
+      - form_method = :put
+= form_for(@config, url: form_action, method: form_method, as: :config, html: {autocomplete: 'off'}, builder: MaterializeFormBuilder) do |f|
+  input type="hidden" name="kind" value=@kind
+  .row
+    = f.text_field :name, helper: 'A friendly name for the channel, so you can identify it'
+  = render "form_#{@channel.kind}", f: f
+  .row
+    .right-align.col.s12
+      a.btn-flat onclick="sendCancel()" Cancel
+      button.btn-large.waves-effect.waves-light.blue onclick="this.form.submit()"
+       - if @channel.new_record?
+          | Create Channel
+       - else
+          | Update
