@@ -72,6 +72,13 @@ services:
     command: "bundle exec lib/services/scheduled_jobs_service_daemon.rb"
     ports: []
 
+  ngrok:
+    image: wernight/ngrok
+    ports:
+      - 4048:4040
+    environment:
+      NGROK_PORT: 'web:80'
+
 volumes:
   db:
   bundle:

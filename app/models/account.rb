@@ -22,6 +22,7 @@ class Account < ActiveRecord::Base
 
   has_many :applications
   has_many :channels
+  has_many :africas_talking_channels
   has_many :clickatell_channels
   has_many :nexmo_channels
   has_many :chikka_channels
