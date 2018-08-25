@@ -54,6 +54,25 @@ class ChannelsUiController < ApplicationController
           from: @channel.from,
           errors: @channel.errors
         })
+      when "chikka"
+        OpenStruct.new({
+          name: @channel.name,
+          shortcode: @channel.shortcode,
+          client_id: @channel.client_id,
+          secret_key: @channel.secret_key,
+          secret_token: @channel.secret_token,
+          errors: @channel.errors
+        })
+      when "africas_talking"
+        OpenStruct.new({
+          name: @channel.name,
+          username: @channel.username,
+          api_key: @channel.api_key,
+          shortcode: @channel.shortcode,
+          secret_token: @channel.secret_token,
+          use_sandbox: @channel.use_sandbox,
+          errors: @channel.errors
+        })
       end
   end
 
@@ -67,6 +86,19 @@ class ChannelsUiController < ApplicationController
       @channel.account_sid = params[:config][:account_sid]
       @channel.auth_token = params[:config][:auth_token]
       @channel.from = params[:config][:from]
+    when "chikka"
+      @channel.name = params[:config][:name]
+      @channel.shortcode = params[:config][:shortcode]
+      @channel.client_id = params[:config][:client_id]
+      @channel.secret_key = params[:config][:secret_key]
+      @channel.secret_token = params[:config][:secret_token]
+    when "africas_talking"
+      @channel.name = params[:config][:name]
+      @channel.username = params[:config][:username]
+      @channel.api_key = params[:config][:api_key]
+      @channel.shortcode = params[:config][:shortcode]
+      @channel.secret_token = params[:config][:secret_token]
+      @channel.use_sandbox = params[:config][:use_sandbox]
     end
   end
 end

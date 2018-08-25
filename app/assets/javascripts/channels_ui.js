@@ -1,3 +1,5 @@
+//= require jquery
+
 function navigate(url) {
   window.location = url;
 }

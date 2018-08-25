@@ -1,0 +1,39 @@
+.row
+  = f.text_field :username, label: 'Username'
+
+.row
+  = f.text_field :api_key, label: 'API key'
+
+.row
+  = f.text_field :shortcode, label: 'Shortcode'
+
+.row
+  = f.text_field :secret_token, label: 'Secret Token'
+  input type="button" onClick="regenerate_token()" value="Regenerate Token"
+
+.row
+  = f.check_box :use_sandbox, label: 'Use sandbox'
+
+
+javascript:
+  function dec2hex (dec) {
+    return ('0' + dec.toString(16)).substr(-2)
+  }
+
+  function generateId (len) {
+    var arr = new Uint8Array((len || 40) / 2)
+    window.crypto.getRandomValues(arr)
+    return Array.from(arr, dec2hex).join('')
+  }
+
+  function regenerate_token() {
+    $('#config_secret_token').val(generateId(8));
+  }
+
+  function generate_token() {
+    if ($('#config_secret_token').val() == ''){
+      regenerate_token()
+    }
+  }
+
+  $(document).ready(generate_token());
