@@ -11,10 +11,10 @@ class MaterializeFormBuilder < ActionView::Helpers::FormBuilder
     end
   end
 
-  def check_box(name, args = {})
+  def check_box(name, args = {}, *opts)
     base_input_field(name, args) do
       @template.content_tag(:label) do
-        super(name, args) +
+        super(name, args, *opts) +
         @template.content_tag(:span, args[:label])
       end
     end
@@ -55,6 +55,15 @@ class MaterializeFormBuilder < ActionView::Helpers::FormBuilder
       yield +
       label(name, args[:label]) +
       helper(name, args)
+    end
+  end
+
+  def select(name, choices, options = {})
+    base_input_field(name, options) do
+      @template.content_tag(:label) do
+        super(name, choices, options) +
+        label(name, options[:label])
+      end
     end
   end
 end

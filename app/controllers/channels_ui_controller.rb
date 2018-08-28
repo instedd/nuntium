@@ -43,7 +43,7 @@ class ChannelsUiController < ApplicationController
   end
 
   def load_config_from_channel
-    @kind = channel.kind
+    @kind = @channel.kind
     @config =
       case @kind
       when "twilio"
@@ -73,6 +73,31 @@ class ChannelsUiController < ApplicationController
           use_sandbox: @channel.use_sandbox,
           errors: @channel.errors
         })
+      when "smpp"
+        OpenStruct.new({
+          name: @channel.name,
+          # max_unacknowledged_messages: @channel.max_unacknowledged_messages,
+          host: @channel.host,
+          port: @channel.port,
+          user: @channel.user,
+          password: @channel.password,
+          system_type: @channel.system_type,
+          source_ton: @channel.source_ton,
+          source_npi: @channel.source_npi,
+          destination_npi: @channel.destination_npi,
+          destination_ton: @channel.destination_ton,
+          service_type: @channel.service_type,
+          endianness_mo: @channel.endianness_mo,
+          endianness_mt: @channel.endianness_mt,
+          accept_mo_hex_string: @channel.accept_mo_hex_string,
+          default_mo_encoding: @channel.default_mo_encoding,
+          mt_encodings: @channel.mt_encodings,
+          mt_max_length: @channel.mt_max_length,
+          mt_csms_method: @channel.mt_csms_method,
+          suspension_codes: @channel.suspension_codes,
+          rejection_codes: @channel.suspension_codes,
+          errors: @channel.errors
+        })
       end
   end
 
@@ -99,6 +124,28 @@ class ChannelsUiController < ApplicationController
       @channel.shortcode = params[:config][:shortcode]
       @channel.secret_token = params[:config][:secret_token]
       @channel.use_sandbox = params[:config][:use_sandbox]
+    when "smpp"
+      @channel.name = params[:config][:name]
+      # @channel.max_unacknowledged_messages = params[:config][:max_unacknowledged_messages]
+      @channel.host = params[:config][:host]
+      @channel.port = params[:config][:port]
+      @channel.user = params[:config][:user]
+      @channel.password = params[:config][:password]
+      @channel.system_type = params[:config][:system_type]
+      @channel.source_ton = params[:config][:source_ton]
+      @channel.source_npi = params[:config][:source_npi]
+      @channel.destination_npi = params[:config][:destination_npi]
+      @channel.destination_ton = params[:config][:destination_ton]
+      @channel.service_type = params[:config][:service_type]
+      @channel.endianness_mo = params[:config][:endianness_mo]
+      @channel.endianness_mt = params[:config][:endianness_mt]
+      @channel.accept_mo_hex_string = params[:config][:accept_mo_hex_string]
+      @channel.default_mo_encoding = params[:config][:default_mo_encoding]
+      @channel.mt_encodings = params[:config][:mt_encodings]
+      @channel.mt_max_length = params[:config][:mt_max_length]
+      @channel.mt_csms_method = params[:config][:mt_csms_method]
+      @channel.suspension_codes = params[:config][:suspension_codes]
+      @channel.rejection_codes = params[:config][:rejection_codes]
     end
   end
 end

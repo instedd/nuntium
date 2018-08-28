@@ -22,3 +22,20 @@
 .clickable {
   cursor: pointer;
 }
+.row.channels-ui-select{
+  margin-top: 40px;
+  margin-bottom: 70px;
+}
+
+.row.mt-encodings {
+  margin-top: 55px;
+}
+
+.mt-encodings span {
+  padding-left: 25px;
+  margin-left: 20px;
+}
+
+.mt-encodings p {
+  margin-left: 10px;
+}
