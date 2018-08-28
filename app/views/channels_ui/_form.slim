@@ -5,13 +5,14 @@
       - form_action = {action: :create}
       - form_method = :post
     - else
-      | Edit #{@channel.name_was} channel
+      | Edit #{@channel.name} channel
       - form_action = {action: :update}
       - form_method = :put
 = form_for(@config, url: form_action, method: form_method, as: :config, html: {autocomplete: 'off'}, builder: MaterializeFormBuilder) do |f|
   input type="hidden" name="kind" value=@kind
-  .row
-    = f.text_field :name, helper: 'A friendly name for the channel, so you can identify it'
+  - if @channel.new_record?
+    .row
+      = f.text_field :name, helper: 'A friendly name for the channel, so you can identify it'
   = render "form_#{@channel.kind}", f: f
   .row
     .right-align.col.s12
