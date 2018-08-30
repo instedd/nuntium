@@ -60,10 +60,8 @@ class MaterializeFormBuilder < ActionView::Helpers::FormBuilder
 
   def select(name, choices, options = {})
     base_input_field(name, options) do
-      @template.content_tag(:label) do
-        super(name, choices, options) +
-        label(name, options[:label])
-      end
+      super(name, choices, options) +
+      label(name, options[:label])
     end
   end
 end

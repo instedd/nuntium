@@ -13,56 +13,64 @@
 .row
   = f.text_field :system_type
 
-.row
-  = f.text_field :source_ton
+- ton_values = [['Unknown', '0'], ['International', '1'], ['National', '2'], ['Network Specific', '3'], ['Subscriber Number', '4'], ['Alphanumeric', '5'], ['Abbreviated', '6']]
+
+- npi_values = [['Unknown', '0'], ['ISDN (E163/E164)', '1'], ['Data (X.121)', '3'], ['Telex (F.69)', '4'], ['Land Mobile (E. 212)', '6'], ['National', '8'], ['Private', '9'], ['ERMES', '10'], ['Internet (IP)', '14'], ['WAP Client Id', '18']]
 
 .row
-  = f.text_field :source_npi
+  = f.select :source_ton, options_for_select(ton_values, @config.source_ton), :label => "Source Type of Number", :colspan => "s3"
 
 .row
-  = f.text_field :destination_ton
+  / Values for npi should be between 0 and 7. Doesn't match the documentation
+  / = f.select :source_npi, options_for_select(npi_values, @config.source_npi), :label => "Source Numeric Type Indicator", :colspan => "s3"
+  = f.text_field :source_npi, :colspan => "s3"
 
 .row
-  = f.text_field :destination_npi
+  = f.select :destination_ton, options_for_select(ton_values, @config.destination_ton), :label => "Destination Type of Number", :colspan => "s3"
 
 .row
-  = f.text_field :service_type
+  / Values for npi should be between 0 and 7. Doesn't match the documentation
+  / = f.select :destination_npi, options_for_select(npi_values, @config.destination_npi), :label => "Destination Numeric Type Indicator", :colspan => "s3"
+  = f.text_field :destination_npi, :colspan => "s3"
 
 .row
   h5.col.s12
     | Encoding
 
 .row
-  = f.check_box :endianness_mo, {:checked => @config.endianness_mo == 'little', :label => 'Use little endian for ucs-2 MO messages'}, :little, :big
+  = f.check_box :endianness_mo, {:checked => @config.endianness_mo == 'little', :label => 'Use little endian for ucs-2 MO messages', :class => "filled-in"}, :little, :big
 
 .row
-  = f.check_box :endianness_mt, {:checked => @config.endianness_mt == 'little', :label => 'Use little endian for ucs-2 MO messages'}, :little, :big
+  = f.check_box :endianness_mt, {:checked => @config.endianness_mt == 'little', :label => 'Use little endian for ucs-2 MO messages', :class => "filled-in"}, :little, :big
 
 .row
-  = f.check_box :accept_mo_hex_string, :label => 'Hex strings'
+  = f.check_box :accept_mo_hex_string, {:label => 'Hex strings', :class => "filled-in"}
 
 - encodings = [['ASCII', 'ascii'], ['Latin1', 'latin1'], ['UCS-2', 'ucs-2'], ['GSM 03.38', 'gsm']]
 
-.row.channels-ui-select
-  = f.select :default_mo_encoding, options_for_select(encodings, @config.default_mo_encoding), :label => "Default mo encoding"
+.row
+  = f.select :default_mo_encoding, options_for_select(encodings, @config.default_mo_encoding), :label => "Default mo encoding", :colspan => "s3"
 
 - @config.mt_encodings = encodings.map{|x|x[1]} unless @config.mt_encodings.present?
 
-.row.mt-encodings
-  p
-    | Mt encodings:
-  - encodings.each do |encoding|
-  - next if encoding[1] == 'gsm'
-    label
-      input id="config_mt_encodings" name="config[mt_encodings][]" type="checkbox" value="#{encoding[1]}" checked=(@config.mt_encodings.include? encoding[1].to_s)
-      span
-        = encoding[0]
+.row
+  div.col.s3
+    = f.label "Mt encodings"
 
-.row.channels-ui-select
-  = f.select :mt_max_length, options_for_select(['140', '160', '254'], @config.mt_max_length), :label => "MT max length"
+- encodings.each do |encoding|
+- next if encoding[1] == 'gsm'
+  .row
+    div.col.s3
+      label
+        input id="config_mt_encodings" name="config[mt_encodings][]" type="checkbox" value="#{encoding[1]}" checked=(@config.mt_encodings.include? encoding[1].to_s) class="filled-in"
+        span
+          = encoding[0]
 
-.row.channels-ui-select
-  = f.select :mt_csms_method, options_for_select([['UDH', 'udh'], ['Optional parameters', 'optional_parameters'], ['Message payload', 'message_payload']], channel.mt_csms_method), :label => "MT CSMS method"
+.row
+  = f.select :mt_max_length, options_for_select(['140', '160', '254'], @config.mt_max_length), :label => "MT max length", :colspan => "s3"
+
+.row
+  = f.select :mt_csms_method, options_for_select([['UDH', 'udh'], ['Optional parameters', 'optional_parameters'], ['Message payload', 'message_payload']], @config.mt_csms_method), :label => "MT CSMS method", :colspan => "s3"
 
 .row
   h5.col.s12
