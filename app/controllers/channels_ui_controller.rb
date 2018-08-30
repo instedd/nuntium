@@ -86,7 +86,6 @@ class ChannelsUiController < ApplicationController
           source_npi: @channel.source_npi,
           destination_npi: @channel.destination_npi,
           destination_ton: @channel.destination_ton,
-          service_type: @channel.service_type,
           endianness_mo: @channel.endianness_mo,
           endianness_mt: @channel.endianness_mt,
           accept_mo_hex_string: @channel.accept_mo_hex_string,
@@ -102,38 +101,30 @@ class ChannelsUiController < ApplicationController
   end
 
   def load_config_to_channel
+    if params[:config][:name]
+      @channel.name = params[:config][:name]
+    end
     @channel.account = account
     @channel.direction = Channel::Bidirectional
     @channel.protocol = TwilioChannel.default_protocol
+
     case @channel.kind
     when "twilio"
-      if params[:config][:name]
-        @channel.name = params[:config][:name]
-      end
       @channel.account_sid = params[:config][:account_sid]
       @channel.auth_token = params[:config][:auth_token]
       @channel.from = params[:config][:from]
     when "chikka"
-      if params[:config][:name]
-        @channel.name = params[:config][:name]
-      end
       @channel.shortcode = params[:config][:shortcode]
       @channel.client_id = params[:config][:client_id]
       @channel.secret_key = params[:config][:secret_key]
       @channel.secret_token = params[:config][:secret_token]
     when "africas_talking"
-      if params[:config][:name]
-        @channel.name = params[:config][:name]
-      end
       @channel.username = params[:config][:username]
       @channel.api_key = params[:config][:api_key]
       @channel.shortcode = params[:config][:shortcode]
       @channel.secret_token = params[:config][:secret_token]
       @channel.use_sandbox = params[:config][:use_sandbox]
     when "smpp"
-      if params[:config][:name]
-        @channel.name = params[:config][:name]
-      end
       # @channel.max_unacknowledged_messages = params[:config][:max_unacknowledged_messages]
       @channel.host = params[:config][:host]
       @channel.port = params[:config][:port]
@@ -144,7 +135,6 @@ class ChannelsUiController < ApplicationController
       @channel.source_npi = params[:config][:source_npi]
       @channel.destination_npi = params[:config][:destination_npi]
       @channel.destination_ton = params[:config][:destination_ton]
-      @channel.service_type = params[:config][:service_type]
       @channel.endianness_mo = params[:config][:endianness_mo]
       @channel.endianness_mt = params[:config][:endianness_mt]
       @channel.accept_mo_hex_string = params[:config][:accept_mo_hex_string]
