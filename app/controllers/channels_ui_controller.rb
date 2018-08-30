@@ -20,14 +20,14 @@ class ChannelsUiController < ApplicationController
   end
 
   def show
-    @channel = channels.find(params[:id])
+    @channel = channels.find_by_name(params[:id])
     load_config_from_channel()
   end
 
   def update
-    @channel = channels.find(params[:id])
+    params[:config] = params[:config].except("name")
+    @channel = channels.find_by_name(params[:id])
     load_config_to_channel()
-
     unless @channel.save
       load_config_from_channel()
       render "show"
@@ -107,25 +107,33 @@ class ChannelsUiController < ApplicationController
     @channel.protocol = TwilioChannel.default_protocol
     case @channel.kind
     when "twilio"
-      @channel.name = params[:config][:name]
+      if params[:config][:name]
+        @channel.name = params[:config][:name]
+      end
       @channel.account_sid = params[:config][:account_sid]
       @channel.auth_token = params[:config][:auth_token]
       @channel.from = params[:config][:from]
     when "chikka"
-      @channel.name = params[:config][:name]
+      if params[:config][:name]
+        @channel.name = params[:config][:name]
+      end
       @channel.shortcode = params[:config][:shortcode]
       @channel.client_id = params[:config][:client_id]
       @channel.secret_key = params[:config][:secret_key]
       @channel.secret_token = params[:config][:secret_token]
     when "africas_talking"
-      @channel.name = params[:config][:name]
+      if params[:config][:name]
+        @channel.name = params[:config][:name]
+      end
       @channel.username = params[:config][:username]
       @channel.api_key = params[:config][:api_key]
       @channel.shortcode = params[:config][:shortcode]
       @channel.secret_token = params[:config][:secret_token]
       @channel.use_sandbox = params[:config][:use_sandbox]
     when "smpp"
-      @channel.name = params[:config][:name]
+      if params[:config][:name]
+        @channel.name = params[:config][:name]
+      end
       # @channel.max_unacknowledged_messages = params[:config][:max_unacknowledged_messages]
       @channel.host = params[:config][:host]
       @channel.port = params[:config][:port]

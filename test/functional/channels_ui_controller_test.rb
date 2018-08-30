@@ -68,16 +68,15 @@ class ChannelsUiControllerTest < ActionController::TestCase
   test "updates Twilio channel" do
     post :create, @twilio_params
     chan = Channel.all[0]
-    twilio_config_v2 = { "name" => "foo_v2", "account_sid" => "545454_v2", "auth_token" => "656565_v2", "from" => "123456782" }
+    twilio_config_v2 = { "account_sid" => "545454_v2", "auth_token" => "656565_v2", "from" => "123456782" }
 
-    post :update, :config => twilio_config_v2, :id => chan.id
+    post :update, :config => twilio_config_v2, :id => chan.name
     chan = Channel.all[0]
 
     assert_equal @account.id, chan.account_id
     assert_equal chan.direction, Channel::Bidirectional
     assert_equal chan.protocol, TwilioChannel.default_protocol
 
-    assert_equal chan.name, twilio_config_v2["name"]
     assert_equal chan.account_sid, twilio_config_v2["account_sid"]
     assert_equal chan.auth_token, twilio_config_v2["auth_token"]
     assert_equal chan.from, twilio_config_v2["from"]
@@ -86,16 +85,15 @@ class ChannelsUiControllerTest < ActionController::TestCase
   test "updates Chikka channel" do
     post :create, @chikka_params
     chan = Channel.all[0]
-    chikka_config_v2 = { "name" => "foo_v2", "shortcode" => "545454_v2", "client_id" => "272", "secret_key" => "656565_v2", "secret_token" => "36d0efv2" }
+    chikka_config_v2 = { "shortcode" => "545454_v2", "client_id" => "272", "secret_key" => "656565_v2", "secret_token" => "36d0efv2" }
 
-    post :update, :config => chikka_config_v2, :id => chan.id
+    post :update, :config => chikka_config_v2, :id => chan.name
     chan = Channel.all[0]
 
     assert_equal @account.id, chan.account_id
     assert_equal chan.direction, Channel::Bidirectional
     assert_equal chan.protocol, ChikkaChannel.default_protocol
 
-    assert_equal chan.name, chikka_config_v2["name"]
     assert_equal chan.shortcode, chikka_config_v2["shortcode"]
     assert_equal chan.client_id, chikka_config_v2["client_id"]
     assert_equal chan.secret_key, chikka_config_v2["secret_key"]
@@ -105,20 +103,31 @@ class ChannelsUiControllerTest < ActionController::TestCase
   test "updates AfricasTalking channel" do
     post :create, @africas_talking_params
     chan = Channel.all[0]
-    africas_talking_config_v2 = { "name" => "foo_v2", "username" => "johny doe", "api_key" => "55ee11ff_v2", "shortcode" => "545454_v2", "secret_token" => "36d0efv2", "use_sandbox" => "0" }
+    africas_talking_config_v2 = { "username" => "johny doe", "api_key" => "55ee11ff_v2", "shortcode" => "545454_v2", "secret_token" => "36d0efv2", "use_sandbox" => "0" }
 
-    post :update, :config => africas_talking_config_v2, :id => chan.id
+    post :update, :config => africas_talking_config_v2, :id => chan.name
     chan = Channel.all[0]
 
     assert_equal @account.id, chan.account_id
     assert_equal chan.direction, Channel::Bidirectional
     assert_equal chan.protocol, AfricasTalkingChannel.default_protocol
 
-    assert_equal chan.name, africas_talking_config_v2['name']
     assert_equal chan.username, africas_talking_config_v2['username']
     assert_equal chan.api_key, africas_talking_config_v2['api_key']
     assert_equal chan.shortcode, africas_talking_config_v2['shortcode']
     assert_equal chan.secret_token, africas_talking_config_v2['secret_token']
     assert_equal chan.use_sandbox, africas_talking_config_v2['use_sandbox']
+  end
+
+  test "doesn't update channels name despite being included in the params" do
+    post :create, @twilio_params
+    chan = Channel.all[0]
+    previous_name = chan.name
+    params = { "name" => "foobar", "account_sid" => "545454_v2", "auth_token" => "656565_v2", "from" => "123456782" }
+
+    post :update, :config => params, :id => chan.name
+    chan = Channel.all[0]
+
+    assert_equal chan.name, previous_name
   end
 end
