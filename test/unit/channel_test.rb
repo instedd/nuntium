@@ -519,4 +519,8 @@ class ChannelTest < ActiveSupport::TestCase
 
     channel.destroy
   end
+
+  test "channel serialization should include account's name" do
+    assert_equal @chan.as_json[:account], @chan.account.name
+  end
 end

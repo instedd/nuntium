@@ -81,6 +81,7 @@ module ChannelSerialization
     attributes[:application] = application.name if application_id
     attributes[:queued_ao_messages_count] = queued_ao_messages_count
     attributes[:connected] = connected? if has_connection?
+    attributes[:account] = account.name
     attributes
   end
 
