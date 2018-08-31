@@ -1,17 +1,17 @@
 # Copyright (C) 2009-2012, InSTEDD
-# 
+#
 # This file is part of Nuntium.
-# 
+#
 # Nuntium is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Nuntium is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -271,7 +271,7 @@ class ApiChannelControllerTest < ActionController::TestCase
 
     test "update #{format} channel succeeds" do
       chan = QstServerChannel.make :account => @account, :application => @application, :priority => 20, :address => 'sms://1'
-      update chan.name, Channel.new(:protocol => 'foobar', :priority => nil, :enabled => false, :address => 'sms://2'), format
+      update chan.name, Channel.new(:protocol => 'foobar', :priority => nil, :enabled => false, :address => 'sms://2', :account => @account), format
       chan.reload
 
       assert_equal 'foobar', chan.protocol
@@ -282,7 +282,7 @@ class ApiChannelControllerTest < ActionController::TestCase
 
     test "update #{format} channel configuration succeeds" do
       chan = QstServerChannel.make :qst_client, :account => @account, :application => @application
-      update chan.name, Channel.new(:configuration => {:url => 'x', :user => 'y', :password => 'z'}), format
+      update chan.name, Channel.new(:configuration => {:url => 'x', :user => 'y', :password => 'z'}, :account => @account), format
       chan.reload
 
       assert_equal 'x', chan.configuration[:url]
@@ -291,7 +291,7 @@ class ApiChannelControllerTest < ActionController::TestCase
 
     test "update #{format} channel restrictions succeeds" do
       chan = QstServerChannel.make :account => @account, :application => @application
-      update chan.name, Channel.new(:restrictions => {'x' => 'z'}), format
+      update chan.name, Channel.new(:restrictions => {'x' => 'z'}, :account => @account), format
       chan.reload
 
       assert_equal 'z', chan.restrictions['x']
@@ -302,7 +302,7 @@ class ApiChannelControllerTest < ActionController::TestCase
           :ao_rules => [RulesEngine.rule([],[RulesEngine.action('from','sms://3')])],
           :at_rules => [RulesEngine.rule([],[RulesEngine.action('from','sms://6')])] }
 
-      to_update = Channel.new(:enabled => true)
+      to_update = Channel.new(:enabled => true, :account => @account)
       to_update.ao_rules = [
         RulesEngine.rule([
           RulesEngine.matching('from', RulesEngine::OP_EQUALS, 'sms://1')
@@ -375,7 +375,7 @@ class ApiChannelControllerTest < ActionController::TestCase
       ]
       chan.save!
 
-      update chan.name, Channel.new(:enabled => true), format
+      update chan.name, Channel.new(:enabled => true, :account => @account), format
 
       @account.reload
       result = @account.channels.last

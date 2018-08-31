@@ -184,7 +184,7 @@ class ChannelsUiControllerTest < ActionController::TestCase
     assert_equal chan.rejection_codes, smpp_config_v2['rejection_codes']
 	end
 
-  test "doesn't update channels name despite being included in the params" do
+  test "doesn't update channel's name despite being included in the params" do
     post :create, @twilio_params
     chan = Channel.all[0]
     previous_name = chan.name
