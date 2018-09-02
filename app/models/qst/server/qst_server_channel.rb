@@ -26,7 +26,7 @@ class QstServerChannel < Channel
   configuration_accessor :password, :password_confirmation, :salt
 
   before_create :hash_password
-  before_validation :rehash_password_if_changed, :on => :update
+  before_update :rehash_password_if_changed
 
   validate :validate_password_confirmation
   validates_presence_of :ticket_code, :if => lambda { use_ticket.present? }

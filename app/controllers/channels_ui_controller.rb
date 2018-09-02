@@ -97,6 +97,12 @@ class ChannelsUiController < ApplicationController
           rejection_codes: @channel.suspension_codes,
           errors: @channel.errors
         })
+        when "qst_server"
+        OpenStruct.new({
+          name: @channel.name,
+          ticket_code: @channel.ticket_code,
+          errors: @channel.errors
+        })
       end
   end
 
@@ -144,6 +150,13 @@ class ChannelsUiController < ApplicationController
       @channel.mt_csms_method = params[:config][:mt_csms_method]
       @channel.suspension_codes = params[:config][:suspension_codes]
       @channel.rejection_codes = params[:config][:rejection_codes]
+    when "qst_server"
+      # A new password is assigned every time a new ticket_code is used
+      new_password = SecureRandom.base64 6
+      @channel.use_ticket = true
+      @channel.ticket_code = params[:config][:ticket_code]
+      @channel.password = new_password
+      @channel.password_confirmation = new_password
     end
   end
 end
