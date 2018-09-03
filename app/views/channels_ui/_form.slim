@@ -1,7 +1,7 @@
 .row
   h4.col.s12
     - if @channel.new_record?
-      | Setup a new #{@channel.kind} Channel
+      | Setup a new #{@channel.class.title} Channel
       - form_action = {action: :create}
       - form_method = :post
     - else

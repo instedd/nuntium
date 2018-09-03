@@ -26,7 +26,8 @@ ul.collection
       | Short Message Peer-to-Peer (SMPP) in the telecommunications industry is an open, industry standard protocol designed to provide a flexible data communication interface for the transfer of short message data.
     i.material-icons.arrow-right chevron_right
   li.collection-item.clickable onclick="navigate('#{new_channels_ui_path(kind: :qst_server)}')"
-    h5 QST Server (Local Gateway)
+    h5
+      = "qst_server".to_channel.title
     .grey-text
       | Local Gateway is an app from the InSTEDD platform that allows users to use a mobile
       | phone as a channel.
