@@ -26,6 +26,7 @@ class QstServerChannel < Channel
   configuration_accessor :password, :password_confirmation, :salt
 
   before_create :hash_password
+  before_validation :set_previous_password_if_empty, :on => :update
   before_update :rehash_password_if_changed
 
   validate :validate_password_confirmation
@@ -80,12 +81,16 @@ class QstServerChannel < Channel
     self.password = self.password_confirmation = encode_password(decoded_salt, password)
   end
 
-  def rehash_password_if_changed
+  def set_previous_password_if_empty
     if password.blank?
       old_configuration = configuration_was.dup
       self.password = self.password_confirmation = old_configuration[:password]
       self.salt = old_configuration[:salt]
-    elsif configuration_was[:password] != password && password == password_confirmation
+    end
+  end
+
+  def rehash_password_if_changed
+    if configuration_was[:password] != password && password == password_confirmation
       hash_password
     end
   end
