@@ -15,15 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-class SmppChannel < BaseSmppChannel
-  def self.title
-    "SMPP Client"
+class SendSmppServerMessageJob < BaseSendSmppMessageJob
+  def to_s
+    "<SendSmppServerMessageJob:#{@message_id}>"
   end
-
-  def self.abstract?
-    false
-  end
-
-  configuration_accessor :user
-  validates_presence_of :user
 end

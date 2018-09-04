@@ -95,6 +95,10 @@ class Channel < ActiveRecord::Base
     end
   end
 
+  def self.abstract?
+    false
+  end
+
   def must_check_valid_in_ui!
     @must_check_valid_in_ui = true
   end

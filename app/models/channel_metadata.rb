@@ -38,7 +38,7 @@ module ChannelMetadata
                       eval(ActiveSupport::Inflector.camelize(file[file.rindex('/') + 1 .. -4]))
                     end
 
-                    Object.subclasses_of(Channel).map do |clazz|
+                    Object.subclasses_of(Channel).reject(&:abstract?).uniq.map do |clazz|
                       # Put the title and kind in array
                       [clazz.title, clazz.kind]
                     end.sort do |a1, a2|

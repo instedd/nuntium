@@ -15,15 +15,29 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-class SmppChannel < BaseSmppChannel
-  def self.title
-    "SMPP Client"
+class SmppServerService < ChannelService
+  def initialize(host, port, config = {})
+    super()
+    @host = host
+    @port = port
+    @config = config
   end
 
-  def self.abstract?
-    false
+  # Really nothing to do on a start channel, since we depend on the client connecting
+  def start_channel(c)
+    true
   end
 
-  configuration_accessor :user
-  validates_presence_of :user
+  def start
+    super
+    start_em_server
+  end
+
+  def stop
+    super
+  end
+
+  def start_em_server
+    @server = EventMachine::start_server(@host, @port, SmppServer, @config, self)
+  end
 end
