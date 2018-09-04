@@ -1,0 +1,9 @@
+<%= form_for_channel channel do |f| -%>
+  <%= render 'edit_header', :f => f, :exclude_address => true %>
+  <h5>Facebook Messenger account info</h5>
+  <p>
+  <%= f.label :page_access_token -%><br/>
+  <%= f.text_field :page_access_token, :autocomplete => :off  -%>
+  </p>
+  <%= render 'edit_footer', :f => f %>
+<%- end -%>
