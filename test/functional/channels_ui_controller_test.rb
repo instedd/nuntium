@@ -237,4 +237,9 @@ class ChannelsUiControllerTest < ActionController::TestCase
 
     assert_equal chan.name, previous_name
   end
+
+  test "renders 404 file when channel is not found in show action" do
+    get :show, :id => "foo_channel"
+    assert_template file: "public/404.html"
+  end
 end

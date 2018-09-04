@@ -20,13 +20,17 @@ class ChannelsUiController < ApplicationController
   end
 
   def show
-    @channel = channels.find_by_name(params[:id])
-    load_config_from_channel()
+    begin
+      @channel = channels.find_by_name!(params[:id])
+      load_config_from_channel()
+    rescue
+      render :file => 'public/404.html', :status => :not_found
+    end
   end
 
   def update
     params[:config] = params[:config].except("name")
-    @channel = channels.find_by_name(params[:id])
+    @channel = channels.find_by_name!(params[:id])
     load_config_to_channel()
     unless @channel.save
       load_config_from_channel()
@@ -76,7 +80,6 @@ class ChannelsUiController < ApplicationController
       when "smpp"
         OpenStruct.new({
           name: @channel.name,
-          # max_unacknowledged_messages: @channel.max_unacknowledged_messages,
           host: @channel.host,
           port: @channel.port,
           user: @channel.user,
@@ -131,7 +134,6 @@ class ChannelsUiController < ApplicationController
       @channel.secret_token = params[:config][:secret_token]
       @channel.use_sandbox = params[:config][:use_sandbox]
     when "smpp"
-      # @channel.max_unacknowledged_messages = params[:config][:max_unacknowledged_messages]
       @channel.host = params[:config][:host]
       @channel.port = params[:config][:port]
       @channel.user = params[:config][:user]
