@@ -33,7 +33,8 @@ class SmppChannel < Channel
   validates_presence_of :host, :system_type
   validates_presence_of :user, :password, :default_mo_encoding, :mt_encodings, :mt_csms_method
   validates_numericality_of :port, :greater_than => 0
-  validates_numericality_of :source_ton, :source_npi, :destination_ton, :destination_npi, :greater_than_or_equal_to => 0, :less_than_or_equal_to => 7
+  validates_numericality_of :source_ton, :destination_ton, :greater_than_or_equal_to => 0, :less_than_or_equal_to => 7
+  validates_numericality_of :source_npi, :destination_npi, :greater_than_or_equal_to => 0, :less_than_or_equal_to => 18
 
   handle_password_change
 
