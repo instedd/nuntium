@@ -61,7 +61,14 @@ class MaterializeFormBuilder < ActionView::Helpers::FormBuilder
   def select(name, choices, options = {})
     base_input_field(name, options) do
       super(name, choices, options) +
-      label(name, options[:label])
+      label(name, options[:label]) +
+      helper(name, options)
+    end
+  end
+
+  def inline_select(name, choices, options = {})
+    @template.content_tag(:div, {class: "input-field inline"}) do
+      @template.select_tag(name, choices, options)
     end
   end
 end

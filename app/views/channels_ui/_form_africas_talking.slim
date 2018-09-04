@@ -7,13 +7,16 @@
 .row
   = f.text_field :shortcode, label: 'Shortcode'
 
-.row
-  = f.text_field :secret_token, label: 'Secret Token'
-  input type="button" onClick="regenerate_token()" value="Regenerate Token"
+.row.no-bottom-margin
+  = f.text_field :secret_token, label: 'Secret Token', colspan: "s4"
+  div.col.s4.input-field.clickable onClick="regenerate_token()"
+    i class="material-icons v-middle"
+      | refresh
+    span
+      | Regenerate token
 
 .row
   = f.check_box :use_sandbox, label: 'Use sandbox'
-
 
 javascript:
   function dec2hex (dec) {

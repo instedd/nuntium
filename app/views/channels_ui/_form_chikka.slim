@@ -8,9 +8,12 @@
   = f.password_field :secret_key, label: 'Secret Key'
 
 .row
-  = f.text_field :secret_token, label: 'Secret Token'
-  input type="button" onClick="regenerate_token()" value="Regenerate Token"
-
+  = f.text_field :secret_token, label: 'Secret Token', colspan: "s4"
+  div.col.s4.input-field.clickable onClick="regenerate_token()"
+    i class="material-icons v-middle"
+      | refresh
+    span
+      | Regenerate token
 
 javascript:
   function dec2hex (dec) {

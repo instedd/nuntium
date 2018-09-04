@@ -18,59 +18,80 @@
 - npi_values = [['Unknown', '0'], ['ISDN (E163/E164)', '1'], ['Data (X.121)', '3'], ['Telex (F.69)', '4'], ['Land Mobile (E. 212)', '6'], ['National', '8'], ['Private', '9'], ['ERMES', '10'], ['Internet (IP)', '14'], ['WAP Client Id', '18']]
 
 .row
-  = f.select :source_ton, options_for_select(ton_values, @config.source_ton), :label => "Source Type of Number", :colspan => "s3"
+  h5.col.s12
+    | Numbering Configuration
 
 .row
-  / Values for npi should be between 0 and 7. Doesn't match the documentation
-  / = f.select :source_npi, options_for_select(npi_values, @config.source_npi), :label => "Source Numeric Type Indicator", :colspan => "s3"
-  = f.text_field :source_npi, :colspan => "s3"
+  div.col.s3
+    = f.label "Type of number"
 
 .row
-  = f.select :destination_ton, options_for_select(ton_values, @config.destination_ton), :label => "Destination Type of Number", :colspan => "s3"
+  = f.select :source_ton, options_for_select(ton_values, @config.source_ton), :label => "Source", :colspan => "s4"
+  = f.select :destination_ton, options_for_select(ton_values, @config.destination_ton), :label => "Destination", :colspan => "s4"
 
 .row
-  / Values for npi should be between 0 and 7. Doesn't match the documentation
-  / = f.select :destination_npi, options_for_select(npi_values, @config.destination_npi), :label => "Destination Numeric Type Indicator", :colspan => "s3"
-  = f.text_field :destination_npi, :colspan => "s3"
+  div.col.s3
+    = f.label "Numeric plan indicator"
+
+.row
+  = f.select :source_npi, options_for_select(npi_values, @config.source_npi), :label => "Source", :colspan => "s4"
+  = f.select :destination_npi, options_for_select(npi_values, @config.destination_npi), :label => "Destination", :colspan => "s4"
 
 .row
   h5.col.s12
-    | Encoding
-
-.row
-  = f.check_box :endianness_mo, {:checked => @config.endianness_mo == 'little', :label => 'Use little endian for ucs-2 MO messages', :class => "filled-in"}, :little, :big
-
-.row
-  = f.check_box :endianness_mt, {:checked => @config.endianness_mt == 'little', :label => 'Use little endian for ucs-2 MO messages', :class => "filled-in"}, :little, :big
-
-.row
-  = f.check_box :accept_mo_hex_string, {:label => 'Hex strings', :class => "filled-in"}
+    | MO: incoming from mobile
 
 - encodings = [['ASCII', 'ascii'], ['Latin1', 'latin1'], ['UCS-2', 'ucs-2'], ['GSM 03.38', 'gsm']]
 
 .row
-  = f.select :default_mo_encoding, options_for_select(encodings, @config.default_mo_encoding), :label => "Default mo encoding", :colspan => "s3"
+  = f.check_box :endianness_mo, {:checked => @config.endianness_mo == 'little', :label => 'Use little endian encoding for UCS-2', :class => "filled-in"}, :little, :big
+
+.row
+  = f.check_box :accept_mo_hex_string, {:label => 'Accept hex strings', :class => "filled-in"}
+
+.row.margin-top
+  = f.select :default_mo_encoding, options_for_select(encodings, @config.default_mo_encoding), :label => "Default encoding", :colspan => "s4"
+
+.row
+  h5.col.s12
+    | MT: Mobile terminated messages
 
 - @config.mt_encodings = encodings.map{|x|x[1]} unless @config.mt_encodings.present?
 
 .row
   div.col.s3
-    = f.label "Mt encodings"
+    = f.label "Encodings"
 
 - encodings.each do |encoding|
-- next if encoding[1] == 'gsm'
-  .row
-    div.col.s3
-      label
-        input id="config_mt_encodings" name="config[mt_encodings][]" type="checkbox" value="#{encoding[1]}" checked=(@config.mt_encodings.include? encoding[1].to_s) class="filled-in"
-        span
-          = encoding[0]
+  - encoding_included = @config.mt_encodings.include? encoding[1].to_s
+  - next if encoding[1] == 'gsm'
+  - if encoding[1] == "ucs-2"
+    .row
+      div.col.s3
+        label
+          input id="#{encoding[1]}" name="config[mt_encodings][]" type="checkbox" value="#{encoding[1]}" checked=(encoding_included) class="filled-in" onChange="toggle()"
+          span
+            = encoding[0]
+      div#endianness_mt style="display: #{encoding_included ? 'block' : 'none'}"
+        = f.check_box :endianness_mt, {:checked => @config.endianness_mt == 'little', :label => 'Use little endian encoding for UCS-2', :class => "filled-in"}, :little, :big
+  - else
+    .row
+        div.col.s3
+          label
+            input id="#{encoding[1]}" name="config[mt_encodings][]" type="checkbox" value="#{encoding[1]}" checked=(@config.mt_encodings.include? encoding[1].to_s) class="filled-in"
+            span
+              = encoding[0]
+
+.row.margin-top
+  div.col.s3
+    = f.label "Message splitting"
 
 .row
-  = f.select :mt_max_length, options_for_select(['140', '160', '254'], @config.mt_max_length), :label => "MT max length", :colspan => "s3"
-
-.row
-  = f.select :mt_csms_method, options_for_select([['UDH', 'udh'], ['Optional parameters', 'optional_parameters'], ['Message payload', 'message_payload']], @config.mt_csms_method), :label => "MT CSMS method", :colspan => "s3"
+  div.col.s12
+    | When message is larger than
+    = f.inline_select :config_mt_max_length, options_for_select(['140', '160', '254'], @config.mt_max_length), :class => "inline", :name => "config[mt_max_length]"
+    | split it using
+    = f.inline_select :config_mt_csms_method, options_for_select([['User Data Header', 'udh'], ['Optional parameters', 'optional_parameters'], ['Message payload', 'message_payload']], @config.mt_csms_method), :class => "inline", :name => "config[mt_csms_method]"
 
 .row
   h5.col.s12
@@ -83,6 +104,10 @@
   = f.text_field :rejection_codes, :label => 'Rejection codes (comma separated):'
 
 javascript:
+  function toggle() {
+    $("#endianness_mt").toggle()
+  }
+
   $(document).ready(function(){
     $('select').formSelect();
   });

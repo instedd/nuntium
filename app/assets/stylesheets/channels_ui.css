@@ -22,3 +22,25 @@
 .clickable {
   cursor: pointer;
 }
+#endianness_mt {
+  margin-left: 30px;
+}
+.row.margin-top {
+  margin-top: 50px
+}
+.row.no-bottom-margin {
+  margin-bottom: 0px;
+}
+i.material-icons {
+  margin-right: 10px;
+}
+.v-middle {
+  vertical-align: middle;
+}
+.input-field.inline {
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
