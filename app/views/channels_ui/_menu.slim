@@ -3,29 +3,29 @@ h4 Choose a channel type
 h5 Choose from different channel options according to your project needs
 
 ul.collection
-  li.collection-item.clickable onclick="navigate('#{new_channels_ui_path(kind: :twilio)}')"
+  li.collection-item.clickable onclick="navigate('#{new_channels_ui_path_for(kind: :twilio)}')"
     h5 Twilio
     .grey-text
       | Twilio is a cloud based tool that allows software developers to programmatically make and receive phone calls and send and receive text messages using its web service APIs.
     i.material-icons.arrow-right chevron_right
-  li.collection-item.clickable onclick="navigate('#{new_channels_ui_path(kind: :africas_talking)}')"
+  li.collection-item.clickable onclick="navigate('#{new_channels_ui_path_for(kind: :africas_talking)}')"
     h5 Africa's Talking
     .grey-text
       | Africa's Talking is a cloud based tool that allows software developers
       to programmatically manage phone calls and text messages using an API similar
       to Twilio's.
     i.material-icons.arrow-right chevron_right
-  li.collection-item.clickable onclick="navigate('#{new_channels_ui_path(kind: :chikka)}')"
+  li.collection-item.clickable onclick="navigate('#{new_channels_ui_path_for(kind: :chikka)}')"
     h5 Chikka
     .grey-text
       | Chikka Text Messenger is an Internet-based instant messaging application that supports free SMS or text messaging between online users and offline mobile subscribers.
     i.material-icons.arrow-right chevron_right
-  li.collection-item.clickable onclick="navigate('#{new_channels_ui_path(kind: :smpp)}')"
+  li.collection-item.clickable onclick="navigate('#{new_channels_ui_path_for(kind: :smpp)}')"
     h5 SMPP
     .grey-text
       | Short Message Peer-to-Peer (SMPP) in the telecommunications industry is an open, industry standard protocol designed to provide a flexible data communication interface for the transfer of short message data.
     i.material-icons.arrow-right chevron_right
-  li.collection-item.clickable onclick="navigate('#{new_channels_ui_path(kind: :qst_server)}')"
+  li.collection-item.clickable onclick="navigate('#{new_channels_ui_path_for(kind: :qst_server)}')"
     h5
       = "qst_server".to_channel.title
     .grey-text

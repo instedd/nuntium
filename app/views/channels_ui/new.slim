@@ -1,4 +1,7 @@
-- if params[:kind]
-  = render "form"
+- if @account
+  - if params[:kind]
+    = render "form"
+  - else
+    = render "menu"
 - else
-  = render "menu"
+  = render "account_menu"

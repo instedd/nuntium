@@ -1,0 +1,9 @@
+h4 Choose an account
+
+h5 Choose one of your accounts where the channel will be created
+
+ul.collection
+  - @current_user.accounts.each do |account|
+    li.collection-item.clickable onclick="navigate('#{new_channels_ui_path_for(account: account.name)}')"
+      h4= account.name
+      i.material-icons.arrow-right chevron_right

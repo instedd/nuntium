@@ -3,8 +3,8 @@ require 'test_helper'
 class ChannelsUiControllerTest < ActionController::TestCase
   def setup
     @user = User.make
-    @account = @user.create_account Account.make_unsaved
-    sign_in @user
+    @account = @user.create_account Account.make_unsaved password: 'secret'
+    @request.env['HTTP_AUTHORIZATION'] = http_auth("#{@account.name}", 'secret')
     TwilioChannel.any_instance.stubs(:configure_phone_number).returns(true)
 
     @twilio_params = { "kind" => "twilio", "config" => { "name" => "foo", "account_sid" => "545454", "auth_token" => "656565", "from" => "12345678" } }

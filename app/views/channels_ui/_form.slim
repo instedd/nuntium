@@ -10,6 +10,9 @@
       - form_method = :put
 = form_for(@config, url: form_action, method: form_method, as: :config, html: {autocomplete: 'off'}, builder: MaterializeFormBuilder) do |f|
   input type="hidden" name="kind" value=@kind
+  input type="hidden" name="access_token" value=params[:access_token]
+  - if params[:account]
+    input type="hidden" name="account" value=params[:account]
   - if @kind == "qst_server"
     = render "qst_description"
   - if @channel.new_record?

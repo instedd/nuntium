@@ -1,6 +1,7 @@
-class ChannelsUiController < ApplicationController
+class ChannelsUiController < ApiAuthenticatedController
   skip_before_filter :check_guisso_cookie
   before_filter :new_channel, only: [:new, :create]
+  before_filter :set_account
   layout 'channels_ui'
 
   def check_guisso_cookie
@@ -21,7 +22,7 @@ class ChannelsUiController < ApplicationController
 
   def show
     begin
-      @channel = channels.find_by_name!(params[:id])
+      @channel = @account.channels.find_by_name!(params[:id])
       load_config_from_channel()
     rescue
       render :file => 'public/404.html', :status => :not_found
@@ -30,7 +31,7 @@ class ChannelsUiController < ApplicationController
 
   def update
     params[:config] = params[:config].except("name")
-    @channel = channels.find_by_name!(params[:id])
+    @channel = @account.channels.find_by_name!(params[:id])
     load_config_to_channel()
     unless @channel.save
       load_config_from_channel()
@@ -43,6 +44,18 @@ class ChannelsUiController < ApplicationController
   def new_channel
     if params[:kind]
       @channel = params[:kind].to_channel.new
+    end
+  end
+
+  def set_account
+    unless @account
+      @account =
+        case @current_user.accounts.count
+        when 0
+          @current_user.create_account(Account.new name: @current_user.email, password: SecureRandom.base64)
+        when 1
+          @current_user.accounts.first
+        end
     end
   end
 
@@ -113,7 +126,7 @@ class ChannelsUiController < ApplicationController
     if params[:config][:name]
       @channel.name = params[:config][:name]
     end
-    @channel.account = account
+    @channel.account = @account
     @channel.direction = Channel::Bidirectional
     @channel.protocol = TwilioChannel.default_protocol
 
