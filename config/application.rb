@@ -72,7 +72,7 @@ module Nuntium
     # Do not initialize full app on assets precompile
     config.assets.initialize_on_precompile = false
 
-    config.assets.precompile += ['pigeonui.js']
+    config.assets.precompile += ['pigeonui.js', 'channels_ui.js', 'channels_ui.css']
 
     $log_path = "#{Rails.root}/log/#{Rails.env}.log" if $log_path.nil?
     config.paths['log'] = $log_path
