@@ -337,14 +337,26 @@ class Application < ActiveRecord::Base
       ThreadLocalLogger << "Channels left after restrictions: #{channels.map(&:name).join(', ')}"
     end
 
-    # See if the message includes a suggested channel
-    if msg.suggested_channel
-      suggested_channel = channels.select{|x| x.name == msg.suggested_channel}.first
-      if suggested_channel
-        ThreadLocalLogger << "Suggested channel '#{msg.suggested_channel}' found in candidates"
-        return [suggested_channel]
+    # See if the message includes an explicit channel
+    if msg.explicit_channel
+      explicit_channel = channels.select{|x| x.name == msg.explicit_channel}.first
+      if explicit_channel
+        ThreadLocalLogger << "Explicit channel '#{msg.explicit_channel}' found in candidates"
+        return [explicit_channel]
       else
-        ThreadLocalLogger << "Suggested channel '#{msg.suggested_channel}' not found in candidates"
+        ThreadLocalLogger << "Explicit channel '#{msg.explicit_channel}' not found in candidates"
+        return []
+      end
+    else
+      # See if the message includes a suggested channel
+      if msg.suggested_channel
+        suggested_channel = channels.select{|x| x.name == msg.suggested_channel}.first
+        if suggested_channel
+          ThreadLocalLogger << "Suggested channel '#{msg.suggested_channel}' found in candidates"
+          return [suggested_channel]
+        else
+          ThreadLocalLogger << "Suggested channel '#{msg.suggested_channel}' not found in candidates"
+        end
       end
     end
 

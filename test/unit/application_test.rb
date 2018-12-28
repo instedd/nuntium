@@ -710,6 +710,21 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal chan1.id, msg.channel_id
   end
 
+  test "route ao uses explicit channel over matching carrier" do
+    app = Application.make
+    country = Country.make :phone_prefix => "98"
+    carrier = country.carriers.make :prefixes => "76"
+    chan1 = QstServerChannel.make :account_id => app.account_id, :priority => 100, :address => "12"
+    chan2 = QstServerChannel.make :account_id => app.account_id, :priority => 100, :address => "987654"
+
+    msg = app.account.ao_messages.make_unsaved :to => "sms://987612", :explicit_channel => chan1.name
+    app.route_ao msg, 'test'
+
+    msg.reload
+
+    assert_equal chan1.id, msg.channel_id
+  end
+
   test "route ao prefer last at channel over matching carrier" do
     app = Application.make
     country = Country.make :phone_prefix => "98"

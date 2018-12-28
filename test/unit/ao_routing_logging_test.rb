@@ -205,6 +205,30 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
       assert_in_log "Suggested channel '#{@msg.suggested_channel}' found in candidates"
     end
 
+    test "Explicit channel not in candidates simulate = #{simulate}" do
+      create_channels
+
+      @msg = AoMessage.make_unsaved
+      @msg.explicit_channel = @chan3.name
+      @app.route_ao @msg, 'test', :simulate => simulate
+
+      @log = check_log :simulate => simulate
+
+      assert_in_log "Explicit channel '#{@msg.explicit_channel}' not found in candidates"
+    end
+
+    test "Explicit channel in candidates simulate = #{simulate}" do
+      create_channels
+
+      @msg = AoMessage.make_unsaved
+      @msg.explicit_channel = @chan1.name
+      @app.route_ao @msg, 'test', :simulate => simulate
+
+      @log = check_log :simulate => simulate
+
+      assert_in_log "Explicit channel '#{@msg.explicit_channel}' found in candidates"
+    end
+
     test "known address sources simulate = #{simulate}" do
       create_channels
 
