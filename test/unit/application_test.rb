@@ -367,6 +367,19 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal chan2.id, msg.channel_id
   end
 
+  test "route ao uses explicit channel over suggested channel" do
+    app = Application.make
+    chan1 = QstServerChannel.make :account_id => app.account_id
+    chan2 = QstServerChannel.make :account_id => app.account_id,  :priority => chan1.priority + 10
+
+    msg = AoMessage.make_unsaved
+    msg.suggested_channel = chan1.name
+    msg.explicit_channel = chan2.name
+    app.route_ao msg, 'test'
+
+    assert_equal chan2.id, msg.channel_id
+  end
+
   test "route ao infer country" do
     app = Application.make
     chan = QstServerChannel.make :account_id => app.account_id

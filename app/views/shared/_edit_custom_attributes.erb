@@ -70,6 +70,7 @@ var show_accept_when_not_specified_option = <%= show_accept_when_not_specified_o
           <%- if include_channels and channels.length > 0 -%>
             <option value="suggested_channel" <%= 'selected="selected"' if name == "suggested_channel" -%>>Suggested channel</option>
           <%- end -%>
+          <option value="explicit_channel" <%= 'selected="selected"' if name == "explicit_channel" -%>>Explicit channel</option>
           <option value="custom" <%= 'selected="selected"' if is_custom -%>>Custom</option>
         </select>
         <span class="value">
