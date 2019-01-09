@@ -122,6 +122,8 @@ module MessageSerialization
           msg.send "#{key}=", value
         elsif [:controller, :action, :application_name, :account_name].include? key.to_sym
           # Nothing, ignore these because they come from the request
+        elsif :channel == key.to_sym
+          msg.custom_attributes['explicit_channel'] = value
         else
           # Custom attribute
           msg.custom_attributes[key] = value

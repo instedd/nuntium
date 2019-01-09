@@ -316,8 +316,8 @@ class Application < ActiveRecord::Base
       return []
     end
 
-    # Get all outgoing enabled channels
-    channels = account.channels.enabled.outgoing
+    # Get all outgoing channels
+    channels = account.channels.outgoing
 
     # Find channels that handle that protocol
     channels = channels.where(:protocol => protocol)
@@ -344,19 +344,21 @@ class Application < ActiveRecord::Base
         ThreadLocalLogger << "Explicit channel '#{msg.explicit_channel}' found in candidates"
         return [explicit_channel]
       else
-        ThreadLocalLogger << "Explicit channel '#{msg.explicit_channel}' not found in candidates"
-        return []
+        ThreadLocalLogger << "Error: Explicit channel '#{msg.explicit_channel}' not found in candidates"
+        raise Exception, "Explicit channel not found"
       end
-    else
-      # See if the message includes a suggested channel
-      if msg.suggested_channel
-        suggested_channel = channels.select{|x| x.name == msg.suggested_channel}.first
-        if suggested_channel
-          ThreadLocalLogger << "Suggested channel '#{msg.suggested_channel}' found in candidates"
-          return [suggested_channel]
-        else
-          ThreadLocalLogger << "Suggested channel '#{msg.suggested_channel}' not found in candidates"
-        end
+    end
+    # Get only the enabled channels
+    channels = channels.select{|x| x.enabled}
+
+    # See if the message includes a suggested channel
+    if msg.suggested_channel
+      suggested_channel = channels.select{|x| x.name == msg.suggested_channel}.first
+      if suggested_channel
+        ThreadLocalLogger << "Suggested channel '#{msg.suggested_channel}' found in candidates"
+        return [suggested_channel]
+      else
+        ThreadLocalLogger << "Suggested channel '#{msg.suggested_channel}' not found in candidates"
       end
     end
 

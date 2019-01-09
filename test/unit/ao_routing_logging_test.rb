@@ -210,11 +210,7 @@ class AORoutingLoggingTest < ActiveSupport::TestCase
 
       @msg = AoMessage.make_unsaved
       @msg.explicit_channel = @chan3.name
-      @app.route_ao @msg, 'test', :simulate => simulate
-
-      @log = check_log :simulate => simulate
-
-      assert_in_log "Explicit channel '#{@msg.explicit_channel}' not found in candidates"
+      assert_raise(Exception) { @app.route_ao @msg, 'test', :simulate => simulate }
     end
 
     test "Explicit channel in candidates simulate = #{simulate}" do
