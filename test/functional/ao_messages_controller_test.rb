@@ -212,6 +212,28 @@ class AoMessagesControllerTest < ActionController::TestCase
     assert_equal 'bex', msg.custom_attributes['bax']
   end
 
+  test "send ao with channel custom attribute that transforms to explicit_channel" do
+    @chan1 = QstServerChannel.make :account => @account
+    get :create_via_api, {:from => 'sms://1234', :to => 'sms://5678', :subject => 'subject', :body => 'body', :guid => 'g', :channel => @chan1.name, :account_name => @account.name, :application_name => @application.name}
+
+    messages = AoMessage.all
+    assert_equal 1, messages.length
+
+    msg = messages[0]
+    assert_equal @chan1.name, msg.custom_attributes['explicit_channel']
+  end
+
+  test "send ao with explicit_channel custom attribute" do
+    @chan1 = QstServerChannel.make :account => @account
+    get :create_via_api, {:from => 'sms://1234', :to => 'sms://5678', :subject => 'subject', :body => 'body', :guid => 'g', :explicit_channel => @chan1.name, :account_name => @account.name, :application_name => @application.name}
+
+    messages = AoMessage.all
+    assert_equal 1, messages.length
+
+    msg = messages[0]
+    assert_equal @chan1.name, msg.custom_attributes['explicit_channel']
+  end
+
   test "send ao with json" do
     @request.env['RAW_POST_DATA'] = [{:from => 'sms://1', :to => 'sms://2', :body => 'foo'}, {:from => 'sms://3', :to => 'sms://4', :body => 'bar'}].to_json
 

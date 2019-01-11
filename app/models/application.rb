@@ -316,8 +316,8 @@ class Application < ActiveRecord::Base
       return []
     end
 
-    # Get all outgoing enabled channels
-    channels = account.channels.enabled.outgoing
+    # Get all outgoing channels
+    channels = account.channels.outgoing
 
     # Find channels that handle that protocol
     channels = channels.where(:protocol => protocol)
@@ -336,6 +336,20 @@ class Application < ActiveRecord::Base
     else
       ThreadLocalLogger << "Channels left after restrictions: #{channels.map(&:name).join(', ')}"
     end
+
+    # See if the message includes an explicit channel
+    if msg.explicit_channel
+      explicit_channel = channels.select{|x| x.name == msg.explicit_channel}.first
+      if explicit_channel
+        ThreadLocalLogger << "Explicit channel '#{msg.explicit_channel}' found in candidates"
+        return [explicit_channel]
+      else
+        ThreadLocalLogger << "Error: Explicit channel '#{msg.explicit_channel}' not found in candidates"
+        raise Exception, "Explicit channel not found"
+      end
+    end
+    # Get only the enabled channels
+    channels = channels.select{|x| x.enabled}
 
     # See if the message includes a suggested channel
     if msg.suggested_channel

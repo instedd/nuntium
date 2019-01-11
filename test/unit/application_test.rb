@@ -367,6 +367,32 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal chan2.id, msg.channel_id
   end
 
+  test "route ao uses explicit channel over suggested channel" do
+    app = Application.make
+    chan1 = QstServerChannel.make :account_id => app.account_id
+    chan2 = QstServerChannel.make :account_id => app.account_id,  :priority => chan1.priority + 10
+
+    msg = AoMessage.make_unsaved
+    msg.suggested_channel = chan2.name
+    msg.explicit_channel = chan1.name
+    app.route_ao msg, 'test'
+
+    assert_equal chan1.id, msg.channel_id
+  end
+
+  test "route ao uses explicit channel over suggested channel when the explicit channel is not enabled" do
+    app = Application.make
+    chan1 = QstServerChannel.make :account_id => app.account_id
+    chan2 = QstServerChannel.make :account_id => app.account_id,  :enabled => false
+
+    msg = AoMessage.make_unsaved
+    msg.suggested_channel = chan1.name
+    msg.explicit_channel = chan2.name
+    app.route_ao msg, 'test'
+
+    assert_equal chan2.id, msg.channel_id
+  end
+
   test "route ao infer country" do
     app = Application.make
     chan = QstServerChannel.make :account_id => app.account_id
@@ -703,6 +729,21 @@ class ApplicationTest < ActiveSupport::TestCase
     chan2 = QstServerChannel.make :account_id => app.account_id, :priority => 100, :address => "987654"
 
     msg = app.account.ao_messages.make_unsaved :to => "sms://987612", :suggested_channel => chan1.name
+    app.route_ao msg, 'test'
+
+    msg.reload
+
+    assert_equal chan1.id, msg.channel_id
+  end
+
+  test "route ao uses explicit channel over matching carrier" do
+    app = Application.make
+    country = Country.make :phone_prefix => "98"
+    carrier = country.carriers.make :prefixes => "76"
+    chan1 = QstServerChannel.make :account_id => app.account_id, :priority => 100, :address => "12"
+    chan2 = QstServerChannel.make :account_id => app.account_id, :priority => 100, :address => "987654"
+
+    msg = app.account.ao_messages.make_unsaved :to => "sms://987612", :explicit_channel => chan1.name
     app.route_ao msg, 'test'
 
     msg.reload

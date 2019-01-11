@@ -28,6 +28,13 @@ function channel_custom_attribute_changed(select) {
     html += ' &nbsp; ' + remove_custom_attribute_link();
     li_value.html(html);
     break;
+  case 'explicit_channel':
+    var html = ' = ';
+    html += channels_select('custom_attribute_value[]');
+    if (show_accept_when_not_specified_option) html += ' &nbsp; ' + accept_when_not_specified_checkbox();
+    html += ' &nbsp; ' + remove_custom_attribute_link();
+    li_value.html(html);
+    break;
   case 'country':
     get_countries({
       success: function(countries) {
