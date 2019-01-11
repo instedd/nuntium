@@ -14,3 +14,9 @@ script:
 notifications:
   slack:
     secure: aQ0ckzIpsYWvv7yaGPZ0kqFdE/3ljOW/2+PAr2jyxDIx8vtQA/tC3CnyQ66phpS0/AZTQjez/bbL6ZA7r1NZOYg96S5cV9jxwkMml+jzrYAD0nl/cTRZzz4MLIjQu53vuFEt/Cr08YWrB9xRqd0mA8kMpwPwp7nxODzJXOiakvk=
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: "./travis-build.sh"
+  on:
+    all_branches: true
