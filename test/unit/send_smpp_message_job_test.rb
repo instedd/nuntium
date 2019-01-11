@@ -59,4 +59,15 @@ class SendSmppMessageJobTest < ActiveSupport::TestCase
       {1234 => 'foo', 0x1234 => 'bar'})
     assert job.perform(delegate)
   end
+
+  test "inform when message doesn't have 'from' address" do
+    msg = AoMessage.make :account => @chan.account, :channel => @chan, :state => 'queued', :from => nil
+
+    job = SendSmppMessageJob.new msg.account_id, @chan.id, msg.id
+    job.perform nil
+
+    assert_equal msg.logs.count, 1
+    assert_true msg.logs.first.message.include? "Message doesn't have a 'from' address"
+    assert_not_equal 'delivered', msg.state
+  end
 end

@@ -35,6 +35,11 @@ class SendSmppMessageJob
     @account = Account.find_by_id @account_id
     @channel = @account.channels.find_by_id @channel_id
 
+    unless @msg.from
+      @msg.send_failed @account, @channel, "Message doesn't have a 'from' address"
+      return false
+    end
+
     from = @msg.from.protocol == 'sms' ? @msg.from.without_protocol : @channel.address.without_protocol
     to = @msg.to.without_protocol
     sms = @msg.subject_and_body
