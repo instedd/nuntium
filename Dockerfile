@@ -10,6 +10,9 @@ ENV RAILS_LOG_TO_STDOUT true
 # Install the application
 ADD . /app
 
+# Link Twitter config file
+RUN ln -s /run/secrets/twitter_oauth_consumer.yml /app/config
+
 # Generate version file
 RUN if [ -d .git ]; then git describe --always > VERSION; fi
 
