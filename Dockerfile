@@ -14,6 +14,9 @@ RUN bundle install --jobs 3 --deployment --without development test
 # Install the application
 ADD . /app
 
+# Link Twitter config file
+RUN ln -s /run/secrets/twitter_oauth_consumer.yml /app/config
+
 # Precompile assets
 RUN bundle exec rake assets:precompile RAILS_ENV=production
 
