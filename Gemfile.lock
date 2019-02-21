@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/instedd/alto_guisso.git
-  revision: 9f1cf1b1d436969a63dd30a213e9308a706d28d6
+  revision: f9452bb8eb0b8a2788b3f290d5bdb4f545f89427
   branch: master
   specs:
     alto_guisso (0.0.2)
@@ -8,11 +8,12 @@ GIT
 
 GIT
   remote: git://github.com/instedd/alto_guisso_rails.git
-  revision: 7744de77433a5713bb1fa852e62faecda4a36188
+  revision: f3ef31a52a160cfa256ecc17618c23058db0dde7
   branch: master
   specs:
     alto_guisso_rails (0.0.1)
       alto_guisso
+      dalli
       omniauth
       omniauth-openid
       rack-oauth2
@@ -130,6 +131,7 @@ GEM
     crack (0.1.8)
     daemon_controller (0.2.5)
     daemons (1.1.0)
+    dalli (2.7.9)
     debugger (1.6.5)
       columnize (>= 0.3.1)
       debugger-linecache (~> 1.2.0)
@@ -292,7 +294,7 @@ GEM
       rubinius-core-api
     rubinius-core-api (0.0.1)
     ruby-cache (0.3.0)
-    ruby-openid (2.2.2)
+    ruby-openid (2.7.0)
     sass (3.2.5)
     sass-rails (3.2.6)
       railties (~> 3.2.0)
