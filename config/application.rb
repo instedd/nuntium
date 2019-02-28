@@ -94,6 +94,19 @@ module Nuntium
                                                    :protocol => settings[:protocol] }
     end
 
+    if ENV["SMTP_HOST"].present?
+      config.action_mailer.delivery_method = :smtp
+      
+      config.action_mailer.smtp_settings = {
+        address: ENV["SMTP_HOST"],
+        port: (ENV["SMTP_PORT"] || 25).to_i,
+        user_name: ENV["SMTP_USER"],
+        password: ENV["SMTP_PASS"]
+      }
+    else
+      config.action_mailer.delivery_method = :sendmail
+    end
+
     # Start AMQP after rails loads:
     config.after_initialize do
       amqp_yaml = YAML.load_file "#{Rails.root}/config/amqp.yml"
@@ -128,8 +141,6 @@ module Nuntium
       end
     end
   end
-
-  ActionMailer::Base.delivery_method = :sendmail
 
   # Disable account creation from UI
   AccountCreationDisabled = false
