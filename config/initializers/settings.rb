@@ -41,5 +41,5 @@ class Settings
   # Settings with default value
   setting :protocol, ENV['SCHEME'] || 'https'
   setting :host_name, ENV['HOSTNAME'] || Socket.gethostname
-  setting :email_sender, 'nuntium@instedd.org'
+  setting :email_sender, ENV['EMAIL_SENDER'] || 'nuntium@instedd.org'
 end
