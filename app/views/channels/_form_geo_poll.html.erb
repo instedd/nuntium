@@ -1,0 +1,17 @@
+<%= form_for_channel channel do |f| -%>
+  <%= render 'edit_header', :f => f, :exclude_address => true -%>
+  <h5>GeoPoll account info</h5>
+  <p>
+    <%= f.label :account_sid, 'Account SID' -%><br/>
+    <%= f.text_field :account_sid, :autocomplete => :off -%>
+  </p>
+  <p>
+    <%= f.label :auth_token -%><br/>
+    <%= f.password_field :auth_token, :autocomplete => :off -%>
+  </p>
+  <p>
+    <%= f.label :from, "GeoPoll phone number" -%><br/>
+    <%= f.text_field :from, :value => channel.from, :autocomplete => :off -%>
+  </p>
+  <%= render 'edit_footer', :f => f %>
+<%- end -%>
