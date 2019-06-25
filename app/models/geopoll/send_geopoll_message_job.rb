@@ -16,16 +16,15 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class SendGeopollMessageJob < SendMessageJob
-
   def managed_perform
     query_parameters = {
-        :message_type => 'SEND',
-        :mobile_number => @msg.to.without_protocol,
-        :shortcode => @config[:shortcode],
-        :message_id => @msg.guid.delete('-'),
-        :message => @msg.body,
-        :client_id => @config[:client_id],
-        :authorization_key => @config[:authorization_key]
+      'MessageText' => @msg.body,
+      'TargetAddress' => @msg.to.without_protocol,
+      'Identifier' => @msg.guid,
+      'AdditionalFields' => {},
+      'IsOptin' => true,
+      'IsBulk' => true,
+      'DateSent' => DateTime.now.strftime("%FT%T.%L%RZ")
     }
 
     replied_at =
@@ -45,28 +44,38 @@ class SendGeopollMessageJob < SendMessageJob
     end
 
     begin
-      url = ""
-      response = RestClient.post(url , query_parameters, headers: {"Content-Type" => "application/json"})
-      @msg.channel_relative_id = @msg.guid.delete('-')
-      true
+      response = RestClient.post(Geopoll::SMS_SEND_URL, query_parameters.to_json, {content_type: :json, accept: :json, "Authorization" => @config[:auth_token]})
+      json_response = JSON.parse response
 
-    rescue RestClient::ExceptionWithResponse => e
-      unless e.response
-        raise e
-      end
+      @msg.channel_relative_id = json_response["OutgoingMessageIds"].first
 
-      result = JSON.parse(e.response.body)
-      status, status_description = Geopoll.send_status(result)
-      description = result["description"] || result["message"] || status_description
-
-      case status
-      when :system_error
-        raise PermanentException.new(Exception.new(description))
-      when :message_error
-        raise MessageException.new(Exception.new(description))
+      case json_response["Status"]["Code"]
+      when 0
+        @msg.status = 'delayed' # FIXME: state gets overriden after `managed_perform`. It may also be OK to leave the message as delivered.
+        return true
       else
-        raise description
+        raise Geopoll.error_messsage(json_response)
       end
+
+    rescue => e
+      # FIXME: check errors
+      raise e
+    #   unless e.response
+    #     raise e
+    #   end
+
+    #   result = JSON.parse(e.response.body)
+    #   status, status_description = Geopoll.send_status(result)
+    #   description = result["description"] || result["message"] || status_description
+
+    #   case status
+    #   when :system_error
+    #     raise PermanentException.new(Exception.new(description))
+    #   when :message_error
+    #     raise MessageException.new(Exception.new(description))
+    #   else
+    #     raise description
+    #   end
     end
   end
 end

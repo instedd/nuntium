@@ -16,28 +16,13 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class Geopoll
-  def self.send_status(status)
+  BASE_URL = 'https://api-external.geopoll.com'
+  SMS_SEND_URL = "#{BASE_URL}/api/sms/send"
 
-    case status['status'].to_s
-    when '200'
-      [:success, 'Accepted']
-    when '400'
-      case status['description']
-      when 'Invalid Mobile Number'
-        [:message_error, 'Invalid Mobile Number']
-      else
-        [:temporal_error, 'Bad Request']
-      end
-    when '401'
-      [:system_error, 'Unauthorized']
-    when '403'
-      [:system_error, 'Method Not Allowed']
-    when '404'
-      [:system_error, 'URI Not Found']
-    when '500'
-      [:temporal_error, 'General System Error']
-    else
-      [:temporal_error, "Unknown error code: #{status['status']} - #{status['message']}"]
-    end
+  def self.error_messsage(error)
+    status_code = error["Status"]["Code"]
+    error_message = error["Status"]["Message"]
+    # FIXME: check if error is PermanentException or MessageException
+    Exception.new("#{status_code} - #{error_message}")
   end
 end

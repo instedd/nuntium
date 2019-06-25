@@ -1,4 +1,4 @@
-class GeoPollChannel < Channel
+class GeopollChannel < Channel
   include GenericChannel
 
   configuration_accessor :account_sid, :auth_token, :from
