@@ -51,7 +51,6 @@ class SendGeopollMessageJob < SendMessageJob
 
       case json_response["Status"]["Code"]
       when 0
-        @msg.status = 'delayed' # FIXME: state gets overriden after `managed_perform`. It may also be OK to leave the message as delivered.
         return true
       else
         raise Geopoll.error_messsage(json_response)
