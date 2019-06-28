@@ -116,7 +116,7 @@ Nuntium::Application.routes.draw do
     post '/ack' => 'chikka#ack', :as => :chikka_ack
   end
 
-  scope '/:account_name/:channel_name/:secret_token/geopoll', :constraints => {:account_name => /.*/, :channel_name => /.*/} do
+  scope '/:account_name/:channel_name/geopoll', :constraints => {:account_name => /.*/, :channel_name => /.*/} do
     post '/incoming' => 'geopoll#incoming', :as => :geopoll_incoming
   end
 

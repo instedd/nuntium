@@ -15,23 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
-class ChikkaController < ApplicationController
+require 'digest/md5'
+
+class GeopollController < ApplicationController
   skip_filter :check_login
 
   # POST /:account_name/:channel_name/:secret_token/geopoll/incoming
   def incoming
     account = Account.find_by_id_or_name(params[:account_name])
     channel = account.geopoll_channels.find_by_name(params[:channel_name])
+    auth_token = channel.configuration[:auth_token].to_s.split(' ')[1]
+    identifier = params[:Identifier]
+    signature = Digest::MD5.hexdigest(auth_token + identifier)
 
-    if channel.shortcode != params[:shortcode] || channel.secret_token != params[:secret_token]
+    if signature != params[:Signature]
       return render text: "Error", status: :unauthorized
     end
 
     msg = AtMessage.new
-    msg.from = "sms://#{params[:mobile_number]}"
-    msg.to   = "sms://#{params[:shortcode]}"
-    msg.body = params[:message]
-    msg.channel_relative_id = params[:request_id]
+    msg.from = "sms://#{params[:SourceAddress]}"
+    msg.to   = "sms://#{channel.configuration[:from]}"
+    msg.body = params[:MessageText]
+    msg.channel_relative_id = params[:Identifier]
     account.route_at msg, channel
 
     render text: "Accepted"
