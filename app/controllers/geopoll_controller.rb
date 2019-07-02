@@ -42,4 +42,31 @@ class GeopollController < ApplicationController
     render text: "Accepted"
   end
 
+  def status
+    account = Account.find_by_id_or_name(params[:account_name])
+    channel = account.geopoll_channels.find_by_name(params[:channel_name])
+    ao = channel.ao_messages.find_by_channel_relative_id(params[:MessageId])
+
+    unless ao
+      return render text: "Error", status: :not_found
+    end
+
+    status = params[:Status]
+    case status
+      when "SUCCESS"
+        ao.state = "confirmed"
+      when "UNDELIVERABLE_TO_MESSAGING_PROVIDER", "REJECTED_BY_MESSAGING_PROVIDER",
+        "RETRYABLE_FAILURE", "TERMINAL_FAILURE", "NOT_ROUTABLE"
+        ao.state = "failed"
+    end
+
+    account.logger.info :channel_id => channel.id, :ao_message_id => ao.id,
+      :message => "Recieved delivery notification with status #{status.inspect}"
+
+     ao.custom_attributes[:geopoll_status] = status if status
+     ao.save!
+
+    render text: "Accepted"
+
+  end
 end
