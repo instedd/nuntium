@@ -58,23 +58,22 @@ class SendGeopollMessageJob < SendMessageJob
 
     rescue => e
       # FIXME: check errors
-      raise e
-    #   unless e.response
-    #     raise e
-    #   end
+      unless e.response
+        raise e
+      end
 
-    #   result = JSON.parse(e.response.body)
-    #   status, status_description = Geopoll.send_status(result)
-    #   description = result["description"] || result["message"] || status_description
+      result = JSON.parse(e.response.body)
+      status, status_description = Geopoll.send_status(result)
+      description = result["description"] || result["message"] || status_description
 
-    #   case status
-    #   when :system_error
-    #     raise PermanentException.new(Exception.new(description))
-    #   when :message_error
-    #     raise MessageException.new(Exception.new(description))
-    #   else
-    #     raise description
-    #   end
+      case status
+      when :system_error
+        raise PermanentException.new(Exception.new(description))
+      when :message_error
+        raise MessageException.new(Exception.new(description))
+      else
+        raise description
+      end
     end
   end
 end
