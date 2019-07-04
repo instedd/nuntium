@@ -1,5 +1,8 @@
 FROM ruby:1.9
 
+# ruby:1.9 is based on Debian Jessie, which has been archived now
+RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\n" > /etc/apt/sources.list
+
 # Install nodejs
 RUN apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs && \
