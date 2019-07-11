@@ -67,6 +67,11 @@ class GeopollController < ApplicationController
      ao.save!
 
     render text: "Accepted"
+  end
 
+  def balance
+    channel = account.geopoll_channels.find_by_id params[:channel_id]
+    balance = Geopoll.check_balance(channel)
+    render text: "Account balance is USD #{balance}"
   end
 end

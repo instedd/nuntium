@@ -121,6 +121,8 @@ Nuntium::Application.routes.draw do
     post '/status' => 'geopoll#status', :as => :geopoll_status
   end
 
+  get '/geopoll/:channel_id/balance' => 'geopoll#balance', :as => :geopoll_balance
+
   scope '/:account_name/:channel_name/:secret_token/africas_talking', :constraints => {:account_name => /.*/, :channel_name => /.*/} do
     post '/incoming' => 'africas_talking#incoming', :as => :africas_talking_incoming
     post '/delivery_reports' => 'africas_talking#delivery_reports', :as => :africas_talking_delivery_reports

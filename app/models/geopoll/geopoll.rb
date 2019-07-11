@@ -18,6 +18,7 @@
 class Geopoll
   BASE_URL = 'https://api-external.geopoll.com'
   SMS_SEND_URL = "#{BASE_URL}/api/sms/send"
+  CHECK_BALANCE_URL = "#{BASE_URL}/api/account/balance"
 
   def self.error_messsage(error)
     status_code = error["Status"]["Code"]
@@ -50,6 +51,11 @@ class Geopoll
       [:system_error, "Unknown error code: #{status['status']} - #{status['message']}"]
     end
 
+  end
+
+  def self.check_balance(channel)
+    response = RestClient.post(CHECK_BALANCE_URL, {}, {content_type: :json, accept: :json, "Authorization" => channel.auth_token})
+    response
   end
 
 end

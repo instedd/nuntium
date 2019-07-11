@@ -8,4 +8,7 @@ class GeopollChannel < Channel
     'sms'
   end
 
+  def info
+    "<a target=\"_blank\" href=\"/geopoll/#{self.id}/balance\">view credit</a>".html_safe
+  end
 end
