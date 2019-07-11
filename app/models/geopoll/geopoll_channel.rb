@@ -1,8 +1,8 @@
 class GeopollChannel < Channel
   include GenericChannel
 
-  configuration_accessor :account_sid, :auth_token, :from
-  validates_presence_of :account_sid, :auth_token, :from
+  configuration_accessor :auth_token
+  validates_presence_of :auth_token
 
   def self.default_protocol
     'sms'
