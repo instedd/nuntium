@@ -23,8 +23,8 @@
     </p>
   <%- end -%>
   <%= render 'shared/edit_custom_attributes', :f => f, :entity => @message, :include_channels => @kind == 'ao', :accept_when_not_specified_option => false -%>
-  <button onClick="create_message()">Create Message</button>
-  or <button onClick="simulate_route()">Simulate Route</button>
+  <button type="button" onClick="create_message()">Create Message</button>
+  or <button type="button" onClick="simulate_route()">Simulate Route</button>
 <%- end -%>
 
 <script>
