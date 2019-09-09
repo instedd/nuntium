@@ -48,7 +48,6 @@ Run the following commands to have a stable development environment.
 ```
 $ docker-compose run --rm --no-deps web bundle install
 $ docker-compose run --rm web bash -c 'rake db:setup db:seed'
-root@web_1 $ rake db:setup db:seed
 $ docker-compose up
 ```
 

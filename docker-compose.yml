@@ -40,7 +40,7 @@ services:
       - memcached
     command: rails server -b 0.0.0.0 -p 80
     ports:
-      - 3000:80
+      - 80
 
   workerfast:
     <<: *rails
@@ -75,7 +75,7 @@ services:
   ngrok:
     image: wernight/ngrok
     ports:
-      - 4048:4040
+      - 4040
     environment:
       NGROK_PORT: 'web:80'
 
