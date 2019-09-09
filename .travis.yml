@@ -1,19 +1,32 @@
-sudo: false
-language: ruby
-rvm:
-- 1.9.3
-bundler_args: "--without development debug webserver"
+language: generic
+sudo: required
 services:
-- rabbitmq
-- memcached
-before_install: gem update bundler
+  - docker
+
+env:
+  COMPOSE_VERSION: 1.18.0
+
+before_install:
+ - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+ - chmod +x docker-compose
+ - sudo mv docker-compose /usr/local/bin
+
+install:
+  - docker-compose pull
+
 before_script:
-- bundle exec rake db:setup
+  - docker-compose build
+  - docker-compose run --rm web bundle install --without development debug webserver
+  - docker-compose run --rm web rake db:setup
+  - docker-compose run --rm web rake db:test:prepare
+
 script:
-- bundle exec rake test
+  - docker-compose run --rm web rake test
+
 notifications:
   slack:
     secure: aQ0ckzIpsYWvv7yaGPZ0kqFdE/3ljOW/2+PAr2jyxDIx8vtQA/tC3CnyQ66phpS0/AZTQjez/bbL6ZA7r1NZOYg96S5cV9jxwkMml+jzrYAD0nl/cTRZzz4MLIjQu53vuFEt/Cr08YWrB9xRqd0mA8kMpwPwp7nxODzJXOiakvk=
+
 deploy:
   skip_cleanup: true
   provider: script
