@@ -1,11 +1,16 @@
 sudo: false
+dist: xenial
 language: ruby
 rvm:
 - 1.9.3
 bundler_args: "--without development debug webserver"
 services:
-- rabbitmq
 - memcached
+- mysql
+addons:
+  apt:
+    packages:
+    - rabbitmq-server
 before_install: gem update bundler
 before_script:
 - bundle exec rake db:setup
