@@ -1,0 +1,9 @@
+<%= form_for_channel channel do |f| -%>
+  <%= render 'edit_header', :f => f, :exclude_address => true -%>
+  <h5>iTexMo account info</h5>
+  <p>
+    <%= f.label :api_code -%><br/>
+    <%= f.password_field :api_code, :autocomplete => :off -%>
+  </p>
+  <%= render 'edit_footer', :f => f %>
+<%- end -%>
