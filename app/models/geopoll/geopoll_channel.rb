@@ -3,6 +3,7 @@ class GeopollChannel < Channel
 
   configuration_accessor :auth_token
   validates_presence_of :auth_token
+  handle_password_change :auth_token
 
   def self.default_protocol
     'sms'
