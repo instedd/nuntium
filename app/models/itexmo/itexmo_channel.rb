@@ -18,8 +18,15 @@
 class ItexmoChannel < Channel
   include GenericChannel
 
-  configuration_accessor :api_code
-  validates_presence_of :api_code
+  configuration_accessor :api_code, :incoming_password
+  validates_presence_of :api_code, :incoming_password
+  before_validation :generate_incoming_password
+  handle_password_change :api_code
+  handle_password_change :incoming_password
+
+  def generate_incoming_password
+    self.incoming_password ||= Devise.friendly_token
+  end
 
   def self.default_protocol
     'sms'
