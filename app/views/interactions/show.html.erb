@@ -100,6 +100,16 @@
     </ul>
   <%- end -%>
 
+  <%- if channels.any?{|c| c.kind == 'itexmo'} -%>
+    <div><b>Via <%= link_to 'iTexMo', 'https://www.itexmo.com/', :target => '_blank' -%></b></div>
+    <ul>
+      <%- channels.select{|c| c.kind == 'itexmo'}.each do |channel| -%>
+        <li>Incoming Messages URL: <span class="url">POST <%= itexmo_incoming_url(:account_name => account.name, :channel_name => channel.name, :incoming_password => channel.incoming_password) -%></span>
+          create Application Terminated Messages in channel <%= channel.name %></li>
+      <%- end -%>
+    </ul>
+  <%- end -%>
+
   <%- unless applications.empty? -%>
     <div><b>Via <%= link_to 'RSS', 'http://en.wikipedia.org/wiki/RSS', :target => '_blank' -%></b></div>
     Use <%= link_to 'Http Basic Authentication', 'http://en.wikipedia.org/wiki/Basic_access_authentication', :target => '_blank' -%> with application credentials (use "account/application" as username).
