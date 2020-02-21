@@ -6,3 +6,6 @@ source <(curl -s https://raw.githubusercontent.com/manastech/ci-docker-builder/e
 dockerSetup
 echo $VERSION > VERSION
 dockerBuildAndPush
+
+docker build -t instedd/nuntium:itexmo .
+docker push instedd/nuntium:itexmo
