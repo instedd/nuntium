@@ -3,9 +3,9 @@ FROM ruby:1.9
 # ruby:1.9 is based on Debian Jessie, which has been archived now
 RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\n" > /etc/apt/sources.list
 
-# Install nodejs
+# Install nodejs (ignoring GPG's signature expiration, since Debian Jessie won't get those updated: https://wiki.debian.org/DebianJessie )
 RUN apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes nodejs && \
   apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install gem bundle
