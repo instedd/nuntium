@@ -20,7 +20,8 @@ class SendItexmoMessageJob < SendMessageJob
     query_parameters = Itexmo.send_message_parameters({
       number: @msg.to.without_protocol,
       body: @msg.body,
-      api_code: @config[:api_code]
+      api_code: @config[:api_code],
+      api_password: @config[:api_password],
     })
 
     begin

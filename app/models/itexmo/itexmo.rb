@@ -24,6 +24,7 @@ class Itexmo
       '1' => params[:number], # '1' is destination phone number
       '2' => params[:body], # '2' is message body
       '3' => params[:api_code], # '3' is ApiCode
+      'passwd' => params[:api_password], # Required Api Password
     }
   end
 
@@ -59,6 +60,14 @@ class Itexmo
       [:message_error, 'Invalid or not registered Custom Sender ID']
     when "14"
       [:message_error, 'Invalid preferred server number']
+    when "15"
+      [:system_error, 'IP Filtering enabled - Invalid IP']
+    when "16"
+      [:system_error, 'Authentication error - contact iTexMo']
+    when "17"
+      [:system_error, 'Telco error - contact iTexMo']
+    when "18"
+      [:system_error, 'Message Filtering Enabled - contact iTexMo']
     else
       [:system_error, "API response code not supported by Nuntium: \"#{status_code}\""]
     end
