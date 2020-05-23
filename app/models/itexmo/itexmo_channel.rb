@@ -18,11 +18,12 @@
 class ItexmoChannel < Channel
   include GenericChannel
 
-  configuration_accessor :api_code, :incoming_password
-  validates_presence_of :api_code, :incoming_password
+  configuration_accessor :api_code, :incoming_password, :api_password
+  validates_presence_of :api_code, :incoming_password, :api_password
   before_validation :generate_incoming_password
   handle_password_change :api_code
   handle_password_change :incoming_password
+  handle_password_change :api_password
 
   def generate_incoming_password
     self.incoming_password ||= Devise.friendly_token
