@@ -26,14 +26,14 @@ class ItexmoController < ApplicationController
       return render text: "Error", status: :unauthorized
     end
 
-    from = params["1"]
-    to = params["2"]
-    body = params["3"]
+    from = params["msisdn"]
+    to = params["from"] # Yes. The `from` parameter actually means the destination of the message (ie, the server's phone number)
 
     msg = AtMessage.new
     msg.from = "sms://#{from}"
-    msg.to   = "sms://#{to}"
-    msg.body = body
+    msg.to = "sms://#{to}"
+    msg.body = params["message"]
+    msg.channel_relative_id = params["transid"]
 
     account.route_at msg, channel
 
