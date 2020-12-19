@@ -25,7 +25,7 @@ class SendItexmoMessageJob < SendMessageJob
     })
 
     begin
-      response = RestClient.post(Itexmo::SMS_SEND_URL, query_parameters)
+      response = RestClient::Request.execute(:method => :post, :url => Itexmo::SMS_SEND_URL, :payload => query_parameters, :timeout => 30)
 
       success, description = Itexmo.parse_send_response(response)
       case success
