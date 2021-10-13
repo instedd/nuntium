@@ -110,7 +110,7 @@ module Nuntium
     # Start AMQP after rails loads:
     config.after_initialize do
       amqp_yaml = YAML.load_file "#{Rails.root}/config/amqp.yml"
-      $amqp_config = amqp_yaml[ENV["TRAVIS"] ? "travis" : (Rails.env || 'development')]
+      $amqp_config = amqp_yaml[Rails.env.to_s || 'development']
       $amqp_config.symbolize_keys!
 
       Queues.init

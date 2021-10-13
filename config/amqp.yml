@@ -12,8 +12,3 @@ production:
   vhost: /nuntium
   user: nuntium
   pass: nuntium
-
-travis:
-  vhost: /
-  user: guest
-  pass: guest
