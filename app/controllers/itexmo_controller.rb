@@ -22,7 +22,7 @@ class ItexmoController < ApplicationController
   def incoming
     account = Account.find_by_id_or_name(params[:account_name])
     channel = account.itexmo_channels.find_by_name(params[:channel_name])
-    if channel.configuration[:incoming_password].to_s != params[:incoming_password]
+    unless passwords_match? params[:incoming_password], channel.configuration[:incoming_password]
       return render text: "Error", status: :unauthorized
     end
 
@@ -38,5 +38,13 @@ class ItexmoController < ApplicationController
     account.route_at msg, channel
 
     render text: "Accepted"
+  end
+
+  private
+
+  def passwords_match?(user_input, channel_password)
+    user_input_hash = Digest::SHA512.digest user_input.to_s
+    channel_password_hash = Digest::SHA512.digest channel_password.to_s
+    ActiveSupport::SecurityUtils.secure_compare user_input_hash, channel_password_hash
   end
 end
