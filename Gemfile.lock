@@ -1,5 +1,17 @@
 GIT
-  remote: git://github.com/instedd/alto_guisso.git
+  remote: https://bitbucket.org/instedd/pigeon.git
+  revision: 50f5268e3690071937cdcce581a29922ef723bf7
+  branch: master
+  specs:
+    instedd-pigeon (0.3.1)
+      json
+      rails (~> 3.2)
+      rest-client
+      twilio-ruby
+      twitter_oauth
+
+GIT
+  remote: https://github.com/instedd/alto_guisso.git
   revision: f9452bb8eb0b8a2788b3f290d5bdb4f545f89427
   branch: master
   specs:
@@ -7,7 +19,7 @@ GIT
       rack-oauth2
 
 GIT
-  remote: git://github.com/instedd/alto_guisso_rails.git
+  remote: https://github.com/instedd/alto_guisso_rails.git
   revision: 3324e4e85040b4db6279099309e9cb6f836ee331
   branch: master
   specs:
@@ -19,18 +31,6 @@ GIT
       rack-oauth2
       rails (>= 3.0)
       ruby-openid
-
-GIT
-  remote: https://bitbucket.org/instedd/pigeon.git
-  revision: 50f5268e3690071937cdcce581a29922ef723bf7
-  branch: master
-  specs:
-    instedd-pigeon (0.3.1)
-      json
-      rails (~> 3.2)
-      rest-client
-      twilio-ruby
-      twitter_oauth
 
 GIT
   remote: https://github.com/instedd/poirot_rails.git
@@ -93,13 +93,15 @@ GEM
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     addressable (2.4.0)
+    aes_key_wrap (1.1.0)
     amq-protocol (1.9.2)
     arel (3.0.3)
-    attr_required (1.0.0)
+    attr_required (1.0.1)
     bcrypt-ruby (3.0.1)
     bert (1.1.6)
     bertrpc (1.3.1)
       bert (>= 1.1.0, < 2.0.0)
+    bindata (2.4.10)
     blather (0.8.5)
       activesupport (>= 2.3.11)
       eventmachine (>= 1.0.0)
@@ -131,7 +133,7 @@ GEM
     crack (0.1.8)
     daemon_controller (0.2.5)
     daemons (1.1.0)
-    dalli (2.7.9)
+    dalli (3.2.1)
     debugger (1.6.5)
       columnize (>= 0.3.1)
       debugger-linecache (~> 1.2.0)
@@ -171,7 +173,7 @@ GEM
     httparty (0.6.1)
       crack (= 0.1.8)
     httpauth (0.2.1)
-    httpclient (2.6.0.1)
+    httpclient (2.8.3)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     intercom-rails (0.4.0)
@@ -184,6 +186,10 @@ GEM
       jquery-rails
       railties (>= 3.1.0)
     json (1.8.6)
+    json-jwt (1.9.4)
+      activesupport
+      aes_key_wrap
+      bindata
     jwt (0.1.3)
       json (>= 1.2.4)
     knockoutjs-rails (2.2.0)
@@ -199,7 +205,7 @@ GEM
     metaclass (0.0.4)
     method_source (0.8.2)
     mime-types (1.25.1)
-    mini_portile (0.5.1)
+    mini_portile2 (2.8.0)
     mocha (1.0.0)
       metaclass (~> 0.0.1)
     multi_json (1.13.1)
@@ -215,8 +221,9 @@ GEM
     newrelic_rpm (3.9.3.241)
     niceogiri (1.1.2)
       nokogiri (~> 1.5)
-    nokogiri (1.6.0)
-      mini_portile (~> 0.5.0)
+    nokogiri (1.13.5)
+      mini_portile2 (~> 2.8.0)
+      racc (~> 1.4)
     oauth (0.4.7)
     oauth2 (0.6.1)
       faraday (~> 0.7)
@@ -247,15 +254,16 @@ GEM
     puma (2.12.3)
     qst_client (0.5)
       httparty
+    racc (1.6.0)
     rack (1.4.7)
     rack-cache (1.2)
       rack (>= 0.4)
-    rack-oauth2 (1.0.9)
-      activesupport (>= 2.3)
-      attr_required (>= 0.0.5)
-      httpclient (>= 2.4)
-      multi_json (>= 1.3.6)
-      rack (>= 1.1)
+    rack-oauth2 (1.10.0)
+      activesupport
+      attr_required
+      httpclient
+      json-jwt (>= 1.9.0)
+      rack
     rack-openid (1.3.1)
       rack (>= 1.1.0)
       ruby-openid (>= 2.1.8)
@@ -271,7 +279,7 @@ GEM
       activesupport (= 3.2.22.5)
       bundler (~> 1.0)
       railties (= 3.2.22.5)
-    rails-assets-material-components-web (0.39.0.0)
+    rails-assets-material-components-web (0.39.0)
     rails-dev-tweaks (1.2.0)
       actionpack (>= 3.1)
       railties (>= 3.1)
