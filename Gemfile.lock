@@ -1,5 +1,17 @@
 GIT
-  remote: git://github.com/instedd/alto_guisso.git
+  remote: https://bitbucket.org/instedd/pigeon.git
+  revision: 50f5268e3690071937cdcce581a29922ef723bf7
+  branch: master
+  specs:
+    instedd-pigeon (0.3.1)
+      json
+      rails (~> 3.2)
+      rest-client
+      twilio-ruby
+      twitter_oauth
+
+GIT
+  remote: https://github.com/instedd/alto_guisso
   revision: f9452bb8eb0b8a2788b3f290d5bdb4f545f89427
   branch: master
   specs:
@@ -7,7 +19,7 @@ GIT
       rack-oauth2
 
 GIT
-  remote: git://github.com/instedd/alto_guisso_rails.git
+  remote: https://github.com/instedd/alto_guisso_rails
   revision: 3324e4e85040b4db6279099309e9cb6f836ee331
   branch: master
   specs:
@@ -19,18 +31,6 @@ GIT
       rack-oauth2
       rails (>= 3.0)
       ruby-openid
-
-GIT
-  remote: https://bitbucket.org/instedd/pigeon.git
-  revision: 50f5268e3690071937cdcce581a29922ef723bf7
-  branch: master
-  specs:
-    instedd-pigeon (0.3.1)
-      json
-      rails (~> 3.2)
-      rest-client
-      twilio-ruby
-      twitter_oauth
 
 GIT
   remote: https://github.com/instedd/poirot_rails.git
@@ -361,6 +361,7 @@ DEPENDENCIES
   coffee-rails (~> 3.2.0)
   daemon_controller
   daemons
+  dalli (= 2.7.9)
   decent_exposure
   devise
   dynamic_form
