@@ -43,13 +43,9 @@ Docker development
 
 `docker-compose.yml` file build a development environment mounting the current folder and running rails in development environment.
 
-Run the following commands to have a stable development environment.
+To have a stable development environment, run the `./dev-setup.sh` script.
 
-```
-$ docker-compose run --rm --no-deps web bundle install
-$ docker-compose run --rm web bash -c 'rake db:setup db:seed'
-$ docker-compose up
-```
+When that's finished, start your containers by running `docker-compose up`.
 
 Intercom
 --------
