@@ -16,7 +16,7 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 def start_service(log_name)
-  $log_path = File.expand_path("../../../log/#{log_name}.log", __FILE__)
+  $log_path = STDOUT
 
   ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
 

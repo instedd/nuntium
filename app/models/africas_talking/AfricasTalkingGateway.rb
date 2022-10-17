@@ -6,6 +6,10 @@ require 'uri'
 require 'json'
 
 class AfricasTalkingGatewayException < Exception
+	def initialize(statusCode = nil)
+		@statusCode = statusCode
+	end
+	attr_reader :statusCode
 end
 
 class SMSMessages
@@ -130,10 +134,10 @@ class AfricasTalkingGateway
 				return reports
 			end
 
-			raise AfricasTalkingGatewayException, messageData["Message"]
+			raise AfricasTalkingGatewayException.new(@response_code), messageData["Message"]
 
 		else
-  			raise AfricasTalkingGatewayException, response
+  			raise AfricasTalkingGatewayException.new(@response_code), response
 		end
 	 end
 

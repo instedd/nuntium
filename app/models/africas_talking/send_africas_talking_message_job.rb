@@ -41,30 +41,28 @@ class SendAfricasTalkingMessageJob < SendMessageJob
       reports = gateway.sendMessage(destination_number, @msg.body, @config[:shortcode])
 
       report = reports[0]
-      case report.statusCode
-        when 100, 101, 102
-          success_delivery(report)
-        when 401, 403, 404, 406, 502
-          raise MessageException.new(Exception.new(report.status))
-          false
-        when 405, 407, 500, 501
-          raise "Temporal problem #{report.status}"
-          false
-        when 402
-          raise PermanentException.new(Exception.new(report.status))
+      success_delivery(report)
+    rescue AfricasTalkingGatewayException => ex
+      Rails.logger.error "Exception - API returned status #{ex.statusCode} - #{ex.message}"
+      case ex.statusCode
+      when 401, 403, 404, 406, 502
+        raise MessageException.new(Exception.new(ex.message))
+        false
+      when 405, 407, 500, 501
+        raise "Temporal problem #{ex.message}"
+        false
+      when 402
+        raise PermanentException.new(Exception.new(ex.message))
+        false
+      else
+        # We are probably using sandbox, but this is also useful in case we are in production mode and the API doesn't send the statusCode
+        if (ex.message != "Success")
+          raise MessageException.new(Exception.new(ex.message))
           false
         else
-          # We are probably using sandbox, but this is also useful in case we are in production mode and the API doesn't send the statusCode
-          if (report.status != "Success")
-            raise MessageException.new(Exception.new(report.status))
-            false
-          else
-            success_delivery(report)
-          end
+          success_delivery(report)
+        end
       end
-    rescue AfricasTalkingGatewayException => ex
-      puts 'Encountered an error: ' + ex.message
-      false
     end
   end
 
