@@ -16,15 +16,17 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class Itexmo
-  # based on ApiDocs: https://web.archive.org/web/20200204191435/https://www.itexmo.com/Developers/apidocs.php
-  SMS_SEND_URL = 'https://www.itexmo.com/php_api/api.php'
+  # based on new Api released April 2022: https://dashboard.itexmo.com/new-apidocs (there's no public API Docs)
+  SMS_SEND_URL = 'https://api.itexmo.com/api/broadcast'
 
   def self.send_message_parameters(params)
     {
-      '1' => params[:number], # '1' is destination phone number
-      '2' => params[:body], # '2' is message body
-      '3' => params[:api_code], # '3' is ApiCode
-      'passwd' => params[:api_password], # Required Api Password
+      "Email" => params[:email], # Email of active ITEXMO account (Required, String, Email Format)
+      "Password" => params[:api_password], # Password of active ITEXMO account (Required, String)
+      "ApiCode" => params[:api_code], # Active ApiCode purchased unders client's ITEXMO account (Required, String)
+      "Recipients" => [ params[:number] ], # Recipient/s number (maximum: 250) (Required, Array, Unique)
+      "Message" => params[:body], # Message Content (Required, String)
+      "DeliveryReportsURL" => params[:incoming_url], # The URL in which our system will push data for the delivery report (URL Format)
     }
   end
 

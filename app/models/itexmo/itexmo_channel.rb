@@ -18,8 +18,8 @@
 class ItexmoChannel < Channel
   include GenericChannel
 
-  configuration_accessor :api_code, :incoming_password, :api_password
-  validates_presence_of :api_code, :incoming_password, :api_password
+  configuration_accessor :email, :api_code, :incoming_password, :api_password
+  validates_presence_of :email, :api_code, :incoming_password, :api_password
   before_validation :generate_incoming_password
   handle_password_change :api_code
   handle_password_change :incoming_password
