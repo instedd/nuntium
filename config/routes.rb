@@ -125,6 +125,7 @@ Nuntium::Application.routes.draw do
 
   scope '/:account_name/:channel_name/:incoming_password/itexmo', :constraints => {:account_name => /.*/, :channel_name => /.*/} do
     post '/incoming' => 'itexmo#incoming', :as => :itexmo_incoming
+    post '/:ao_message_id/delivery' => 'itexmo#delivery', :as => :itexmo_delivery
   end
 
   scope '/:account_name/:channel_name/:secret_token/africas_talking', :constraints => {:account_name => /.*/, :channel_name => /.*/} do

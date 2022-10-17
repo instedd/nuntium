@@ -40,6 +40,18 @@ class ItexmoController < ApplicationController
     render text: "Accepted"
   end
 
+  # POST /:account_name/:channel_name/:incoming_password/itexmo/:ao_message_id/delivery
+  def delivery
+    account = Account.find_by_id_or_name(params[:account_name])
+    channel = account.itexmo_channels.find_by_name(params[:channel_name])
+    unless passwords_match? params[:incoming_password], channel.configuration[:incoming_password]
+      return render text: "Error", status: :unauthorized
+    end
+    ao_message = channel.ao_messages.find_by_id(params[:ao_message_id])
+
+    puts "Received delivery notification for AO #{ao_message.id}: #{params.to_json}"
+  end
+
   private
 
   def passwords_match?(user_input, channel_password)

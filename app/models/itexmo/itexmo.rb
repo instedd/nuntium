@@ -26,7 +26,7 @@ class Itexmo
       "ApiCode" => params[:api_code], # Active ApiCode purchased unders client's ITEXMO account (Required, String)
       "Recipients" => [ params[:number] ], # Recipient/s number (maximum: 250) (Required, Array, Unique)
       "Message" => params[:body], # Message Content (Required, String)
-      "DeliveryReportsURL" => params[:incoming_url], # The URL in which our system will push data for the delivery report (URL Format)
+      "DeliveryReportsURL" => params[:delivery_report_url], # The URL in which our system will push data for the delivery report (URL Format)
     }
   end
 
