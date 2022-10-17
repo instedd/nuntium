@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       RAILS_ENV: test
     steps:
@@ -27,7 +27,7 @@ jobs:
 
   build:
     needs: test
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_REPOSITORY: 'instedd/nuntium'
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
