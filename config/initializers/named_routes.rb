@@ -28,7 +28,7 @@ if Rails.respond_to? :application
     end
 
     def self.method_missing(method_sym, *arguments, &block)
-      self.instance.send method_sym, arguments, block
+      self.instance.send method_sym, *arguments, block
     end
   end
 end
