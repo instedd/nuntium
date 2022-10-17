@@ -4,11 +4,11 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       RAILS_ENV: test
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Fix tests environment
         run: mv docker-compose.ci-override.yml docker-compose.override.yml 
@@ -27,12 +27,12 @@ jobs:
 
   build:
     needs: test
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_REPOSITORY: 'instedd/nuntium'
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
       DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Build image & push to Docker Hub
         run: ./build.sh
