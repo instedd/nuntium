@@ -29,16 +29,15 @@ class SendItexmoMessageJob < SendMessageJob
     begin
       response = RestClient::Request.execute(:method => :post, :url => Itexmo::SMS_SEND_URL, :payload => query_parameters, :timeout => 30)
 
-      success, description = Itexmo.parse_send_response(response)
-      case success
-      when :accepted
-        return true
-      when :system_error
-        raise PermanentException.new(Exception.new(description))
-      when :message_error
-        raise MessageException.new(Exception.new(description))
+      if response['Error']
+        # TODO: improve error handling
+        raise MessageException.new(Exception.new("Error sending Itexmo message - #{response}"))
       end
 
+      @msg.channel_relative_id = response['ReferenceId'] if response['ReferenceId']
+      @msg.custom_attributes["itexmo_total_credit_used"] = response['TotalCreditUsed'] if response['TotalCreditUsed']
+      @msg.custom_attributes["itexmo_delivery_report_status"] = response['DeliveryReportStatus'] if response['DeliveryReportStatus']
+      true
     rescue => e
       # FIXME: check errors
       raise e
