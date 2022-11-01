@@ -27,7 +27,9 @@ class SendItexmoMessageJob < SendMessageJob
     })
 
     begin
-      response = RestClient::Request.execute(:method => :post, :url => Itexmo::SMS_SEND_URL, :payload => query_parameters, :timeout => 30)
+      raw_response = RestClient::Request.execute(:method => :post, :url => Itexmo::SMS_SEND_URL, :payload => query_parameters, :timeout => 30)
+
+      response = JSON.parse raw_response
 
       if response['Error']
         # TODO: improve error handling

@@ -48,17 +48,20 @@ class ItexmoController < ApplicationController
     end
     ao_message = channel.ao_messages.find_by_id(params[:ao_message_id])
 
-    if params['Status'] == 'ACCEPTED' and ['queued', 'pending'].include?(ao_message.state)
+    case params['Status'].try :downcase
+    when 'accepted'
+      ao_message.state = 'delivered' if ['queued', 'pending'].include?(ao_message.state)
+    when 'delivered'
       ao_message.state = 'confirmed'
-    elsif params['Status'] == 'DELIVERED'
-      ao_message.state = 'delivered'
     else
-      channel.logger.warn :channel_id => channel.id, :ao_message_id => ao_message.id, :message => "Received unknown-status delivery notification for AO #{ao_message.id}: #{params.to_json}"
+      channel.logger.warning :channel_id => channel.id, :ao_message_id => ao_message.id, :message => "Received unknown-status delivery notification for AO #{ao_message.id}: #{params.to_json}"
     end
 
     ao_message.channel_relative_id ||= params['LongID']
 
     ao_message.save!
+
+    render text: "OK"
   end
 
   private
