@@ -26,14 +26,13 @@ class ItexmoController < ApplicationController
       return render text: "Error", status: :unauthorized
     end
 
-    from = params["msisdn"]
-    to = params["from"] # Yes. The `from` parameter actually means the destination of the message (ie, the server's phone number)
+    from = params["originator"]
+    to = params["gateway"]
 
     msg = AtMessage.new
     msg.from = "sms://#{from}"
     msg.to = "sms://#{to}"
     msg.body = params["message"]
-    msg.channel_relative_id = params["transid"]
 
     account.route_at msg, channel
 
@@ -54,7 +53,7 @@ class ItexmoController < ApplicationController
     elsif params['Status'] == 'DELIVERED'
       ao_message.state = 'delivered'
     else
-      channel.logger.warn :channel_id => channel.id, :ao_message_id => ao_message.id, "Received unknown-status delivery notification for AO #{ao_message.id}: #{params.to_json}"
+      channel.logger.warn :channel_id => channel.id, :ao_message_id => ao_message.id, :message => "Received unknown-status delivery notification for AO #{ao_message.id}: #{params.to_json}"
     end
 
     ao_message.channel_relative_id ||= params['LongID']
