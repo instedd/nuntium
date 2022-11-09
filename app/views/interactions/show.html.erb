@@ -110,6 +110,18 @@
     </ul>
   <%- end -%>
 
+  <%- if channels.any?{|c| c.kind == 'geopoll'} -%>
+    <div><b>Via <%= link_to 'GeoPoll', 'https://www.geopoll.com/', :target => '_blank' -%></b></div>
+    <ul>
+      <%- channels.select{|c| c.kind == 'geopoll'}.each do |channel| -%>
+        <li>Incoming Messages URL: <span class="url">POST <%= geopoll_incoming_url(:account_name => account.name, :channel_name => channel.name) -%></span>
+          create Application Terminated Messages in channel <%= channel.name %></li>
+        <li>Delivery Reports Receiver URL: <span class="url">POST <%= geopoll_status_url(:account_name => account.name, :channel_name => channel.name) -%></span>
+          receive delivery reports in channel <%= channel.name %></li>
+      <%- end -%>
+    </ul>
+  <%- end -%>
+
   <%- unless applications.empty? -%>
     <div><b>Via <%= link_to 'RSS', 'http://en.wikipedia.org/wiki/RSS', :target => '_blank' -%></b></div>
     Use <%= link_to 'Http Basic Authentication', 'http://en.wikipedia.org/wiki/Basic_access_authentication', :target => '_blank' -%> with application credentials (use "account/application" as username).
