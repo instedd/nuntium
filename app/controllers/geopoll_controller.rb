@@ -32,6 +32,11 @@ class GeopollController < ApplicationController
       return render text: "Error", status: :unauthorized
     end
 
+    unknown_params = params.except(
+      'Identifier', 'Signature', 'SourceAddress', 'MessageText', # GeoPoll API specification
+      'account_name', 'channel_name', 'controller', 'action' # Rails-generated parameters
+    )
+
     msg = AtMessage.new
     msg.from = "sms://#{params[:SourceAddress]}"
     msg.to   = "sms://#{channel.configuration[:from]}"
@@ -39,6 +44,8 @@ class GeopollController < ApplicationController
     msg.channel_relative_id = params[:Identifier]
     account.route_at msg, channel
 
+    channel.logger.warning :channel_id => channel.id, :at_message_id => msg.id, :message => "Received unknown parameters for AT #{msg.id}: #{unknown_params.to_json}" unless unknown_params.empty?
+    
     render text: "Accepted"
   end
 
@@ -50,6 +57,11 @@ class GeopollController < ApplicationController
     unless ao
       return render text: "Error", status: :not_found
     end
+
+    unknown_params = params.except(
+      'MessageId', 'Status', # GeoPoll API specification
+      'account_name', 'channel_name', 'controller', 'action' # Rails-generated parameters
+    )
 
     status = params[:Status]
     case status
@@ -63,8 +75,10 @@ class GeopollController < ApplicationController
     account.logger.info :channel_id => channel.id, :ao_message_id => ao.id,
       :message => "Recieved delivery notification with status #{status.inspect}"
 
-     ao.custom_attributes[:geopoll_status] = status if status
-     ao.save!
+    channel.logger.warning :channel_id => channel.id, :at_message_id => msg.id, :message => "Received unknown parameters for AO #{msg.id} Status: #{unknown_params.to_json}" unless unknown_params.empty?
+
+    ao.custom_attributes[:geopoll_status] = status if status
+    ao.save!
 
     render text: "Accepted"
   end
