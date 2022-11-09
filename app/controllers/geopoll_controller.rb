@@ -20,7 +20,7 @@ require 'digest/md5'
 class GeopollController < ApplicationController
   skip_filter :check_login
 
-  # POST /:account_name/:channel_name/:secret_token/geopoll/incoming
+  # POST /:account_name/:channel_name/geopoll/incoming
   def incoming
     account = Account.find_by_id_or_name(params[:account_name])
     channel = account.geopoll_channels.find_by_name(params[:channel_name])
@@ -28,7 +28,7 @@ class GeopollController < ApplicationController
     identifier = params[:Identifier]
     signature = Digest::MD5.hexdigest(auth_token + identifier)
 
-    if signature != params[:Signature]
+    if !(ActiveSupport::SecurityUtils.secure_compare params[:Signature], signature)
       return render text: "Error", status: :unauthorized
     end
 
