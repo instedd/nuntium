@@ -33,13 +33,13 @@ class GeopollController < ApplicationController
     end
 
     unknown_params = params.except(
-      'Identifier', 'Signature', 'SourceAddress', 'MessageText', # GeoPoll API specification
+      'Identifier', 'Signature', 'SourceAddress', 'TargetAddress', 'MessageText', # GeoPoll API specification
       'account_name', 'channel_name', 'controller', 'action' # Rails-generated parameters
     )
 
     msg = AtMessage.new
     msg.from = "sms://#{params[:SourceAddress]}"
-    msg.to   = "sms://#{channel.configuration[:from]}"
+    msg.to   = "sms://#{params[:TargetAddress]}"
     msg.body = params[:MessageText]
     msg.channel_relative_id = params[:Identifier]
     account.route_at msg, channel
