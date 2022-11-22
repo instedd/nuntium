@@ -39,7 +39,7 @@ gem 'omniauth-openid'
 gem 'omniauth-google-oauth2'
 gem 'alto_guisso', github: "instedd/alto_guisso", branch: 'master'
 gem 'alto_guisso_rails', github: "instedd/alto_guisso_rails", branch: 'master'
-gem 'dalli', '2.7.9' # required by `alto_guisso_rails`, fixed to avoid auto-upgrade - but by all means update if/when needed
+gem 'dalli', '3.2.3' # required by `alto_guisso_rails`, fixed to avoid auto-upgrade - but by all means update if/when needed
 gem 'slim'
 gem 'lodash-rails'
 gem 'knockoutjs-rails'
