@@ -23,6 +23,7 @@ class SendItexmoMessageJob < SendMessageJob
       email: @config[:email],
       api_code: @config[:api_code],
       api_password: @config[:api_password],
+      sender_id: @config[:sender_id],
       delivery_report_url: NamedRoutes.itexmo_delivery_url(@account.name, @channel.name, @config[:incoming_password], @msg.id)
     })
 
