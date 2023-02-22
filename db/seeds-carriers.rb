@@ -130,9 +130,11 @@ Carrier.create!(:country => Country.find_by_iso3('BFA'), :name => 'TELMOB (Onate
 Carrier.create!(:country => Country.find_by_iso3('BDI'), :name => 'Econet (Spacetel)', :clickatell_name => 'Econet (Spacetel)', :guid => '06d8d496-4b35-efe8-01e9-e9ca5dbe1160')
 
 Carrier.create!(:country => Country.find_by_iso3('KHM'), :name => 'CAC (CADCOMMS)', :clickatell_name => 'CAC (CADCOMMS)', :guid => '130660fe-9043-e995-b1c3-51f0d1ceac8d')
-Carrier.create!(:country => Country.find_by_iso3('KHM'), :name => 'CamGSM (MobiTel,Tango))', :clickatell_name => 'CamGSM (MobiTel,Tango))', :guid => '5355ce85-4d84-03b6-af4a-1d87278b8648')
+Carrier.create!(:country => Country.find_by_iso3('KHM'), :name => 'CamGSM (MobiTel,Tango)', :clickatell_name => 'CamGSM (MobiTel,Tango)', :guid => '5355ce85-4d84-03b6-af4a-1d87278b8648', :prefixes => '12,17,77,78,92,89,14,11,61,76,79,85,95,99')
 Carrier.create!(:country => Country.find_by_iso3('KHM'), :name => 'Camshin (Shinawatra) DCS 1800', :clickatell_name => 'Camshin (Shinawatra) DCS 1800', :guid => '67d0c4b7-7f2d-8517-e867-e051497d2db6')
 Carrier.create!(:country => Country.find_by_iso3('KHM'), :name => 'HelloGSM (Telekom Malaysia, Casacom) GSM 900', :clickatell_name => 'HelloGSM (Telekom Malaysia, Casacom) GSM 900', :guid => 'f7c37540-f7fa-bf7b-e88a-e32a9aa9160c')
+Carrier.create!(:country => Country.find_by_iso3('KHM'), :name => 'Smart', :clickatell_name => 'Smart Mobile (Latelz Co)', :guid => '18f0836b-3f32-c807-fc3d-f7cdc7d47773', :prefixes => '10,93,69,70,15,16,81,86,87,96,98')
+Carrier.create!(:country => Country.find_by_iso3('KHM'), :name => 'Metfone', :clickatell_name => 'Metfone', :guid => '707aecfa-44b0-e269-20e6-8a1ef4cd0afe', :prefixes => '31,60,66,67,68,71,88,90,97')
 
 Carrier.create!(:country => Country.find_by_iso3('CMR'), :name => 'MTN', :clickatell_name => 'MTN', :guid => 'a94d1de6-b73c-cc37-ecdd-814e2275eddf')
 Carrier.create!(:country => Country.find_by_iso3('CMR'), :name => 'Orange (SCM)', :clickatell_name => 'Orange (SCM)', :guid => 'b1b9c9e5-2f20-6a9d-b510-ed9fdfcc0313')
