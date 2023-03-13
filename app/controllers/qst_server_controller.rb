@@ -16,7 +16,7 @@
 # along with Nuntium.  If not, see <http://www.gnu.org/licenses/>.
 
 class QstServerController < ApplicationController
-  skip_filter :check_login
+  skip_filter :check_login, :check_account
 
   before_filter :authenticate
   def authenticate
