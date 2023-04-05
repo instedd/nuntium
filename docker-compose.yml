@@ -3,6 +3,7 @@ version: '2.0'
 services:
   db:
     image: mysql:5.7
+    platform: linux/amd64 # There's no official MySQL 5.7 for ARM
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
     volumes:
@@ -10,6 +11,8 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.5.3
+    platform: linux/amd64 # There's no official RabbitMQ 3.5 for ARM
+    command: "/app/docker-compose-rabbitmq-cmd.sh"
     hostname: nuntium_rabbitmq
     volumes:
       - rabbitmq:/var/lib/rabbitmq
@@ -21,6 +24,7 @@ services:
 
   memcached:
     image: memcached:1.4.24
+    platform: linux/amd64 # There's no official Memcached 1.4 for ARM
 
   web: &rails
     image: instedd/nginx-rails:1.9
