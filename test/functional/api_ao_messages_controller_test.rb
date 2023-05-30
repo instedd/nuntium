@@ -21,6 +21,7 @@ class ApiAoMessagesControllerTest < ActionController::TestCase
     authorize
     get :index, format: "json", token: token
     assert_response :ok
+    assert_nil response.headers["Link"]
 
     assert_equal [
       {
@@ -70,5 +71,21 @@ class ApiAoMessagesControllerTest < ActionController::TestCase
     authorize
     get :index, format: "json"
     assert_response :bad_request
+  end
+
+  test "paginates index results" do
+    token = Guid.new.to_s
+    60.times { AoMessage.create! :account_id => @account.id, :application_id => @application.id, :state => 'pending', :body => 'one', :to => 'sms://1', token: token }
+    authorize
+
+    get :index, format: "json", token: token
+    assert_response :ok
+    assert_equal %(<#{api_ao_messages_url(page: 2)}>; rel="next"), response.headers["Link"]
+    assert_equal 50, JSON.parse(@response.body).size
+
+    get :index, format: "json", token: token, page: 2
+    assert_response :ok
+    assert_nil response.headers["Link"]
+    assert_equal 10, JSON.parse(@response.body).size
   end
 end

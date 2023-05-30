@@ -5,7 +5,9 @@ class ApiAoMessagesController < ApiAuthenticatedController
   rescue_from(KeyError) { head :bad_request }
 
   def index
-    ao_messages = AoMessage.find_all_by_application_id_and_token(@application.id, params.fetch(:token))
+    ao_messages = AoMessage
+      .where(application_id: @application.id, token: params.fetch(:token))
+      .paginate(:page => params.fetch(:page, 1), :per_page => 50)
     respond ao_messages
   end
 
@@ -16,6 +18,10 @@ class ApiAoMessagesController < ApiAuthenticatedController
   private
 
   def respond(object)
+    if page = object.next_page
+      response.headers["Link"] = %(<#{api_ao_messages_url(page: page)}>; rel="next")
+    end
+
     respond_to do |format|
       format.xml { render :xml => object.to_xml(:root => 'ao_messages', :skip_types => true) }
       format.json { render :json => object }
