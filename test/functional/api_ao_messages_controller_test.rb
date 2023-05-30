@@ -80,7 +80,7 @@ class ApiAoMessagesControllerTest < ActionController::TestCase
 
     get :index, format: "json", token: token
     assert_response :ok
-    assert_equal %(<#{api_ao_messages_url(page: 2)}>; rel="next"), response.headers["Link"]
+    assert_equal %(<#{api_ao_messages_url(token: token, page: 2)}>; rel="next"), response.headers["Link"]
     assert_equal 50, JSON.parse(@response.body).size
 
     get :index, format: "json", token: token, page: 2

@@ -19,7 +19,7 @@ class ApiAoMessagesController < ApiAuthenticatedController
 
   def respond(object)
     if page = object.next_page
-      response.headers["Link"] = %(<#{api_ao_messages_url(page: page)}>; rel="next")
+      response.headers["Link"] = %(<#{api_ao_messages_url(token: params[:token], page: page)}>; rel="next")
     end
 
     respond_to do |format|
