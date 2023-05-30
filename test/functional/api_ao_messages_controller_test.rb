@@ -16,7 +16,7 @@ class ApiAoMessagesControllerTest < ActionController::TestCase
     @ao_msg3 = AoMessage.create! :account_id => @account.id, :application_id => @application.id, :state => 'pending', :body => 'two', :to => 'sms://1'
   end
 
-  test "index" do
+  test "index as json" do
     create_test_ao_messages(token = Guid.new.to_s)
     authorize
     get :index, format: "json", token: token
@@ -40,6 +40,30 @@ class ApiAoMessagesControllerTest < ActionController::TestCase
         "state" => "pending"
       }
     ], JSON.parse(@response.body)
+  end
+
+  test "index as xml" do
+    create_test_ao_messages(token = Guid.new.to_s)
+    authorize
+    get :index, format: "xml", token: token
+    assert_response :ok
+
+    assert_equal [
+      {
+        "from" => "",
+        "id" => @ao_msg1.guid,
+        "property" => { "name" => "token", "value" => token },
+        "text" => "one",
+        "to" => "sms://1"
+      },
+      {
+        "from" => "",
+        "id" => @ao_msg2.guid,
+        "property" => { "name" => "token", "value" => token },
+        "text" => "one",
+        "to" => "sms://1"
+      }
+    ], Hash.from_xml(@response.body)["ao_messages"]["message"]
   end
 
   test "index requires the token param" do
