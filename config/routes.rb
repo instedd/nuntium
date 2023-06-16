@@ -204,7 +204,7 @@ Nuntium::Application.routes.draw do
       post '/' => 'api_custom_attributes#create_or_update', :as => :api_custom_attributes_show
     end
 
-    resources :ao_messages, only: [:create], controller: 'api_ao_messages'
+    resources :ao_messages, only: [:index, :create], controller: 'api_ao_messages', as: 'api_ao_messages'
     resources :applications, controller: 'api_applications'
     resources :accounts, controller: 'api_accounts'
   end

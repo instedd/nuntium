@@ -49,6 +49,13 @@ module MessageSerialization
     hash
   end
 
+  def to_xml(options = {})
+    options[:indent] ||= 2
+    xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
+    xml.instruct! unless options[:skip_instruct]
+    write_xml(xml)
+  end
+
   module ClassMethods
     def write_xml(msgs)
       xml = Builder::XmlMarkup.new(:indent => 1)
