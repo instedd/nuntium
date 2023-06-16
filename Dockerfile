@@ -2,10 +2,7 @@ FROM ruby:1.9
 
 # ruby:1.9 is based on Debian Jessie, which has been archived now
 # we also need jessie-backports to support the new Let's Encrypt Root CA
-RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\ndeb http://archive.debian.org/debian jessie-backports main" > /etc/apt/sources.list
-
-# jessie-backports repo expired, so we need to avoid checking the date (see https://unix.stackexchange.com/a/508728/49371 )
-RUN printf 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf
+RUN printf "deb http://archive.debian.org/debian jessie main\ndeb http://archive.debian.org/debian jessie-backports main" > /etc/apt/sources.list
 
 # Cleanup expired Let's Encrypt CA (Sept 30, 2021)
 RUN sed -i '/^mozilla\/DST_Root_CA_X3/s/^/!/' /etc/ca-certificates.conf && update-ca-certificates -f
