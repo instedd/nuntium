@@ -45,7 +45,7 @@ Docker development
 
 To have a stable development environment, run the `./dev-setup.sh` script.
 
-When that's finished, start your containers by running `docker-compose up`.
+When that's finished, start your containers by running `docker compose up`.
 
 Intercom
 --------
