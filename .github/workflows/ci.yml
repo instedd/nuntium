@@ -15,15 +15,15 @@ jobs:
 
       - name: Set environment up
         run: |
-          docker-compose pull
-          docker-compose build
-          docker-compose run --rm web bundle install
-          docker-compose run --rm web rake db:setup
-          docker-compose run --rm web rake db:test:prepare
+          docker compose pull
+          docker compose build
+          docker compose run --rm web bundle install
+          docker compose run --rm web rake db:setup
+          docker compose run --rm web rake db:test:prepare
 
       - name: Run specs
         run: |
-          docker-compose run --rm web rake test
+          docker compose run --rm web rake test
 
   build:
     needs: test
