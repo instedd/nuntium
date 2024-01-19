@@ -73,8 +73,8 @@ class PushQstChannelMessageJobTest < ActiveSupport::TestCase
   end
 
   test "two messages no previous last id but only one confirmed" do
-    @msg1 = AoMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now
     @msg2 = AoMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now + 1
+    @msg1 = AoMessage.make :account => @channel.account, :channel => @channel, :state => 'queued', :timestamp => Time.now
 
     @client.expects(:get_last_id).returns(nil)
     @client.expects(:put_messages).with([@msg1.to_qst, @msg2.to_qst]).returns(@msg1.guid)
