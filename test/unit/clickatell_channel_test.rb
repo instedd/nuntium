@@ -41,8 +41,8 @@ class ClickatellChannelTest < ActiveSupport::TestCase
   end
 
   test "should use network for channel ao rounting filtering" do
-    one = Country.make
-    two = Country.make
+    one = Country.unique.make
+    two = Country.unique.make
 
     @chan.configuration[:network] = '44'
     @chan.save!
@@ -58,8 +58,8 @@ class ClickatellChannelTest < ActiveSupport::TestCase
   end
 
   test "should skip network if channel defines restrictions on country" do
-    one = Country.make
-    two = Country.make
+    one = Country.unique.make
+    two = Country.unique.make
 
     @chan.configuration[:network] = '44'
     @chan.restrictions['country'] = two.id # this overrides clickatell's coverage
@@ -116,10 +116,10 @@ class ClickatellChannelTest < ActiveSupport::TestCase
   end
 
   test "clickatell channel augmented restrictions made based on coverage table" do
-    country1 = Country.make
+    country1 = Country.unique.make
     carrier1 = Carrier.make :country => country1
     carrier2 = Carrier.make :country => country1
-    country2 = Country.make
+    country2 = Country.unique.make
     carrier3 = Carrier.make :country => country2
     carrier4 = Carrier.make :country => country2
 
