@@ -75,7 +75,7 @@ class GeopollController < ApplicationController
     account.logger.info :channel_id => channel.id, :ao_message_id => ao.id,
       :message => "Recieved delivery notification with status #{status.inspect}"
 
-    channel.logger.warning :channel_id => channel.id, :at_message_id => msg.id, :message => "Received unknown parameters for AO #{msg.id} Status: #{unknown_params.to_json}" unless unknown_params.empty?
+    channel.logger.warning :channel_id => channel.id, :ao_message_id => ao.id, :message => "Received unknown parameters for AO #{ao.id} Status: #{unknown_params.to_json}" unless unknown_params.empty?
 
     ao.custom_attributes[:geopoll_status] = status if status
     ao.save!
