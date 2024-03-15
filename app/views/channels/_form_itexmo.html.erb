@@ -2,12 +2,20 @@
   <%= render 'edit_header', :f => f, :exclude_address => true -%>
   <h5>iTexMo account info</h5>
   <p>
-    <%= f.label :api_code -%><br/>
-    <%= f.password_field :api_code, :autocomplete => :off -%>
+    <%= f.label :email %><br/>
+    <%= f.text_field :email -%>
+  </p>
+  <p>
+    <%= f.label :sender_id, 'Sender ID' %><br/>
+    <%= f.text_field :sender_id -%>
   </p>
   <p>
     <%= f.label :api_password -%><br/>
     <%= f.password_field :api_password, :autocomplete => :off -%>
+  </p>
+  <p>
+    <%= f.label :api_code -%><br/>
+    <%= f.password_field :api_code, :autocomplete => :off -%>
   </p>
   <p>
     <%= f.label :incoming_password %><br/>
