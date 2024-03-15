@@ -8,7 +8,7 @@ jobs:
     env:
       RAILS_ENV: test
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Fix tests environment
         run: mv docker-compose.ci-override.yml docker-compose.override.yml 
@@ -33,6 +33,6 @@ jobs:
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
       DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build image & push to Docker Hub
-        run: ./build.sh
+        uses: manastech/ci-docker-builder@d3406587def914918666ef41c0637d6b739fdf7d
