@@ -6,8 +6,8 @@ RUN printf "\ndeb [trusted=yes] http://archive.debian.org/debian jessie-backport
 # Cleanup expired Let's Encrypt CA (Sept 30, 2021)
 RUN sed -i '/^mozilla\/DST_Root_CA_X3/s/^/!/' /etc/ca-certificates.conf && update-ca-certificates -f
 
-# Install nodejs (ignoring GPG's signature expiration, since Debian Jessie won't get those updated: https://wiki.debian.org/DebianJessie )
 RUN apt-get update && \
+  curl -sL https://deb.nodesource.com/setup_4.x | bash - && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes nodejs && \
   # I wasn't able to pin-point which packages need to be updated in order for Let's Encrypt new Root CA to work
   # Upgrading every available package does the trick - so we'll go with that, even at the cost of a larger Docker image
