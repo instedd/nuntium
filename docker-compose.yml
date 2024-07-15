@@ -24,7 +24,11 @@ services:
     image: memcached:1.4.39
 
   web: &rails
-    image: instedd/nginx-rails:1.9
+    platform: linux/amd64
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      target: dev
     environment:
       RAILS_ENV:
       DATABASE_HOST: 'db'
