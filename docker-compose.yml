@@ -10,7 +10,7 @@ services:
       - db:/var/lib/mysql
 
   rabbitmq:
-    image: rabbitmq:3.5.3
+    image: rabbitmq:3
     hostname: nuntium_rabbitmq
     volumes:
       - rabbitmq:/var/lib/rabbitmq
@@ -21,7 +21,7 @@ services:
       RABBITMQ_DEFAULT_VHOST: /nuntium/development
 
   memcached:
-    image: memcached:1.4.24
+    image: memcached:1.4.39
 
   web: &rails
     image: instedd/nginx-rails:1.9
