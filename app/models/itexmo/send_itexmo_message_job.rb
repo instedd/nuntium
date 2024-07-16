@@ -44,7 +44,12 @@ class SendItexmoMessageJob < SendMessageJob
     rescue RestClient::BadRequest => e
       response = JSON.parse e.response
 
-      case response['Message'].downcase
+      response_message = response['Message']
+      # iTexmo API is returning the error message wrapped in a new hash for some cases
+      # (probably a bug on their API, but here we are)
+      response_message = response_message['Message'].first if response_message.is_a? Hash
+
+      case response_message.downcase
       when 'itexmo email is required.',
         'itexmo password is required.',
         'itexmo email and password is required.',
@@ -63,6 +68,7 @@ class SendItexmoMessageJob < SendMessageJob
 
       when 'invalid number.',
         'maximum allowed characters for message reached.',
+        'the message field is required.',
         /allowed maximum length for otp is .*\. you are trying to send a message with .* characters\./
         raise MessageException.new(Exception.new("Received message error for AO #{@msg.id}: #{e.class} (#{e.message}) - #{e.response}"))
         
