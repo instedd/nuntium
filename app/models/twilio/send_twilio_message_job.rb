@@ -19,26 +19,28 @@ class SendTwilioMessageJob < SendMessageJob
   @@max_length = 160
 
   def managed_perform
-    @client = Twilio::REST::Client.new @config[:account_sid], @config[:auth_token]
+    @client = TwilioClient.new @config[:account_sid], @config[:auth_token]
     begin
       message_text = @msg.subject_and_body
 
       # Send first part of the message and store relative id
       response = send_message(message_text)
-      @msg.channel_relative_id = response.sid
+      @msg.channel_relative_id = response['sid'] if response['sid']
+      @msg.custom_attributes["twilio_api_uri"] = "https://api.twilio.com/#{response['uri']}" if response['uri']
 
       # Continue sending other portions of the message
       while message_text.length > 0
         send_message(message_text)
       end
-    rescue Twilio::REST::RequestError => e
-      if e.message == 'Authenticate'
-        raise PermanentException.new(e)
+    rescue RestClient::BadRequest => e
+      response = JSON.parse e.response
+
+      case response['status']
+      when 401
+        raise PermanentException.new(Exception.new response)
       else
-        raise MessageException.new(e)
+        raise MessageException.new(Exception.new response)
       end
-    rescue Twilio::REST::ServerError => e
-      raise MessageException.new(e)
     end
   end
 
@@ -46,7 +48,7 @@ class SendTwilioMessageJob < SendMessageJob
 
   def send_message(text)
     part = text.slice!(0..(@@max_length-1))
-    @client.account.sms.messages.create sms_params(part)
+    @client.create_sms sms_params(part)
   end
 
   def sms_params(body)
