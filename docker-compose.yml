@@ -78,11 +78,12 @@ services:
     ports: []
 
   ngrok:
-    image: wernight/ngrok
+    image: ngrok/ngrok:3
+    command: "http web:80"
     ports:
       - 4040
     environment:
-      NGROK_PORT: 'web:80'
+      NGROK_AUTHTOKEN: '' # Fill in your ngrok auth token here
 
 volumes:
   db:
