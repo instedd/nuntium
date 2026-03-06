@@ -30,7 +30,7 @@ class ItexmoController < ApplicationController
     to = params["gateway"]
 
     unknown_params = params.except(
-      'originator', 'gateway', 'message', 'timestamp', # iTexmo API specification
+      'originator', 'gateway', 'message', 'timestamp', 'reference_id', # iTexmo API specification
       'account_name', 'channel_name', 'incoming_password', 'controller', 'action' # Rails-generated parameters
     )
 
@@ -38,6 +38,7 @@ class ItexmoController < ApplicationController
     msg.from = "sms://#{from}"
     msg.to = "sms://#{to}"
     msg.body = params["message"]
+    msg.channel_relative_id = params["reference_id"]
 
     account.route_at msg, channel
 
