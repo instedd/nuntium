@@ -17,7 +17,7 @@
 
 class Itexmo
   # endpoint shared internally by iTexmo
-  SMS_SEND_URL = 'https://api.itexmo.com/api/broadcast/access-code'
+  SMS_SEND_URL = 'https://api.itexmo.com/api/broadcast'
 
   def self.send_message_parameters(params)
     {
