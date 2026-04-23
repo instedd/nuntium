@@ -30,7 +30,7 @@ class ItexmoController < ApplicationController
     to = params["gateway"]
 
     unknown_params = params.except(
-      'originator', 'gateway', 'message', 'timestamp', # iTexmo API specification
+      'originator', 'gateway', 'message', 'timestamp', 'reference_id', # iTexmo API specification
       'account_name', 'channel_name', 'incoming_password', 'controller', 'action' # Rails-generated parameters
     )
 
@@ -38,6 +38,7 @@ class ItexmoController < ApplicationController
     msg.from = "sms://#{from}"
     msg.to = "sms://#{to}"
     msg.body = params["message"]
+    msg.channel_relative_id = params["reference_id"]
 
     account.route_at msg, channel
 
@@ -56,10 +57,12 @@ class ItexmoController < ApplicationController
     ao_message = channel.ao_messages.find_by_id(params[:ao_message_id])
 
     case params['Status'].try :downcase
-    when 'accepted'
+    when 'accepted', 'sent'
       ao_message.state = 'delivered' if ['queued', 'pending'].include?(ao_message.state)
     when 'delivered'
       ao_message.state = 'confirmed'
+    when 'rejected'
+      ao_message.state = 'failed'
     else
       channel.logger.warning :channel_id => channel.id, :ao_message_id => ao_message.id, :message => "Received unknown-status delivery notification for AO #{ao_message.id}: #{params.to_json}"
     end
@@ -67,6 +70,7 @@ class ItexmoController < ApplicationController
     ao_message.custom_attributes["itexmo_network_submit_time"] = params['NetworkSubmitTime'] if params['NetworkSubmitTime']
     ao_message.custom_attributes["itexmo_client_submit_time"] = params['ClientSubmitTime'] if params['ClientSubmitTime']
     ao_message.custom_attributes["itexmo_done_time"] = params['DoneTime'] if params['DoneTime']
+    ao_message.custom_attributes["itexmo_recipient_network"] = params['RecipientNetwork'] if params['RecipientNetwork']
     ao_message.channel_relative_id ||= params['LongID']
 
     ao_message.save!
