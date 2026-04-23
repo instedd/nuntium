@@ -57,7 +57,7 @@ class ItexmoController < ApplicationController
     ao_message = channel.ao_messages.find_by_id(params[:ao_message_id])
 
     case params['Status'].try :downcase
-    when 'accepted'
+    when 'accepted', 'sent'
       ao_message.state = 'delivered' if ['queued', 'pending'].include?(ao_message.state)
     when 'delivered'
       ao_message.state = 'confirmed'
