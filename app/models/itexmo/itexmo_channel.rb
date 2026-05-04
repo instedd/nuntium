@@ -18,7 +18,7 @@
 class ItexmoChannel < Channel
   include GenericChannel
 
-  configuration_accessor :email, :api_code, :incoming_password, :api_password, :sender_id
+  configuration_accessor :email, :api_code, :incoming_password, :api_password, :sender_id, :sms_send_url
   validates_presence_of :email, :api_code, :incoming_password, :api_password, :sender_id
   before_validation :generate_incoming_password
   handle_password_change :api_code
