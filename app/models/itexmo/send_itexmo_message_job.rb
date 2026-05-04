@@ -27,8 +27,10 @@ class SendItexmoMessageJob < SendMessageJob
       delivery_report_url: NamedRoutes.itexmo_delivery_url(@account.name, @channel.name, @config[:incoming_password], @msg.id)
     })
 
+    target_url = @config[:sms_send_url].present? ? @config[:sms_send_url] : Itexmo::SMS_SEND_URL
+
     begin
-      raw_response = RestClient::Request.execute(:method => :post, :url => Itexmo::SMS_SEND_URL, :payload => query_parameters, :timeout => 30)
+      raw_response = RestClient::Request.execute(:method => :post, :url => target_url, :payload => query_parameters, :timeout => 30)
 
       response = JSON.parse raw_response
 

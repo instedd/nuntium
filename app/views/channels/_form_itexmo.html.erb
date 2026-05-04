@@ -22,6 +22,10 @@
     <%= f.text_field :incoming_password, :autocomplete => :off, :maxlength => 32 -%>
     <input type="button" onClick="regenerate_token()" value="Regenerate Password" />
   </p>
+  <p>
+    <%= f.label :sms_send_url, "SMS Send URL" %><br />
+    <%= f.text_field :sms_send_url, title: "Leave blank to use the default Itexmo API endpoint" %>
+  </p>
   <%= render 'edit_footer', :f => f %>
 <%- end -%>
 
